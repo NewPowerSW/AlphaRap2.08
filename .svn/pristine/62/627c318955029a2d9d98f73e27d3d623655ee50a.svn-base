@@ -1,0 +1,2005 @@
+﻿namespace AlphaRap
+{
+    partial class HomeForm
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+			this.components = new System.ComponentModel.Container();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle17 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle18 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle19 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle20 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle21 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle22 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle23 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle24 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle25 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle26 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle27 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle28 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle29 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle30 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HomeForm));
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle31 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle32 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle33 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle34 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle35 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle36 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle37 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle38 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle39 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle40 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle41 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle42 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle43 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle44 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle45 = new System.Windows.Forms.DataGridViewCellStyle();
+			this.panel1 = new System.Windows.Forms.Panel();
+			this.MachineStatus = new System.Windows.Forms.Label();
+			this.lab_Pos_Fail = new System.Windows.Forms.Label();
+			this.lab_Pos_Pass = new System.Windows.Forms.Label();
+			this.lab_Pos_gray = new System.Windows.Forms.Label();
+			this.lab_Pos_Red = new System.Windows.Forms.Label();
+			this.lab_Pos_Standing = new System.Windows.Forms.Label();
+			this.lab_Pos_Atwork = new System.Windows.Forms.Label();
+			this.lab_Pos_yello = new System.Windows.Forms.Label();
+			this.lab_Pos_green = new System.Windows.Forms.Label();
+			this.btClearCount = new System.Windows.Forms.Label();
+			this.btByPass = new System.Windows.Forms.Label();
+			this.tabHome = new System.Windows.Forms.TabControl();
+			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.label42 = new System.Windows.Forms.Label();
+			this.tabControl1 = new System.Windows.Forms.TabControl();
+			this.tabPage3 = new System.Windows.Forms.TabPage();
+			this.textBoxTorque = new System.Windows.Forms.TextBox();
+			this.tabPage4 = new System.Windows.Forms.TabPage();
+			this.textBoxMessage = new System.Windows.Forms.TextBox();
+			this.txtCy3CT = new System.Windows.Forms.TextBox();
+			this.label13 = new System.Windows.Forms.Label();
+			this.label11 = new System.Windows.Forms.Label();
+			this.label10 = new System.Windows.Forms.Label();
+			this.label9 = new System.Windows.Forms.Label();
+			this.txtPRatio = new System.Windows.Forms.TextBox();
+			this.txtPNG = new System.Windows.Forms.TextBox();
+			this.txtPOK = new System.Windows.Forms.TextBox();
+			this.txtPTotal = new System.Windows.Forms.TextBox();
+			this.tabControl2 = new System.Windows.Forms.TabControl();
+			this.tabPage5 = new System.Windows.Forms.TabPage();
+			this.groupBox3 = new System.Windows.Forms.GroupBox();
+			this.WarnningMessage = new System.Windows.Forms.ListView();
+			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.panel3 = new System.Windows.Forms.Panel();
+			this.button1 = new System.Windows.Forms.Button();
+			this.label40 = new System.Windows.Forms.Label();
+			this.dataGridView_NGTray = new System.Windows.Forms.DataGridView();
+			this.Table_2 = new System.Windows.Forms.DataGridView();
+			this.Table_1 = new System.Windows.Forms.DataGridView();
+			this.Table_8 = new System.Windows.Forms.DataGridView();
+			this.Table_7 = new System.Windows.Forms.DataGridView();
+			this.Table_5 = new System.Windows.Forms.DataGridView();
+			this.Table_6 = new System.Windows.Forms.DataGridView();
+			this.Table_4 = new System.Windows.Forms.DataGridView();
+			this.Table_3 = new System.Windows.Forms.DataGridView();
+			this.label32 = new System.Windows.Forms.Label();
+			this.label31 = new System.Windows.Forms.Label();
+			this.label25 = new System.Windows.Forms.Label();
+			this.label30 = new System.Windows.Forms.Label();
+			this.label26 = new System.Windows.Forms.Label();
+			this.label29 = new System.Windows.Forms.Label();
+			this.label27 = new System.Windows.Forms.Label();
+			this.label28 = new System.Windows.Forms.Label();
+			this.label23 = new System.Windows.Forms.Label();
+			this.label36 = new System.Windows.Forms.Label();
+			this.dataGridView_PCBTray = new System.Windows.Forms.DataGridView();
+			this.label37 = new System.Windows.Forms.Label();
+			this.pictureBox1 = new System.Windows.Forms.PictureBox();
+			this.dataGridView_unload1 = new System.Windows.Forms.DataGridView();
+			this.dataGridView_unload2 = new System.Windows.Forms.DataGridView();
+			this.label34 = new System.Windows.Forms.Label();
+			this.label35 = new System.Windows.Forms.Label();
+			this.dataGridView_load2 = new System.Windows.Forms.DataGridView();
+			this.dataGridView_load1 = new System.Windows.Forms.DataGridView();
+			this.label33 = new System.Windows.Forms.Label();
+			this.dataGridView_UnloadTray = new System.Windows.Forms.DataGridView();
+			this.label24 = new System.Windows.Forms.Label();
+			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.H2AutoPos_Funcion = new System.Windows.Forms.Panel();
+			this.text_ViosionDate = new System.Windows.Forms.TextBox();
+			this.hoursProductShow1 = new PointShow.HoursProductShow();
+			this.cogRecDisp_H1_Recipe = new Cognex.VisionPro.CogRecordDisplay();
+			this.cogRecDisp_H2_Recipe = new Cognex.VisionPro.CogRecordDisplay();
+			this.cogRecDisp_H4_Recipe = new Cognex.VisionPro.CogRecordDisplay();
+			this.cogRecDisp_H3_Recipe = new Cognex.VisionPro.CogRecordDisplay();
+			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.label12 = new System.Windows.Forms.Label();
+			this.label6 = new System.Windows.Forms.Label();
+			this.label2 = new System.Windows.Forms.Label();
+			this.label5 = new System.Windows.Forms.Label();
+			this.label14 = new System.Windows.Forms.Label();
+			this.label8 = new System.Windows.Forms.Label();
+			this.label7 = new System.Windows.Forms.Label();
+			this.label1 = new System.Windows.Forms.Label();
+			this.txtCT = new System.Windows.Forms.TextBox();
+			this.label4 = new System.Windows.Forms.Label();
+			this.tHourlyYield = new System.Windows.Forms.TextBox();
+			this.txtBarcode4 = new System.Windows.Forms.TextBox();
+			this.txtBarcode3 = new System.Windows.Forms.TextBox();
+			this.txtBarcode2 = new System.Windows.Forms.TextBox();
+			this.txtBarcode = new System.Windows.Forms.TextBox();
+			this.label3 = new System.Windows.Forms.Label();
+			this.tHourlyInput = new System.Windows.Forms.TextBox();
+			this.tHourlyOutput = new System.Windows.Forms.TextBox();
+			this.tHourlyReject = new System.Windows.Forms.TextBox();
+			this.btAlarmReset = new System.Windows.Forms.Label();
+			this.Buzzer = new System.Windows.Forms.Label();
+			this.btDoor = new System.Windows.Forms.Label();
+			this.btLight = new System.Windows.Forms.Label();
+			this.timer1 = new System.Windows.Forms.Timer(this.components);
+			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+			this.tabPage6 = new System.Windows.Forms.TabPage();
+			this.textBox_ERRORMessage = new System.Windows.Forms.TextBox();
+			this.panel1.SuspendLayout();
+			this.tabHome.SuspendLayout();
+			this.tabPage1.SuspendLayout();
+			this.tabControl1.SuspendLayout();
+			this.tabPage3.SuspendLayout();
+			this.tabPage4.SuspendLayout();
+			this.tabControl2.SuspendLayout();
+			this.tabPage5.SuspendLayout();
+			this.groupBox3.SuspendLayout();
+			this.panel3.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_NGTray)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_2)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_1)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_8)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_7)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_5)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_6)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_4)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_3)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_PCBTray)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_unload1)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_unload2)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_load2)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_load1)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_UnloadTray)).BeginInit();
+			this.tabPage2.SuspendLayout();
+			this.H2AutoPos_Funcion.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.cogRecDisp_H1_Recipe)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.cogRecDisp_H2_Recipe)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.cogRecDisp_H4_Recipe)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.cogRecDisp_H3_Recipe)).BeginInit();
+			this.groupBox2.SuspendLayout();
+			this.tabPage6.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// panel1
+			// 
+			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.panel1.Controls.Add(this.MachineStatus);
+			this.panel1.Controls.Add(this.lab_Pos_Fail);
+			this.panel1.Controls.Add(this.lab_Pos_Pass);
+			this.panel1.Controls.Add(this.lab_Pos_gray);
+			this.panel1.Controls.Add(this.lab_Pos_Red);
+			this.panel1.Controls.Add(this.lab_Pos_Standing);
+			this.panel1.Controls.Add(this.lab_Pos_Atwork);
+			this.panel1.Controls.Add(this.lab_Pos_yello);
+			this.panel1.Controls.Add(this.lab_Pos_green);
+			this.panel1.Controls.Add(this.btClearCount);
+			this.panel1.Controls.Add(this.btByPass);
+			this.panel1.Controls.Add(this.tabHome);
+			this.panel1.Controls.Add(this.groupBox2);
+			this.panel1.Controls.Add(this.btAlarmReset);
+			this.panel1.Controls.Add(this.Buzzer);
+			this.panel1.Controls.Add(this.btDoor);
+			this.panel1.Controls.Add(this.btLight);
+			this.panel1.Location = new System.Drawing.Point(5, 2);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(1019, 674);
+			this.panel1.TabIndex = 5;
+			// 
+			// MachineStatus
+			// 
+			this.MachineStatus.BackColor = System.Drawing.Color.Lime;
+			this.MachineStatus.Font = new System.Drawing.Font("微软雅黑", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.MachineStatus.Location = new System.Drawing.Point(852, 3);
+			this.MachineStatus.Name = "MachineStatus";
+			this.MachineStatus.Size = new System.Drawing.Size(164, 66);
+			this.MachineStatus.TabIndex = 3;
+			this.MachineStatus.Text = "IDLE";
+			this.MachineStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// lab_Pos_Fail
+			// 
+			this.lab_Pos_Fail.AutoSize = true;
+			this.lab_Pos_Fail.Font = new System.Drawing.Font("微软雅黑", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.lab_Pos_Fail.Location = new System.Drawing.Point(746, 47);
+			this.lab_Pos_Fail.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lab_Pos_Fail.Name = "lab_Pos_Fail";
+			this.lab_Pos_Fail.Size = new System.Drawing.Size(49, 24);
+			this.lab_Pos_Fail.TabIndex = 17;
+			this.lab_Pos_Fail.Text = ": Fail";
+			this.lab_Pos_Fail.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// lab_Pos_Pass
+			// 
+			this.lab_Pos_Pass.AutoSize = true;
+			this.lab_Pos_Pass.Font = new System.Drawing.Font("微软雅黑", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.lab_Pos_Pass.Location = new System.Drawing.Point(635, 47);
+			this.lab_Pos_Pass.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lab_Pos_Pass.Name = "lab_Pos_Pass";
+			this.lab_Pos_Pass.Size = new System.Drawing.Size(57, 24);
+			this.lab_Pos_Pass.TabIndex = 18;
+			this.lab_Pos_Pass.Text = ": Pass";
+			this.lab_Pos_Pass.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// lab_Pos_gray
+			// 
+			this.lab_Pos_gray.BackColor = System.Drawing.Color.Gray;
+			this.lab_Pos_gray.Location = new System.Drawing.Point(349, 47);
+			this.lab_Pos_gray.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lab_Pos_gray.Name = "lab_Pos_gray";
+			this.lab_Pos_gray.Size = new System.Drawing.Size(35, 24);
+			this.lab_Pos_gray.TabIndex = 12;
+			// 
+			// lab_Pos_Red
+			// 
+			this.lab_Pos_Red.BackColor = System.Drawing.Color.Red;
+			this.lab_Pos_Red.Location = new System.Drawing.Point(702, 47);
+			this.lab_Pos_Red.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lab_Pos_Red.Name = "lab_Pos_Red";
+			this.lab_Pos_Red.Size = new System.Drawing.Size(35, 24);
+			this.lab_Pos_Red.TabIndex = 14;
+			this.lab_Pos_Red.Click += new System.EventHandler(this.lab_Pos_Red_Click);
+			// 
+			// lab_Pos_Standing
+			// 
+			this.lab_Pos_Standing.AutoSize = true;
+			this.lab_Pos_Standing.Font = new System.Drawing.Font("微软雅黑", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.lab_Pos_Standing.Location = new System.Drawing.Point(388, 47);
+			this.lab_Pos_Standing.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lab_Pos_Standing.Name = "lab_Pos_Standing";
+			this.lab_Pos_Standing.Size = new System.Drawing.Size(58, 24);
+			this.lab_Pos_Standing.TabIndex = 13;
+			this.lab_Pos_Standing.Text = ": IDLE";
+			this.lab_Pos_Standing.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// lab_Pos_Atwork
+			// 
+			this.lab_Pos_Atwork.AutoSize = true;
+			this.lab_Pos_Atwork.Font = new System.Drawing.Font("微软雅黑", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.lab_Pos_Atwork.Location = new System.Drawing.Point(510, 47);
+			this.lab_Pos_Atwork.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lab_Pos_Atwork.Name = "lab_Pos_Atwork";
+			this.lab_Pos_Atwork.Size = new System.Drawing.Size(66, 24);
+			this.lab_Pos_Atwork.TabIndex = 19;
+			this.lab_Pos_Atwork.Text = ": Work";
+			this.lab_Pos_Atwork.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// lab_Pos_yello
+			// 
+			this.lab_Pos_yello.BackColor = System.Drawing.Color.Yellow;
+			this.lab_Pos_yello.Location = new System.Drawing.Point(473, 47);
+			this.lab_Pos_yello.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lab_Pos_yello.Name = "lab_Pos_yello";
+			this.lab_Pos_yello.Size = new System.Drawing.Size(35, 24);
+			this.lab_Pos_yello.TabIndex = 16;
+			// 
+			// lab_Pos_green
+			// 
+			this.lab_Pos_green.BackColor = System.Drawing.Color.LawnGreen;
+			this.lab_Pos_green.Location = new System.Drawing.Point(597, 47);
+			this.lab_Pos_green.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lab_Pos_green.Name = "lab_Pos_green";
+			this.lab_Pos_green.Size = new System.Drawing.Size(35, 24);
+			this.lab_Pos_green.TabIndex = 15;
+			// 
+			// btClearCount
+			// 
+			this.btClearCount.BackColor = System.Drawing.Color.Silver;
+			this.btClearCount.Font = new System.Drawing.Font("微软雅黑", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.btClearCount.Location = new System.Drawing.Point(638, 3);
+			this.btClearCount.Name = "btClearCount";
+			this.btClearCount.Size = new System.Drawing.Size(120, 40);
+			this.btClearCount.TabIndex = 3;
+			this.btClearCount.Text = "CountClear";
+			this.btClearCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.btClearCount.Click += new System.EventHandler(this.btClearCount_Click);
+			// 
+			// btByPass
+			// 
+			this.btByPass.BackColor = System.Drawing.Color.Silver;
+			this.btByPass.Font = new System.Drawing.Font("微软雅黑", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.btByPass.Location = new System.Drawing.Point(386, 3);
+			this.btByPass.Name = "btByPass";
+			this.btByPass.Size = new System.Drawing.Size(120, 40);
+			this.btByPass.TabIndex = 3;
+			this.btByPass.Text = "ByPass";
+			this.btByPass.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.btByPass.Click += new System.EventHandler(this.btByPass_Click);
+			// 
+			// tabHome
+			// 
+			this.tabHome.Controls.Add(this.tabPage1);
+			this.tabHome.Controls.Add(this.tabPage2);
+			this.tabHome.Font = new System.Drawing.Font("微软雅黑", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.tabHome.ItemSize = new System.Drawing.Size(60, 25);
+			this.tabHome.Location = new System.Drawing.Point(8, 47);
+			this.tabHome.Name = "tabHome";
+			this.tabHome.Padding = new System.Drawing.Point(15, 3);
+			this.tabHome.SelectedIndex = 0;
+			this.tabHome.Size = new System.Drawing.Size(1022, 652);
+			this.tabHome.TabIndex = 0;
+			// 
+			// tabPage1
+			// 
+			this.tabPage1.Controls.Add(this.label42);
+			this.tabPage1.Controls.Add(this.tabControl1);
+			this.tabPage1.Controls.Add(this.txtCy3CT);
+			this.tabPage1.Controls.Add(this.label13);
+			this.tabPage1.Controls.Add(this.label11);
+			this.tabPage1.Controls.Add(this.label10);
+			this.tabPage1.Controls.Add(this.label9);
+			this.tabPage1.Controls.Add(this.txtPRatio);
+			this.tabPage1.Controls.Add(this.txtPNG);
+			this.tabPage1.Controls.Add(this.txtPOK);
+			this.tabPage1.Controls.Add(this.txtPTotal);
+			this.tabPage1.Controls.Add(this.tabControl2);
+			this.tabPage1.Controls.Add(this.panel3);
+			this.tabPage1.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.tabPage1.Location = new System.Drawing.Point(4, 29);
+			this.tabPage1.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+			this.tabPage1.Name = "tabPage1";
+			this.tabPage1.Size = new System.Drawing.Size(1014, 619);
+			this.tabPage1.TabIndex = 0;
+			this.tabPage1.Text = "  H1";
+			this.tabPage1.UseVisualStyleBackColor = true;
+			// 
+			// label42
+			// 
+			this.label42.AutoSize = true;
+			this.label42.Location = new System.Drawing.Point(857, 374);
+			this.label42.Name = "label42";
+			this.label42.Size = new System.Drawing.Size(35, 23);
+			this.label42.TabIndex = 134;
+			this.label42.Text = "CT:";
+			// 
+			// tabControl1
+			// 
+			this.tabControl1.Controls.Add(this.tabPage3);
+			this.tabControl1.Controls.Add(this.tabPage4);
+			this.tabControl1.Controls.Add(this.tabPage6);
+			this.tabControl1.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.tabControl1.ItemSize = new System.Drawing.Size(60, 23);
+			this.tabControl1.Location = new System.Drawing.Point(565, 8);
+			this.tabControl1.Name = "tabControl1";
+			this.tabControl1.SelectedIndex = 0;
+			this.tabControl1.Size = new System.Drawing.Size(436, 350);
+			this.tabControl1.TabIndex = 20;
+			// 
+			// tabPage3
+			// 
+			this.tabPage3.BackColor = System.Drawing.Color.Silver;
+			this.tabPage3.Controls.Add(this.textBoxTorque);
+			this.tabPage3.Location = new System.Drawing.Point(4, 27);
+			this.tabPage3.Name = "tabPage3";
+			this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage3.Size = new System.Drawing.Size(428, 319);
+			this.tabPage3.TabIndex = 0;
+			this.tabPage3.Text = "数据";
+			// 
+			// textBoxTorque
+			// 
+			this.textBoxTorque.BackColor = System.Drawing.SystemColors.Menu;
+			this.textBoxTorque.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.textBoxTorque.Location = new System.Drawing.Point(3, 3);
+			this.textBoxTorque.Multiline = true;
+			this.textBoxTorque.Name = "textBoxTorque";
+			this.textBoxTorque.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.textBoxTorque.Size = new System.Drawing.Size(422, 313);
+			this.textBoxTorque.TabIndex = 1;
+			// 
+			// tabPage4
+			// 
+			this.tabPage4.BackColor = System.Drawing.Color.Silver;
+			this.tabPage4.Controls.Add(this.textBoxMessage);
+			this.tabPage4.Location = new System.Drawing.Point(4, 27);
+			this.tabPage4.Name = "tabPage4";
+			this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage4.Size = new System.Drawing.Size(428, 319);
+			this.tabPage4.TabIndex = 1;
+			this.tabPage4.Text = "运行信息";
+			// 
+			// textBoxMessage
+			// 
+			this.textBoxMessage.BackColor = System.Drawing.SystemColors.Menu;
+			this.textBoxMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.textBoxMessage.Location = new System.Drawing.Point(3, 3);
+			this.textBoxMessage.Multiline = true;
+			this.textBoxMessage.Name = "textBoxMessage";
+			this.textBoxMessage.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.textBoxMessage.Size = new System.Drawing.Size(422, 313);
+			this.textBoxMessage.TabIndex = 0;
+			// 
+			// txtCy3CT
+			// 
+			this.txtCy3CT.Location = new System.Drawing.Point(897, 371);
+			this.txtCy3CT.Name = "txtCy3CT";
+			this.txtCy3CT.Size = new System.Drawing.Size(78, 29);
+			this.txtCy3CT.TabIndex = 132;
+			this.txtCy3CT.Text = "0";
+			this.txtCy3CT.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// label13
+			// 
+			this.label13.Location = new System.Drawing.Point(663, 374);
+			this.label13.Name = "label13";
+			this.label13.Size = new System.Drawing.Size(107, 23);
+			this.label13.TabIndex = 127;
+			this.label13.Text = "Shifty Yield:";
+			this.label13.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// label11
+			// 
+			this.label11.Location = new System.Drawing.Point(455, 372);
+			this.label11.Name = "label11";
+			this.label11.Size = new System.Drawing.Size(121, 27);
+			this.label11.TabIndex = 128;
+			this.label11.Text = "Shifty Reject:";
+			this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// label10
+			// 
+			this.label10.Location = new System.Drawing.Point(239, 374);
+			this.label10.Name = "label10";
+			this.label10.Size = new System.Drawing.Size(128, 23);
+			this.label10.TabIndex = 129;
+			this.label10.Text = "Shifty Output:";
+			this.label10.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+			// 
+			// label9
+			// 
+			this.label9.Location = new System.Drawing.Point(36, 372);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(116, 27);
+			this.label9.TabIndex = 130;
+			this.label9.Text = "Shifty Input:";
+			this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// txtPRatio
+			// 
+			this.txtPRatio.Location = new System.Drawing.Point(775, 371);
+			this.txtPRatio.Name = "txtPRatio";
+			this.txtPRatio.Size = new System.Drawing.Size(77, 29);
+			this.txtPRatio.TabIndex = 123;
+			this.txtPRatio.Text = "100%";
+			this.txtPRatio.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// txtPNG
+			// 
+			this.txtPNG.Location = new System.Drawing.Point(581, 371);
+			this.txtPNG.Name = "txtPNG";
+			this.txtPNG.Size = new System.Drawing.Size(77, 29);
+			this.txtPNG.TabIndex = 124;
+			this.txtPNG.Text = "0";
+			this.txtPNG.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// txtPOK
+			// 
+			this.txtPOK.Location = new System.Drawing.Point(372, 371);
+			this.txtPOK.Name = "txtPOK";
+			this.txtPOK.Size = new System.Drawing.Size(78, 29);
+			this.txtPOK.TabIndex = 125;
+			this.txtPOK.Text = "0";
+			this.txtPOK.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// txtPTotal
+			// 
+			this.txtPTotal.Location = new System.Drawing.Point(157, 371);
+			this.txtPTotal.Name = "txtPTotal";
+			this.txtPTotal.Size = new System.Drawing.Size(77, 29);
+			this.txtPTotal.TabIndex = 126;
+			this.txtPTotal.Text = "0";
+			this.txtPTotal.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// tabControl2
+			// 
+			this.tabControl2.Controls.Add(this.tabPage5);
+			this.tabControl2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.tabControl2.Location = new System.Drawing.Point(3, 402);
+			this.tabControl2.Name = "tabControl2";
+			this.tabControl2.SelectedIndex = 0;
+			this.tabControl2.Size = new System.Drawing.Size(998, 193);
+			this.tabControl2.TabIndex = 112;
+			// 
+			// tabPage5
+			// 
+			this.tabPage5.Controls.Add(this.groupBox3);
+			this.tabPage5.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.tabPage5.Location = new System.Drawing.Point(4, 34);
+			this.tabPage5.Name = "tabPage5";
+			this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage5.Size = new System.Drawing.Size(990, 155);
+			this.tabPage5.TabIndex = 0;
+			this.tabPage5.Text = "Alarm";
+			this.tabPage5.UseVisualStyleBackColor = true;
+			// 
+			// groupBox3
+			// 
+			this.groupBox3.BackColor = System.Drawing.Color.Silver;
+			this.groupBox3.Controls.Add(this.WarnningMessage);
+			this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.groupBox3.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.groupBox3.Location = new System.Drawing.Point(3, 3);
+			this.groupBox3.Name = "groupBox3";
+			this.groupBox3.Size = new System.Drawing.Size(984, 149);
+			this.groupBox3.TabIndex = 11;
+			this.groupBox3.TabStop = false;
+			this.groupBox3.Text = "Alarm Message";
+			// 
+			// WarnningMessage
+			// 
+			this.WarnningMessage.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2,
+            this.columnHeader3,
+            this.columnHeader4});
+			this.WarnningMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.WarnningMessage.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.WarnningMessage.ForeColor = System.Drawing.Color.Black;
+			this.WarnningMessage.GridLines = true;
+			this.WarnningMessage.HideSelection = false;
+			this.WarnningMessage.Location = new System.Drawing.Point(3, 30);
+			this.WarnningMessage.Name = "WarnningMessage";
+			this.WarnningMessage.Scrollable = false;
+			this.WarnningMessage.Size = new System.Drawing.Size(978, 116);
+			this.WarnningMessage.TabIndex = 5;
+			this.WarnningMessage.UseCompatibleStateImageBehavior = false;
+			this.WarnningMessage.View = System.Windows.Forms.View.Details;
+			// 
+			// columnHeader1
+			// 
+			this.columnHeader1.Text = "Time";
+			this.columnHeader1.Width = 160;
+			// 
+			// columnHeader2
+			// 
+			this.columnHeader2.Text = "Type";
+			this.columnHeader2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.columnHeader2.Width = 63;
+			// 
+			// columnHeader3
+			// 
+			this.columnHeader3.Text = "Code";
+			this.columnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// columnHeader4
+			// 
+			this.columnHeader4.Text = "Content";
+			this.columnHeader4.Width = 1000;
+			// 
+			// panel3
+			// 
+			this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.panel3.Controls.Add(this.button1);
+			this.panel3.Controls.Add(this.label40);
+			this.panel3.Controls.Add(this.dataGridView_NGTray);
+			this.panel3.Controls.Add(this.Table_2);
+			this.panel3.Controls.Add(this.Table_1);
+			this.panel3.Controls.Add(this.Table_8);
+			this.panel3.Controls.Add(this.Table_7);
+			this.panel3.Controls.Add(this.Table_5);
+			this.panel3.Controls.Add(this.Table_6);
+			this.panel3.Controls.Add(this.Table_4);
+			this.panel3.Controls.Add(this.Table_3);
+			this.panel3.Controls.Add(this.label32);
+			this.panel3.Controls.Add(this.label31);
+			this.panel3.Controls.Add(this.label25);
+			this.panel3.Controls.Add(this.label30);
+			this.panel3.Controls.Add(this.label26);
+			this.panel3.Controls.Add(this.label29);
+			this.panel3.Controls.Add(this.label27);
+			this.panel3.Controls.Add(this.label28);
+			this.panel3.Controls.Add(this.label23);
+			this.panel3.Controls.Add(this.label36);
+			this.panel3.Controls.Add(this.dataGridView_PCBTray);
+			this.panel3.Controls.Add(this.label37);
+			this.panel3.Controls.Add(this.pictureBox1);
+			this.panel3.Controls.Add(this.dataGridView_unload1);
+			this.panel3.Controls.Add(this.dataGridView_unload2);
+			this.panel3.Controls.Add(this.label34);
+			this.panel3.Controls.Add(this.label35);
+			this.panel3.Controls.Add(this.dataGridView_load2);
+			this.panel3.Controls.Add(this.dataGridView_load1);
+			this.panel3.Controls.Add(this.label33);
+			this.panel3.Controls.Add(this.dataGridView_UnloadTray);
+			this.panel3.Controls.Add(this.label24);
+			this.panel3.Location = new System.Drawing.Point(3, 4);
+			this.panel3.Name = "panel3";
+			this.panel3.Size = new System.Drawing.Size(559, 360);
+			this.panel3.TabIndex = 110;
+			// 
+			// button1
+			// 
+			this.button1.Location = new System.Drawing.Point(288, 33);
+			this.button1.Name = "button1";
+			this.button1.Size = new System.Drawing.Size(75, 23);
+			this.button1.TabIndex = 116;
+			this.button1.Text = "button1";
+			this.button1.UseVisualStyleBackColor = true;
+			this.button1.Click += new System.EventHandler(this.button1_Click_1);
+			// 
+			// label40
+			// 
+			this.label40.AutoSize = true;
+			this.label40.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label40.Location = new System.Drawing.Point(244, 306);
+			this.label40.Name = "label40";
+			this.label40.Size = new System.Drawing.Size(80, 24);
+			this.label40.TabIndex = 115;
+			this.label40.Text = "NG Tray";
+			// 
+			// dataGridView_NGTray
+			// 
+			this.dataGridView_NGTray.AllowUserToAddRows = false;
+			this.dataGridView_NGTray.AllowUserToDeleteRows = false;
+			this.dataGridView_NGTray.AllowUserToOrderColumns = true;
+			this.dataGridView_NGTray.AllowUserToResizeColumns = false;
+			this.dataGridView_NGTray.AllowUserToResizeRows = false;
+			this.dataGridView_NGTray.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle1.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_NGTray.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+			this.dataGridView_NGTray.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dataGridView_NGTray.ColumnHeadersVisible = false;
+			this.dataGridView_NGTray.Enabled = false;
+			this.dataGridView_NGTray.Location = new System.Drawing.Point(327, 275);
+			this.dataGridView_NGTray.Margin = new System.Windows.Forms.Padding(0);
+			this.dataGridView_NGTray.Name = "dataGridView_NGTray";
+			dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle2.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_NGTray.RowHeadersDefaultCellStyle = dataGridViewCellStyle2;
+			this.dataGridView_NGTray.RowHeadersVisible = false;
+			dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.dataGridView_NGTray.RowsDefaultCellStyle = dataGridViewCellStyle3;
+			this.dataGridView_NGTray.RowTemplate.Height = 24;
+			this.dataGridView_NGTray.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.dataGridView_NGTray.Size = new System.Drawing.Size(70, 78);
+			this.dataGridView_NGTray.TabIndex = 114;
+			// 
+			// Table_2
+			// 
+			this.Table_2.AllowUserToAddRows = false;
+			this.Table_2.AllowUserToDeleteRows = false;
+			this.Table_2.AllowUserToOrderColumns = true;
+			this.Table_2.AllowUserToResizeColumns = false;
+			this.Table_2.AllowUserToResizeRows = false;
+			this.Table_2.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle4.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_2.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
+			this.Table_2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.Table_2.ColumnHeadersVisible = false;
+			this.Table_2.Enabled = false;
+			this.Table_2.Location = new System.Drawing.Point(164, 207);
+			this.Table_2.Margin = new System.Windows.Forms.Padding(0);
+			this.Table_2.Name = "Table_2";
+			dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle5.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_2.RowHeadersDefaultCellStyle = dataGridViewCellStyle5;
+			this.Table_2.RowHeadersVisible = false;
+			dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.Table_2.RowsDefaultCellStyle = dataGridViewCellStyle6;
+			this.Table_2.RowTemplate.Height = 24;
+			this.Table_2.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.Table_2.Size = new System.Drawing.Size(35, 35);
+			this.Table_2.TabIndex = 90;
+			// 
+			// Table_1
+			// 
+			this.Table_1.AllowUserToAddRows = false;
+			this.Table_1.AllowUserToDeleteRows = false;
+			this.Table_1.AllowUserToOrderColumns = true;
+			this.Table_1.AllowUserToResizeColumns = false;
+			this.Table_1.AllowUserToResizeRows = false;
+			this.Table_1.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle7.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
+			this.Table_1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.Table_1.ColumnHeadersVisible = false;
+			this.Table_1.Enabled = false;
+			this.Table_1.Location = new System.Drawing.Point(237, 231);
+			this.Table_1.Margin = new System.Windows.Forms.Padding(0);
+			this.Table_1.Name = "Table_1";
+			dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle8.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_1.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+			this.Table_1.RowHeadersVisible = false;
+			dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.Table_1.RowsDefaultCellStyle = dataGridViewCellStyle9;
+			this.Table_1.RowTemplate.Height = 24;
+			this.Table_1.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.Table_1.Size = new System.Drawing.Size(35, 35);
+			this.Table_1.TabIndex = 83;
+			// 
+			// Table_8
+			// 
+			this.Table_8.AllowUserToAddRows = false;
+			this.Table_8.AllowUserToDeleteRows = false;
+			this.Table_8.AllowUserToOrderColumns = true;
+			this.Table_8.AllowUserToResizeColumns = false;
+			this.Table_8.AllowUserToResizeRows = false;
+			this.Table_8.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle10.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_8.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle10;
+			this.Table_8.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.Table_8.ColumnHeadersVisible = false;
+			this.Table_8.Enabled = false;
+			this.Table_8.Location = new System.Drawing.Point(298, 207);
+			this.Table_8.Margin = new System.Windows.Forms.Padding(0);
+			this.Table_8.Name = "Table_8";
+			dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle11.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_8.RowHeadersDefaultCellStyle = dataGridViewCellStyle11;
+			this.Table_8.RowHeadersVisible = false;
+			dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.Table_8.RowsDefaultCellStyle = dataGridViewCellStyle12;
+			this.Table_8.RowTemplate.Height = 24;
+			this.Table_8.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.Table_8.Size = new System.Drawing.Size(35, 35);
+			this.Table_8.TabIndex = 84;
+			// 
+			// Table_7
+			// 
+			this.Table_7.AllowUserToAddRows = false;
+			this.Table_7.AllowUserToDeleteRows = false;
+			this.Table_7.AllowUserToOrderColumns = true;
+			this.Table_7.AllowUserToResizeColumns = false;
+			this.Table_7.AllowUserToResizeRows = false;
+			this.Table_7.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle13.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle13.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle13.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle13.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle13.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle13.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle13.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_7.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle13;
+			this.Table_7.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.Table_7.ColumnHeadersVisible = false;
+			this.Table_7.Enabled = false;
+			this.Table_7.Location = new System.Drawing.Point(339, 144);
+			this.Table_7.Margin = new System.Windows.Forms.Padding(0);
+			this.Table_7.Name = "Table_7";
+			dataGridViewCellStyle14.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle14.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle14.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle14.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle14.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle14.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle14.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_7.RowHeadersDefaultCellStyle = dataGridViewCellStyle14;
+			this.Table_7.RowHeadersVisible = false;
+			dataGridViewCellStyle15.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.Table_7.RowsDefaultCellStyle = dataGridViewCellStyle15;
+			this.Table_7.RowTemplate.Height = 24;
+			this.Table_7.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.Table_7.Size = new System.Drawing.Size(35, 35);
+			this.Table_7.TabIndex = 85;
+			// 
+			// Table_5
+			// 
+			this.Table_5.AllowUserToAddRows = false;
+			this.Table_5.AllowUserToDeleteRows = false;
+			this.Table_5.AllowUserToOrderColumns = true;
+			this.Table_5.AllowUserToResizeColumns = false;
+			this.Table_5.AllowUserToResizeRows = false;
+			this.Table_5.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle16.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle16.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle16.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle16.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle16.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle16.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle16.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_5.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle16;
+			this.Table_5.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.Table_5.ColumnHeadersVisible = false;
+			this.Table_5.Enabled = false;
+			this.Table_5.Location = new System.Drawing.Point(236, 51);
+			this.Table_5.Margin = new System.Windows.Forms.Padding(0);
+			this.Table_5.Name = "Table_5";
+			dataGridViewCellStyle17.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle17.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle17.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle17.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle17.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle17.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle17.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_5.RowHeadersDefaultCellStyle = dataGridViewCellStyle17;
+			this.Table_5.RowHeadersVisible = false;
+			dataGridViewCellStyle18.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.Table_5.RowsDefaultCellStyle = dataGridViewCellStyle18;
+			this.Table_5.RowTemplate.Height = 24;
+			this.Table_5.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.Table_5.Size = new System.Drawing.Size(35, 35);
+			this.Table_5.TabIndex = 86;
+			// 
+			// Table_6
+			// 
+			this.Table_6.AllowUserToAddRows = false;
+			this.Table_6.AllowUserToDeleteRows = false;
+			this.Table_6.AllowUserToOrderColumns = true;
+			this.Table_6.AllowUserToResizeColumns = false;
+			this.Table_6.AllowUserToResizeRows = false;
+			this.Table_6.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle19.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle19.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle19.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle19.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle19.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle19.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle19.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_6.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle19;
+			this.Table_6.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.Table_6.ColumnHeadersVisible = false;
+			this.Table_6.Enabled = false;
+			this.Table_6.Location = new System.Drawing.Point(301, 76);
+			this.Table_6.Margin = new System.Windows.Forms.Padding(0);
+			this.Table_6.Name = "Table_6";
+			dataGridViewCellStyle20.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle20.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle20.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle20.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle20.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle20.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle20.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_6.RowHeadersDefaultCellStyle = dataGridViewCellStyle20;
+			this.Table_6.RowHeadersVisible = false;
+			dataGridViewCellStyle21.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.Table_6.RowsDefaultCellStyle = dataGridViewCellStyle21;
+			this.Table_6.RowTemplate.Height = 24;
+			this.Table_6.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.Table_6.Size = new System.Drawing.Size(35, 35);
+			this.Table_6.TabIndex = 87;
+			// 
+			// Table_4
+			// 
+			this.Table_4.AllowUserToAddRows = false;
+			this.Table_4.AllowUserToDeleteRows = false;
+			this.Table_4.AllowUserToOrderColumns = true;
+			this.Table_4.AllowUserToResizeColumns = false;
+			this.Table_4.AllowUserToResizeRows = false;
+			this.Table_4.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle22.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle22.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle22.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle22.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle22.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle22.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle22.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_4.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle22;
+			this.Table_4.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.Table_4.ColumnHeadersVisible = false;
+			this.Table_4.Enabled = false;
+			this.Table_4.Location = new System.Drawing.Point(164, 76);
+			this.Table_4.Margin = new System.Windows.Forms.Padding(0);
+			this.Table_4.Name = "Table_4";
+			dataGridViewCellStyle23.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle23.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle23.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle23.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle23.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle23.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle23.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_4.RowHeadersDefaultCellStyle = dataGridViewCellStyle23;
+			this.Table_4.RowHeadersVisible = false;
+			dataGridViewCellStyle24.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.Table_4.RowsDefaultCellStyle = dataGridViewCellStyle24;
+			this.Table_4.RowTemplate.Height = 24;
+			this.Table_4.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.Table_4.Size = new System.Drawing.Size(35, 35);
+			this.Table_4.TabIndex = 88;
+			// 
+			// Table_3
+			// 
+			this.Table_3.AllowUserToAddRows = false;
+			this.Table_3.AllowUserToDeleteRows = false;
+			this.Table_3.AllowUserToOrderColumns = true;
+			this.Table_3.AllowUserToResizeColumns = false;
+			this.Table_3.AllowUserToResizeRows = false;
+			this.Table_3.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle25.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle25.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle25.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle25.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle25.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle25.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle25.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_3.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle25;
+			this.Table_3.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.Table_3.ColumnHeadersVisible = false;
+			this.Table_3.Enabled = false;
+			this.Table_3.Location = new System.Drawing.Point(131, 144);
+			this.Table_3.Margin = new System.Windows.Forms.Padding(0);
+			this.Table_3.Name = "Table_3";
+			dataGridViewCellStyle26.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle26.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle26.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle26.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle26.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle26.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle26.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.Table_3.RowHeadersDefaultCellStyle = dataGridViewCellStyle26;
+			this.Table_3.RowHeadersVisible = false;
+			dataGridViewCellStyle27.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.Table_3.RowsDefaultCellStyle = dataGridViewCellStyle27;
+			this.Table_3.RowTemplate.Height = 24;
+			this.Table_3.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.Table_3.Size = new System.Drawing.Size(35, 35);
+			this.Table_3.TabIndex = 89;
+			// 
+			// label32
+			// 
+			this.label32.AutoSize = true;
+			this.label32.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.label32.Location = new System.Drawing.Point(169, 151);
+			this.label32.Name = "label32";
+			this.label32.Size = new System.Drawing.Size(39, 20);
+			this.label32.TabIndex = 91;
+			this.label32.Text = "ST3";
+			// 
+			// label31
+			// 
+			this.label31.AutoSize = true;
+			this.label31.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.label31.Location = new System.Drawing.Point(191, 111);
+			this.label31.Name = "label31";
+			this.label31.Size = new System.Drawing.Size(39, 20);
+			this.label31.TabIndex = 98;
+			this.label31.Text = "ST4";
+			// 
+			// label25
+			// 
+			this.label25.AutoSize = true;
+			this.label25.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.label25.Location = new System.Drawing.Point(190, 187);
+			this.label25.Name = "label25";
+			this.label25.Size = new System.Drawing.Size(39, 20);
+			this.label25.TabIndex = 97;
+			this.label25.Text = "ST2";
+			// 
+			// label30
+			// 
+			this.label30.AutoSize = true;
+			this.label30.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.label30.Location = new System.Drawing.Point(234, 86);
+			this.label30.Name = "label30";
+			this.label30.Size = new System.Drawing.Size(39, 20);
+			this.label30.TabIndex = 92;
+			this.label30.Text = "ST5";
+			// 
+			// label26
+			// 
+			this.label26.AutoSize = true;
+			this.label26.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.label26.Location = new System.Drawing.Point(235, 211);
+			this.label26.Name = "label26";
+			this.label26.Size = new System.Drawing.Size(39, 20);
+			this.label26.TabIndex = 96;
+			this.label26.Text = "ST1";
+			// 
+			// label29
+			// 
+			this.label29.AutoSize = true;
+			this.label29.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.label29.Location = new System.Drawing.Point(278, 111);
+			this.label29.Name = "label29";
+			this.label29.Size = new System.Drawing.Size(39, 20);
+			this.label29.TabIndex = 93;
+			this.label29.Text = "ST6";
+			// 
+			// label27
+			// 
+			this.label27.AutoSize = true;
+			this.label27.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.label27.Location = new System.Drawing.Point(297, 151);
+			this.label27.Name = "label27";
+			this.label27.Size = new System.Drawing.Size(39, 20);
+			this.label27.TabIndex = 95;
+			this.label27.Text = "ST7";
+			// 
+			// label28
+			// 
+			this.label28.AutoSize = true;
+			this.label28.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.label28.Location = new System.Drawing.Point(278, 187);
+			this.label28.Name = "label28";
+			this.label28.Size = new System.Drawing.Size(39, 20);
+			this.label28.TabIndex = 94;
+			this.label28.Text = "ST8";
+			// 
+			// label23
+			// 
+			this.label23.AutoSize = true;
+			this.label23.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label23.Location = new System.Drawing.Point(16, 2);
+			this.label23.Name = "label23";
+			this.label23.Size = new System.Drawing.Size(87, 24);
+			this.label23.TabIndex = 81;
+			this.label23.Text = "PCB Tray";
+			// 
+			// label36
+			// 
+			this.label36.AutoSize = true;
+			this.label36.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label36.Location = new System.Drawing.Point(479, 284);
+			this.label36.Name = "label36";
+			this.label36.Size = new System.Drawing.Size(81, 24);
+			this.label36.TabIndex = 108;
+			this.label36.Text = "Unload1";
+			// 
+			// dataGridView_PCBTray
+			// 
+			this.dataGridView_PCBTray.AllowUserToAddRows = false;
+			this.dataGridView_PCBTray.AllowUserToDeleteRows = false;
+			this.dataGridView_PCBTray.AllowUserToOrderColumns = true;
+			this.dataGridView_PCBTray.AllowUserToResizeColumns = false;
+			this.dataGridView_PCBTray.AllowUserToResizeRows = false;
+			this.dataGridView_PCBTray.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle28.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle28.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle28.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle28.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle28.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle28.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle28.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_PCBTray.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle28;
+			this.dataGridView_PCBTray.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dataGridView_PCBTray.ColumnHeadersVisible = false;
+			this.dataGridView_PCBTray.Enabled = false;
+			this.dataGridView_PCBTray.Location = new System.Drawing.Point(6, 30);
+			this.dataGridView_PCBTray.Margin = new System.Windows.Forms.Padding(0);
+			this.dataGridView_PCBTray.Name = "dataGridView_PCBTray";
+			dataGridViewCellStyle29.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle29.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle29.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle29.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle29.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle29.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle29.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_PCBTray.RowHeadersDefaultCellStyle = dataGridViewCellStyle29;
+			this.dataGridView_PCBTray.RowHeadersVisible = false;
+			dataGridViewCellStyle30.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.dataGridView_PCBTray.RowsDefaultCellStyle = dataGridViewCellStyle30;
+			this.dataGridView_PCBTray.RowTemplate.Height = 24;
+			this.dataGridView_PCBTray.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.dataGridView_PCBTray.Size = new System.Drawing.Size(114, 242);
+			this.dataGridView_PCBTray.TabIndex = 80;
+			// 
+			// label37
+			// 
+			this.label37.AutoSize = true;
+			this.label37.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label37.Location = new System.Drawing.Point(398, 284);
+			this.label37.Name = "label37";
+			this.label37.Size = new System.Drawing.Size(81, 24);
+			this.label37.TabIndex = 109;
+			this.label37.Text = "Unload2";
+			// 
+			// pictureBox1
+			// 
+			this.pictureBox1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.BackgroundImage")));
+			this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.pictureBox1.Location = new System.Drawing.Point(123, 30);
+			this.pictureBox1.Name = "pictureBox1";
+			this.pictureBox1.Size = new System.Drawing.Size(276, 242);
+			this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+			this.pictureBox1.TabIndex = 82;
+			this.pictureBox1.TabStop = false;
+			// 
+			// dataGridView_unload1
+			// 
+			this.dataGridView_unload1.AllowUserToAddRows = false;
+			this.dataGridView_unload1.AllowUserToDeleteRows = false;
+			this.dataGridView_unload1.AllowUserToOrderColumns = true;
+			this.dataGridView_unload1.AllowUserToResizeColumns = false;
+			this.dataGridView_unload1.AllowUserToResizeRows = false;
+			this.dataGridView_unload1.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle31.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle31.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle31.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle31.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle31.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle31.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle31.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_unload1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle31;
+			this.dataGridView_unload1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dataGridView_unload1.ColumnHeadersVisible = false;
+			this.dataGridView_unload1.Enabled = false;
+			this.dataGridView_unload1.Location = new System.Drawing.Point(481, 317);
+			this.dataGridView_unload1.Margin = new System.Windows.Forms.Padding(0);
+			this.dataGridView_unload1.Name = "dataGridView_unload1";
+			dataGridViewCellStyle32.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle32.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle32.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle32.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle32.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle32.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle32.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_unload1.RowHeadersDefaultCellStyle = dataGridViewCellStyle32;
+			this.dataGridView_unload1.RowHeadersVisible = false;
+			dataGridViewCellStyle33.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.dataGridView_unload1.RowsDefaultCellStyle = dataGridViewCellStyle33;
+			this.dataGridView_unload1.RowTemplate.Height = 24;
+			this.dataGridView_unload1.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.dataGridView_unload1.Size = new System.Drawing.Size(67, 35);
+			this.dataGridView_unload1.TabIndex = 106;
+			// 
+			// dataGridView_unload2
+			// 
+			this.dataGridView_unload2.AllowUserToAddRows = false;
+			this.dataGridView_unload2.AllowUserToDeleteRows = false;
+			this.dataGridView_unload2.AllowUserToOrderColumns = true;
+			this.dataGridView_unload2.AllowUserToResizeColumns = false;
+			this.dataGridView_unload2.AllowUserToResizeRows = false;
+			this.dataGridView_unload2.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle34.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle34.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle34.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle34.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle34.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle34.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle34.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_unload2.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle34;
+			this.dataGridView_unload2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dataGridView_unload2.ColumnHeadersVisible = false;
+			this.dataGridView_unload2.Enabled = false;
+			this.dataGridView_unload2.Location = new System.Drawing.Point(402, 318);
+			this.dataGridView_unload2.Margin = new System.Windows.Forms.Padding(0);
+			this.dataGridView_unload2.Name = "dataGridView_unload2";
+			dataGridViewCellStyle35.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle35.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle35.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle35.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle35.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle35.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle35.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_unload2.RowHeadersDefaultCellStyle = dataGridViewCellStyle35;
+			this.dataGridView_unload2.RowHeadersVisible = false;
+			dataGridViewCellStyle36.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.dataGridView_unload2.RowsDefaultCellStyle = dataGridViewCellStyle36;
+			this.dataGridView_unload2.RowTemplate.Height = 24;
+			this.dataGridView_unload2.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.dataGridView_unload2.Size = new System.Drawing.Size(67, 34);
+			this.dataGridView_unload2.TabIndex = 107;
+			// 
+			// label34
+			// 
+			this.label34.AutoSize = true;
+			this.label34.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label34.Location = new System.Drawing.Point(4, 327);
+			this.label34.Name = "label34";
+			this.label34.Size = new System.Drawing.Size(61, 24);
+			this.label34.TabIndex = 104;
+			this.label34.Text = "Load1";
+			// 
+			// label35
+			// 
+			this.label35.AutoSize = true;
+			this.label35.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label35.Location = new System.Drawing.Point(4, 281);
+			this.label35.Name = "label35";
+			this.label35.Size = new System.Drawing.Size(61, 24);
+			this.label35.TabIndex = 105;
+			this.label35.Text = "Load2";
+			// 
+			// dataGridView_load2
+			// 
+			this.dataGridView_load2.AllowUserToAddRows = false;
+			this.dataGridView_load2.AllowUserToDeleteRows = false;
+			this.dataGridView_load2.AllowUserToOrderColumns = true;
+			this.dataGridView_load2.AllowUserToResizeColumns = false;
+			this.dataGridView_load2.AllowUserToResizeRows = false;
+			this.dataGridView_load2.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle37.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle37.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle37.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle37.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle37.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle37.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle37.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_load2.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle37;
+			this.dataGridView_load2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dataGridView_load2.ColumnHeadersVisible = false;
+			this.dataGridView_load2.Enabled = false;
+			this.dataGridView_load2.Location = new System.Drawing.Point(77, 274);
+			this.dataGridView_load2.Margin = new System.Windows.Forms.Padding(0);
+			this.dataGridView_load2.Name = "dataGridView_load2";
+			dataGridViewCellStyle38.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle38.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle38.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle38.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle38.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle38.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle38.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_load2.RowHeadersDefaultCellStyle = dataGridViewCellStyle38;
+			this.dataGridView_load2.RowHeadersVisible = false;
+			dataGridViewCellStyle39.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.dataGridView_load2.RowsDefaultCellStyle = dataGridViewCellStyle39;
+			this.dataGridView_load2.RowTemplate.Height = 24;
+			this.dataGridView_load2.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.dataGridView_load2.Size = new System.Drawing.Size(55, 34);
+			this.dataGridView_load2.TabIndex = 102;
+			// 
+			// dataGridView_load1
+			// 
+			this.dataGridView_load1.AllowUserToAddRows = false;
+			this.dataGridView_load1.AllowUserToDeleteRows = false;
+			this.dataGridView_load1.AllowUserToOrderColumns = true;
+			this.dataGridView_load1.AllowUserToResizeColumns = false;
+			this.dataGridView_load1.AllowUserToResizeRows = false;
+			this.dataGridView_load1.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle40.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle40.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle40.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle40.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle40.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle40.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle40.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_load1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle40;
+			this.dataGridView_load1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dataGridView_load1.ColumnHeadersVisible = false;
+			this.dataGridView_load1.Enabled = false;
+			this.dataGridView_load1.Location = new System.Drawing.Point(77, 317);
+			this.dataGridView_load1.Margin = new System.Windows.Forms.Padding(0);
+			this.dataGridView_load1.Name = "dataGridView_load1";
+			dataGridViewCellStyle41.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle41.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle41.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle41.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle41.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle41.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle41.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_load1.RowHeadersDefaultCellStyle = dataGridViewCellStyle41;
+			this.dataGridView_load1.RowHeadersVisible = false;
+			dataGridViewCellStyle42.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.dataGridView_load1.RowsDefaultCellStyle = dataGridViewCellStyle42;
+			this.dataGridView_load1.RowTemplate.Height = 24;
+			this.dataGridView_load1.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.dataGridView_load1.Size = new System.Drawing.Size(55, 35);
+			this.dataGridView_load1.TabIndex = 103;
+			// 
+			// label33
+			// 
+			this.label33.AutoSize = true;
+			this.label33.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label33.Location = new System.Drawing.Point(415, 3);
+			this.label33.Name = "label33";
+			this.label33.Size = new System.Drawing.Size(114, 24);
+			this.label33.TabIndex = 101;
+			this.label33.Text = "Unload Tray";
+			// 
+			// dataGridView_UnloadTray
+			// 
+			this.dataGridView_UnloadTray.AllowUserToAddRows = false;
+			this.dataGridView_UnloadTray.AllowUserToDeleteRows = false;
+			this.dataGridView_UnloadTray.AllowUserToOrderColumns = true;
+			this.dataGridView_UnloadTray.AllowUserToResizeColumns = false;
+			this.dataGridView_UnloadTray.AllowUserToResizeRows = false;
+			this.dataGridView_UnloadTray.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+			dataGridViewCellStyle43.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle43.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle43.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle43.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle43.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle43.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle43.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_UnloadTray.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle43;
+			this.dataGridView_UnloadTray.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dataGridView_UnloadTray.ColumnHeadersVisible = false;
+			this.dataGridView_UnloadTray.Enabled = false;
+			this.dataGridView_UnloadTray.Location = new System.Drawing.Point(402, 30);
+			this.dataGridView_UnloadTray.Margin = new System.Windows.Forms.Padding(0);
+			this.dataGridView_UnloadTray.Name = "dataGridView_UnloadTray";
+			dataGridViewCellStyle44.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle44.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle44.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			dataGridViewCellStyle44.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle44.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle44.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle44.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView_UnloadTray.RowHeadersDefaultCellStyle = dataGridViewCellStyle44;
+			this.dataGridView_UnloadTray.RowHeadersVisible = false;
+			dataGridViewCellStyle45.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			this.dataGridView_UnloadTray.RowsDefaultCellStyle = dataGridViewCellStyle45;
+			this.dataGridView_UnloadTray.RowTemplate.Height = 24;
+			this.dataGridView_UnloadTray.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.dataGridView_UnloadTray.Size = new System.Drawing.Size(146, 242);
+			this.dataGridView_UnloadTray.TabIndex = 100;
+			// 
+			// label24
+			// 
+			this.label24.AutoSize = true;
+			this.label24.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label24.Location = new System.Drawing.Point(136, 3);
+			this.label24.Name = "label24";
+			this.label24.Size = new System.Drawing.Size(93, 24);
+			this.label24.TabIndex = 99;
+			this.label24.Text = "Turntable";
+			// 
+			// tabPage2
+			// 
+			this.tabPage2.Controls.Add(this.H2AutoPos_Funcion);
+			this.tabPage2.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.tabPage2.Location = new System.Drawing.Point(4, 29);
+			this.tabPage2.Name = "tabPage2";
+			this.tabPage2.Size = new System.Drawing.Size(1014, 619);
+			this.tabPage2.TabIndex = 0;
+			this.tabPage2.Text = "  H2";
+			this.tabPage2.UseVisualStyleBackColor = true;
+			// 
+			// H2AutoPos_Funcion
+			// 
+			this.H2AutoPos_Funcion.Controls.Add(this.text_ViosionDate);
+			this.H2AutoPos_Funcion.Controls.Add(this.hoursProductShow1);
+			this.H2AutoPos_Funcion.Controls.Add(this.cogRecDisp_H1_Recipe);
+			this.H2AutoPos_Funcion.Controls.Add(this.cogRecDisp_H2_Recipe);
+			this.H2AutoPos_Funcion.Controls.Add(this.cogRecDisp_H4_Recipe);
+			this.H2AutoPos_Funcion.Controls.Add(this.cogRecDisp_H3_Recipe);
+			this.H2AutoPos_Funcion.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.H2AutoPos_Funcion.Location = new System.Drawing.Point(0, 0);
+			this.H2AutoPos_Funcion.Margin = new System.Windows.Forms.Padding(2);
+			this.H2AutoPos_Funcion.Name = "H2AutoPos_Funcion";
+			this.H2AutoPos_Funcion.Size = new System.Drawing.Size(1014, 619);
+			this.H2AutoPos_Funcion.TabIndex = 2;
+			// 
+			// text_ViosionDate
+			// 
+			this.text_ViosionDate.Location = new System.Drawing.Point(5, 227);
+			this.text_ViosionDate.Multiline = true;
+			this.text_ViosionDate.Name = "text_ViosionDate";
+			this.text_ViosionDate.Size = new System.Drawing.Size(981, 150);
+			this.text_ViosionDate.TabIndex = 75;
+			// 
+			// hoursProductShow1
+			// 
+			this.hoursProductShow1.BackColor = System.Drawing.Color.White;
+			this.hoursProductShow1.Color_BackGround = System.Drawing.Color.White;
+			this.hoursProductShow1.Color_IDLE = System.Drawing.Color.Silver;
+			this.hoursProductShow1.Color_NG = System.Drawing.Color.Red;
+			this.hoursProductShow1.Color_OK = System.Drawing.Color.LawnGreen;
+			this.hoursProductShow1.Color_Target = System.Drawing.Color.Yellow;
+			this.hoursProductShow1.ColumnWidth = 20;
+			this.hoursProductShow1.Font = new System.Drawing.Font("微软雅黑", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.hoursProductShow1.Location = new System.Drawing.Point(5, 369);
+			this.hoursProductShow1.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+			this.hoursProductShow1.MaxX = 24;
+			this.hoursProductShow1.MaxY = 400;
+			this.hoursProductShow1.MinX = 0;
+			this.hoursProductShow1.MinY = 0;
+			this.hoursProductShow1.Name = "hoursProductShow1";
+			this.hoursProductShow1.SavePath = "";
+			this.hoursProductShow1.ScaleX = 24;
+			this.hoursProductShow1.ScaleY = 10;
+			this.hoursProductShow1.Size = new System.Drawing.Size(981, 230);
+			this.hoursProductShow1.StartTime = PointShow.HoursProductShow.StartTimeD.Hour_0;
+			this.hoursProductShow1.TabIndex = 74;
+			this.hoursProductShow1.Target = 0;
+			this.hoursProductShow1.TargetEnable = true;
+			this.hoursProductShow1.Xlable = "Hours";
+			this.hoursProductShow1.Ylable = "Quantity";
+			// 
+			// cogRecDisp_H1_Recipe
+			// 
+			this.cogRecDisp_H1_Recipe.ColorMapLowerClipColor = System.Drawing.Color.Black;
+			this.cogRecDisp_H1_Recipe.ColorMapLowerRoiLimit = 0D;
+			this.cogRecDisp_H1_Recipe.ColorMapPredefined = Cognex.VisionPro.Display.CogDisplayColorMapPredefinedConstants.None;
+			this.cogRecDisp_H1_Recipe.ColorMapUpperClipColor = System.Drawing.Color.Black;
+			this.cogRecDisp_H1_Recipe.ColorMapUpperRoiLimit = 1D;
+			this.cogRecDisp_H1_Recipe.DoubleTapZoomCycleLength = 2;
+			this.cogRecDisp_H1_Recipe.DoubleTapZoomSensitivity = 2.5D;
+			this.cogRecDisp_H1_Recipe.Location = new System.Drawing.Point(18, 22);
+			this.cogRecDisp_H1_Recipe.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.cogRecDisp_H1_Recipe.MouseWheelMode = Cognex.VisionPro.Display.CogDisplayMouseWheelModeConstants.Zoom1;
+			this.cogRecDisp_H1_Recipe.MouseWheelSensitivity = 1D;
+			this.cogRecDisp_H1_Recipe.Name = "cogRecDisp_H1_Recipe";
+			this.cogRecDisp_H1_Recipe.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("cogRecDisp_H1_Recipe.OcxState")));
+			this.cogRecDisp_H1_Recipe.Size = new System.Drawing.Size(294, 250);
+			this.cogRecDisp_H1_Recipe.TabIndex = 73;
+			// 
+			// cogRecDisp_H2_Recipe
+			// 
+			this.cogRecDisp_H2_Recipe.ColorMapLowerClipColor = System.Drawing.Color.Black;
+			this.cogRecDisp_H2_Recipe.ColorMapLowerRoiLimit = 0D;
+			this.cogRecDisp_H2_Recipe.ColorMapPredefined = Cognex.VisionPro.Display.CogDisplayColorMapPredefinedConstants.None;
+			this.cogRecDisp_H2_Recipe.ColorMapUpperClipColor = System.Drawing.Color.Black;
+			this.cogRecDisp_H2_Recipe.ColorMapUpperRoiLimit = 1D;
+			this.cogRecDisp_H2_Recipe.DoubleTapZoomCycleLength = 2;
+			this.cogRecDisp_H2_Recipe.DoubleTapZoomSensitivity = 2.5D;
+			this.cogRecDisp_H2_Recipe.Location = new System.Drawing.Point(262, 22);
+			this.cogRecDisp_H2_Recipe.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.cogRecDisp_H2_Recipe.MouseWheelMode = Cognex.VisionPro.Display.CogDisplayMouseWheelModeConstants.Zoom1;
+			this.cogRecDisp_H2_Recipe.MouseWheelSensitivity = 1D;
+			this.cogRecDisp_H2_Recipe.Name = "cogRecDisp_H2_Recipe";
+			this.cogRecDisp_H2_Recipe.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("cogRecDisp_H2_Recipe.OcxState")));
+			this.cogRecDisp_H2_Recipe.Size = new System.Drawing.Size(292, 250);
+			this.cogRecDisp_H2_Recipe.TabIndex = 72;
+			// 
+			// cogRecDisp_H4_Recipe
+			// 
+			this.cogRecDisp_H4_Recipe.ColorMapLowerClipColor = System.Drawing.Color.Black;
+			this.cogRecDisp_H4_Recipe.ColorMapLowerRoiLimit = 0D;
+			this.cogRecDisp_H4_Recipe.ColorMapPredefined = Cognex.VisionPro.Display.CogDisplayColorMapPredefinedConstants.None;
+			this.cogRecDisp_H4_Recipe.ColorMapUpperClipColor = System.Drawing.Color.Black;
+			this.cogRecDisp_H4_Recipe.ColorMapUpperRoiLimit = 1D;
+			this.cogRecDisp_H4_Recipe.DoubleTapZoomCycleLength = 2;
+			this.cogRecDisp_H4_Recipe.DoubleTapZoomSensitivity = 2.5D;
+			this.cogRecDisp_H4_Recipe.Location = new System.Drawing.Point(738, 22);
+			this.cogRecDisp_H4_Recipe.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.cogRecDisp_H4_Recipe.MouseWheelMode = Cognex.VisionPro.Display.CogDisplayMouseWheelModeConstants.Zoom1;
+			this.cogRecDisp_H4_Recipe.MouseWheelSensitivity = 1D;
+			this.cogRecDisp_H4_Recipe.Name = "cogRecDisp_H4_Recipe";
+			this.cogRecDisp_H4_Recipe.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("cogRecDisp_H4_Recipe.OcxState")));
+			this.cogRecDisp_H4_Recipe.Size = new System.Drawing.Size(273, 250);
+			this.cogRecDisp_H4_Recipe.TabIndex = 71;
+			// 
+			// cogRecDisp_H3_Recipe
+			// 
+			this.cogRecDisp_H3_Recipe.ColorMapLowerClipColor = System.Drawing.Color.Black;
+			this.cogRecDisp_H3_Recipe.ColorMapLowerRoiLimit = 0D;
+			this.cogRecDisp_H3_Recipe.ColorMapPredefined = Cognex.VisionPro.Display.CogDisplayColorMapPredefinedConstants.None;
+			this.cogRecDisp_H3_Recipe.ColorMapUpperClipColor = System.Drawing.Color.Black;
+			this.cogRecDisp_H3_Recipe.ColorMapUpperRoiLimit = 1D;
+			this.cogRecDisp_H3_Recipe.DoubleTapZoomCycleLength = 2;
+			this.cogRecDisp_H3_Recipe.DoubleTapZoomSensitivity = 2.5D;
+			this.cogRecDisp_H3_Recipe.Location = new System.Drawing.Point(503, 22);
+			this.cogRecDisp_H3_Recipe.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.cogRecDisp_H3_Recipe.MouseWheelMode = Cognex.VisionPro.Display.CogDisplayMouseWheelModeConstants.Zoom1;
+			this.cogRecDisp_H3_Recipe.MouseWheelSensitivity = 1D;
+			this.cogRecDisp_H3_Recipe.Name = "cogRecDisp_H3_Recipe";
+			this.cogRecDisp_H3_Recipe.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("cogRecDisp_H3_Recipe.OcxState")));
+			this.cogRecDisp_H3_Recipe.Size = new System.Drawing.Size(278, 250);
+			this.cogRecDisp_H3_Recipe.TabIndex = 70;
+			// 
+			// groupBox2
+			// 
+			this.groupBox2.BackColor = System.Drawing.Color.Silver;
+			this.groupBox2.Controls.Add(this.label12);
+			this.groupBox2.Controls.Add(this.label6);
+			this.groupBox2.Controls.Add(this.label2);
+			this.groupBox2.Controls.Add(this.label5);
+			this.groupBox2.Controls.Add(this.label14);
+			this.groupBox2.Controls.Add(this.label8);
+			this.groupBox2.Controls.Add(this.label7);
+			this.groupBox2.Controls.Add(this.label1);
+			this.groupBox2.Controls.Add(this.txtCT);
+			this.groupBox2.Controls.Add(this.label4);
+			this.groupBox2.Controls.Add(this.tHourlyYield);
+			this.groupBox2.Controls.Add(this.txtBarcode4);
+			this.groupBox2.Controls.Add(this.txtBarcode3);
+			this.groupBox2.Controls.Add(this.txtBarcode2);
+			this.groupBox2.Controls.Add(this.txtBarcode);
+			this.groupBox2.Controls.Add(this.label3);
+			this.groupBox2.Controls.Add(this.tHourlyInput);
+			this.groupBox2.Controls.Add(this.tHourlyOutput);
+			this.groupBox2.Controls.Add(this.tHourlyReject);
+			this.groupBox2.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.groupBox2.Location = new System.Drawing.Point(62, 1202);
+			this.groupBox2.Name = "groupBox2";
+			this.groupBox2.Size = new System.Drawing.Size(436, 347);
+			this.groupBox2.TabIndex = 11;
+			this.groupBox2.TabStop = false;
+			this.groupBox2.Text = "生产信息";
+			// 
+			// label12
+			// 
+			this.label12.Location = new System.Drawing.Point(51, 311);
+			this.label12.Name = "label12";
+			this.label12.Size = new System.Drawing.Size(69, 23);
+			this.label12.TabIndex = 1;
+			this.label12.Text = "CT :";
+			this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// label6
+			// 
+			this.label6.Location = new System.Drawing.Point(5, 272);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(115, 23);
+			this.label6.TabIndex = 1;
+			this.label6.Text = "Hourly Yield:";
+			this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// label2
+			// 
+			this.label2.BackColor = System.Drawing.Color.Gainsboro;
+			this.label2.Font = new System.Drawing.Font("微软雅黑", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.label2.Location = new System.Drawing.Point(248, 311);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(178, 30);
+			this.label2.TabIndex = 4;
+			this.label2.Text = "重   置";
+			this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.label2.Click += new System.EventHandler(this.btClearCount_Click);
+			// 
+			// label5
+			// 
+			this.label5.Location = new System.Drawing.Point(5, 239);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(115, 23);
+			this.label5.TabIndex = 1;
+			this.label5.Text = "Hourly Reject:";
+			this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// label14
+			// 
+			this.label14.Location = new System.Drawing.Point(3, 128);
+			this.label14.Name = "label14";
+			this.label14.Size = new System.Drawing.Size(117, 23);
+			this.label14.TabIndex = 1;
+			this.label14.Text = "Barcode4:";
+			this.label14.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// label8
+			// 
+			this.label8.Location = new System.Drawing.Point(3, 93);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(117, 23);
+			this.label8.TabIndex = 1;
+			this.label8.Text = "Barcode3:";
+			this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// label7
+			// 
+			this.label7.Location = new System.Drawing.Point(3, 58);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(117, 23);
+			this.label7.TabIndex = 1;
+			this.label7.Text = "Barcode2:";
+			this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// label1
+			// 
+			this.label1.Location = new System.Drawing.Point(7, 19);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(114, 23);
+			this.label1.TabIndex = 1;
+			this.label1.Text = "Barcode1:";
+			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// txtCT
+			// 
+			this.txtCT.Location = new System.Drawing.Point(126, 307);
+			this.txtCT.Name = "txtCT";
+			this.txtCT.Size = new System.Drawing.Size(77, 34);
+			this.txtCT.TabIndex = 0;
+			this.txtCT.Text = "12.3 /s";
+			this.txtCT.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// label4
+			// 
+			this.label4.Location = new System.Drawing.Point(-4, 200);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(125, 23);
+			this.label4.TabIndex = 1;
+			this.label4.Text = "Hourly Output:";
+			this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// tHourlyYield
+			// 
+			this.tHourlyYield.Location = new System.Drawing.Point(126, 272);
+			this.tHourlyYield.Name = "tHourlyYield";
+			this.tHourlyYield.Size = new System.Drawing.Size(77, 34);
+			this.tHourlyYield.TabIndex = 0;
+			this.tHourlyYield.Text = "100%";
+			this.tHourlyYield.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// txtBarcode4
+			// 
+			this.txtBarcode4.Location = new System.Drawing.Point(126, 122);
+			this.txtBarcode4.Name = "txtBarcode4";
+			this.txtBarcode4.Size = new System.Drawing.Size(300, 34);
+			this.txtBarcode4.TabIndex = 0;
+			this.txtBarcode4.TabStop = false;
+			this.txtBarcode4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// txtBarcode3
+			// 
+			this.txtBarcode3.Location = new System.Drawing.Point(126, 87);
+			this.txtBarcode3.Name = "txtBarcode3";
+			this.txtBarcode3.Size = new System.Drawing.Size(300, 34);
+			this.txtBarcode3.TabIndex = 0;
+			this.txtBarcode3.TabStop = false;
+			this.txtBarcode3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// txtBarcode2
+			// 
+			this.txtBarcode2.Location = new System.Drawing.Point(126, 52);
+			this.txtBarcode2.Name = "txtBarcode2";
+			this.txtBarcode2.Size = new System.Drawing.Size(300, 34);
+			this.txtBarcode2.TabIndex = 0;
+			this.txtBarcode2.TabStop = false;
+			this.txtBarcode2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// txtBarcode
+			// 
+			this.txtBarcode.Location = new System.Drawing.Point(126, 17);
+			this.txtBarcode.Name = "txtBarcode";
+			this.txtBarcode.Size = new System.Drawing.Size(300, 34);
+			this.txtBarcode.TabIndex = 0;
+			this.txtBarcode.TabStop = false;
+			this.txtBarcode.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// label3
+			// 
+			this.label3.Location = new System.Drawing.Point(3, 167);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(117, 23);
+			this.label3.TabIndex = 1;
+			this.label3.Text = "Hourly Input:";
+			this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// tHourlyInput
+			// 
+			this.tHourlyInput.Location = new System.Drawing.Point(126, 165);
+			this.tHourlyInput.Name = "tHourlyInput";
+			this.tHourlyInput.Size = new System.Drawing.Size(77, 34);
+			this.tHourlyInput.TabIndex = 0;
+			this.tHourlyInput.Text = "0";
+			this.tHourlyInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// tHourlyOutput
+			// 
+			this.tHourlyOutput.Location = new System.Drawing.Point(126, 200);
+			this.tHourlyOutput.Name = "tHourlyOutput";
+			this.tHourlyOutput.Size = new System.Drawing.Size(77, 34);
+			this.tHourlyOutput.TabIndex = 0;
+			this.tHourlyOutput.Text = "0";
+			this.tHourlyOutput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// tHourlyReject
+			// 
+			this.tHourlyReject.Location = new System.Drawing.Point(126, 237);
+			this.tHourlyReject.Name = "tHourlyReject";
+			this.tHourlyReject.Size = new System.Drawing.Size(77, 34);
+			this.tHourlyReject.TabIndex = 0;
+			this.tHourlyReject.Text = "0";
+			this.tHourlyReject.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// btAlarmReset
+			// 
+			this.btAlarmReset.BackColor = System.Drawing.Color.Silver;
+			this.btAlarmReset.Font = new System.Drawing.Font("微软雅黑", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.btAlarmReset.Location = new System.Drawing.Point(512, 3);
+			this.btAlarmReset.Name = "btAlarmReset";
+			this.btAlarmReset.Size = new System.Drawing.Size(120, 40);
+			this.btAlarmReset.TabIndex = 3;
+			this.btAlarmReset.Text = "AlarmReset";
+			this.btAlarmReset.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.btAlarmReset.Click += new System.EventHandler(this.btHome_Click);
+			// 
+			// Buzzer
+			// 
+			this.Buzzer.BackColor = System.Drawing.Color.Silver;
+			this.Buzzer.Font = new System.Drawing.Font("微软雅黑", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.Buzzer.Location = new System.Drawing.Point(260, 3);
+			this.Buzzer.Name = "Buzzer";
+			this.Buzzer.Size = new System.Drawing.Size(120, 40);
+			this.Buzzer.TabIndex = 3;
+			this.Buzzer.Text = "Buzzer";
+			this.Buzzer.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.Buzzer.Click += new System.EventHandler(this.Buzzer_Click);
+			// 
+			// btDoor
+			// 
+			this.btDoor.BackColor = System.Drawing.Color.Silver;
+			this.btDoor.Font = new System.Drawing.Font("微软雅黑", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.btDoor.Location = new System.Drawing.Point(134, 3);
+			this.btDoor.Name = "btDoor";
+			this.btDoor.Size = new System.Drawing.Size(120, 40);
+			this.btDoor.TabIndex = 3;
+			this.btDoor.Text = "Door";
+			this.btDoor.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.btDoor.Click += new System.EventHandler(this.btDoor_Click);
+			// 
+			// btLight
+			// 
+			this.btLight.BackColor = System.Drawing.Color.Silver;
+			this.btLight.Font = new System.Drawing.Font("微软雅黑", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.btLight.Location = new System.Drawing.Point(8, 3);
+			this.btLight.Name = "btLight";
+			this.btLight.Size = new System.Drawing.Size(120, 40);
+			this.btLight.TabIndex = 3;
+			this.btLight.Text = "Lighting";
+			this.btLight.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.btLight.Click += new System.EventHandler(this.btLight_Click);
+			// 
+			// timer1
+			// 
+			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+			// 
+			// imageList1
+			// 
+			this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+			this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageList1.Images.SetKeyName(0, "无标题.png");
+			// 
+			// tabPage6
+			// 
+			this.tabPage6.Controls.Add(this.textBox_ERRORMessage);
+			this.tabPage6.Location = new System.Drawing.Point(4, 27);
+			this.tabPage6.Name = "tabPage6";
+			this.tabPage6.Size = new System.Drawing.Size(428, 319);
+			this.tabPage6.TabIndex = 2;
+			this.tabPage6.Text = "错误日志";
+			this.tabPage6.UseVisualStyleBackColor = true;
+			// 
+			// textBox_ERRORMessage
+			// 
+			this.textBox_ERRORMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.textBox_ERRORMessage.Location = new System.Drawing.Point(0, 0);
+			this.textBox_ERRORMessage.Multiline = true;
+			this.textBox_ERRORMessage.Name = "textBox_ERRORMessage";
+			this.textBox_ERRORMessage.Size = new System.Drawing.Size(428, 319);
+			this.textBox_ERRORMessage.TabIndex = 0;
+			// 
+			// HomeForm
+			// 
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+			this.AutoScroll = true;
+			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+			this.ClientSize = new System.Drawing.Size(1032, 682);
+			this.ControlBox = false;
+			this.Controls.Add(this.panel1);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+			this.Name = "HomeForm";
+			this.ShowIcon = false;
+			this.ShowInTaskbar = false;
+			this.Text = "````";
+			this.Load += new System.EventHandler(this.HomeForm_Load);
+			this.panel1.ResumeLayout(false);
+			this.panel1.PerformLayout();
+			this.tabHome.ResumeLayout(false);
+			this.tabPage1.ResumeLayout(false);
+			this.tabPage1.PerformLayout();
+			this.tabControl1.ResumeLayout(false);
+			this.tabPage3.ResumeLayout(false);
+			this.tabPage3.PerformLayout();
+			this.tabPage4.ResumeLayout(false);
+			this.tabPage4.PerformLayout();
+			this.tabControl2.ResumeLayout(false);
+			this.tabPage5.ResumeLayout(false);
+			this.groupBox3.ResumeLayout(false);
+			this.panel3.ResumeLayout(false);
+			this.panel3.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_NGTray)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_2)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_1)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_8)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_7)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_5)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_6)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_4)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.Table_3)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_PCBTray)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_unload1)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_unload2)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_load2)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_load1)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView_UnloadTray)).EndInit();
+			this.tabPage2.ResumeLayout(false);
+			this.H2AutoPos_Funcion.ResumeLayout(false);
+			this.H2AutoPos_Funcion.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.cogRecDisp_H1_Recipe)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.cogRecDisp_H2_Recipe)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.cogRecDisp_H4_Recipe)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.cogRecDisp_H3_Recipe)).EndInit();
+			this.groupBox2.ResumeLayout(false);
+			this.groupBox2.PerformLayout();
+			this.tabPage6.ResumeLayout(false);
+			this.tabPage6.PerformLayout();
+			this.ResumeLayout(false);
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox txtCT;
+        private System.Windows.Forms.Label MachineStatus;
+        private System.Windows.Forms.Label btAlarmReset;
+        private System.Windows.Forms.Label Buzzer;
+        private System.Windows.Forms.Label btDoor;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TabPage tabPage1;
+        public System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Label btByPass;
+        public System.Windows.Forms.TabControl tabHome;
+        public System.Windows.Forms.Panel H2AutoPos_Funcion;
+        private System.Windows.Forms.ImageList imageList1;
+        private System.Windows.Forms.Label btClearCount;
+        private System.Windows.Forms.Label lab_Pos_Fail;
+        private System.Windows.Forms.Label lab_Pos_Pass;
+        private System.Windows.Forms.Label lab_Pos_Red;
+        private System.Windows.Forms.Label lab_Pos_Atwork;
+        private System.Windows.Forms.Label lab_Pos_green;
+        private System.Windows.Forms.Label lab_Pos_yello;
+        private System.Windows.Forms.Label lab_Pos_Standing;
+        private System.Windows.Forms.Label lab_Pos_gray;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.TextBox textBoxTorque;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.TextBox textBoxMessage;
+        public System.Windows.Forms.Label btLight;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox tHourlyYield;
+        public System.Windows.Forms.TextBox tHourlyReject;
+        private System.Windows.Forms.TextBox tHourlyOutput;
+        private System.Windows.Forms.TextBox tHourlyInput;
+        private System.Windows.Forms.Label label7;
+        public System.Windows.Forms.TextBox txtBarcode2;
+        public System.Windows.Forms.TextBox txtBarcode;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label8;
+        public System.Windows.Forms.TextBox txtBarcode4;
+        public System.Windows.Forms.TextBox txtBarcode3;
+        public Cognex.VisionPro.CogRecordDisplay cogRecDisp_H2_Recipe;
+        public Cognex.VisionPro.CogRecordDisplay cogRecDisp_H4_Recipe;
+        public Cognex.VisionPro.CogRecordDisplay cogRecDisp_H3_Recipe;
+        private System.Windows.Forms.Panel panel3;
+        public System.Windows.Forms.DataGridView Table_2;
+        public System.Windows.Forms.DataGridView Table_1;
+        public System.Windows.Forms.DataGridView Table_8;
+        public System.Windows.Forms.DataGridView Table_7;
+        public System.Windows.Forms.DataGridView Table_5;
+        public System.Windows.Forms.DataGridView Table_6;
+        public System.Windows.Forms.DataGridView Table_4;
+        public System.Windows.Forms.DataGridView Table_3;
+        private System.Windows.Forms.Label label32;
+        private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.Label label30;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.Label label36;
+        public System.Windows.Forms.DataGridView dataGridView_PCBTray;
+        private System.Windows.Forms.Label label37;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        public System.Windows.Forms.DataGridView dataGridView_unload1;
+        public System.Windows.Forms.DataGridView dataGridView_unload2;
+        private System.Windows.Forms.Label label34;
+        private System.Windows.Forms.Label label35;
+        public System.Windows.Forms.DataGridView dataGridView_load2;
+        public System.Windows.Forms.DataGridView dataGridView_load1;
+        private System.Windows.Forms.Label label33;
+        public System.Windows.Forms.DataGridView dataGridView_UnloadTray;
+        private System.Windows.Forms.Label label24;
+        public Cognex.VisionPro.CogRecordDisplay cogRecDisp_H1_Recipe;
+        private System.Windows.Forms.TabControl tabControl2;
+        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.ListView WarnningMessage;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.ColumnHeader columnHeader4;
+        public PointShow.HoursProductShow hoursProductShow1;
+        public System.Windows.Forms.TextBox text_ViosionDate;
+        private System.Windows.Forms.Label label42;
+        public System.Windows.Forms.TextBox txtCy3CT;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox txtPRatio;
+        public System.Windows.Forms.TextBox txtPNG;
+        private System.Windows.Forms.TextBox txtPOK;
+        private System.Windows.Forms.TextBox txtPTotal;
+        public System.Windows.Forms.DataGridView dataGridView_NGTray;
+        private System.Windows.Forms.Label label40;
+		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.TabPage tabPage6;
+		private System.Windows.Forms.TextBox textBox_ERRORMessage;
+	}
+}

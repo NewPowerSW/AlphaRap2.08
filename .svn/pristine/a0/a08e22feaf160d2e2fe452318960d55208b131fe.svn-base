@@ -1,0 +1,336 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace AlphaRap.TaskProcess
+{
+	public partial class DownConveryor : NPFlowChart.Flow_BaseForm
+	{
+		public DownConveryor()
+		{
+
+			CheckForIllegalCrossThreadCalls = false;
+			InitializeComponent();
+		}
+		public override void Initial()
+		{
+
+
+		}
+		public override void PauseRun()
+		{
+
+		}
+		public override void StartRun()
+		{
+
+		}
+		public override void StopRun()
+		{
+
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType flow_Chart2_FlowChartRun()
+		{
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType flow_Chart1_FlowChartRun()
+		{
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType flow_Chart3_FlowChartRun()
+		{
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyInit_Flow1_1_FlowChartRun()
+		{
+
+			SysPara.DownConveyorInitialOk = false;
+			MiddleLayer.HomeF.AddRunMessage("DownConveyor Initial Flow Start");
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyInit_Flow1_2_FlowChartRun()
+		{
+
+			MiddleLayer.ManualF.OB_DownConveyor_Reverse.Off();
+			MiddleLayer.ManualF.OB_DownConveyor_Forward.Off();
+			MiddleLayer.HomeF.AddRunMessage("DownConveyorInit:" + DownConveyInit_Flow1_2.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyInit_Flow1_3_FlowChartRun()
+		{
+
+			MiddleLayer.ManualF.OB_DownConveyor_Stop_Cylinder.On();
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_StopUp_Sensor.On();
+			if (r)
+			{
+				MiddleLayer.HomeF.AddRunMessage("ConveyInit:" + DownConveyInit_Flow1_3.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			if (DownConveyInit_Flow1_3.FlowChart_ElapsedMilliseconds > 5000)
+			{
+				MiddleLayer.HomeF.AddErrorLog("Alarm:" + MiddleLayer.HomeF.GetAlarmConent("4") + "- " + "Position:" + DownConveyInit_Flow1_3.text);
+				NPSDK.Alarm.Show("4");
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyInit_Flow1_4_FlowChartRun()
+		{
+			MiddleLayer.ManualF.OB_DownConveyor_Forward.On();
+			MiddleLayer.HomeF.AddRunMessage("DownConveyInit:" + DownConveyInit_Flow1_4.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyInit_Flow1_5_FlowChartRun()
+		{
+			if (DownConveyInit_Flow1_5.FlowChart_ElapsedMilliseconds > 3000)
+			{
+
+				MiddleLayer.ManualF.OB_DownConveyor_Forward.Off();
+				MiddleLayer.HomeF.AddRunMessage("DownConveyInit:" + DownConveyInit_Flow1_5.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyInit_Flow1_6_FlowChartRun()
+		{
+			MiddleLayer.HomeF.AddRunMessage("DownConveyInit:" + DownConveyInit_Flow1_6.text);
+			SysPara.DownConveyorInitialOk = true;
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow1_1_FlowChartRun()
+		{
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow1_1.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow1_2_FlowChartRun()
+		{
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_BoardStop_Sensor.On();
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow1_1.text);
+			if (!r)
+			{
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			return NPFlowChart.Flow_Chart.ResultType.CASE1;
+
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow1_3_FlowChartRun()
+		{
+			MiddleLayer.ManualF.OB_DownConveyor_LocalMachineReady_SMEMA.On();
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow1_5.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow1_4_FlowChartRun()
+		{
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_UpMachineAvailable_SMEMA.On();
+			if (r)
+			{
+				MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow1_6.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow1_5_FlowChartRun()
+		{
+			MiddleLayer.ManualF.OB_DownConveyor_Forward.On();
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow1_7.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow1_6_FlowChartRun()
+		{
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_BoardIn_Sensor.On();
+			if (r)
+			{
+				MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow1_8.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow1_7_FlowChartRun()
+		{
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_BoardIn_Sensor.On();
+			if (!r)
+			{
+				MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow1_9.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_0_FlowChartRun()
+		{
+			MiddleLayer.ManualF.OB_DownConveyor_LocalMachineReady_SMEMA.Off();
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow2_0.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_0_FlowChartRun()
+		{
+			MiddleLayer.ManualF.IB_DownConveyor_BoardSpeedSwitch_Sensor.On();
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow2_1.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_1_FlowChartRun()
+		{
+			MiddleLayer.ManualF.OB_DownConveyor_SpeedSwitch.On();
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow2_2.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_2_FlowChartRun()
+		{
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_BoardStop_Sensor.On();
+			if (r)
+			{
+				MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow2_3.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_3_FlowChartRun()
+		{
+			MiddleLayer.ManualF.OB_DownConveyor_SpeedSwitch.Off();
+			MiddleLayer.ManualF.OB_DownConveyor_Forward.Off();
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow2_4.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_4_FlowChartRun()
+		{
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow1_3.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_5_FlowChartRun()
+		{
+			MiddleLayer.ManualF.OB_DownConveyor_LocalMachineAvailable_SMEMA.On();
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow2_5.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_6_FlowChartRun()
+		{
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_DownMachineReady_SMEMA.On();
+			if (r)
+			{
+				MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow2_6.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_7_FlowChartRun()
+		{
+			MiddleLayer.ManualF.OB_DownConveyor_Stop_Cylinder.Off();
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_StopDown_Sensor.On();
+			if (r)
+			{
+				MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow2_7.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			if (DownConveyorAuto_Flow2_7.FlowChart_ElapsedMilliseconds > 5000)
+			{
+				MiddleLayer.HomeF.AddErrorLog("Alarm:" + MiddleLayer.HomeF.GetAlarmConent("11") + "- " + "Position:" + DownConveyorAuto_Flow2_7.text);
+				NPSDK.Alarm.Show("11");
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_8_FlowChartRun()
+		{
+			MiddleLayer.ManualF.OB_DownConveyor_Forward.On();
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow2_8.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow2_9_FlowChartRun()
+		{
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_BoardOut_Sensor.On();
+			if (r)
+			{
+				MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow2_9.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow3_0_FlowChartRun()
+		{
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_BoardOut_Sensor.On();
+			if (!r)
+			{
+				MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow3_0.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			if (DownConveyorAuto_Flow3_0.FlowChart_ElapsedMilliseconds > 8000)
+			{
+				MiddleLayer.HomeF.AddErrorLog("Alarm:" + MiddleLayer.HomeF.GetAlarmConent("12") + "- " + "Position:" + DownConveyorAuto_Flow3_0.text);
+				NPSDK.Alarm.Show("12");
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow3_1_FlowChartRun()
+		{
+			bool r = MiddleLayer.ManualF.IB_DownConveyor_DownMachineReady_SMEMA.On();
+			if (!r)
+			{
+				MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow3_1.text);
+				return NPFlowChart.Flow_Chart.ResultType.NEXT;
+			}
+			return NPFlowChart.Flow_Chart.ResultType.IDLE;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow3_2_FlowChartRun()
+		{
+			MiddleLayer.ManualF.OB_DownConveyor_Forward.Off();
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow3_2.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow3_3_FlowChartRun()
+		{
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow3_3.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow3_4_FlowChartRun()
+		{
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow3_4.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+
+		private NPFlowChart.Flow_Chart.ResultType DownConveyorAuto_Flow3_5_FlowChartRun()
+		{
+			MiddleLayer.HomeF.AddRunMessage("Conveyor Auto:" + DownConveyorAuto_Flow3_5.text);
+			return NPFlowChart.Flow_Chart.ResultType.NEXT;
+		}
+	}
+}

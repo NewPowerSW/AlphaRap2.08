@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+<startup><supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.8"/></startup><system.serviceModel>
+        <bindings>
+            <basicHttpBinding>
+                <binding name="BasicHttpBinding_IExtMainService"/>
+            </basicHttpBinding>
+        </bindings>
+        <client>
+            <endpoint address="http://222.92.97.69:8013/Services/ExtSystemService.svc/SFCS" binding="basicHttpBinding" bindingConfiguration="BasicHttpBinding_IExtMainService" contract="ExtMainServiceClient.IExtMainService" name="BasicHttpBinding_IExtMainService"/>
+        </client>
+    </system.serviceModel>
+</configuration>

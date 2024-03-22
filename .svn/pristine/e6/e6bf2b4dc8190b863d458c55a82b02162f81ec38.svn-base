@@ -1,0 +1,105 @@
+﻿namespace AlphaRap.TaskProcess
+{
+    partial class Gantry
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+			this.ScrewInit_Flow1_1 = new NPFlowChart.Flow_Chart();
+			this.ScrewInit_Flow1_2 = new NPFlowChart.Flow_Chart();
+			this.InitialPage.SuspendLayout();
+			this.FlowChartTable.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// InitialPage
+			// 
+			this.InitialPage.Controls.Add(this.ScrewInit_Flow1_2);
+			this.InitialPage.Controls.Add(this.ScrewInit_Flow1_1);
+			this.InitialPage.Location = new System.Drawing.Point(4, 36);
+			this.InitialPage.Size = new System.Drawing.Size(1231, 646);
+			// 
+			// AutoPage
+			// 
+			this.AutoPage.Location = new System.Drawing.Point(4, 36);
+			this.AutoPage.Size = new System.Drawing.Size(1059, 522);
+			// 
+			// FlowChartTable
+			// 
+			this.FlowChartTable.Size = new System.Drawing.Size(1239, 686);
+			// 
+			// ScrewInit_Flow1_1
+			// 
+			this.ScrewInit_Flow1_1.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ScrewInit_Flow1_1.Casse1 = null;
+			this.ScrewInit_Flow1_1.Casse2 = null;
+			this.ScrewInit_Flow1_1.Casse3 = null;
+			this.ScrewInit_Flow1_1.FlowChart_ElapsedMilliseconds = ((long)(12967));
+			this.ScrewInit_Flow1_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ScrewInit_Flow1_1.Location = new System.Drawing.Point(285, 94);
+			this.ScrewInit_Flow1_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ScrewInit_Flow1_1.Name = "ScrewInit_Flow1_1";
+			this.ScrewInit_Flow1_1.Next = this.ScrewInit_Flow1_2;
+			this.ScrewInit_Flow1_1.Size = new System.Drawing.Size(276, 35);
+			this.ScrewInit_Flow1_1.TabIndex = 21;
+			this.ScrewInit_Flow1_1.text = "启动1.1";
+			this.ScrewInit_Flow1_1.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ScrewInit_Flow1_1_FlowChartRun);
+			// 
+			// ScrewInit_Flow1_2
+			// 
+			this.ScrewInit_Flow1_2.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ScrewInit_Flow1_2.Casse1 = null;
+			this.ScrewInit_Flow1_2.Casse2 = null;
+			this.ScrewInit_Flow1_2.Casse3 = null;
+			this.ScrewInit_Flow1_2.FlowChart_ElapsedMilliseconds = ((long)(12962));
+			this.ScrewInit_Flow1_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ScrewInit_Flow1_2.Location = new System.Drawing.Point(285, 172);
+			this.ScrewInit_Flow1_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ScrewInit_Flow1_2.Name = "ScrewInit_Flow1_2";
+			this.ScrewInit_Flow1_2.Next = null;
+			this.ScrewInit_Flow1_2.Size = new System.Drawing.Size(276, 35);
+			this.ScrewInit_Flow1_2.TabIndex = 31;
+			this.ScrewInit_Flow1_2.text = "初始化完成1.2";
+			this.ScrewInit_Flow1_2.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ScrewInit_Flow1_2_FlowChartRun);
+			// 
+			// Gantry
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(1239, 686);
+			this.Name = "Gantry";
+			this.Text = "Gantry";
+			this.InitialPage.ResumeLayout(false);
+			this.FlowChartTable.ResumeLayout(false);
+			this.ResumeLayout(false);
+
+        }
+
+		#endregion
+
+		private NPFlowChart.Flow_Chart ScrewInit_Flow1_1;
+		private NPFlowChart.Flow_Chart ScrewInit_Flow1_2;
+	}
+}

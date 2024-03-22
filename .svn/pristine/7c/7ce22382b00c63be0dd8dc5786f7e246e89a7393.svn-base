@@ -1,0 +1,17 @@
+[MachineSetup]
+ProjectName=AlphaRap2.0
+RecipeName=PA97-50001N
+LanguageName=Chinese
+
+[LogicSetup]
+Simulation=False
+
+[PathSetup]
+LogFileDirectory=.\LogFile
+VisionDataDirectory=.\VisionData
+AlarmTableDirectory=.\AlarmTable
+ModuleDataDirectory=.\ModuleData\SettingData
+RecipeDirectory=.\ModuleData\RecipeData
+MESDirectory=.\ModuleData\MESData
+IOPortDirectory=.\ModuleData
+LanguageDirectory=.\LanguageData

@@ -1,0 +1,1954 @@
+﻿namespace AlphaRap.TaskProcess
+{
+    partial class Converyor
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+			this.ConveyInit_Flow1_1 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow1_2 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow1_3 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow1_4 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow1_5 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow1_6 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow1_7 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow1_8 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow1_9 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow2_1 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow2_2 = new NPFlowChart.Flow_Chart();
+			this.ConveyInit_Flow2_3 = new NPFlowChart.Flow_Chart();
+			this.tabControl1 = new System.Windows.Forms.TabControl();
+			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.tabControl2 = new System.Windows.Forms.TabControl();
+			this.tabPage3 = new System.Windows.Forms.TabPage();
+			this.ConveyorAuto_Flow1_09 = new NPFlowChart.Flow_Chart();
+			this.ConveyAuto_Flow1_10 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_11 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_12 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_13 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_14 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_15 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_16 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_17 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_18 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_19 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_20 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_21 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_22 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_23 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_01 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_02 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_03 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_04 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_05 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_06 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_07 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow1_08 = new NPFlowChart.Flow_Chart();
+			this.tabPage4 = new System.Windows.Forms.TabPage();
+			this.ConveyorAuto_Flow2_21 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_22 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_23 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_24 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_25 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_26 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_27 = new NPFlowChart.Flow_Chart();
+			this.ConveyoAuto_Flow2_28 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_29 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_01 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_02 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_03 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_15 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_16 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_17 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_18 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_19 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_20 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_04 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_05 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_06 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_07 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_08 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_09 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_10 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_11 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_12 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_13 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_14 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow2_30 = new NPFlowChart.Flow_Chart();
+			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.ConveyorAuto_Flow3_20 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_21 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_22 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_23 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_24 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_25 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_01 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_02 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_03 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_15 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_16 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_17 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_18 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_19 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_04 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_05 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_06 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_07 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_08 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_09 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_10 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_11 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_12 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_13 = new NPFlowChart.Flow_Chart();
+			this.ConveyorAuto_Flow3_14 = new NPFlowChart.Flow_Chart();
+			this.InitialPage.SuspendLayout();
+			this.AutoPage.SuspendLayout();
+			this.FlowChartTable.SuspendLayout();
+			this.tabControl1.SuspendLayout();
+			this.tabPage1.SuspendLayout();
+			this.tabControl2.SuspendLayout();
+			this.tabPage3.SuspendLayout();
+			this.tabPage4.SuspendLayout();
+			this.tabPage2.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// InitialPage
+			// 
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow1_2);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow2_2);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow2_3);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow2_1);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow1_9);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow1_8);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow1_7);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow1_6);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow1_5);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow1_3);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow1_4);
+			this.InitialPage.Controls.Add(this.ConveyInit_Flow1_1);
+			this.InitialPage.Location = new System.Drawing.Point(4, 36);
+			this.InitialPage.Size = new System.Drawing.Size(1060, 763);
+			// 
+			// AutoPage
+			// 
+			this.AutoPage.Controls.Add(this.tabControl1);
+			this.AutoPage.Location = new System.Drawing.Point(4, 36);
+			this.AutoPage.Size = new System.Drawing.Size(1059, 522);
+			// 
+			// FlowChartTable
+			// 
+			this.FlowChartTable.Size = new System.Drawing.Size(1068, 803);
+			// 
+			// ConveyInit_Flow1_1
+			// 
+			this.ConveyInit_Flow1_1.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow1_1.Casse1 = null;
+			this.ConveyInit_Flow1_1.Casse2 = null;
+			this.ConveyInit_Flow1_1.Casse3 = null;
+			this.ConveyInit_Flow1_1.FlowChart_ElapsedMilliseconds = ((long)(135924));
+			this.ConveyInit_Flow1_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow1_1.Location = new System.Drawing.Point(333, 26);
+			this.ConveyInit_Flow1_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow1_1.Name = "ConveyInit_Flow1_1";
+			this.ConveyInit_Flow1_1.Next = this.ConveyInit_Flow1_2;
+			this.ConveyInit_Flow1_1.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow1_1.TabIndex = 20;
+			this.ConveyInit_Flow1_1.text = "启动1.1";
+			this.ConveyInit_Flow1_1.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_01_FlowChartRun);
+			// 
+			// ConveyInit_Flow1_2
+			// 
+			this.ConveyInit_Flow1_2.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow1_2.Casse1 = null;
+			this.ConveyInit_Flow1_2.Casse2 = null;
+			this.ConveyInit_Flow1_2.Casse3 = null;
+			this.ConveyInit_Flow1_2.FlowChart_ElapsedMilliseconds = ((long)(135913));
+			this.ConveyInit_Flow1_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow1_2.Location = new System.Drawing.Point(333, 78);
+			this.ConveyInit_Flow1_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow1_2.Name = "ConveyInit_Flow1_2";
+			this.ConveyInit_Flow1_2.Next = this.ConveyInit_Flow1_3;
+			this.ConveyInit_Flow1_2.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow1_2.TabIndex = 32;
+			this.ConveyInit_Flow1_2.text = "等到模组初始化完成1.2";
+			this.ConveyInit_Flow1_2.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_2_FlowChartRun);
+			// 
+			// ConveyInit_Flow1_3
+			// 
+			this.ConveyInit_Flow1_3.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow1_3.Casse1 = null;
+			this.ConveyInit_Flow1_3.Casse2 = null;
+			this.ConveyInit_Flow1_3.Casse3 = null;
+			this.ConveyInit_Flow1_3.FlowChart_ElapsedMilliseconds = ((long)(135912));
+			this.ConveyInit_Flow1_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow1_3.Location = new System.Drawing.Point(333, 130);
+			this.ConveyInit_Flow1_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow1_3.Name = "ConveyInit_Flow1_3";
+			this.ConveyInit_Flow1_3.Next = this.ConveyInit_Flow1_4;
+			this.ConveyInit_Flow1_3.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow1_3.TabIndex = 22;
+			this.ConveyInit_Flow1_3.text = "上缓存流道初始化1.3";
+			this.ConveyInit_Flow1_3.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_02_FlowChartRun);
+			// 
+			// ConveyInit_Flow1_4
+			// 
+			this.ConveyInit_Flow1_4.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow1_4.Casse1 = null;
+			this.ConveyInit_Flow1_4.Casse2 = null;
+			this.ConveyInit_Flow1_4.Casse3 = null;
+			this.ConveyInit_Flow1_4.FlowChart_ElapsedMilliseconds = ((long)(135910));
+			this.ConveyInit_Flow1_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow1_4.Location = new System.Drawing.Point(333, 182);
+			this.ConveyInit_Flow1_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow1_4.Name = "ConveyInit_Flow1_4";
+			this.ConveyInit_Flow1_4.Next = this.ConveyInit_Flow1_5;
+			this.ConveyInit_Flow1_4.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow1_4.TabIndex = 21;
+			this.ConveyInit_Flow1_4.text = "上工作流道初始化1.4";
+			this.ConveyInit_Flow1_4.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_03_FlowChartRun);
+			// 
+			// ConveyInit_Flow1_5
+			// 
+			this.ConveyInit_Flow1_5.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow1_5.Casse1 = null;
+			this.ConveyInit_Flow1_5.Casse2 = null;
+			this.ConveyInit_Flow1_5.Casse3 = null;
+			this.ConveyInit_Flow1_5.FlowChart_ElapsedMilliseconds = ((long)(135909));
+			this.ConveyInit_Flow1_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow1_5.Location = new System.Drawing.Point(333, 234);
+			this.ConveyInit_Flow1_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow1_5.Name = "ConveyInit_Flow1_5";
+			this.ConveyInit_Flow1_5.Next = this.ConveyInit_Flow1_6;
+			this.ConveyInit_Flow1_5.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow1_5.TabIndex = 23;
+			this.ConveyInit_Flow1_5.text = "下流道初始化1.5";
+			this.ConveyInit_Flow1_5.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_04_FlowChartRun);
+			// 
+			// ConveyInit_Flow1_6
+			// 
+			this.ConveyInit_Flow1_6.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow1_6.Casse1 = null;
+			this.ConveyInit_Flow1_6.Casse2 = null;
+			this.ConveyInit_Flow1_6.Casse3 = null;
+			this.ConveyInit_Flow1_6.FlowChart_ElapsedMilliseconds = ((long)(135907));
+			this.ConveyInit_Flow1_6.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow1_6.Location = new System.Drawing.Point(333, 286);
+			this.ConveyInit_Flow1_6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow1_6.Name = "ConveyInit_Flow1_6";
+			this.ConveyInit_Flow1_6.Next = this.ConveyInit_Flow1_7;
+			this.ConveyInit_Flow1_6.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow1_6.TabIndex = 25;
+			this.ConveyInit_Flow1_6.text = "上流道缓存位阻挡上升1.6";
+			this.ConveyInit_Flow1_6.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_05_FlowChartRun);
+			// 
+			// ConveyInit_Flow1_7
+			// 
+			this.ConveyInit_Flow1_7.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow1_7.Casse1 = null;
+			this.ConveyInit_Flow1_7.Casse2 = null;
+			this.ConveyInit_Flow1_7.Casse3 = null;
+			this.ConveyInit_Flow1_7.FlowChart_ElapsedMilliseconds = ((long)(135906));
+			this.ConveyInit_Flow1_7.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow1_7.Location = new System.Drawing.Point(333, 338);
+			this.ConveyInit_Flow1_7.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow1_7.Name = "ConveyInit_Flow1_7";
+			this.ConveyInit_Flow1_7.Next = this.ConveyInit_Flow1_8;
+			this.ConveyInit_Flow1_7.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow1_7.TabIndex = 26;
+			this.ConveyInit_Flow1_7.text = "上流道工作位顶升下降1.7";
+			this.ConveyInit_Flow1_7.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_06_FlowChartRun);
+			// 
+			// ConveyInit_Flow1_8
+			// 
+			this.ConveyInit_Flow1_8.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow1_8.Casse1 = null;
+			this.ConveyInit_Flow1_8.Casse2 = null;
+			this.ConveyInit_Flow1_8.Casse3 = null;
+			this.ConveyInit_Flow1_8.FlowChart_ElapsedMilliseconds = ((long)(135904));
+			this.ConveyInit_Flow1_8.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow1_8.Location = new System.Drawing.Point(333, 390);
+			this.ConveyInit_Flow1_8.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow1_8.Name = "ConveyInit_Flow1_8";
+			this.ConveyInit_Flow1_8.Next = this.ConveyInit_Flow1_9;
+			this.ConveyInit_Flow1_8.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow1_8.TabIndex = 27;
+			this.ConveyInit_Flow1_8.text = "上流道工作位阻挡上升1.8";
+			this.ConveyInit_Flow1_8.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_07_FlowChartRun);
+			// 
+			// ConveyInit_Flow1_9
+			// 
+			this.ConveyInit_Flow1_9.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow1_9.Casse1 = null;
+			this.ConveyInit_Flow1_9.Casse2 = null;
+			this.ConveyInit_Flow1_9.Casse3 = null;
+			this.ConveyInit_Flow1_9.FlowChart_ElapsedMilliseconds = ((long)(135900));
+			this.ConveyInit_Flow1_9.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow1_9.Location = new System.Drawing.Point(333, 442);
+			this.ConveyInit_Flow1_9.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow1_9.Name = "ConveyInit_Flow1_9";
+			this.ConveyInit_Flow1_9.Next = this.ConveyInit_Flow2_1;
+			this.ConveyInit_Flow1_9.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow1_9.TabIndex = 28;
+			this.ConveyInit_Flow1_9.text = "下流道阻挡上升1.9";
+			this.ConveyInit_Flow1_9.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_08_FlowChartRun);
+			// 
+			// ConveyInit_Flow2_1
+			// 
+			this.ConveyInit_Flow2_1.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow2_1.Casse1 = null;
+			this.ConveyInit_Flow2_1.Casse2 = null;
+			this.ConveyInit_Flow2_1.Casse3 = null;
+			this.ConveyInit_Flow2_1.FlowChart_ElapsedMilliseconds = ((long)(135898));
+			this.ConveyInit_Flow2_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow2_1.Location = new System.Drawing.Point(333, 494);
+			this.ConveyInit_Flow2_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow2_1.Name = "ConveyInit_Flow2_1";
+			this.ConveyInit_Flow2_1.Next = this.ConveyInit_Flow2_2;
+			this.ConveyInit_Flow2_1.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow2_1.TabIndex = 29;
+			this.ConveyInit_Flow2_1.text = "流道转动2.1";
+			this.ConveyInit_Flow2_1.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_09_FlowChartRun);
+			// 
+			// ConveyInit_Flow2_2
+			// 
+			this.ConveyInit_Flow2_2.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow2_2.Casse1 = null;
+			this.ConveyInit_Flow2_2.Casse2 = null;
+			this.ConveyInit_Flow2_2.Casse3 = null;
+			this.ConveyInit_Flow2_2.FlowChart_ElapsedMilliseconds = ((long)(135894));
+			this.ConveyInit_Flow2_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow2_2.Location = new System.Drawing.Point(333, 546);
+			this.ConveyInit_Flow2_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow2_2.Name = "ConveyInit_Flow2_2";
+			this.ConveyInit_Flow2_2.Next = this.ConveyInit_Flow2_3;
+			this.ConveyInit_Flow2_2.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow2_2.TabIndex = 31;
+			this.ConveyInit_Flow2_2.text = "流道停止2.2";
+			this.ConveyInit_Flow2_2.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_10_FlowChartRun);
+			// 
+			// ConveyInit_Flow2_3
+			// 
+			this.ConveyInit_Flow2_3.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyInit_Flow2_3.Casse1 = null;
+			this.ConveyInit_Flow2_3.Casse2 = null;
+			this.ConveyInit_Flow2_3.Casse3 = null;
+			this.ConveyInit_Flow2_3.FlowChart_ElapsedMilliseconds = ((long)(135892));
+			this.ConveyInit_Flow2_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyInit_Flow2_3.Location = new System.Drawing.Point(333, 598);
+			this.ConveyInit_Flow2_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyInit_Flow2_3.Name = "ConveyInit_Flow2_3";
+			this.ConveyInit_Flow2_3.Next = null;
+			this.ConveyInit_Flow2_3.Size = new System.Drawing.Size(276, 35);
+			this.ConveyInit_Flow2_3.TabIndex = 30;
+			this.ConveyInit_Flow2_3.text = "初始化完成2.3";
+			this.ConveyInit_Flow2_3.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyInit_Flow1_11_FlowChartRun);
+			// 
+			// tabControl1
+			// 
+			this.tabControl1.Controls.Add(this.tabPage1);
+			this.tabControl1.Controls.Add(this.tabPage2);
+			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl1.Location = new System.Drawing.Point(4, 4);
+			this.tabControl1.Name = "tabControl1";
+			this.tabControl1.SelectedIndex = 0;
+			this.tabControl1.Size = new System.Drawing.Size(1051, 514);
+			this.tabControl1.TabIndex = 0;
+			// 
+			// tabPage1
+			// 
+			this.tabPage1.Controls.Add(this.tabControl2);
+			this.tabPage1.Location = new System.Drawing.Point(4, 36);
+			this.tabPage1.Name = "tabPage1";
+			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage1.Size = new System.Drawing.Size(1043, 474);
+			this.tabPage1.TabIndex = 0;
+			this.tabPage1.Text = "上流道";
+			this.tabPage1.UseVisualStyleBackColor = true;
+			// 
+			// tabControl2
+			// 
+			this.tabControl2.Controls.Add(this.tabPage3);
+			this.tabControl2.Controls.Add(this.tabPage4);
+			this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl2.Location = new System.Drawing.Point(3, 3);
+			this.tabControl2.Name = "tabControl2";
+			this.tabControl2.SelectedIndex = 0;
+			this.tabControl2.Size = new System.Drawing.Size(1037, 468);
+			this.tabControl2.TabIndex = 1;
+			// 
+			// tabPage3
+			// 
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_09);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_22);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_23);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_21);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_20);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_19);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_18);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_17);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_16);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_15);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_14);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_13);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_12);
+			this.tabPage3.Controls.Add(this.ConveyAuto_Flow1_10);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_11);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_08);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_07);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_03);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_06);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_04);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_02);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_05);
+			this.tabPage3.Controls.Add(this.ConveyorAuto_Flow1_01);
+			this.tabPage3.Location = new System.Drawing.Point(4, 36);
+			this.tabPage3.Name = "tabPage3";
+			this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage3.Size = new System.Drawing.Size(1029, 428);
+			this.tabPage3.TabIndex = 0;
+			this.tabPage3.Text = "缓存区";
+			this.tabPage3.UseVisualStyleBackColor = true;
+			// 
+			// ConveyorAuto_Flow1_09
+			// 
+			this.ConveyorAuto_Flow1_09.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_09.Casse1 = null;
+			this.ConveyorAuto_Flow1_09.Casse2 = null;
+			this.ConveyorAuto_Flow1_09.Casse3 = null;
+			this.ConveyorAuto_Flow1_09.FlowChart_ElapsedMilliseconds = ((long)(135890));
+			this.ConveyorAuto_Flow1_09.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_09.Location = new System.Drawing.Point(121, 361);
+			this.ConveyorAuto_Flow1_09.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_09.Name = "ConveyorAuto_Flow1_09";
+			this.ConveyorAuto_Flow1_09.Next = this.ConveyAuto_Flow1_10;
+			this.ConveyorAuto_Flow1_09.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_09.TabIndex = 47;
+			this.ConveyorAuto_Flow1_09.text = "入料信号OFF1.09";
+			this.ConveyorAuto_Flow1_09.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_09_FlowChartRun);
+			// 
+			// ConveyAuto_Flow1_10
+			// 
+			this.ConveyAuto_Flow1_10.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyAuto_Flow1_10.Casse1 = null;
+			this.ConveyAuto_Flow1_10.Casse2 = null;
+			this.ConveyAuto_Flow1_10.Casse3 = null;
+			this.ConveyAuto_Flow1_10.FlowChart_ElapsedMilliseconds = ((long)(135889));
+			this.ConveyAuto_Flow1_10.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyAuto_Flow1_10.Location = new System.Drawing.Point(121, 408);
+			this.ConveyAuto_Flow1_10.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyAuto_Flow1_10.Name = "ConveyAuto_Flow1_10";
+			this.ConveyAuto_Flow1_10.Next = this.ConveyorAuto_Flow1_11;
+			this.ConveyAuto_Flow1_10.Size = new System.Drawing.Size(276, 35);
+			this.ConveyAuto_Flow1_10.TabIndex = 34;
+			this.ConveyAuto_Flow1_10.text = "要板信号关闭1.10";
+			this.ConveyAuto_Flow1_10.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_10_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_11
+			// 
+			this.ConveyorAuto_Flow1_11.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_11.Casse1 = null;
+			this.ConveyorAuto_Flow1_11.Casse2 = null;
+			this.ConveyorAuto_Flow1_11.Casse3 = null;
+			this.ConveyorAuto_Flow1_11.FlowChart_ElapsedMilliseconds = ((long)(135888));
+			this.ConveyorAuto_Flow1_11.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_11.Location = new System.Drawing.Point(121, 455);
+			this.ConveyorAuto_Flow1_11.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_11.Name = "ConveyorAuto_Flow1_11";
+			this.ConveyorAuto_Flow1_11.Next = this.ConveyorAuto_Flow1_12;
+			this.ConveyorAuto_Flow1_11.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_11.TabIndex = 33;
+			this.ConveyorAuto_Flow1_11.text = "减速感应器ON1.11";
+			this.ConveyorAuto_Flow1_11.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_11_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_12
+			// 
+			this.ConveyorAuto_Flow1_12.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_12.Casse1 = null;
+			this.ConveyorAuto_Flow1_12.Casse2 = null;
+			this.ConveyorAuto_Flow1_12.Casse3 = null;
+			this.ConveyorAuto_Flow1_12.FlowChart_ElapsedMilliseconds = ((long)(135884));
+			this.ConveyorAuto_Flow1_12.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_12.Location = new System.Drawing.Point(121, 502);
+			this.ConveyorAuto_Flow1_12.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_12.Name = "ConveyorAuto_Flow1_12";
+			this.ConveyorAuto_Flow1_12.Next = this.ConveyorAuto_Flow1_13;
+			this.ConveyorAuto_Flow1_12.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_12.TabIndex = 35;
+			this.ConveyorAuto_Flow1_12.text = "流道速度切换1.12";
+			this.ConveyorAuto_Flow1_12.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_12_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_13
+			// 
+			this.ConveyorAuto_Flow1_13.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_13.Casse1 = null;
+			this.ConveyorAuto_Flow1_13.Casse2 = null;
+			this.ConveyorAuto_Flow1_13.Casse3 = null;
+			this.ConveyorAuto_Flow1_13.FlowChart_ElapsedMilliseconds = ((long)(135879));
+			this.ConveyorAuto_Flow1_13.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_13.Location = new System.Drawing.Point(121, 549);
+			this.ConveyorAuto_Flow1_13.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_13.Name = "ConveyorAuto_Flow1_13";
+			this.ConveyorAuto_Flow1_13.Next = this.ConveyorAuto_Flow1_14;
+			this.ConveyorAuto_Flow1_13.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_13.TabIndex = 36;
+			this.ConveyorAuto_Flow1_13.text = "到位感应器ON1.13";
+			this.ConveyorAuto_Flow1_13.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_13_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_14
+			// 
+			this.ConveyorAuto_Flow1_14.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_14.Casse1 = null;
+			this.ConveyorAuto_Flow1_14.Casse2 = null;
+			this.ConveyorAuto_Flow1_14.Casse3 = null;
+			this.ConveyorAuto_Flow1_14.FlowChart_ElapsedMilliseconds = ((long)(135878));
+			this.ConveyorAuto_Flow1_14.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_14.Location = new System.Drawing.Point(121, 597);
+			this.ConveyorAuto_Flow1_14.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_14.Name = "ConveyorAuto_Flow1_14";
+			this.ConveyorAuto_Flow1_14.Next = this.ConveyorAuto_Flow1_15;
+			this.ConveyorAuto_Flow1_14.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_14.TabIndex = 37;
+			this.ConveyorAuto_Flow1_14.text = "流道停止1.14";
+			this.ConveyorAuto_Flow1_14.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_14_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_15
+			// 
+			this.ConveyorAuto_Flow1_15.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_15.Casse1 = null;
+			this.ConveyorAuto_Flow1_15.Casse2 = null;
+			this.ConveyorAuto_Flow1_15.Casse3 = null;
+			this.ConveyorAuto_Flow1_15.FlowChart_ElapsedMilliseconds = ((long)(135877));
+			this.ConveyorAuto_Flow1_15.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_15.Location = new System.Drawing.Point(574, 78);
+			this.ConveyorAuto_Flow1_15.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_15.Name = "ConveyorAuto_Flow1_15";
+			this.ConveyorAuto_Flow1_15.Next = this.ConveyorAuto_Flow1_16;
+			this.ConveyorAuto_Flow1_15.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow1_15.TabIndex = 38;
+			this.ConveyorAuto_Flow1_15.text = "给工作区有板信号1.15";
+			this.ConveyorAuto_Flow1_15.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_15_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_16
+			// 
+			this.ConveyorAuto_Flow1_16.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_16.Casse1 = null;
+			this.ConveyorAuto_Flow1_16.Casse2 = null;
+			this.ConveyorAuto_Flow1_16.Casse3 = null;
+			this.ConveyorAuto_Flow1_16.FlowChart_ElapsedMilliseconds = ((long)(135876));
+			this.ConveyorAuto_Flow1_16.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_16.Location = new System.Drawing.Point(574, 127);
+			this.ConveyorAuto_Flow1_16.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_16.Name = "ConveyorAuto_Flow1_16";
+			this.ConveyorAuto_Flow1_16.Next = this.ConveyorAuto_Flow1_17;
+			this.ConveyorAuto_Flow1_16.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow1_16.TabIndex = 39;
+			this.ConveyorAuto_Flow1_16.text = "等待工作区要板1.16";
+			this.ConveyorAuto_Flow1_16.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_16_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_17
+			// 
+			this.ConveyorAuto_Flow1_17.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_17.Casse1 = null;
+			this.ConveyorAuto_Flow1_17.Casse2 = null;
+			this.ConveyorAuto_Flow1_17.Casse3 = null;
+			this.ConveyorAuto_Flow1_17.FlowChart_ElapsedMilliseconds = ((long)(135874));
+			this.ConveyorAuto_Flow1_17.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_17.Location = new System.Drawing.Point(574, 176);
+			this.ConveyorAuto_Flow1_17.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_17.Name = "ConveyorAuto_Flow1_17";
+			this.ConveyorAuto_Flow1_17.Next = this.ConveyorAuto_Flow1_18;
+			this.ConveyorAuto_Flow1_17.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow1_17.TabIndex = 40;
+			this.ConveyorAuto_Flow1_17.text = "阻挡区阻挡下降1.17";
+			this.ConveyorAuto_Flow1_17.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_17_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_18
+			// 
+			this.ConveyorAuto_Flow1_18.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_18.Casse1 = null;
+			this.ConveyorAuto_Flow1_18.Casse2 = null;
+			this.ConveyorAuto_Flow1_18.Casse3 = null;
+			this.ConveyorAuto_Flow1_18.FlowChart_ElapsedMilliseconds = ((long)(135873));
+			this.ConveyorAuto_Flow1_18.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_18.Location = new System.Drawing.Point(574, 225);
+			this.ConveyorAuto_Flow1_18.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_18.Name = "ConveyorAuto_Flow1_18";
+			this.ConveyorAuto_Flow1_18.Next = this.ConveyorAuto_Flow1_19;
+			this.ConveyorAuto_Flow1_18.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow1_18.TabIndex = 41;
+			this.ConveyorAuto_Flow1_18.text = "流道转动1.18";
+			this.ConveyorAuto_Flow1_18.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_18_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_19
+			// 
+			this.ConveyorAuto_Flow1_19.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_19.Casse1 = null;
+			this.ConveyorAuto_Flow1_19.Casse2 = null;
+			this.ConveyorAuto_Flow1_19.Casse3 = null;
+			this.ConveyorAuto_Flow1_19.FlowChart_ElapsedMilliseconds = ((long)(135872));
+			this.ConveyorAuto_Flow1_19.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_19.Location = new System.Drawing.Point(574, 274);
+			this.ConveyorAuto_Flow1_19.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_19.Name = "ConveyorAuto_Flow1_19";
+			this.ConveyorAuto_Flow1_19.Next = this.ConveyorAuto_Flow1_20;
+			this.ConveyorAuto_Flow1_19.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow1_19.TabIndex = 42;
+			this.ConveyorAuto_Flow1_19.text = "等待工作区要料信号关闭1.19";
+			this.ConveyorAuto_Flow1_19.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_19_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_20
+			// 
+			this.ConveyorAuto_Flow1_20.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_20.Casse1 = null;
+			this.ConveyorAuto_Flow1_20.Casse2 = null;
+			this.ConveyorAuto_Flow1_20.Casse3 = null;
+			this.ConveyorAuto_Flow1_20.FlowChart_ElapsedMilliseconds = ((long)(135862));
+			this.ConveyorAuto_Flow1_20.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_20.Location = new System.Drawing.Point(574, 323);
+			this.ConveyorAuto_Flow1_20.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_20.Name = "ConveyorAuto_Flow1_20";
+			this.ConveyorAuto_Flow1_20.Next = this.ConveyorAuto_Flow1_21;
+			this.ConveyorAuto_Flow1_20.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow1_20.TabIndex = 43;
+			this.ConveyorAuto_Flow1_20.text = "流道停止1.20";
+			this.ConveyorAuto_Flow1_20.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_20_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_21
+			// 
+			this.ConveyorAuto_Flow1_21.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_21.Casse1 = null;
+			this.ConveyorAuto_Flow1_21.Casse2 = null;
+			this.ConveyorAuto_Flow1_21.Casse3 = null;
+			this.ConveyorAuto_Flow1_21.FlowChart_ElapsedMilliseconds = ((long)(135857));
+			this.ConveyorAuto_Flow1_21.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_21.Location = new System.Drawing.Point(574, 372);
+			this.ConveyorAuto_Flow1_21.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_21.Name = "ConveyorAuto_Flow1_21";
+			this.ConveyorAuto_Flow1_21.Next = this.ConveyorAuto_Flow1_22;
+			this.ConveyorAuto_Flow1_21.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow1_21.TabIndex = 44;
+			this.ConveyorAuto_Flow1_21.text = "交互完成1.21";
+			this.ConveyorAuto_Flow1_21.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_21_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_22
+			// 
+			this.ConveyorAuto_Flow1_22.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_22.Casse1 = null;
+			this.ConveyorAuto_Flow1_22.Casse2 = null;
+			this.ConveyorAuto_Flow1_22.Casse3 = null;
+			this.ConveyorAuto_Flow1_22.FlowChart_ElapsedMilliseconds = ((long)(135856));
+			this.ConveyorAuto_Flow1_22.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_22.Location = new System.Drawing.Point(888, 372);
+			this.ConveyorAuto_Flow1_22.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_22.Name = "ConveyorAuto_Flow1_22";
+			this.ConveyorAuto_Flow1_22.Next = this.ConveyorAuto_Flow1_23;
+			this.ConveyorAuto_Flow1_22.Size = new System.Drawing.Size(112, 35);
+			this.ConveyorAuto_Flow1_22.TabIndex = 46;
+			this.ConveyorAuto_Flow1_22.text = "Loop1.22";
+			this.ConveyorAuto_Flow1_22.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_22_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_23
+			// 
+			this.ConveyorAuto_Flow1_23.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_23.Casse1 = null;
+			this.ConveyorAuto_Flow1_23.Casse2 = null;
+			this.ConveyorAuto_Flow1_23.Casse3 = null;
+			this.ConveyorAuto_Flow1_23.FlowChart_ElapsedMilliseconds = ((long)(135855));
+			this.ConveyorAuto_Flow1_23.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_23.Location = new System.Drawing.Point(888, 32);
+			this.ConveyorAuto_Flow1_23.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_23.Name = "ConveyorAuto_Flow1_23";
+			this.ConveyorAuto_Flow1_23.Next = this.ConveyorAuto_Flow1_01;
+			this.ConveyorAuto_Flow1_23.Size = new System.Drawing.Size(112, 35);
+			this.ConveyorAuto_Flow1_23.TabIndex = 45;
+			this.ConveyorAuto_Flow1_23.text = "Loop1.23";
+			this.ConveyorAuto_Flow1_23.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_23_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_01
+			// 
+			this.ConveyorAuto_Flow1_01.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_01.Casse1 = null;
+			this.ConveyorAuto_Flow1_01.Casse2 = null;
+			this.ConveyorAuto_Flow1_01.Casse3 = null;
+			this.ConveyorAuto_Flow1_01.FlowChart_ElapsedMilliseconds = ((long)(135855));
+			this.ConveyorAuto_Flow1_01.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_01.Location = new System.Drawing.Point(121, 32);
+			this.ConveyorAuto_Flow1_01.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_01.Name = "ConveyorAuto_Flow1_01";
+			this.ConveyorAuto_Flow1_01.Next = this.ConveyorAuto_Flow1_02;
+			this.ConveyorAuto_Flow1_01.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_01.TabIndex = 25;
+			this.ConveyorAuto_Flow1_01.text = "启动1.01";
+			this.ConveyorAuto_Flow1_01.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_01_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_02
+			// 
+			this.ConveyorAuto_Flow1_02.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_02.Casse1 = this.ConveyorAuto_Flow1_03;
+			this.ConveyorAuto_Flow1_02.Casse2 = null;
+			this.ConveyorAuto_Flow1_02.Casse3 = null;
+			this.ConveyorAuto_Flow1_02.FlowChart_ElapsedMilliseconds = ((long)(135852));
+			this.ConveyorAuto_Flow1_02.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_02.Location = new System.Drawing.Point(121, 79);
+			this.ConveyorAuto_Flow1_02.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_02.Name = "ConveyorAuto_Flow1_02";
+			this.ConveyorAuto_Flow1_02.Next = this.ConveyorAuto_Flow1_04;
+			this.ConveyorAuto_Flow1_02.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_02.TabIndex = 27;
+			this.ConveyorAuto_Flow1_02.text = "检查是否有板1.02";
+			this.ConveyorAuto_Flow1_02.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_02_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_03
+			// 
+			this.ConveyorAuto_Flow1_03.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_03.Casse1 = null;
+			this.ConveyorAuto_Flow1_03.Casse2 = null;
+			this.ConveyorAuto_Flow1_03.Casse3 = null;
+			this.ConveyorAuto_Flow1_03.FlowChart_ElapsedMilliseconds = ((long)(135853));
+			this.ConveyorAuto_Flow1_03.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_03.Location = new System.Drawing.Point(428, 78);
+			this.ConveyorAuto_Flow1_03.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_03.Name = "ConveyorAuto_Flow1_03";
+			this.ConveyorAuto_Flow1_03.Next = this.ConveyorAuto_Flow1_15;
+			this.ConveyorAuto_Flow1_03.Size = new System.Drawing.Size(124, 35);
+			this.ConveyorAuto_Flow1_03.TabIndex = 30;
+			this.ConveyorAuto_Flow1_03.text = "有板1.03";
+			this.ConveyorAuto_Flow1_03.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_03_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_04
+			// 
+			this.ConveyorAuto_Flow1_04.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_04.Casse1 = null;
+			this.ConveyorAuto_Flow1_04.Casse2 = null;
+			this.ConveyorAuto_Flow1_04.Casse3 = null;
+			this.ConveyorAuto_Flow1_04.FlowChart_ElapsedMilliseconds = ((long)(135851));
+			this.ConveyorAuto_Flow1_04.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_04.Location = new System.Drawing.Point(121, 126);
+			this.ConveyorAuto_Flow1_04.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_04.Name = "ConveyorAuto_Flow1_04";
+			this.ConveyorAuto_Flow1_04.Next = this.ConveyorAuto_Flow1_05;
+			this.ConveyorAuto_Flow1_04.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_04.TabIndex = 28;
+			this.ConveyorAuto_Flow1_04.text = "缓存区阻挡升起1.04";
+			this.ConveyorAuto_Flow1_04.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_04_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_05
+			// 
+			this.ConveyorAuto_Flow1_05.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_05.Casse1 = null;
+			this.ConveyorAuto_Flow1_05.Casse2 = null;
+			this.ConveyorAuto_Flow1_05.Casse3 = null;
+			this.ConveyorAuto_Flow1_05.FlowChart_ElapsedMilliseconds = ((long)(135848));
+			this.ConveyorAuto_Flow1_05.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_05.Location = new System.Drawing.Point(121, 173);
+			this.ConveyorAuto_Flow1_05.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_05.Name = "ConveyorAuto_Flow1_05";
+			this.ConveyorAuto_Flow1_05.Next = this.ConveyorAuto_Flow1_06;
+			this.ConveyorAuto_Flow1_05.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_05.TabIndex = 26;
+			this.ConveyorAuto_Flow1_05.text = "向上机要板1.05";
+			this.ConveyorAuto_Flow1_05.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_05_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_06
+			// 
+			this.ConveyorAuto_Flow1_06.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_06.Casse1 = null;
+			this.ConveyorAuto_Flow1_06.Casse2 = null;
+			this.ConveyorAuto_Flow1_06.Casse3 = null;
+			this.ConveyorAuto_Flow1_06.FlowChart_ElapsedMilliseconds = ((long)(135847));
+			this.ConveyorAuto_Flow1_06.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_06.Location = new System.Drawing.Point(121, 220);
+			this.ConveyorAuto_Flow1_06.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_06.Name = "ConveyorAuto_Flow1_06";
+			this.ConveyorAuto_Flow1_06.Next = this.ConveyorAuto_Flow1_07;
+			this.ConveyorAuto_Flow1_06.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_06.TabIndex = 29;
+			this.ConveyorAuto_Flow1_06.text = "等待上机有板待出信号1.06";
+			this.ConveyorAuto_Flow1_06.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_06_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_07
+			// 
+			this.ConveyorAuto_Flow1_07.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_07.Casse1 = null;
+			this.ConveyorAuto_Flow1_07.Casse2 = null;
+			this.ConveyorAuto_Flow1_07.Casse3 = null;
+			this.ConveyorAuto_Flow1_07.FlowChart_ElapsedMilliseconds = ((long)(135846));
+			this.ConveyorAuto_Flow1_07.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_07.Location = new System.Drawing.Point(121, 267);
+			this.ConveyorAuto_Flow1_07.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_07.Name = "ConveyorAuto_Flow1_07";
+			this.ConveyorAuto_Flow1_07.Next = this.ConveyorAuto_Flow1_08;
+			this.ConveyorAuto_Flow1_07.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_07.TabIndex = 31;
+			this.ConveyorAuto_Flow1_07.text = "流道转动1.07";
+			this.ConveyorAuto_Flow1_07.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_07_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow1_08
+			// 
+			this.ConveyorAuto_Flow1_08.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow1_08.Casse1 = null;
+			this.ConveyorAuto_Flow1_08.Casse2 = null;
+			this.ConveyorAuto_Flow1_08.Casse3 = null;
+			this.ConveyorAuto_Flow1_08.FlowChart_ElapsedMilliseconds = ((long)(135846));
+			this.ConveyorAuto_Flow1_08.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow1_08.Location = new System.Drawing.Point(121, 314);
+			this.ConveyorAuto_Flow1_08.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow1_08.Name = "ConveyorAuto_Flow1_08";
+			this.ConveyorAuto_Flow1_08.Next = this.ConveyorAuto_Flow1_09;
+			this.ConveyorAuto_Flow1_08.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow1_08.TabIndex = 32;
+			this.ConveyorAuto_Flow1_08.text = "入料信号ON1.08";
+			this.ConveyorAuto_Flow1_08.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow1_08_FlowChartRun);
+			// 
+			// tabPage4
+			// 
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_21);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_15);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_24);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_23);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_18);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_09);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_30);
+			this.tabPage4.Controls.Add(this.ConveyoAuto_Flow2_28);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_19);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_29);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_27);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_26);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_25);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_22);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_20);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_17);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_16);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_14);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_13);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_12);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_10);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_11);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_08);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_07);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_03);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_06);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_04);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_02);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_05);
+			this.tabPage4.Controls.Add(this.ConveyorAuto_Flow2_01);
+			this.tabPage4.Location = new System.Drawing.Point(4, 36);
+			this.tabPage4.Name = "tabPage4";
+			this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage4.Size = new System.Drawing.Size(1030, 669);
+			this.tabPage4.TabIndex = 1;
+			this.tabPage4.Text = "工作区";
+			this.tabPage4.UseVisualStyleBackColor = true;
+			// 
+			// ConveyorAuto_Flow2_21
+			// 
+			this.ConveyorAuto_Flow2_21.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_21.Casse1 = null;
+			this.ConveyorAuto_Flow2_21.Casse2 = null;
+			this.ConveyorAuto_Flow2_21.Casse3 = null;
+			this.ConveyorAuto_Flow2_21.FlowChart_ElapsedMilliseconds = ((long)(135829));
+			this.ConveyorAuto_Flow2_21.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_21.Location = new System.Drawing.Point(506, 338);
+			this.ConveyorAuto_Flow2_21.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_21.Name = "ConveyorAuto_Flow2_21";
+			this.ConveyorAuto_Flow2_21.Next = this.ConveyorAuto_Flow2_22;
+			this.ConveyorAuto_Flow2_21.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_21.TabIndex = 75;
+			this.ConveyorAuto_Flow2_21.text = "顶升下降2.21";
+			this.ConveyorAuto_Flow2_21.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_21_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_22
+			// 
+			this.ConveyorAuto_Flow2_22.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_22.Casse1 = null;
+			this.ConveyorAuto_Flow2_22.Casse2 = null;
+			this.ConveyorAuto_Flow2_22.Casse3 = null;
+			this.ConveyorAuto_Flow2_22.FlowChart_ElapsedMilliseconds = ((long)(135827));
+			this.ConveyorAuto_Flow2_22.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_22.Location = new System.Drawing.Point(506, 385);
+			this.ConveyorAuto_Flow2_22.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_22.Name = "ConveyorAuto_Flow2_22";
+			this.ConveyorAuto_Flow2_22.Next = this.ConveyorAuto_Flow2_23;
+			this.ConveyorAuto_Flow2_22.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_22.TabIndex = 62;
+			this.ConveyorAuto_Flow2_22.text = "流道转动2.22";
+			this.ConveyorAuto_Flow2_22.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_22_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_23
+			// 
+			this.ConveyorAuto_Flow2_23.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_23.Casse1 = null;
+			this.ConveyorAuto_Flow2_23.Casse2 = null;
+			this.ConveyorAuto_Flow2_23.Casse3 = null;
+			this.ConveyorAuto_Flow2_23.FlowChart_ElapsedMilliseconds = ((long)(135826));
+			this.ConveyorAuto_Flow2_23.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_23.Location = new System.Drawing.Point(506, 432);
+			this.ConveyorAuto_Flow2_23.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_23.Name = "ConveyorAuto_Flow2_23";
+			this.ConveyorAuto_Flow2_23.Next = this.ConveyorAuto_Flow2_24;
+			this.ConveyorAuto_Flow2_23.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_23.TabIndex = 72;
+			this.ConveyorAuto_Flow2_23.text = "出料信号ON2.23";
+			this.ConveyorAuto_Flow2_23.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_23_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_24
+			// 
+			this.ConveyorAuto_Flow2_24.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_24.Casse1 = null;
+			this.ConveyorAuto_Flow2_24.Casse2 = null;
+			this.ConveyorAuto_Flow2_24.Casse3 = null;
+			this.ConveyorAuto_Flow2_24.FlowChart_ElapsedMilliseconds = ((long)(135823));
+			this.ConveyorAuto_Flow2_24.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_24.Location = new System.Drawing.Point(506, 479);
+			this.ConveyorAuto_Flow2_24.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_24.Name = "ConveyorAuto_Flow2_24";
+			this.ConveyorAuto_Flow2_24.Next = this.ConveyorAuto_Flow2_25;
+			this.ConveyorAuto_Flow2_24.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_24.TabIndex = 73;
+			this.ConveyorAuto_Flow2_24.text = "出料信号OFF2.24";
+			this.ConveyorAuto_Flow2_24.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_24_FlowChartRun_1);
+			// 
+			// ConveyorAuto_Flow2_25
+			// 
+			this.ConveyorAuto_Flow2_25.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_25.Casse1 = null;
+			this.ConveyorAuto_Flow2_25.Casse2 = null;
+			this.ConveyorAuto_Flow2_25.Casse3 = null;
+			this.ConveyorAuto_Flow2_25.FlowChart_ElapsedMilliseconds = ((long)(135822));
+			this.ConveyorAuto_Flow2_25.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_25.Location = new System.Drawing.Point(506, 526);
+			this.ConveyorAuto_Flow2_25.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_25.Name = "ConveyorAuto_Flow2_25";
+			this.ConveyorAuto_Flow2_25.Next = this.ConveyorAuto_Flow2_26;
+			this.ConveyorAuto_Flow2_25.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_25.TabIndex = 63;
+			this.ConveyorAuto_Flow2_25.text = "等待下机要料信号OFF2.25";
+			this.ConveyorAuto_Flow2_25.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_25_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_26
+			// 
+			this.ConveyorAuto_Flow2_26.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_26.Casse1 = null;
+			this.ConveyorAuto_Flow2_26.Casse2 = null;
+			this.ConveyorAuto_Flow2_26.Casse3 = null;
+			this.ConveyorAuto_Flow2_26.FlowChart_ElapsedMilliseconds = ((long)(135821));
+			this.ConveyorAuto_Flow2_26.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_26.Location = new System.Drawing.Point(506, 573);
+			this.ConveyorAuto_Flow2_26.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_26.Name = "ConveyorAuto_Flow2_26";
+			this.ConveyorAuto_Flow2_26.Next = this.ConveyorAuto_Flow2_27;
+			this.ConveyorAuto_Flow2_26.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_26.TabIndex = 64;
+			this.ConveyorAuto_Flow2_26.text = "流道停止2.26";
+			this.ConveyorAuto_Flow2_26.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_26_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_27
+			// 
+			this.ConveyorAuto_Flow2_27.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_27.Casse1 = null;
+			this.ConveyorAuto_Flow2_27.Casse2 = null;
+			this.ConveyorAuto_Flow2_27.Casse3 = null;
+			this.ConveyorAuto_Flow2_27.FlowChart_ElapsedMilliseconds = ((long)(135820));
+			this.ConveyorAuto_Flow2_27.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_27.Location = new System.Drawing.Point(506, 620);
+			this.ConveyorAuto_Flow2_27.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_27.Name = "ConveyorAuto_Flow2_27";
+			this.ConveyorAuto_Flow2_27.Next = this.ConveyoAuto_Flow2_28;
+			this.ConveyorAuto_Flow2_27.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_27.TabIndex = 65;
+			this.ConveyorAuto_Flow2_27.text = "交互完成2.27";
+			this.ConveyorAuto_Flow2_27.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_27_FlowChartRun);
+			// 
+			// ConveyoAuto_Flow2_28
+			// 
+			this.ConveyoAuto_Flow2_28.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyoAuto_Flow2_28.Casse1 = null;
+			this.ConveyoAuto_Flow2_28.Casse2 = null;
+			this.ConveyoAuto_Flow2_28.Casse3 = null;
+			this.ConveyoAuto_Flow2_28.FlowChart_ElapsedMilliseconds = ((long)(135819));
+			this.ConveyoAuto_Flow2_28.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyoAuto_Flow2_28.Location = new System.Drawing.Point(903, 620);
+			this.ConveyoAuto_Flow2_28.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyoAuto_Flow2_28.Name = "ConveyoAuto_Flow2_28";
+			this.ConveyoAuto_Flow2_28.Next = this.ConveyorAuto_Flow2_29;
+			this.ConveyoAuto_Flow2_28.Size = new System.Drawing.Size(112, 35);
+			this.ConveyoAuto_Flow2_28.TabIndex = 68;
+			this.ConveyoAuto_Flow2_28.text = "Loop2.28";
+			this.ConveyoAuto_Flow2_28.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_28_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_29
+			// 
+			this.ConveyorAuto_Flow2_29.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_29.Casse1 = null;
+			this.ConveyorAuto_Flow2_29.Casse2 = null;
+			this.ConveyorAuto_Flow2_29.Casse3 = null;
+			this.ConveyorAuto_Flow2_29.FlowChart_ElapsedMilliseconds = ((long)(135817));
+			this.ConveyorAuto_Flow2_29.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_29.Location = new System.Drawing.Point(903, 13);
+			this.ConveyorAuto_Flow2_29.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_29.Name = "ConveyorAuto_Flow2_29";
+			this.ConveyorAuto_Flow2_29.Next = this.ConveyorAuto_Flow2_01;
+			this.ConveyorAuto_Flow2_29.Size = new System.Drawing.Size(112, 35);
+			this.ConveyorAuto_Flow2_29.TabIndex = 66;
+			this.ConveyorAuto_Flow2_29.text = "Loop2.29";
+			this.ConveyorAuto_Flow2_29.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_29_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_01
+			// 
+			this.ConveyorAuto_Flow2_01.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_01.Casse1 = null;
+			this.ConveyorAuto_Flow2_01.Casse2 = null;
+			this.ConveyorAuto_Flow2_01.Casse3 = null;
+			this.ConveyorAuto_Flow2_01.FlowChart_ElapsedMilliseconds = ((long)(135816));
+			this.ConveyorAuto_Flow2_01.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_01.Location = new System.Drawing.Point(36, 13);
+			this.ConveyorAuto_Flow2_01.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_01.Name = "ConveyorAuto_Flow2_01";
+			this.ConveyorAuto_Flow2_01.Next = this.ConveyorAuto_Flow2_02;
+			this.ConveyorAuto_Flow2_01.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_01.TabIndex = 46;
+			this.ConveyorAuto_Flow2_01.text = "启动2.01";
+			this.ConveyorAuto_Flow2_01.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_01_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_02
+			// 
+			this.ConveyorAuto_Flow2_02.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_02.Casse1 = this.ConveyorAuto_Flow2_03;
+			this.ConveyorAuto_Flow2_02.Casse2 = null;
+			this.ConveyorAuto_Flow2_02.Casse3 = null;
+			this.ConveyorAuto_Flow2_02.FlowChart_ElapsedMilliseconds = ((long)(135811));
+			this.ConveyorAuto_Flow2_02.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_02.Location = new System.Drawing.Point(36, 59);
+			this.ConveyorAuto_Flow2_02.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_02.Name = "ConveyorAuto_Flow2_02";
+			this.ConveyorAuto_Flow2_02.Next = this.ConveyorAuto_Flow2_04;
+			this.ConveyorAuto_Flow2_02.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_02.TabIndex = 48;
+			this.ConveyorAuto_Flow2_02.text = "检查是否有板2.02";
+			this.ConveyorAuto_Flow2_02.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_02_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_03
+			// 
+			this.ConveyorAuto_Flow2_03.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_03.Casse1 = null;
+			this.ConveyorAuto_Flow2_03.Casse2 = null;
+			this.ConveyorAuto_Flow2_03.Casse3 = null;
+			this.ConveyorAuto_Flow2_03.FlowChart_ElapsedMilliseconds = ((long)(135813));
+			this.ConveyorAuto_Flow2_03.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_03.Location = new System.Drawing.Point(348, 59);
+			this.ConveyorAuto_Flow2_03.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_03.Name = "ConveyorAuto_Flow2_03";
+			this.ConveyorAuto_Flow2_03.Next = this.ConveyorAuto_Flow2_15;
+			this.ConveyorAuto_Flow2_03.Size = new System.Drawing.Size(124, 35);
+			this.ConveyorAuto_Flow2_03.TabIndex = 51;
+			this.ConveyorAuto_Flow2_03.text = "有板2.03";
+			this.ConveyorAuto_Flow2_03.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_03_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_15
+			// 
+			this.ConveyorAuto_Flow2_15.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_15.Casse1 = null;
+			this.ConveyorAuto_Flow2_15.Casse2 = null;
+			this.ConveyorAuto_Flow2_15.Casse3 = null;
+			this.ConveyorAuto_Flow2_15.FlowChart_ElapsedMilliseconds = ((long)(135812));
+			this.ConveyorAuto_Flow2_15.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_15.Location = new System.Drawing.Point(506, 59);
+			this.ConveyorAuto_Flow2_15.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_15.Name = "ConveyorAuto_Flow2_15";
+			this.ConveyorAuto_Flow2_15.Next = this.ConveyorAuto_Flow2_16;
+			this.ConveyorAuto_Flow2_15.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_15.TabIndex = 74;
+			this.ConveyorAuto_Flow2_15.text = "顶升上升2.15";
+			this.ConveyorAuto_Flow2_15.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_15_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_16
+			// 
+			this.ConveyorAuto_Flow2_16.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_16.Casse1 = null;
+			this.ConveyorAuto_Flow2_16.Casse2 = null;
+			this.ConveyorAuto_Flow2_16.Casse3 = null;
+			this.ConveyorAuto_Flow2_16.FlowChart_ElapsedMilliseconds = ((long)(135810));
+			this.ConveyorAuto_Flow2_16.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_16.Location = new System.Drawing.Point(506, 103);
+			this.ConveyorAuto_Flow2_16.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_16.Name = "ConveyorAuto_Flow2_16";
+			this.ConveyorAuto_Flow2_16.Next = this.ConveyorAuto_Flow2_17;
+			this.ConveyorAuto_Flow2_16.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_16.TabIndex = 59;
+			this.ConveyorAuto_Flow2_16.text = "给设备工作信号2.16";
+			this.ConveyorAuto_Flow2_16.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_16_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_17
+			// 
+			this.ConveyorAuto_Flow2_17.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_17.Casse1 = null;
+			this.ConveyorAuto_Flow2_17.Casse2 = null;
+			this.ConveyorAuto_Flow2_17.Casse3 = null;
+			this.ConveyorAuto_Flow2_17.FlowChart_ElapsedMilliseconds = ((long)(135809));
+			this.ConveyorAuto_Flow2_17.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_17.Location = new System.Drawing.Point(506, 150);
+			this.ConveyorAuto_Flow2_17.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_17.Name = "ConveyorAuto_Flow2_17";
+			this.ConveyorAuto_Flow2_17.Next = this.ConveyorAuto_Flow2_18;
+			this.ConveyorAuto_Flow2_17.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_17.TabIndex = 60;
+			this.ConveyorAuto_Flow2_17.text = "等待设备工作完成2.17";
+			this.ConveyorAuto_Flow2_17.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_17_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_18
+			// 
+			this.ConveyorAuto_Flow2_18.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_18.Casse1 = null;
+			this.ConveyorAuto_Flow2_18.Casse2 = null;
+			this.ConveyorAuto_Flow2_18.Casse3 = null;
+			this.ConveyorAuto_Flow2_18.FlowChart_ElapsedMilliseconds = ((long)(135808));
+			this.ConveyorAuto_Flow2_18.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_18.Location = new System.Drawing.Point(506, 197);
+			this.ConveyorAuto_Flow2_18.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_18.Name = "ConveyorAuto_Flow2_18";
+			this.ConveyorAuto_Flow2_18.Next = this.ConveyorAuto_Flow2_19;
+			this.ConveyorAuto_Flow2_18.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_18.TabIndex = 71;
+			this.ConveyorAuto_Flow2_18.text = "给下机有板信号2.18";
+			this.ConveyorAuto_Flow2_18.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_18_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_19
+			// 
+			this.ConveyorAuto_Flow2_19.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_19.Casse1 = null;
+			this.ConveyorAuto_Flow2_19.Casse2 = null;
+			this.ConveyorAuto_Flow2_19.Casse3 = null;
+			this.ConveyorAuto_Flow2_19.FlowChart_ElapsedMilliseconds = ((long)(135806));
+			this.ConveyorAuto_Flow2_19.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_19.Location = new System.Drawing.Point(506, 244);
+			this.ConveyorAuto_Flow2_19.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_19.Name = "ConveyorAuto_Flow2_19";
+			this.ConveyorAuto_Flow2_19.Next = this.ConveyorAuto_Flow2_20;
+			this.ConveyorAuto_Flow2_19.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_19.TabIndex = 67;
+			this.ConveyorAuto_Flow2_19.text = "等待下机要板2.19";
+			this.ConveyorAuto_Flow2_19.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_19_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_20
+			// 
+			this.ConveyorAuto_Flow2_20.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_20.Casse1 = null;
+			this.ConveyorAuto_Flow2_20.Casse2 = null;
+			this.ConveyorAuto_Flow2_20.Casse3 = null;
+			this.ConveyorAuto_Flow2_20.FlowChart_ElapsedMilliseconds = ((long)(135805));
+			this.ConveyorAuto_Flow2_20.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_20.Location = new System.Drawing.Point(506, 291);
+			this.ConveyorAuto_Flow2_20.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_20.Name = "ConveyorAuto_Flow2_20";
+			this.ConveyorAuto_Flow2_20.Next = this.ConveyorAuto_Flow2_21;
+			this.ConveyorAuto_Flow2_20.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow2_20.TabIndex = 61;
+			this.ConveyorAuto_Flow2_20.text = "工作区阻挡下降2.20";
+			this.ConveyorAuto_Flow2_20.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_20_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_04
+			// 
+			this.ConveyorAuto_Flow2_04.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_04.Casse1 = null;
+			this.ConveyorAuto_Flow2_04.Casse2 = null;
+			this.ConveyorAuto_Flow2_04.Casse3 = null;
+			this.ConveyorAuto_Flow2_04.FlowChart_ElapsedMilliseconds = ((long)(135810));
+			this.ConveyorAuto_Flow2_04.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_04.Location = new System.Drawing.Point(36, 105);
+			this.ConveyorAuto_Flow2_04.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_04.Name = "ConveyorAuto_Flow2_04";
+			this.ConveyorAuto_Flow2_04.Next = this.ConveyorAuto_Flow2_05;
+			this.ConveyorAuto_Flow2_04.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_04.TabIndex = 49;
+			this.ConveyorAuto_Flow2_04.text = "工作区阻挡升起2.04";
+			this.ConveyorAuto_Flow2_04.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_04_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_05
+			// 
+			this.ConveyorAuto_Flow2_05.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_05.Casse1 = null;
+			this.ConveyorAuto_Flow2_05.Casse2 = null;
+			this.ConveyorAuto_Flow2_05.Casse3 = null;
+			this.ConveyorAuto_Flow2_05.FlowChart_ElapsedMilliseconds = ((long)(135799));
+			this.ConveyorAuto_Flow2_05.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_05.Location = new System.Drawing.Point(36, 151);
+			this.ConveyorAuto_Flow2_05.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_05.Name = "ConveyorAuto_Flow2_05";
+			this.ConveyorAuto_Flow2_05.Next = this.ConveyorAuto_Flow2_06;
+			this.ConveyorAuto_Flow2_05.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_05.TabIndex = 47;
+			this.ConveyorAuto_Flow2_05.text = "向缓存区要板2.05";
+			this.ConveyorAuto_Flow2_05.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_05_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_06
+			// 
+			this.ConveyorAuto_Flow2_06.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_06.Casse1 = null;
+			this.ConveyorAuto_Flow2_06.Casse2 = null;
+			this.ConveyorAuto_Flow2_06.Casse3 = null;
+			this.ConveyorAuto_Flow2_06.FlowChart_ElapsedMilliseconds = ((long)(135797));
+			this.ConveyorAuto_Flow2_06.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_06.Location = new System.Drawing.Point(36, 197);
+			this.ConveyorAuto_Flow2_06.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_06.Name = "ConveyorAuto_Flow2_06";
+			this.ConveyorAuto_Flow2_06.Next = this.ConveyorAuto_Flow2_07;
+			this.ConveyorAuto_Flow2_06.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_06.TabIndex = 50;
+			this.ConveyorAuto_Flow2_06.text = "等待缓存区有板待出2.06";
+			this.ConveyorAuto_Flow2_06.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_06_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_07
+			// 
+			this.ConveyorAuto_Flow2_07.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_07.Casse1 = null;
+			this.ConveyorAuto_Flow2_07.Casse2 = null;
+			this.ConveyorAuto_Flow2_07.Casse3 = null;
+			this.ConveyorAuto_Flow2_07.FlowChart_ElapsedMilliseconds = ((long)(135796));
+			this.ConveyorAuto_Flow2_07.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_07.Location = new System.Drawing.Point(36, 243);
+			this.ConveyorAuto_Flow2_07.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_07.Name = "ConveyorAuto_Flow2_07";
+			this.ConveyorAuto_Flow2_07.Next = this.ConveyorAuto_Flow2_08;
+			this.ConveyorAuto_Flow2_07.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_07.TabIndex = 52;
+			this.ConveyorAuto_Flow2_07.text = "流道转动2.07";
+			this.ConveyorAuto_Flow2_07.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_07_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_08
+			// 
+			this.ConveyorAuto_Flow2_08.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_08.Casse1 = null;
+			this.ConveyorAuto_Flow2_08.Casse2 = null;
+			this.ConveyorAuto_Flow2_08.Casse3 = null;
+			this.ConveyorAuto_Flow2_08.FlowChart_ElapsedMilliseconds = ((long)(135795));
+			this.ConveyorAuto_Flow2_08.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_08.Location = new System.Drawing.Point(36, 289);
+			this.ConveyorAuto_Flow2_08.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_08.Name = "ConveyorAuto_Flow2_08";
+			this.ConveyorAuto_Flow2_08.Next = this.ConveyorAuto_Flow2_09;
+			this.ConveyorAuto_Flow2_08.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_08.TabIndex = 53;
+			this.ConveyorAuto_Flow2_08.text = "入料信号ON2.08";
+			this.ConveyorAuto_Flow2_08.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_08_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_09
+			// 
+			this.ConveyorAuto_Flow2_09.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_09.Casse1 = null;
+			this.ConveyorAuto_Flow2_09.Casse2 = null;
+			this.ConveyorAuto_Flow2_09.Casse3 = null;
+			this.ConveyorAuto_Flow2_09.FlowChart_ElapsedMilliseconds = ((long)(135794));
+			this.ConveyorAuto_Flow2_09.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_09.Location = new System.Drawing.Point(36, 335);
+			this.ConveyorAuto_Flow2_09.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_09.Name = "ConveyorAuto_Flow2_09";
+			this.ConveyorAuto_Flow2_09.Next = this.ConveyorAuto_Flow2_10;
+			this.ConveyorAuto_Flow2_09.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_09.TabIndex = 70;
+			this.ConveyorAuto_Flow2_09.text = "入料信号OFF2.09";
+			this.ConveyorAuto_Flow2_09.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_09_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_10
+			// 
+			this.ConveyorAuto_Flow2_10.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_10.Casse1 = null;
+			this.ConveyorAuto_Flow2_10.Casse2 = null;
+			this.ConveyorAuto_Flow2_10.Casse3 = null;
+			this.ConveyorAuto_Flow2_10.FlowChart_ElapsedMilliseconds = ((long)(135793));
+			this.ConveyorAuto_Flow2_10.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_10.Location = new System.Drawing.Point(36, 381);
+			this.ConveyorAuto_Flow2_10.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_10.Name = "ConveyorAuto_Flow2_10";
+			this.ConveyorAuto_Flow2_10.Next = this.ConveyorAuto_Flow2_11;
+			this.ConveyorAuto_Flow2_10.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_10.TabIndex = 55;
+			this.ConveyorAuto_Flow2_10.text = "要板信号关闭2.10";
+			this.ConveyorAuto_Flow2_10.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_10_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_11
+			// 
+			this.ConveyorAuto_Flow2_11.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_11.Casse1 = null;
+			this.ConveyorAuto_Flow2_11.Casse2 = null;
+			this.ConveyorAuto_Flow2_11.Casse3 = null;
+			this.ConveyorAuto_Flow2_11.FlowChart_ElapsedMilliseconds = ((long)(135792));
+			this.ConveyorAuto_Flow2_11.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_11.Location = new System.Drawing.Point(36, 427);
+			this.ConveyorAuto_Flow2_11.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_11.Name = "ConveyorAuto_Flow2_11";
+			this.ConveyorAuto_Flow2_11.Next = this.ConveyorAuto_Flow2_12;
+			this.ConveyorAuto_Flow2_11.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_11.TabIndex = 54;
+			this.ConveyorAuto_Flow2_11.text = "减速感应器ON2.11";
+			this.ConveyorAuto_Flow2_11.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_11_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_12
+			// 
+			this.ConveyorAuto_Flow2_12.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_12.Casse1 = null;
+			this.ConveyorAuto_Flow2_12.Casse2 = null;
+			this.ConveyorAuto_Flow2_12.Casse3 = null;
+			this.ConveyorAuto_Flow2_12.FlowChart_ElapsedMilliseconds = ((long)(135791));
+			this.ConveyorAuto_Flow2_12.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_12.Location = new System.Drawing.Point(36, 473);
+			this.ConveyorAuto_Flow2_12.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_12.Name = "ConveyorAuto_Flow2_12";
+			this.ConveyorAuto_Flow2_12.Next = this.ConveyorAuto_Flow2_13;
+			this.ConveyorAuto_Flow2_12.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_12.TabIndex = 56;
+			this.ConveyorAuto_Flow2_12.text = "流道速度切换2.12";
+			this.ConveyorAuto_Flow2_12.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_12_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_13
+			// 
+			this.ConveyorAuto_Flow2_13.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_13.Casse1 = null;
+			this.ConveyorAuto_Flow2_13.Casse2 = null;
+			this.ConveyorAuto_Flow2_13.Casse3 = null;
+			this.ConveyorAuto_Flow2_13.FlowChart_ElapsedMilliseconds = ((long)(135789));
+			this.ConveyorAuto_Flow2_13.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_13.Location = new System.Drawing.Point(36, 519);
+			this.ConveyorAuto_Flow2_13.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_13.Name = "ConveyorAuto_Flow2_13";
+			this.ConveyorAuto_Flow2_13.Next = this.ConveyorAuto_Flow2_14;
+			this.ConveyorAuto_Flow2_13.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_13.TabIndex = 57;
+			this.ConveyorAuto_Flow2_13.text = "到位感应器ON2.13";
+			this.ConveyorAuto_Flow2_13.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_13_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_14
+			// 
+			this.ConveyorAuto_Flow2_14.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_14.Casse1 = null;
+			this.ConveyorAuto_Flow2_14.Casse2 = null;
+			this.ConveyorAuto_Flow2_14.Casse3 = null;
+			this.ConveyorAuto_Flow2_14.FlowChart_ElapsedMilliseconds = ((long)(135788));
+			this.ConveyorAuto_Flow2_14.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_14.Location = new System.Drawing.Point(36, 565);
+			this.ConveyorAuto_Flow2_14.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_14.Name = "ConveyorAuto_Flow2_14";
+			this.ConveyorAuto_Flow2_14.Next = this.ConveyorAuto_Flow2_30;
+			this.ConveyorAuto_Flow2_14.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow2_14.TabIndex = 58;
+			this.ConveyorAuto_Flow2_14.text = "流道停止2.14";
+			this.ConveyorAuto_Flow2_14.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_14_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow2_30
+			// 
+			this.ConveyorAuto_Flow2_30.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow2_30.Casse1 = this.ConveyorAuto_Flow2_19;
+			this.ConveyorAuto_Flow2_30.Casse2 = null;
+			this.ConveyorAuto_Flow2_30.Casse3 = null;
+			this.ConveyorAuto_Flow2_30.FlowChart_ElapsedMilliseconds = ((long)(135787));
+			this.ConveyorAuto_Flow2_30.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow2_30.Location = new System.Drawing.Point(336, 103);
+			this.ConveyorAuto_Flow2_30.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow2_30.Name = "ConveyorAuto_Flow2_30";
+			this.ConveyorAuto_Flow2_30.Next = this.ConveyorAuto_Flow2_16;
+			this.ConveyorAuto_Flow2_30.Size = new System.Drawing.Size(136, 35);
+			this.ConveyorAuto_Flow2_30.TabIndex = 69;
+			this.ConveyorAuto_Flow2_30.text = "ByPass?2.30";
+			this.ConveyorAuto_Flow2_30.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow2_24_FlowChartRun);
+			// 
+			// tabPage2
+			// 
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_20);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_19);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_09);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_25);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_24);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_23);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_22);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_21);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_18);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_17);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_16);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_15);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_14);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_13);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_12);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_10);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_11);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_08);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_07);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_03);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_06);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_04);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_02);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_05);
+			this.tabPage2.Controls.Add(this.ConveyorAuto_Flow3_01);
+			this.tabPage2.Location = new System.Drawing.Point(4, 36);
+			this.tabPage2.Name = "tabPage2";
+			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage2.Size = new System.Drawing.Size(1043, 474);
+			this.tabPage2.TabIndex = 1;
+			this.tabPage2.Text = "下流道";
+			this.tabPage2.UseVisualStyleBackColor = true;
+			// 
+			// ConveyorAuto_Flow3_20
+			// 
+			this.ConveyorAuto_Flow3_20.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_20.Casse1 = null;
+			this.ConveyorAuto_Flow3_20.Casse2 = null;
+			this.ConveyorAuto_Flow3_20.Casse3 = null;
+			this.ConveyorAuto_Flow3_20.FlowChart_ElapsedMilliseconds = ((long)(135762));
+			this.ConveyorAuto_Flow3_20.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_20.Location = new System.Drawing.Point(556, 320);
+			this.ConveyorAuto_Flow3_20.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_20.Name = "ConveyorAuto_Flow3_20";
+			this.ConveyorAuto_Flow3_20.Next = this.ConveyorAuto_Flow3_21;
+			this.ConveyorAuto_Flow3_20.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow3_20.TabIndex = 70;
+			this.ConveyorAuto_Flow3_20.text = "出料感应器OFF3.20";
+			this.ConveyorAuto_Flow3_20.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_20_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_21
+			// 
+			this.ConveyorAuto_Flow3_21.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_21.Casse1 = null;
+			this.ConveyorAuto_Flow3_21.Casse2 = null;
+			this.ConveyorAuto_Flow3_21.Casse3 = null;
+			this.ConveyorAuto_Flow3_21.FlowChart_ElapsedMilliseconds = ((long)(135761));
+			this.ConveyorAuto_Flow3_21.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_21.Location = new System.Drawing.Point(556, 369);
+			this.ConveyorAuto_Flow3_21.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_21.Name = "ConveyorAuto_Flow3_21";
+			this.ConveyorAuto_Flow3_21.Next = this.ConveyorAuto_Flow3_22;
+			this.ConveyorAuto_Flow3_21.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow3_21.TabIndex = 63;
+			this.ConveyorAuto_Flow3_21.text = "等待下机要料信号OFF3.21";
+			this.ConveyorAuto_Flow3_21.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_21_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_22
+			// 
+			this.ConveyorAuto_Flow3_22.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_22.Casse1 = null;
+			this.ConveyorAuto_Flow3_22.Casse2 = null;
+			this.ConveyorAuto_Flow3_22.Casse3 = null;
+			this.ConveyorAuto_Flow3_22.FlowChart_ElapsedMilliseconds = ((long)(135759));
+			this.ConveyorAuto_Flow3_22.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_22.Location = new System.Drawing.Point(556, 418);
+			this.ConveyorAuto_Flow3_22.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_22.Name = "ConveyorAuto_Flow3_22";
+			this.ConveyorAuto_Flow3_22.Next = this.ConveyorAuto_Flow3_23;
+			this.ConveyorAuto_Flow3_22.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow3_22.TabIndex = 64;
+			this.ConveyorAuto_Flow3_22.text = "流道停止3.22";
+			this.ConveyorAuto_Flow3_22.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_22_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_23
+			// 
+			this.ConveyorAuto_Flow3_23.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_23.Casse1 = null;
+			this.ConveyorAuto_Flow3_23.Casse2 = null;
+			this.ConveyorAuto_Flow3_23.Casse3 = null;
+			this.ConveyorAuto_Flow3_23.FlowChart_ElapsedMilliseconds = ((long)(135758));
+			this.ConveyorAuto_Flow3_23.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_23.Location = new System.Drawing.Point(556, 467);
+			this.ConveyorAuto_Flow3_23.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_23.Name = "ConveyorAuto_Flow3_23";
+			this.ConveyorAuto_Flow3_23.Next = this.ConveyorAuto_Flow3_24;
+			this.ConveyorAuto_Flow3_23.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow3_23.TabIndex = 65;
+			this.ConveyorAuto_Flow3_23.text = "交互完成3.23";
+			this.ConveyorAuto_Flow3_23.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_23_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_24
+			// 
+			this.ConveyorAuto_Flow3_24.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_24.Casse1 = null;
+			this.ConveyorAuto_Flow3_24.Casse2 = null;
+			this.ConveyorAuto_Flow3_24.Casse3 = null;
+			this.ConveyorAuto_Flow3_24.FlowChart_ElapsedMilliseconds = ((long)(135756));
+			this.ConveyorAuto_Flow3_24.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_24.Location = new System.Drawing.Point(904, 467);
+			this.ConveyorAuto_Flow3_24.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_24.Name = "ConveyorAuto_Flow3_24";
+			this.ConveyorAuto_Flow3_24.Next = this.ConveyorAuto_Flow3_25;
+			this.ConveyorAuto_Flow3_24.Size = new System.Drawing.Size(112, 35);
+			this.ConveyorAuto_Flow3_24.TabIndex = 66;
+			this.ConveyorAuto_Flow3_24.text = "Loop3.24";
+			this.ConveyorAuto_Flow3_24.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_24_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_25
+			// 
+			this.ConveyorAuto_Flow3_25.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_25.Casse1 = null;
+			this.ConveyorAuto_Flow3_25.Casse2 = null;
+			this.ConveyorAuto_Flow3_25.Casse3 = null;
+			this.ConveyorAuto_Flow3_25.FlowChart_ElapsedMilliseconds = ((long)(135754));
+			this.ConveyorAuto_Flow3_25.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_25.Location = new System.Drawing.Point(904, 28);
+			this.ConveyorAuto_Flow3_25.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_25.Name = "ConveyorAuto_Flow3_25";
+			this.ConveyorAuto_Flow3_25.Next = this.ConveyorAuto_Flow3_01;
+			this.ConveyorAuto_Flow3_25.Size = new System.Drawing.Size(112, 35);
+			this.ConveyorAuto_Flow3_25.TabIndex = 67;
+			this.ConveyorAuto_Flow3_25.text = "Loop3.25";
+			this.ConveyorAuto_Flow3_25.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_25_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_01
+			// 
+			this.ConveyorAuto_Flow3_01.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_01.Casse1 = null;
+			this.ConveyorAuto_Flow3_01.Casse2 = null;
+			this.ConveyorAuto_Flow3_01.Casse3 = null;
+			this.ConveyorAuto_Flow3_01.FlowChart_ElapsedMilliseconds = ((long)(135753));
+			this.ConveyorAuto_Flow3_01.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_01.Location = new System.Drawing.Point(100, 28);
+			this.ConveyorAuto_Flow3_01.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_01.Name = "ConveyorAuto_Flow3_01";
+			this.ConveyorAuto_Flow3_01.Next = this.ConveyorAuto_Flow3_02;
+			this.ConveyorAuto_Flow3_01.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_01.TabIndex = 46;
+			this.ConveyorAuto_Flow3_01.text = "启动3.01";
+			this.ConveyorAuto_Flow3_01.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_01_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_02
+			// 
+			this.ConveyorAuto_Flow3_02.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_02.Casse1 = this.ConveyorAuto_Flow3_03;
+			this.ConveyorAuto_Flow3_02.Casse2 = null;
+			this.ConveyorAuto_Flow3_02.Casse3 = null;
+			this.ConveyorAuto_Flow3_02.FlowChart_ElapsedMilliseconds = ((long)(135740));
+			this.ConveyorAuto_Flow3_02.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_02.Location = new System.Drawing.Point(100, 76);
+			this.ConveyorAuto_Flow3_02.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_02.Name = "ConveyorAuto_Flow3_02";
+			this.ConveyorAuto_Flow3_02.Next = this.ConveyorAuto_Flow3_04;
+			this.ConveyorAuto_Flow3_02.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_02.TabIndex = 48;
+			this.ConveyorAuto_Flow3_02.text = "检查是否有板3.02";
+			this.ConveyorAuto_Flow3_02.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_02_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_03
+			// 
+			this.ConveyorAuto_Flow3_03.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_03.Casse1 = null;
+			this.ConveyorAuto_Flow3_03.Casse2 = null;
+			this.ConveyorAuto_Flow3_03.Casse3 = null;
+			this.ConveyorAuto_Flow3_03.FlowChart_ElapsedMilliseconds = ((long)(135750));
+			this.ConveyorAuto_Flow3_03.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_03.Location = new System.Drawing.Point(407, 75);
+			this.ConveyorAuto_Flow3_03.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_03.Name = "ConveyorAuto_Flow3_03";
+			this.ConveyorAuto_Flow3_03.Next = this.ConveyorAuto_Flow3_15;
+			this.ConveyorAuto_Flow3_03.Size = new System.Drawing.Size(124, 35);
+			this.ConveyorAuto_Flow3_03.TabIndex = 51;
+			this.ConveyorAuto_Flow3_03.text = "有板3.03";
+			this.ConveyorAuto_Flow3_03.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_03_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_15
+			// 
+			this.ConveyorAuto_Flow3_15.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_15.Casse1 = null;
+			this.ConveyorAuto_Flow3_15.Casse2 = null;
+			this.ConveyorAuto_Flow3_15.Casse3 = null;
+			this.ConveyorAuto_Flow3_15.FlowChart_ElapsedMilliseconds = ((long)(135749));
+			this.ConveyorAuto_Flow3_15.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_15.Location = new System.Drawing.Point(556, 75);
+			this.ConveyorAuto_Flow3_15.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_15.Name = "ConveyorAuto_Flow3_15";
+			this.ConveyorAuto_Flow3_15.Next = this.ConveyorAuto_Flow3_16;
+			this.ConveyorAuto_Flow3_15.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow3_15.TabIndex = 59;
+			this.ConveyorAuto_Flow3_15.text = "给下机有板待出信号3.15";
+			this.ConveyorAuto_Flow3_15.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_15_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_16
+			// 
+			this.ConveyorAuto_Flow3_16.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_16.Casse1 = null;
+			this.ConveyorAuto_Flow3_16.Casse2 = null;
+			this.ConveyorAuto_Flow3_16.Casse3 = null;
+			this.ConveyorAuto_Flow3_16.FlowChart_ElapsedMilliseconds = ((long)(135747));
+			this.ConveyorAuto_Flow3_16.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_16.Location = new System.Drawing.Point(556, 124);
+			this.ConveyorAuto_Flow3_16.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_16.Name = "ConveyorAuto_Flow3_16";
+			this.ConveyorAuto_Flow3_16.Next = this.ConveyorAuto_Flow3_17;
+			this.ConveyorAuto_Flow3_16.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow3_16.TabIndex = 60;
+			this.ConveyorAuto_Flow3_16.text = "等待下机要料信号ON3.16";
+			this.ConveyorAuto_Flow3_16.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_16_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_17
+			// 
+			this.ConveyorAuto_Flow3_17.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_17.Casse1 = null;
+			this.ConveyorAuto_Flow3_17.Casse2 = null;
+			this.ConveyorAuto_Flow3_17.Casse3 = null;
+			this.ConveyorAuto_Flow3_17.FlowChart_ElapsedMilliseconds = ((long)(135743));
+			this.ConveyorAuto_Flow3_17.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_17.Location = new System.Drawing.Point(556, 173);
+			this.ConveyorAuto_Flow3_17.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_17.Name = "ConveyorAuto_Flow3_17";
+			this.ConveyorAuto_Flow3_17.Next = this.ConveyorAuto_Flow3_18;
+			this.ConveyorAuto_Flow3_17.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow3_17.TabIndex = 61;
+			this.ConveyorAuto_Flow3_17.text = "阻挡区阻挡下降3.17";
+			this.ConveyorAuto_Flow3_17.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_17_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_18
+			// 
+			this.ConveyorAuto_Flow3_18.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_18.Casse1 = null;
+			this.ConveyorAuto_Flow3_18.Casse2 = null;
+			this.ConveyorAuto_Flow3_18.Casse3 = null;
+			this.ConveyorAuto_Flow3_18.FlowChart_ElapsedMilliseconds = ((long)(135742));
+			this.ConveyorAuto_Flow3_18.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_18.Location = new System.Drawing.Point(556, 222);
+			this.ConveyorAuto_Flow3_18.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_18.Name = "ConveyorAuto_Flow3_18";
+			this.ConveyorAuto_Flow3_18.Next = this.ConveyorAuto_Flow3_19;
+			this.ConveyorAuto_Flow3_18.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow3_18.TabIndex = 62;
+			this.ConveyorAuto_Flow3_18.text = "流道转动3.18";
+			this.ConveyorAuto_Flow3_18.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_18_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_19
+			// 
+			this.ConveyorAuto_Flow3_19.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_19.Casse1 = null;
+			this.ConveyorAuto_Flow3_19.Casse2 = null;
+			this.ConveyorAuto_Flow3_19.Casse3 = null;
+			this.ConveyorAuto_Flow3_19.FlowChart_ElapsedMilliseconds = ((long)(135741));
+			this.ConveyorAuto_Flow3_19.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_19.Location = new System.Drawing.Point(556, 271);
+			this.ConveyorAuto_Flow3_19.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_19.Name = "ConveyorAuto_Flow3_19";
+			this.ConveyorAuto_Flow3_19.Next = this.ConveyorAuto_Flow3_20;
+			this.ConveyorAuto_Flow3_19.Size = new System.Drawing.Size(293, 35);
+			this.ConveyorAuto_Flow3_19.TabIndex = 69;
+			this.ConveyorAuto_Flow3_19.text = "出料感应器ON3.19";
+			this.ConveyorAuto_Flow3_19.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_19_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_04
+			// 
+			this.ConveyorAuto_Flow3_04.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_04.Casse1 = null;
+			this.ConveyorAuto_Flow3_04.Casse2 = null;
+			this.ConveyorAuto_Flow3_04.Casse3 = null;
+			this.ConveyorAuto_Flow3_04.FlowChart_ElapsedMilliseconds = ((long)(135738));
+			this.ConveyorAuto_Flow3_04.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_04.Location = new System.Drawing.Point(100, 124);
+			this.ConveyorAuto_Flow3_04.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_04.Name = "ConveyorAuto_Flow3_04";
+			this.ConveyorAuto_Flow3_04.Next = this.ConveyorAuto_Flow3_05;
+			this.ConveyorAuto_Flow3_04.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_04.TabIndex = 49;
+			this.ConveyorAuto_Flow3_04.text = "下流道阻挡升起3.04";
+			this.ConveyorAuto_Flow3_04.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_04_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_05
+			// 
+			this.ConveyorAuto_Flow3_05.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_05.Casse1 = null;
+			this.ConveyorAuto_Flow3_05.Casse2 = null;
+			this.ConveyorAuto_Flow3_05.Casse3 = null;
+			this.ConveyorAuto_Flow3_05.FlowChart_ElapsedMilliseconds = ((long)(135737));
+			this.ConveyorAuto_Flow3_05.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_05.Location = new System.Drawing.Point(100, 172);
+			this.ConveyorAuto_Flow3_05.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_05.Name = "ConveyorAuto_Flow3_05";
+			this.ConveyorAuto_Flow3_05.Next = this.ConveyorAuto_Flow3_06;
+			this.ConveyorAuto_Flow3_05.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_05.TabIndex = 47;
+			this.ConveyorAuto_Flow3_05.text = "向上机要板3.05";
+			this.ConveyorAuto_Flow3_05.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_05_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_06
+			// 
+			this.ConveyorAuto_Flow3_06.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_06.Casse1 = null;
+			this.ConveyorAuto_Flow3_06.Casse2 = null;
+			this.ConveyorAuto_Flow3_06.Casse3 = null;
+			this.ConveyorAuto_Flow3_06.FlowChart_ElapsedMilliseconds = ((long)(135735));
+			this.ConveyorAuto_Flow3_06.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_06.Location = new System.Drawing.Point(100, 220);
+			this.ConveyorAuto_Flow3_06.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_06.Name = "ConveyorAuto_Flow3_06";
+			this.ConveyorAuto_Flow3_06.Next = this.ConveyorAuto_Flow3_07;
+			this.ConveyorAuto_Flow3_06.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_06.TabIndex = 50;
+			this.ConveyorAuto_Flow3_06.text = "等待上机有板待出信号3.06";
+			this.ConveyorAuto_Flow3_06.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_06_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_07
+			// 
+			this.ConveyorAuto_Flow3_07.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_07.Casse1 = null;
+			this.ConveyorAuto_Flow3_07.Casse2 = null;
+			this.ConveyorAuto_Flow3_07.Casse3 = null;
+			this.ConveyorAuto_Flow3_07.FlowChart_ElapsedMilliseconds = ((long)(135734));
+			this.ConveyorAuto_Flow3_07.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_07.Location = new System.Drawing.Point(100, 268);
+			this.ConveyorAuto_Flow3_07.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_07.Name = "ConveyorAuto_Flow3_07";
+			this.ConveyorAuto_Flow3_07.Next = this.ConveyorAuto_Flow3_08;
+			this.ConveyorAuto_Flow3_07.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_07.TabIndex = 52;
+			this.ConveyorAuto_Flow3_07.text = "流道转动3.07";
+			this.ConveyorAuto_Flow3_07.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_07_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_08
+			// 
+			this.ConveyorAuto_Flow3_08.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_08.Casse1 = null;
+			this.ConveyorAuto_Flow3_08.Casse2 = null;
+			this.ConveyorAuto_Flow3_08.Casse3 = null;
+			this.ConveyorAuto_Flow3_08.FlowChart_ElapsedMilliseconds = ((long)(135732));
+			this.ConveyorAuto_Flow3_08.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_08.Location = new System.Drawing.Point(100, 316);
+			this.ConveyorAuto_Flow3_08.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_08.Name = "ConveyorAuto_Flow3_08";
+			this.ConveyorAuto_Flow3_08.Next = this.ConveyorAuto_Flow3_09;
+			this.ConveyorAuto_Flow3_08.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_08.TabIndex = 53;
+			this.ConveyorAuto_Flow3_08.text = "入料感应器ON3.08";
+			this.ConveyorAuto_Flow3_08.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_08_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_09
+			// 
+			this.ConveyorAuto_Flow3_09.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_09.Casse1 = null;
+			this.ConveyorAuto_Flow3_09.Casse2 = null;
+			this.ConveyorAuto_Flow3_09.Casse3 = null;
+			this.ConveyorAuto_Flow3_09.FlowChart_ElapsedMilliseconds = ((long)(135728));
+			this.ConveyorAuto_Flow3_09.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_09.Location = new System.Drawing.Point(100, 364);
+			this.ConveyorAuto_Flow3_09.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_09.Name = "ConveyorAuto_Flow3_09";
+			this.ConveyorAuto_Flow3_09.Next = this.ConveyorAuto_Flow3_10;
+			this.ConveyorAuto_Flow3_09.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_09.TabIndex = 68;
+			this.ConveyorAuto_Flow3_09.text = "入料感应器OFF3.09";
+			this.ConveyorAuto_Flow3_09.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_09_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_10
+			// 
+			this.ConveyorAuto_Flow3_10.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_10.Casse1 = null;
+			this.ConveyorAuto_Flow3_10.Casse2 = null;
+			this.ConveyorAuto_Flow3_10.Casse3 = null;
+			this.ConveyorAuto_Flow3_10.FlowChart_ElapsedMilliseconds = ((long)(135722));
+			this.ConveyorAuto_Flow3_10.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_10.Location = new System.Drawing.Point(100, 412);
+			this.ConveyorAuto_Flow3_10.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_10.Name = "ConveyorAuto_Flow3_10";
+			this.ConveyorAuto_Flow3_10.Next = this.ConveyorAuto_Flow3_11;
+			this.ConveyorAuto_Flow3_10.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_10.TabIndex = 55;
+			this.ConveyorAuto_Flow3_10.text = "要板信号OFF3.10";
+			this.ConveyorAuto_Flow3_10.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_10_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_11
+			// 
+			this.ConveyorAuto_Flow3_11.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_11.Casse1 = null;
+			this.ConveyorAuto_Flow3_11.Casse2 = null;
+			this.ConveyorAuto_Flow3_11.Casse3 = null;
+			this.ConveyorAuto_Flow3_11.FlowChart_ElapsedMilliseconds = ((long)(135721));
+			this.ConveyorAuto_Flow3_11.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_11.Location = new System.Drawing.Point(100, 460);
+			this.ConveyorAuto_Flow3_11.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_11.Name = "ConveyorAuto_Flow3_11";
+			this.ConveyorAuto_Flow3_11.Next = this.ConveyorAuto_Flow3_12;
+			this.ConveyorAuto_Flow3_11.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_11.TabIndex = 54;
+			this.ConveyorAuto_Flow3_11.text = "减速感应器ON3.11";
+			this.ConveyorAuto_Flow3_11.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_11_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_12
+			// 
+			this.ConveyorAuto_Flow3_12.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_12.Casse1 = null;
+			this.ConveyorAuto_Flow3_12.Casse2 = null;
+			this.ConveyorAuto_Flow3_12.Casse3 = null;
+			this.ConveyorAuto_Flow3_12.FlowChart_ElapsedMilliseconds = ((long)(135720));
+			this.ConveyorAuto_Flow3_12.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_12.Location = new System.Drawing.Point(100, 508);
+			this.ConveyorAuto_Flow3_12.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_12.Name = "ConveyorAuto_Flow3_12";
+			this.ConveyorAuto_Flow3_12.Next = this.ConveyorAuto_Flow3_13;
+			this.ConveyorAuto_Flow3_12.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_12.TabIndex = 56;
+			this.ConveyorAuto_Flow3_12.text = "流道速度切换3.12";
+			this.ConveyorAuto_Flow3_12.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_12_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_13
+			// 
+			this.ConveyorAuto_Flow3_13.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_13.Casse1 = null;
+			this.ConveyorAuto_Flow3_13.Casse2 = null;
+			this.ConveyorAuto_Flow3_13.Casse3 = null;
+			this.ConveyorAuto_Flow3_13.FlowChart_ElapsedMilliseconds = ((long)(135719));
+			this.ConveyorAuto_Flow3_13.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_13.Location = new System.Drawing.Point(100, 556);
+			this.ConveyorAuto_Flow3_13.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_13.Name = "ConveyorAuto_Flow3_13";
+			this.ConveyorAuto_Flow3_13.Next = this.ConveyorAuto_Flow3_14;
+			this.ConveyorAuto_Flow3_13.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_13.TabIndex = 57;
+			this.ConveyorAuto_Flow3_13.text = "到位感应器ON3.13";
+			this.ConveyorAuto_Flow3_13.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_13_FlowChartRun);
+			// 
+			// ConveyorAuto_Flow3_14
+			// 
+			this.ConveyorAuto_Flow3_14.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.ConveyorAuto_Flow3_14.Casse1 = null;
+			this.ConveyorAuto_Flow3_14.Casse2 = null;
+			this.ConveyorAuto_Flow3_14.Casse3 = null;
+			this.ConveyorAuto_Flow3_14.FlowChart_ElapsedMilliseconds = ((long)(135718));
+			this.ConveyorAuto_Flow3_14.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ConveyorAuto_Flow3_14.Location = new System.Drawing.Point(100, 604);
+			this.ConveyorAuto_Flow3_14.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.ConveyorAuto_Flow3_14.Name = "ConveyorAuto_Flow3_14";
+			this.ConveyorAuto_Flow3_14.Next = this.ConveyorAuto_Flow3_15;
+			this.ConveyorAuto_Flow3_14.Size = new System.Drawing.Size(276, 35);
+			this.ConveyorAuto_Flow3_14.TabIndex = 58;
+			this.ConveyorAuto_Flow3_14.text = "流道停止3.14";
+			this.ConveyorAuto_Flow3_14.FlowChartRun += new NPFlowChart.Flow_Chart.FlowChartHandle(this.ConveyAuto_Flow3_14_FlowChartRun);
+			// 
+			// Converyor
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(1068, 803);
+			this.Name = "Converyor";
+			this.Text = "Converyor";
+			this.InitialPage.ResumeLayout(false);
+			this.AutoPage.ResumeLayout(false);
+			this.FlowChartTable.ResumeLayout(false);
+			this.tabControl1.ResumeLayout(false);
+			this.tabPage1.ResumeLayout(false);
+			this.tabControl2.ResumeLayout(false);
+			this.tabPage3.ResumeLayout(false);
+			this.tabPage4.ResumeLayout(false);
+			this.tabPage2.ResumeLayout(false);
+			this.ResumeLayout(false);
+
+        }
+
+		#endregion
+		private NPFlowChart.Flow_Chart ConveyInit_Flow1_5;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow1_3;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow1_4;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow1_1;
+		private System.Windows.Forms.TabControl tabControl1;
+		private System.Windows.Forms.TabPage tabPage1;
+		private System.Windows.Forms.TabControl tabControl2;
+		private System.Windows.Forms.TabPage tabPage3;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_23;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_01;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_02;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_03;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_15;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_16;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_17;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_18;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_19;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_20;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_21;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_05;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_04;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_06;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_07;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_08;
+		private NPFlowChart.Flow_Chart ConveyAuto_Flow1_10;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_11;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_12;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_13;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_14;
+		private System.Windows.Forms.TabPage tabPage4;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_19;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_20;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_22;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_25;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_26;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_27;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_29;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_01;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_02;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_03;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_16;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_17;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_05;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_04;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_06;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_07;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_08;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_10;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_11;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_12;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_13;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_14;
+		private System.Windows.Forms.TabPage tabPage2;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_22;
+		private NPFlowChart.Flow_Chart ConveyoAuto_Flow2_28;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_25;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_01;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_02;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_03;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_15;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_16;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_17;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_18;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_21;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_22;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_23;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_24;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_05;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_04;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_06;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_07;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_08;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_10;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_11;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_12;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_13;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_14;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_30;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow1_09;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_24;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_23;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_18;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_09;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_09;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_20;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow3_19;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_21;
+		private NPFlowChart.Flow_Chart ConveyorAuto_Flow2_15;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow1_6;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow1_8;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow1_7;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow1_9;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow2_3;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow2_1;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow2_2;
+		private NPFlowChart.Flow_Chart ConveyInit_Flow1_2;
+	}
+}

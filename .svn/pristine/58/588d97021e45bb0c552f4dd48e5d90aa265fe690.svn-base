@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <MSet>
+    <UserScannerBarcode>false</UserScannerBarcode>
+    <UserVision>true</UserVision>
+    <UserDoor>false</UserDoor>
+    <UserTryRun>false</UserTryRun>
+    <UserBuzzer>false</UserBuzzer>
+    <DisableVisionCheck>false</DisableVisionCheck>
+    <Dis3dCamera>false</Dis3dCamera>
+    <DisDownCamera>false</DisDownCamera>
+    <UserTrayB>false</UserTrayB>
+    <DisMes>false</DisMes>
+    <PopWindowns_3D>false</PopWindowns_3D>
+    <ScrewPointOn>false</ScrewPointOn>
+  </MSet>
+  <PSet>
+    <Robot1IP>192.168.10.66</Robot1IP>
+    <Robot1Address>910-507292</Robot1Address>
+    <Robot2IP>192.168.10.55</Robot2IP>
+    <Robot2Address>910-507571</Robot2Address>
+    <TurntableDelay>0</TurntableDelay>
+    <Screw1Z1SaftyHeight>3</Screw1Z1SaftyHeight>
+    <PressZ1SaftyHeight>53.885</PressZ1SaftyHeight>
+    <Screw2Z2SaftyHeight>3</Screw2Z2SaftyHeight>
+    <PressZ2SaftyHeight>3.882</PressZ2SaftyHeight>
+    <Robot1SaftyHeight>180</Robot1SaftyHeight>
+    <Robot2SaftyHeight>-10000</Robot2SaftyHeight>
+    <UnloadZSaftyHeight>-10</UnloadZSaftyHeight>
+    <Robot2TakeHoisongSaftHeight>170</Robot2TakeHoisongSaftHeight>
+    <Robot2UnloadProductSaftHeight>170</Robot2UnloadProductSaftHeight>
+    <TakeProductUloadZSaftyHeight>99</TakeProductUloadZSaftyHeight>
+  </PSet>
+</NewDataSet>

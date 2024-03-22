@@ -1,0 +1,196 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using System.Threading.Tasks;
+
+namespace AlphaRap.Classes
+{
+    class RFIDCsvObj
+    {
+        private List<RFIDCsvInfo> listRFIDCsvInfo = null;
+        private List<RFIDCsvInfoFinal> listRFIDCsvInfoFinal = null;
+
+        public RFIDCsvObj()
+        {
+            listRFIDCsvInfo = new List<RFIDCsvInfo>();
+            listRFIDCsvInfoFinal = new List<RFIDCsvInfoFinal>();
+        }
+
+        public int ReadRFIDCsv(string strPath)
+        {
+            if (!File.Exists(strPath))
+            {
+                return -1;
+            }
+            string[] arrayRFID = File.ReadAllLines(strPath, Encoding.GetEncoding("GB2312"));    //.cvs 分行列入arry; 
+            string[] arrayData = null;
+            for (int i = 1; i < arrayRFID.Length; i++)      //从1开始
+            {
+                arrayData = arrayRFID[i].Split(',');        //每行以“，”分割
+                if (22 == arrayData.Length)
+                {
+                    RFIDCsvInfo oneRFIDRecord = default(RFIDCsvInfo);
+                    try
+                    {
+                        oneRFIDRecord.RecordDateTime = DateTime.Parse(arrayData[0]);       //装入 RFIDCsvInfo 
+
+                        oneRFIDRecord.UID = arrayData[1];
+                        oneRFIDRecord.PalletNo = arrayData[2];
+                        //oneRFIDRecord.ProcessFlowCount = arrayData[3];
+                        // oneRFIDRecord.POneNGFlag = arrayData[4];
+                        oneRFIDRecord.WorkPlaceNo = arrayData[3];
+                        oneRFIDRecord.ProcessType = arrayData[4];
+                        oneRFIDRecord.POneInterInsulBarcode = arrayData[5];
+                        oneRFIDRecord.POneStatus = arrayData[6];
+                        oneRFIDRecord.POneBarcode1 = arrayData[7];
+                        oneRFIDRecord.POneBarcode2 = arrayData[8];
+                        oneRFIDRecord.POneTestData1 = arrayData[9];
+                        oneRFIDRecord.POneTestData2 = arrayData[10];
+                        oneRFIDRecord.PTwoInterInsulBarcode = arrayData[11];
+                        oneRFIDRecord.PTwoStatus = arrayData[12];
+                        oneRFIDRecord.PTwoBarcode1 = arrayData[13];
+                        oneRFIDRecord.PTwoBarcode2 = arrayData[14];
+                        oneRFIDRecord.PTwoTestData1 = arrayData[15];
+                        oneRFIDRecord.PTwoTestData2 = arrayData[16];
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        return -2;
+                    }
+                    listRFIDCsvInfo.Add(oneRFIDRecord);  //装入 list<RFIDCsvInfo> 中
+                }
+            }
+            return listRFIDCsvInfo.Count;
+        }
+        public int ReadRFIDFinalCsv(string strPath)
+        {
+            if (!File.Exists(strPath))
+            {
+                return -1;
+            }
+            string[] arrayRFIDFinal = File.ReadAllLines(strPath, Encoding.GetEncoding("GB2312"));    //.cvs 分行列入arry; 
+            string[] arrayData = null;
+            for (int i = 1; i < arrayRFIDFinal.Length; i++)      //从1开始
+            {
+                arrayData = arrayRFIDFinal[i].Split(',');        //每行以“，”分割
+                if (22 == arrayData.Length)
+                {
+                    RFIDCsvInfoFinal oneRFIDFinalRecord = default(RFIDCsvInfoFinal);
+                    try
+                    {
+                        oneRFIDFinalRecord.RecordDateTime = DateTime.Parse(arrayData[0]);       //装入 RFIDCsvInfo 
+                        oneRFIDFinalRecord.UID = arrayData[1];
+                        oneRFIDFinalRecord.PalletNo = arrayData[2];
+                        oneRFIDFinalRecord.POneCavityFlag = arrayData[3];
+                        oneRFIDFinalRecord.POneOKFlagAll = arrayData[4];
+                        oneRFIDFinalRecord.WkPlaceMark1 = arrayData[5];
+                        oneRFIDFinalRecord.WkPlaceMark2 = arrayData[6];
+                        oneRFIDFinalRecord.POneBarcode1 = arrayData[7];
+                        oneRFIDFinalRecord.POneBarcode2 = arrayData[8];
+                        oneRFIDFinalRecord.POneBarcode3 = arrayData[9];
+                        //oneRFIDFinalRecord.POneBarcode4 = arrayData[10];
+                        //oneRFIDFinalRecord.POneTestData7 = arrayData[11];
+                        // oneRFIDFinalRecord.POneTestData8= arrayData[12];
+                        oneRFIDFinalRecord.POneTestData1 = arrayData[10];
+                        oneRFIDFinalRecord.POneTestData2 = arrayData[11];
+                        //oneRFIDFinalRecord.POneTestData6 = arrayData[15];
+                        //oneRFIDFinalRecord.POneTestData3 = arrayData[16];
+                        oneRFIDFinalRecord.POneTestData4 = arrayData[12];
+                        oneRFIDFinalRecord.POneTestData5 = arrayData[13];
+
+                        oneRFIDFinalRecord.PTwoOKFlagAll = "";
+                        oneRFIDFinalRecord.PTwoBarcode1 = "";
+                        oneRFIDFinalRecord.PTwoBarcode2 = "";
+                        oneRFIDFinalRecord.PTwoBarcode3 = "";
+                        //oneRFIDFinalRecord.PTwoBarcode4 = "";
+                        //oneRFIDFinalRecord.PTwoTestData7 = "";
+                        //oneRFIDFinalRecord.PTwoTestData8 = "";
+                        oneRFIDFinalRecord.PTwoTestData1 = "";
+                        oneRFIDFinalRecord.PTwoTestData2 = "";
+                        //oneRFIDFinalRecord.PTwoTestData6 = "";
+                        //oneRFIDFinalRecord.PTwoTestData3 = "";
+                        oneRFIDFinalRecord.PTwoTestData4 = "";
+                        oneRFIDFinalRecord.PTwoTestData5 = "";
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        return -2;
+                    }
+                    listRFIDCsvInfoFinal.Add(oneRFIDFinalRecord);  //装入 list<RFIDCsvInfo> 中
+                }
+            }
+            return listRFIDCsvInfoFinal.Count;
+        }
+        public List<RFIDCsvInfo> GetRFIDCSVObjs()
+        {
+            return listRFIDCsvInfo;
+        }
+        public List<RFIDCsvInfoFinal> GetRFIDFinalCSVObjs()
+        {
+            return listRFIDCsvInfoFinal;
+        }
+        public bool FilePathExist(string strFilePath)
+        {
+            if (!Directory.Exists(strFilePath))
+            {
+                return false;
+            }
+            return true;
+        }
+        public void WriteRFIDCsvFile(string filePath, string[] strInfo)
+        {
+            string text = string.Format("{0}\\{1}.csv", filePath, DateTime.Now.ToString("yyyy-MM-dd") + "RFID");
+            if (!File.Exists(filePath))
+            {
+                FileStream fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                StreamWriter streamWriter = new StreamWriter(fileStream);
+                StringBuilder stringBuilder = new StringBuilder();
+                streamWriter.Flush();
+                streamWriter.Close();
+                fileStream.Close();
+            }
+            StreamWriter streamWriter2 = new StreamWriter(filePath, append: true);//, System.Text.Encoding.Default);    //改调
+            StringBuilder stringBuilder2 = new StringBuilder();
+            stringBuilder2.Append(strInfo[0]).Append(",").Append(strInfo[1])
+                .Append(",")
+                .Append(strInfo[2])
+                .Append(",")
+                .Append(strInfo[3])
+                .Append(",")
+                .Append(strInfo[4])
+                .Append(",")
+                .Append(strInfo[5])
+                .Append(",")
+                .Append(strInfo[6])
+                .Append(",")
+                .Append(strInfo[7])
+                .Append(",")
+                .Append(strInfo[8])
+                .Append(",")
+                .Append(strInfo[9])
+                .Append(",")
+                .Append(strInfo[10])
+                .Append(",")
+                .Append(strInfo[11])
+                .Append(",")
+                .Append(strInfo[12])
+                .Append(",")
+                .Append(strInfo[13])
+                .Append(",")
+                .Append(strInfo[14])
+                .Append(",")
+                .Append(strInfo[15])
+                .Append(",")
+                .Append(strInfo[16])
+                .Append(",")
+                .Append(strInfo[17]);
+            streamWriter2.WriteLine(stringBuilder2);
+            streamWriter2.Flush();
+            streamWriter2.Close();
+        }
+    }
+}

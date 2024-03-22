@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Common" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Common" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd7" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.DB" />
+  <xs:complexType name="MoInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Face" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Model" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Mono" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Pn" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MoInfo" nillable="true" type="tns:MoInfo" />
+  <xs:complexType name="ArrayOfReqSmtMapVendor">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ReqSmtMapVendor" nillable="true" type="tns:ReqSmtMapVendor" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfReqSmtMapVendor" nillable="true" type="tns:ArrayOfReqSmtMapVendor" />
+  <xs:complexType name="ReqSmtMapVendor">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CB_PROD_SSN" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CB_STATE" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="MB_PROD_SSN" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ReqSmtMapVendor" nillable="true" type="tns:ReqSmtMapVendor" />
+  <xs:complexType name="ArrayOfContainerInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ContainerInfo" nillable="true" type="tns:ContainerInfo" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfContainerInfo" nillable="true" type="tns:ArrayOfContainerInfo" />
+  <xs:complexType name="ContainerInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Catagory" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ContainerId" nillable="true" type="xs:string" />
+      <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="ItemList" nillable="true" type="q1:ArrayOfstring" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ContainerInfo" nillable="true" type="tns:ContainerInfo" />
+  <xs:complexType name="ArrayOfLabelVariable">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="LabelVariable" nillable="true" type="tns:LabelVariable" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfLabelVariable" nillable="true" type="tns:ArrayOfLabelVariable" />
+  <xs:complexType name="LabelVariable">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="FlagType" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="LabName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="LabVariable" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PageNum" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="Value" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LabelVariable" nillable="true" type="tns:LabelVariable" />
+  <xs:complexType name="ArrayOfCbInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="CbInfo" nillable="true" type="tns:CbInfo" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfCbInfo" nillable="true" type="tns:ArrayOfCbInfo" />
+  <xs:complexType name="CbInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CbCurrStage" nillable="true" type="xs:string" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.DB" minOccurs="0" name="CbCustomerSn" nillable="true" type="q2:ArrayOfSN_CSN" />
+      <xs:element minOccurs="0" name="CbNextStage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CbSeq" type="xs:int" />
+      <xs:element minOccurs="0" name="CbSn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CbState" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsEmpty" type="xs:boolean" />
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.DB" minOccurs="0" name="SnFlexfieldList" nillable="true" type="q3:ArrayOfSN_FLEXFIELD" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CbInfo" nillable="true" type="tns:CbInfo" />
+  <xs:complexType name="BarcodeInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AtloNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Brand" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DateCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DateCodeN" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Gp" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GpSpec" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSfcsExist" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Item" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="LotNum" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Marking" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Pn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PnDesa" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Qty" type="xs:int" />
+      <xs:element minOccurs="0" name="RLC" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Size" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="VendorCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="VendorId" type="xs:int" />
+      <xs:element minOccurs="0" name="VendorSiteALT" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="VendorSiteCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="WncDateCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="sDC" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BarcodeInfo" nillable="true" type="tns:BarcodeInfo" />
+  <xs:complexType name="SPNTablInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BU" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Category_Code" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Count" type="xs:int" />
+      <xs:element minOccurs="0" name="ERP_Model" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GNDS" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsApplyFile" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsApplyRule" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Model" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PN" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SPN" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UPC" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="WO_Seq" nillable="true" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SPNTablInfo" nillable="true" type="tns:SPNTablInfo" />
+</xs:schema>

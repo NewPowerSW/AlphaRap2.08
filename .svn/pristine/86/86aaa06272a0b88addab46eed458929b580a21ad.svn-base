@@ -1,0 +1,1681 @@
+﻿namespace AlphaRap
+{
+	partial class ManualForm
+	{
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		private System.ComponentModel.IContainer components = null;
+
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
+
+		#region Windows Form Designer generated code
+
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
+			this.tabControl1 = new System.Windows.Forms.TabControl();
+			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.OB_LEDLight = new NPSDK.Adlink_Output();
+			this.OB_StoptButton_Light = new NPSDK.Adlink_Output();
+			this.OB_StartButton_Light = new NPSDK.Adlink_Output();
+			this.OB_Door = new NPSDK.Adlink_Output();
+			this.OB_Air = new NPSDK.Adlink_Output();
+			this.OB_YellowLight = new NPSDK.Adlink_Output();
+			this.OB_RedLight = new NPSDK.Adlink_Output();
+			this.OB_GreenLight = new NPSDK.Adlink_Output();
+			this.IB_StartButton = new NPSDK.Adlink_Input();
+			this.IB_SafetyReady = new NPSDK.Adlink_Input();
+			this.IB_ResetButton = new NPSDK.Adlink_Input();
+			this.IB_StopButton = new NPSDK.Adlink_Input();
+			this.IB_Air = new NPSDK.Adlink_Input();
+			this.IB_Back_EmergencyStop = new NPSDK.Adlink_Input();
+			this.IB_Front_EmergencyStop = new NPSDK.Adlink_Input();
+			this.IB_Door = new NPSDK.Adlink_Input();
+			this.OB_Buzz = new NPSDK.Adlink_Output();
+			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.tabControl2 = new System.Windows.Forms.TabControl();
+			this.tabPage3 = new System.Windows.Forms.TabPage();
+			this.tabControl3 = new System.Windows.Forms.TabControl();
+			this.tabPage5 = new System.Windows.Forms.TabPage();
+			this.OB_UpConveyor_Buffer_Stop_Cylinder = new NPSDK.Adlink_Cylinder();
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder = new NPSDK.Adlink_Output();
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder = new NPSDK.Adlink_Output();
+			this.IB_UpConveyor_Buffer_StopUp_Sensor = new NPSDK.Adlink_Input();
+			this.IB_UpConveyor_Buffer_StopDown_Sensor = new NPSDK.Adlink_Input();
+			this.OB_UpConveyor_Buffer_ConveyorReverse = new NPSDK.Adlink_Output();
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch = new NPSDK.Adlink_Output();
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor = new NPSDK.Adlink_Input();
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor = new NPSDK.Adlink_Input();
+			this.OB_UpConveyor_Buffer_ConveyorForward = new NPSDK.Adlink_Output();
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor = new NPSDK.Adlink_Input();
+			this.tabPage6 = new System.Windows.Forms.TabPage();
+			this.OB_UpConveyor_Work_Stop_Cylinder = new NPSDK.Adlink_Cylinder();
+			this.OB_UpConveyor_Work_StopUp_Cylinder = new NPSDK.Adlink_Output();
+			this.OB_UpConveyor_Work_StopDown_Cylinder = new NPSDK.Adlink_Output();
+			this.OB_UpConveyor_Work_Jacking_Cylinder = new NPSDK.Adlink_Cylinder();
+			this.OB_UpConveyor_Work_JackingUp_Cylinder = new NPSDK.Adlink_Output();
+			this.IB_UpConveyor_Work_StopDown_Sensor = new NPSDK.Adlink_Input();
+			this.IB_UpConveyor_Work_StopUp_Sensor = new NPSDK.Adlink_Input();
+			this.IB_UpConveyor_Work_JackingDown_Sensor = new NPSDK.Adlink_Input();
+			this.IB_UpConveyor_Work_JackingUp_Sensor = new NPSDK.Adlink_Input();
+			this.OB_UpConveyor_Work_JackingDown_Cylinder = new NPSDK.Adlink_Output();
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch = new NPSDK.Adlink_Output();
+			this.OB_UpConveyor_Work_ConveyorReverse = new NPSDK.Adlink_Output();
+			this.OB_UpConveyor_Work_ConveyorForward = new NPSDK.Adlink_Output();
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor = new NPSDK.Adlink_Input();
+			this.IB_UpConveyor_Work_BoardOut_Sensor = new NPSDK.Adlink_Input();
+			this.IB_UpConveyor_Work_BoardStop_Sensor = new NPSDK.Adlink_Input();
+			this.IB_UpConveyor_Work_BoardIn_Sensor = new NPSDK.Adlink_Input();
+			this.tabPage4 = new System.Windows.Forms.TabPage();
+			this.OB_DownConveyor_Stop_Cylinder = new NPSDK.Adlink_Cylinder();
+			this.OB_DownConveyor_StopUp_Cylinder = new NPSDK.Adlink_Output();
+			this.OB_DownConveyor_StopDown_Cylinder = new NPSDK.Adlink_Output();
+			this.IB_DownConveyor_StopDown_Sensor = new NPSDK.Adlink_Input();
+			this.IB_DownConveyor_StopUp_Sensor = new NPSDK.Adlink_Input();
+			this.OB_DownConveyor_Forward = new NPSDK.Adlink_Output();
+			this.IB_DownConveyor_BoardOut_Sensor = new NPSDK.Adlink_Input();
+			this.IB_DownConveyor_BoardStop_Sensor = new NPSDK.Adlink_Input();
+			this.OB_DownConveyor_SpeedSwitch = new NPSDK.Adlink_Output();
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor = new NPSDK.Adlink_Input();
+			this.OB_DownConveyor_Reverse = new NPSDK.Adlink_Output();
+			this.IB_DownConveyor_BoardIn_Sensor = new NPSDK.Adlink_Input();
+			this.tabPage7 = new System.Windows.Forms.TabPage();
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA = new NPSDK.Adlink_Output();
+			this.OB_DownConveyor_LocalMachineReady_SMEMA = new NPSDK.Adlink_Output();
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA = new NPSDK.Adlink_Output();
+			this.OB_UpConveyor_LocalMachineReady_SMEMA = new NPSDK.Adlink_Output();
+			this.IB_DownConveyor_DownMachineReady_SMEMA = new NPSDK.Adlink_Input();
+			this.IB_UpConveyor_DownMachineReady_SMEMA = new NPSDK.Adlink_Input();
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA = new NPSDK.Adlink_Input();
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA = new NPSDK.Adlink_Input();
+			((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.RecipeData)).BeginInit();
+			this.tabControl1.SuspendLayout();
+			this.tabPage1.SuspendLayout();
+			this.groupBox1.SuspendLayout();
+			this.tabPage2.SuspendLayout();
+			this.tabControl2.SuspendLayout();
+			this.tabPage3.SuspendLayout();
+			this.tabControl3.SuspendLayout();
+			this.tabPage5.SuspendLayout();
+			this.tabPage6.SuspendLayout();
+			this.tabPage4.SuspendLayout();
+			this.tabPage7.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// tabControl1
+			// 
+			this.tabControl1.Controls.Add(this.tabPage1);
+			this.tabControl1.Controls.Add(this.tabPage2);
+			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl1.Font = new System.Drawing.Font("宋体", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.tabControl1.Location = new System.Drawing.Point(0, 0);
+			this.tabControl1.Name = "tabControl1";
+			this.tabControl1.SelectedIndex = 0;
+			this.tabControl1.Size = new System.Drawing.Size(1420, 649);
+			this.tabControl1.TabIndex = 51;
+			// 
+			// tabPage1
+			// 
+			this.tabPage1.Controls.Add(this.groupBox1);
+			this.tabPage1.Font = new System.Drawing.Font("宋体", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.tabPage1.Location = new System.Drawing.Point(4, 37);
+			this.tabPage1.Name = "tabPage1";
+			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage1.Size = new System.Drawing.Size(1412, 608);
+			this.tabPage1.TabIndex = 0;
+			this.tabPage1.Text = "System";
+			this.tabPage1.UseVisualStyleBackColor = true;
+			// 
+			// groupBox1
+			// 
+			this.groupBox1.BackColor = System.Drawing.SystemColors.Control;
+			this.groupBox1.Controls.Add(this.OB_LEDLight);
+			this.groupBox1.Controls.Add(this.OB_StoptButton_Light);
+			this.groupBox1.Controls.Add(this.OB_StartButton_Light);
+			this.groupBox1.Controls.Add(this.OB_Door);
+			this.groupBox1.Controls.Add(this.OB_Air);
+			this.groupBox1.Controls.Add(this.OB_YellowLight);
+			this.groupBox1.Controls.Add(this.OB_RedLight);
+			this.groupBox1.Controls.Add(this.OB_GreenLight);
+			this.groupBox1.Controls.Add(this.IB_StartButton);
+			this.groupBox1.Controls.Add(this.IB_SafetyReady);
+			this.groupBox1.Controls.Add(this.IB_ResetButton);
+			this.groupBox1.Controls.Add(this.IB_StopButton);
+			this.groupBox1.Controls.Add(this.IB_Air);
+			this.groupBox1.Controls.Add(this.IB_Back_EmergencyStop);
+			this.groupBox1.Controls.Add(this.IB_Front_EmergencyStop);
+			this.groupBox1.Controls.Add(this.IB_Door);
+			this.groupBox1.Controls.Add(this.OB_Buzz);
+			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.groupBox1.Location = new System.Drawing.Point(3, 3);
+			this.groupBox1.Name = "groupBox1";
+			this.groupBox1.Size = new System.Drawing.Size(1406, 602);
+			this.groupBox1.TabIndex = 56;
+			this.groupBox1.TabStop = false;
+			this.groupBox1.Text = "System";
+			// 
+			// OB_LEDLight
+			// 
+			this.OB_LEDLight.BackColor = System.Drawing.Color.White;
+			this.OB_LEDLight.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_LEDLight.CardType = NPSDK.IOCardType.Contect;
+			this.OB_LEDLight.FieldName = null;
+			this.OB_LEDLight.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_LEDLight.IP = null;
+			this.OB_LEDLight.Location = new System.Drawing.Point(1033, 30);
+			this.OB_LEDLight.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_LEDLight.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_LEDLight.Name = "OB_LEDLight";
+			this.OB_LEDLight.Port = "00101";
+			this.OB_LEDLight.ReverseState = false;
+			this.OB_LEDLight.Size = new System.Drawing.Size(220, 30);
+			this.OB_LEDLight.TabIndex = 85;
+			this.OB_LEDLight.Text = "LED Light";
+			this.OB_LEDLight.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_StoptButton_Light
+			// 
+			this.OB_StoptButton_Light.BackColor = System.Drawing.Color.White;
+			this.OB_StoptButton_Light.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_StoptButton_Light.CardType = NPSDK.IOCardType.Contect;
+			this.OB_StoptButton_Light.FieldName = null;
+			this.OB_StoptButton_Light.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_StoptButton_Light.IP = null;
+			this.OB_StoptButton_Light.Location = new System.Drawing.Point(784, 95);
+			this.OB_StoptButton_Light.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_StoptButton_Light.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_StoptButton_Light.Name = "OB_StoptButton_Light";
+			this.OB_StoptButton_Light.Port = "00101";
+			this.OB_StoptButton_Light.ReverseState = false;
+			this.OB_StoptButton_Light.Size = new System.Drawing.Size(220, 30);
+			this.OB_StoptButton_Light.TabIndex = 84;
+			this.OB_StoptButton_Light.Text = "StoptButton_Light";
+			this.OB_StoptButton_Light.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_StartButton_Light
+			// 
+			this.OB_StartButton_Light.BackColor = System.Drawing.Color.White;
+			this.OB_StartButton_Light.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_StartButton_Light.CardType = NPSDK.IOCardType.Contect;
+			this.OB_StartButton_Light.FieldName = null;
+			this.OB_StartButton_Light.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_StartButton_Light.IP = null;
+			this.OB_StartButton_Light.Location = new System.Drawing.Point(526, 96);
+			this.OB_StartButton_Light.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_StartButton_Light.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_StartButton_Light.Name = "OB_StartButton_Light";
+			this.OB_StartButton_Light.Port = "00101";
+			this.OB_StartButton_Light.ReverseState = false;
+			this.OB_StartButton_Light.Size = new System.Drawing.Size(220, 30);
+			this.OB_StartButton_Light.TabIndex = 83;
+			this.OB_StartButton_Light.Text = "StartButton_Light";
+			this.OB_StartButton_Light.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_Door
+			// 
+			this.OB_Door.BackColor = System.Drawing.Color.White;
+			this.OB_Door.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_Door.CardType = NPSDK.IOCardType.Contect;
+			this.OB_Door.FieldName = null;
+			this.OB_Door.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_Door.IP = null;
+			this.OB_Door.Location = new System.Drawing.Point(286, 95);
+			this.OB_Door.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_Door.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_Door.Name = "OB_Door";
+			this.OB_Door.Port = "00101";
+			this.OB_Door.ReverseState = false;
+			this.OB_Door.Size = new System.Drawing.Size(220, 30);
+			this.OB_Door.TabIndex = 82;
+			this.OB_Door.Text = "Door";
+			this.OB_Door.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_Air
+			// 
+			this.OB_Air.BackColor = System.Drawing.Color.White;
+			this.OB_Air.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_Air.CardType = NPSDK.IOCardType.Contect;
+			this.OB_Air.FieldName = null;
+			this.OB_Air.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_Air.IP = null;
+			this.OB_Air.Location = new System.Drawing.Point(37, 95);
+			this.OB_Air.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_Air.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_Air.Name = "OB_Air";
+			this.OB_Air.Port = "00101";
+			this.OB_Air.ReverseState = false;
+			this.OB_Air.Size = new System.Drawing.Size(220, 30);
+			this.OB_Air.TabIndex = 81;
+			this.OB_Air.Text = "Air";
+			this.OB_Air.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_YellowLight
+			// 
+			this.OB_YellowLight.BackColor = System.Drawing.Color.White;
+			this.OB_YellowLight.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_YellowLight.CardType = NPSDK.IOCardType.Contect;
+			this.OB_YellowLight.FieldName = null;
+			this.OB_YellowLight.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_YellowLight.IP = null;
+			this.OB_YellowLight.Location = new System.Drawing.Point(784, 31);
+			this.OB_YellowLight.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_YellowLight.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_YellowLight.Name = "OB_YellowLight";
+			this.OB_YellowLight.Port = "00101";
+			this.OB_YellowLight.ReverseState = false;
+			this.OB_YellowLight.Size = new System.Drawing.Size(220, 30);
+			this.OB_YellowLight.TabIndex = 80;
+			this.OB_YellowLight.Text = "Yellow Light";
+			this.OB_YellowLight.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_RedLight
+			// 
+			this.OB_RedLight.BackColor = System.Drawing.Color.White;
+			this.OB_RedLight.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_RedLight.CardType = NPSDK.IOCardType.Contect;
+			this.OB_RedLight.FieldName = null;
+			this.OB_RedLight.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_RedLight.IP = null;
+			this.OB_RedLight.Location = new System.Drawing.Point(535, 31);
+			this.OB_RedLight.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_RedLight.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_RedLight.Name = "OB_RedLight";
+			this.OB_RedLight.Port = "00101";
+			this.OB_RedLight.ReverseState = false;
+			this.OB_RedLight.Size = new System.Drawing.Size(220, 30);
+			this.OB_RedLight.TabIndex = 79;
+			this.OB_RedLight.Text = "Red Light";
+			this.OB_RedLight.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_GreenLight
+			// 
+			this.OB_GreenLight.BackColor = System.Drawing.Color.White;
+			this.OB_GreenLight.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_GreenLight.CardType = NPSDK.IOCardType.Contect;
+			this.OB_GreenLight.FieldName = null;
+			this.OB_GreenLight.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_GreenLight.IP = null;
+			this.OB_GreenLight.Location = new System.Drawing.Point(286, 30);
+			this.OB_GreenLight.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_GreenLight.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_GreenLight.Name = "OB_GreenLight";
+			this.OB_GreenLight.Port = "00101";
+			this.OB_GreenLight.ReverseState = false;
+			this.OB_GreenLight.Size = new System.Drawing.Size(220, 30);
+			this.OB_GreenLight.TabIndex = 78;
+			this.OB_GreenLight.Text = "Green Light";
+			this.OB_GreenLight.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_StartButton
+			// 
+			this.IB_StartButton.BackColor = System.Drawing.Color.White;
+			this.IB_StartButton.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_StartButton.CardType = NPSDK.IOCardType.Contect;
+			this.IB_StartButton.FieldName = null;
+			this.IB_StartButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_StartButton.IP = null;
+			this.IB_StartButton.Location = new System.Drawing.Point(37, 226);
+			this.IB_StartButton.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_StartButton.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_StartButton.Name = "IB_StartButton";
+			this.IB_StartButton.Port = "00101";
+			this.IB_StartButton.ReverseState = false;
+			this.IB_StartButton.Size = new System.Drawing.Size(220, 30);
+			this.IB_StartButton.TabIndex = 77;
+			this.IB_StartButton.Text = "StartButton";
+			this.IB_StartButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_SafetyReady
+			// 
+			this.IB_SafetyReady.BackColor = System.Drawing.Color.White;
+			this.IB_SafetyReady.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_SafetyReady.CardType = NPSDK.IOCardType.Contect;
+			this.IB_SafetyReady.FieldName = null;
+			this.IB_SafetyReady.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_SafetyReady.IP = null;
+			this.IB_SafetyReady.Location = new System.Drawing.Point(526, 161);
+			this.IB_SafetyReady.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_SafetyReady.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_SafetyReady.Name = "IB_SafetyReady";
+			this.IB_SafetyReady.Port = "00101";
+			this.IB_SafetyReady.ReverseState = false;
+			this.IB_SafetyReady.Size = new System.Drawing.Size(220, 30);
+			this.IB_SafetyReady.TabIndex = 76;
+			this.IB_SafetyReady.Text = "SafetyReady";
+			this.IB_SafetyReady.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_ResetButton
+			// 
+			this.IB_ResetButton.BackColor = System.Drawing.Color.White;
+			this.IB_ResetButton.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_ResetButton.CardType = NPSDK.IOCardType.Contect;
+			this.IB_ResetButton.FieldName = null;
+			this.IB_ResetButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_ResetButton.IP = null;
+			this.IB_ResetButton.Location = new System.Drawing.Point(286, 225);
+			this.IB_ResetButton.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_ResetButton.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_ResetButton.Name = "IB_ResetButton";
+			this.IB_ResetButton.Port = "00101";
+			this.IB_ResetButton.ReverseState = false;
+			this.IB_ResetButton.Size = new System.Drawing.Size(220, 30);
+			this.IB_ResetButton.TabIndex = 75;
+			this.IB_ResetButton.Text = "ResetButton";
+			this.IB_ResetButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_StopButton
+			// 
+			this.IB_StopButton.BackColor = System.Drawing.Color.White;
+			this.IB_StopButton.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_StopButton.CardType = NPSDK.IOCardType.Contect;
+			this.IB_StopButton.FieldName = null;
+			this.IB_StopButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_StopButton.IP = null;
+			this.IB_StopButton.Location = new System.Drawing.Point(526, 226);
+			this.IB_StopButton.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_StopButton.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_StopButton.Name = "IB_StopButton";
+			this.IB_StopButton.Port = "00101";
+			this.IB_StopButton.ReverseState = false;
+			this.IB_StopButton.Size = new System.Drawing.Size(220, 30);
+			this.IB_StopButton.TabIndex = 74;
+			this.IB_StopButton.Text = "StopButton";
+			this.IB_StopButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_Air
+			// 
+			this.IB_Air.BackColor = System.Drawing.Color.White;
+			this.IB_Air.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_Air.CardType = NPSDK.IOCardType.Contect;
+			this.IB_Air.FieldName = null;
+			this.IB_Air.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_Air.IP = null;
+			this.IB_Air.Location = new System.Drawing.Point(784, 226);
+			this.IB_Air.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_Air.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_Air.Name = "IB_Air";
+			this.IB_Air.Port = "00101";
+			this.IB_Air.ReverseState = false;
+			this.IB_Air.Size = new System.Drawing.Size(220, 30);
+			this.IB_Air.TabIndex = 73;
+			this.IB_Air.Text = "Air";
+			this.IB_Air.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_Back_EmergencyStop
+			// 
+			this.IB_Back_EmergencyStop.BackColor = System.Drawing.Color.White;
+			this.IB_Back_EmergencyStop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_Back_EmergencyStop.CardType = NPSDK.IOCardType.Contect;
+			this.IB_Back_EmergencyStop.FieldName = null;
+			this.IB_Back_EmergencyStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_Back_EmergencyStop.IP = null;
+			this.IB_Back_EmergencyStop.Location = new System.Drawing.Point(37, 161);
+			this.IB_Back_EmergencyStop.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_Back_EmergencyStop.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_Back_EmergencyStop.Name = "IB_Back_EmergencyStop";
+			this.IB_Back_EmergencyStop.Port = "00101";
+			this.IB_Back_EmergencyStop.ReverseState = false;
+			this.IB_Back_EmergencyStop.Size = new System.Drawing.Size(220, 30);
+			this.IB_Back_EmergencyStop.TabIndex = 72;
+			this.IB_Back_EmergencyStop.Text = "Back Emergency Stop ";
+			this.IB_Back_EmergencyStop.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_Front_EmergencyStop
+			// 
+			this.IB_Front_EmergencyStop.BackColor = System.Drawing.Color.White;
+			this.IB_Front_EmergencyStop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_Front_EmergencyStop.CardType = NPSDK.IOCardType.Contect;
+			this.IB_Front_EmergencyStop.FieldName = null;
+			this.IB_Front_EmergencyStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_Front_EmergencyStop.IP = null;
+			this.IB_Front_EmergencyStop.Location = new System.Drawing.Point(286, 160);
+			this.IB_Front_EmergencyStop.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_Front_EmergencyStop.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_Front_EmergencyStop.Name = "IB_Front_EmergencyStop";
+			this.IB_Front_EmergencyStop.Port = "00101";
+			this.IB_Front_EmergencyStop.ReverseState = false;
+			this.IB_Front_EmergencyStop.Size = new System.Drawing.Size(220, 30);
+			this.IB_Front_EmergencyStop.TabIndex = 71;
+			this.IB_Front_EmergencyStop.Text = "Front Emergency Stop ";
+			this.IB_Front_EmergencyStop.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_Door
+			// 
+			this.IB_Door.BackColor = System.Drawing.Color.White;
+			this.IB_Door.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_Door.CardType = NPSDK.IOCardType.Contect;
+			this.IB_Door.FieldName = null;
+			this.IB_Door.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_Door.IP = null;
+			this.IB_Door.Location = new System.Drawing.Point(784, 161);
+			this.IB_Door.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_Door.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_Door.Name = "IB_Door";
+			this.IB_Door.Port = "00101";
+			this.IB_Door.ReverseState = false;
+			this.IB_Door.Size = new System.Drawing.Size(220, 30);
+			this.IB_Door.TabIndex = 69;
+			this.IB_Door.Text = "Door";
+			this.IB_Door.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_Buzz
+			// 
+			this.OB_Buzz.BackColor = System.Drawing.Color.White;
+			this.OB_Buzz.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_Buzz.CardType = NPSDK.IOCardType.Contect;
+			this.OB_Buzz.FieldName = null;
+			this.OB_Buzz.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_Buzz.IP = null;
+			this.OB_Buzz.Location = new System.Drawing.Point(37, 31);
+			this.OB_Buzz.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_Buzz.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_Buzz.Name = "OB_Buzz";
+			this.OB_Buzz.Port = "00101";
+			this.OB_Buzz.ReverseState = false;
+			this.OB_Buzz.Size = new System.Drawing.Size(220, 30);
+			this.OB_Buzz.TabIndex = 68;
+			this.OB_Buzz.Text = "Buzz";
+			this.OB_Buzz.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// tabPage2
+			// 
+			this.tabPage2.Controls.Add(this.tabControl2);
+			this.tabPage2.Location = new System.Drawing.Point(4, 37);
+			this.tabPage2.Name = "tabPage2";
+			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage2.Size = new System.Drawing.Size(1412, 608);
+			this.tabPage2.TabIndex = 1;
+			this.tabPage2.Text = "Conveyor";
+			this.tabPage2.UseVisualStyleBackColor = true;
+			// 
+			// tabControl2
+			// 
+			this.tabControl2.Controls.Add(this.tabPage3);
+			this.tabControl2.Controls.Add(this.tabPage4);
+			this.tabControl2.Controls.Add(this.tabPage7);
+			this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl2.Location = new System.Drawing.Point(3, 3);
+			this.tabControl2.Name = "tabControl2";
+			this.tabControl2.SelectedIndex = 0;
+			this.tabControl2.Size = new System.Drawing.Size(1406, 602);
+			this.tabControl2.TabIndex = 0;
+			// 
+			// tabPage3
+			// 
+			this.tabPage3.Controls.Add(this.tabControl3);
+			this.tabPage3.Location = new System.Drawing.Point(4, 37);
+			this.tabPage3.Name = "tabPage3";
+			this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage3.Size = new System.Drawing.Size(1398, 561);
+			this.tabPage3.TabIndex = 0;
+			this.tabPage3.Text = "UPConveyor";
+			this.tabPage3.UseVisualStyleBackColor = true;
+			// 
+			// tabControl3
+			// 
+			this.tabControl3.Controls.Add(this.tabPage5);
+			this.tabControl3.Controls.Add(this.tabPage6);
+			this.tabControl3.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl3.Location = new System.Drawing.Point(3, 3);
+			this.tabControl3.Name = "tabControl3";
+			this.tabControl3.SelectedIndex = 0;
+			this.tabControl3.Size = new System.Drawing.Size(1392, 555);
+			this.tabControl3.TabIndex = 0;
+			// 
+			// tabPage5
+			// 
+			this.tabPage5.BackColor = System.Drawing.SystemColors.Control;
+			this.tabPage5.Controls.Add(this.OB_UpConveyor_Buffer_Stop_Cylinder);
+			this.tabPage5.Controls.Add(this.OB_UpConveyor_Buffer_StopDown_Cylinder);
+			this.tabPage5.Controls.Add(this.IB_UpConveyor_Buffer_StopUp_Sensor);
+			this.tabPage5.Controls.Add(this.IB_UpConveyor_Buffer_StopDown_Sensor);
+			this.tabPage5.Controls.Add(this.OB_UpConveyor_Buffer_ConveyorReverse);
+			this.tabPage5.Controls.Add(this.OB_UpConveyor_Buffer_StopUp_Cylinder);
+			this.tabPage5.Controls.Add(this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch);
+			this.tabPage5.Controls.Add(this.IB_UpConveyor_Buffer_BoardStop_Sensor);
+			this.tabPage5.Controls.Add(this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor);
+			this.tabPage5.Controls.Add(this.OB_UpConveyor_Buffer_ConveyorForward);
+			this.tabPage5.Controls.Add(this.IB_UpConveyor_Buffer_BoardIn_Sensor);
+			this.tabPage5.Location = new System.Drawing.Point(4, 37);
+			this.tabPage5.Name = "tabPage5";
+			this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage5.Size = new System.Drawing.Size(1384, 514);
+			this.tabPage5.TabIndex = 0;
+			this.tabPage5.Text = "Buffer";
+			// 
+			// OB_UpConveyor_Buffer_Stop_Cylinder
+			// 
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOff_BtnText = "OFF";
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOff_IB1 = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOff_IB2 = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOff_IB3 = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOff_IB4 = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOff_OB1 = this.OB_UpConveyor_Buffer_StopUp_Cylinder;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOff_OB2 = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOff_TimeoutAlarmCode = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOn_BtnText = "ON";
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOn_IB1 = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOn_IB2 = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOn_IB3 = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOn_IB4 = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOn_OB1 = this.OB_UpConveyor_Buffer_StopDown_Cylinder;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOn_OB2 = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyOn_TimeoutAlarmCode = null;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.CyTimeoutTime = 30000;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.ForeColor = System.Drawing.Color.Black;
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.Location = new System.Drawing.Point(656, 296);
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.Margin = new System.Windows.Forms.Padding(5);
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.Name = "OB_UpConveyor_Buffer_Stop_Cylinder";
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.Size = new System.Drawing.Size(250, 36);
+			this.OB_UpConveyor_Buffer_Stop_Cylinder.TabIndex = 77;
+			// 
+			// OB_UpConveyor_Buffer_StopUp_Cylinder
+			// 
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.FieldName = null;
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.IP = null;
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.Location = new System.Drawing.Point(656, 196);
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.Name = "OB_UpConveyor_Buffer_StopUp_Cylinder";
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.Port = "00101";
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.ReverseState = false;
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.TabIndex = 72;
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.Text = "StopUp_Cylinder";
+			this.OB_UpConveyor_Buffer_StopUp_Cylinder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_Buffer_StopDown_Cylinder
+			// 
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.FieldName = null;
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.IP = null;
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.Location = new System.Drawing.Point(656, 246);
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.Name = "OB_UpConveyor_Buffer_StopDown_Cylinder";
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.Port = "00101";
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.ReverseState = false;
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.TabIndex = 76;
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.Text = "StopDown_Cylinder";
+			this.OB_UpConveyor_Buffer_StopDown_Cylinder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Buffer_StopUp_Sensor
+			// 
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.FieldName = null;
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.IP = null;
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.Location = new System.Drawing.Point(656, 96);
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.Name = "IB_UpConveyor_Buffer_StopUp_Sensor";
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.Port = "00101";
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.TabIndex = 75;
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.Text = "StopUp_Sensor";
+			this.IB_UpConveyor_Buffer_StopUp_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Buffer_StopDown_Sensor
+			// 
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.FieldName = null;
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.IP = null;
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.Location = new System.Drawing.Point(656, 146);
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.Name = "IB_UpConveyor_Buffer_StopDown_Sensor";
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.Port = "00101";
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.TabIndex = 74;
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.Text = "StopDown_Sensor";
+			this.IB_UpConveyor_Buffer_StopDown_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_Buffer_ConveyorReverse
+			// 
+			this.OB_UpConveyor_Buffer_ConveyorReverse.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Buffer_ConveyorReverse.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Buffer_ConveyorReverse.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Buffer_ConveyorReverse.FieldName = null;
+			this.OB_UpConveyor_Buffer_ConveyorReverse.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Buffer_ConveyorReverse.IP = null;
+			this.OB_UpConveyor_Buffer_ConveyorReverse.Location = new System.Drawing.Point(957, 100);
+			this.OB_UpConveyor_Buffer_ConveyorReverse.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Buffer_ConveyorReverse.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Buffer_ConveyorReverse.Name = "OB_UpConveyor_Buffer_ConveyorReverse";
+			this.OB_UpConveyor_Buffer_ConveyorReverse.Port = "00101";
+			this.OB_UpConveyor_Buffer_ConveyorReverse.ReverseState = false;
+			this.OB_UpConveyor_Buffer_ConveyorReverse.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Buffer_ConveyorReverse.TabIndex = 73;
+			this.OB_UpConveyor_Buffer_ConveyorReverse.Text = "ConveyorReverse";
+			this.OB_UpConveyor_Buffer_ConveyorReverse.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_Buffer_ConveyorSpeedSwitch
+			// 
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.FieldName = null;
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.IP = null;
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.Location = new System.Drawing.Point(957, 46);
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.Name = "OB_UpConveyor_Buffer_ConveyorSpeedSwitch";
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.Port = "00101";
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.ReverseState = false;
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.TabIndex = 71;
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.Text = "ConveyorSpeedSwitch";
+			this.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Buffer_BoardStop_Sensor
+			// 
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.FieldName = null;
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.IP = null;
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.Location = new System.Drawing.Point(656, 46);
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.Name = "IB_UpConveyor_Buffer_BoardStop_Sensor";
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.Port = "00101";
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.TabIndex = 70;
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.Text = "BoardStop_Sensor";
+			this.IB_UpConveyor_Buffer_BoardStop_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor
+			// 
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.FieldName = null;
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.IP = null;
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.Location = new System.Drawing.Point(47, 46);
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.Name = "IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor";
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.Port = "00101";
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.TabIndex = 69;
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.Text = "ConveySpeedSwitch_Sensor";
+			this.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_Buffer_ConveyorForward
+			// 
+			this.OB_UpConveyor_Buffer_ConveyorForward.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Buffer_ConveyorForward.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Buffer_ConveyorForward.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Buffer_ConveyorForward.FieldName = null;
+			this.OB_UpConveyor_Buffer_ConveyorForward.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Buffer_ConveyorForward.IP = null;
+			this.OB_UpConveyor_Buffer_ConveyorForward.Location = new System.Drawing.Point(957, 154);
+			this.OB_UpConveyor_Buffer_ConveyorForward.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Buffer_ConveyorForward.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Buffer_ConveyorForward.Name = "OB_UpConveyor_Buffer_ConveyorForward";
+			this.OB_UpConveyor_Buffer_ConveyorForward.Port = "00101";
+			this.OB_UpConveyor_Buffer_ConveyorForward.ReverseState = false;
+			this.OB_UpConveyor_Buffer_ConveyorForward.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Buffer_ConveyorForward.TabIndex = 68;
+			this.OB_UpConveyor_Buffer_ConveyorForward.Text = "ConveyorForward";
+			this.OB_UpConveyor_Buffer_ConveyorForward.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Buffer_BoardIn_Sensor
+			// 
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.FieldName = null;
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.IP = null;
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.Location = new System.Drawing.Point(342, 46);
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.Name = "IB_UpConveyor_Buffer_BoardIn_Sensor";
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.Port = "00101";
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.TabIndex = 67;
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.Text = "BoardIn_Sensor";
+			this.IB_UpConveyor_Buffer_BoardIn_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// tabPage6
+			// 
+			this.tabPage6.BackColor = System.Drawing.SystemColors.Control;
+			this.tabPage6.Controls.Add(this.OB_UpConveyor_Work_Stop_Cylinder);
+			this.tabPage6.Controls.Add(this.OB_UpConveyor_Work_Jacking_Cylinder);
+			this.tabPage6.Controls.Add(this.IB_UpConveyor_Work_StopDown_Sensor);
+			this.tabPage6.Controls.Add(this.IB_UpConveyor_Work_StopUp_Sensor);
+			this.tabPage6.Controls.Add(this.IB_UpConveyor_Work_JackingDown_Sensor);
+			this.tabPage6.Controls.Add(this.IB_UpConveyor_Work_JackingUp_Sensor);
+			this.tabPage6.Controls.Add(this.OB_UpConveyor_Work_JackingDown_Cylinder);
+			this.tabPage6.Controls.Add(this.OB_UpConveyor_Work_StopDown_Cylinder);
+			this.tabPage6.Controls.Add(this.OB_UpConveyor_Work_ConveyorSpedSwitch);
+			this.tabPage6.Controls.Add(this.OB_UpConveyor_Work_ConveyorReverse);
+			this.tabPage6.Controls.Add(this.OB_UpConveyor_Work_JackingUp_Cylinder);
+			this.tabPage6.Controls.Add(this.OB_UpConveyor_Work_ConveyorForward);
+			this.tabPage6.Controls.Add(this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor);
+			this.tabPage6.Controls.Add(this.IB_UpConveyor_Work_BoardOut_Sensor);
+			this.tabPage6.Controls.Add(this.IB_UpConveyor_Work_BoardStop_Sensor);
+			this.tabPage6.Controls.Add(this.IB_UpConveyor_Work_BoardIn_Sensor);
+			this.tabPage6.Controls.Add(this.OB_UpConveyor_Work_StopUp_Cylinder);
+			this.tabPage6.Location = new System.Drawing.Point(4, 37);
+			this.tabPage6.Name = "tabPage6";
+			this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage6.Size = new System.Drawing.Size(1384, 514);
+			this.tabPage6.TabIndex = 1;
+			this.tabPage6.Text = "Work";
+			// 
+			// OB_UpConveyor_Work_Stop_Cylinder
+			// 
+			this.OB_UpConveyor_Work_Stop_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Work_Stop_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOff_BtnText = "OFF";
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOff_IB1 = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOff_IB2 = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOff_IB3 = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOff_IB4 = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOff_OB1 = this.OB_UpConveyor_Work_StopUp_Cylinder;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOff_OB2 = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOff_TimeoutAlarmCode = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOn_BtnText = "ON";
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOn_IB1 = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOn_IB2 = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOn_IB3 = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOn_IB4 = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOn_OB1 = this.OB_UpConveyor_Work_StopDown_Cylinder;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOn_OB2 = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyOn_TimeoutAlarmCode = null;
+			this.OB_UpConveyor_Work_Stop_Cylinder.CyTimeoutTime = 30000;
+			this.OB_UpConveyor_Work_Stop_Cylinder.ForeColor = System.Drawing.Color.Black;
+			this.OB_UpConveyor_Work_Stop_Cylinder.Location = new System.Drawing.Point(431, 276);
+			this.OB_UpConveyor_Work_Stop_Cylinder.Margin = new System.Windows.Forms.Padding(5);
+			this.OB_UpConveyor_Work_Stop_Cylinder.Name = "OB_UpConveyor_Work_Stop_Cylinder";
+			this.OB_UpConveyor_Work_Stop_Cylinder.Size = new System.Drawing.Size(250, 36);
+			this.OB_UpConveyor_Work_Stop_Cylinder.TabIndex = 91;
+			// 
+			// OB_UpConveyor_Work_StopUp_Cylinder
+			// 
+			this.OB_UpConveyor_Work_StopUp_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Work_StopUp_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Work_StopUp_Cylinder.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Work_StopUp_Cylinder.FieldName = null;
+			this.OB_UpConveyor_Work_StopUp_Cylinder.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Work_StopUp_Cylinder.IP = null;
+			this.OB_UpConveyor_Work_StopUp_Cylinder.Location = new System.Drawing.Point(431, 165);
+			this.OB_UpConveyor_Work_StopUp_Cylinder.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Work_StopUp_Cylinder.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Work_StopUp_Cylinder.Name = "OB_UpConveyor_Work_StopUp_Cylinder";
+			this.OB_UpConveyor_Work_StopUp_Cylinder.Port = "00101";
+			this.OB_UpConveyor_Work_StopUp_Cylinder.ReverseState = false;
+			this.OB_UpConveyor_Work_StopUp_Cylinder.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Work_StopUp_Cylinder.TabIndex = 75;
+			this.OB_UpConveyor_Work_StopUp_Cylinder.Text = "StopUp_Sensor";
+			this.OB_UpConveyor_Work_StopUp_Cylinder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_Work_StopDown_Cylinder
+			// 
+			this.OB_UpConveyor_Work_StopDown_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Work_StopDown_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Work_StopDown_Cylinder.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Work_StopDown_Cylinder.FieldName = null;
+			this.OB_UpConveyor_Work_StopDown_Cylinder.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Work_StopDown_Cylinder.IP = null;
+			this.OB_UpConveyor_Work_StopDown_Cylinder.Location = new System.Drawing.Point(431, 217);
+			this.OB_UpConveyor_Work_StopDown_Cylinder.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Work_StopDown_Cylinder.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Work_StopDown_Cylinder.Name = "OB_UpConveyor_Work_StopDown_Cylinder";
+			this.OB_UpConveyor_Work_StopDown_Cylinder.Port = "00101";
+			this.OB_UpConveyor_Work_StopDown_Cylinder.ReverseState = false;
+			this.OB_UpConveyor_Work_StopDown_Cylinder.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Work_StopDown_Cylinder.TabIndex = 84;
+			this.OB_UpConveyor_Work_StopDown_Cylinder.Text = "StopDown_Cylinder";
+			this.OB_UpConveyor_Work_StopDown_Cylinder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_Work_Jacking_Cylinder
+			// 
+			this.OB_UpConveyor_Work_Jacking_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOff_BtnText = "OFF";
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOff_IB1 = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOff_IB2 = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOff_IB3 = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOff_IB4 = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOff_OB1 = this.OB_UpConveyor_Work_JackingUp_Cylinder;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOff_OB2 = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOff_TimeoutAlarmCode = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOn_BtnText = "ON";
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOn_IB1 = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOn_IB2 = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOn_IB3 = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOn_IB4 = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOn_OB1 = this.OB_UpConveyor_Work_StopDown_Cylinder;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOn_OB2 = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyOn_TimeoutAlarmCode = null;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.CyTimeoutTime = 30000;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.ForeColor = System.Drawing.Color.Black;
+			this.OB_UpConveyor_Work_Jacking_Cylinder.Location = new System.Drawing.Point(110, 276);
+			this.OB_UpConveyor_Work_Jacking_Cylinder.Margin = new System.Windows.Forms.Padding(5);
+			this.OB_UpConveyor_Work_Jacking_Cylinder.Name = "OB_UpConveyor_Work_Jacking_Cylinder";
+			this.OB_UpConveyor_Work_Jacking_Cylinder.Size = new System.Drawing.Size(250, 36);
+			this.OB_UpConveyor_Work_Jacking_Cylinder.TabIndex = 90;
+			// 
+			// OB_UpConveyor_Work_JackingUp_Cylinder
+			// 
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.FieldName = null;
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.IP = null;
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.Location = new System.Drawing.Point(110, 165);
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.Name = "OB_UpConveyor_Work_JackingUp_Cylinder";
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.Port = "00101";
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.ReverseState = false;
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.TabIndex = 81;
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.Text = "JackingUp_Cylinder";
+			this.OB_UpConveyor_Work_JackingUp_Cylinder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Work_StopDown_Sensor
+			// 
+			this.IB_UpConveyor_Work_StopDown_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Work_StopDown_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Work_StopDown_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Work_StopDown_Sensor.FieldName = null;
+			this.IB_UpConveyor_Work_StopDown_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Work_StopDown_Sensor.IP = null;
+			this.IB_UpConveyor_Work_StopDown_Sensor.Location = new System.Drawing.Point(431, 118);
+			this.IB_UpConveyor_Work_StopDown_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Work_StopDown_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Work_StopDown_Sensor.Name = "IB_UpConveyor_Work_StopDown_Sensor";
+			this.IB_UpConveyor_Work_StopDown_Sensor.Port = "00101";
+			this.IB_UpConveyor_Work_StopDown_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Work_StopDown_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Work_StopDown_Sensor.TabIndex = 89;
+			this.IB_UpConveyor_Work_StopDown_Sensor.Text = "StopDown_Sensor";
+			this.IB_UpConveyor_Work_StopDown_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Work_StopUp_Sensor
+			// 
+			this.IB_UpConveyor_Work_StopUp_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Work_StopUp_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Work_StopUp_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Work_StopUp_Sensor.FieldName = null;
+			this.IB_UpConveyor_Work_StopUp_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Work_StopUp_Sensor.IP = null;
+			this.IB_UpConveyor_Work_StopUp_Sensor.Location = new System.Drawing.Point(431, 77);
+			this.IB_UpConveyor_Work_StopUp_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Work_StopUp_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Work_StopUp_Sensor.Name = "IB_UpConveyor_Work_StopUp_Sensor";
+			this.IB_UpConveyor_Work_StopUp_Sensor.Port = "00101";
+			this.IB_UpConveyor_Work_StopUp_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Work_StopUp_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Work_StopUp_Sensor.TabIndex = 88;
+			this.IB_UpConveyor_Work_StopUp_Sensor.Text = "StopUp_Sensor";
+			this.IB_UpConveyor_Work_StopUp_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Work_JackingDown_Sensor
+			// 
+			this.IB_UpConveyor_Work_JackingDown_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Work_JackingDown_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Work_JackingDown_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Work_JackingDown_Sensor.FieldName = null;
+			this.IB_UpConveyor_Work_JackingDown_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Work_JackingDown_Sensor.IP = null;
+			this.IB_UpConveyor_Work_JackingDown_Sensor.Location = new System.Drawing.Point(110, 118);
+			this.IB_UpConveyor_Work_JackingDown_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Work_JackingDown_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Work_JackingDown_Sensor.Name = "IB_UpConveyor_Work_JackingDown_Sensor";
+			this.IB_UpConveyor_Work_JackingDown_Sensor.Port = "00101";
+			this.IB_UpConveyor_Work_JackingDown_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Work_JackingDown_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Work_JackingDown_Sensor.TabIndex = 87;
+			this.IB_UpConveyor_Work_JackingDown_Sensor.Text = "JackingDown_Sensor";
+			this.IB_UpConveyor_Work_JackingDown_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Work_JackingUp_Sensor
+			// 
+			this.IB_UpConveyor_Work_JackingUp_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Work_JackingUp_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Work_JackingUp_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Work_JackingUp_Sensor.FieldName = null;
+			this.IB_UpConveyor_Work_JackingUp_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Work_JackingUp_Sensor.IP = null;
+			this.IB_UpConveyor_Work_JackingUp_Sensor.Location = new System.Drawing.Point(110, 77);
+			this.IB_UpConveyor_Work_JackingUp_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Work_JackingUp_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Work_JackingUp_Sensor.Name = "IB_UpConveyor_Work_JackingUp_Sensor";
+			this.IB_UpConveyor_Work_JackingUp_Sensor.Port = "00101";
+			this.IB_UpConveyor_Work_JackingUp_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Work_JackingUp_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Work_JackingUp_Sensor.TabIndex = 86;
+			this.IB_UpConveyor_Work_JackingUp_Sensor.Text = "JackingUp_Sensor";
+			this.IB_UpConveyor_Work_JackingUp_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_Work_JackingDown_Cylinder
+			// 
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.FieldName = null;
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.IP = null;
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.Location = new System.Drawing.Point(110, 217);
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.Name = "OB_UpConveyor_Work_JackingDown_Cylinder";
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.Port = "00101";
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.ReverseState = false;
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.TabIndex = 85;
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.Text = "JackingDown_Cylinder";
+			this.OB_UpConveyor_Work_JackingDown_Cylinder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_Work_ConveyorSpedSwitch
+			// 
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.FieldName = null;
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.IP = null;
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.Location = new System.Drawing.Point(1030, 88);
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.Name = "OB_UpConveyor_Work_ConveyorSpedSwitch";
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.Port = "00101";
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.ReverseState = false;
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.TabIndex = 83;
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.Text = "ConveyorSpeedSwitch";
+			this.OB_UpConveyor_Work_ConveyorSpedSwitch.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_Work_ConveyorReverse
+			// 
+			this.OB_UpConveyor_Work_ConveyorReverse.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Work_ConveyorReverse.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Work_ConveyorReverse.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Work_ConveyorReverse.FieldName = null;
+			this.OB_UpConveyor_Work_ConveyorReverse.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Work_ConveyorReverse.IP = null;
+			this.OB_UpConveyor_Work_ConveyorReverse.Location = new System.Drawing.Point(1030, 198);
+			this.OB_UpConveyor_Work_ConveyorReverse.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Work_ConveyorReverse.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Work_ConveyorReverse.Name = "OB_UpConveyor_Work_ConveyorReverse";
+			this.OB_UpConveyor_Work_ConveyorReverse.Port = "00101";
+			this.OB_UpConveyor_Work_ConveyorReverse.ReverseState = false;
+			this.OB_UpConveyor_Work_ConveyorReverse.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Work_ConveyorReverse.TabIndex = 82;
+			this.OB_UpConveyor_Work_ConveyorReverse.Text = "ConveyorReverse";
+			this.OB_UpConveyor_Work_ConveyorReverse.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_Work_ConveyorForward
+			// 
+			this.OB_UpConveyor_Work_ConveyorForward.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_Work_ConveyorForward.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_Work_ConveyorForward.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_Work_ConveyorForward.FieldName = null;
+			this.OB_UpConveyor_Work_ConveyorForward.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_Work_ConveyorForward.IP = null;
+			this.OB_UpConveyor_Work_ConveyorForward.Location = new System.Drawing.Point(1030, 140);
+			this.OB_UpConveyor_Work_ConveyorForward.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_Work_ConveyorForward.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_UpConveyor_Work_ConveyorForward.Name = "OB_UpConveyor_Work_ConveyorForward";
+			this.OB_UpConveyor_Work_ConveyorForward.Port = "00101";
+			this.OB_UpConveyor_Work_ConveyorForward.ReverseState = false;
+			this.OB_UpConveyor_Work_ConveyorForward.Size = new System.Drawing.Size(250, 30);
+			this.OB_UpConveyor_Work_ConveyorForward.TabIndex = 80;
+			this.OB_UpConveyor_Work_ConveyorForward.Text = "ConveyorForward";
+			this.OB_UpConveyor_Work_ConveyorForward.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Work_BoardSpeedSwitch_Sensor
+			// 
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.FieldName = null;
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.IP = null;
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.Location = new System.Drawing.Point(1030, 30);
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.Name = "IB_UpConveyor_Work_BoardSpeedSwitch_Sensor";
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.Port = "00101";
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.TabIndex = 79;
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.Text = "ConveySpeedSwitch_Sensor";
+			this.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Work_BoardOut_Sensor
+			// 
+			this.IB_UpConveyor_Work_BoardOut_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Work_BoardOut_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Work_BoardOut_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Work_BoardOut_Sensor.FieldName = null;
+			this.IB_UpConveyor_Work_BoardOut_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Work_BoardOut_Sensor.IP = null;
+			this.IB_UpConveyor_Work_BoardOut_Sensor.Location = new System.Drawing.Point(735, 30);
+			this.IB_UpConveyor_Work_BoardOut_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Work_BoardOut_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Work_BoardOut_Sensor.Name = "IB_UpConveyor_Work_BoardOut_Sensor";
+			this.IB_UpConveyor_Work_BoardOut_Sensor.Port = "00101";
+			this.IB_UpConveyor_Work_BoardOut_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Work_BoardOut_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Work_BoardOut_Sensor.TabIndex = 78;
+			this.IB_UpConveyor_Work_BoardOut_Sensor.Text = "BoardOut_Sensor";
+			this.IB_UpConveyor_Work_BoardOut_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Work_BoardStop_Sensor
+			// 
+			this.IB_UpConveyor_Work_BoardStop_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Work_BoardStop_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Work_BoardStop_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Work_BoardStop_Sensor.FieldName = null;
+			this.IB_UpConveyor_Work_BoardStop_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Work_BoardStop_Sensor.IP = null;
+			this.IB_UpConveyor_Work_BoardStop_Sensor.Location = new System.Drawing.Point(431, 30);
+			this.IB_UpConveyor_Work_BoardStop_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Work_BoardStop_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Work_BoardStop_Sensor.Name = "IB_UpConveyor_Work_BoardStop_Sensor";
+			this.IB_UpConveyor_Work_BoardStop_Sensor.Port = "00101";
+			this.IB_UpConveyor_Work_BoardStop_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Work_BoardStop_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Work_BoardStop_Sensor.TabIndex = 77;
+			this.IB_UpConveyor_Work_BoardStop_Sensor.Text = "BoardStop_Sensor";
+			this.IB_UpConveyor_Work_BoardStop_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_Work_BoardIn_Sensor
+			// 
+			this.IB_UpConveyor_Work_BoardIn_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_Work_BoardIn_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_Work_BoardIn_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_Work_BoardIn_Sensor.FieldName = null;
+			this.IB_UpConveyor_Work_BoardIn_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_Work_BoardIn_Sensor.IP = null;
+			this.IB_UpConveyor_Work_BoardIn_Sensor.Location = new System.Drawing.Point(110, 30);
+			this.IB_UpConveyor_Work_BoardIn_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_Work_BoardIn_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_UpConveyor_Work_BoardIn_Sensor.Name = "IB_UpConveyor_Work_BoardIn_Sensor";
+			this.IB_UpConveyor_Work_BoardIn_Sensor.Port = "00101";
+			this.IB_UpConveyor_Work_BoardIn_Sensor.ReverseState = false;
+			this.IB_UpConveyor_Work_BoardIn_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_UpConveyor_Work_BoardIn_Sensor.TabIndex = 76;
+			this.IB_UpConveyor_Work_BoardIn_Sensor.Text = "BoardIn_Sensor";
+			this.IB_UpConveyor_Work_BoardIn_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// tabPage4
+			// 
+			this.tabPage4.BackColor = System.Drawing.SystemColors.Control;
+			this.tabPage4.Controls.Add(this.OB_DownConveyor_Stop_Cylinder);
+			this.tabPage4.Controls.Add(this.IB_DownConveyor_StopDown_Sensor);
+			this.tabPage4.Controls.Add(this.IB_DownConveyor_StopUp_Sensor);
+			this.tabPage4.Controls.Add(this.OB_DownConveyor_StopDown_Cylinder);
+			this.tabPage4.Controls.Add(this.OB_DownConveyor_StopUp_Cylinder);
+			this.tabPage4.Controls.Add(this.OB_DownConveyor_Forward);
+			this.tabPage4.Controls.Add(this.IB_DownConveyor_BoardOut_Sensor);
+			this.tabPage4.Controls.Add(this.IB_DownConveyor_BoardStop_Sensor);
+			this.tabPage4.Controls.Add(this.OB_DownConveyor_SpeedSwitch);
+			this.tabPage4.Controls.Add(this.IB_DownConveyor_BoardSpeedSwitch_Sensor);
+			this.tabPage4.Controls.Add(this.OB_DownConveyor_Reverse);
+			this.tabPage4.Controls.Add(this.IB_DownConveyor_BoardIn_Sensor);
+			this.tabPage4.Location = new System.Drawing.Point(4, 37);
+			this.tabPage4.Name = "tabPage4";
+			this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage4.Size = new System.Drawing.Size(1398, 561);
+			this.tabPage4.TabIndex = 1;
+			this.tabPage4.Text = "DownConveyor";
+			// 
+			// OB_DownConveyor_Stop_Cylinder
+			// 
+			this.OB_DownConveyor_Stop_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_DownConveyor_Stop_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_DownConveyor_Stop_Cylinder.CyOff_BtnText = "OFF";
+			this.OB_DownConveyor_Stop_Cylinder.CyOff_IB1 = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOff_IB2 = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOff_IB3 = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOff_IB4 = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOff_OB1 = this.OB_DownConveyor_StopUp_Cylinder;
+			this.OB_DownConveyor_Stop_Cylinder.CyOff_OB2 = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOff_TimeoutAlarmCode = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOn_BtnText = "ON";
+			this.OB_DownConveyor_Stop_Cylinder.CyOn_IB1 = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOn_IB2 = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOn_IB3 = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOn_IB4 = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOn_OB1 = this.OB_DownConveyor_StopDown_Cylinder;
+			this.OB_DownConveyor_Stop_Cylinder.CyOn_OB2 = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyOn_TimeoutAlarmCode = null;
+			this.OB_DownConveyor_Stop_Cylinder.CyTimeoutTime = 30000;
+			this.OB_DownConveyor_Stop_Cylinder.ForeColor = System.Drawing.Color.Black;
+			this.OB_DownConveyor_Stop_Cylinder.Location = new System.Drawing.Point(619, 316);
+			this.OB_DownConveyor_Stop_Cylinder.Margin = new System.Windows.Forms.Padding(5);
+			this.OB_DownConveyor_Stop_Cylinder.Name = "OB_DownConveyor_Stop_Cylinder";
+			this.OB_DownConveyor_Stop_Cylinder.Size = new System.Drawing.Size(250, 36);
+			this.OB_DownConveyor_Stop_Cylinder.TabIndex = 97;
+			// 
+			// OB_DownConveyor_StopUp_Cylinder
+			// 
+			this.OB_DownConveyor_StopUp_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_DownConveyor_StopUp_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_DownConveyor_StopUp_Cylinder.CardType = NPSDK.IOCardType.Contect;
+			this.OB_DownConveyor_StopUp_Cylinder.FieldName = null;
+			this.OB_DownConveyor_StopUp_Cylinder.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_DownConveyor_StopUp_Cylinder.IP = null;
+			this.OB_DownConveyor_StopUp_Cylinder.Location = new System.Drawing.Point(619, 214);
+			this.OB_DownConveyor_StopUp_Cylinder.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_DownConveyor_StopUp_Cylinder.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_DownConveyor_StopUp_Cylinder.Name = "OB_DownConveyor_StopUp_Cylinder";
+			this.OB_DownConveyor_StopUp_Cylinder.Port = "00101";
+			this.OB_DownConveyor_StopUp_Cylinder.ReverseState = false;
+			this.OB_DownConveyor_StopUp_Cylinder.Size = new System.Drawing.Size(250, 30);
+			this.OB_DownConveyor_StopUp_Cylinder.TabIndex = 93;
+			this.OB_DownConveyor_StopUp_Cylinder.Text = "StopUp_Sensor";
+			this.OB_DownConveyor_StopUp_Cylinder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_DownConveyor_StopDown_Cylinder
+			// 
+			this.OB_DownConveyor_StopDown_Cylinder.BackColor = System.Drawing.Color.White;
+			this.OB_DownConveyor_StopDown_Cylinder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_DownConveyor_StopDown_Cylinder.CardType = NPSDK.IOCardType.Contect;
+			this.OB_DownConveyor_StopDown_Cylinder.FieldName = null;
+			this.OB_DownConveyor_StopDown_Cylinder.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_DownConveyor_StopDown_Cylinder.IP = null;
+			this.OB_DownConveyor_StopDown_Cylinder.Location = new System.Drawing.Point(619, 265);
+			this.OB_DownConveyor_StopDown_Cylinder.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_DownConveyor_StopDown_Cylinder.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_DownConveyor_StopDown_Cylinder.Name = "OB_DownConveyor_StopDown_Cylinder";
+			this.OB_DownConveyor_StopDown_Cylinder.Port = "00101";
+			this.OB_DownConveyor_StopDown_Cylinder.ReverseState = false;
+			this.OB_DownConveyor_StopDown_Cylinder.Size = new System.Drawing.Size(250, 30);
+			this.OB_DownConveyor_StopDown_Cylinder.TabIndex = 94;
+			this.OB_DownConveyor_StopDown_Cylinder.Text = "StopDown_Cylinder";
+			this.OB_DownConveyor_StopDown_Cylinder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_DownConveyor_StopDown_Sensor
+			// 
+			this.IB_DownConveyor_StopDown_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_DownConveyor_StopDown_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_DownConveyor_StopDown_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_DownConveyor_StopDown_Sensor.FieldName = null;
+			this.IB_DownConveyor_StopDown_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_DownConveyor_StopDown_Sensor.IP = null;
+			this.IB_DownConveyor_StopDown_Sensor.Location = new System.Drawing.Point(619, 163);
+			this.IB_DownConveyor_StopDown_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_DownConveyor_StopDown_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_DownConveyor_StopDown_Sensor.Name = "IB_DownConveyor_StopDown_Sensor";
+			this.IB_DownConveyor_StopDown_Sensor.Port = "00101";
+			this.IB_DownConveyor_StopDown_Sensor.ReverseState = false;
+			this.IB_DownConveyor_StopDown_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_DownConveyor_StopDown_Sensor.TabIndex = 96;
+			this.IB_DownConveyor_StopDown_Sensor.Text = "StopDown_Sensor";
+			this.IB_DownConveyor_StopDown_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_DownConveyor_StopUp_Sensor
+			// 
+			this.IB_DownConveyor_StopUp_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_DownConveyor_StopUp_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_DownConveyor_StopUp_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_DownConveyor_StopUp_Sensor.FieldName = null;
+			this.IB_DownConveyor_StopUp_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_DownConveyor_StopUp_Sensor.IP = null;
+			this.IB_DownConveyor_StopUp_Sensor.Location = new System.Drawing.Point(619, 112);
+			this.IB_DownConveyor_StopUp_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_DownConveyor_StopUp_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_DownConveyor_StopUp_Sensor.Name = "IB_DownConveyor_StopUp_Sensor";
+			this.IB_DownConveyor_StopUp_Sensor.Port = "00101";
+			this.IB_DownConveyor_StopUp_Sensor.ReverseState = false;
+			this.IB_DownConveyor_StopUp_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_DownConveyor_StopUp_Sensor.TabIndex = 95;
+			this.IB_DownConveyor_StopUp_Sensor.Text = "StopUp_Sensor";
+			this.IB_DownConveyor_StopUp_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_DownConveyor_Forward
+			// 
+			this.OB_DownConveyor_Forward.BackColor = System.Drawing.Color.White;
+			this.OB_DownConveyor_Forward.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_DownConveyor_Forward.CardType = NPSDK.IOCardType.Contect;
+			this.OB_DownConveyor_Forward.FieldName = null;
+			this.OB_DownConveyor_Forward.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_DownConveyor_Forward.IP = null;
+			this.OB_DownConveyor_Forward.Location = new System.Drawing.Point(329, 163);
+			this.OB_DownConveyor_Forward.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_DownConveyor_Forward.MaximumSize = new System.Drawing.Size(500, 40);
+			this.OB_DownConveyor_Forward.Name = "OB_DownConveyor_Forward";
+			this.OB_DownConveyor_Forward.Port = "00101";
+			this.OB_DownConveyor_Forward.ReverseState = false;
+			this.OB_DownConveyor_Forward.Size = new System.Drawing.Size(250, 30);
+			this.OB_DownConveyor_Forward.TabIndex = 92;
+			this.OB_DownConveyor_Forward.Text = "ConveyorForward";
+			this.OB_DownConveyor_Forward.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_DownConveyor_BoardOut_Sensor
+			// 
+			this.IB_DownConveyor_BoardOut_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_DownConveyor_BoardOut_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_DownConveyor_BoardOut_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_DownConveyor_BoardOut_Sensor.FieldName = null;
+			this.IB_DownConveyor_BoardOut_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_DownConveyor_BoardOut_Sensor.IP = null;
+			this.IB_DownConveyor_BoardOut_Sensor.Location = new System.Drawing.Point(919, 61);
+			this.IB_DownConveyor_BoardOut_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_DownConveyor_BoardOut_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_DownConveyor_BoardOut_Sensor.Name = "IB_DownConveyor_BoardOut_Sensor";
+			this.IB_DownConveyor_BoardOut_Sensor.Port = "00101";
+			this.IB_DownConveyor_BoardOut_Sensor.ReverseState = false;
+			this.IB_DownConveyor_BoardOut_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_DownConveyor_BoardOut_Sensor.TabIndex = 90;
+			this.IB_DownConveyor_BoardOut_Sensor.Text = "BoardOut_Sensor";
+			this.IB_DownConveyor_BoardOut_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_DownConveyor_BoardStop_Sensor
+			// 
+			this.IB_DownConveyor_BoardStop_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_DownConveyor_BoardStop_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_DownConveyor_BoardStop_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_DownConveyor_BoardStop_Sensor.FieldName = null;
+			this.IB_DownConveyor_BoardStop_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_DownConveyor_BoardStop_Sensor.IP = null;
+			this.IB_DownConveyor_BoardStop_Sensor.Location = new System.Drawing.Point(619, 61);
+			this.IB_DownConveyor_BoardStop_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_DownConveyor_BoardStop_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_DownConveyor_BoardStop_Sensor.Name = "IB_DownConveyor_BoardStop_Sensor";
+			this.IB_DownConveyor_BoardStop_Sensor.Port = "00101";
+			this.IB_DownConveyor_BoardStop_Sensor.ReverseState = false;
+			this.IB_DownConveyor_BoardStop_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_DownConveyor_BoardStop_Sensor.TabIndex = 88;
+			this.IB_DownConveyor_BoardStop_Sensor.Text = "BoardStop_Sensor";
+			this.IB_DownConveyor_BoardStop_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_DownConveyor_SpeedSwitch
+			// 
+			this.OB_DownConveyor_SpeedSwitch.BackColor = System.Drawing.Color.White;
+			this.OB_DownConveyor_SpeedSwitch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_DownConveyor_SpeedSwitch.CardType = NPSDK.IOCardType.Contect;
+			this.OB_DownConveyor_SpeedSwitch.FieldName = null;
+			this.OB_DownConveyor_SpeedSwitch.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_DownConveyor_SpeedSwitch.IP = null;
+			this.OB_DownConveyor_SpeedSwitch.Location = new System.Drawing.Point(329, 112);
+			this.OB_DownConveyor_SpeedSwitch.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_DownConveyor_SpeedSwitch.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_DownConveyor_SpeedSwitch.Name = "OB_DownConveyor_SpeedSwitch";
+			this.OB_DownConveyor_SpeedSwitch.Port = "00101";
+			this.OB_DownConveyor_SpeedSwitch.ReverseState = false;
+			this.OB_DownConveyor_SpeedSwitch.Size = new System.Drawing.Size(250, 30);
+			this.OB_DownConveyor_SpeedSwitch.TabIndex = 87;
+			this.OB_DownConveyor_SpeedSwitch.Text = "Conveyor_SpeedSwitch";
+			this.OB_DownConveyor_SpeedSwitch.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_DownConveyor_BoardSpeedSwitch_Sensor
+			// 
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.FieldName = null;
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.IP = null;
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.Location = new System.Drawing.Point(329, 61);
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.Name = "IB_DownConveyor_BoardSpeedSwitch_Sensor";
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.Port = "00101";
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.ReverseState = false;
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.TabIndex = 86;
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.Text = "SpeedSwitch_Sensor";
+			this.IB_DownConveyor_BoardSpeedSwitch_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_DownConveyor_Reverse
+			// 
+			this.OB_DownConveyor_Reverse.BackColor = System.Drawing.Color.White;
+			this.OB_DownConveyor_Reverse.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_DownConveyor_Reverse.CardType = NPSDK.IOCardType.Contect;
+			this.OB_DownConveyor_Reverse.FieldName = null;
+			this.OB_DownConveyor_Reverse.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_DownConveyor_Reverse.IP = null;
+			this.OB_DownConveyor_Reverse.Location = new System.Drawing.Point(329, 214);
+			this.OB_DownConveyor_Reverse.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_DownConveyor_Reverse.MaximumSize = new System.Drawing.Size(250, 40);
+			this.OB_DownConveyor_Reverse.Name = "OB_DownConveyor_Reverse";
+			this.OB_DownConveyor_Reverse.Port = "00101";
+			this.OB_DownConveyor_Reverse.ReverseState = false;
+			this.OB_DownConveyor_Reverse.Size = new System.Drawing.Size(250, 30);
+			this.OB_DownConveyor_Reverse.TabIndex = 85;
+			this.OB_DownConveyor_Reverse.Text = "Conveyor_Reverse";
+			this.OB_DownConveyor_Reverse.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_DownConveyor_BoardIn_Sensor
+			// 
+			this.IB_DownConveyor_BoardIn_Sensor.BackColor = System.Drawing.Color.White;
+			this.IB_DownConveyor_BoardIn_Sensor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_DownConveyor_BoardIn_Sensor.CardType = NPSDK.IOCardType.Contect;
+			this.IB_DownConveyor_BoardIn_Sensor.FieldName = null;
+			this.IB_DownConveyor_BoardIn_Sensor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_DownConveyor_BoardIn_Sensor.IP = null;
+			this.IB_DownConveyor_BoardIn_Sensor.Location = new System.Drawing.Point(53, 61);
+			this.IB_DownConveyor_BoardIn_Sensor.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_DownConveyor_BoardIn_Sensor.MaximumSize = new System.Drawing.Size(250, 40);
+			this.IB_DownConveyor_BoardIn_Sensor.Name = "IB_DownConveyor_BoardIn_Sensor";
+			this.IB_DownConveyor_BoardIn_Sensor.Port = "00101";
+			this.IB_DownConveyor_BoardIn_Sensor.ReverseState = false;
+			this.IB_DownConveyor_BoardIn_Sensor.Size = new System.Drawing.Size(250, 30);
+			this.IB_DownConveyor_BoardIn_Sensor.TabIndex = 84;
+			this.IB_DownConveyor_BoardIn_Sensor.Text = "BoardIn_Sensor";
+			this.IB_DownConveyor_BoardIn_Sensor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// tabPage7
+			// 
+			this.tabPage7.Controls.Add(this.OB_DownConveyor_LocalMachineAvailable_SMEMA);
+			this.tabPage7.Controls.Add(this.OB_DownConveyor_LocalMachineReady_SMEMA);
+			this.tabPage7.Controls.Add(this.OB_UpConveyor_LocalMachineAvailable_SMEMA);
+			this.tabPage7.Controls.Add(this.OB_UpConveyor_LocalMachineReady_SMEMA);
+			this.tabPage7.Controls.Add(this.IB_DownConveyor_DownMachineReady_SMEMA);
+			this.tabPage7.Controls.Add(this.IB_UpConveyor_DownMachineReady_SMEMA);
+			this.tabPage7.Controls.Add(this.IB_DownConveyor_UpMachineAvailable_SMEMA);
+			this.tabPage7.Controls.Add(this.IB_UpConveyor_UpMachineAvailable_SMEMA);
+			this.tabPage7.Location = new System.Drawing.Point(4, 37);
+			this.tabPage7.Name = "tabPage7";
+			this.tabPage7.Size = new System.Drawing.Size(1398, 561);
+			this.tabPage7.TabIndex = 2;
+			this.tabPage7.Text = "SMEMA";
+			this.tabPage7.UseVisualStyleBackColor = true;
+			// 
+			// OB_DownConveyor_LocalMachineAvailable_SMEMA
+			// 
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.BackColor = System.Drawing.Color.White;
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.CardType = NPSDK.IOCardType.Contect;
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.FieldName = null;
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.IP = null;
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.Location = new System.Drawing.Point(560, 210);
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.MaximumSize = new System.Drawing.Size(500, 40);
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.Name = "OB_DownConveyor_LocalMachineAvailable_SMEMA";
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.Port = "00101";
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.ReverseState = false;
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.Size = new System.Drawing.Size(428, 30);
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.TabIndex = 99;
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.Text = "DownConveyor_LocalMachineAvailable_SMEMA";
+			this.OB_DownConveyor_LocalMachineAvailable_SMEMA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_DownConveyor_LocalMachineReady_SMEMA
+			// 
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.BackColor = System.Drawing.Color.White;
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.CardType = NPSDK.IOCardType.Contect;
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.FieldName = null;
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.IP = null;
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.Location = new System.Drawing.Point(560, 154);
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.MaximumSize = new System.Drawing.Size(500, 40);
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.Name = "OB_DownConveyor_LocalMachineReady_SMEMA";
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.Port = "00101";
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.ReverseState = false;
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.Size = new System.Drawing.Size(428, 30);
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.TabIndex = 98;
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.Text = "DownConveyor_LocalMachineReady_SMEMA";
+			this.OB_DownConveyor_LocalMachineReady_SMEMA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_LocalMachineAvailable_SMEMA
+			// 
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.FieldName = null;
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.IP = null;
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.Location = new System.Drawing.Point(42, 210);
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.MaximumSize = new System.Drawing.Size(500, 40);
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.Name = "OB_UpConveyor_LocalMachineAvailable_SMEMA";
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.Port = "00101";
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.ReverseState = false;
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.Size = new System.Drawing.Size(428, 30);
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.TabIndex = 97;
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.Text = "UpConveyor_LocalMachineAvailable_SMEMA";
+			this.OB_UpConveyor_LocalMachineAvailable_SMEMA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// OB_UpConveyor_LocalMachineReady_SMEMA
+			// 
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.BackColor = System.Drawing.Color.White;
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.CardType = NPSDK.IOCardType.Contect;
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.FieldName = null;
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.IP = null;
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.Location = new System.Drawing.Point(42, 154);
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.Margin = new System.Windows.Forms.Padding(1);
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.MaximumSize = new System.Drawing.Size(500, 40);
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.Name = "OB_UpConveyor_LocalMachineReady_SMEMA";
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.Port = "00101";
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.ReverseState = false;
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.Size = new System.Drawing.Size(428, 30);
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.TabIndex = 96;
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.Text = "UpConveyor_LocalMachineReady_SMEMA";
+			this.OB_UpConveyor_LocalMachineReady_SMEMA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_DownConveyor_DownMachineReady_SMEMA
+			// 
+			this.IB_DownConveyor_DownMachineReady_SMEMA.BackColor = System.Drawing.Color.White;
+			this.IB_DownConveyor_DownMachineReady_SMEMA.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_DownConveyor_DownMachineReady_SMEMA.CardType = NPSDK.IOCardType.Contect;
+			this.IB_DownConveyor_DownMachineReady_SMEMA.FieldName = null;
+			this.IB_DownConveyor_DownMachineReady_SMEMA.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_DownConveyor_DownMachineReady_SMEMA.IP = null;
+			this.IB_DownConveyor_DownMachineReady_SMEMA.Location = new System.Drawing.Point(42, 105);
+			this.IB_DownConveyor_DownMachineReady_SMEMA.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_DownConveyor_DownMachineReady_SMEMA.MaximumSize = new System.Drawing.Size(500, 40);
+			this.IB_DownConveyor_DownMachineReady_SMEMA.Name = "IB_DownConveyor_DownMachineReady_SMEMA";
+			this.IB_DownConveyor_DownMachineReady_SMEMA.Port = "00101";
+			this.IB_DownConveyor_DownMachineReady_SMEMA.ReverseState = false;
+			this.IB_DownConveyor_DownMachineReady_SMEMA.Size = new System.Drawing.Size(428, 30);
+			this.IB_DownConveyor_DownMachineReady_SMEMA.TabIndex = 95;
+			this.IB_DownConveyor_DownMachineReady_SMEMA.Text = "DownConveyor_DownMachineReady_SMEMA";
+			this.IB_DownConveyor_DownMachineReady_SMEMA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_DownMachineReady_SMEMA
+			// 
+			this.IB_UpConveyor_DownMachineReady_SMEMA.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_DownMachineReady_SMEMA.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_DownMachineReady_SMEMA.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_DownMachineReady_SMEMA.FieldName = null;
+			this.IB_UpConveyor_DownMachineReady_SMEMA.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_DownMachineReady_SMEMA.IP = null;
+			this.IB_UpConveyor_DownMachineReady_SMEMA.Location = new System.Drawing.Point(42, 39);
+			this.IB_UpConveyor_DownMachineReady_SMEMA.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_DownMachineReady_SMEMA.MaximumSize = new System.Drawing.Size(500, 40);
+			this.IB_UpConveyor_DownMachineReady_SMEMA.Name = "IB_UpConveyor_DownMachineReady_SMEMA";
+			this.IB_UpConveyor_DownMachineReady_SMEMA.Port = "00101";
+			this.IB_UpConveyor_DownMachineReady_SMEMA.ReverseState = false;
+			this.IB_UpConveyor_DownMachineReady_SMEMA.Size = new System.Drawing.Size(428, 30);
+			this.IB_UpConveyor_DownMachineReady_SMEMA.TabIndex = 94;
+			this.IB_UpConveyor_DownMachineReady_SMEMA.Text = "UpConveyor_DownMachineReady_SMEMA";
+			this.IB_UpConveyor_DownMachineReady_SMEMA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_DownConveyor_UpMachineAvailable_SMEMA
+			// 
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.BackColor = System.Drawing.Color.White;
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.CardType = NPSDK.IOCardType.Contect;
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.FieldName = null;
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.IP = null;
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.Location = new System.Drawing.Point(560, 105);
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.MaximumSize = new System.Drawing.Size(500, 40);
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.Name = "IB_DownConveyor_UpMachineAvailable_SMEMA";
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.Port = "00101";
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.ReverseState = false;
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.Size = new System.Drawing.Size(428, 30);
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.TabIndex = 93;
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.Text = "DownConveyor_UpMachineAvailable_SMEMA";
+			this.IB_DownConveyor_UpMachineAvailable_SMEMA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// IB_UpConveyor_UpMachineAvailable_SMEMA
+			// 
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.BackColor = System.Drawing.Color.White;
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.CardType = NPSDK.IOCardType.Contect;
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.FieldName = null;
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.IP = null;
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.Location = new System.Drawing.Point(560, 39);
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.Margin = new System.Windows.Forms.Padding(1);
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.MaximumSize = new System.Drawing.Size(500, 40);
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.Name = "IB_UpConveyor_UpMachineAvailable_SMEMA";
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.Port = "00101";
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.ReverseState = false;
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.Size = new System.Drawing.Size(428, 30);
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.TabIndex = 92;
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.Text = "UpConveyor_UpMachineAvailable_SMEMA";
+			this.IB_UpConveyor_UpMachineAvailable_SMEMA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// ManualForm
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(1420, 649);
+			this.Controls.Add(this.tabControl1);
+			this.Name = "ManualForm";
+			this.Text = "ManualForm";
+			((System.ComponentModel.ISupportInitialize)(this.SettingData)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.RecipeData)).EndInit();
+			this.tabControl1.ResumeLayout(false);
+			this.tabPage1.ResumeLayout(false);
+			this.groupBox1.ResumeLayout(false);
+			this.tabPage2.ResumeLayout(false);
+			this.tabControl2.ResumeLayout(false);
+			this.tabPage3.ResumeLayout(false);
+			this.tabControl3.ResumeLayout(false);
+			this.tabPage5.ResumeLayout(false);
+			this.tabPage6.ResumeLayout(false);
+			this.tabPage4.ResumeLayout(false);
+			this.tabPage7.ResumeLayout(false);
+			this.ResumeLayout(false);
+
+		}
+
+		#endregion
+
+		private System.Windows.Forms.TabControl tabControl1;
+		private System.Windows.Forms.TabPage tabPage1;
+		private System.Windows.Forms.TabPage tabPage2;
+		private System.Windows.Forms.GroupBox groupBox1;
+		private System.Windows.Forms.TabControl tabControl2;
+		private System.Windows.Forms.TabPage tabPage3;
+		private System.Windows.Forms.TabControl tabControl3;
+		private System.Windows.Forms.TabPage tabPage5;
+		private System.Windows.Forms.TabPage tabPage6;
+		private System.Windows.Forms.TabPage tabPage4;
+		private System.Windows.Forms.TabPage tabPage7;
+		public NPSDK.Adlink_Input IB_StartButton;
+		public NPSDK.Adlink_Input IB_SafetyReady;
+		public NPSDK.Adlink_Input IB_ResetButton;
+		public NPSDK.Adlink_Input IB_StopButton;
+		public NPSDK.Adlink_Input IB_Air;
+		public NPSDK.Adlink_Input IB_Back_EmergencyStop;
+		public NPSDK.Adlink_Input IB_Front_EmergencyStop;
+		public NPSDK.Adlink_Input IB_Door;
+		public NPSDK.Adlink_Output OB_Buzz;
+		public NPSDK.Adlink_Output OB_LEDLight;
+		public NPSDK.Adlink_Output OB_StoptButton_Light;
+		public NPSDK.Adlink_Output OB_StartButton_Light;
+		public NPSDK.Adlink_Output OB_Door;
+		public NPSDK.Adlink_Output OB_Air;
+		public NPSDK.Adlink_Output OB_YellowLight;
+		public NPSDK.Adlink_Output OB_RedLight;
+		public NPSDK.Adlink_Output OB_GreenLight;
+		public NPSDK.Adlink_Output OB_UpConveyor_Buffer_ConveyorReverse;
+		public NPSDK.Adlink_Output OB_UpConveyor_Buffer_StopUp_Cylinder;
+		public NPSDK.Adlink_Output OB_UpConveyor_Buffer_ConveyorSpeedSwitch;
+		public NPSDK.Adlink_Input IB_UpConveyor_Buffer_BoardStop_Sensor;
+		public NPSDK.Adlink_Input IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor;
+		public NPSDK.Adlink_Output OB_UpConveyor_Buffer_ConveyorForward;
+		public NPSDK.Adlink_Input IB_UpConveyor_Buffer_BoardIn_Sensor;
+		public NPSDK.Adlink_Output OB_UpConveyor_Work_ConveyorSpedSwitch;
+		public NPSDK.Adlink_Output OB_UpConveyor_Work_ConveyorReverse;
+		public NPSDK.Adlink_Output OB_UpConveyor_Work_JackingUp_Cylinder;
+		public NPSDK.Adlink_Output OB_UpConveyor_Work_ConveyorForward;
+		public NPSDK.Adlink_Input IB_UpConveyor_Work_BoardSpeedSwitch_Sensor;
+		public NPSDK.Adlink_Input IB_UpConveyor_Work_BoardOut_Sensor;
+		public NPSDK.Adlink_Input IB_UpConveyor_Work_BoardStop_Sensor;
+		public NPSDK.Adlink_Input IB_UpConveyor_Work_BoardIn_Sensor;
+		public NPSDK.Adlink_Output OB_UpConveyor_Work_StopUp_Cylinder;
+		public NPSDK.Adlink_Output OB_DownConveyor_Reverse;
+		public NPSDK.Adlink_Input IB_DownConveyor_BoardIn_Sensor;
+		public NPSDK.Adlink_Input IB_DownConveyor_BoardOut_Sensor;
+		public NPSDK.Adlink_Input IB_DownConveyor_BoardStop_Sensor;
+		public NPSDK.Adlink_Output OB_DownConveyor_SpeedSwitch;
+		public NPSDK.Adlink_Input IB_DownConveyor_BoardSpeedSwitch_Sensor;
+		public NPSDK.Adlink_Output OB_DownConveyor_Forward;
+		public NPSDK.Adlink_Output OB_DownConveyor_LocalMachineAvailable_SMEMA;
+		public NPSDK.Adlink_Output OB_DownConveyor_LocalMachineReady_SMEMA;
+		public NPSDK.Adlink_Output OB_UpConveyor_LocalMachineAvailable_SMEMA;
+		public NPSDK.Adlink_Output OB_UpConveyor_LocalMachineReady_SMEMA;
+		public NPSDK.Adlink_Input IB_DownConveyor_DownMachineReady_SMEMA;
+		public NPSDK.Adlink_Input IB_UpConveyor_DownMachineReady_SMEMA;
+		public NPSDK.Adlink_Input IB_DownConveyor_UpMachineAvailable_SMEMA;
+		public NPSDK.Adlink_Input IB_UpConveyor_UpMachineAvailable_SMEMA;
+		public NPSDK.Adlink_Input IB_UpConveyor_Buffer_StopUp_Sensor;
+		public NPSDK.Adlink_Input IB_UpConveyor_Buffer_StopDown_Sensor;
+		public NPSDK.Adlink_Output OB_UpConveyor_Buffer_StopDown_Cylinder;
+		public NPSDK.Adlink_Cylinder OB_UpConveyor_Work_Stop_Cylinder;
+		public NPSDK.Adlink_Cylinder OB_UpConveyor_Work_Jacking_Cylinder;
+		public NPSDK.Adlink_Input IB_UpConveyor_Work_StopDown_Sensor;
+		public NPSDK.Adlink_Input IB_UpConveyor_Work_StopUp_Sensor;
+		public NPSDK.Adlink_Input IB_UpConveyor_Work_JackingDown_Sensor;
+		public NPSDK.Adlink_Input IB_UpConveyor_Work_JackingUp_Sensor;
+		public NPSDK.Adlink_Output OB_UpConveyor_Work_JackingDown_Cylinder;
+		public NPSDK.Adlink_Output OB_UpConveyor_Work_StopDown_Cylinder;
+		public NPSDK.Adlink_Cylinder OB_DownConveyor_Stop_Cylinder;
+		public NPSDK.Adlink_Output OB_DownConveyor_StopUp_Cylinder;
+		public NPSDK.Adlink_Output OB_DownConveyor_StopDown_Cylinder;
+		public NPSDK.Adlink_Input IB_DownConveyor_StopDown_Sensor;
+		public NPSDK.Adlink_Input IB_DownConveyor_StopUp_Sensor;
+		public NPSDK.Adlink_Cylinder OB_UpConveyor_Buffer_Stop_Cylinder;
+	}
+}

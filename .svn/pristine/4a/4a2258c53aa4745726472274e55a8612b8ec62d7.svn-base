@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace AlphaRap
+{
+    public partial class DataForm : Form
+    {
+        public DataForm()
+        {
+            InitializeComponent();
+        }
+		public void AddLogError(string data)
+		{
+			string[] dataArray = new string[1];
+			dataArray[0] = data;
+			MiddleLayer.DataF.LogError.SaveDataToFile(dataArray);
+			MiddleLayer.HomeF.WriteErrorMessageText(data);
+		}
+       
+    }
+}

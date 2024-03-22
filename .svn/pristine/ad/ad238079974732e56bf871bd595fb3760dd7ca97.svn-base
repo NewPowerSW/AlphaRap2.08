@@ -1,0 +1,219 @@
+﻿using AlphaRap;
+using System;
+using System.Collections.Generic;
+using System.IO.Ports;
+using System.Linq;
+using System.Runtime;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace AlaphaRap
+{
+    /// <summary>
+    /// 具体设备类：ATEQ_F620
+    /// 可配置的属性包括：串口连接参数
+    /// V1.0 初始版本
+    /// 修改时间2023-4-10----------------欧益儒
+    /// </summary>
+    public class ATEQ_F620 : AbstractDevice
+    {
+        /// <summary>
+        /// 实例化一个串口对象
+        /// </summary>
+        public SerialPort _SP = new SerialPort();
+
+        public ATEQ_F620(string deviceName) : base(deviceName) { }
+   
+        /// <summary>
+        /// 重写父类的属性：串口是否打开
+        /// </summary>
+        public override bool IsConnected
+        {
+            get
+            {
+                return _SP.IsOpen;
+            }
+        }
+
+        /// <summary>
+        /// 重写父类的属性：是否正在运行：
+        /// </summary>
+        public override bool IsRunning
+        {
+            get
+            {
+                return _isRunning;
+            }
+        }
+
+        public bool _isRunning = false;
+
+
+        /// <summary>
+        /// 可配置的属性：串口号
+        /// </summary>
+        public string PortName { get; set; } = "COM3";
+
+        /// <summary>
+        /// 可配置的属性：波特率
+        /// </summary>
+        public int BaudRate { get; set; } = 9600;
+
+        /// <summary>
+        /// 可配置的属性：校验位
+        /// </summary>
+        public int Pari { get; set; } = 2;
+
+        /// <summary>
+        /// 可配置的属性：数据位
+        /// </summary>
+        public int DataBits { get; set; } = 8;
+
+        /// <summary>
+        /// 可配置的属性：停止位
+        /// </summary>
+        public int StopBit { get; set; } = 1;
+
+        /// <summary>
+        /// 可配置的属性：从站地址
+        /// </summary>
+        public byte Slaveld { get; set; } = 0x01;
+
+        /// <summary>
+        /// 可配置的属性：起始寄存器
+        /// </summary>
+        public ushort StartRegister { get; set; } = 1000;
+
+        /// <summary>
+        /// 可配置的属性：寄存器数量
+        /// </summary>
+        public ushort Count { get; set; } = 2;
+
+        /// <summary>
+        /// 可配置的属性：发送报文与接收报文的间隔
+        /// </summary>
+        public int ThreadSleep { get; set; } = 20;
+
+
+        /// <summary>
+        /// 读取的结果（字符串)
+        /// </summary>
+        public string ResultData { get; set; } = string.Empty;
+
+
+        /// <summary>
+        /// 主要功能：重写父类方法：加载配置，并打开网口
+        /// </summary>
+        public override void Open()
+        {
+            if (!IsConnected)
+            {
+                try
+                {
+                    Task.Run(new Action(() =>
+                    {
+                        Connect(this.PortName, this.BaudRate, this.Pari, this.DataBits, this.StopBit);
+                    }));
+                }
+                catch (Exception ex)
+                {
+                    ShowException("连接串口失败!", ex);
+                }
+            }
+        }
+        /// <summary>
+        /// 连接串口
+        /// </summary>
+        /// <param name="portName">串口号</param>
+        /// <param name="baudRate">波特率</param>
+        /// <param name="parity">校验位</param>
+        /// <param name="dataBits">数据位</param>
+        /// <param name="stopBits">停止位</param>
+        /// <returns></returns>
+        public void Connect(string portName, int baudRate, int parity, int dataBits, int stopBits)
+        {
+            Parity par = Parity.Even;
+            switch (parity)
+            {
+                case 0:
+                    par = Parity.None;
+                    break;
+                case 1:
+                    par = Parity.Odd;
+                    break;
+                case 2:
+                    par = Parity.Even;
+                    break;
+                case 3:
+                    par = Parity.Mark;
+                    break;
+                case 4:
+                    par = Parity.Space;
+                    break;
+            }
+
+            StopBits sb = StopBits.None;
+            switch (stopBits)
+            {
+                case 0:
+                    sb = StopBits.None;
+                    break;
+                case 1:
+                    sb = StopBits.One;
+                    break;
+                case 2:
+                    sb = StopBits.Two;
+                    break;
+                case 3:
+                    sb = StopBits.OnePointFive;
+                    break;
+            }
+
+			_SP.PortName = portName;
+			_SP.BaudRate = baudRate;
+			_SP.Parity = par;
+			_SP.DataBits = dataBits;
+			_SP.StopBits = sb;
+
+			//打开串口
+			_SP.Open();           
+        }
+
+        /// <summary>
+        /// 主要功能：重写父类方法：关闭串口
+        /// </summary>
+        public override void Close()
+        {
+            if (_SP.IsOpen)
+            {
+                try
+                {
+					_SP.Close();
+                }
+                catch(Exception ex) 
+                {
+                    ShowException("串口关闭失败!", ex);
+                }
+            }
+        }
+        /// <summary>
+        /// 主要功能：读取数据
+        /// </summary>
+        public string Readdata()
+        {
+            bool status = _SP.IsOpen;
+            if (!status)
+            {
+                _SP.Open();
+
+            }
+            string sData = "";
+            sData = _SP.ReadExisting().Replace("\r\n", "");
+            sData = sData.Replace("\r", "");
+            sData = sData.Replace("\n", "");
+            return sData;
+        } 
+    }
+}

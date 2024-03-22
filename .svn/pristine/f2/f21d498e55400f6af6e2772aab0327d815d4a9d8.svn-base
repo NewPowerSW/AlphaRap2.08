@@ -1,0 +1,59 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table1>
+    <partsname>Nozzle</partsname>
+    <ModelNo>DC19004-25-ZH001A</ModelNo>
+    <Lifespantimes>400000</Lifespantimes>
+    <Timesforalarm>400000</Timesforalarm>
+    <Usedtimes>82388</Usedtimes>
+    <Lastchangetime>2021/10/03</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Cylinder sensor</partsname>
+    <ModelNo>M9N</ModelNo>
+    <Lifespantimes>400000</Lifespantimes>
+    <Timesforalarm>400000</Timesforalarm>
+    <Usedtimes>57990</Usedtimes>
+    <Lastchangetime>2022/11/04</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Vacuum generator</partsname>
+    <ModelNo>ZK2A12K5AL-08-8</ModelNo>
+    <Lifespantimes>400000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>82404</Usedtimes>
+    <Lastchangetime>2021/10/03</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Vacuum filter</partsname>
+    <ModelNo>ZFC74-B(CKT)</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>82404</Usedtimes>
+    <Lastchangetime>2021/10/03</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Ring photoelectric</partsname>
+    <ModelNo>ZJL02-D15</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>82404</Usedtimes>
+    <Lastchangetime>2021/10/03</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Fiber</partsname>
+    <ModelNo>FD-EG31</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>82404</Usedtimes>
+    <Lastchangetime>2021/10/03</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Photoelectric</partsname>
+    <ModelNo>PM-Y67</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>82404</Usedtimes>
+    <Lastchangetime>2021/10/03</Lastchangetime>
+  </Table1>
+</NewDataSet>

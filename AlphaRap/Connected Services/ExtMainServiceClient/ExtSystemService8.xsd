@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.ReqInParm" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.ReqInParm" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Enum" />
+  <xs:import schemaLocation="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" />
+  <xs:import schemaLocation="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd7" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.DB" />
+  <xs:import schemaLocation="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Common" />
+  <xs:complexType name="CTSendMsgReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q1="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q1:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Data" nillable="true" type="xs:string" />
+          <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Enum" minOccurs="0" name="DataType" nillable="true" type="q2:DataType" />
+          <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Enum" minOccurs="0" name="MsgFuncType" nillable="true" type="q3:MsgFuncType" />
+          <xs:element minOccurs="0" name="MsgFuncTypeDotNet20" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="RoutingKey" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="SxFyId" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTSendMsgReqInParm" nillable="true" type="tns:CTSendMsgReqInParm" />
+  <xs:complexType name="CTGetProgramByRlcReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q4="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q4:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EqpId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="RLC" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetProgramByRlcReqInParm" nillable="true" type="tns:CTGetProgramByRlcReqInParm" />
+  <xs:complexType name="CTGetMoTypeReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q5="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q5:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EndTime" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="Line" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Mcno" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="StartTime" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetMoTypeReqInParm" nillable="true" type="tns:CTGetMoTypeReqInParm" />
+  <xs:complexType name="CTGetMoInfoByMbReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q6="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q6:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Mbno" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Status" type="tns:GetMoInfoByMbStatus" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetMoInfoByMbReqInParm" nillable="true" type="tns:CTGetMoInfoByMbReqInParm" />
+  <xs:simpleType name="GetMoInfoByMbStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Current" />
+      <xs:enumeration value="Next" />
+      <xs:enumeration value="Last" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="GetMoInfoByMbStatus" nillable="true" type="tns:GetMoInfoByMbStatus" />
+  <xs:complexType name="CTRayReturnWarehouseReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q7="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q7:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="OrgId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Qty" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="RlcNo" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTRayReturnWarehouseReqInParm" nillable="true" type="tns:CTRayReturnWarehouseReqInParm" />
+  <xs:complexType name="CTGetSmtMapVendorReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q8="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q8:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="PROD_SSN" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetSmtMapVendorReqInParm" nillable="true" type="tns:CTGetSmtMapVendorReqInParm" />
+  <xs:complexType name="CTGetLatestLabelFileReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q9="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q9:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EnforceUpdate" type="xs:boolean" />
+          <xs:element minOccurs="0" name="IsLabelEForm" type="xs:boolean" />
+          <xs:element minOccurs="0" name="LabelFileName" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="LocalFileDateTime" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetLatestLabelFileReqInParm" nillable="true" type="tns:CTGetLatestLabelFileReqInParm" />
+  <xs:complexType name="CTCheckStageReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q10="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q10:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EqpId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Ip" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="IsBatchRun" type="xs:boolean" />
+          <xs:element minOccurs="0" name="Psn" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTCheckStageReqInParm" nillable="true" type="tns:CTCheckStageReqInParm" />
+  <xs:complexType name="CTGetWebServiceURLReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q11="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q11:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Pn" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ReqURL" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Team" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetWebServiceURLReqInParm" nillable="true" type="tns:CTGetWebServiceURLReqInParm" />
+  <xs:complexType name="CTGetSmtLdMapReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q12="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q12:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="IsSingleMode" type="xs:boolean" />
+          <xs:element minOccurs="0" name="Mbsn" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Mo" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetSmtLdMapReqInParm" nillable="true" type="tns:CTGetSmtLdMapReqInParm" />
+  <xs:complexType name="CTChkLdPcbNoReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q13="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q13:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element xmlns:q14="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="PcbList" nillable="true" type="q14:ArrayOfstring" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTChkLdPcbNoReqInParm" nillable="true" type="tns:CTChkLdPcbNoReqInParm" />
+  <xs:complexType name="CTLdPcbPrintReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q15="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q15:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="IsOK" type="xs:boolean" />
+          <xs:element minOccurs="0" name="MBSN" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTLdPcbPrintReqInParm" nillable="true" type="tns:CTLdPcbPrintReqInParm" />
+  <xs:complexType name="CTGetSMTMapListReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q16="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q16:CTQueryReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="CbProdSsn" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="IsFilterEmptyCbSn" type="xs:boolean" />
+          <xs:element minOccurs="0" name="MbProdSsn" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="MbSsn" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetSMTMapListReqInParm" nillable="true" type="tns:CTGetSMTMapListReqInParm" />
+  <xs:complexType name="CTCheckPNLabelPNReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q17="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q17:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Label_Pn" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Pn" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTCheckPNLabelPNReqInParm" nillable="true" type="tns:CTCheckPNLabelPNReqInParm" />
+  <xs:complexType name="CTBurninIcYrReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q18="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q18:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Enum" minOccurs="0" name="ActionType" type="q19:ActionType" />
+          <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.DB" minOccurs="0" name="BurninIcYrList" nillable="true" type="q20:ArrayOfBURNIN_IC_YR" />
+          <xs:element minOccurs="0" name="EndTime" nillable="true" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="Eqpid" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Item" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="StartTime" nillable="true" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTBurninIcYrReqInParm" nillable="true" type="tns:CTBurninIcYrReqInParm" />
+  <xs:complexType name="CTCancelPcblotTempReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q21="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q21:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="MO" nillable="true" type="xs:string" />
+          <xs:element xmlns:q22="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="MbsnList" nillable="true" type="q22:ArrayOfstring" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTCancelPcblotTempReqInParm" nillable="true" type="tns:CTCancelPcblotTempReqInParm" />
+  <xs:complexType name="CTCheckSfcsErpPnReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q23="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q23:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="MO" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTCheckSfcsErpPnReqInParm" nillable="true" type="tns:CTCheckSfcsErpPnReqInParm" />
+  <xs:complexType name="CTGetSmtCustSnReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q24="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q24:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="DC" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="EQPID" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="LotId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="LotNo" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Mbsn" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Mo" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetSmtCustSnReqInParm" nillable="true" type="tns:CTGetSmtCustSnReqInParm" />
+  <xs:complexType name="CTGetMoSSNInfoReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q25="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q25:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Mo" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetMoSSNInfoReqInParm" nillable="true" type="tns:CTGetMoSSNInfoReqInParm" />
+  <xs:complexType name="CTGetMBSNMarkReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q26="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q26:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="StripId" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetMBSNMarkReqInParm" nillable="true" type="tns:CTGetMBSNMarkReqInParm" />
+  <xs:complexType name="CTGetBindItemListParentReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q27="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q27:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element xmlns:q28="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="ItemList" nillable="true" type="q28:ArrayOfstring" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetBindItemListParentReqInParm" nillable="true" type="tns:CTGetBindItemListParentReqInParm" />
+  <xs:complexType name="CTBurninChangeSocketReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q29="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q29:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element xmlns:q30="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Enum" minOccurs="0" name="ActionType" type="q30:ActionType" />
+          <xs:element minOccurs="0" name="Eqpid" nillable="true" type="xs:string" />
+          <xs:element xmlns:q31="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="MaintainItemList" nillable="true" type="q31:ArrayOfstring" />
+          <xs:element xmlns:q32="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Enum" minOccurs="0" name="MaintainType" type="q32:MaintainType" />
+          <xs:element minOccurs="0" name="SocketId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="SocketNo" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTBurninChangeSocketReqInParm" nillable="true" type="tns:CTBurninChangeSocketReqInParm" />
+  <xs:complexType name="CTBurninMaintainHistoryReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q33="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q33:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element xmlns:q34="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Enum" minOccurs="0" name="ActionType" type="q34:ActionType" />
+          <xs:element minOccurs="0" name="End_Date" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="Eqpid" nillable="true" type="xs:string" />
+          <xs:element xmlns:q35="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="SocketIdList" nillable="true" type="q35:ArrayOfstring" />
+          <xs:element minOccurs="0" name="Start_Date" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTBurninMaintainHistoryReqInParm" nillable="true" type="tns:CTBurninMaintainHistoryReqInParm" />
+  <xs:complexType name="CTMbsnBadMarkInqReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q36="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q36:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="FACE" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="MBSN" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="MO" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTMbsnBadMarkInqReqInParm" nillable="true" type="tns:CTMbsnBadMarkInqReqInParm" />
+  <xs:complexType name="CTMbsnBadMarkAltReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q37="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q37:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="BadMark" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="FACE" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="MBSN" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTMbsnBadMarkAltReqInParm" nillable="true" type="tns:CTMbsnBadMarkAltReqInParm" />
+  <xs:complexType name="CTGetSmtAutoLabelDataReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q38="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q38:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="IsByPassLabel" type="xs:boolean" />
+          <xs:element minOccurs="0" name="IsGetLabelFile" type="xs:boolean" />
+          <xs:element minOccurs="0" name="IsReprint" type="xs:boolean" />
+          <xs:element minOccurs="0" name="MbProdSn" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetSmtAutoLabelDataReqInParm" nillable="true" type="tns:CTGetSmtAutoLabelDataReqInParm" />
+  <xs:complexType name="CTSealMSDReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q39="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q39:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Pn" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="RlcNo" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTSealMSDReqInParm" nillable="true" type="tns:CTSealMSDReqInParm" />
+  <xs:complexType name="CTGetSmtCbInfoReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q40="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q40:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="MBSN" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetSmtCbInfoReqInParm" nillable="true" type="tns:CTGetSmtCbInfoReqInParm" />
+  <xs:complexType name="CTSmtCsnCombineReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q41="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q41:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element xmlns:q42="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Common" minOccurs="0" name="CbInfoList" nillable="true" type="q42:ArrayOfCbInfo" />
+          <xs:element minOccurs="0" name="MBSN" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTSmtCsnCombineReqInParm" nillable="true" type="tns:CTSmtCsnCombineReqInParm" />
+  <xs:complexType name="CTCheckAtpGlueStatusInfoReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q43="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q43:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="IsPrepareWork" type="xs:boolean" />
+          <xs:element minOccurs="0" name="Rlc" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTCheckAtpGlueStatusInfoReqInParm" nillable="true" type="tns:CTCheckAtpGlueStatusInfoReqInParm" />
+  <xs:complexType name="CTSTWaferMapReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q44="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q44:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="SensorID" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTSTWaferMapReqInParm" nillable="true" type="tns:CTSTWaferMapReqInParm" />
+  <xs:complexType name="CTGetWisRecipeReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q45="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q45:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Barcode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="EqpId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Line" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Side" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Stage" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetWisRecipeReqInParm" nillable="true" type="tns:CTGetWisRecipeReqInParm" />
+  <xs:complexType name="CTMaintainEapDeployStatusReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q46="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q46:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element xmlns:q47="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Enum" minOccurs="0" name="ActionType" type="q47:ActionType" />
+          <xs:element minOccurs="0" name="EqpId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="EventId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Line" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Recipe" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Remark" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ReturnCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ReturnMsg" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Script" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="SourceKey" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Status" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTMaintainEapDeployStatusReqInParm" nillable="true" type="tns:CTMaintainEapDeployStatusReqInParm" />
+  <xs:complexType name="CTGetEapDeploySettingReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q48="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q48:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EqpGroup" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="EqpId" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetEapDeploySettingReqInParm" nillable="true" type="tns:CTGetEapDeploySettingReqInParm" />
+  <xs:complexType name="CTGetAtpLdMapReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q49="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q49:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Mo" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetAtpLdMapReqInParm" nillable="true" type="tns:CTGetAtpLdMapReqInParm" />
+  <xs:complexType name="CTGetLabelEFormReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q50="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q50:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="QueryItem" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="SN" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="TargetLabelType" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetLabelEFormReqInParm" nillable="true" type="tns:CTGetLabelEFormReqInParm" />
+  <xs:complexType name="CTSendMailReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q51="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q51:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element xmlns:q52="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="AddressBCC" nillable="true" type="q52:ArrayOfstring" />
+          <xs:element xmlns:q53="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="AddressCC" nillable="true" type="q53:ArrayOfstring" />
+          <xs:element xmlns:q54="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="AddressTo" nillable="true" type="q54:ArrayOfstring" />
+          <xs:element minOccurs="0" name="Body" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="CategoryName" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Subject" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ViewName" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTSendMailReqInParm" nillable="true" type="tns:CTSendMailReqInParm" />
+  <xs:complexType name="CTGetMoListByDateReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q55="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q55:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="DateFrom" nillable="true" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="DateTo" nillable="true" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="Line" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTGetMoListByDateReqInParm" nillable="true" type="tns:CTGetMoListByDateReqInParm" />
+  <xs:complexType name="CTLabelLevelInfoReqInParm">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q56="http://schemas.datacontract.org/2004/07/WNC.SFCS.Shared" base="q56:CTBaseReqInParm">
+        <xs:sequence>
+          <xs:element xmlns:q57="http://schemas.datacontract.org/2004/07/WNC.SFCS.DTO.Common" minOccurs="0" name="CbInfoList" nillable="true" type="q57:ArrayOfCbInfo" />
+          <xs:element minOccurs="0" name="MBSN" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CTLabelLevelInfoReqInParm" nillable="true" type="tns:CTLabelLevelInfoReqInParm" />
+</xs:schema>

@@ -1,0 +1,1058 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+using System.Drawing.Drawing2D;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System.Threading;
+using NPSDK;
+namespace AlphaRap
+{
+	public partial class HomeForm : Form
+	{
+		[DllImport("user32.dll")]
+		public static extern IntPtr GetFocus();
+		public string _MouseDownCtl;
+
+		public bool bH1RowData = false;
+		public bool bH2RowData = false;
+		public int bH1Count = 0;
+		public int bH2Count = 0;
+
+		public JTimer RunTM = new JTimer();
+		public Point ppt;
+
+		public Classes.RFIDOperation RFIDOper = new Classes.RFIDOperation();
+
+		int HourInputShift = 0;
+		int HourOutputShift = 0;
+		int HourRejectShift = 0;
+		double HourYeild = 0;
+
+		int AllInputShift = 0;
+		int AllOutputShift = 0;
+		int AllRejectShift = 0;
+		double AllYeild = 0;
+
+		public HomeForm()
+		{
+			InitializeComponent();
+			bool bPlat = Convert.ToBoolean(SysPara.bPlat);
+			if (bPlat)
+				tabPage2.Parent = null;
+			else
+				tabPage2.Parent = tabHome;
+		}
+
+		int a = 1;
+		//照明灯
+		private void btLight_Click(object sender, EventArgs e)
+		{
+			if (a == 1)
+			{
+				this.btLight.BackColor = Color.Lime;
+				MiddleLayer.ManualF.OB_LEDLight.On();
+
+				a++;
+			}
+			else
+			{
+				this.btLight.BackColor = Color.Silver;
+				MiddleLayer.ManualF.OB_LEDLight.Off();
+
+				a = 1;
+			}
+
+
+
+
+
+
+		}
+		int b = 0;
+		//直通
+		private void btByPass_Click(object sender, EventArgs e)
+		{
+
+			if (b == 1)
+			{
+				SysPara.bByPass = false;
+				b = 0;
+			}
+			else
+			{
+
+				DialogResult reult = MessageBox.Show("是否直通模式?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+
+				if ((reult == DialogResult.Yes))
+				{
+					SysPara.bByPass = true;
+					b = 1;
+				}
+			}
+		}
+		private void timer1_Tick(object sender, EventArgs e)
+		{
+
+			#region BYPASS
+			if (SysPara.bByPass)
+			{
+				this.btByPass.BackColor = Color.Lime;
+			}
+			else
+			{
+				this.btByPass.BackColor = Color.Silver;
+			}
+
+			if (MiddleLayer.alTask.BuzzerNeedWork && !MiddleLayer.SystemS.GetSettingValue("MSet", "UserBuzzer"))
+			{
+				Buzzer.BackColor = Color.Lime;
+			}
+			else
+			{
+				Buzzer.BackColor = Color.Silver;
+			}
+			#endregion
+			#region Door
+			bool DoorStaus = MiddleLayer.SystemS.GetSettingValue("MSet", "UserDoor");
+
+			btDoor.BackColor = DoorStaus ? Color.Lime : Color.Silver;
+
+
+
+			//if (MiddleLayer.ManualF.OB_DoorPeningAuthority.Ouput_On())
+			//{
+			//    btDoor.BackColor = Color.Lime;
+			//}
+			//else
+			//{
+			//    btDoor.BackColor = Color.Silver;
+			//}
+
+
+			//if (MiddleLayer.ManualF.OB_DoorPeningAuthority.Ouput_On())
+			//{
+
+			//    label39.BackColor = Color.LimeGreen;
+			//    label39.Text = "Auto";
+			//    AutoIndex = 1;
+			//}
+			//else
+			//{
+			//    label39.BackColor = Color.Silver;
+			//    label39.Text = "Manual";
+			//    AutoIndex = 0;
+			//}
+
+			#endregion
+
+			#region KEYBORD
+			IntPtr _ControlIntPtr = GetFocus();
+			if (_ControlIntPtr != IntPtr.Zero)
+			{
+				Control _Control = Control.FromChildHandle(_ControlIntPtr);
+				if (_Control != null)
+				{
+					Control _gControl = _Control;
+					var retval = new Point(0, 0);
+					for (; _gControl.Parent != null; _gControl = _gControl.Parent)
+					{
+						retval.Offset(_gControl.Location);
+						if (_gControl.Name == MiddleLayer.MainF.forkeybord.Name)
+						{
+							break;
+						}
+					}
+
+					bool MOUSEXY = ppt.X > retval.X && ppt.X < (retval.X + _Control.Width) && ppt.Y > retval.Y && ppt.Y < (retval.Y + _Control.Height);
+					if ((_Control.GetType() == typeof(TextBox) || _Control.GetType() == typeof(DataGridViewTextBoxEditingControl) || _Control.GetType() == typeof(NPSDK.Keyence.Keyence_Text)) && MOUSEXY)
+					{
+						if (System.Diagnostics.Process.GetProcessesByName("osk").Length == 0 && System.IO.File.Exists(@"C:\Windows\system32\osk.exe"))
+						{
+							try
+							{
+								System.Diagnostics.Process.Start(@"C:\Windows\system32\osk.exe");
+							}
+							catch { }
+						}
+					}
+					else
+					{
+						if (System.Diagnostics.Process.GetProcessesByName("osk").Length > 0)
+						{
+							Process[] a = System.Diagnostics.Process.GetProcessesByName("osk");
+							foreach (Process b in a)
+							{
+								try
+								{
+									//  b.Kill();
+								}
+								catch
+								{ }
+							}
+						}
+					}
+				}
+			}
+			#endregion
+			#region Alarm Message
+			MiddleLayer.HomeF.AlarmMessageLangLanguage(SysPara.LanguageShow);
+			if (NPSDK.Alarm.DoRefresh)
+			{
+				NPSDK.Alarm.DoRefresh = false;
+				WarnningMessage.BeginUpdate();
+				WarnningMessage.Items.Clear();
+				for (int i = 0; i < NPSDK.Alarm.AlarmList.Count; i++)
+				{
+					NPSDK.Alarm.AlarmDataClass AlarmData = NPSDK.Alarm.AlarmList[i];
+					string DateT = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+					// ListViewItem Alarm = new ListViewItem(AlarmData.DateTime); 
+					ListViewItem Alarm = new ListViewItem(DateT);
+
+					Alarm.SubItems.Add(AlarmData.Type);
+					Alarm.SubItems.Add(AlarmData.Code);
+					Alarm.SubItems.Add(AlarmData.Content);
+
+					string _RECIPEID = MiddleLayer.ProductF.GetRecipeValue("ProductSetting", "RECIPEID");
+					string[] data = new string[8];
+
+					data[0] = SysPara.UserName;
+					data[1] = _RECIPEID;
+					data[2] = SysPara.RecipeName;
+					data[3] = (SysPara.SystemMode == RunMode.RUN || SysPara.SystemMode == RunMode.PAUSE) ? "Auto" : "Manual";
+
+					data[4] = AlarmData.Type == "E" ? "ERROR" : "Information";
+					data[5] = AlarmData.Code;
+					data[6] = AlarmData.Content;
+					switch (AlarmData.Type)
+					{
+						case "E":
+
+							
+								MiddleLayer.DataF.Alarm.SaveDataToFile(data);
+								DateTime TWriteLogTime = DateTime.Now;
+
+								MiddleLayer.PauseRun();
+
+
+							
+							Alarm.SubItems[0].BackColor = Color.Red;
+
+
+
+							break;
+						case "W":
+
+							Alarm.SubItems[0].BackColor = Color.DarkSalmon;
+							break;
+
+					}
+
+
+					WarnningMessage.Items.Add(Alarm);
+
+					//MiddleLayer.LogF.AddLog(LogType.Alarm, ArmData.Type + "," + ArmData.Code + "," + ArmData.Content);
+				}
+				WarnningMessage.EndUpdate();
+				WriteExcelData();
+				//ListViewWrite.WriteExcelData("D:\\Log\\AlarmMessageData\\", lvMessage, Alarm1);
+			}
+			#endregion
+
+
+			#region Machine Status 
+			switch (SysPara.LanguageShow)
+			{
+				case LanguageType.Chinese:
+					break;
+				case LanguageType.English:
+					break;
+			}
+			if (SysPara.SystemMode == RunMode.IDLE && SysPara.LanguageShow == LanguageType.Chinese)
+			{
+				MachineStatus.BackColor = Color.Yellow;
+				MachineStatus.Text = "待机状态";
+				MiddleLayer.ManualF.OB_StartButton_Light.Off();
+				MiddleLayer.ManualF.OB_StoptButton_Light.On();
+
+
+			}
+			else if (SysPara.SystemMode == RunMode.IDLE && SysPara.LanguageShow == LanguageType.English)
+			{
+				MachineStatus.BackColor = Color.Yellow;
+				MachineStatus.Text = "IDLE";
+				MiddleLayer.ManualF.OB_StartButton_Light.Off();
+				MiddleLayer.ManualF.OB_StoptButton_Light.On();
+
+			}
+
+			if (SysPara.SystemMode == RunMode.INITIAL && !SysPara.UpConveyorInitialOk && SysPara.LanguageShow == LanguageType.Chinese)
+			{
+				MachineStatus.BackColor = Color.Yellow;
+				MachineStatus.Text = "正在初始化状态";
+
+				MiddleLayer.ManualF.OB_StartButton_Light.On();
+				MiddleLayer.ManualF.OB_StoptButton_Light.Off();
+			}
+			else if (SysPara.SystemMode == RunMode.INITIAL && !SysPara.UpConveyorInitialOk && SysPara.LanguageShow == LanguageType.English)
+			{
+				MachineStatus.BackColor = Color.Yellow;
+				MachineStatus.Text = "INITIAL";
+
+				MiddleLayer.ManualF.OB_StartButton_Light.On();
+				MiddleLayer.ManualF.OB_StoptButton_Light.Off();
+
+			}
+
+			if (SysPara.SystemMode == RunMode.INITIAL && SysPara.UpConveyorInitialOk && SysPara.LanguageShow == LanguageType.Chinese)
+			{
+				MachineStatus.BackColor = Color.Yellow;
+				MachineStatus.Text = "初始化完成";
+
+				MiddleLayer.ManualF.OB_StartButton_Light.Off();
+				MiddleLayer.ManualF.OB_StoptButton_Light.On();
+
+			}
+			else if (SysPara.SystemMode == RunMode.INITIAL && SysPara.UpConveyorInitialOk && SysPara.LanguageShow == LanguageType.English)
+			{
+				MachineStatus.BackColor = Color.Yellow;
+				MachineStatus.Text = "INITIAL Completed";
+
+				MiddleLayer.ManualF.OB_StartButton_Light.Off();
+				MiddleLayer.ManualF.OB_StoptButton_Light.On();
+			}
+
+			if (SysPara.SystemMode == RunMode.RUN && SysPara.LanguageShow == LanguageType.Chinese)
+			{
+				MachineStatus.BackColor = Color.Lime;
+				MachineStatus.Text = "运行状态";
+
+				MiddleLayer.ManualF.OB_StartButton_Light.On();
+				MiddleLayer.ManualF.OB_StoptButton_Light.Off();
+			}
+			else if (SysPara.SystemMode == RunMode.RUN && SysPara.LanguageShow == LanguageType.English)
+			{
+				MachineStatus.BackColor = Color.Lime;
+				MachineStatus.Text = "RUNNING";
+
+				MiddleLayer.ManualF.OB_StartButton_Light.On();
+				MiddleLayer.ManualF.OB_StoptButton_Light.Off();
+			}
+
+			if (SysPara.SystemMode == RunMode.PAUSE && SysPara.LanguageShow == LanguageType.Chinese)
+			{
+				MachineStatus.BackColor = Color.Red;
+				MachineStatus.Text = "暂停状态";
+
+				MiddleLayer.ManualF.OB_StartButton_Light.Off();
+				MiddleLayer.ManualF.OB_StoptButton_Light.On();
+			}
+			else if (SysPara.SystemMode == RunMode.PAUSE && SysPara.LanguageShow == LanguageType.English)
+			{
+				MachineStatus.BackColor = Color.Red;
+				MachineStatus.Text = "PAUSE";
+
+				MiddleLayer.ManualF.OB_StartButton_Light.Off();
+				MiddleLayer.ManualF.OB_StoptButton_Light.On();
+			}
+			
+			#endregion
+
+
+			DateTime datanow = DateTime.Now;
+
+
+			txtCT.Text = SysPara.CircleTime + "/s";
+
+
+			if ((SysPara.iProductOK + SysPara.iProductNG).ToString() != txtPTotal.Text)
+			{
+				MiddleLayer.SpanLifeF.TimeAdd();
+
+
+				SysPara.iProductHourlyInput[datanow.Hour] += 1;
+			}
+
+			if (txtPOK.Text != SysPara.iProductOK.ToString())
+			{
+				MiddleLayer.HomeF.hoursProductShow1.kPointAdd(DateTime.Now, (int)(SysPara.iProductOK - Convert.ToInt32(txtPOK.Text)), true);
+				MiddleLayer.HomeF.hoursProductShow1.AllTimeDataShow(DateTime.Now);
+
+				SysPara.iProductHourlyOutput[datanow.Hour] += SysPara.iProductOK - Convert.ToInt32(txtPOK.Text);
+			}
+
+			if (txtPNG.Text != SysPara.iProductNG.ToString())
+			{
+				MiddleLayer.HomeF.hoursProductShow1.kPointAdd(DateTime.Now, (int)(SysPara.iProductNG - Convert.ToInt32(txtPNG.Text)), false);
+				MiddleLayer.HomeF.hoursProductShow1.AllTimeDataShow(DateTime.Now);
+				SysPara.iProductHourlyReject[datanow.Hour] += SysPara.iProductNG - Convert.ToInt32(txtPNG.Text);
+			}
+
+			GetProductData();
+
+			if (SysPara.UserPermission == PermissionType.Operator)
+			{
+				btDoor.Enabled = false;
+				btByPass.Enabled = false;
+				btClearCount.Enabled = false;
+				// ClearData.Enabled = false;
+			}
+			else
+			{
+				btDoor.Enabled = true;
+				btByPass.Enabled = true;
+				btClearCount.Enabled = true;
+				// ClearData.Enabled = true;
+			}
+			string log = NPFlowChart.Flow_Module.Module_GetRunLog();
+			if (log != "")
+			{
+				AddRunMessage(log);
+
+			}
+
+		}
+
+
+
+		private void GetProductDataINI()
+		{
+
+			DateTime datanow = DateTime.Now;
+
+
+			MiddleLayer.HomeF.hoursProductShow1.GetHourShift(DateTime.Now, ref HourInputShift, ref HourOutputShift, ref HourRejectShift, ref HourYeild);
+			MiddleLayer.HomeF.hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
+
+
+			tHourlyInput.Text = HourInputShift.ToString();
+			tHourlyOutput.Text = HourOutputShift.ToString();
+			tHourlyReject.Text = HourRejectShift.ToString();
+			tHourlyYield.Text = HourYeild.ToString("F2");
+
+
+			txtPTotal.Text = AllInputShift.ToString();
+			txtPOK.Text = AllOutputShift.ToString();
+			txtPNG.Text = AllRejectShift.ToString();
+			txtPRatio.Text = AllYeild.ToString("F2"); ;
+			SysPara.iProductOK = AllOutputShift;
+			SysPara.iProductNG = AllRejectShift;
+
+		}
+
+		private void GetProductData()
+		{
+
+			DateTime datanow = DateTime.Now;
+
+
+			MiddleLayer.HomeF.hoursProductShow1.GetHourShift(DateTime.Now, ref HourInputShift, ref HourOutputShift, ref HourRejectShift, ref HourYeild);
+			MiddleLayer.HomeF.hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
+
+
+			tHourlyInput.Text = HourInputShift.ToString();
+			tHourlyOutput.Text = HourOutputShift.ToString();
+			tHourlyReject.Text = HourRejectShift.ToString();
+			tHourlyYield.Text = HourYeild.ToString("F2");
+
+
+			txtPTotal.Text = AllInputShift.ToString();
+			txtPOK.Text = AllOutputShift.ToString();
+			txtPNG.Text = AllRejectShift.ToString();
+			txtPRatio.Text = AllYeild.ToString("F2"); ;
+			SysPara.iProductOK = AllOutputShift;
+			SysPara.iProductNG = AllRejectShift;
+
+		}
+
+
+		private void btHome_Click(object sender, EventArgs e)
+		{
+
+			MiddleLayer.AlarmClear();
+
+		}
+		#region Run Message
+		public void AddRunMessage(string strMessage)
+		{
+			WriteMessageText(strMessage);
+			MiddleLayer.DataF.AddRunLog(strMessage);
+	
+		}
+		public void AddErrorLog(string strMessage)
+		{
+			
+			MiddleLayer.DataF.AddLogError(strMessage);
+			
+		}
+		private void WriteMessageText(string strMessage)
+		{
+			//SysPara.RunMessageTime = DateTime.Now.ToString("HH:mm:ss");
+			SysPara.RunMessageTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+			if (textBoxMessage == null)
+				return;
+			Action action = () =>
+			{
+				try
+				{
+					int iTotal = 0;
+					int iLenght = textBoxMessage.Lines.Length;
+					textBoxMessage.AppendText(SysPara.RunMessageTime + ": " + strMessage + "\r\n");
+					if (textBoxMessage.Lines.Length > 200)
+					{
+						for (int i = 0; i < 100; i++)
+						{
+							iTotal = iTotal + textBoxMessage.Lines[i].Length + 2;
+						}
+						textBoxMessage.Text = textBoxMessage.Text.Substring(iTotal);
+					}
+				}
+				catch
+				{
+
+				}
+			};
+			try
+			{
+				textBoxMessage.Invoke(action);
+			}
+			catch
+			{
+
+			}
+		}
+		public void WriteErrorMessageText(string strMessage)
+		{
+			//SysPara.RunMessageTime = DateTime.Now.ToString("HH:mm:ss");
+			SysPara.RunMessageTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+			if (textBox_ERRORMessage == null)
+				return;
+			Action action = () =>
+			{
+				try
+				{
+					int iTotal = 0;
+					int iLenght = textBox_ERRORMessage.Lines.Length;
+					textBox_ERRORMessage.AppendText(SysPara.RunMessageTime + ": " + strMessage + "\r\n");
+					if (textBox_ERRORMessage.Lines.Length > 200)
+					{
+						for (int i = 0; i < 100; i++)
+						{
+							iTotal = iTotal + textBox_ERRORMessage.Lines[i].Length + 2;
+						}
+						textBox_ERRORMessage.Text = textBox_ERRORMessage.Text.Substring(iTotal);
+					}
+				}
+				catch
+				{
+
+				}
+			};
+			try
+			{
+				textBox_ERRORMessage.Invoke(action);
+			}
+			catch
+			{
+
+			}
+		}
+		public void WriteRunMessageResult(string RunTime, string strMessage)
+		{
+			ListViewItem lvi = new ListViewItem(RunTime);
+			ListView listView1 = new ListView();
+			lvi.SubItems.Add(strMessage);
+			lvi.SubItems.Add(SysPara.UserName);
+			listView1.Items.Add(lvi);
+			string Year = DateTime.Now.Year.ToString();
+			string month = DateTime.Now.Month.ToString();
+			string day = DateTime.Now.Day.ToString();
+			SysPara.RunMessagePath = MiddleLayer.MesF.GetSettingValue("Path", "RunPath") + "\\RunMessageData\\"+ "\\" + Year + "\\" + month + "\\" + day+"\\" ;
+			ListViewWrite.WriteExcelData(SysPara.RunMessagePath, listView1);
+		}
+		#endregion
+
+		#region Alarm Data
+		public void WriteExcelData()
+		{
+			string[] strArrange = new string[22];
+			SysPara.AlarmMessagePath = MiddleLayer.MesF.GetSettingValue("Path", "AlarmPath") + "\\AlarmMessageData\\" + DateTime.Now.Year + "\\" + DateTime.Now.Month + "\\" + DateTime.Now.Day + "\\";
+
+			string strFileName = SysPara.AlarmMessagePath + DateTime.Now.ToString("yyyy-MM-dd") + ".csv";
+			FileInfo fileInfo = new FileInfo(strFileName);
+			if (fileInfo.Exists)
+			{
+				for (int i = 0; i < WarnningMessage.Items.Count; i++)
+				{
+					ListViewItem lvi = WarnningMessage.Items[i];
+					for (int j = 0; j < lvi.SubItems.Count; j++)
+					{
+						strArrange[j] = lvi.SubItems[j].Text;
+					}
+					WriteExcelData(strFileName, strArrange);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < WarnningMessage.Columns.Count; i++)
+				{
+					strArrange[i] = WarnningMessage.Columns[i].Text;
+				}
+				// DirectoryInfo dirInfo = new DirectoryInfo("D:\\Log\\AlarmMessageData\\");
+				DirectoryInfo dirInfo = new DirectoryInfo(SysPara.AlarmMessagePath);
+				if (!dirInfo.Exists)
+				{
+					try
+					{
+						dirInfo.Create();
+					}
+					catch (Exception)
+					{
+						MiddleLayer.MesF.SettingData.Tables["Path"].Rows[0]["AlarmPath"] = "C:\\Log";
+					}
+				}
+
+				for (int i = 0; i < WarnningMessage.Items.Count; i++)
+				{
+					ListViewItem lvi = WarnningMessage.Items[i];
+					for (int j = 0; j < lvi.SubItems.Count; j++)
+					{
+						strArrange[j] = lvi.SubItems[j].Text;
+					}
+					WriteExcelData(strFileName, strArrange);
+				}
+			}
+		}
+		public void WriteExcelData(string strFileName, string[] strArange)
+		{
+			ListViewWrite.WriteCSV(strFileName, strArange);
+		}
+		#endregion
+
+		private void Buzzer_Click(object sender, EventArgs e)
+		{
+			MiddleLayer.alTask.BuzzOff();
+		}
+
+		private void ClearData_Click(object sender, EventArgs e)
+		{
+			foreach (Control control in groupBox2.Controls)
+			{
+				if (control.GetType() == typeof(TextBox))
+				{
+					control.Text = "";
+					SysPara.iProductTotal = 0;
+					SysPara.iProductOK = 0;
+					SysPara.iProductNG = 0;
+				}
+			}
+		}
+		//BacodeScanner
+		#region BarcodeScanner
+		public TcpipClient BarcodeScanner = new TcpipClient();
+		public string strBarcodeResult;
+		public void UpdateScannerResult()
+		{
+			//RefreshDifferentThreadUI(txtBarcodeMes, () => trriggerScanner());
+		}
+		public static void RefreshDifferentThreadUI(Control control, Action action)
+		{
+			if (control.InvokeRequired)
+			{
+				Action refreshUI = new Action(action);
+				control.Invoke(refreshUI);
+			}
+			else
+			{
+				action.Invoke();
+			}
+		}
+		public void trriggerScanner()
+		{
+			BarcodeTrigger(true);
+			BarcodeScanner.Receive();//BarcodeScanner.IsReceived()
+			if (BarcodeScanner.IsReceived())
+			{
+				SysPara.strBarcodeResult = BarcodeScanner.GetReceiveString().Trim();
+				if (SysPara.strBarcodeResult != "")
+				{
+					//txtBarcodeMes.AppendText(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + ": " + SysPara.strBarcodeResult + "\r\n");
+					txtBarcode.Text = SysPara.strBarcodeResult;
+					SysPara.ScannerResult = true;
+					BarcodeTrigger(false);
+					BarcodeScanner.Disconnect();
+					RunTM.Restart();
+				}
+			}
+			if (RunTM.IsOn(10000))
+			{
+				BarcodeTrigger(false);
+				NPSDK.Alarm.Show("501");
+			}
+		}
+		public bool ConnectBarcode()
+		{
+			bool ret = false;
+			//bool bBypassBarcode = MiddleLayer.SystemS.GetSettingValue("Pset", "BypassBarcode");
+			//if (!bBypassBarcode)
+			//{
+			string txtIP = MiddleLayer.ParF.GetSettingValue("PSet", "txtIP1") + "." +
+						   MiddleLayer.ParF.GetSettingValue("PSet", "txtIP2") + "." +
+						   MiddleLayer.ParF.GetSettingValue("PSet", "txtIP3") + "." +
+						   MiddleLayer.ParF.GetSettingValue("PSet", "txtIP4");
+			BarcodeScanner.IP = txtIP;
+			BarcodeScanner.PORT = MiddleLayer.ParF.GetSettingValue("PSet", "Port");
+			BarcodeScanner.Connect();
+			return ret;
+		}
+		public bool BarcodeTrigger(bool State)
+		{
+			// ConnectBarcode();
+			bool ret = false;
+			if (!BarcodeScanner.IsConnected())
+			{
+				ret = ConnectBarcode();
+			}
+			if (State)
+			{
+				ret = true;
+				BarcodeScanner.Send("LON\r");
+			}
+			else
+			{
+				BarcodeScanner.Send("LOFF\r");
+			}
+			//BarcodeScanner.Receive();
+			return ret;
+		}
+
+		public void DisconnectBarcode()
+		{
+			bool bBypassBarcode = MiddleLayer.SystemS.GetSettingValue("Pset", "BypassBarcode");
+			if (!bBypassBarcode)
+			{
+				if (BarcodeScanner.IsConnected())
+				{
+					BarcodeScanner.Disconnect();
+				}
+			}
+		}
+
+		public bool BarcodeReaderIsConnected()
+		{
+			return BarcodeScanner.IsConnected();
+		}
+
+		#region 1.2 初始化加载点位事件
+		private void HomeForm_Load(object sender, EventArgs e)
+		{
+			MiddleLayer.OpenRecipe(SysPara.FilePath);
+			GetProductDataINI();
+
+			timer1.Enabled = true;
+
+			
+			MiddleLayer.LockForm1.LanguageChange(SysPara.LanguageShow);
+
+			MiddleLayer.ManualF.OB_LEDLight.On();
+			this.btLight.BackColor = Color.Lime;
+			a++;
+			
+			SHOWINITIAL();
+
+
+		}
+
+
+
+
+		#endregion
+		#endregion
+
+		private void btClearCount_Click(object sender, EventArgs e)
+		{
+
+			DialogResult reult = MessageBox.Show(" Do you want to Clear  Count?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+
+			if ((reult == DialogResult.Yes))
+			{
+				SysPara.iProductOK = 0;
+				SysPara.iProductNG = 0;
+
+			}
+		}
+
+		private void lab_Pos_Red_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		public void AddTorqueMessagge(String showstring)
+		{
+			string T = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+			RefreshDifferentThreadUI(textBoxTorque, () => textBoxTorque.AppendText(T + ": " + showstring + Environment.NewLine));
+		}
+
+
+
+		int bbb = 0;
+		private void btDoor_Click(object sender, EventArgs e)
+		{
+			DataTable dt = MiddleLayer.SystemS.SettingData.Tables["MSet"];
+			DataRow dr = dt.Rows[0];
+
+
+			bool DoorStaus = MiddleLayer.SystemS.GetSettingValue("MSet", "UserDoor");
+			dr[2] = !DoorStaus;
+			MiddleLayer.SystemS.WriteSettingData();
+
+
+
+		}
+
+		#region DataShow
+		
+		public void AlarmMessageLangLanguage(LanguageType LangLanguage = LanguageType.English)
+		{
+			if (LangLanguage == LanguageType.Chinese)
+			{
+				WarnningMessage.Columns[0].Text = "时间";
+				WarnningMessage.Columns[1].Text = "等級";
+				WarnningMessage.Columns[2].Text = "编号";
+				WarnningMessage.Columns[3].Text = "详情";
+			}
+			else
+			{
+				WarnningMessage.Columns[0].Text = "Time";
+				WarnningMessage.Columns[1].Text = "Type";
+				WarnningMessage.Columns[2].Text = "Code";
+				WarnningMessage.Columns[3].Text = "Content";
+			}
+		}
+
+
+		
+		#endregion
+
+		
+	
+
+
+		private void SHOWINITIAL()
+		{
+
+			DataINITIAL(dataGridView_load1, 2, 1);
+			DataINITIAL(dataGridView_load2, 2, 1);
+
+			SetCellValue(dataGridView_load1, 0, 0, "1");
+			SetCellValue(dataGridView_load1, 1, 0, "2");
+			SetCellValue(dataGridView_load2, 0, 0, "1");
+			SetCellValue(dataGridView_load2, 1, 0, "2");
+
+
+			DataINITIAL(Table_1, 1, 2);
+			SetCellValue(Table_1, 0, 0, "1");
+			SetCellValue(Table_1, 0, 1, "2");
+
+			DataINITIAL(Table_2, 2, 1);
+			SetCellValue(Table_2, 0, 0, "1");
+			SetCellValue(Table_2, 1, 0, "2");
+
+
+			DataINITIAL(Table_3, 2, 1);
+			SetCellValue(Table_3, 0, 0, "1");
+			SetCellValue(Table_3, 1, 0, "2");
+
+
+			DataINITIAL(Table_4, 2, 1);
+			SetCellValue(Table_4, 0, 0, "1");
+			SetCellValue(Table_4, 1, 0, "2");
+
+			DataINITIAL(Table_5, 1, 2);
+			SetCellValue(Table_5, 0, 0, "2");
+			SetCellValue(Table_5, 0, 1, "1");
+
+			DataINITIAL(Table_6, 2, 1);
+			SetCellValue(Table_6, 0, 0, "2");
+			SetCellValue(Table_6, 1, 0, "1");
+
+			DataINITIAL(Table_7, 2, 1);
+			SetCellValue(Table_7, 0, 0, "2");
+			SetCellValue(Table_7, 1, 0, "1");
+
+			DataINITIAL(Table_8, 2, 1);
+			SetCellValue(Table_8, 0, 0, "2");
+			SetCellValue(Table_8, 1, 0, "1");
+
+
+			DataINITIAL(dataGridView_unload1, 1, 2);
+			DataINITIAL(dataGridView_unload2, 1, 2);
+
+			SetCellValue(dataGridView_unload1, 0, 0, "2");
+			SetCellValue(dataGridView_unload1, 0, 1, "1");
+			SetCellValue(dataGridView_unload2, 0, 0, "2");
+			SetCellValue(dataGridView_unload2, 0, 1, "1");
+
+			DataINITIAL(dataGridView_PCBTray, 5, 2);
+			DataINITIAL(dataGridView_UnloadTray, 5, 5);
+			DataINITIAL(dataGridView_NGTray, 3, 2);
+
+			for (int i = 0; i < dataGridView_PCBTray.RowCount; i++)
+			{
+
+				for (int j = 0; j < dataGridView_PCBTray.ColumnCount; j++)
+				{
+
+					SetCellValue(dataGridView_PCBTray, dataGridView_PCBTray.RowCount - i - 1, j, (i + 1).ToString() + (j + 1).ToString());
+
+				}
+
+			}
+
+
+			for (int i = 0; i < dataGridView_UnloadTray.RowCount; i++)
+			{
+
+				for (int j = 0; j < dataGridView_UnloadTray.ColumnCount; j++)
+				{
+
+					SetCellValue(dataGridView_UnloadTray, dataGridView_UnloadTray.RowCount - i - 1, dataGridView_UnloadTray.ColumnCount - j - 1, (i + 1).ToString() + (j + 1).ToString());
+
+				}
+
+			}
+
+			for (int i = 0; i < dataGridView_NGTray.RowCount; i++)
+			{
+
+				for (int j = 0; j < dataGridView_NGTray.ColumnCount; j++)
+				{
+
+					SetCellValue(dataGridView_NGTray, dataGridView_NGTray.RowCount - i - 1, dataGridView_NGTray.ColumnCount - j - 1, ((3 - i) + (1 - j) * 3).ToString()/*(i).ToString() + (j).ToString()*/);
+
+				}
+
+			}
+
+
+
+
+			for (int i = 0; i < MiddleLayer.HomeF.dataGridView_NGTray.RowCount; i++)
+			{
+
+				for (int j = 0; j < MiddleLayer.HomeF.dataGridView_NGTray.ColumnCount; j++)
+				{
+
+					MiddleLayer.HomeF.SetCellColor(MiddleLayer.HomeF.dataGridView_NGTray, i, j, Color.White);
+				}
+
+			}
+
+		}
+
+
+		public void DataINITIAL(DataGridView Position, int RowIndex, int Columns)
+
+		{
+
+
+			Position.Rows.Clear();
+
+			Position.RowCount = RowIndex;
+			Position.ColumnCount = Columns;
+
+			// Position.Columns[0].Width = (Position.Width- Position.RowHeadersWidth)/ 2;
+
+
+
+
+			for (int i = 0; i < Columns; i++)
+			{
+				Position.Columns[i].Width = (Position.Width) / Columns;
+				Position.Columns[i].HeaderCell.Value = (i + 1).ToString();
+
+
+			}
+
+			for (int i = 0; i < RowIndex; i++)
+			{
+				Position.Rows[i].Height = (Position.Height) / RowIndex;
+				Position.Rows[i].HeaderCell.Value = (i + 1).ToString();
+				Position.Rows[i].Cells[0].Value = "";
+
+
+			}
+
+			Position.ClearSelection();
+
+
+		}
+
+
+		public void SetCellColor(DataGridView Position, int RowIndex, int Columns, Color CellColor)
+		{
+			Position[Columns, RowIndex].Style.BackColor = CellColor;
+
+		}
+
+		public void SetCellValue(DataGridView Position, int RowIndex, int Columns, string CellValue)
+		{
+			Position[Columns, RowIndex].Value = CellValue;
+
+		}
+
+		
+		
+		public  string  GetAlarmConent(string Index)
+		{
+			DataTable dtTable = new DataTable();
+			List<string> mlist;
+			dtTable.Rows.Clear();
+			AlphaRap.srvConfigReadWriteXML srv = new AlphaRap.srvConfigReadWriteXML();
+			
+			System.Xml.XmlDocument _xmlDoc = SysPara.LanguageShow== LanguageType.English? srv.XmlDocumentLoad(System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\English.xml"):srv.XmlDocumentLoad(System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\Chinese.xml");
+			string strInnerXml = _xmlDoc.FirstChild.InnerXml;
+			if (strInnerXml.Trim().Length > 0)
+			{
+				mlist = strInnerXml.Trim().Replace("/><", "/>\n<").Split('\n').ToList();
+				foreach (string forRor in mlist)
+				{
+					string strValue = forRor.Substring(2, forRor.IndexOf(' ') - 1);
+					string strIndexOf = "Content=\"";
+					int iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
+					string strContent = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
+					strContent = strContent.Substring(0, strContent.IndexOf('\"'));
+					if(string.Equals(strValue.Trim(), Index.Trim()))
+					{
+						return strContent;
+					}
+				}
+			}
+			return "Error";
+		}
+		private void button1_Click_1(object sender, EventArgs e)
+		{
+			MiddleLayer.DataF.AddLogError("DownConveyorInit:" +"1111111");
+
+
+		}
+
+		private void tabPage1_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		private void textBoxMessage_TextChanged(object sender, EventArgs e)
+		{
+
+		}
+	}
+	
+	}

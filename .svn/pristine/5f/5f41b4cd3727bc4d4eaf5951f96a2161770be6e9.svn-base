@@ -1,0 +1,73 @@
+﻿<AlarmTable>
+  <A1000 Type="W" Content="输入组件初始化失败" DoStop="False" />
+  <A1001 Type="W" Content="输出组件初始化失败" DoStop="False" />
+  <A1002 Type="W" Content="电机组件初始化失败" DoStop="False" />
+  <A1003 Type="K" Content="没有设置下一个流程图" DoStop="False" />
+  <A1004 Type="K" Content="流程图CASE1未设置" DoStop="False" />
+  <A1005 Type="K" Content="未设置流程图CASE2" DoStop="False" />
+  <A1006 Type="K" Content="未设置流程图CASE3" DoStop="False" />
+
+  <A2000 Type="W" Content="执行初始化" DoStop="False" />
+  <A2001 Type="I" Content="停止初始化" DoStop="False" />
+  <A2002 Type="I" Content="取消初始化" DoStop="False" />
+  <A2003 Type="I" Content="初始化已完成" DoStop="False" />
+  <A2004 Type="I" Content="执行自动操作" DoStop="False" />
+  <A2005 Type="I" Content="停止自动操作" DoStop="False" />
+  <A2006 Type="I" Content="结束自动操作" DoStop="False" />
+  <A2007 Type="I" Content="自动操作已结束" DoStop="False" />
+
+  <A2009 Type="E" Content="在VisionRun()上发生不可预知的错误" DoStop="True" />
+  <A2010 Type="E" Content="在AlwaysRun()上发生不可预知的错误" DoStop="True" />
+  <A2011 Type="E" Content="在ServoOn() 上发生不可预知的错误" DoStop="True" />
+  <A2012 Type="E" Content="在 ServoOff()上发生不可预知的错误 " DoStop="True" />
+  <A2013 Type="E" Content="在ExecuteReset()上发生不可预知的错误 " DoStop="True" />
+  <A2014 Type="E" Content="在InitialReset()上发生不可预知的错误 " DoStop="True" />
+  <A2015 Type="E" Content="在Initial()上发生不可预知的错误 " DoStop="True" />
+  <A2016 Type="E" Content="在RunReset()上发生不可预知的错误 " DoStop="True" />
+  <A2017 Type="E" Content="在Run()上发生不可预知的错误 " DoStop="True" />
+  <A2018 Type="E" Content="在执行 RefreshIO()上发生不可预知的错误 " DoStop="True" />
+  <A2019 Type="E" Content="在执行 AlwaysRun()上发生不可预知的错误 " DoStop="True" />
+  <A2020 Type="E" Content="在执行 CheckMotorProtected()上发生不可预知的错误 " DoStop="True" />
+  <A2021 Type="E" Content="在执行 RunAuto()上发生不可预知的错误 " DoStop="True" />
+  <A2022 Type="E" Content="在执行 RunHome()上发生不可预知的错误 " DoStop="True" />
+  <A2023 Type="W" Content="设置数据时未找到列," DoStop="False" />
+  <A2024 Type="W" Content="配方数据没有找到该列" DoStop="False" />
+  <A2025 Type="W" Content="设置数据并没有设置值" DoStop="False" />
+  <A2026 Type="W" Content="配方数据没有设置值" DoStop="False" />
+
+  <A2030 Type="E" Content="轴报警" DoStop="True" />
+  <A2031 Type="E" Content="轴硬件限制" DoStop="False" />
+  <A2032 Type="E" Content="轴软件限制" DoStop="False" />
+  <A3014 Type="I" Content="气源异常请检查" DoStop="True" />
+  <A3018 Type="I" Content="找不到错误代码" DoStop="True" />
+  <A3021 Type="E" Content="前急停按下" DoStop="true" />
+   <A3022 Type="E" Content="后急停按下" DoStop="true" />  
+ <A3024 Type="E" Content="请按复位按钮上电" DoStop="true" />
+<A5020 Type="E" Content="机器人连接失败" DoStop="true" />
+<A10000 Type="W" Content="" DoStop="True" />
+ <A10001 Type="W" Content="" DoStop="True" />
+ <A10002 Type="W" Content="" DoStop="True" />
+ <A10003 Type="W" Content="" DoStop="True" />
+ <A10004 Type="W" Content="" DoStop="True" />
+ <A10005 Type="W" Content="" DoStop="True" />
+ <A10006 Type="W" Content="" DoStop="True" />
+<A10007 Type="W" Content="" DoStop="True" />
+<A10008 Type="W" Content="" DoStop="True" />
+<A10009 Type="W" Content="" DoStop="True" />
+<A10010 Type="W" Content="" DoStop="True" />
+<A10011 Type="W" Content="" DoStop="True" />
+<A10012 Type="W" Content="" DoStop="True" />
+<A10013 Type="W" Content="" DoStop="True" />
+<A1 Type="E" Content="上流道缓存工位阻挡气缸上升超时" DoStop="True" />
+<A2 Type="E" Content="上流道工作位顶升气缸下降超时" DoStop="True" />
+<A3 Type="E" Content="上流道工作位阻挡气缸上升超时" DoStop="True" />
+<A4 Type="E" Content="下流道阻挡气缸上升超时" DoStop="True" />
+<A5 Type="E" Content="上流道缓存工位阻挡气缸下降超时" DoStop="True" />
+<A6 Type="E" Content="上流道缓存位出料超时" DoStop="True" />
+<A7 Type="E" Content="上流道缓存位入料超时" DoStop="True" />
+<A8 Type="E" Content="上流道工作位顶升气缸上升超时" DoStop="True" />
+<A9 Type="E" Content="上流道工作位阻挡气缸下降超时" DoStop="True" />
+<A10 Type="E" Content="上流道工作位出料超时" DoStop="True" />
+<A11 Type="E" Content="下流道阻挡气缸下升超时" DoStop="True" />
+<A12 Type="E" Content="下流道出料超时" DoStop="True" />
+</AlarmTable>

@@ -1,0 +1,842 @@
+﻿namespace AlphaRap
+{
+    partial class MainForm
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+			this.NumC1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.NumC2 = new System.Windows.Forms.ToolStripMenuItem();
+			this.NumC3 = new System.Windows.Forms.ToolStripMenuItem();
+			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+			this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+			this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
+			this.toolStripStatusVersion = new System.Windows.Forms.ToolStripStatusLabel();
+			this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
+			this.LoginText = new System.Windows.Forms.Label();
+			this.timer1 = new System.Windows.Forms.Timer(this.components);
+			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+			this.plMainShow = new System.Windows.Forms.Panel();
+			this.lbRecipeName = new System.Windows.Forms.Label();
+			this.LoginOutTime = new System.Windows.Forms.Timer(this.components);
+			this.pictureBox21 = new System.Windows.Forms.PictureBox();
+			this.MENU_Robot = new System.Windows.Forms.PictureBox();
+			this.MENU_Vision = new System.Windows.Forms.PictureBox();
+			this.MENU_Exit = new System.Windows.Forms.PictureBox();
+			this.MENU_Data = new System.Windows.Forms.PictureBox();
+			this.MENU_Stop = new System.Windows.Forms.PictureBox();
+			this.MENU_Rapid = new System.Windows.Forms.PictureBox();
+			this.MENU_Mes = new System.Windows.Forms.PictureBox();
+			this.MENU_AddUser = new System.Windows.Forms.PictureBox();
+			this.MENU_Login = new System.Windows.Forms.PictureBox();
+			this.MENU_Product = new System.Windows.Forms.PictureBox();
+			this.MENU_Save = new System.Windows.Forms.PictureBox();
+			this.MENU_Hard = new System.Windows.Forms.PictureBox();
+			this.MENU_Manual = new System.Windows.Forms.PictureBox();
+			this.MENU_Check = new System.Windows.Forms.PictureBox();
+			this.MENU_System = new System.Windows.Forms.PictureBox();
+			this.MENU_Home = new System.Windows.Forms.PictureBox();
+			this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+			this.MENU_Pause = new System.Windows.Forms.PictureBox();
+			this.MENU_Run = new System.Windows.Forms.PictureBox();
+			this.MENU_Reset = new System.Windows.Forms.PictureBox();
+			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+			this.LOTO = new System.Windows.Forms.PictureBox();
+			this.LifeSpan = new System.Windows.Forms.PictureBox();
+			this.panel1 = new System.Windows.Forms.Panel();
+			this.panel2 = new System.Windows.Forms.Panel();
+			((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.RecipeData)).BeginInit();
+			this.menuStrip1.SuspendLayout();
+			this.statusStrip1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox21)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Robot)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Vision)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Exit)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Data)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Stop)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Rapid)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Mes)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_AddUser)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Login)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Product)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Save)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Hard)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Manual)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Check)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_System)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Home)).BeginInit();
+			this.tableLayoutPanel3.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Pause)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Run)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Reset)).BeginInit();
+			this.tableLayoutPanel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.LOTO)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.LifeSpan)).BeginInit();
+			this.panel1.SuspendLayout();
+			this.panel2.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// menuStrip1
+			// 
+			this.menuStrip1.AutoSize = false;
+			this.menuStrip1.BackColor = System.Drawing.SystemColors.ButtonFace;
+			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
+			this.menuStrip1.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.menuStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
+			this.menuStrip1.ImageScalingSize = new System.Drawing.Size(45, 30);
+			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.NumC1});
+			this.menuStrip1.Location = new System.Drawing.Point(9, 9);
+			this.menuStrip1.Name = "menuStrip1";
+			this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
+			this.menuStrip1.Size = new System.Drawing.Size(533, 44);
+			this.menuStrip1.TabIndex = 0;
+			this.menuStrip1.Text = "menuStrip1";
+			// 
+			// NumC1
+			// 
+			this.NumC1.AutoSize = false;
+			this.NumC1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.NumC2,
+            this.NumC3});
+			this.NumC1.Image = ((System.Drawing.Image)(resources.GetObject("NumC1.Image")));
+			this.NumC1.Name = "NumC1";
+			this.NumC1.Size = new System.Drawing.Size(122, 36);
+			this.NumC1.Text = "EN";
+			this.NumC1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// NumC2
+			// 
+			this.NumC2.Image = ((System.Drawing.Image)(resources.GetObject("NumC2.Image")));
+			this.NumC2.Name = "NumC2";
+			this.NumC2.Size = new System.Drawing.Size(188, 36);
+			this.NumC2.Text = "Chinese";
+			this.NumC2.Click += new System.EventHandler(this.NumC2_Click);
+			// 
+			// NumC3
+			// 
+			this.NumC3.Image = ((System.Drawing.Image)(resources.GetObject("NumC3.Image")));
+			this.NumC3.Name = "NumC3";
+			this.NumC3.Size = new System.Drawing.Size(188, 36);
+			this.NumC3.Text = "English";
+			this.NumC3.Click += new System.EventHandler(this.NumC3_Click);
+			// 
+			// statusStrip1
+			// 
+			this.statusStrip1.AutoSize = false;
+			this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1,
+            this.toolStripStatusLabel2,
+            this.toolStripStatusVersion,
+            this.toolStripStatusLabel4});
+			this.statusStrip1.Location = new System.Drawing.Point(0, 955);
+			this.statusStrip1.Name = "statusStrip1";
+			this.statusStrip1.Padding = new System.Windows.Forms.Padding(19, 0, 1, 0);
+			this.statusStrip1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+			this.statusStrip1.Size = new System.Drawing.Size(1659, 50);
+			this.statusStrip1.TabIndex = 7;
+			this.statusStrip1.Text = "statusStrip1";
+			// 
+			// toolStripStatusLabel1
+			// 
+			this.toolStripStatusLabel1.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+			this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+			this.toolStripStatusLabel1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+			this.toolStripStatusLabel1.Size = new System.Drawing.Size(163, 45);
+			this.toolStripStatusLabel1.Text = "2019/03/01 00:00:00";
+			// 
+			// toolStripStatusLabel2
+			// 
+			this.toolStripStatusLabel2.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+			this.toolStripStatusLabel2.BorderStyle = System.Windows.Forms.Border3DStyle.Bump;
+			this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+			this.toolStripStatusLabel2.Size = new System.Drawing.Size(107, 45);
+			this.toolStripStatusLabel2.Text = "Version 2.0.5";
+			// 
+			// toolStripStatusVersion
+			// 
+			this.toolStripStatusVersion.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+			this.toolStripStatusVersion.Name = "toolStripStatusVersion";
+			this.toolStripStatusVersion.Size = new System.Drawing.Size(309, 45);
+			this.toolStripStatusVersion.Text = " AlphaRap-SRM Modify Date 2023/05/08";
+			// 
+			// toolStripStatusLabel4
+			// 
+			this.toolStripStatusLabel4.AutoSize = false;
+			this.toolStripStatusLabel4.ForeColor = System.Drawing.Color.Green;
+			this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
+			this.toolStripStatusLabel4.Size = new System.Drawing.Size(1060, 45);
+			this.toolStripStatusLabel4.Spring = true;
+			this.toolStripStatusLabel4.Text = "Version 2.0.5";
+			this.toolStripStatusLabel4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// LoginText
+			// 
+			this.LoginText.BackColor = System.Drawing.SystemColors.Control;
+			this.LoginText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.LoginText.Dock = System.Windows.Forms.DockStyle.Top;
+			this.LoginText.Font = new System.Drawing.Font("微软雅黑", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.LoginText.Location = new System.Drawing.Point(0, 68);
+			this.LoginText.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.LoginText.Name = "LoginText";
+			this.LoginText.Size = new System.Drawing.Size(1659, 41);
+			this.LoginText.TabIndex = 6;
+			this.LoginText.Text = "用户：1  权限： Admin";
+			this.LoginText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// timer1
+			// 
+			this.timer1.Enabled = true;
+			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+			// 
+			// imageList1
+			// 
+			this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+			this.imageList1.TransparentColor = System.Drawing.Color.White;
+			this.imageList1.Images.SetKeyName(0, "1.png");
+			this.imageList1.Images.SetKeyName(1, "1a.png");
+			this.imageList1.Images.SetKeyName(2, "2.png");
+			this.imageList1.Images.SetKeyName(3, "2a.png");
+			this.imageList1.Images.SetKeyName(4, "3.png");
+			this.imageList1.Images.SetKeyName(5, "3a.png");
+			this.imageList1.Images.SetKeyName(6, "4.png");
+			this.imageList1.Images.SetKeyName(7, "4a.png");
+			this.imageList1.Images.SetKeyName(8, "5.png");
+			this.imageList1.Images.SetKeyName(9, "5a.png");
+			this.imageList1.Images.SetKeyName(10, "6.png");
+			this.imageList1.Images.SetKeyName(11, "6a.png");
+			this.imageList1.Images.SetKeyName(12, "7.png");
+			this.imageList1.Images.SetKeyName(13, "7a.png");
+			this.imageList1.Images.SetKeyName(14, "8.png");
+			this.imageList1.Images.SetKeyName(15, "8a.png");
+			this.imageList1.Images.SetKeyName(16, "9.png");
+			this.imageList1.Images.SetKeyName(17, "9a.png");
+			this.imageList1.Images.SetKeyName(18, "10.png");
+			this.imageList1.Images.SetKeyName(19, "10a.png");
+			this.imageList1.Images.SetKeyName(20, "11.png");
+			this.imageList1.Images.SetKeyName(21, "11a.png");
+			this.imageList1.Images.SetKeyName(22, "12.png");
+			this.imageList1.Images.SetKeyName(23, "12a.png");
+			this.imageList1.Images.SetKeyName(24, "13.png");
+			this.imageList1.Images.SetKeyName(25, "13a.png");
+			this.imageList1.Images.SetKeyName(26, "14.png");
+			this.imageList1.Images.SetKeyName(27, "14a.png");
+			this.imageList1.Images.SetKeyName(28, "111.png");
+			this.imageList1.Images.SetKeyName(29, "222.png");
+			this.imageList1.Images.SetKeyName(30, "333.png");
+			this.imageList1.Images.SetKeyName(31, "444.png");
+			this.imageList1.Images.SetKeyName(32, "555.png");
+			this.imageList1.Images.SetKeyName(33, "333a.png");
+			this.imageList1.Images.SetKeyName(34, "444a.png");
+			this.imageList1.Images.SetKeyName(35, "03.png");
+			this.imageList1.Images.SetKeyName(36, "02.png");
+			// 
+			// plMainShow
+			// 
+			this.plMainShow.AutoScroll = true;
+			this.plMainShow.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.plMainShow.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.plMainShow.Location = new System.Drawing.Point(0, 0);
+			this.plMainShow.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.plMainShow.MaximumSize = new System.Drawing.Size(2667, 865);
+			this.plMainShow.Name = "plMainShow";
+			this.plMainShow.Size = new System.Drawing.Size(1659, 702);
+			this.plMainShow.TabIndex = 10;
+			// 
+			// lbRecipeName
+			// 
+			this.lbRecipeName.Font = new System.Drawing.Font("微软雅黑", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.lbRecipeName.Location = new System.Drawing.Point(576, 5);
+			this.lbRecipeName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lbRecipeName.Name = "lbRecipeName";
+			this.lbRecipeName.Size = new System.Drawing.Size(712, 63);
+			this.lbRecipeName.TabIndex = 0;
+			this.lbRecipeName.Text = "Recipe Name:";
+			this.lbRecipeName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// LoginOutTime
+			// 
+			this.LoginOutTime.Interval = 60000;
+			this.LoginOutTime.Tick += new System.EventHandler(this.LoginOutTime_Tick);
+			// 
+			// pictureBox21
+			// 
+			this.pictureBox21.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox21.Image")));
+			this.pictureBox21.Location = new System.Drawing.Point(1372, 5);
+			this.pictureBox21.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.pictureBox21.Name = "pictureBox21";
+			this.pictureBox21.Size = new System.Drawing.Size(305, 60);
+			this.pictureBox21.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.pictureBox21.TabIndex = 3;
+			this.pictureBox21.TabStop = false;
+			// 
+			// MENU_Robot
+			// 
+			this.MENU_Robot.BackColor = System.Drawing.Color.White;
+			this.MENU_Robot.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Robot.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Robot.Image")));
+			this.MENU_Robot.Location = new System.Drawing.Point(1054, 3);
+			this.MENU_Robot.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Robot.Name = "MENU_Robot";
+			this.MENU_Robot.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Robot.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Robot.TabIndex = 3;
+			this.MENU_Robot.TabStop = false;
+			this.MENU_Robot.Tag = "Robot";
+			this.MENU_Robot.Click += new System.EventHandler(this.MENU_Click);
+			this.MENU_Robot.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Vision
+			// 
+			this.MENU_Vision.BackColor = System.Drawing.Color.White;
+			this.MENU_Vision.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Vision.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Vision.Image")));
+			this.MENU_Vision.Location = new System.Drawing.Point(304, 3);
+			this.MENU_Vision.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Vision.Name = "MENU_Vision";
+			this.MENU_Vision.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Vision.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Vision.TabIndex = 3;
+			this.MENU_Vision.TabStop = false;
+			this.MENU_Vision.Tag = "Vision";
+			this.MENU_Vision.Click += new System.EventHandler(this.MENU_Vision_Click);
+			this.MENU_Vision.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Exit
+			// 
+			this.MENU_Exit.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Exit.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Exit.Image")));
+			this.MENU_Exit.Location = new System.Drawing.Point(1504, 3);
+			this.MENU_Exit.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Exit.Name = "MENU_Exit";
+			this.MENU_Exit.Size = new System.Drawing.Size(151, 66);
+			this.MENU_Exit.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Exit.TabIndex = 3;
+			this.MENU_Exit.TabStop = false;
+			this.MENU_Exit.Tag = "Exit";
+			this.MENU_Exit.Click += new System.EventHandler(this.btExit_Click);
+			this.MENU_Exit.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Data
+			// 
+			this.MENU_Data.BackColor = System.Drawing.Color.White;
+			this.MENU_Data.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Data.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Data.Image")));
+			this.MENU_Data.Location = new System.Drawing.Point(154, 3);
+			this.MENU_Data.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Data.Name = "MENU_Data";
+			this.MENU_Data.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Data.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Data.TabIndex = 3;
+			this.MENU_Data.TabStop = false;
+			this.MENU_Data.Tag = "Data";
+			this.MENU_Data.Click += new System.EventHandler(this.MENU_Click);
+			this.MENU_Data.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Stop
+			// 
+			this.MENU_Stop.Dock = System.Windows.Forms.DockStyle.Top;
+			this.MENU_Stop.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Stop.Image")));
+			this.MENU_Stop.Location = new System.Drawing.Point(1504, 3);
+			this.MENU_Stop.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Stop.Name = "MENU_Stop";
+			this.MENU_Stop.Size = new System.Drawing.Size(151, 63);
+			this.MENU_Stop.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Stop.TabIndex = 3;
+			this.MENU_Stop.TabStop = false;
+			this.MENU_Stop.Tag = "Stop";
+			this.MENU_Stop.Click += new System.EventHandler(this.btStop_Click);
+			this.MENU_Stop.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Rapid
+			// 
+			this.MENU_Rapid.BackColor = System.Drawing.Color.White;
+			this.MENU_Rapid.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Rapid.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Rapid.Image")));
+			this.MENU_Rapid.Location = new System.Drawing.Point(4, 3);
+			this.MENU_Rapid.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Rapid.Name = "MENU_Rapid";
+			this.MENU_Rapid.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Rapid.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Rapid.TabIndex = 3;
+			this.MENU_Rapid.TabStop = false;
+			this.MENU_Rapid.Tag = "Rapid";
+			this.MENU_Rapid.Click += new System.EventHandler(this.pictureBox10_Click);
+			this.MENU_Rapid.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Mes
+			// 
+			this.MENU_Mes.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Mes.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Mes.Image")));
+			this.MENU_Mes.Location = new System.Drawing.Point(1354, 3);
+			this.MENU_Mes.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Mes.Name = "MENU_Mes";
+			this.MENU_Mes.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Mes.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Mes.TabIndex = 3;
+			this.MENU_Mes.TabStop = false;
+			this.MENU_Mes.Tag = "Mes";
+			this.MENU_Mes.Click += new System.EventHandler(this.MENU_Click);
+			this.MENU_Mes.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_AddUser
+			// 
+			this.MENU_AddUser.BackColor = System.Drawing.Color.White;
+			this.MENU_AddUser.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_AddUser.Image = ((System.Drawing.Image)(resources.GetObject("MENU_AddUser.Image")));
+			this.MENU_AddUser.Location = new System.Drawing.Point(1204, 3);
+			this.MENU_AddUser.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_AddUser.Name = "MENU_AddUser";
+			this.MENU_AddUser.Size = new System.Drawing.Size(142, 66);
+			this.MENU_AddUser.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_AddUser.TabIndex = 3;
+			this.MENU_AddUser.TabStop = false;
+			this.MENU_AddUser.Tag = "AddUser";
+			this.MENU_AddUser.Click += new System.EventHandler(this.MENU_Click);
+			this.MENU_AddUser.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Login
+			// 
+			this.MENU_Login.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Login.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Login.Image")));
+			this.MENU_Login.Location = new System.Drawing.Point(454, 3);
+			this.MENU_Login.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Login.Name = "MENU_Login";
+			this.MENU_Login.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Login.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Login.TabIndex = 3;
+			this.MENU_Login.TabStop = false;
+			this.MENU_Login.Tag = "Login";
+			this.MENU_Login.Click += new System.EventHandler(this.pictureBox13_Click);
+			this.MENU_Login.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Product
+			// 
+			this.MENU_Product.BackColor = System.Drawing.Color.White;
+			this.MENU_Product.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Product.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Product.Image")));
+			this.MENU_Product.Location = new System.Drawing.Point(154, 3);
+			this.MENU_Product.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Product.Name = "MENU_Product";
+			this.MENU_Product.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Product.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Product.TabIndex = 3;
+			this.MENU_Product.TabStop = false;
+			this.MENU_Product.Tag = "Product";
+			this.MENU_Product.Click += new System.EventHandler(this.MENU_Click);
+			this.MENU_Product.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Save
+			// 
+			this.MENU_Save.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.MENU_Save.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.MENU_Save.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Save.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Save.Image")));
+			this.MENU_Save.Location = new System.Drawing.Point(304, 3);
+			this.MENU_Save.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Save.Name = "MENU_Save";
+			this.MENU_Save.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Save.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Save.TabIndex = 3;
+			this.MENU_Save.TabStop = false;
+			this.MENU_Save.Tag = "Save";
+			this.MENU_Save.Click += new System.EventHandler(this.pictureBox3_Click);
+			this.MENU_Save.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Hard
+			// 
+			this.MENU_Hard.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Hard.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Hard.Image")));
+			this.MENU_Hard.Location = new System.Drawing.Point(454, 3);
+			this.MENU_Hard.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Hard.Name = "MENU_Hard";
+			this.MENU_Hard.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Hard.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Hard.TabIndex = 3;
+			this.MENU_Hard.TabStop = false;
+			this.MENU_Hard.Tag = "Hard";
+			this.MENU_Hard.Click += new System.EventHandler(this.MENU_Click);
+			this.MENU_Hard.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Manual
+			// 
+			this.MENU_Manual.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			this.MENU_Manual.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Manual.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Manual.Image")));
+			this.MENU_Manual.Location = new System.Drawing.Point(604, 3);
+			this.MENU_Manual.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Manual.Name = "MENU_Manual";
+			this.MENU_Manual.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Manual.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Manual.TabIndex = 3;
+			this.MENU_Manual.TabStop = false;
+			this.MENU_Manual.Tag = "Manual";
+			this.MENU_Manual.Click += new System.EventHandler(this.MENU_Click);
+			this.MENU_Manual.DoubleClick += new System.EventHandler(this.MENU_Manual_DoubleClick);
+			this.MENU_Manual.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Check
+			// 
+			this.MENU_Check.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.MENU_Check.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Check.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Check.Image")));
+			this.MENU_Check.Location = new System.Drawing.Point(754, 3);
+			this.MENU_Check.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Check.Name = "MENU_Check";
+			this.MENU_Check.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Check.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Check.TabIndex = 3;
+			this.MENU_Check.TabStop = false;
+			this.MENU_Check.Tag = "Check";
+			this.MENU_Check.Click += new System.EventHandler(this.MENU_Click);
+			this.MENU_Check.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_System
+			// 
+			this.MENU_System.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_System.Image = ((System.Drawing.Image)(resources.GetObject("MENU_System.Image")));
+			this.MENU_System.Location = new System.Drawing.Point(904, 3);
+			this.MENU_System.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_System.Name = "MENU_System";
+			this.MENU_System.Size = new System.Drawing.Size(142, 66);
+			this.MENU_System.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_System.TabIndex = 3;
+			this.MENU_System.TabStop = false;
+			this.MENU_System.Tag = "System";
+			this.MENU_System.Click += new System.EventHandler(this.MENU_Click);
+			this.MENU_System.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// MENU_Home
+			// 
+			this.MENU_Home.BackColor = System.Drawing.Color.White;
+			this.MENU_Home.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.MENU_Home.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Home.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Home.Image")));
+			this.MENU_Home.Location = new System.Drawing.Point(4, 3);
+			this.MENU_Home.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Home.Name = "MENU_Home";
+			this.MENU_Home.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Home.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Home.TabIndex = 3;
+			this.MENU_Home.TabStop = false;
+			this.MENU_Home.Tag = "Home";
+			this.MENU_Home.Click += new System.EventHandler(this.MENU_Click);
+			this.MENU_Home.MouseEnter += new System.EventHandler(this.MouseEnter1);
+			// 
+			// tableLayoutPanel3
+			// 
+			this.tableLayoutPanel3.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.tableLayoutPanel3.ColumnCount = 11;
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel3.Controls.Add(this.MENU_Save, 2, 0);
+			this.tableLayoutPanel3.Controls.Add(this.MENU_Exit, 10, 0);
+			this.tableLayoutPanel3.Controls.Add(this.MENU_Manual, 4, 0);
+			this.tableLayoutPanel3.Controls.Add(this.MENU_Robot, 7, 0);
+			this.tableLayoutPanel3.Controls.Add(this.MENU_Product, 1, 0);
+			this.tableLayoutPanel3.Controls.Add(this.MENU_Home, 0, 0);
+			this.tableLayoutPanel3.Controls.Add(this.MENU_Hard, 3, 0);
+			this.tableLayoutPanel3.Controls.Add(this.MENU_Mes, 9, 0);
+			this.tableLayoutPanel3.Controls.Add(this.MENU_Check, 5, 0);
+			this.tableLayoutPanel3.Controls.Add(this.MENU_System, 6, 0);
+			this.tableLayoutPanel3.Controls.Add(this.MENU_AddUser, 8, 0);
+			this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Top;
+			this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 109);
+			this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+			this.tableLayoutPanel3.RowCount = 1;
+			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel3.Size = new System.Drawing.Size(1659, 72);
+			this.tableLayoutPanel3.TabIndex = 4;
+			// 
+			// MENU_Pause
+			// 
+			this.MENU_Pause.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Pause.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Pause.Image")));
+			this.MENU_Pause.Location = new System.Drawing.Point(1354, 3);
+			this.MENU_Pause.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Pause.Name = "MENU_Pause";
+			this.MENU_Pause.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Pause.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Pause.TabIndex = 4;
+			this.MENU_Pause.TabStop = false;
+			this.MENU_Pause.Tag = "Pause";
+			this.MENU_Pause.Click += new System.EventHandler(this.btPause_Click);
+			// 
+			// MENU_Run
+			// 
+			this.MENU_Run.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.MENU_Run.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Run.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Run.Image")));
+			this.MENU_Run.Location = new System.Drawing.Point(1204, 3);
+			this.MENU_Run.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Run.Name = "MENU_Run";
+			this.MENU_Run.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Run.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Run.TabIndex = 5;
+			this.MENU_Run.TabStop = false;
+			this.MENU_Run.Tag = "Run";
+			this.MENU_Run.Click += new System.EventHandler(this.btStart_Click);
+			// 
+			// MENU_Reset
+			// 
+			this.MENU_Reset.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.MENU_Reset.Image = ((System.Drawing.Image)(resources.GetObject("MENU_Reset.Image")));
+			this.MENU_Reset.Location = new System.Drawing.Point(1054, 3);
+			this.MENU_Reset.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MENU_Reset.Name = "MENU_Reset";
+			this.MENU_Reset.Size = new System.Drawing.Size(142, 66);
+			this.MENU_Reset.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.MENU_Reset.TabIndex = 6;
+			this.MENU_Reset.TabStop = false;
+			this.MENU_Reset.Tag = "Reset";
+			this.MENU_Reset.Click += new System.EventHandler(this.MENU_Reset_Click);
+			// 
+			// tableLayoutPanel1
+			// 
+			this.tableLayoutPanel1.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+			this.tableLayoutPanel1.ColumnCount = 11;
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.09091F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+			this.tableLayoutPanel1.Controls.Add(this.LOTO, 6, 0);
+			this.tableLayoutPanel1.Controls.Add(this.MENU_Pause, 9, 0);
+			this.tableLayoutPanel1.Controls.Add(this.MENU_Rapid, 0, 0);
+			this.tableLayoutPanel1.Controls.Add(this.MENU_Stop, 10, 0);
+			this.tableLayoutPanel1.Controls.Add(this.MENU_Data, 1, 0);
+			this.tableLayoutPanel1.Controls.Add(this.MENU_Run, 8, 0);
+			this.tableLayoutPanel1.Controls.Add(this.MENU_Vision, 2, 0);
+			this.tableLayoutPanel1.Controls.Add(this.MENU_Login, 3, 0);
+			this.tableLayoutPanel1.Controls.Add(this.MENU_Reset, 7, 0);
+			this.tableLayoutPanel1.Controls.Add(this.LifeSpan, 5, 0);
+			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 181);
+			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+			this.tableLayoutPanel1.RowCount = 1;
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(1659, 72);
+			this.tableLayoutPanel1.TabIndex = 4;
+			// 
+			// LOTO
+			// 
+			this.LOTO.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.LOTO.Image = ((System.Drawing.Image)(resources.GetObject("LOTO.Image")));
+			this.LOTO.InitialImage = ((System.Drawing.Image)(resources.GetObject("LOTO.InitialImage")));
+			this.LOTO.Location = new System.Drawing.Point(904, 3);
+			this.LOTO.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.LOTO.Name = "LOTO";
+			this.LOTO.Size = new System.Drawing.Size(142, 66);
+			this.LOTO.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.LOTO.TabIndex = 10;
+			this.LOTO.TabStop = false;
+			this.LOTO.Tag = "LOTO";
+			this.LOTO.Click += new System.EventHandler(this.LOTO_Click);
+			// 
+			// LifeSpan
+			// 
+			this.LifeSpan.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.LifeSpan.Image = ((System.Drawing.Image)(resources.GetObject("LifeSpan.Image")));
+			this.LifeSpan.InitialImage = ((System.Drawing.Image)(resources.GetObject("LifeSpan.InitialImage")));
+			this.LifeSpan.Location = new System.Drawing.Point(754, 3);
+			this.LifeSpan.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.LifeSpan.Name = "LifeSpan";
+			this.LifeSpan.Size = new System.Drawing.Size(142, 66);
+			this.LifeSpan.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.LifeSpan.TabIndex = 7;
+			this.LifeSpan.TabStop = false;
+			this.LifeSpan.Tag = "LifeSpan";
+			this.LifeSpan.Click += new System.EventHandler(this.MENU_Click);
+			// 
+			// panel1
+			// 
+			this.panel1.Controls.Add(this.lbRecipeName);
+			this.panel1.Controls.Add(this.menuStrip1);
+			this.panel1.Controls.Add(this.pictureBox21);
+			this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+			this.panel1.Location = new System.Drawing.Point(0, 0);
+			this.panel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(1659, 68);
+			this.panel1.TabIndex = 11;
+			// 
+			// panel2
+			// 
+			this.panel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.panel2.Controls.Add(this.plMainShow);
+			this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panel2.Location = new System.Drawing.Point(0, 253);
+			this.panel2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.panel2.Name = "panel2";
+			this.panel2.Size = new System.Drawing.Size(1659, 702);
+			this.panel2.TabIndex = 12;
+			// 
+			// MainForm
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.CausesValidation = false;
+			this.ClientSize = new System.Drawing.Size(1659, 1005);
+			this.ControlBox = false;
+			this.Controls.Add(this.panel2);
+			this.Controls.Add(this.tableLayoutPanel1);
+			this.Controls.Add(this.tableLayoutPanel3);
+			this.Controls.Add(this.LoginText);
+			this.Controls.Add(this.panel1);
+			this.Controls.Add(this.statusStrip1);
+			this.HelpButton = true;
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.MainMenuStrip = this.menuStrip1;
+			this.Margin = new System.Windows.Forms.Padding(5);
+			this.MinimizeBox = false;
+			this.Name = "MainForm";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.Text = "AlphaRap";
+			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
+			this.Load += new System.EventHandler(this.MainForm_Load);
+			this.Shown += new System.EventHandler(this.MainForm_Shown);
+			((System.ComponentModel.ISupportInitialize)(this.SettingData)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.RecipeData)).EndInit();
+			this.menuStrip1.ResumeLayout(false);
+			this.menuStrip1.PerformLayout();
+			this.statusStrip1.ResumeLayout(false);
+			this.statusStrip1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox21)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Robot)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Vision)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Exit)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Data)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Stop)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Rapid)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Mes)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_AddUser)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Login)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Product)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Save)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Hard)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Manual)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Check)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_System)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Home)).EndInit();
+			this.tableLayoutPanel3.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Pause)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Run)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.MENU_Reset)).EndInit();
+			this.tableLayoutPanel1.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.LOTO)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.LifeSpan)).EndInit();
+			this.panel1.ResumeLayout(false);
+			this.panel2.ResumeLayout(false);
+			this.ResumeLayout(false);
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.PictureBox MENU_Product;
+        private System.Windows.Forms.PictureBox MENU_Hard;
+        private System.Windows.Forms.PictureBox MENU_Manual;
+        private System.Windows.Forms.PictureBox MENU_Check;
+        private System.Windows.Forms.PictureBox MENU_System;
+        private System.Windows.Forms.PictureBox MENU_AddUser;
+        private System.Windows.Forms.PictureBox MENU_Mes;
+        private System.Windows.Forms.PictureBox MENU_Rapid;
+        private System.Windows.Forms.PictureBox MENU_Data;
+        private System.Windows.Forms.PictureBox MENU_Vision;
+        private System.Windows.Forms.PictureBox MENU_Login;
+        private System.Windows.Forms.PictureBox MENU_Stop;
+        private System.Windows.Forms.PictureBox MENU_Exit;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
+        private System.Windows.Forms.PictureBox pictureBox21;
+        private System.Windows.Forms.Label LoginText;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.ImageList imageList1;
+        private System.Windows.Forms.PictureBox MENU_Robot;
+        private System.Windows.Forms.Timer LoginOutTime;
+        public System.Windows.Forms.Label lbRecipeName;
+        public System.Windows.Forms.PictureBox MENU_Save;
+        private System.Windows.Forms.PictureBox MENU_Home;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        public System.Windows.Forms.PictureBox MENU_Pause;
+        public System.Windows.Forms.PictureBox MENU_Run;
+        public System.Windows.Forms.PictureBox MENU_Reset;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        public System.Windows.Forms.Panel plMainShow;
+        private System.Windows.Forms.PictureBox LifeSpan;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panel2;
+        public System.Windows.Forms.ToolStripStatusLabel toolStripStatusVersion;
+        private System.Windows.Forms.PictureBox LOTO;
+        public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
+        public System.Windows.Forms.ToolStripMenuItem NumC1;
+        public System.Windows.Forms.ToolStripMenuItem NumC2;
+        public System.Windows.Forms.ToolStripMenuItem NumC3;
+    }
+}

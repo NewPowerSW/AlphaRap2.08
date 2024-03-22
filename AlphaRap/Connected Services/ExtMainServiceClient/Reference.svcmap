@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="9bc39ff7-ecb3-4816-9666-4137b252fd7b" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://222.92.97.69:8013/Services/ExtSystemService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="ExtSystemService.xsd" MetadataType="Schema" ID="f55276a0-5384-4a35-99db-56f640bf237d" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd1" />
+    <MetadataFile FileName="ExtSystemService1.xsd" MetadataType="Schema" ID="77c161d3-49fe-4e5f-91b8-4705b96a40cd" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd5" />
+    <MetadataFile FileName="ExtSystemService2.xsd" MetadataType="Schema" ID="304e2e16-9fbf-4e40-8e48-45ef32dd94d0" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd6" />
+    <MetadataFile FileName="ExtSystemService3.xsd" MetadataType="Schema" ID="9683c80e-0125-4720-bc76-9f67516c8c83" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd0" />
+    <MetadataFile FileName="ExtSystemService4.xsd" MetadataType="Schema" ID="3a6c7a38-7b38-4f02-9ccc-fab3b2b5328d" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd4" />
+    <MetadataFile FileName="ExtSystemService.disco" MetadataType="Disco" ID="cd87d3b2-0590-4be1-bfde-1fee2b7b14bf" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?disco" />
+    <MetadataFile FileName="ExtSystemService5.xsd" MetadataType="Schema" ID="8be72ac7-d313-47cc-b597-7796cd3a155f" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd7" />
+    <MetadataFile FileName="CExtSystemService.wsdl" MetadataType="Wsdl" ID="f07598f0-f83f-4509-8756-140fdf9f2ec4" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?wsdl" />
+    <MetadataFile FileName="ExtSystemService6.xsd" MetadataType="Schema" ID="bc4a9434-0e71-49a7-a35e-9ad04ce228ce" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd8" />
+    <MetadataFile FileName="ExtSystemService7.xsd" MetadataType="Schema" ID="6b632a0e-497d-418f-99ef-82b8b827503c" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd2" />
+    <MetadataFile FileName="ExtSystemService8.xsd" MetadataType="Schema" ID="262156ca-9865-4884-b8b3-4dc3d03d534c" SourceId="1" SourceUrl="http://222.92.97.69:8013/Services/ExtSystemService.svc?xsd=xsd3" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

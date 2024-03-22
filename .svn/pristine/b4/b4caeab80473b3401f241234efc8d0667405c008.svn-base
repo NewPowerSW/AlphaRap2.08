@@ -1,0 +1,32 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <MSet>
+    <H1-XMax>600</H1-XMax>
+    <H1-XMin>0</H1-XMin>
+    <H1-YMax>500</H1-YMax>
+    <H1-YMin>0</H1-YMin>
+    <H1-ZMax>0</H1-ZMax>
+    <H1-ZMin>-200</H1-ZMin>
+    <H2-XMax>500</H2-XMax>
+    <H2-XMin>0</H2-XMin>
+    <H2-YMax>500</H2-YMax>
+    <H2-YMin>0</H2-YMin>
+    <H2-ZMax>0</H2-ZMax>
+    <H2-ZMin>-200</H2-ZMin>
+    <SinglePlat>false</SinglePlat>
+    <DoublePlat>true</DoublePlat>
+    <H1-UMax>180</H1-UMax>
+    <H1-UMin>0</H1-UMin>
+    <H2-UMax>180</H2-UMax>
+    <H2-UMin>0</H2-UMin>
+    <Number>2</Number>
+    <Interval>300</Interval>
+    <Distance>0.6</Distance>
+    <XUpLimit>3</XUpLimit>
+    <YUpLimit>3</YUpLimit>
+  </MSet>
+  <PSet>
+    <H1ScaleFactor>1</H1ScaleFactor>
+    <H2ScaleFactor>1</H2ScaleFactor>
+  </PSet>
+</NewDataSet>

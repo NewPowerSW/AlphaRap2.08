@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>VUControl</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net461</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>7</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows.Controls.Ribbon" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Data" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="WeifenLuo.WinFormsUI.Docking">
+      <HintPath>bin\Debug\net461\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="LogSv">
+      <HintPath>..\..\项目\L055\SW\AlphaRap2.05\AlphaRap\bin\x64\Debug\LogSv.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\项目\L055\SW\AlphaRap2.05\AlphaRap\bin\x64\Debug\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="WPFVisifire.Charts">
+      <HintPath>bin\Debug\net461\WPFVisifire.Charts.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

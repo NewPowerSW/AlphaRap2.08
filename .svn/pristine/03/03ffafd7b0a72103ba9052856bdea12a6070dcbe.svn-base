@@ -1,0 +1,480 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Threading;
+using System.IO;
+using System.Text.RegularExpressions;
+using AlphaRapLibrary;
+using Alpha;
+using Alpha._0;
+using NPSDK;
+using Microsoft.VisualBasic.FileIO;
+using System.Xml;
+
+namespace AlphaRap
+{
+    public enum HeadNum
+    {
+        H1,
+        H2
+    }
+    public struct PointStruct
+    {
+        public Double x_Point;
+        public Double y_Point;
+        public Double z_Point;
+        public Double u_Point;
+
+        public bool Disable;
+        public bool EnableVision;
+        public string Point;
+        public string Annotation;
+    }
+    public partial class HardForm : ModuleBaseForm
+    {
+        //public static HardForm m_hardform;
+        public int iRunPosCount = 0;
+		public Servo servo;
+		string CalibPositionPath = string.Format(@"{0}\{1}\{2}\{3}", Application.StartupPath, "ModuleData","HardForm","CalibPosition.xml");
+		string MotorPositionPath = string.Format(@"{0}\{1}\{2}\{3}", Application.StartupPath, "ModuleData", "HardForm", "MotorPosition.xml");
+		public HardForm()
+        {
+            InitializeComponent();
+
+			servo = new Servo(MTR_H1_X, MTR_H1_Y, MTR_H1_Z, MTR_H1_R1, MTR_H1_R2, MTR_H1_R3);
+			
+
+			dgv_CalibPos.DgvHeader = new string[] { "Number", "X", "Y", "Z", "R","Annotation" }; ;
+			dgv_CalibPos.myDgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+			dgv_CalibPos.RaiseSelectedEvent += dgv_CalibPos_RaiseSelectedEvent;
+
+			dgv_MotorPos.DgvHeader = new string[] { "Number", "X", "Y", "Z", "R", "Annotation" }; ;
+			dgv_MotorPos.myDgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+			dgv_MotorPos.RaiseSelectedEvent += dgv_MotorPos_RaiseSelectedEvent;
+
+
+		}
+        private void HardForm_Load(object sender, EventArgs e)
+        {
+			dgv_CalibPos.LoadXmlFileFromPath(CalibPositionPath);
+			dgv_MotorPos.LoadXmlFileFromPath(MotorPositionPath);
+
+
+		}
+		private void dgv_CalibPos_RaiseSelectedEvent(bool bComplete)
+		{
+			int index = dgv_CalibPos.myDgv.CurrentRow.Index;
+
+			string[] selectedRowArr = dgv_CalibPos.GetDataArrayByIndex(index);                  //The value returning the current row through the index returns an array
+
+			DataGridViewRow dataGirdRow = dgv_CalibPos.GetDataGridRow(index);
+		}
+		private void dgv_MotorPos_RaiseSelectedEvent(bool bComplete)
+		{
+			int index = dgv_CalibPos.myDgv.CurrentRow.Index;
+
+			string[] selectedRowArr = dgv_CalibPos.GetDataArrayByIndex(index);                  //The value returning the current row through the index returns an array
+
+			DataGridViewRow dataGirdRow = dgv_CalibPos.GetDataGridRow(index);
+		}
+		public override void ServoOn()
+        {
+			servo.ServoAllOn();
+		}
+		public override void ServoOff()
+		{
+			servo.ServoAllOff();
+		}
+
+		private void But_XYZ_Click_1(object sender, EventArgs e)
+		{
+			MotorControlForm MCF = new MotorControlForm();
+			MCF.setMotor(MotorControlForm.AxisType.X, MTR_H1_X, MotorControlForm.MoveType.RIGHT, MotorControlForm.MoveType.LEFT, null, null);
+			MCF.setMotor(MotorControlForm.AxisType.Y, MTR_H1_Y, MotorControlForm.MoveType.FRONT, MotorControlForm.MoveType.BACK, null, null);
+			MCF.setMotor(MotorControlForm.AxisType.Z, MTR_H1_Z, MotorControlForm.MoveType.UP, MotorControlForm.MoveType.DOWN, null, null);
+			MCF.setMotor(MotorControlForm.AxisType.R1, MTR_H1_R1, MotorControlForm.MoveType.TLEFT, MotorControlForm.MoveType.TRIGHT, null, null);
+			MCF.setMotor(MotorControlForm.AxisType.R2, MTR_H1_R2, MotorControlForm.MoveType.TLEFT, MotorControlForm.MoveType.TRIGHT, null, null);
+			MCF.setMotor(MotorControlForm.AxisType.R3, MTR_H1_R3, MotorControlForm.MoveType.TLEFT, MotorControlForm.MoveType.TRIGHT, null, null);
+			MCF.Initial();
+			MCF.ShowDialog();
+		}
+		public static void StopAllMotor()
+		{
+			foreach (ControlBaseInterface control in SDKPara.ControlList)
+				if (control is Adlink_Motor)
+				{
+					((Adlink_Motor)control).Stop();
+					//if (SysPara.SystemMode == RunMode.AUTO)
+					//{
+					//    ((NPMotor)control).ServoOff();
+					//}
+
+				}
+		}
+		private void bt_GotoCalib_Click_1(object sender, EventArgs e)
+		{
+			string tabName = tab_Pos.SelectedTab.Name;
+			double posX = 0, posY = 0, posZ = 0, posR1 = 0;
+			int index = -1;
+			string[] dgvRowDataArr;
+			switch (tabName)
+			{
+				case "tab_CalibPos":
+					index = dgv_CalibPos.myDgv.CurrentRow.Index;
+					dgvRowDataArr = dgv_CalibPos.GetDataArrayByIndex(index);
+					if (dgvRowDataArr == null || dgvRowDataArr.Length < 4) return;
+					posX = double.Parse(dgvRowDataArr[1]);
+					posY = double.Parse(dgvRowDataArr[2]);
+					posZ = double.Parse(dgvRowDataArr[3]);
+					posR1 = double.Parse(dgvRowDataArr[4]);
+					break;
+				case "tab_FlowPos":
+					index = dgv_MotorPos.myDgv.CurrentRow.Index;
+					dgvRowDataArr = dgv_MotorPos.GetDataArrayByIndex(index);
+					if (dgvRowDataArr == null || dgvRowDataArr.Length < 4) return;
+					posX = double.Parse(dgvRowDataArr[1]);
+					posY = double.Parse(dgvRowDataArr[2]);
+					posZ = double.Parse(dgvRowDataArr[3]);
+					posR1 = double.Parse(dgvRowDataArr[4]);
+					break;
+			}
+			servo.GotoAxis(ServoAixsName.X, posX);
+			servo.GotoAxis(ServoAixsName.Y ,posY);
+			servo.GotoAxis(ServoAixsName.Z, posZ);
+			servo.GotoAxis(ServoAixsName.R1,posR1);
+			
+		}
+
+		private void btn_WriteCurrentPos_Click(object sender, EventArgs e)
+		{
+			string tabName = tab_Pos.SelectedTab.Name;
+			string[] posArr = new string[] { "" };
+			switch (tabName)
+			{
+				case "tab_CalibPos":
+					posArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, lbl_PosR1.Text,"ReadMe", };
+
+
+					//Log.log.Write("calibration position coordinate row is added soon!", Color.Black);
+					dgv_CalibPos.WriteRowToDataGrid(posArr);
+					break;
+				case "tab_FlowPos":
+					posArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, lbl_PosR1.Text, "ReadMe", };
+
+
+					//Log.log.Write("calibration position coordinate row is added soon!", Color.Black);
+					dgv_MotorPos.WriteRowToDataGrid(posArr);
+					break;
+			}
+		}
+
+		private void btn_UpdateSelectedPos_Click(object sender, EventArgs e)
+		{
+			string tabName = tab_Pos.SelectedTab.Name;
+			int index = -1;
+			string[] upDateArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, "ReadMe" };
+			try
+			{
+				switch (tabName)
+				{
+					case "tab_CalibPos":
+						upDateArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, "ReadMe" };
+						index = dgv_CalibPos.myDgv.CurrentRow.Index;
+						dgv_CalibPos.UpdateGridViewRow(index, 1, 4, upDateArr);
+						break;
+					case "tab_FlowPos":
+						upDateArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, "0.00", "0.00", "0.00", "0.00", "ReadMe" };
+						index = dgv_MotorPos.myDgv.CurrentRow.Index;
+						dgv_MotorPos.UpdateGridViewRow(index, 1, 8, upDateArr);
+						break;
+				}
+			}
+			catch (Exception ex)
+			{
+
+
+				//Log.log.Write("Update Error" + ex.Message, Color.Black);
+			}
+		}
+
+		private void bt_Continue_Click(object sender, EventArgs e)
+		{
+			
+		}
+
+		private void bt_Stop_Click(object sender, EventArgs e)
+		{
+			servo.manualReset.Reset();
+			StopAllMotor();
+		}
+		//public static bool SaveXmlPara(DataGridView dgvParameters, string xmlPath, string keyWord = "Parameters")
+		//{
+		//	try
+		//	{
+		//		XmlDocument xmlDocument = new XmlDocument();
+		//		string empty = string.Empty;
+		//		empty = (xmlPath.Contains(".xml") ? xmlPath : (xmlPath + ".xml"));
+		//		XmlElement xmlElement = xmlDocument.CreateElement("Parameters");
+		//		int count = dgvParameters.Rows.Count;
+		//		if (count > 0)
+		//		{
+		//			int count2 = dgvParameters.Columns.Count;
+		//			for (int i = 0; i < count; i++)
+		//			{
+		//				XmlElement xmlElement2 = xmlDocument.CreateElement("序号" + (i + 1));
+		//				for (int j = 0; j < count2; j++)
+		//				{
+		//					XmlElement xmlElement3 = xmlDocument.CreateElement(dgvParameters.Columns[j].HeaderText.ToString());
+		//					string empty2 = string.Empty;
+		//					empty2 = ((dgvParameters.Rows[i].Cells[j].Value != null) ? dgvParameters.Rows[i].Cells[j].Value.ToString() : "");
+		//					xmlElement3.InnerText = empty2;
+		//					xmlElement2.AppendChild(xmlElement3);
+		//					xmlElement.AppendChild(xmlElement2);
+		//				}
+		//			}
+		//			xmlDocument.AppendChild(xmlDocument.CreateXmlDeclaration("1.0", "utf-8", ""));
+		//			xmlDocument.AppendChild(xmlElement);
+		//			xmlDocument.Save(empty);
+					
+		//			return true;
+		//		}
+				
+		//		return false;
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		MessageBox.Show("参数保存失败....");
+				
+		//		return false;
+		//	}
+		//}
+		private void btn_SavePoint_Click(object sender, EventArgs e)
+		{
+			
+			dgv_CalibPos.SaveXmlFileFromPath(CalibPositionPath);
+			dgv_MotorPos.SaveXmlFileFromPath(MotorPositionPath);
+		}
+
+		private void timer1_Tick(object sender, EventArgs e)
+		{
+			lbl_PosX.Text = servo.ServoX.GetPos().ToString("F3");
+			lbl_PosY.Text = servo.ServoY.GetPos().ToString("F3");
+			lbl_PosZ.Text = servo.ServoZ.GetPos().ToString("F3");
+			lbl_PosR1.Text = servo.ServoR1.GetPos().ToString("F3");
+		}
+
+		private void trackBar_Speed_ValueChanged(object sender, EventArgs e)
+		{
+			textBox_SpeedRatio.Text =trackBar_Speed.Value.ToString();
+			servo.ServoX.SpeedRatio = trackBar_Speed.Value;
+			servo.ServoY.SpeedRatio = trackBar_Speed.Value;
+			servo.ServoZ.SpeedRatio = trackBar_Speed.Value;
+		}
+
+		private void btn_AxisY_Back_MouseDown(object sender, MouseEventArgs e)
+		{
+			servo.ServoY.WorkSpeed = 50;
+			servo.ServoY.SpeedRatio = 50;
+			servo.ServoY.JogP();
+		}
+
+		private void btn_AxisY_Back_MouseUp(object sender, MouseEventArgs e)
+		{
+			servo.ServoY.Stop();
+		}
+
+		private void btn_AxisY_Forward_MouseDown(object sender, MouseEventArgs e)
+		{
+			servo.ServoY.WorkSpeed = 50;
+			servo.ServoY.SpeedRatio = 50;
+			servo.ServoY.JogN();
+		}
+
+		private void btn_AxisY_Forward_MouseUp(object sender, MouseEventArgs e)
+		{
+			servo.ServoY.Stop();
+		}
+
+		private void btn_AxisX_Left_MouseDown(object sender, MouseEventArgs e)
+		{
+			servo.ServoX.WorkSpeed = 50;
+			servo.ServoX.SpeedRatio = 50;
+			servo.ServoX.JogP();
+		}
+
+		private void btn_AxisX_Left_MouseUp(object sender, MouseEventArgs e)
+		{
+			servo.ServoX.Stop();
+		}
+
+		private void btn_AxisX_Right_MouseDown(object sender, MouseEventArgs e)
+		{
+			servo.ServoX.WorkSpeed = 50;
+			servo.ServoX.SpeedRatio = 50;
+			servo.ServoX.JogN();
+		}
+
+		private void btn_AxisX_Right_MouseUp(object sender, MouseEventArgs e)
+		{
+			servo.ServoX.Stop();
+		}
+
+		private void btn_HomeX_Click(object sender, EventArgs e)
+		{
+			string btnName = ((Button)sender).Name;
+			string flagStr = "btn_Home";
+			string axisName = btnName.Replace(flagStr, "");
+			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
+			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
+			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			switch (axisName)
+			{
+				case "X":
+					servo.HomeAxis(ServoAixsName.X, HighSpeed, LowSpeed, timeOut);
+					break;
+
+				case "Y":
+					servo.HomeAxis(ServoAixsName.Y, HighSpeed, LowSpeed, timeOut);
+					break;
+				case "Z":
+					servo.HomeAxis(ServoAixsName.Z, HighSpeed, LowSpeed, timeOut);
+					break;
+				case "R":
+					servo.HomeAxis(ServoAixsName.R1, HighSpeed, LowSpeed, timeOut);
+					break;
+			}
+		}
+
+		private void btn_HomeY_Click(object sender, EventArgs e)
+		{
+			string btnName = ((Button)sender).Name;
+			string flagStr = "btn_Home";
+			string axisName = btnName.Replace(flagStr, "");
+			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
+			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
+			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			switch (axisName)
+			{
+				case "X":
+					servo.HomeAxis(ServoAixsName.X, HighSpeed, LowSpeed, timeOut);
+					break;
+
+				case "Y":
+					servo.HomeAxis(ServoAixsName.Y, HighSpeed, LowSpeed, timeOut);
+					break;
+				case "Z":
+					servo.HomeAxis(ServoAixsName.Z, HighSpeed, LowSpeed, timeOut);
+					break;
+				case "R":
+					servo.HomeAxis(ServoAixsName.R1, HighSpeed, LowSpeed, timeOut);
+					break;
+			}
+		}
+
+		private void btn_HomeZ_Click(object sender, EventArgs e)
+		{
+			string btnName = ((Button)sender).Name;
+			string flagStr = "btn_Home";
+			string axisName = btnName.Replace(flagStr, "");
+			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
+			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
+			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			switch (axisName)
+			{
+				case "X":
+					servo.HomeAxis(ServoAixsName.X, HighSpeed, LowSpeed, timeOut);
+					break;
+
+				case "Y":
+					servo.HomeAxis(ServoAixsName.Y, HighSpeed, LowSpeed, timeOut);
+					break;
+				case "Z":
+					servo.HomeAxis(ServoAixsName.Z, HighSpeed, LowSpeed, timeOut);
+					break;
+				case "R":
+					servo.HomeAxis(ServoAixsName.R1, HighSpeed, LowSpeed, timeOut);
+					break;
+			}
+		}
+
+		private void btn_HomeR_Click(object sender, EventArgs e)
+		{
+			string btnName = ((Button)sender).Name;
+			string flagStr = "btn_Home";
+			string axisName = btnName.Replace(flagStr, "");
+			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
+			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
+			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			switch (axisName)
+			{
+				case "X":
+					servo.HomeAxis(ServoAixsName.X, HighSpeed, LowSpeed, timeOut);
+					break;
+
+				case "Y":
+					servo.HomeAxis(ServoAixsName.Y, HighSpeed, LowSpeed, timeOut);
+					break;
+				case "Z":
+					servo.HomeAxis(ServoAixsName.Z, HighSpeed, LowSpeed, timeOut);
+					break;
+				case "R":
+					servo.HomeAxis(ServoAixsName.R1, HighSpeed, LowSpeed, timeOut);
+					break;
+			}
+		}
+
+		private void btn_AxisZ_Up_MouseDown(object sender, MouseEventArgs e)
+		{
+			servo.ServoZ.WorkSpeed = 50;
+			servo.ServoZ.SpeedRatio = 50;
+			servo.ServoZ.JogN();
+		}
+
+		private void btn_AxisZ_Down_MouseDown(object sender, MouseEventArgs e)
+		{
+			servo.ServoZ.WorkSpeed = 50;
+			servo.ServoZ.SpeedRatio = 50;
+			servo.ServoZ.JogP();
+		}
+
+		private void btn_AxisZ_Up_MouseUp(object sender, MouseEventArgs e)
+		{
+			servo.ServoZ.Stop();
+		}
+
+		private void btn_AxisZ_Down_MouseUp(object sender, MouseEventArgs e)
+		{
+			servo.ServoZ.Stop();
+		}
+
+		private void btn_AxisR_Up_MouseDown(object sender, MouseEventArgs e)
+		{
+			servo.ServoR1.WorkSpeed = 50;
+			servo.ServoR1.SpeedRatio = 50;
+			servo.ServoR1.JogN();
+		}
+
+		private void btn_AxisR_Down_MouseDown(object sender, MouseEventArgs e)
+		{
+			servo.ServoR1.WorkSpeed = 50;
+			servo.ServoR1.SpeedRatio = 50;
+			servo.ServoR1.JogP();
+		}
+
+		private void btn_AxisR_Up_MouseUp(object sender, MouseEventArgs e)
+		{
+			servo.ServoR1.Stop();
+		}
+
+		private void btn_AxisR_Down_MouseUp(object sender, MouseEventArgs e)
+		{
+			servo.ServoR1.Stop();
+		}
+	}
+}
