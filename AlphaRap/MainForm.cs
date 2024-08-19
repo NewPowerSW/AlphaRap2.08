@@ -1,4 +1,5 @@
-﻿using AlphaRap.Classes;
+﻿using Alpha;
+using AlphaRap.Classes;
 using AlphaRapLibrary;
 using Cognex.VisionPro;
 using System;
@@ -86,7 +87,7 @@ namespace AlphaRap
 		CheckForm cf = MiddleLayer.CheckF;
 		DataForm df = MiddleLayer.DataF;
 		AddUserForm addf = MiddleLayer.AddF;
-		LoadForm LoadFrm;
+		//LoadForm LoadFrm;
 
 
 		int HourInputShift = 0;
@@ -102,15 +103,15 @@ namespace AlphaRap
 		public MainForm()
 		{
 			InitializeComponent();
-			MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_Robot, MENU_AddUser, MENU_Mes, MENU_Exit, MENU_Rapid, MENU_Log, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Run, MENU_Pause, MENU_Stop };
-			startThread = new Thread
-			(() =>
-			{
-				LoadFrm = new LoadForm();
-				LoadFrm.ShowDialog();
-			}
-			);
-			startThread.Start();
+			MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_Robot, MENU_AddUser, MENU_Mes, MENU_Rapid, MENU_Log, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Run, MENU_Pause, MENU_Stop };
+			//startThread = new Thread
+			//(() =>
+			//{
+			//	LoadFrm = new LoadForm();
+			//	LoadFrm.ShowDialog();
+			//}
+			//);
+			//startThread.Start();
 		}
 		public MouseHook mh;
 		public KeyboardHook k_hook;
@@ -133,10 +134,10 @@ namespace AlphaRap
 			MiddleLayer.OpenRecipe(SysPara.FilePath);
 
 			//鼠标监听
-			//mh = new MouseHook();
-			//mh.SetHook();
-			//mh.MouseDownEvent += mh_MouseDownEvent;
-			//mh.MouseUpEvent += mh_MouseUpEvent;
+			mh = new MouseHook();
+			mh.SetHook();
+			mh.MouseDownEvent += mh_MouseDownEvent;
+			mh.MouseUpEvent += mh_MouseUpEvent;
 			//mh.MouseMoveEvent += mh_MouseMoveEvent;
 
 			//键盘监听
@@ -144,7 +145,7 @@ namespace AlphaRap
 			k_hook.KeyDownEvent += new KeyEventHandler(hook_KeyDown);//钩住键按下
 			k_hook.Start();//安装键盘钩子
 
-			MiddleLayer.LoadProcessRate = 100;
+			
 			MiddleLayer.alarmRunTask.AlarmTaskIsRun = true;
 			GetProductDataINI();
 
@@ -157,7 +158,7 @@ namespace AlphaRap
 			//WZF 修改
 			Panel ShowPanl = new Panel();
 			ShowPanl = panel2;
-			tableLayoutPanel.Visible = false;
+			tableLayoutPanel4.Visible = false;
 
 			RefreshMenuBackcolor();
 			switch (MENU_SelectPage)
@@ -166,8 +167,8 @@ namespace AlphaRap
 					forkeybord = MiddleLayer.HomeF;
 					ShowPanl = plMainShow;
 					ShowhMainPage(MiddleLayer.HomeF, ShowPanl);
-					tableLayoutPanel.Parent = panel2;
-					tableLayoutPanel.Visible = true;
+					tableLayoutPanel4.Parent = panel2;
+					tableLayoutPanel4.Visible = true;
 					break;
 				case MENU_PageType.Vision:
 					forkeybord = MiddleLayer.VPF;
@@ -282,7 +283,7 @@ namespace AlphaRap
 		}
 		//UserLoginForm UserLoginF = new UserLoginForm();
 		//用户登录按钮
-		private void pictureBox13_Click(object sender, EventArgs e)
+		private void UserLogin_Click(object sender, EventArgs e)
 		{
 			UserLoginForm UserLoginF = new UserLoginForm();
 			forkeybord = UserLoginF;
@@ -854,12 +855,12 @@ namespace AlphaRap
 					else
 						ShowWord(this.MENU_Stop, "StopButton");
 					break;
-				case MENU_PageType1.Exit:
-					if (SysPara.LanguageShow == LanguageType.Chinese)
-						ShowWord(this.MENU_Exit, "退出");
-					else
-						ShowWord(this.MENU_Exit, "Exit");
-					break;
+				//case MENU_PageType1.Exit:
+				//	if (SysPara.LanguageShow == LanguageType.Chinese)
+				//		ShowWord(this.MENU_Exit, "退出");
+				//	else
+				//		ShowWord(this.MENU_Exit, "Exit");
+				//	break;
 				case MENU_PageType1.Robot:
 					if (SysPara.LanguageShow == LanguageType.Chinese)
 						ShowWord(this.MENU_Robot, "机械手");
@@ -894,7 +895,7 @@ namespace AlphaRap
 
 		}
 		//保存数据按钮
-		private void pictureBox3_Click(object sender, EventArgs e)
+		private void SaveData_Click(object sender, EventArgs e)
 		{
 			SaveData();
 		}
@@ -904,8 +905,14 @@ namespace AlphaRap
 			SysPara.items = 1;
 			SysPara.items2 = 1;
 			DialogResult dr;
+			MachineStatus.Focus();
 
-			dr = MessageBox.Show((SysPara.LanguageShow == LanguageType.Chinese) ? "确认要保存吗？" : "Are you sure to save it？", (SysPara.LanguageShow == LanguageType.Chinese) ? "提示" : "Notes", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+			OptionChoiceForm warning = new OptionChoiceForm();
+			warning.fnChangeButtonsText("YES", "OK","NO");
+			warning.fnSetMessageAndButtons((SysPara.LanguageShow == LanguageType.Chinese) ? "确认要保存吗？" : "Are you sure to save it？", true, false, true);
+			warning.ShowDialog();
+			dr = warning.dResult;
+			//dr = MessageBox.Show((SysPara.LanguageShow == LanguageType.Chinese) ? "确认要保存吗？" : "Are you sure to save it？", (SysPara.LanguageShow == LanguageType.Chinese) ? "提示" : "Notes", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
 			if (dr == DialogResult.Yes)
 			{
 				plMainShow.Focus();
@@ -1044,6 +1051,21 @@ namespace AlphaRap
 			{
 				MiddleLayer.HomeF.ppt = new Point(0, 0);
 			}
+		}
+		bool isMoving = false;//标识是否拖动
+		private void uPanel1_MouseDown(object sender, MouseEventArgs e)
+		{
+			pt = e.Location;//按下的点
+			isMoving = true;//启动拖动
+		}
+		/// <summary>
+		/// 鼠标移动
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void uPanel1_MouseMove(object sender, MouseEventArgs e)
+		{
+
 		}
 
 		Control GetControl(Control C)
@@ -1215,24 +1237,24 @@ namespace AlphaRap
 		}
 		int a = 1;
 		//照明灯
-		private void btLight_Click(object sender, EventArgs e)
-		{
-			if (a == 1)
-			{
-				this.btLight.BackColor = Color.Green;
-				MiddleLayer.ManualF.OB_LEDLight.On();
+		//private void btLight_Click(object sender, EventArgs e)
+		//{
+		//	if (a == 1)
+		//	{
+		//		this.btLight.BackColor = Color.Green;
+		//		MiddleLayer.ManualF.OB_LEDLight.On();
 
-				a++;
-			}
-			else
-			{
-				btLight.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-				MiddleLayer.ManualF.OB_LEDLight.Off();
+		//		a++;
+		//	}
+		//	else
+		//	{
+		//		btLight.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
+		//		MiddleLayer.ManualF.OB_LEDLight.Off();
 
-				a = 1;
-			}
+		//		a = 1;
+		//	}
 
-		}
+		//}
 		private void Buzzer_Click(object sender, EventArgs e)
 		{
 			Console.WriteLine(SysPara.bByPass);
@@ -1244,21 +1266,21 @@ namespace AlphaRap
 			MiddleLayer.AlarmClear();
 			Thread.Sleep(100);
 		}
-		int btDoorIndex = 1;
-		private void btDoor_Click(object sender, EventArgs e)
-		{
-			if (btDoorIndex == 1)
-			{
-				this.btDoor.BackColor = Color.Green;
-				btDoorIndex++;
-			}
-			else
-			{
-				btDoor.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-				btDoorIndex = 1;
-			}
+		//int btDoorIndex = 1;
+		//private void btDoor_Click(object sender, EventArgs e)
+		//{
+		//	if (btDoorIndex == 1)
+		//	{
+		//		this.btDoor.BackColor = Color.Green;
+		//		btDoorIndex++;
+		//	}
+		//	else
+		//	{
+		//		btDoor.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
+		//		btDoorIndex = 1;
+		//	}
 
-		}
+		//}
 		private void btClearCount_Click(object sender, EventArgs e)
 		{
 
@@ -1271,31 +1293,31 @@ namespace AlphaRap
 
 			}
 		}
-		int b = 0;
-		//直通
-		private void btByPass_Click(object sender, EventArgs e)
-		{
+		//int b = 0;
+		////直通
+		//private void btByPass_Click(object sender, EventArgs e)
+		//{
 
-			if (b == 1)
-			{
-				btByPass.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
+		//	if (b == 1)
+		//	{
+		//		btByPass.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
 
-				SysPara.bByPass = false;
-				b = 0;
-			}
-			else
-			{
+		//		SysPara.bByPass = false;
+		//		b = 0;
+		//	}
+		//	else
+		//	{
 
-				DialogResult reult = MessageBox.Show("是否直通模式?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+		//		DialogResult reult = MessageBox.Show("是否直通模式?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
 
-				if ((reult == DialogResult.Yes))
-				{
-					SysPara.bByPass = true;
-					b = 1;
-					btByPass.BackColor = Color.Green;
-				}
-			}
-		}
+		//		if ((reult == DialogResult.Yes))
+		//		{
+		//			SysPara.bByPass = true;
+		//			b = 1;
+		//			btByPass.BackColor = Color.Green;
+		//		}
+		//	}
+		//}
 
 		private void plMainShow_Paint(object sender, PaintEventArgs e)
 		{
@@ -1311,6 +1333,28 @@ namespace AlphaRap
 			IniFile.WriteString("MachineSetup", "LanguageName", SysPara.LanguageName);
 		}
 
+		private void MainForm_MouseUp(object sender, MouseEventArgs e)
+		{
+			isMoving = false;//停止
+		}
+		bool SideBarExpand;
+		private void pictureBox2_Click(object sender, EventArgs e)
+		{
+			if (SideBarExpand)
+			{
+				SideBarExpand = false;
+				Left_Show.Width = Left_Show.MinimumSize.Width;
+			}
+			else
+			{
+				SideBarExpand = true;
+				Left_Show.Width = Left_Show.MaximumSize.Width;
+			}
+		}
 
+		private void panel2_Paint(object sender, PaintEventArgs e)
+		{
+
+		}
 	}
 }

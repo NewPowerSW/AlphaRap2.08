@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -24,7 +25,18 @@ namespace AlphaRap
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
-                MiddleLayer.InitialProject(); //Initial Project
+				#region LogShow
+				MiddleLayer.LoadingF = new LoadingForm();
+				MiddleLayer.LoadingF.Show();
+				Thread LoadingMarqueeT = new Thread(MiddleLayer.LoadingF.RefreshUI);
+				LoadingMarqueeT.Start();
+				MiddleLayer.InitialProject();
+				MiddleLayer.LoadingF.StopRefresh = true;
+				LoadingMarqueeT.Join();
+				MiddleLayer.LoadingF.Close();
+				#endregion
+
+				 //Initial Project
                 // Application.Run(new ProductManagerForm());
 
                 Application.Run(MiddleLayer.MainF);

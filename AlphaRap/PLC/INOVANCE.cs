@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using mscorlib;
+//using mscorlib;
 namespace AlphaRap.PLC
 {
 	public enum SoftElemType
@@ -44,7 +44,7 @@ namespace AlphaRap.PLC
 	/// 具体PLC类：汇川5系列，使用网口 Tcp 通讯，接收指令
 	/// 可配置的属性包括：网口连接参数
 	/// V1.0 初始版本
-	/// 修改时间2023-10-19----------------谢松辉
+	/// 修改时间2023-11-19----------------
 	/// </summary>
 	public class INOVANCE
     {
@@ -68,8 +68,14 @@ namespace AlphaRap.PLC
 		private static extern int H5u_Write_Device_Block(SoftElemType eType, int nStartAddr, int nCount, byte[] pValue, int nNetId = 0);
 		#endregion
 
+        public static bool Connet(string sIpAddr, int nNetId = 0, int IpPort = 502)
+        {
+            return Init_ETH_String(sIpAddr, nNetId, IpPort);
 
-		readonly object ReadPLC_Lock = new object();
+
+        }
+
+        readonly object ReadPLC_Lock = new object();
         /// <summary>
         /// 写入返回的错误
         /// </summary>
@@ -84,14 +90,13 @@ namespace AlphaRap.PLC
         /// <param name="nStartAddr">类型+地址，例如:D1010/param>
         /// <param name="nCount">长度</param>
         /// <returns></returns>
-        public string ReadPlc(string nStartAddr, int nCount)
+        public string ReadPlc(string nStartAddr, int nCount, string type = "int")
 		{
 			lock(ReadPLC_Lock)
 			{
 				byte[] pBuf = new byte[16000];
 				bool bIsWord = false;
-				ReadErrorMessage = string.Empty;
-				string nDataType = "2";
+				ReadErrorMessage = string.Empty;	
 				string readType = nStartAddr.Substring(0, 1);
 
 				#region 写入类型
@@ -118,9 +123,13 @@ namespace AlphaRap.PLC
 					bIsWord = true;
 					ElemType = SoftElemType.REGI_H5U_D;
 				}
-
-				#endregion
-				int ReadAddrd = Convert.ToInt32(nStartAddr.Substring(2));
+                else if (readType == "R")
+                {
+                    bIsWord = true;
+                    ElemType = SoftElemType.REGI_H5U_R;
+                }
+                #endregion
+                int ReadAddrd = Convert.ToInt32(nStartAddr.Substring(1));
 				int nRet = H5u_Read_Device_Block(ElemType, ReadAddrd, nCount, pBuf, 0);
 
 				if (nRet != 1)
@@ -130,15 +139,17 @@ namespace AlphaRap.PLC
 				}
 				string strData = "";
 
-				if (int.Parse(nDataType) == 1 || int.Parse(nDataType) == 2)
+				if (type == "int" || type == "float")
 				{
 					nCount = nCount / 2;
-				}
+                  
+
+                }
 				for (int i = 0; i < nCount; i++)
 				{
 					if (bIsWord)
 					{
-						if (int.Parse(nDataType) == 0)//16位整形
+						if (type == "bit" )//16位整形
 						{
 							byte[] databuf = new byte[2] { 0, 0 };
 							databuf[0] = pBuf[i * 2];
@@ -147,7 +158,7 @@ namespace AlphaRap.PLC
 							strData = strData + iTemp.ToString() + ",";
 							continue;
 						}
-						else if (int.Parse(nDataType) == 1)//读取32位整形
+						else if (type == "int")//读取32位整形
 						{
 							byte[] databuf = new byte[4] { 0, 0, 0, 0 };
 							databuf[0] = pBuf[i * 4];
@@ -155,10 +166,10 @@ namespace AlphaRap.PLC
 							databuf[2] = pBuf[i * 4 + 2];
 							databuf[3] = pBuf[i * 4 + 3];
 							int iTemp = BitConverter.ToInt32(databuf, 0);
-							strData = strData + iTemp.ToString() + ",";
+							strData = strData + iTemp.ToString();
 							continue;
 						}
-						else if (int.Parse(nDataType) == 2)//读取浮点型
+						else if ( type == "float")//读取浮点型
 						{
 							byte[] databuf = new byte[4] { 0, 0, 0, 0 };
 							databuf[0] = pBuf[i * 4];
@@ -166,7 +177,7 @@ namespace AlphaRap.PLC
 							databuf[2] = pBuf[i * 4 + 2];
 							databuf[3] = pBuf[i * 4 + 3];
 							float fTemp = BitConverter.ToSingle(databuf, 0);
-							strData = strData + fTemp.ToString() + ",";
+							strData = strData + fTemp.ToString();
 							continue;
 						}
 					}
@@ -174,7 +185,7 @@ namespace AlphaRap.PLC
 					{
 						int nVal = 0;
 						nVal = pBuf[i];
-						strData = strData + nVal.ToString() + ",";
+						strData = strData + nVal.ToString() ;
 					}
 				}
 
@@ -183,8 +194,123 @@ namespace AlphaRap.PLC
 			}
 			
 		}
-		readonly object PLCWriteLock = new object();
-		public bool WritePlc(string nStartAddr, string writeValue)
+
+        public string ReadPlcString(string nStartAddr, int nCount)   //test
+        {
+            lock (ReadPLC_Lock)
+            {
+                byte[] pValue = new byte[nCount * 2];
+
+
+
+                bool bIsWord = false;
+                ReadErrorMessage = string.Empty;
+                string readType = nStartAddr.Substring(0, 1);
+
+                #region 写入类型
+                SoftElemType ElemType = SoftElemType.REGI_H5U_Y;
+                if (readType == "Y")
+                {
+                    ElemType = SoftElemType.REGI_H5U_Y;
+                }
+                else if (readType == "X")
+                {
+                    ElemType = SoftElemType.REGI_H5U_X;
+                }
+                else if (readType == "S")
+                {
+                    ElemType = SoftElemType.REGI_H5U_S;
+                }
+                else if (readType == "M")
+                {
+                    ElemType = SoftElemType.REGI_H5U_M;
+                }
+
+                else if (readType == "D")
+                {
+                    bIsWord = true;
+                    ElemType = SoftElemType.REGI_H5U_D;
+                }
+                else if (readType == "R")
+                {
+                    bIsWord = true;
+                    ElemType = SoftElemType.REGI_H5U_R;
+                }
+                #endregion
+                int ReadAddrd = Convert.ToInt32(nStartAddr.Substring(1));
+                int nRet = H5u_Read_Device_Block(ElemType, ReadAddrd, nCount, pValue, 0);
+
+                if (nRet != 1)
+                {
+                    ReadErrorMessage = DateTime.Now.ToString() + "：ErrorCode " + nRet.ToString() + "\r\n";
+                    return "-999";
+                }
+                string strData = "";
+
+                strData = Encoding.UTF8.GetString(pValue);
+				int Steing_Index = strData.IndexOf('\0');
+				strData = strData.Substring(0, Steing_Index);
+                return strData;
+            }
+
+        }
+        /// <summary>
+        /// WritPLCdata
+        /// </summary>
+        /// <param name="star_nub">【Fist Port】</param>
+        /// <param name="count">【ReadLenght】</param>
+        /// <param name="S_pValue"></param>
+        /// <returns></returns>
+        public bool WritePlcString(string nStartAddr, string writeValue)
+        {
+            lock (PLCWriteLock)
+            {
+                byte[] pBu = Encoding.UTF8.GetBytes(writeValue.ToCharArray());
+
+                int addr = Convert.ToInt32(nStartAddr.Substring(1));
+
+                string[] arr = writeValue.Split(',');
+                string writeType = nStartAddr.Substring(0, 1);
+                SoftElemType ElemType = SoftElemType.REGI_H5U_Y;
+                if (writeType == "Y")
+                {
+                    ElemType = SoftElemType.REGI_H5U_Y;
+                }
+                else if (writeType == "X")
+                {
+                    ElemType = SoftElemType.REGI_H5U_X;
+                }
+                else if (writeType == "S")
+                {
+                    ElemType = SoftElemType.REGI_H5U_S;
+                }
+                else if (writeType == "M")
+                {
+                    ElemType = SoftElemType.REGI_H5U_M;
+                }
+                else if (writeType == "D")
+                {
+                   
+                    ElemType = SoftElemType.REGI_H5U_D;
+                }
+                else if (writeType == "R")
+                { 
+                    ElemType = SoftElemType.REGI_H5U_R;
+                }
+                int nRet = H5u_Write_Device_Block(ElemType, addr, pBu.Length, pBu, 0);
+
+                if (nRet != 1)
+                {
+                    WritErrorMessage = DateTime.Now.ToString() + "：ErrorCode " + nRet.ToString() + "\r\n";
+                    return false;
+                }
+                return true;
+            }
+
+        }
+
+        readonly object PLCWriteLock = new object();
+		public bool WritePlc(string nStartAddr, string writeValue, string type="int")
 		{
 			lock(PLCWriteLock)
 			{
@@ -192,16 +318,17 @@ namespace AlphaRap.PLC
 				byte[] pBuf = new byte[16000];
 				WritErrorMessage = string.Empty;
 				bool bIsWord = false;//是否字元件
-				string nDataType = "2";
-				if (nDataType.ToLower() == "bit" || nDataType.ToLower() == "int16")
+                string nDataType = "1";
+
+                if (type == "bit" || type == "int16")
 				{
 					nDataType = "0";
 				}
-				else if (nDataType.ToLower() == "int32")
+				else if (type == "int32")
 				{
 					nDataType = "1";
 				}
-				else if (nDataType.ToLower() == "float")
+				else if (type == "float")
 				{
 					nDataType = "2";
 				}
@@ -229,12 +356,16 @@ namespace AlphaRap.PLC
 					bIsWord = true;
 					ElemType = SoftElemType.REGI_H5U_D;
 				}
+                else if (writeType == "R")
+                {
+                    bIsWord = true;
+                    ElemType = SoftElemType.REGI_H5U_R;
+                }
 
-
-				string[] arr = writeValue.Split(',');
+                string[] arr = writeValue.Split(',');
 
 				GetDataFromUI(pBuf, arr, bIsWord, int.Parse(nDataType));
-				int addr = Convert.ToInt32(nStartAddr);
+				int addr = Convert.ToInt32(nStartAddr.Substring(1));
 
 				int nRet = H5u_Write_Device_Block(ElemType, addr, arr.Length * 2, pBuf, 0);
 

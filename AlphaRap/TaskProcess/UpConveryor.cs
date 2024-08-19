@@ -21,7 +21,7 @@ namespace AlphaRap.TaskProcess
 		}
 		public override void Initial()
 		{
-			UPConveyInit_Flow1_1.FlowChart_Run();
+			//UPConveyInit_Flow1_1.FlowChart_Run();
 
 		}
 		public override void PauseRun()

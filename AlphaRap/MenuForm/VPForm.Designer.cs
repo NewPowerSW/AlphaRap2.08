@@ -181,17 +181,6 @@
 			this.tabPage5 = new System.Windows.Forms.TabPage();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
 			this.dgv_H2_VisionData = new System.Windows.Forms.DataGridView();
-			this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.U = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.X_Low = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.X_Hi = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.Y_Low = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.Y_Hi = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.U_Low = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.U_Hi = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.Eanble = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-			this.Mark = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.xDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.yDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.uDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -570,7 +559,7 @@
 			this.tabPage3.Padding = new System.Windows.Forms.Padding(4);
 			this.tabPage3.Size = new System.Drawing.Size(1564, 319);
 			this.tabPage3.TabIndex = 0;
-			this.tabPage3.Text = "取料拍照";
+			this.tabPage3.Text = "TakeMaterial";
 			this.tabPage3.UseVisualStyleBackColor = true;
 			// 
 			// groupBox22
@@ -606,7 +595,7 @@
 			this.H1_VisionDataReplace.Name = "H1_VisionDataReplace";
 			this.H1_VisionDataReplace.Size = new System.Drawing.Size(167, 50);
 			this.H1_VisionDataReplace.TabIndex = 90;
-			this.H1_VisionDataReplace.Text = "替换";
+			this.H1_VisionDataReplace.Text = "Replace";
 			this.H1_VisionDataReplace.UseVisualStyleBackColor = true;
 			this.H1_VisionDataReplace.Click += new System.EventHandler(this.H1_VisionDataReplace_Click);
 			// 
@@ -755,7 +744,7 @@
 			this.H1_VisionDataDelete.Name = "H1_VisionDataDelete";
 			this.H1_VisionDataDelete.Size = new System.Drawing.Size(167, 50);
 			this.H1_VisionDataDelete.TabIndex = 83;
-			this.H1_VisionDataDelete.Text = "删除";
+			this.H1_VisionDataDelete.Text = "Delete";
 			this.H1_VisionDataDelete.UseVisualStyleBackColor = true;
 			this.H1_VisionDataDelete.Click += new System.EventHandler(this.H1_VisionDataDelete_Click);
 			// 
@@ -792,7 +781,7 @@
 			this.H1_VisionDataAdd.Name = "H1_VisionDataAdd";
 			this.H1_VisionDataAdd.Size = new System.Drawing.Size(167, 50);
 			this.H1_VisionDataAdd.TabIndex = 82;
-			this.H1_VisionDataAdd.Text = "添加";
+			this.H1_VisionDataAdd.Text = "Add";
 			this.H1_VisionDataAdd.UseVisualStyleBackColor = true;
 			this.H1_VisionDataAdd.Click += new System.EventHandler(this.H1_VisionDataAdd_Click);
 			// 
@@ -846,7 +835,7 @@
 			this.Fiducial1_Snap.Name = "Fiducial1_Snap";
 			this.Fiducial1_Snap.Size = new System.Drawing.Size(151, 49);
 			this.Fiducial1_Snap.TabIndex = 88;
-			this.Fiducial1_Snap.Text = "拍照";
+			this.Fiducial1_Snap.Text = "Trigger";
 			this.Fiducial1_Snap.UseVisualStyleBackColor = true;
 			this.Fiducial1_Snap.Click += new System.EventHandler(this.Fiducial1_Snap_Click);
 			// 
@@ -857,7 +846,7 @@
 			this.Fiducial1_Setup.Name = "Fiducial1_Setup";
 			this.Fiducial1_Setup.Size = new System.Drawing.Size(173, 49);
 			this.Fiducial1_Setup.TabIndex = 87;
-			this.Fiducial1_Setup.Text = "设置";
+			this.Fiducial1_Setup.Text = "SetUp";
 			this.Fiducial1_Setup.UseVisualStyleBackColor = true;
 			this.Fiducial1_Setup.Click += new System.EventHandler(this.Fiducial1_Setup_Click);
 			// 
@@ -870,7 +859,7 @@
 			this.tabPage4.Padding = new System.Windows.Forms.Padding(4);
 			this.tabPage4.Size = new System.Drawing.Size(1564, 319);
 			this.tabPage4.TabIndex = 1;
-			this.tabPage4.Text = "放料拍照";
+			this.tabPage4.Text = "PutMaterial";
 			this.tabPage4.UseVisualStyleBackColor = true;
 			// 
 			// groupBox3
@@ -906,7 +895,7 @@
 			this.H1_VisionHeadDataReplace.Name = "H1_VisionHeadDataReplace";
 			this.H1_VisionHeadDataReplace.Size = new System.Drawing.Size(167, 50);
 			this.H1_VisionHeadDataReplace.TabIndex = 90;
-			this.H1_VisionHeadDataReplace.Text = "替换";
+			this.H1_VisionHeadDataReplace.Text = "Replace";
 			this.H1_VisionHeadDataReplace.UseVisualStyleBackColor = true;
 			this.H1_VisionHeadDataReplace.Click += new System.EventHandler(this.H1_VisionHeadDataReplace_Click);
 			// 
@@ -1058,7 +1047,7 @@
 			this.H1_VisionHeadDataDelete.Name = "H1_VisionHeadDataDelete";
 			this.H1_VisionHeadDataDelete.Size = new System.Drawing.Size(167, 50);
 			this.H1_VisionHeadDataDelete.TabIndex = 83;
-			this.H1_VisionHeadDataDelete.Text = "删除";
+			this.H1_VisionHeadDataDelete.Text = "Delete";
 			this.H1_VisionHeadDataDelete.UseVisualStyleBackColor = true;
 			this.H1_VisionHeadDataDelete.Click += new System.EventHandler(this.H1_VisionHeadDataDelete_Click);
 			// 
@@ -1095,7 +1084,7 @@
 			this.H1_VisionHeadDataAdd.Name = "H1_VisionHeadDataAdd";
 			this.H1_VisionHeadDataAdd.Size = new System.Drawing.Size(167, 50);
 			this.H1_VisionHeadDataAdd.TabIndex = 82;
-			this.H1_VisionHeadDataAdd.Text = "添加";
+			this.H1_VisionHeadDataAdd.Text = "Add";
 			this.H1_VisionHeadDataAdd.UseVisualStyleBackColor = true;
 			this.H1_VisionHeadDataAdd.Click += new System.EventHandler(this.H1_VisionHeadDataAdd_Click);
 			// 
@@ -1149,7 +1138,7 @@
 			this.Fiducial2_Snap.Name = "Fiducial2_Snap";
 			this.Fiducial2_Snap.Size = new System.Drawing.Size(151, 49);
 			this.Fiducial2_Snap.TabIndex = 88;
-			this.Fiducial2_Snap.Text = "拍照";
+			this.Fiducial2_Snap.Text = "Trigger";
 			this.Fiducial2_Snap.UseVisualStyleBackColor = true;
 			this.Fiducial2_Snap.Click += new System.EventHandler(this.Fiducial2_Snap_Click);
 			// 
@@ -1160,7 +1149,7 @@
 			this.Fiducial2_Setup.Name = "Fiducial2_Setup";
 			this.Fiducial2_Setup.Size = new System.Drawing.Size(173, 49);
 			this.Fiducial2_Setup.TabIndex = 87;
-			this.Fiducial2_Setup.Text = "设置";
+			this.Fiducial2_Setup.Text = "SetUp";
 			this.Fiducial2_Setup.UseVisualStyleBackColor = true;
 			this.Fiducial2_Setup.Click += new System.EventHandler(this.Fiducial2_Setup_Click);
 			// 
@@ -1314,7 +1303,7 @@
 			this.H1_VisionCheckReplace.Name = "H1_VisionCheckReplace";
 			this.H1_VisionCheckReplace.Size = new System.Drawing.Size(167, 50);
 			this.H1_VisionCheckReplace.TabIndex = 90;
-			this.H1_VisionCheckReplace.Text = "替换";
+			this.H1_VisionCheckReplace.Text = "Replace";
 			this.H1_VisionCheckReplace.UseVisualStyleBackColor = true;
 			this.H1_VisionCheckReplace.Click += new System.EventHandler(this.H1_VisionCheckReplace_Click);
 			// 
@@ -1348,7 +1337,7 @@
 			this.H1_VisionDelete.Name = "H1_VisionDelete";
 			this.H1_VisionDelete.Size = new System.Drawing.Size(167, 50);
 			this.H1_VisionDelete.TabIndex = 83;
-			this.H1_VisionDelete.Text = "删除";
+			this.H1_VisionDelete.Text = "Delete";
 			this.H1_VisionDelete.UseVisualStyleBackColor = true;
 			this.H1_VisionDelete.Click += new System.EventHandler(this.H1_VisionDelete_Click);
 			// 
@@ -1385,7 +1374,7 @@
 			this.H1_VisionCheckAdd.Name = "H1_VisionCheckAdd";
 			this.H1_VisionCheckAdd.Size = new System.Drawing.Size(167, 50);
 			this.H1_VisionCheckAdd.TabIndex = 82;
-			this.H1_VisionCheckAdd.Text = "添加";
+			this.H1_VisionCheckAdd.Text = "Add";
 			this.H1_VisionCheckAdd.UseVisualStyleBackColor = true;
 			this.H1_VisionCheckAdd.Click += new System.EventHandler(this.H1_VisionCheckAdd_Click);
 			// 
@@ -1439,7 +1428,7 @@
 			this.Fiducial3_Snap.Name = "Fiducial3_Snap";
 			this.Fiducial3_Snap.Size = new System.Drawing.Size(151, 49);
 			this.Fiducial3_Snap.TabIndex = 88;
-			this.Fiducial3_Snap.Text = "拍照";
+			this.Fiducial3_Snap.Text = "Trigger";
 			this.Fiducial3_Snap.UseVisualStyleBackColor = true;
 			this.Fiducial3_Snap.Click += new System.EventHandler(this.Fiducial3_Snap_Click);
 			// 
@@ -1450,7 +1439,7 @@
 			this.Fiducial3_Setup.Name = "Fiducial3_Setup";
 			this.Fiducial3_Setup.Size = new System.Drawing.Size(173, 49);
 			this.Fiducial3_Setup.TabIndex = 87;
-			this.Fiducial3_Setup.Text = "设置";
+			this.Fiducial3_Setup.Text = "SetUp";
 			this.Fiducial3_Setup.UseVisualStyleBackColor = true;
 			this.Fiducial3_Setup.Click += new System.EventHandler(this.Fiducial3_Setup_Click);
 			// 
@@ -1498,7 +1487,7 @@
 			this.button3.Name = "button3";
 			this.button3.Size = new System.Drawing.Size(167, 50);
 			this.button3.TabIndex = 102;
-			this.button3.Text = "替换";
+			this.button3.Text = "Replace";
 			this.button3.UseVisualStyleBackColor = true;
 			this.button3.Click += new System.EventHandler(this.button3_Click_2);
 			// 
@@ -1509,7 +1498,7 @@
 			this.button4.Name = "button4";
 			this.button4.Size = new System.Drawing.Size(167, 50);
 			this.button4.TabIndex = 101;
-			this.button4.Text = "删除";
+			this.button4.Text = "Delete";
 			this.button4.UseVisualStyleBackColor = true;
 			this.button4.Click += new System.EventHandler(this.button4_Click_1);
 			// 
@@ -1520,7 +1509,7 @@
 			this.button5.Name = "button5";
 			this.button5.Size = new System.Drawing.Size(167, 50);
 			this.button5.TabIndex = 100;
-			this.button5.Text = "添加";
+			this.button5.Text = "Add";
 			this.button5.UseVisualStyleBackColor = true;
 			this.button5.Click += new System.EventHandler(this.button5_Click);
 			// 
@@ -1738,7 +1727,7 @@
 			this.button13.Name = "button13";
 			this.button13.Size = new System.Drawing.Size(151, 49);
 			this.button13.TabIndex = 88;
-			this.button13.Text = "拍照";
+			this.button13.Text = "Trigger";
 			this.button13.UseVisualStyleBackColor = true;
 			this.button13.Click += new System.EventHandler(this.button13_Click_1);
 			// 
@@ -1749,7 +1738,7 @@
 			this.button19.Name = "button19";
 			this.button19.Size = new System.Drawing.Size(173, 49);
 			this.button19.TabIndex = 87;
-			this.button19.Text = "设置";
+			this.button19.Text = "SetUp";
 			this.button19.UseVisualStyleBackColor = true;
 			this.button19.Click += new System.EventHandler(this.button19_Click);
 			// 
@@ -1788,9 +1777,9 @@
 			this.label26.Location = new System.Drawing.Point(214, 286);
 			this.label26.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label26.Name = "label26";
-			this.label26.Size = new System.Drawing.Size(58, 24);
+			this.label26.Size = new System.Drawing.Size(106, 24);
 			this.label26.TabIndex = 106;
-			this.label26.Text = "曝光";
+			this.label26.Text = "Exposure";
 			// 
 			// textBox9
 			// 
@@ -1809,9 +1798,9 @@
 			this.label27.Location = new System.Drawing.Point(14, 286);
 			this.label27.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label27.Name = "label27";
-			this.label27.Size = new System.Drawing.Size(82, 24);
+			this.label27.Size = new System.Drawing.Size(142, 24);
 			this.label27.TabIndex = 107;
-			this.label27.Text = "相机号";
+			this.label27.Text = "CameraIndex";
 			// 
 			// textBox10
 			// 
@@ -1856,7 +1845,7 @@
 			this.RCalibration_Replace.Name = "RCalibration_Replace";
 			this.RCalibration_Replace.Size = new System.Drawing.Size(167, 50);
 			this.RCalibration_Replace.TabIndex = 90;
-			this.RCalibration_Replace.Text = "替换";
+			this.RCalibration_Replace.Text = "Replace";
 			this.RCalibration_Replace.UseVisualStyleBackColor = true;
 			this.RCalibration_Replace.Click += new System.EventHandler(this.Replace_Click);
 			// 
@@ -1927,9 +1916,9 @@
 			this.button18.Location = new System.Drawing.Point(814, 208);
 			this.button18.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button18.Name = "button18";
-			this.button18.Size = new System.Drawing.Size(167, 50);
+			this.button18.Size = new System.Drawing.Size(193, 50);
 			this.button18.TabIndex = 84;
-			this.button18.Text = "设置校准";
+			this.button18.Text = "SetCalibration";
 			this.button18.UseVisualStyleBackColor = true;
 			this.button18.Click += new System.EventHandler(this.button18_Click);
 			// 
@@ -1940,7 +1929,7 @@
 			this.Calibration_Delete.Name = "Calibration_Delete";
 			this.Calibration_Delete.Size = new System.Drawing.Size(167, 50);
 			this.Calibration_Delete.TabIndex = 83;
-			this.Calibration_Delete.Text = "删除";
+			this.Calibration_Delete.Text = "Delete";
 			this.Calibration_Delete.UseVisualStyleBackColor = true;
 			this.Calibration_Delete.Click += new System.EventHandler(this.button12_Click);
 			// 
@@ -1951,7 +1940,7 @@
 			this.Calibration_Add.Name = "Calibration_Add";
 			this.Calibration_Add.Size = new System.Drawing.Size(167, 50);
 			this.Calibration_Add.TabIndex = 82;
-			this.Calibration_Add.Text = "添加";
+			this.Calibration_Add.Text = "Add";
 			this.Calibration_Add.UseVisualStyleBackColor = true;
 			this.Calibration_Add.Click += new System.EventHandler(this.button13_Click);
 			// 
@@ -2031,7 +2020,7 @@
 			this.button16.Name = "button16";
 			this.button16.Size = new System.Drawing.Size(221, 49);
 			this.button16.TabIndex = 9;
-			this.button16.Text = "拍照";
+			this.button16.Text = "Trigger";
 			this.button16.UseVisualStyleBackColor = true;
 			this.button16.Click += new System.EventHandler(this.button16_Click);
 			// 
@@ -2042,7 +2031,7 @@
 			this.button14.Name = "button14";
 			this.button14.Size = new System.Drawing.Size(221, 49);
 			this.button14.TabIndex = 0;
-			this.button14.Text = "设置";
+			this.button14.Text = "SetUp";
 			this.button14.UseVisualStyleBackColor = true;
 			this.button14.Click += new System.EventHandler(this.button14_Click_1);
 			// 
@@ -2126,7 +2115,7 @@
 			this.cogRecDisp_H1_Recipe.MouseWheelSensitivity = 1D;
 			this.cogRecDisp_H1_Recipe.Name = "cogRecDisp_H1_Recipe";
 			this.cogRecDisp_H1_Recipe.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("cogRecDisp_H1_Recipe.OcxState")));
-			this.cogRecDisp_H1_Recipe.Size = new System.Drawing.Size(482, 333);
+			this.cogRecDisp_H1_Recipe.Size = new System.Drawing.Size(482, 299);
 			this.cogRecDisp_H1_Recipe.TabIndex = 72;
 			// 
 			// tabPage2
@@ -2174,7 +2163,7 @@
 			this.tabPage5.Padding = new System.Windows.Forms.Padding(4);
 			this.tabPage5.Size = new System.Drawing.Size(1574, 333);
 			this.tabPage5.TabIndex = 0;
-			this.tabPage5.Text = "取料拍照";
+			this.tabPage5.Text = "TakeMaterial";
 			this.tabPage5.UseVisualStyleBackColor = true;
 			// 
 			// groupBox4
@@ -2210,17 +2199,6 @@
 			this.dgv_H2_VisionData.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
 			this.dgv_H2_VisionData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.dgv_H2_VisionData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Column1,
-            this.Y,
-            this.U,
-            this.X_Low,
-            this.X_Hi,
-            this.Y_Low,
-            this.Y_Hi,
-            this.U_Low,
-            this.U_Hi,
-            this.Eanble,
-            this.Mark,
             this.xDataGridViewTextBoxColumn1,
             this.yDataGridViewTextBoxColumn1,
             this.uDataGridViewTextBoxColumn1,
@@ -2242,158 +2220,70 @@
 			this.dgv_H2_VisionData.TabIndex = 81;
 			this.dgv_H2_VisionData.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dgv_H1_VisionData_EditingControlShowing);
 			// 
-			// Column1
-			// 
-			this.Column1.DataPropertyName = "X";
-			this.Column1.HeaderText = "Column1";
-			this.Column1.MinimumWidth = 6;
-			this.Column1.Name = "Column1";
-			// 
-			// Y
-			// 
-			this.Y.DataPropertyName = "Y";
-			this.Y.HeaderText = "Y";
-			this.Y.MinimumWidth = 6;
-			this.Y.Name = "Y";
-			// 
-			// U
-			// 
-			this.U.DataPropertyName = "U";
-			this.U.HeaderText = "U";
-			this.U.MinimumWidth = 6;
-			this.U.Name = "U";
-			// 
-			// X_Low
-			// 
-			this.X_Low.DataPropertyName = "X_Low";
-			this.X_Low.HeaderText = "X_Low";
-			this.X_Low.MinimumWidth = 6;
-			this.X_Low.Name = "X_Low";
-			// 
-			// X_Hi
-			// 
-			this.X_Hi.DataPropertyName = "X_Hi";
-			this.X_Hi.HeaderText = "X_Hi";
-			this.X_Hi.MinimumWidth = 6;
-			this.X_Hi.Name = "X_Hi";
-			// 
-			// Y_Low
-			// 
-			this.Y_Low.DataPropertyName = "Y_Low";
-			this.Y_Low.HeaderText = "Y_Low";
-			this.Y_Low.MinimumWidth = 6;
-			this.Y_Low.Name = "Y_Low";
-			// 
-			// Y_Hi
-			// 
-			this.Y_Hi.DataPropertyName = "Y_Hi";
-			this.Y_Hi.HeaderText = "Y_Hi";
-			this.Y_Hi.MinimumWidth = 6;
-			this.Y_Hi.Name = "Y_Hi";
-			// 
-			// U_Low
-			// 
-			this.U_Low.DataPropertyName = "U_Low";
-			this.U_Low.HeaderText = "U_Low";
-			this.U_Low.MinimumWidth = 6;
-			this.U_Low.Name = "U_Low";
-			// 
-			// U_Hi
-			// 
-			this.U_Hi.DataPropertyName = "U_Hi";
-			this.U_Hi.HeaderText = "U_Hi";
-			this.U_Hi.MinimumWidth = 6;
-			this.U_Hi.Name = "U_Hi";
-			// 
-			// Eanble
-			// 
-			this.Eanble.DataPropertyName = "Eanble";
-			this.Eanble.HeaderText = "Eanble";
-			this.Eanble.MinimumWidth = 6;
-			this.Eanble.Name = "Eanble";
-			// 
-			// Mark
-			// 
-			this.Mark.DataPropertyName = "Mark";
-			this.Mark.HeaderText = "Mark";
-			this.Mark.MinimumWidth = 6;
-			this.Mark.Name = "Mark";
-			// 
 			// xDataGridViewTextBoxColumn1
 			// 
 			this.xDataGridViewTextBoxColumn1.DataPropertyName = "X";
 			this.xDataGridViewTextBoxColumn1.HeaderText = "X";
-			this.xDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.xDataGridViewTextBoxColumn1.Name = "xDataGridViewTextBoxColumn1";
 			// 
 			// yDataGridViewTextBoxColumn1
 			// 
 			this.yDataGridViewTextBoxColumn1.DataPropertyName = "Y";
 			this.yDataGridViewTextBoxColumn1.HeaderText = "Y";
-			this.yDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.yDataGridViewTextBoxColumn1.Name = "yDataGridViewTextBoxColumn1";
 			// 
 			// uDataGridViewTextBoxColumn1
 			// 
 			this.uDataGridViewTextBoxColumn1.DataPropertyName = "U";
 			this.uDataGridViewTextBoxColumn1.HeaderText = "U";
-			this.uDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.uDataGridViewTextBoxColumn1.Name = "uDataGridViewTextBoxColumn1";
 			// 
 			// xLowDataGridViewTextBoxColumn1
 			// 
 			this.xLowDataGridViewTextBoxColumn1.DataPropertyName = "X_Low";
 			this.xLowDataGridViewTextBoxColumn1.HeaderText = "X_Low";
-			this.xLowDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.xLowDataGridViewTextBoxColumn1.Name = "xLowDataGridViewTextBoxColumn1";
 			// 
 			// xHiDataGridViewTextBoxColumn1
 			// 
 			this.xHiDataGridViewTextBoxColumn1.DataPropertyName = "X_Hi";
 			this.xHiDataGridViewTextBoxColumn1.HeaderText = "X_Hi";
-			this.xHiDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.xHiDataGridViewTextBoxColumn1.Name = "xHiDataGridViewTextBoxColumn1";
 			// 
 			// yLowDataGridViewTextBoxColumn1
 			// 
 			this.yLowDataGridViewTextBoxColumn1.DataPropertyName = "Y_Low";
 			this.yLowDataGridViewTextBoxColumn1.HeaderText = "Y_Low";
-			this.yLowDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.yLowDataGridViewTextBoxColumn1.Name = "yLowDataGridViewTextBoxColumn1";
 			// 
 			// yHiDataGridViewTextBoxColumn1
 			// 
 			this.yHiDataGridViewTextBoxColumn1.DataPropertyName = "Y_Hi";
 			this.yHiDataGridViewTextBoxColumn1.HeaderText = "Y_Hi";
-			this.yHiDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.yHiDataGridViewTextBoxColumn1.Name = "yHiDataGridViewTextBoxColumn1";
 			// 
 			// uLowDataGridViewTextBoxColumn1
 			// 
 			this.uLowDataGridViewTextBoxColumn1.DataPropertyName = "U_Low";
 			this.uLowDataGridViewTextBoxColumn1.HeaderText = "U_Low";
-			this.uLowDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.uLowDataGridViewTextBoxColumn1.Name = "uLowDataGridViewTextBoxColumn1";
 			// 
 			// uHiDataGridViewTextBoxColumn1
 			// 
 			this.uHiDataGridViewTextBoxColumn1.DataPropertyName = "U_Hi";
 			this.uHiDataGridViewTextBoxColumn1.HeaderText = "U_Hi";
-			this.uHiDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.uHiDataGridViewTextBoxColumn1.Name = "uHiDataGridViewTextBoxColumn1";
 			// 
 			// eanbleDataGridViewCheckBoxColumn
 			// 
 			this.eanbleDataGridViewCheckBoxColumn.DataPropertyName = "Eanble";
 			this.eanbleDataGridViewCheckBoxColumn.HeaderText = "Eanble";
-			this.eanbleDataGridViewCheckBoxColumn.MinimumWidth = 6;
 			this.eanbleDataGridViewCheckBoxColumn.Name = "eanbleDataGridViewCheckBoxColumn";
 			// 
 			// markDataGridViewTextBoxColumn
 			// 
 			this.markDataGridViewTextBoxColumn.DataPropertyName = "Mark";
 			this.markDataGridViewTextBoxColumn.HeaderText = "Mark";
-			this.markDataGridViewTextBoxColumn.MinimumWidth = 6;
 			this.markDataGridViewTextBoxColumn.Name = "markDataGridViewTextBoxColumn";
 			// 
 			// H2_VisionData2Replace
@@ -2403,7 +2293,7 @@
 			this.H2_VisionData2Replace.Name = "H2_VisionData2Replace";
 			this.H2_VisionData2Replace.Size = new System.Drawing.Size(167, 50);
 			this.H2_VisionData2Replace.TabIndex = 90;
-			this.H2_VisionData2Replace.Text = "替换";
+			this.H2_VisionData2Replace.Text = "Replace";
 			this.H2_VisionData2Replace.UseVisualStyleBackColor = true;
 			this.H2_VisionData2Replace.Click += new System.EventHandler(this.H2_VisionData2Replace_Click);
 			// 
@@ -2437,7 +2327,7 @@
 			this.H2_VisionData2Delete.Name = "H2_VisionData2Delete";
 			this.H2_VisionData2Delete.Size = new System.Drawing.Size(167, 50);
 			this.H2_VisionData2Delete.TabIndex = 83;
-			this.H2_VisionData2Delete.Text = "删除";
+			this.H2_VisionData2Delete.Text = "Delete";
 			this.H2_VisionData2Delete.UseVisualStyleBackColor = true;
 			this.H2_VisionData2Delete.Click += new System.EventHandler(this.H2_VisionData2Delete_Click);
 			// 
@@ -2474,7 +2364,7 @@
 			this.H2_VisionData2Add.Name = "H2_VisionData2Add";
 			this.H2_VisionData2Add.Size = new System.Drawing.Size(167, 50);
 			this.H2_VisionData2Add.TabIndex = 82;
-			this.H2_VisionData2Add.Text = "添加";
+			this.H2_VisionData2Add.Text = "Add";
 			this.H2_VisionData2Add.UseVisualStyleBackColor = true;
 			this.H2_VisionData2Add.Click += new System.EventHandler(this.H2_VisionData2Add_Click);
 			// 
@@ -2528,7 +2418,7 @@
 			this.DownFiducial2_Snap.Name = "DownFiducial2_Snap";
 			this.DownFiducial2_Snap.Size = new System.Drawing.Size(151, 49);
 			this.DownFiducial2_Snap.TabIndex = 88;
-			this.DownFiducial2_Snap.Text = "拍照";
+			this.DownFiducial2_Snap.Text = "Trigger";
 			this.DownFiducial2_Snap.UseVisualStyleBackColor = true;
 			// 
 			// DownFiducial2_Setup
@@ -2538,7 +2428,7 @@
 			this.DownFiducial2_Setup.Name = "DownFiducial2_Setup";
 			this.DownFiducial2_Setup.Size = new System.Drawing.Size(173, 49);
 			this.DownFiducial2_Setup.TabIndex = 87;
-			this.DownFiducial2_Setup.Text = "设置";
+			this.DownFiducial2_Setup.Text = "SetUp";
 			this.DownFiducial2_Setup.UseVisualStyleBackColor = true;
 			this.DownFiducial2_Setup.Click += new System.EventHandler(this.DownFiducial2_Setup_Click);
 			// 
@@ -2688,7 +2578,7 @@
 			this.DownCalibration_Replace.Name = "DownCalibration_Replace";
 			this.DownCalibration_Replace.Size = new System.Drawing.Size(167, 50);
 			this.DownCalibration_Replace.TabIndex = 90;
-			this.DownCalibration_Replace.Text = "替换";
+			this.DownCalibration_Replace.Text = "Replace";
 			this.DownCalibration_Replace.UseVisualStyleBackColor = true;
 			this.DownCalibration_Replace.Click += new System.EventHandler(this.H1_VisionDataReplace_Click);
 			// 
@@ -2760,9 +2650,9 @@
 			this.DownCalibration_Calibration.Location = new System.Drawing.Point(789, 245);
 			this.DownCalibration_Calibration.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.DownCalibration_Calibration.Name = "DownCalibration_Calibration";
-			this.DownCalibration_Calibration.Size = new System.Drawing.Size(167, 50);
+			this.DownCalibration_Calibration.Size = new System.Drawing.Size(190, 50);
 			this.DownCalibration_Calibration.TabIndex = 84;
-			this.DownCalibration_Calibration.Text = "设置校准";
+			this.DownCalibration_Calibration.Text = "SetCalibration";
 			this.DownCalibration_Calibration.UseVisualStyleBackColor = true;
 			this.DownCalibration_Calibration.Click += new System.EventHandler(this.DownCalibration_Calibration_Click);
 			// 
@@ -2773,7 +2663,7 @@
 			this.DownCalibration_Delete.Name = "DownCalibration_Delete";
 			this.DownCalibration_Delete.Size = new System.Drawing.Size(167, 50);
 			this.DownCalibration_Delete.TabIndex = 83;
-			this.DownCalibration_Delete.Text = "删除";
+			this.DownCalibration_Delete.Text = "Delete";
 			this.DownCalibration_Delete.UseVisualStyleBackColor = true;
 			this.DownCalibration_Delete.Click += new System.EventHandler(this.DownCalibration_Delete_Click);
 			// 
@@ -2784,7 +2674,7 @@
 			this.DownCalibration_Add.Name = "DownCalibration_Add";
 			this.DownCalibration_Add.Size = new System.Drawing.Size(167, 50);
 			this.DownCalibration_Add.TabIndex = 82;
-			this.DownCalibration_Add.Text = "添加";
+			this.DownCalibration_Add.Text = "Add";
 			this.DownCalibration_Add.UseVisualStyleBackColor = true;
 			this.DownCalibration_Add.Click += new System.EventHandler(this.DownCalibration_Add_Click);
 			// 
@@ -2864,7 +2754,7 @@
 			this.DownCalibration_Snap.Name = "DownCalibration_Snap";
 			this.DownCalibration_Snap.Size = new System.Drawing.Size(221, 49);
 			this.DownCalibration_Snap.TabIndex = 9;
-			this.DownCalibration_Snap.Text = "拍照";
+			this.DownCalibration_Snap.Text = "Trigger";
 			this.DownCalibration_Snap.UseVisualStyleBackColor = true;
 			this.DownCalibration_Snap.Click += new System.EventHandler(this.DownCalibration_Snap_Click);
 			// 
@@ -2875,7 +2765,7 @@
 			this.DownCalibration_Set.Name = "DownCalibration_Set";
 			this.DownCalibration_Set.Size = new System.Drawing.Size(221, 49);
 			this.DownCalibration_Set.TabIndex = 0;
-			this.DownCalibration_Set.Text = "设置";
+			this.DownCalibration_Set.Text = "SetUp";
 			this.DownCalibration_Set.UseVisualStyleBackColor = true;
 			this.DownCalibration_Set.Click += new System.EventHandler(this.DownCalibration_Set_Click);
 			// 
@@ -2886,9 +2776,9 @@
 			this.label23.Location = new System.Drawing.Point(236, 301);
 			this.label23.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label23.Name = "label23";
-			this.label23.Size = new System.Drawing.Size(58, 24);
+			this.label23.Size = new System.Drawing.Size(106, 24);
 			this.label23.TabIndex = 90;
-			this.label23.Text = "曝光";
+			this.label23.Text = "Exposure";
 			// 
 			// textBox5
 			// 
@@ -2917,9 +2807,9 @@
 			this.label22.Location = new System.Drawing.Point(27, 301);
 			this.label22.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label22.Name = "label22";
-			this.label22.Size = new System.Drawing.Size(82, 24);
+			this.label22.Size = new System.Drawing.Size(142, 24);
 			this.label22.TabIndex = 90;
-			this.label22.Text = "相机号";
+			this.label22.Text = "CameraIndex";
 			// 
 			// tabPage8
 			// 
@@ -2964,7 +2854,7 @@
 			this.tabPage10.Padding = new System.Windows.Forms.Padding(4);
 			this.tabPage10.Size = new System.Drawing.Size(1596, 379);
 			this.tabPage10.TabIndex = 0;
-			this.tabPage10.Text = "取料拍照";
+			this.tabPage10.Text = "TakeMaterial";
 			this.tabPage10.UseVisualStyleBackColor = true;
 			// 
 			// groupBox6
@@ -3113,7 +3003,7 @@
 			this.button10.Name = "button10";
 			this.button10.Size = new System.Drawing.Size(167, 50);
 			this.button10.TabIndex = 90;
-			this.button10.Text = "替换";
+			this.button10.Text = "Replace";
 			this.button10.UseVisualStyleBackColor = true;
 			this.button10.Click += new System.EventHandler(this.button10_Click_1);
 			// 
@@ -3147,7 +3037,7 @@
 			this.button11.Name = "button11";
 			this.button11.Size = new System.Drawing.Size(167, 50);
 			this.button11.TabIndex = 83;
-			this.button11.Text = "删除";
+			this.button11.Text = "Delete";
 			this.button11.UseVisualStyleBackColor = true;
 			this.button11.Click += new System.EventHandler(this.button11_Click);
 			// 
@@ -3184,7 +3074,7 @@
 			this.button12.Name = "button12";
 			this.button12.Size = new System.Drawing.Size(167, 50);
 			this.button12.TabIndex = 82;
-			this.button12.Text = "添加";
+			this.button12.Text = "Add";
 			this.button12.UseVisualStyleBackColor = true;
 			this.button12.Click += new System.EventHandler(this.button12_Click_1);
 			// 
@@ -3238,7 +3128,7 @@
 			this.button17.Name = "button17";
 			this.button17.Size = new System.Drawing.Size(151, 49);
 			this.button17.TabIndex = 88;
-			this.button17.Text = "拍照";
+			this.button17.Text = "Trigger";
 			this.button17.UseVisualStyleBackColor = true;
 			this.button17.Click += new System.EventHandler(this.button17_Click);
 			// 
@@ -3249,7 +3139,7 @@
 			this.button20.Name = "button20";
 			this.button20.Size = new System.Drawing.Size(173, 49);
 			this.button20.TabIndex = 87;
-			this.button20.Text = "设置";
+			this.button20.Text = "SetUp";
 			this.button20.UseVisualStyleBackColor = true;
 			this.button20.Click += new System.EventHandler(this.button20_Click);
 			// 
@@ -3308,12 +3198,12 @@
 			// 
 			// button33
 			// 
-			this.button33.Location = new System.Drawing.Point(767, 255);
+			this.button33.Location = new System.Drawing.Point(589, 256);
 			this.button33.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button33.Name = "button33";
 			this.button33.Size = new System.Drawing.Size(167, 50);
 			this.button33.TabIndex = 90;
-			this.button33.Text = "替换";
+			this.button33.Text = "Replace";
 			this.button33.UseVisualStyleBackColor = true;
 			this.button33.Click += new System.EventHandler(this.button33_Click);
 			// 
@@ -3381,34 +3271,34 @@
 			// 
 			// button35
 			// 
-			this.button35.Location = new System.Drawing.Point(941, 255);
+			this.button35.Location = new System.Drawing.Point(763, 256);
 			this.button35.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button35.Name = "button35";
-			this.button35.Size = new System.Drawing.Size(167, 50);
+			this.button35.Size = new System.Drawing.Size(197, 50);
 			this.button35.TabIndex = 84;
-			this.button35.Text = "设置校准";
+			this.button35.Text = "SetCalibration";
 			this.button35.UseVisualStyleBackColor = true;
 			this.button35.Click += new System.EventHandler(this.button35_Click);
 			// 
 			// button36
 			// 
-			this.button36.Location = new System.Drawing.Point(589, 255);
+			this.button36.Location = new System.Drawing.Point(411, 256);
 			this.button36.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button36.Name = "button36";
 			this.button36.Size = new System.Drawing.Size(167, 50);
 			this.button36.TabIndex = 83;
-			this.button36.Text = "删除";
+			this.button36.Text = "Delete";
 			this.button36.UseVisualStyleBackColor = true;
 			this.button36.Click += new System.EventHandler(this.button36_Click);
 			// 
 			// button37
 			// 
-			this.button37.Location = new System.Drawing.Point(415, 255);
+			this.button37.Location = new System.Drawing.Point(237, 256);
 			this.button37.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button37.Name = "button37";
 			this.button37.Size = new System.Drawing.Size(167, 50);
 			this.button37.TabIndex = 82;
-			this.button37.Text = "添加";
+			this.button37.Text = "Add";
 			this.button37.UseVisualStyleBackColor = true;
 			this.button37.Click += new System.EventHandler(this.button37_Click);
 			// 
@@ -3488,7 +3378,7 @@
 			this.button38.Name = "button38";
 			this.button38.Size = new System.Drawing.Size(221, 49);
 			this.button38.TabIndex = 9;
-			this.button38.Text = "拍照";
+			this.button38.Text = "Trigger";
 			this.button38.UseVisualStyleBackColor = true;
 			this.button38.Click += new System.EventHandler(this.button38_Click);
 			// 
@@ -3499,7 +3389,7 @@
 			this.button39.Name = "button39";
 			this.button39.Size = new System.Drawing.Size(221, 49);
 			this.button39.TabIndex = 0;
-			this.button39.Text = "设置";
+			this.button39.Text = "SetUp";
 			this.button39.UseVisualStyleBackColor = true;
 			this.button39.Click += new System.EventHandler(this.button39_Click);
 			// 
@@ -3509,9 +3399,9 @@
 			this.label24.Location = new System.Drawing.Point(273, 312);
 			this.label24.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label24.Name = "label24";
-			this.label24.Size = new System.Drawing.Size(58, 24);
+			this.label24.Size = new System.Drawing.Size(106, 24);
 			this.label24.TabIndex = 93;
-			this.label24.Text = "曝光";
+			this.label24.Text = "Exposure";
 			// 
 			// textBox8
 			// 
@@ -3528,9 +3418,9 @@
 			this.label25.Location = new System.Drawing.Point(57, 312);
 			this.label25.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label25.Name = "label25";
-			this.label25.Size = new System.Drawing.Size(82, 24);
+			this.label25.Size = new System.Drawing.Size(142, 24);
 			this.label25.TabIndex = 94;
-			this.label25.Text = "相机号";
+			this.label25.Text = "CameraIndex";
 			// 
 			// textBox7
 			// 
@@ -4749,17 +4639,6 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn uHiDataGridViewTextBoxColumn;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn Enable;
 		private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn16;
-		private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
-		private System.Windows.Forms.DataGridViewTextBoxColumn Y;
-		private System.Windows.Forms.DataGridViewTextBoxColumn U;
-		private System.Windows.Forms.DataGridViewTextBoxColumn X_Low;
-		private System.Windows.Forms.DataGridViewTextBoxColumn X_Hi;
-		private System.Windows.Forms.DataGridViewTextBoxColumn Y_Low;
-		private System.Windows.Forms.DataGridViewTextBoxColumn Y_Hi;
-		private System.Windows.Forms.DataGridViewTextBoxColumn U_Low;
-		private System.Windows.Forms.DataGridViewTextBoxColumn U_Hi;
-		private System.Windows.Forms.DataGridViewCheckBoxColumn Eanble;
-		private System.Windows.Forms.DataGridViewTextBoxColumn Mark;
 		private System.Windows.Forms.DataGridViewTextBoxColumn xDataGridViewTextBoxColumn1;
 		private System.Windows.Forms.DataGridViewTextBoxColumn yDataGridViewTextBoxColumn1;
 		private System.Windows.Forms.DataGridViewTextBoxColumn uDataGridViewTextBoxColumn1;

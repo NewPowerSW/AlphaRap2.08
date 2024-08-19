@@ -757,6 +757,12 @@
     <Compile Include="Classes\OtherItemsForLang.cs" />
     <Compile Include="Classes\DataBase.cs" />
     <Compile Include="Devices\HIOKI_RM3545.cs" />
+    <Compile Include="FunctionForms\OptionChoiceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FunctionForms\OptionChoiceForm.designer.cs">
+      <DependentUpon>OptionChoiceForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Log\IniFile.cs" />
     <Compile Include="Log\RFIDCsvObj.cs" />
     <Compile Include="Log\RFIDFinalStation.cs" />
@@ -817,17 +823,17 @@
     <Compile Include="MenuForm\LanguageSetting.designer.cs">
       <DependentUpon>LanguageSetting.cs</DependentUpon>
     </Compile>
+    <Compile Include="MenuForm\LoadingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MenuForm\LoadingForm.designer.cs">
+      <DependentUpon>LoadingForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MenuForm\LockForm1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MenuForm\LockForm1.Designer.cs">
       <DependentUpon>LockForm1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MenuForm\LoadForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MenuForm\LoadForm.designer.cs">
-      <DependentUpon>LoadForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MenuForm\ManualForm.cs">
       <SubType>Form</SubType>
@@ -1011,6 +1017,9 @@
     <EmbeddedResource Include="FunctionForms\MotorControlForm.resx">
       <DependentUpon>MotorControlForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FunctionForms\OptionChoiceForm.resx">
+      <DependentUpon>OptionChoiceForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -1033,8 +1042,8 @@
     <EmbeddedResource Include="MenuForm\LanguageSetting.resx">
       <DependentUpon>LanguageSetting.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MenuForm\LoadForm.resx">
-      <DependentUpon>LoadForm.cs</DependentUpon>
+    <EmbeddedResource Include="MenuForm\LoadingForm.resx">
+      <DependentUpon>LoadingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MenuForm\LockForm1.resx">
       <DependentUpon>LockForm1.cs</DependentUpon>

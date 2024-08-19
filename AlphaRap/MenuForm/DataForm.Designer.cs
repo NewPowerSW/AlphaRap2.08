@@ -67,6 +67,7 @@
 			this.data1.ParameterSet.Add(this.UserLogin);
 			this.data1.Size = new System.Drawing.Size(1224, 740);
 			this.data1.TabIndex = 0;
+			this.data1.Load += new System.EventHandler(this.data1_Load);
 			// 
 			// MESLOG
 			// 

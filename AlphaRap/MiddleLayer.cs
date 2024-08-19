@@ -21,6 +21,7 @@ using System.Data;
 using AlphaRap.TaskProcess;
 using AlphaRap.MES;
 using AlphaRap.PLC;
+using Alpha;
 
 namespace AlphaRap
 {
@@ -48,11 +49,11 @@ namespace AlphaRap
 		public static FingerprintCaptureForm FingerprintCaptureF;
 		public static Robot RobotF;
 		public static LockForm1 LockForm1;
-	
+
 		public static LENS MesF;
 		public static int LoadProcessRate = 0;
-	
-		
+		public static LoadingForm LoadingF;
+
 		public static AlwaysRunTask alTask;
 		public static AlarmRunTask alarmRunTask;
 
@@ -80,7 +81,8 @@ namespace AlphaRap
 		public static void InitialProject3()
 		{
 			#region Load Ini File
-			//  LoadingMarqueeF.SetCaption("IniFile");
+			LoadingF.SetCaption("Load Ini File");
+
 			IniFile iniFile = new IniFile(".\\MachineSetup.ini");
 			SysPara.ProjectName = iniFile.ReadString("MachineSetup", "ProjectName", "AlphaRap3.0");
 			SysPara.RecipeName = iniFile.ReadString("MachineSetup", "RecipeName", "Recipe");
@@ -98,10 +100,11 @@ namespace AlphaRap
 			ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
 			#endregion
 			#region Load Alarm Table
-
+			LoadingF.SetCaption("Load Alarm Table");
 			NPSDK.Alarm.Initial(string.Format("{0}\\{1}.xml", SysPara.AlarmTableDirectory, SysPara.LanguageShow.ToString()));
 			#endregion
 			#region Creat Module
+			LoadingF.SetCaption("Load Form");
 			//=======================Module Create===========================
 			SystemF = CreateForm(SystemF, "SystemForm");
 
@@ -115,7 +118,7 @@ namespace AlphaRap
 			InitialLanguageData();
 			if (SysPara.LanguageName == "English")
 				SysPara.LanguageShow = LanguageType.English;
-			else if(SysPara.LanguageName == "Chinese")
+			else if (SysPara.LanguageName == "Chinese")
 				SysPara.LanguageShow = LanguageType.Chinese;
 			else
 				SysPara.LanguageShow = LanguageType.Español;
@@ -134,7 +137,7 @@ namespace AlphaRap
 		/// </summary>
 		public static void InitialProject()
 		{
-			LoadProcessRate = 1;
+		
 			#region Load Ini File
 
 
@@ -159,25 +162,30 @@ namespace AlphaRap
 			ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
 			SysPara.FilePath = SysPara.RecipeDataDirectory + "\\" + SysPara.RecipeName + ".xml";
 			#endregion
-			LoadProcessRate = 5;
+	
 			#region Load Alarm Table
 			NPSDK.Alarm.Initial(string.Format("{0}\\{1}.xml", SysPara.AlarmTableDirectory, SysPara.LanguageShow.ToString()));
 			#endregion
 			//=======================Module Create===========================
-			LoadProcessRate = 10;
+			
 			#region FlwoChatForm
 			GantryF = CreateForm(GantryF, "Gantry");
 			UpConveyorF = CreateForm(UpConveyorF, "UpConveryor");
 			DownConveyorF = CreateForm(DownConveyorF, "DownConveryor");
 			#endregion
+			
 			SpanLifeF = new LifeSpanForm();
+			LoadingF.SetCaption("Load ProductManagerForm");
 			ProductF = CreateForm(ProductF, "ProductManagerForm");
 			PlatF = CreateForm(PlatF, "PlatFormSetting");
 			SystemS = CreateForm(SystemS, "SystemSetting");
 			ParF = CreateForm(ParF, "Parameter");
 			SystemF = CreateForm(SystemF, "SystemForm");
+			LoadingF.SetCaption("Load MainForm");
 			MainF = CreateForm(MainF, "MainForm");
+			LoadingF.SetCaption("Load HomeForm");
 			HomeF = CreateForm(HomeF, "HomeForm");
+			LoadingF.SetCaption("Load ManualForm");
 			ManualF = CreateForm(ManualF, "ManualForm");
 			HardF = CreateForm(HardF, "HardForm");
 			CheckF = CreateForm(CheckF, "CheckForm");
@@ -186,9 +194,6 @@ namespace AlphaRap
 			AddF = CreateForm(AddF, "AddUserForm");
 			VPF = CreateForm(VPF, "VPForm");
 			FlowF = new Flow();
-			
-			LoadProcessRate = 15;
-			
 
 			RobotF = CreateForm(RobotF, "Robot");
 			DataF = CreateForm(DataF, "DataForm");
@@ -232,7 +237,7 @@ namespace AlphaRap
 
 			if (SysPara.UseFingerprint)
 				FingerprintCaptureF = new FingerprintCaptureForm();
-
+			LoadingF.SetCaption("Load InitialLanguageData");
 			InitialLanguageData();
 			if (SysPara.LanguageName == "English")
 				SysPara.LanguageShow = LanguageType.English;
@@ -243,24 +248,26 @@ namespace AlphaRap
 
 			SwitchLanguage(SysPara.LanguageShow);
 
-			LoadProcessRate = 20;
+			LoadingF.SetCaption("SwitchPermission");
 			SwitchPermission(SysPara.UserPermission);
+			LoadingF.SetCaption("Load IO");
 			SDKKernal.SetSimulation(SysPara.Simulation);
 			SDKKernal.InitializeComponent();
 
 			alTask = new AlwaysRunTask();
 			alarmRunTask = new AlarmRunTask();
-			LoadProcessRate = 25;
 
 
+			LoadingF.SetCaption("OpenRecipe");
 			OpenRecipe(string.Format("{0}\\{1}.xml", SysPara.RecipeDataDirectory, SysPara.RecipeName));
 
 			FlowCtrl = new FlowControl();
 			FlowCtrl.StartThread();
-		
-			LoadProcessRate = 90;
+
+			
 
 			ServoOn();
+			LoadingF.SetCaption("Load Vision");
 		}
 
 		public static void ServoOn()
@@ -611,7 +618,7 @@ namespace AlphaRap
 				MainF.NumC1.Image = MainF.NumC2.Image;
 				MainF.NumC1.Text = "CN";
 			}
-			else if(SysPara.LanguageShow == LanguageType.English)
+			else if (SysPara.LanguageShow == LanguageType.English)
 			{
 				MainF.NumC1.Image = MainF.NumC3.Image;
 				MainF.NumC1.Text = "EN";
@@ -622,7 +629,7 @@ namespace AlphaRap
 				MainF.NumC1.Text = "ES";
 			}
 			NPSDK.Alarm.Initial(string.Format("{0}\\{1}.xml", SysPara.AlarmTableDirectory, SysPara.LanguageShow.ToString()));
-			
+
 			#region
 			//解决切换语言Flow_chat 断线问题
 			foreach (Flow_BaseForm Module in Flow_Module.FlowChart_ModuleList)
@@ -639,7 +646,7 @@ namespace AlphaRap
 			MiddleLayer.DataF.UserLoginLog[0] = SysPara.UserName;
 			MiddleLayer.DataF.UserLoginLog[1] = SysPara.UserPermission.ToString();
 			MiddleLayer.DataF.SaveUserLoginLog(MiddleLayer.DataF.UserLoginLog);
-			
+
 			//MainF.AddUserResult(SysPara.UserName, SysPara.UserPermission.ToString(), SysPara.UserLoginTime);
 
 		}
@@ -766,14 +773,21 @@ namespace AlphaRap
 
 		public static void Initial()
 		{
-
+			
 			if (NPSDK.Alarm.IsError)
 			{
-				//MessageBox.Show("Please Reset Alarm Firstly!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Stop, MessageBoxDefaultButton.Button1);
-				Warning warning = new Warning();
-				warning.SetShowMessage("Please Reset Alarm Firstly!", "OK");
+
+				OptionChoiceForm warning = new OptionChoiceForm();
+				warning.fnChangeButtonsText("OK", "OK");
+				warning.fnSetMessageAndButtons((SysPara.LanguageShow == LanguageType.Chinese) ? "请先清除报警！" : "Please Reset Alarm Firstly!", false, true, false);
 				warning.ShowDialog();
+				
 				return;
+				//MessageBox.Show("Please Reset Alarm Firstly!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Stop, MessageBoxDefaultButton.Button1);
+				//Warning warning = new Warning();
+				//warning.SetShowMessage("Please Reset Alarm Firstly!", "OK");
+				//warning.ShowDialog();
+				//return;
 			}
 			MiddleLayer.MainF.dataBControl1.StartWaitingTime();
 			switch (SysPara.SystemMode)
@@ -817,14 +831,16 @@ namespace AlphaRap
 		public static void StartRun()
 		{
 
-			
+			AlarmClear();
+			Thread.Sleep(200);
 			if (NPSDK.Alarm.IsError)
 			{
-				//MessageBox.Show("Please Reset Alarm Firstly!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-				Warning warning = new Warning();
-				warning.SetShowMessage("Please Reset Alarm Firstly!", "OK");
+				OptionChoiceForm warning = new OptionChoiceForm();
+				warning.fnChangeButtonsText("OK", "OK");
+				warning.fnSetMessageAndButtons((SysPara.LanguageShow == LanguageType.Chinese) ? "请先清除报警！" : "Please Reset Alarm Firstly!", false, true, false);
 				warning.ShowDialog();
 				return;
+
 			}
 
 
@@ -1026,14 +1042,14 @@ namespace AlphaRap
 
 		public static void OpenVision()
 		{
-			LoadProcessRate = 25;
+			
 
 			for (int i = 0; i < VisionproInterface.VList.Count; i++)
 			{
 				string path = string.Format(@"{0}\{1}\{2}.vpp", SysPara.VisionFileDirectory, VisionproInterface.VList[i].GetType().Name, SysPara.RecipeName);
 				FileInfo f = new FileInfo(path);
 				VisionproInterface.VList[i].LoadTB(f.FullName);
-				LoadProcessRate = 25 + (int)(((double)65 / VisionproInterface.VList.Count) * (i + 1));
+				//LoadProcessRate = 25 + (int)(((double)65 / VisionproInterface.VList.Count) * (i + 1));
 			}
 
 

@@ -79,6 +79,9 @@ namespace AlphaRap
 			}
 		}
 
+		private void data1_Load(object sender, EventArgs e)
+		{
 
+		}
 	}
 }
