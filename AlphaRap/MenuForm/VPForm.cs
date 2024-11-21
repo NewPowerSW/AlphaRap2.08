@@ -18,16 +18,16 @@ namespace AlphaRap
             InitializeComponent();
 
             H1_VFiducial.RecordDisplayList.Add(cogRecDisp_H1_Recipe);
-            H1_VFiducial.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay3);
+            H1_VFiducial.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
 
             H1_VFiducial2.RecordDisplayList.Add(cogRecDisp_H1_Recipe);
-            H1_VFiducial2.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay3);
+            H1_VFiducial2.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
 
             H1_VFiducial3.RecordDisplayList.Add(cogRecDisp_H1_Recipe);
-            H1_VFiducial3.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay3);
+            H1_VFiducial3.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
 
             H1_VFiducial4.RecordDisplayList.Add(cogRecDisp_H1_Recipe);
-            H1_VFiducial4.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay3);
+            H1_VFiducial4.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
 
             H1_VCalibration.RecordDisplayList.Add(cogRecDisp_H1_Recipe);
 		
@@ -401,7 +401,7 @@ namespace AlphaRap
         {
 
         }
-
+         
         private void H2_LightOff_Click(object sender, EventArgs e)
         {
 
@@ -1466,5 +1466,7 @@ namespace AlphaRap
 
 			SysPara.items++;
 		}
+
+		
 	}
 }

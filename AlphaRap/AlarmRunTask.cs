@@ -83,7 +83,7 @@ namespace AlphaRap
 					MiddleLayer.MainF.WarnningMessage.Items.Add(Alarm);
 				}
 				MiddleLayer.MainF.WarnningMessage.EndUpdate();
-				MiddleLayer.HomeF.WriteExcelData();
+				//MiddleLayer.HomeF.WriteExcelData();
 
 			}
 			#endregion

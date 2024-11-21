@@ -12,7 +12,7 @@ namespace AlphaRap
 {
 	class AlwaysRunTask
 	{
-	
+
 		private JTimer BlinkTM = new JTimer();
 		private bool BlinkIsOn = false;
 		private const int BlinkTime = 500;
@@ -40,7 +40,7 @@ namespace AlphaRap
 		}
 		public void AlwaysRun()
 		{
-		
+
 
 			if (SysPara.Simulation)
 				return;

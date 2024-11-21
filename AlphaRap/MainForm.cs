@@ -38,22 +38,22 @@ namespace AlphaRap
 			Manual,
 			Check,
 			System,
-			Robot,
+			//Robot,
 			AddUser,
-			Mes,
-			Exit,
 			Rapid,
 			Log,
 			Data,
 			Vision,
-			User,
+			Login,
 			LifeSpan,
 			Lock,
-			Init,
-			Start,
+			Reset,
 			Pause,
-			Stop
-
+			Stop,
+			Exit,
+			Run,
+			Mes,
+			Robot
 		}
 		public enum MENU_PageType1
 		{
@@ -77,8 +77,9 @@ namespace AlphaRap
 			Exit,
 			Robot,
 			LifeSpan,
+			Log
 		}
-
+		#region 111
 		HomeForm hf = MiddleLayer.HomeF;
 		ManualForm mf = MiddleLayer.ManualF;
 		SystemForm sf = MiddleLayer.SystemF;
@@ -99,11 +100,11 @@ namespace AlphaRap
 		int AllOutputShift = 0;
 		int AllRejectShift = 0;
 		double AllYeild = 0;
-		private Thread startThread;
+		#endregion
 		public MainForm()
 		{
 			InitializeComponent();
-			MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_Robot, MENU_AddUser, MENU_Mes, MENU_Rapid, MENU_Log, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Run, MENU_Pause, MENU_Stop };
+			MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_AddUser,  MENU_Rapid, MENU_Log, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Pause, MENU_Stop , MENU_Exit, MENU_Run, MENU_Mes };
 			//startThread = new Thread
 			//(() =>
 			//{
@@ -138,7 +139,7 @@ namespace AlphaRap
 			mh.SetHook();
 			mh.MouseDownEvent += mh_MouseDownEvent;
 			mh.MouseUpEvent += mh_MouseUpEvent;
-			//mh.MouseMoveEvent += mh_MouseMoveEvent;
+			mh.MouseMoveEvent += mh_MouseMoveEvent;
 
 			//键盘监听
 			k_hook = new KeyboardHook();
@@ -237,9 +238,9 @@ namespace AlphaRap
 		{
 			for (int i = 0; i < MENU_Picture.Length; i++)
 				if (i == (int)MENU_SelectPage)
-					MENU_Picture[i].BackColor = Color.LimeGreen;
+					MENU_Picture[i].BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
 				else
-				{
+				{ 
 					MENU_Picture[i].BackColor = Color.White;
 
 				}
@@ -291,19 +292,10 @@ namespace AlphaRap
 			string OrgUser = SysPara.UserName;
 			UserLoginF.ShowDialog();
 			if (OrgUser != SysPara.UserName)
-			{
-				try
-				{
-					if (!MENU_Picture[(int)MENU_SelectPage].Enabled)
-						SwitchMainPage(MENU_PageType.Home);
-					else
-						RefreshMenuBackcolor();
-				}
-				catch (Exception)
-				{
+				if (!MENU_Picture[(int)MENU_SelectPage].Enabled)
 					SwitchMainPage(MENU_PageType.Home);
-				}
-			}
+				else
+					RefreshMenuBackcolor();
 		}
 		/// <summary>
 		/// 选择用户权限
@@ -330,7 +322,7 @@ namespace AlphaRap
 					MENU_Data.Enabled = Convert.ToBoolean(readData.Rows[0]["Data"]);
 					MENU_Vision.Enabled = Convert.ToBoolean(readData.Rows[0]["Vision"]);
 					MENU_Exit.Enabled = Convert.ToBoolean(readData.Rows[0]["Exit"]);
-					MENU_Robot.Enabled = Convert.ToBoolean(readData.Rows[0]["Power"]);
+					//MENU_Robot.Enabled = Convert.ToBoolean(readData.Rows[0]["Power"]);
 				}
 			}
 		}
@@ -440,6 +432,12 @@ namespace AlphaRap
 					message2 = warnMessageEn2;
 					message3 = warnMessageEn3;
 					message4 = warnMessageEn4;
+
+
+
+
+
+
 					MiddleLayer.ProductF.listView1.Columns[0].Text = warnMessageEn5;
 					break;
 				default:
@@ -465,7 +463,7 @@ namespace AlphaRap
 			MENU_Hard.Image = MENU_Product.Enabled ? imageList1.Images[6] : imageList1.Images[7];
 			MENU_Manual.Image = MENU_Manual.Enabled ? imageList1.Images[8] : imageList1.Images[9];
 			MENU_Check.Image = MENU_Check.Enabled ? imageList1.Images[10] : imageList1.Images[11];
-			MENU_Robot.Image = MENU_Robot.Enabled ? imageList1.Images[12] : imageList1.Images[13];
+			//MENU_Robot.Image = MENU_Robot.Enabled ? imageList1.Images[12] : imageList1.Images[13];
 			MENU_System.Image = MENU_System.Enabled ? imageList1.Images[14] : imageList1.Images[15];
 			MENU_AddUser.Image = MENU_AddUser.Enabled ? imageList1.Images[16] : imageList1.Images[17];
 			MENU_Mes.Image = MENU_Mes.Enabled ? imageList1.Images[18] : imageList1.Images[19];
@@ -607,7 +605,7 @@ namespace AlphaRap
 		//			txtPTotal.Text = (SysPara.iProductOK + SysPara.iProductNG).ToString();
 
 		//			SysPara.iProductHourlyInput[datanow.Hour] += 1;
-		//		}
+		//		}、
 
 		//		if (txtPOK.Text != SysPara.iProductOK.ToString())
 		//		{
@@ -698,42 +696,6 @@ namespace AlphaRap
 		}
 		#endregion
 
-
-		private void btExit_Click(object sender, EventArgs e)
-		{
-			//add language selection
-			string warnMessageCh1 = "确定要退出调试吗？";
-			string warnMessageCh2 = "提示";
-			string warnMessageEn1 = "Are you sure to Exit?";
-			string warnMessageEn2 = "Note";
-
-			string message1 = "", message2 = "";
-			switch (SysPara.LanguageShow)
-			{
-				case LanguageType.Chinese:
-					message1 = warnMessageCh1;
-					message2 = warnMessageCh2;
-					break;
-				case LanguageType.English:
-					message1 = warnMessageEn1;
-					message2 = warnMessageEn2;
-					break;
-			}
-			DialogResult dr;
-			dr = MessageBox.Show(message1, message2, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-			if
-			 (dr == DialogResult.Yes)
-			{
-				aaaa:
-				MiddleLayer.gEXIT = true;
-				SwitchMainPage(MENU_PageType.Home);
-				MiddleLayer.FlowCtrl.bStopWork = true;
-				Close();
-				System.Environment.Exit(0);
-				GC.Collect(); //GC回收
-				goto aaaa;
-			}
-		}
 
 		#region reminder
 		public void ShowWord(Control con, string word)
@@ -855,18 +817,24 @@ namespace AlphaRap
 					else
 						ShowWord(this.MENU_Stop, "StopButton");
 					break;
-				//case MENU_PageType1.Exit:
-				//	if (SysPara.LanguageShow == LanguageType.Chinese)
-				//		ShowWord(this.MENU_Exit, "退出");
-				//	else
-				//		ShowWord(this.MENU_Exit, "Exit");
-				//	break;
-				case MENU_PageType1.Robot:
+				case MENU_PageType1.Exit:
 					if (SysPara.LanguageShow == LanguageType.Chinese)
-						ShowWord(this.MENU_Robot, "机械手");
+						ShowWord(this.MENU_Exit, "退出");
 					else
-						ShowWord(this.MENU_Robot, "Robot");
+						ShowWord(this.MENU_Exit, "Exit");
 					break;
+				case MENU_PageType1.Log:
+					if (SysPara.LanguageShow == LanguageType.Chinese)
+						ShowWord(this.MENU_Log, "日志");
+					else
+						ShowWord(this.MENU_Log, "Log");
+					break;
+					//case MENU_PageType1.Robot:
+					//	if (SysPara.LanguageShow == LanguageType.Chinese)
+					//		ShowWord(this.MENU_Robot, "机械手");
+					//	else
+					//		ShowWord(this.MENU_Robot, "Robot");
+					//	break;
 			}
 		}
 		#endregion
@@ -1096,6 +1064,7 @@ namespace AlphaRap
 			}
 		}
 		#endregion
+
 		#region KeyMonitor
 		private void hook_KeyDown(object sender, KeyEventArgs e)
 		{
@@ -1107,6 +1076,7 @@ namespace AlphaRap
 			}
 		}
 		#endregion
+
 		private void LoginOutTime_Tick(object sender, EventArgs e)
 		{
 			SysPara.UserName = "None";
@@ -1163,6 +1133,7 @@ namespace AlphaRap
 
 		private void MENU_Robot_Click(object sender, EventArgs e)
 		{
+			
 			string ItemName = Convert.ToString(((Control)sender).Tag);
 			SwitchMainPage((MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName));
 		}
@@ -1179,11 +1150,11 @@ namespace AlphaRap
 					CCD_Graber[i].Disconnect(true);
 
 				}
-				MiddleLayer.alarmRunTask.AlarmTaskIsRun = false;
 
-				System.Environment.Exit(0);
-				GC.Collect(); //GC回收
-
+				Application.Exit();
+				System.Environment.Exit(System.Environment.ExitCode);
+				this.Dispose();
+				this.Close();
 			}
 			catch
 			{ }
@@ -1340,19 +1311,52 @@ namespace AlphaRap
 		bool SideBarExpand;
 		private void pictureBox2_Click(object sender, EventArgs e)
 		{
-			if (SideBarExpand)
+			//if (SideBarExpand)
+			//{
+			//	SideBarExpand = false;
+			//	Left_Show.Width = Left_Show.MinimumSize.Width;
+			//}
+			//else
+			//{
+			//	SideBarExpand = true;
+			//	Left_Show.Width = Left_Show.MaximumSize.Width;
+			//}
+		}
+
+		private void btExit_Click(object sender, EventArgs e)
+		{
+			//add language selection
+			string warnMessageCh1 = "确定要退出调试吗？";
+			string warnMessageCh2 = "提示";
+			string warnMessageEn1 = "Are you sure to Exit?";
+			string warnMessageEn2 = "Note";
+
+			string message1 = "", message2 = "";
+			switch (SysPara.LanguageShow)
 			{
-				SideBarExpand = false;
-				Left_Show.Width = Left_Show.MinimumSize.Width;
+				case LanguageType.Chinese:
+					message1 = warnMessageCh1;
+					message2 = warnMessageCh2;
+					break;
+				case LanguageType.English:
+					message1 = warnMessageEn1;
+					message2 = warnMessageEn2;
+					break;
 			}
-			else
+			DialogResult dr;
+			dr = MessageBox.Show(message1, message2, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+			if
+			 (dr == DialogResult.Yes)
 			{
-				SideBarExpand = true;
-				Left_Show.Width = Left_Show.MaximumSize.Width;
+				MiddleLayer.gEXIT = true;
+				SwitchMainPage(MENU_PageType.Home);
+				MiddleLayer.FlowCtrl.bStopWork = true;
+				
+				Close();
 			}
 		}
 
-		private void panel2_Paint(object sender, PaintEventArgs e)
+		private void plMainShow_Paint_1(object sender, PaintEventArgs e)
 		{
 
 		}

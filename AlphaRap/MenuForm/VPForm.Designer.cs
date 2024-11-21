@@ -151,25 +151,27 @@
 			this.label27 = new System.Windows.Forms.Label();
 			this.textBox10 = new System.Windows.Forms.TextBox();
 			this.groupBox21 = new System.Windows.Forms.GroupBox();
+			this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
+			this.button14 = new System.Windows.Forms.Button();
 			this.RCalibration_Replace = new System.Windows.Forms.Button();
+			this.button18 = new System.Windows.Forms.Button();
+			this.button16 = new System.Windows.Forms.Button();
+			this.txt_H1_CalibResult = new System.Windows.Forms.TextBox();
+			this.label3 = new System.Windows.Forms.Label();
+			this.label68 = new System.Windows.Forms.Label();
+			this.Calibration_Add = new System.Windows.Forms.Button();
+			this.txt_H1_CalibPixelX = new System.Windows.Forms.TextBox();
+			this.txt_H1_CalibPixelY = new System.Windows.Forms.TextBox();
+			this.Calibration_Delete = new System.Windows.Forms.Button();
+			this.label2 = new System.Windows.Forms.Label();
 			this.dgv_H1_Calibration = new System.Windows.Forms.DataGridView();
 			this.pixelXDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.pixelYDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.motorPoxtXDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.motorPoxtYDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.motorPoxtZDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.button18 = new System.Windows.Forms.Button();
-			this.Calibration_Delete = new System.Windows.Forms.Button();
-			this.Calibration_Add = new System.Windows.Forms.Button();
-			this.txt_H1_CalibPixelY = new System.Windows.Forms.TextBox();
-			this.txt_H1_CalibPixelX = new System.Windows.Forms.TextBox();
-			this.txt_H1_CalibResult = new System.Windows.Forms.TextBox();
-			this.label2 = new System.Windows.Forms.Label();
-			this.label3 = new System.Windows.Forms.Label();
-			this.label68 = new System.Windows.Forms.Label();
-			this.button16 = new System.Windows.Forms.Button();
-			this.button14 = new System.Windows.Forms.Button();
 			this.panel4 = new System.Windows.Forms.Panel();
+			this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
 			this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
 			this.button23 = new System.Windows.Forms.Button();
 			this.button24 = new System.Windows.Forms.Button();
@@ -432,8 +434,10 @@
 			this.tableLayoutPanel3.SuspendLayout();
 			this.panel5.SuspendLayout();
 			this.groupBox21.SuspendLayout();
+			this.tableLayoutPanel7.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgv_H1_Calibration)).BeginInit();
 			this.panel4.SuspendLayout();
+			this.tableLayoutPanel8.SuspendLayout();
 			this.tableLayoutPanel5.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.cogRecDisp_H1_Recipe)).BeginInit();
 			this.tabPage2.SuspendLayout();
@@ -1759,10 +1763,6 @@
 			// 
 			// panel5
 			// 
-			this.panel5.Controls.Add(this.label26);
-			this.panel5.Controls.Add(this.textBox9);
-			this.panel5.Controls.Add(this.label27);
-			this.panel5.Controls.Add(this.textBox10);
 			this.panel5.Controls.Add(this.groupBox21);
 			this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel5.Location = new System.Drawing.Point(491, 3);
@@ -1773,81 +1773,249 @@
 			// label26
 			// 
 			this.label26.AutoSize = true;
+			this.label26.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.label26.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-			this.label26.Location = new System.Drawing.Point(214, 286);
+			this.label26.Location = new System.Drawing.Point(111, 0);
 			this.label26.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label26.Name = "label26";
-			this.label26.Size = new System.Drawing.Size(106, 24);
+			this.label26.Size = new System.Drawing.Size(99, 43);
 			this.label26.TabIndex = 106;
 			this.label26.Text = "Exposure";
 			// 
 			// textBox9
 			// 
 			this.textBox9.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.RecipeData, "Pset.PickPCBCCDLight", true));
+			this.textBox9.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.textBox9.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-			this.textBox9.Location = new System.Drawing.Point(220, 311);
+			this.textBox9.Location = new System.Drawing.Point(111, 47);
 			this.textBox9.Margin = new System.Windows.Forms.Padding(4);
 			this.textBox9.Name = "textBox9";
-			this.textBox9.Size = new System.Drawing.Size(132, 35);
+			this.textBox9.Size = new System.Drawing.Size(99, 35);
 			this.textBox9.TabIndex = 104;
 			// 
 			// label27
 			// 
 			this.label27.AutoSize = true;
+			this.label27.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.label27.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-			this.label27.Location = new System.Drawing.Point(14, 286);
+			this.label27.Location = new System.Drawing.Point(4, 0);
 			this.label27.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label27.Name = "label27";
-			this.label27.Size = new System.Drawing.Size(142, 24);
+			this.label27.Size = new System.Drawing.Size(99, 43);
 			this.label27.TabIndex = 107;
 			this.label27.Text = "CameraIndex";
 			// 
 			// textBox10
 			// 
 			this.textBox10.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.RecipeData, "Pset.PickPCBCCDNum", true));
+			this.textBox10.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.textBox10.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-			this.textBox10.Location = new System.Drawing.Point(20, 311);
+			this.textBox10.Location = new System.Drawing.Point(4, 47);
 			this.textBox10.Margin = new System.Windows.Forms.Padding(4);
 			this.textBox10.Name = "textBox10";
-			this.textBox10.Size = new System.Drawing.Size(132, 35);
+			this.textBox10.Size = new System.Drawing.Size(99, 35);
 			this.textBox10.TabIndex = 105;
 			// 
 			// groupBox21
 			// 
-			this.groupBox21.Controls.Add(this.RCalibration_Replace);
+			this.groupBox21.Controls.Add(this.tableLayoutPanel7);
 			this.groupBox21.Controls.Add(this.dgv_H1_Calibration);
-			this.groupBox21.Controls.Add(this.button18);
-			this.groupBox21.Controls.Add(this.Calibration_Delete);
-			this.groupBox21.Controls.Add(this.Calibration_Add);
-			this.groupBox21.Controls.Add(this.txt_H1_CalibPixelY);
-			this.groupBox21.Controls.Add(this.txt_H1_CalibPixelX);
-			this.groupBox21.Controls.Add(this.txt_H1_CalibResult);
-			this.groupBox21.Controls.Add(this.label2);
-			this.groupBox21.Controls.Add(this.label3);
-			this.groupBox21.Controls.Add(this.label68);
-			this.groupBox21.Controls.Add(this.button16);
-			this.groupBox21.Controls.Add(this.button14);
-			this.groupBox21.Dock = System.Windows.Forms.DockStyle.Top;
+			this.groupBox21.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox21.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
 			this.groupBox21.Location = new System.Drawing.Point(0, 0);
 			this.groupBox21.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.groupBox21.Name = "groupBox21";
 			this.groupBox21.Padding = new System.Windows.Forms.Padding(4, 2, 4, 2);
-			this.groupBox21.Size = new System.Drawing.Size(1078, 274);
+			this.groupBox21.Size = new System.Drawing.Size(1078, 355);
 			this.groupBox21.TabIndex = 70;
 			this.groupBox21.TabStop = false;
 			this.groupBox21.Text = "Calibration";
 			// 
+			// tableLayoutPanel7
+			// 
+			this.tableLayoutPanel7.ColumnCount = 8;
+			this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+			this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+			this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 15F));
+			this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+			this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+			this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+			this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 15F));
+			this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+			this.tableLayoutPanel7.Controls.Add(this.textBox9, 1, 1);
+			this.tableLayoutPanel7.Controls.Add(this.label26, 1, 0);
+			this.tableLayoutPanel7.Controls.Add(this.button14, 2, 0);
+			this.tableLayoutPanel7.Controls.Add(this.RCalibration_Replace, 7, 0);
+			this.tableLayoutPanel7.Controls.Add(this.textBox10, 0, 1);
+			this.tableLayoutPanel7.Controls.Add(this.button18, 7, 1);
+			this.tableLayoutPanel7.Controls.Add(this.button16, 2, 1);
+			this.tableLayoutPanel7.Controls.Add(this.label27, 0, 0);
+			this.tableLayoutPanel7.Controls.Add(this.txt_H1_CalibResult, 5, 1);
+			this.tableLayoutPanel7.Controls.Add(this.label3, 3, 0);
+			this.tableLayoutPanel7.Controls.Add(this.label68, 5, 0);
+			this.tableLayoutPanel7.Controls.Add(this.Calibration_Add, 6, 0);
+			this.tableLayoutPanel7.Controls.Add(this.txt_H1_CalibPixelX, 3, 1);
+			this.tableLayoutPanel7.Controls.Add(this.txt_H1_CalibPixelY, 4, 1);
+			this.tableLayoutPanel7.Controls.Add(this.Calibration_Delete, 6, 1);
+			this.tableLayoutPanel7.Controls.Add(this.label2, 4, 0);
+			this.tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.tableLayoutPanel7.Location = new System.Drawing.Point(4, 267);
+			this.tableLayoutPanel7.Name = "tableLayoutPanel7";
+			this.tableLayoutPanel7.RowCount = 2;
+			this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this.tableLayoutPanel7.Size = new System.Drawing.Size(1070, 86);
+			this.tableLayoutPanel7.TabIndex = 91;
+			// 
+			// button14
+			// 
+			this.button14.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.button14.Location = new System.Drawing.Point(218, 2);
+			this.button14.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+			this.button14.Name = "button14";
+			this.button14.Size = new System.Drawing.Size(152, 39);
+			this.button14.TabIndex = 0;
+			this.button14.Text = "SetUp";
+			this.button14.UseVisualStyleBackColor = true;
+			this.button14.Click += new System.EventHandler(this.button14_Click_1);
+			// 
 			// RCalibration_Replace
 			// 
-			this.RCalibration_Replace.Location = new System.Drawing.Point(620, 208);
+			this.RCalibration_Replace.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.RCalibration_Replace.Location = new System.Drawing.Point(859, 2);
 			this.RCalibration_Replace.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.RCalibration_Replace.Name = "RCalibration_Replace";
-			this.RCalibration_Replace.Size = new System.Drawing.Size(167, 50);
+			this.RCalibration_Replace.Size = new System.Drawing.Size(207, 39);
 			this.RCalibration_Replace.TabIndex = 90;
 			this.RCalibration_Replace.Text = "Replace";
 			this.RCalibration_Replace.UseVisualStyleBackColor = true;
 			this.RCalibration_Replace.Click += new System.EventHandler(this.Replace_Click);
+			// 
+			// button18
+			// 
+			this.button18.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.button18.Location = new System.Drawing.Point(859, 45);
+			this.button18.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+			this.button18.Name = "button18";
+			this.button18.Size = new System.Drawing.Size(207, 39);
+			this.button18.TabIndex = 84;
+			this.button18.Text = "SetCalibration";
+			this.button18.UseVisualStyleBackColor = true;
+			this.button18.Click += new System.EventHandler(this.button18_Click);
+			// 
+			// button16
+			// 
+			this.button16.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.button16.Location = new System.Drawing.Point(218, 45);
+			this.button16.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+			this.button16.Name = "button16";
+			this.button16.Size = new System.Drawing.Size(152, 39);
+			this.button16.TabIndex = 9;
+			this.button16.Text = "Trigger";
+			this.button16.UseVisualStyleBackColor = true;
+			this.button16.Click += new System.EventHandler(this.button16_Click);
+			// 
+			// txt_H1_CalibResult
+			// 
+			this.txt_H1_CalibResult.BackColor = System.Drawing.Color.WhiteSmoke;
+			this.txt_H1_CalibResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.txt_H1_CalibResult.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.txt_H1_CalibResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.txt_H1_CalibResult.Location = new System.Drawing.Point(593, 48);
+			this.txt_H1_CalibResult.Margin = new System.Windows.Forms.Padding(5);
+			this.txt_H1_CalibResult.Name = "txt_H1_CalibResult";
+			this.txt_H1_CalibResult.Size = new System.Drawing.Size(97, 30);
+			this.txt_H1_CalibResult.TabIndex = 79;
+			this.txt_H1_CalibResult.Text = "Null";
+			this.txt_H1_CalibResult.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// label3
+			// 
+			this.label3.AutoSize = true;
+			this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.label3.Location = new System.Drawing.Point(378, 0);
+			this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(99, 43);
+			this.label3.TabIndex = 10;
+			this.label3.Text = "Pixel X";
+			this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// label68
+			// 
+			this.label68.AutoSize = true;
+			this.label68.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.label68.Location = new System.Drawing.Point(592, 0);
+			this.label68.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label68.Name = "label68";
+			this.label68.Size = new System.Drawing.Size(99, 43);
+			this.label68.TabIndex = 9;
+			this.label68.Text = "Result";
+			this.label68.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// Calibration_Add
+			// 
+			this.Calibration_Add.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.Calibration_Add.Location = new System.Drawing.Point(699, 2);
+			this.Calibration_Add.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+			this.Calibration_Add.Name = "Calibration_Add";
+			this.Calibration_Add.Size = new System.Drawing.Size(152, 39);
+			this.Calibration_Add.TabIndex = 82;
+			this.Calibration_Add.Text = "Add";
+			this.Calibration_Add.UseVisualStyleBackColor = true;
+			this.Calibration_Add.Click += new System.EventHandler(this.button13_Click);
+			// 
+			// txt_H1_CalibPixelX
+			// 
+			this.txt_H1_CalibPixelX.BackColor = System.Drawing.Color.WhiteSmoke;
+			this.txt_H1_CalibPixelX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.txt_H1_CalibPixelX.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.txt_H1_CalibPixelX.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.txt_H1_CalibPixelX.Location = new System.Drawing.Point(379, 48);
+			this.txt_H1_CalibPixelX.Margin = new System.Windows.Forms.Padding(5);
+			this.txt_H1_CalibPixelX.Name = "txt_H1_CalibPixelX";
+			this.txt_H1_CalibPixelX.Size = new System.Drawing.Size(97, 30);
+			this.txt_H1_CalibPixelX.TabIndex = 80;
+			this.txt_H1_CalibPixelX.Text = "Null";
+			this.txt_H1_CalibPixelX.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// txt_H1_CalibPixelY
+			// 
+			this.txt_H1_CalibPixelY.BackColor = System.Drawing.Color.WhiteSmoke;
+			this.txt_H1_CalibPixelY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.txt_H1_CalibPixelY.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.txt_H1_CalibPixelY.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.txt_H1_CalibPixelY.Location = new System.Drawing.Point(486, 48);
+			this.txt_H1_CalibPixelY.Margin = new System.Windows.Forms.Padding(5);
+			this.txt_H1_CalibPixelY.Name = "txt_H1_CalibPixelY";
+			this.txt_H1_CalibPixelY.Size = new System.Drawing.Size(97, 30);
+			this.txt_H1_CalibPixelY.TabIndex = 80;
+			this.txt_H1_CalibPixelY.Text = "Null";
+			this.txt_H1_CalibPixelY.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// Calibration_Delete
+			// 
+			this.Calibration_Delete.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.Calibration_Delete.Location = new System.Drawing.Point(699, 45);
+			this.Calibration_Delete.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+			this.Calibration_Delete.Name = "Calibration_Delete";
+			this.Calibration_Delete.Size = new System.Drawing.Size(152, 39);
+			this.Calibration_Delete.TabIndex = 83;
+			this.Calibration_Delete.Text = "Delete";
+			this.Calibration_Delete.UseVisualStyleBackColor = true;
+			this.Calibration_Delete.Click += new System.EventHandler(this.button12_Click);
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.label2.Location = new System.Drawing.Point(485, 0);
+			this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(99, 43);
+			this.label2.TabIndex = 11;
+			this.label2.Text = "Pixel Y";
+			this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// dgv_H1_Calibration
 			// 
@@ -1864,11 +2032,12 @@
             this.motorPoxtZDataGridViewTextBoxColumn});
 			this.dgv_H1_Calibration.DataMember = "tb_H1_VisCalib";
 			this.dgv_H1_Calibration.DataSource = this.RecipeData;
-			this.dgv_H1_Calibration.Location = new System.Drawing.Point(242, 20);
+			this.dgv_H1_Calibration.Dock = System.Windows.Forms.DockStyle.Top;
+			this.dgv_H1_Calibration.Location = new System.Drawing.Point(4, 30);
 			this.dgv_H1_Calibration.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.dgv_H1_Calibration.Name = "dgv_H1_Calibration";
 			this.dgv_H1_Calibration.RowHeadersWidth = 51;
-			this.dgv_H1_Calibration.Size = new System.Drawing.Size(847, 176);
+			this.dgv_H1_Calibration.Size = new System.Drawing.Size(1070, 232);
 			this.dgv_H1_Calibration.TabIndex = 81;
 			// 
 			// pixelXDataGridViewTextBoxColumn
@@ -1911,139 +2080,29 @@
 			this.motorPoxtZDataGridViewTextBoxColumn.Name = "motorPoxtZDataGridViewTextBoxColumn";
 			this.motorPoxtZDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
 			// 
-			// button18
-			// 
-			this.button18.Location = new System.Drawing.Point(814, 208);
-			this.button18.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-			this.button18.Name = "button18";
-			this.button18.Size = new System.Drawing.Size(193, 50);
-			this.button18.TabIndex = 84;
-			this.button18.Text = "SetCalibration";
-			this.button18.UseVisualStyleBackColor = true;
-			this.button18.Click += new System.EventHandler(this.button18_Click);
-			// 
-			// Calibration_Delete
-			// 
-			this.Calibration_Delete.Location = new System.Drawing.Point(431, 208);
-			this.Calibration_Delete.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-			this.Calibration_Delete.Name = "Calibration_Delete";
-			this.Calibration_Delete.Size = new System.Drawing.Size(167, 50);
-			this.Calibration_Delete.TabIndex = 83;
-			this.Calibration_Delete.Text = "Delete";
-			this.Calibration_Delete.UseVisualStyleBackColor = true;
-			this.Calibration_Delete.Click += new System.EventHandler(this.button12_Click);
-			// 
-			// Calibration_Add
-			// 
-			this.Calibration_Add.Location = new System.Drawing.Point(242, 208);
-			this.Calibration_Add.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-			this.Calibration_Add.Name = "Calibration_Add";
-			this.Calibration_Add.Size = new System.Drawing.Size(167, 50);
-			this.Calibration_Add.TabIndex = 82;
-			this.Calibration_Add.Text = "Add";
-			this.Calibration_Add.UseVisualStyleBackColor = true;
-			this.Calibration_Add.Click += new System.EventHandler(this.button13_Click);
-			// 
-			// txt_H1_CalibPixelY
-			// 
-			this.txt_H1_CalibPixelY.BackColor = System.Drawing.Color.WhiteSmoke;
-			this.txt_H1_CalibPixelY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.txt_H1_CalibPixelY.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txt_H1_CalibPixelY.Location = new System.Drawing.Point(129, 220);
-			this.txt_H1_CalibPixelY.Margin = new System.Windows.Forms.Padding(5);
-			this.txt_H1_CalibPixelY.Name = "txt_H1_CalibPixelY";
-			this.txt_H1_CalibPixelY.Size = new System.Drawing.Size(101, 30);
-			this.txt_H1_CalibPixelY.TabIndex = 80;
-			this.txt_H1_CalibPixelY.Text = "Null";
-			this.txt_H1_CalibPixelY.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			// 
-			// txt_H1_CalibPixelX
-			// 
-			this.txt_H1_CalibPixelX.BackColor = System.Drawing.Color.WhiteSmoke;
-			this.txt_H1_CalibPixelX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.txt_H1_CalibPixelX.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txt_H1_CalibPixelX.Location = new System.Drawing.Point(129, 182);
-			this.txt_H1_CalibPixelX.Margin = new System.Windows.Forms.Padding(5);
-			this.txt_H1_CalibPixelX.Name = "txt_H1_CalibPixelX";
-			this.txt_H1_CalibPixelX.Size = new System.Drawing.Size(101, 30);
-			this.txt_H1_CalibPixelX.TabIndex = 80;
-			this.txt_H1_CalibPixelX.Text = "Null";
-			this.txt_H1_CalibPixelX.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			// 
-			// txt_H1_CalibResult
-			// 
-			this.txt_H1_CalibResult.BackColor = System.Drawing.Color.WhiteSmoke;
-			this.txt_H1_CalibResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.txt_H1_CalibResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txt_H1_CalibResult.Location = new System.Drawing.Point(129, 144);
-			this.txt_H1_CalibResult.Margin = new System.Windows.Forms.Padding(5);
-			this.txt_H1_CalibResult.Name = "txt_H1_CalibResult";
-			this.txt_H1_CalibResult.Size = new System.Drawing.Size(101, 30);
-			this.txt_H1_CalibResult.TabIndex = 79;
-			this.txt_H1_CalibResult.Text = "Null";
-			this.txt_H1_CalibResult.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			// 
-			// label2
-			// 
-			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(11, 221);
-			this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(94, 24);
-			this.label2.TabIndex = 11;
-			this.label2.Text = "Pixel Y";
-			// 
-			// label3
-			// 
-			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(11, 185);
-			this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(94, 24);
-			this.label3.TabIndex = 10;
-			this.label3.Text = "Pixel X";
-			// 
-			// label68
-			// 
-			this.label68.AutoSize = true;
-			this.label68.Location = new System.Drawing.Point(11, 148);
-			this.label68.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.label68.Name = "label68";
-			this.label68.Size = new System.Drawing.Size(82, 24);
-			this.label68.TabIndex = 9;
-			this.label68.Text = "Result";
-			// 
-			// button16
-			// 
-			this.button16.Location = new System.Drawing.Point(11, 88);
-			this.button16.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-			this.button16.Name = "button16";
-			this.button16.Size = new System.Drawing.Size(221, 49);
-			this.button16.TabIndex = 9;
-			this.button16.Text = "Trigger";
-			this.button16.UseVisualStyleBackColor = true;
-			this.button16.Click += new System.EventHandler(this.button16_Click);
-			// 
-			// button14
-			// 
-			this.button14.Location = new System.Drawing.Point(11, 32);
-			this.button14.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-			this.button14.Name = "button14";
-			this.button14.Size = new System.Drawing.Size(221, 49);
-			this.button14.TabIndex = 0;
-			this.button14.Text = "SetUp";
-			this.button14.UseVisualStyleBackColor = true;
-			this.button14.Click += new System.EventHandler(this.button14_Click_1);
-			// 
 			// panel4
 			// 
-			this.panel4.Controls.Add(this.tableLayoutPanel5);
-			this.panel4.Controls.Add(this.cogRecDisp_H1_Recipe);
+			this.panel4.Controls.Add(this.tableLayoutPanel8);
 			this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel4.Location = new System.Drawing.Point(3, 3);
 			this.panel4.Name = "panel4";
 			this.panel4.Size = new System.Drawing.Size(482, 355);
 			this.panel4.TabIndex = 0;
+			// 
+			// tableLayoutPanel8
+			// 
+			this.tableLayoutPanel8.ColumnCount = 1;
+			this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel8.Controls.Add(this.tableLayoutPanel5, 0, 1);
+			this.tableLayoutPanel8.Controls.Add(this.cogRecDisp_H1_Recipe, 0, 0);
+			this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tableLayoutPanel8.Location = new System.Drawing.Point(0, 0);
+			this.tableLayoutPanel8.Name = "tableLayoutPanel8";
+			this.tableLayoutPanel8.RowCount = 2;
+			this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 85F));
+			this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 15F));
+			this.tableLayoutPanel8.Size = new System.Drawing.Size(482, 355);
+			this.tableLayoutPanel8.TabIndex = 74;
 			// 
 			// tableLayoutPanel5
 			// 
@@ -2055,14 +2114,14 @@
 			this.tableLayoutPanel5.Controls.Add(this.button23, 0, 0);
 			this.tableLayoutPanel5.Controls.Add(this.button24, 1, 0);
 			this.tableLayoutPanel5.Controls.Add(this.button1, 2, 0);
-			this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel5.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-			this.tableLayoutPanel5.Location = new System.Drawing.Point(0, 303);
+			this.tableLayoutPanel5.Location = new System.Drawing.Point(4, 303);
 			this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.tableLayoutPanel5.Name = "tableLayoutPanel5";
 			this.tableLayoutPanel5.RowCount = 1;
 			this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel5.Size = new System.Drawing.Size(482, 52);
+			this.tableLayoutPanel5.Size = new System.Drawing.Size(474, 50);
 			this.tableLayoutPanel5.TabIndex = 73;
 			// 
 			// button23
@@ -2071,7 +2130,7 @@
 			this.button23.Location = new System.Drawing.Point(4, 2);
 			this.button23.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button23.Name = "button23";
-			this.button23.Size = new System.Drawing.Size(152, 48);
+			this.button23.Size = new System.Drawing.Size(150, 46);
 			this.button23.TabIndex = 20;
 			this.button23.Text = "Live";
 			this.button23.UseVisualStyleBackColor = true;
@@ -2080,10 +2139,10 @@
 			// button24
 			// 
 			this.button24.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.button24.Location = new System.Drawing.Point(164, 2);
+			this.button24.Location = new System.Drawing.Point(162, 2);
 			this.button24.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button24.Name = "button24";
-			this.button24.Size = new System.Drawing.Size(152, 48);
+			this.button24.Size = new System.Drawing.Size(150, 46);
 			this.button24.TabIndex = 21;
 			this.button24.Text = "Light On";
 			this.button24.UseVisualStyleBackColor = true;
@@ -2091,10 +2150,10 @@
 			// button1
 			// 
 			this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.button1.Location = new System.Drawing.Point(324, 2);
+			this.button1.Location = new System.Drawing.Point(320, 2);
 			this.button1.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(154, 48);
+			this.button1.Size = new System.Drawing.Size(150, 46);
 			this.button1.TabIndex = 22;
 			this.button1.Text = "Light Off";
 			this.button1.UseVisualStyleBackColor = true;
@@ -2106,16 +2165,16 @@
 			this.cogRecDisp_H1_Recipe.ColorMapPredefined = Cognex.VisionPro.Display.CogDisplayColorMapPredefinedConstants.None;
 			this.cogRecDisp_H1_Recipe.ColorMapUpperClipColor = System.Drawing.Color.Black;
 			this.cogRecDisp_H1_Recipe.ColorMapUpperRoiLimit = 1D;
-			this.cogRecDisp_H1_Recipe.Dock = System.Windows.Forms.DockStyle.Top;
+			this.cogRecDisp_H1_Recipe.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.cogRecDisp_H1_Recipe.DoubleTapZoomCycleLength = 2;
 			this.cogRecDisp_H1_Recipe.DoubleTapZoomSensitivity = 2.5D;
-			this.cogRecDisp_H1_Recipe.Location = new System.Drawing.Point(0, 0);
+			this.cogRecDisp_H1_Recipe.Location = new System.Drawing.Point(4, 2);
 			this.cogRecDisp_H1_Recipe.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.cogRecDisp_H1_Recipe.MouseWheelMode = Cognex.VisionPro.Display.CogDisplayMouseWheelModeConstants.Zoom1;
 			this.cogRecDisp_H1_Recipe.MouseWheelSensitivity = 1D;
 			this.cogRecDisp_H1_Recipe.Name = "cogRecDisp_H1_Recipe";
 			this.cogRecDisp_H1_Recipe.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("cogRecDisp_H1_Recipe.OcxState")));
-			this.cogRecDisp_H1_Recipe.Size = new System.Drawing.Size(482, 299);
+			this.cogRecDisp_H1_Recipe.Size = new System.Drawing.Size(474, 297);
 			this.cogRecDisp_H1_Recipe.TabIndex = 72;
 			// 
 			// tabPage2
@@ -2224,66 +2283,77 @@
 			// 
 			this.xDataGridViewTextBoxColumn1.DataPropertyName = "X";
 			this.xDataGridViewTextBoxColumn1.HeaderText = "X";
+			this.xDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.xDataGridViewTextBoxColumn1.Name = "xDataGridViewTextBoxColumn1";
 			// 
 			// yDataGridViewTextBoxColumn1
 			// 
 			this.yDataGridViewTextBoxColumn1.DataPropertyName = "Y";
 			this.yDataGridViewTextBoxColumn1.HeaderText = "Y";
+			this.yDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.yDataGridViewTextBoxColumn1.Name = "yDataGridViewTextBoxColumn1";
 			// 
 			// uDataGridViewTextBoxColumn1
 			// 
 			this.uDataGridViewTextBoxColumn1.DataPropertyName = "U";
 			this.uDataGridViewTextBoxColumn1.HeaderText = "U";
+			this.uDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.uDataGridViewTextBoxColumn1.Name = "uDataGridViewTextBoxColumn1";
 			// 
 			// xLowDataGridViewTextBoxColumn1
 			// 
 			this.xLowDataGridViewTextBoxColumn1.DataPropertyName = "X_Low";
 			this.xLowDataGridViewTextBoxColumn1.HeaderText = "X_Low";
+			this.xLowDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.xLowDataGridViewTextBoxColumn1.Name = "xLowDataGridViewTextBoxColumn1";
 			// 
 			// xHiDataGridViewTextBoxColumn1
 			// 
 			this.xHiDataGridViewTextBoxColumn1.DataPropertyName = "X_Hi";
 			this.xHiDataGridViewTextBoxColumn1.HeaderText = "X_Hi";
+			this.xHiDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.xHiDataGridViewTextBoxColumn1.Name = "xHiDataGridViewTextBoxColumn1";
 			// 
 			// yLowDataGridViewTextBoxColumn1
 			// 
 			this.yLowDataGridViewTextBoxColumn1.DataPropertyName = "Y_Low";
 			this.yLowDataGridViewTextBoxColumn1.HeaderText = "Y_Low";
+			this.yLowDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.yLowDataGridViewTextBoxColumn1.Name = "yLowDataGridViewTextBoxColumn1";
 			// 
 			// yHiDataGridViewTextBoxColumn1
 			// 
 			this.yHiDataGridViewTextBoxColumn1.DataPropertyName = "Y_Hi";
 			this.yHiDataGridViewTextBoxColumn1.HeaderText = "Y_Hi";
+			this.yHiDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.yHiDataGridViewTextBoxColumn1.Name = "yHiDataGridViewTextBoxColumn1";
 			// 
 			// uLowDataGridViewTextBoxColumn1
 			// 
 			this.uLowDataGridViewTextBoxColumn1.DataPropertyName = "U_Low";
 			this.uLowDataGridViewTextBoxColumn1.HeaderText = "U_Low";
+			this.uLowDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.uLowDataGridViewTextBoxColumn1.Name = "uLowDataGridViewTextBoxColumn1";
 			// 
 			// uHiDataGridViewTextBoxColumn1
 			// 
 			this.uHiDataGridViewTextBoxColumn1.DataPropertyName = "U_Hi";
 			this.uHiDataGridViewTextBoxColumn1.HeaderText = "U_Hi";
+			this.uHiDataGridViewTextBoxColumn1.MinimumWidth = 6;
 			this.uHiDataGridViewTextBoxColumn1.Name = "uHiDataGridViewTextBoxColumn1";
 			// 
 			// eanbleDataGridViewCheckBoxColumn
 			// 
 			this.eanbleDataGridViewCheckBoxColumn.DataPropertyName = "Eanble";
 			this.eanbleDataGridViewCheckBoxColumn.HeaderText = "Eanble";
+			this.eanbleDataGridViewCheckBoxColumn.MinimumWidth = 6;
 			this.eanbleDataGridViewCheckBoxColumn.Name = "eanbleDataGridViewCheckBoxColumn";
 			// 
 			// markDataGridViewTextBoxColumn
 			// 
 			this.markDataGridViewTextBoxColumn.DataPropertyName = "Mark";
 			this.markDataGridViewTextBoxColumn.HeaderText = "Mark";
+			this.markDataGridViewTextBoxColumn.MinimumWidth = 6;
 			this.markDataGridViewTextBoxColumn.Name = "markDataGridViewTextBoxColumn";
 			// 
 			// H2_VisionData2Replace
@@ -2529,7 +2599,7 @@
 			this.cogRecDisp_H2_Recipe.MouseWheelSensitivity = 1D;
 			this.cogRecDisp_H2_Recipe.Name = "cogRecDisp_H2_Recipe";
 			this.cogRecDisp_H2_Recipe.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("cogRecDisp_H2_Recipe.OcxState")));
-			this.cogRecDisp_H2_Recipe.Size = new System.Drawing.Size(456, 338);
+			this.cogRecDisp_H2_Recipe.Size = new System.Drawing.Size(456, 324);
 			this.cogRecDisp_H2_Recipe.TabIndex = 69;
 			// 
 			// panel7
@@ -2749,7 +2819,7 @@
 			// 
 			// DownCalibration_Snap
 			// 
-			this.DownCalibration_Snap.Location = new System.Drawing.Point(11, 80);
+			this.DownCalibration_Snap.Location = new System.Drawing.Point(11, 77);
 			this.DownCalibration_Snap.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.DownCalibration_Snap.Name = "DownCalibration_Snap";
 			this.DownCalibration_Snap.Size = new System.Drawing.Size(221, 49);
@@ -3198,7 +3268,7 @@
 			// 
 			// button33
 			// 
-			this.button33.Location = new System.Drawing.Point(589, 256);
+			this.button33.Location = new System.Drawing.Point(783, 254);
 			this.button33.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button33.Name = "button33";
 			this.button33.Size = new System.Drawing.Size(167, 50);
@@ -3226,7 +3296,7 @@
 			this.dgv_H3_Calibration.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.dgv_H3_Calibration.Name = "dgv_H3_Calibration";
 			this.dgv_H3_Calibration.RowHeadersWidth = 51;
-			this.dgv_H3_Calibration.Size = new System.Drawing.Size(891, 218);
+			this.dgv_H3_Calibration.Size = new System.Drawing.Size(924, 218);
 			this.dgv_H3_Calibration.TabIndex = 81;
 			// 
 			// pixelXDataGridViewTextBoxColumn1
@@ -3271,7 +3341,7 @@
 			// 
 			// button35
 			// 
-			this.button35.Location = new System.Drawing.Point(763, 256);
+			this.button35.Location = new System.Drawing.Point(957, 254);
 			this.button35.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button35.Name = "button35";
 			this.button35.Size = new System.Drawing.Size(197, 50);
@@ -3282,7 +3352,7 @@
 			// 
 			// button36
 			// 
-			this.button36.Location = new System.Drawing.Point(411, 256);
+			this.button36.Location = new System.Drawing.Point(605, 254);
 			this.button36.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button36.Name = "button36";
 			this.button36.Size = new System.Drawing.Size(167, 50);
@@ -3293,7 +3363,7 @@
 			// 
 			// button37
 			// 
-			this.button37.Location = new System.Drawing.Point(237, 256);
+			this.button37.Location = new System.Drawing.Point(431, 254);
 			this.button37.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.button37.Name = "button37";
 			this.button37.Size = new System.Drawing.Size(167, 50);
@@ -3509,7 +3579,7 @@
 			this.cogRecDisp_H3_Recipe.MouseWheelSensitivity = 1D;
 			this.cogRecDisp_H3_Recipe.Name = "cogRecDisp_H3_Recipe";
 			this.cogRecDisp_H3_Recipe.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("cogRecDisp_H3_Recipe.OcxState")));
-			this.cogRecDisp_H3_Recipe.Size = new System.Drawing.Size(420, 342);
+			this.cogRecDisp_H3_Recipe.Size = new System.Drawing.Size(420, 323);
 			this.cogRecDisp_H3_Recipe.TabIndex = 69;
 			// 
 			// dataTable1
@@ -4217,11 +4287,12 @@
 			((System.ComponentModel.ISupportInitialize)(this.dgv_H1_VisionData4)).EndInit();
 			this.tableLayoutPanel3.ResumeLayout(false);
 			this.panel5.ResumeLayout(false);
-			this.panel5.PerformLayout();
 			this.groupBox21.ResumeLayout(false);
-			this.groupBox21.PerformLayout();
+			this.tableLayoutPanel7.ResumeLayout(false);
+			this.tableLayoutPanel7.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgv_H1_Calibration)).EndInit();
 			this.panel4.ResumeLayout(false);
+			this.tableLayoutPanel8.ResumeLayout(false);
 			this.tableLayoutPanel5.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.cogRecDisp_H1_Recipe)).EndInit();
 			this.tabPage2.ResumeLayout(false);
@@ -4435,7 +4506,6 @@
 		private System.Windows.Forms.Button Calibration_Delete;
 		private System.Windows.Forms.Button Calibration_Add;
 		private System.Windows.Forms.TextBox txt_H1_CalibPixelY;
-		private System.Windows.Forms.TextBox txt_H1_CalibPixelX;
 		private System.Windows.Forms.TextBox txt_H1_CalibResult;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label3;
@@ -4650,5 +4720,8 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn uHiDataGridViewTextBoxColumn1;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn eanbleDataGridViewCheckBoxColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn markDataGridViewTextBoxColumn;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel8;
+		public System.Windows.Forms.TextBox txt_H1_CalibPixelX;
 	}
 }

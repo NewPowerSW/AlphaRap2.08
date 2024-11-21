@@ -13,7 +13,7 @@ using static AlphaRap.VPForm;
 
 namespace AlphaRap.TaskProcess
 {
-	public partial class Gantry : NPSDK.Flow_BaseForm
+	public partial class Gantry : NPSDK.Flow_BaseForm  
 	{
 		public Gantry()
 		{
@@ -213,10 +213,12 @@ namespace AlphaRap.TaskProcess
 		}
 		public bool CheckVisionData(VisionPostData ts, H1_Vision_Fiducial h1)
 		{
+			
 			if (!ts.Enable)
 				return true;
 			if (IsNumberInRange(h1.Fiducial.x, ts.X_Low, ts.X_Hi) && IsNumberInRange(h1.Fiducial.y, ts.Y_Low, ts.Y_Hi) && IsNumberInRange(h1.Fiducial.u, ts.R_Low, ts.R_Hi))
 			{
+			
 				return true;
 			}
 			return false;

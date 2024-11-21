@@ -1,6 +1,6 @@
 ﻿using AlphaRap.Classes;
 using AlphaRapLibrary;
-using Newtonsoft.Json.Linq;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -271,6 +271,7 @@ namespace AlphaRap.MES
 			{
 		
 				MessageBox.Show(ex.ToString());
+		
 			}
 		}
 
@@ -377,7 +378,7 @@ namespace AlphaRap.MES
 
 			}
 			set
-			{
+			{	
 				IniFile_Dongju.WriteString("MES", "EQP_ID", value);
 				textBox_EQP_ID.Text = value;
 			}
@@ -422,5 +423,7 @@ namespace AlphaRap.MES
 		{
 			textBox13.Text = SCADA_HandShake(Model_No, ProjectName, EQP_ID);
 		}
+
+		
 	}
 }
