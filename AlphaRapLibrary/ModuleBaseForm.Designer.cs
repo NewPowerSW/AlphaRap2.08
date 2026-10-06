@@ -44,9 +44,11 @@
             // 
             // ModuleBaseForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.AutoScroll = true;
+            this.ClientSize = new System.Drawing.Size(1067, 562);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "ModuleBaseForm";
             this.Text = "ModuleBaseForm";
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).EndInit();

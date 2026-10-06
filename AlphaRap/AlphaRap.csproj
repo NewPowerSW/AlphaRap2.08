@@ -457,31 +457,9 @@
     <Reference Include="dataGridViewControl">
       <HintPath>Dll\dataGridViewControl.dll</HintPath>
     </Reference>
-    <Reference Include="DevExpress.Data.v19.2, Version=19.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
-    <Reference Include="DevExpress.Xpo.v19.2, Version=19.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DMC3000SDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\x64\Debug\DMC3000SDK.dll</HintPath>
-    </Reference>
-    <Reference Include="DPFPDevNET, Version=1.6.1.0, Culture=neutral, PublicKeyToken=696774c42ee28c57, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\NewPower0426\AlphaRap\bin\x64\Debug\DPFPDevNET.dll</HintPath>
-    </Reference>
-    <Reference Include="DPFPEngNET, Version=1.6.1.0, Culture=neutral, PublicKeyToken=7fe76e7adf19964b, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\NewPower0426\AlphaRap\bin\x64\Debug\DPFPEngNET.dll</HintPath>
-    </Reference>
-    <Reference Include="DPFPGuiNet, Version=1.6.1.0, Culture=neutral, PublicKeyToken=d4f4a0bd9c559145, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\NewPower0426\AlphaRap\bin\x64\Debug\DPFPGuiNet.dll</HintPath>
-    </Reference>
-    <Reference Include="DPFPShrNET, Version=1.6.1.0, Culture=neutral, PublicKeyToken=d902fe275a8d6cf2, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\NewPower0426\AlphaRap\bin\x64\Debug\DPFPShrNET.dll</HintPath>
-    </Reference>
-    <Reference Include="DPFPVerNET, Version=1.6.1.0, Culture=neutral, PublicKeyToken=4de0a9c4dcc83984, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\NewPower0426\AlphaRap\bin\x64\Debug\DPFPVerNET.dll</HintPath>
     </Reference>
     <Reference Include="Epson, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -532,7 +510,7 @@
     </Reference>
     <Reference Include="PointShow, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\CSharp\PointShow\PointShow\bin\Debug\PointShow.dll</HintPath>
+      <HintPath>Dll\PointShow.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -585,9 +563,6 @@
       <HintPath>..\packages\System.Data.OleDb.6.0.0\lib\net461\System.Data.OleDb.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.OracleClient" />
-    <Reference Include="System.Data.SqlClient, Version=4.6.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SqlClient.4.8.3\lib\net461\System.Data.SqlClient.dll</HintPath>
-    </Reference>
     <Reference Include="System.Design" />
     <Reference Include="System.Diagnostics.EventLog, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.EventLog.6.0.0\lib\net461\System.Diagnostics.EventLog.dll</HintPath>
@@ -661,9 +636,6 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Security.Cryptography.Pkcs, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Security.Cryptography.Pkcs.6.0.0\lib\net461\System.Security.Cryptography.Pkcs.dll</HintPath>
-    </Reference>
     <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
       <Private>True</Private>
@@ -671,9 +643,6 @@
     </Reference>
     <Reference Include="System.Security.Cryptography.ProtectedData, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Cryptography.ProtectedData.6.0.0\lib\net461\System.Security.Cryptography.ProtectedData.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Security.Cryptography.Xml, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Security.Cryptography.Xml.6.0.0\lib\net461\System.Security.Cryptography.Xml.dll</HintPath>
     </Reference>
     <Reference Include="System.Security.Permissions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Permissions.6.0.0\lib\net461\System.Security.Permissions.dll</HintPath>
@@ -745,8 +714,8 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AlarmRunTask.cs" />
-    <Compile Include="AlwaysRunTask.cs" />
+    <Compile Include="Tasks\AlarmRunTask.cs" />
+    <Compile Include="Tasks\AlwaysRunTask.cs" />
     <Compile Include="Classes\FFU.cs" />
     <Compile Include="Classes\FFUCom.cs" />
     <Compile Include="Classes\LogManagement.cs" />
@@ -779,7 +748,7 @@
     <Compile Include="Devices\ATEQ_F620.cs" />
     <Compile Include="Devices\ModBus_RTU.cs" />
     <Compile Include="Devices\ScannerKeyenceTcp.cs" />
-    <Compile Include="FlowControl.cs" />
+    <Compile Include="Controls\FlowControl.cs" />
     <Compile Include="FunctionForms\ErrorOptionForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -810,12 +779,6 @@
     </Compile>
     <Compile Include="MenuForm\DataForm.Designer.cs">
       <DependentUpon>DataForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MenuForm\FingerprintCaptureForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MenuForm\FingerprintCaptureForm.designer.cs">
-      <DependentUpon>FingerprintCaptureForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MenuForm\LanguageSetting.cs">
       <SubType>Form</SubType>
@@ -929,6 +892,30 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\GradientPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\NoFocusChart.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\LanguageSwitch.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\AppIcons.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\UiKit.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\FieldBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\FlatButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\AlarmChip.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MenuForm\HardForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -959,7 +946,7 @@
     <Compile Include="MenuForm\SystemSetting.Designer.cs">
       <DependentUpon>SystemSetting.cs</DependentUpon>
     </Compile>
-    <Compile Include="MiddleLayer.cs" />
+    <Compile Include="Core\MiddleLayer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MenuForm\SystemForm.cs">
@@ -968,7 +955,7 @@
     <Compile Include="MenuForm\SystemForm.Designer.cs">
       <DependentUpon>SystemForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="SystemData.cs" />
+    <Compile Include="Core\SystemData.cs" />
     <Compile Include="TaskProcess\UpConveryor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -987,23 +974,7 @@
     <Compile Include="TaskProcess\Gantry.Designer.cs">
       <DependentUpon>Gantry.cs</DependentUpon>
     </Compile>
-    <Compile Include="Vision\H1_Vision_Calibration.cs" />
-    <Compile Include="Vision\H1_Vision_Fiducial4.cs" />
-    <Compile Include="Vision\H1_Vision_Fiducial3.cs" />
-    <Compile Include="Vision\H1_Vision_Fiducial2.cs" />
-    <Compile Include="Vision\H1_Vision_Fiducial.cs" />
-    <Compile Include="Vision\H2_Vision_Calibration.cs" />
-    <Compile Include="Vision\H2_Vision_Fiducial3.cs" />
-    <Compile Include="Vision\H2_Vision_Fiducial2.cs" />
-    <Compile Include="Vision\H2_Vision_Fiducial.cs" />
-    <Compile Include="Vision\H3_Vision_Calibration.cs" />
-    <Compile Include="Vision\H3_Vision_Fiducial.cs" />
-    <Compile Include="Vision\H3_Vision_Fiducial2.cs" />
-    <Compile Include="Vision\H3_Vision_Fiducial3.cs" />
-    <Compile Include="Vision\H4_Vision_Calibration.cs" />
-    <Compile Include="Vision\H4_Vision_Fiducial.cs" />
-    <Compile Include="Vision\H4_Vision_Fiducial2.cs" />
-    <Compile Include="Vision\H4_Vision_Fiducial3.cs" />
+    <!-- 17 个 H?_Vision_* 类已合并为 Vision\VpStation.cs 里的 VpStation（工位类型用 VpStationKind 区分） -->
     <Compile Include="Vision\TBEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -1011,6 +982,28 @@
       <DependentUpon>TBEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Vision\VisionproInterface.cs" />
+    <Compile Include="Vision\VpStation.cs" />
+    <!-- 标定卡：布局写在设计器里（VS 设计视图看到的就是 EXE 里的样子），VPForm 按相机实例化 -->
+    <Compile Include="Vision\VpCalibCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Vision\VpCalibCard.Designer.cs">
+      <DependentUpon>VpCalibCard.cs</DependentUpon>
+    </Compile>
+    <!-- VPP 页：布局写在设计器里，VPForm 每个 VPP 实例化一份塞进 TabPage -->
+    <Compile Include="Vision\VpVppPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Vision\VpVppPage.Designer.cs">
+      <DependentUpon>VpVppPage.cs</DependentUpon>
+    </Compile>
+    <!-- 相机页外壳：属性条 / 标定卡区 / VPP 子页容器 / 右侧显示区（VPForm 按配置实例化） -->
+    <Compile Include="Vision\VpCameraPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Vision\VpCameraPage.Designer.cs">
+      <DependentUpon>VpCameraPage.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="FunctionForms\ErrorOptionForm.resx">
       <DependentUpon>ErrorOptionForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -1035,9 +1028,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MenuForm\DataForm.resx">
       <DependentUpon>DataForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MenuForm\FingerprintCaptureForm.resx">
-      <DependentUpon>FingerprintCaptureForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MenuForm\LanguageSetting.resx">
       <DependentUpon>LanguageSetting.cs</DependentUpon>
@@ -1085,12 +1075,6 @@
     <EmbeddedResource Include="MenuForm\SystemSetting.resx">
       <DependentUpon>SystemSetting.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MenuForm\UserLoginForm.resx">
-      <DependentUpon>UserLoginForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MenuForm\UserLoginForm.zh-CN.resx">
-      <DependentUpon>UserLoginForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MenuForm\VPForm.resx">
       <DependentUpon>VPForm.cs</DependentUpon>
@@ -1278,6 +1262,5 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

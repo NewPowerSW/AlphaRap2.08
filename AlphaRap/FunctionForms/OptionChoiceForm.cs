@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using AlphaRap;
 
 namespace Alpha
 {
@@ -14,6 +15,9 @@ namespace Alpha
         public OptionChoiceForm()
         {
             InitializeComponent();
+            // 按需 new 的弹窗，不在 lstForm 里，赶不上启动扫描 —— 就地补登记进语言表。
+            // 按钮文字随各调用点 fnChangeButtonsText 覆盖，这里登记的是兜底文案。
+            MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
             this.ControlBox = false;
             this.Show();
             this.Hide();

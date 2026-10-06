@@ -1015,7 +1015,7 @@ namespace AlphaRap.MES
 
         }
         #endregion
-
+		
         #region 玻璃FPC条码一致性校验接口  Glass FPC barcode consistency verification interface
         /// <summary>
         /// Url

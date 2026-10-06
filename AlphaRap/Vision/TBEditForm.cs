@@ -21,7 +21,7 @@ namespace AlphaRap
             EditInterface = CogInterface;
             
             cogToolBlockEditV21.Subject = EditInterface.TB;
-            this.Text = EditInterface.GetType().Name;
+            this.Text = EditInterface.StationName;
         }
 
         private void TBEditForm_FormClosing(object sender, FormClosingEventArgs e)

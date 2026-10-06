@@ -23,6 +23,8 @@ namespace AlphaRap
             for (int i = 0; i < NPSDK.Flow_Module.FlowChart_ModuleList.Count; i++)
             {
                 TabPage p = new TabPage();
+                // 必须起名（理由同 Flow.AddFlowChart）：空名字会让语言 XML 的 XPath 出现空段并抛异常
+                p.Name = "spanLifeTab_" + i;
                 p.Text = Flow_Module.FlowChart_ModuleList[i].Name;
                 p.AutoScroll = true;
                 tabControl1.TabPages.Add(p);  

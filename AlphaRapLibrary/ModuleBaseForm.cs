@@ -21,8 +21,11 @@ namespace AlphaRapLibrary
 		{
 			InitializeComponent();
 			ModuleManager.ModuleList.Add(this);
-		}
-		public virtual void ModuleInitialize(string ModuleName)
+		
+     
+
+        }
+        public virtual void ModuleInitialize(string ModuleName)
 		{
 
 			// plMaintenance.AutoScroll = true;

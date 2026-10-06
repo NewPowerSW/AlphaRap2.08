@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using AlphaRapLibrary;
+
 
 namespace AlphaRap
 {
@@ -72,7 +66,10 @@ namespace AlphaRap
             {
                 ShowPage.TopLevel = false;
                 ShowPage.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-                ShowPage.WindowState = FormWindowState.Maximized;
+                // 原来是 Maximized：对 TopLevel=false 的页面窗体它没有实际作用，
+                // 反而会把页面"钉"在首次挂载时的大小上 —— 主窗口放大后页面不跟随，
+                // 四周留出大片空白。铺满容器靠 Dock=Fill 就够了。
+                ShowPage.WindowState = FormWindowState.Normal;
                 ShowPage.Dock = DockStyle.Fill;
             }
             else

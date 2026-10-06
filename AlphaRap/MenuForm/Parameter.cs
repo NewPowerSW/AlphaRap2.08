@@ -227,48 +227,48 @@ namespace AlphaRap
 
 		}
 
-		public bool bConnectSP()
-		{
-			bool r1 = serialPort1.IsOpen;
-			if (r1)
-			{
-				serialPort1.Close();
+		//public bool bConnectSP()
+		//{
+		//	bool r1 = serialPort1.IsOpen;
+		//	if (r1)
+		//	{
+		//		serialPort1.Close();
 
-			}
-			serialPort1.Open();
-			return false;
-		}
+		//	}
+		//	serialPort1.Open();
+		//	return false;
+		//}
 
-		public string sPressureData(string sComment)   // :004RDGROSS=   压力传感器命令
-		{
-			bool r1 = serialPort1.IsOpen;
-			if (!r1)
-			{
-				serialPort1.Open();
+		//public string sPressureData(string sComment)   // :004RDGROSS=   压力传感器命令
+		//{
+		//	bool r1 = serialPort1.IsOpen;
+		//	if (!r1)
+		//	{
+		//		serialPort1.Open();
 
-			}
-
-
-			string sData = "";
-			string sBuffer = sComment + Environment.NewLine;
-			serialPort1.Write(sBuffer);
-			Thread.Sleep(50);
-			sData = serialPort1.ReadExisting().Replace("\r\n", "");
-
-			return sData.TrimStart().Replace("\r\n", "");
-		}
+		//	}
 
 
+		//	string sData = "";
+		//	string sBuffer = sComment + Environment.NewLine;
+		//	serialPort1.Write(sBuffer);
+		//	Thread.Sleep(50);
+		//	sData = serialPort1.ReadExisting().Replace("\r\n", "");
 
-		private void button3_Click(object sender, EventArgs e)
-		{
-			bConnectSP();
-		}
+		//	return sData.TrimStart().Replace("\r\n", "");
+		//}
 
-		private void button4_Click(object sender, EventArgs e)
-		{
-			serialPort1.Close();
-		}
+
+
+		//private void button3_Click(object sender, EventArgs e)
+		//{
+		//	bConnectSP();
+		//}
+
+		//private void button4_Click(object sender, EventArgs e)
+		//{
+		//	serialPort1.Close();
+		//}
 
 
 
@@ -453,7 +453,7 @@ namespace AlphaRap
 
 			if (!result )
 			{
-				MessageBox.Show("连接失败");
+				MessageBox.Show(MiddleLayer.LangMsg("Parameter", "msg_PlcConnectFail", "连接失败", "Connection failed", "Error de conexión"));
 			}
 			
 		}
@@ -486,6 +486,11 @@ namespace AlphaRap
 				iNOVANCE.WritePlc("M100", "50");
 			}
 		}
-		#endregion
-	}
+        #endregion
+
+        private void tbMassage_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
 }

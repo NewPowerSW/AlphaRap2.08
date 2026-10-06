@@ -770,7 +770,5 @@ namespace AlphaRap.TaskProcess
 			
 			return NPSDK.Flow_Chart.ResultType.IDLE;
 		}
-
-		
-	}
+    }
 }

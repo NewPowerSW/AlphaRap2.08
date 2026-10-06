@@ -17,6 +17,7 @@ namespace AlphaRap.MES
 	public partial class Amphenol : ModuleBaseForm
 	{
 		public string Post_Message = string.Empty;
+
 		#region 入站
 		/// <summary>
 		/// 入站Url
@@ -53,6 +54,7 @@ namespace AlphaRap.MES
 	
 		}
 		#endregion
+
 		#region 出站
 		/// <summary>
 		/// 出站TestList键值队
@@ -131,6 +133,7 @@ namespace AlphaRap.MES
 			//set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_OutErrorSpot", value);
 		}
 		#endregion
+
 		#region 关联
 		/// <summary>
 		/// 关联Url
@@ -186,6 +189,7 @@ namespace AlphaRap.MES
 			set;
 		}
 		#endregion
+
 		#region 镭雕
 		/// <summary>
 		/// 镭雕接口PCBList
@@ -241,6 +245,7 @@ namespace AlphaRap.MES
 		}
 
 		#endregion
+
 		public Amphenol()
 		{
 			InitializeComponent();

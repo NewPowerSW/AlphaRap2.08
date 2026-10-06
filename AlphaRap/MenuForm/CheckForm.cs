@@ -84,8 +84,121 @@ namespace AlphaRap
             rbGroup_RedLight_MaintenanceMode = new RadioButton[] { rbRedOff_M, rbRedOn_M, rbRedBlink_M };
             rbGroup_Buzz_MaintenanceMode = new RadioButton[] { rbBuzzOff_M, rbBuzzOn_M, rbBuzzBlink_M };
 
+            // 左侧 6 个状态按钮裁成圆角，与应用其它按钮（芯片标签、底部工具栏）保持一致
+            foreach (RadioButton rb in StateButtons)
+                ApplyRoundedRegion(rb, 8);
+
             ReadAllSignalTowerData();
         }
+
+        /// <summary>把控件裁剪为圆角矩形。尺寸固定，所以只需在构造时算一次。</summary>
+        private static void ApplyRoundedRegion(Control c, int radius)
+        {
+            if (c == null || c.Width <= 0 || c.Height <= 0) return;
+            try
+            {
+                int d = Math.Max(2, Math.Min(radius * 2, Math.Min(c.Width, c.Height)));
+                using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+                {
+                    path.AddArc(0, 0, d, d, 180, 90);
+                    path.AddArc(c.Width - d, 0, d, d, 270, 90);
+                    path.AddArc(c.Width - d, c.Height - d, d, d, 0, 90);
+                    path.AddArc(0, c.Height - d, d, d, 90, 90);
+                    path.CloseFigure();
+                    if (c.Region != null) c.Region.Dispose();
+                    c.Region = new Region(path);
+                }
+            }
+            catch { }
+        }
+
+        #region 跟随宿主尺寸 + 内容卡片居中
+
+        /// <summary>内容卡片的宽度上限（超过就靠留白吸收，避免表格被拉得过宽）。</summary>
+        private const int CardMaxWidth = 1520;
+
+        /// <summary>内容卡片的高度上限（超过就靠留白吸收，避免 5 行表格被拉得过扁）。</summary>
+        private const int CardMaxHeight = 680;
+
+        /// <summary>卡片四周优先保留的留白（可用区够大时按这个值居中）。</summary>
+        private const int CardOuterPadding = 144;
+
+        /// <summary>
+        /// 本窗体是运行时被 MainForm 动态挂到面板上的（TopLevel=false）。
+        /// 实测：窗口在程序启动时是 1440×900，此时它按当时的宿主大小被"钉"住，
+        /// 之后再把窗口最大化，窗体不会跟着放大 —— 右/下就会各留一大块空白。
+        /// 这里显式贴合宿主客户区，保证任何窗口尺寸下都铺满。
+        /// </summary>
+        private void FitToHost()
+        {
+            try
+            {
+                if (TopLevel || Parent == null) return;
+
+                // 先把 Dock 补回 Fill（防止被 WindowState 之类的设置覆盖掉）
+                if (Dock != DockStyle.Fill) Dock = DockStyle.Fill;
+
+                Size hostSize = Parent.ClientSize;
+                if (Width != hostSize.Width || Height != hostSize.Height)
+                    Size = new Size(hostSize.Width, hostSize.Height);
+
+                LayoutContentCard(hostSize);
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// 布局内容卡片。
+        ///
+        /// 背景：这一页原来是把内容按宿主尺寸"拉伸铺满"。窗口一最大化，两个矩阵表就被拉到
+        /// 750×850 左右，5 行平均每行 170px —— 表格变形、四周又只剩十几像素的边距，
+        /// 看起来既空又散。
+        ///
+        /// 做法：把卡片宽高限制在一个舒适区间内（约等于设计尺寸），居中的部分交给
+        /// rootTable 两侧的百分比空列 / 上下空行去吸收，形成"内容居中 + 四周留白"的观感。
+        /// 小窗口下则退化为"只留一圈小边距"，保证内容不被裁掉。
+        /// </summary>
+        private void LayoutContentCard(Size hostSize)
+        {
+            if (rootTable == null || rootTable.ColumnStyles.Count < 3 || rootTable.RowStyles.Count < 3) return;
+
+            int cardW = Math.Min(hostSize.Width - CardOuterPadding, CardMaxWidth);
+            int cardH = Math.Min(hostSize.Height - CardOuterPadding, CardMaxHeight);
+
+            // 下限：窗口很小时也得有块能看的内容区
+            cardW = Math.Max(360, cardW);
+            cardH = Math.Max(280, cardH);
+
+            // 上限：卡片绝不超出可用区（只剩 8px 边距的极端情况）
+            cardW = Math.Min(cardW, Math.Max(160, hostSize.Width - 16));
+            cardH = Math.Min(cardH, Math.Max(140, hostSize.Height - 16));
+
+            if (Math.Abs(rootTable.ColumnStyles[1].Width - cardW) > 0.5f ||
+                Math.Abs(rootTable.RowStyles[1].Height - cardH) > 0.5f)
+            {
+                rootTable.ColumnStyles[1].Width = cardW;
+                rootTable.RowStyles[1].Height = cardH;
+            }
+        }
+
+        private void Host_Resize(object sender, EventArgs e)
+        {
+            FitToHost();
+        }
+
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+
+            if (Parent != null)
+            {
+                Parent.Resize -= Host_Resize;
+                Parent.Resize += Host_Resize;
+            }
+            FitToHost();
+        }
+
+        #endregion
 
         #region 用户选择不同的信号灯      
         private void rbGroup_GreenLight_RunMode_Click(object sender, MouseEventArgs e)
@@ -304,8 +417,21 @@ namespace AlphaRap
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        /// <summary>左侧竖排的 6 个机台状态按钮（它们始终是一组单选）。</summary>
+        private RadioButton[] StateButtons
+        {
+            get { return new RadioButton[] { radioButton25, radioButton1, radioButton2, radioButton3, radioButton4, radioButton5 }; }
+        }
+
         private void radioButton_Click(object sender, EventArgs e)
         {
+            // 保险：显式保证这 6 个按钮始终是一组单选。
+            // WinForms 的 RadioButton 只在"同一个父容器内"自动互斥，一旦它们以后被挪进
+            // 不同容器，就会静默变成多组单选 —— 这里兜住这个坑。
+            RadioButton clicked = sender as RadioButton;
+            foreach (RadioButton rb in StateButtons)
+                if (rb != null && rb != clicked) rb.Checked = false;
+
             SelectStatus = (SignalTowerStatusType)Enum.Parse(typeof(SignalTowerStatusType), ((RadioButton)sender).Tag.ToString());
             int ListIndex = TowerData.FindIndex((SingalTowerData) => SingalTowerData.SignalTowerStatus == SelectStatus);
 

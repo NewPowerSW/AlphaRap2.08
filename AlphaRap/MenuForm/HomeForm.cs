@@ -20,11 +20,6 @@ namespace AlphaRap
 {
 	public partial class HomeForm : Form
 	{
-		[DllImport("user32.dll")]
-		public static extern IntPtr GetFocus();
-
-		public Point ppt;
-
 		public Classes.RFIDOperation RFIDOper = new Classes.RFIDOperation();
 
 
@@ -32,6 +27,16 @@ namespace AlphaRap
 		public HomeForm()
 		{
 			InitializeComponent();
+
+			// 状态块裁成圆角胶囊（工业 HMI 风格），并随尺寸变化重算
+			label_ScannStaus.Resize += (s, ev) => ApplyPillRegion(label_ScannStaus, 6);
+			label_PLCStaus.Resize += (s, ev) => ApplyPillRegion(label_PLCStaus, 6);
+			ApplyPillRegion(label_ScannStaus, 6);
+			ApplyPillRegion(label_PLCStaus, 6);
+			// 图表只用于显示：正常已由 NoFocusChart 关掉焦点，
+			// 这里再加一道保险，防止外部代码把焦点设到图表上后残留虚线焦点框
+			chart1.Enter += ClearChartFocus;
+			chart2.Enter += ClearChartFocus;
 			bool bPlat = Convert.ToBoolean(SysPara.bPlat);
 
 			MiddleLayer.MainF.tabPage10.Parent = bPlat ? null : MiddleLayer.MainF.uiTabControl1;
@@ -39,61 +44,50 @@ namespace AlphaRap
 
 		}
 
-		private void timer1_Tick(object sender, EventArgs e)
+		/// <summary>图表意外获得焦点时立刻把焦点交还出去，避免残留虚线焦点框。</summary>
+		private void ClearChartFocus(object sender, EventArgs e)
 		{
-
-			#region KEYBORD
-			IntPtr _ControlIntPtr = GetFocus();
-			if (_ControlIntPtr != IntPtr.Zero)
+			try
 			{
-				Control _Control = Control.FromChildHandle(_ControlIntPtr);
-				if (_Control != null)
-				{
-					Control _gControl = _Control;
-					var retval = new Point(0, 0);
-					for (; _gControl.Parent != null; _gControl = _gControl.Parent)
-					{
-						retval.Offset(_gControl.Location);
-						if (_gControl.Name == MiddleLayer.MainF.forkeybord.Name)
-						{
-							break;
-						}
-					}
+				Control c = sender as Control;
+				if (c == null || !c.Focused) return;
+				Form f = FindForm();
+				if (f != null)
+					BeginInvoke(new Action(delegate { try { f.ActiveControl = null; } catch { } }));
+			}
+			catch { }
+		}
 
-					bool MOUSEXY = ppt.X > retval.X && ppt.X < (retval.X + _Control.Width) && ppt.Y > retval.Y && ppt.Y < (retval.Y + _Control.Height);
-					if ((_Control.GetType() == typeof(TextBox) || _Control.GetType() == typeof(DataGridViewTextBoxEditingControl) || _Control.GetType() == typeof(NPSDK.Keyence.Keyence_Text)) && MOUSEXY)
-					{
-						if (System.Diagnostics.Process.GetProcessesByName("osk").Length == 0 && System.IO.File.Exists(@"C:\Windows\system32\osk.exe"))
-						{
-							try
-							{
-								System.Diagnostics.Process.Start(@"C:\Windows\system32\osk.exe");
-							}
-							catch { }
-						}
-					}
-					else
-					{
-						if (System.Diagnostics.Process.GetProcessesByName("osk").Length > 0)
-						{
-							Process[] a = System.Diagnostics.Process.GetProcessesByName("osk");
-							foreach (Process b in a)
-							{
-								try
-								{
-									//  b.Kill();
-								}
-								catch
-								{ }
-							}
-						}
-					}
+		/// <summary>把控件裁剪为圆角胶囊（状态指示块用）。</summary>
+		private static void ApplyPillRegion(Control c, int radius)
+		{
+			if (c == null || c.Width <= 0 || c.Height <= 0) return;
+			try
+			{
+				int d = Math.Max(2, Math.Min(radius * 2, Math.Min(c.Width, c.Height)));
+				using (var path = new GraphicsPath())
+				{
+					path.AddArc(0, 0, d, d, 180, 90);
+					path.AddArc(c.Width - d, 0, d, d, 270, 90);
+					path.AddArc(c.Width - d, c.Height - d, d, d, 0, 90);
+					path.AddArc(0, c.Height - d, d, d, 90, 90);
+					path.CloseFigure();
+					if (c.Region != null) c.Region.Dispose();
+					c.Region = new Region(path);
 				}
 			}
-			#endregion
+			catch { }
+		}
+
+		private void timer1_Tick(object sender, EventArgs e)
+		{
+			// 虚拟键盘的**自动弹出已禁用**（原来焦点落在输入框就拉起 osk，弹窗抢焦点
+			// 会把表格单元格的编辑直接取消掉，表现为"改了保存不上"）。
+			// 需要软键盘时用主页顶栏的键盘图标手动调出（见 MainForm.ToggleVirtualKeyboard）。
+
 			#region 外部应用状态
-			label_ScannStaus.BackColor = B_Scan1connect ? Color.Green:Color.Red;
-			label_PLCStaus.BackColor = B_PLCStaus ? Color.Green : Color.Red;
+			label_ScannStaus.BackColor = B_Scan1connect ? Color.FromArgb(34, 150, 83) : Color.FromArgb(214, 69, 69);
+			label_PLCStaus.BackColor = B_PLCStaus ? Color.FromArgb(34, 150, 83) : Color.FromArgb(214, 69, 69);
 			#endregion
 		}
 
@@ -270,32 +264,97 @@ namespace AlphaRap
 			Position[Columns, RowIndex].Value = CellValue;
 		}
 
-		public string GetAlarmConent(string Index)
-		{
-			DataTable dtTable = new DataTable();
-			List<string> mlist;
-			dtTable.Rows.Clear();
-			AlphaRap.srvConfigReadWriteXML srv = new AlphaRap.srvConfigReadWriteXML();
+		// 报警表缓存：语言 -> (编号 -> Content)。文件运行期不变，每种语言只解析一次
+		// （AlarmRun 在后台线程刷新，UI 线程也会查，读写都走锁）。
+		private static readonly Dictionary<string, Dictionary<string, string>> AlarmTableCache = new Dictionary<string, Dictionary<string, string>>();
+		private static readonly object AlarmTableCacheLock = new object();
 
-			System.Xml.XmlDocument _xmlDoc = SysPara.LanguageShow == LanguageType.English ? srv.XmlDocumentLoad(System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\English.xml") : srv.XmlDocumentLoad(System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\Chinese.xml");
-			string strInnerXml = _xmlDoc.FirstChild.InnerXml;
-			if (strInnerXml.Trim().Length > 0)
+		private static Dictionary<string, string> LoadAlarmTableMap(LanguageType lang)
+		{
+			lock (AlarmTableCacheLock)
 			{
-				mlist = strInnerXml.Trim().Replace("/><", "/>\n<").Split('\n').ToList();
-				foreach (string forRor in mlist)
+				Dictionary<string, string> map;
+				if (AlarmTableCache.TryGetValue(lang.ToString(), out map)) return map;
+
+				map = new Dictionary<string, string>();
+				try
 				{
-					string strValue = forRor.Substring(2, forRor.IndexOf(' ') - 1);
-					string strIndexOf = "Content=\"";
-					int iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
-					string strContent = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
-					strContent = strContent.Substring(0, strContent.IndexOf('\"'));
-					if (string.Equals(strValue.Trim(), Index.Trim()))
+					// 枚举名即文件名：Chinese/English/Español；缺文件时回落英文，宁可显示英文报警也不能哑掉
+					string file = System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\" + lang + ".xml";
+					if (!System.IO.File.Exists(file))
+						file = System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\English.xml";
+
+					AlphaRap.srvConfigReadWriteXML srv = new AlphaRap.srvConfigReadWriteXML();
+					System.Xml.XmlDocument doc = srv.XmlDocumentLoad(file);
+					string inner = doc.FirstChild.InnerXml.Trim();
+					if (inner.Length > 0)
 					{
-						return strContent;
+						string[] rows = inner.Replace("/><", "/>\n<").Split('\n');
+						foreach (string forRow in rows)
+						{
+							string line = forRow.Trim();
+							int sp = line.IndexOf(' ');
+							if (sp < 3 || !line.StartsWith("<A")) continue;
+							string code = line.Substring(2, sp - 2);
+							int ci = line.IndexOf("Content=\"");
+							if (ci < 0) continue;
+							ci += "Content=\"".Length;
+							int ce = line.IndexOf('"', ci);
+							if (ce < 0) continue;
+							map[code] = line.Substring(ci, ce - ci);
+						}
 					}
 				}
+				catch (Exception) { }
+				AlarmTableCache[lang.ToString()] = map;
+				return map;
 			}
+		}
+
+		/// <summary>按指定语言查报警表内容（找不到返回 "Error"，与旧口径一致）。</summary>
+		public string GetAlarmConentOf(LanguageType lang, string Index)
+		{
+			try
+			{
+				Dictionary<string, string> map = LoadAlarmTableMap(lang);
+				string v;
+				if (map.TryGetValue((Index ?? "").Trim(), out v)) return v;
+			}
+			catch (Exception) { }
 			return "Error";
+		}
+
+		public string GetAlarmConent(string Index)
+		{
+			// 按当前语言取对应的报警表文件（枚举名即文件名：Chinese/English/Español），
+			// 不再写死只有中英两个分支 —— AlarmTable 目录下三份文件齐全。
+			return GetAlarmConentOf(SysPara.LanguageShow, Index);
+		}
+
+		/// <summary>
+		/// 报警列表显示用的文案。NPSDK 驱动内部有些报警是两参数 Show(编号, 写死英文) 弹出的
+		/// （IO/电机组件初始化失败那几条，还会带上 Name=/Port= 细节），这些文字不走报警表。
+		/// 这里按编号在三种语言的表里做**前缀匹配**：能对上就把前缀换成当前语言的表内容、
+		/// 保留后面的细节；完全对不上（纯自定义文本）就原样保留，避免丢信息。
+		/// </summary>
+		public string ResolveAlarmContent(string code, string stored)
+		{
+			try
+			{
+				if (string.IsNullOrEmpty(stored)) return stored;
+				string cur = GetAlarmConentOf(SysPara.LanguageShow, code);
+				if (cur == "Error" || string.IsNullOrEmpty(cur) || cur == stored) return stored;
+
+				LanguageType[] all = (LanguageType[])Enum.GetValues(typeof(LanguageType));
+				foreach (LanguageType lang in all)
+				{
+					string t = GetAlarmConentOf(lang, code);
+					if (t != "Error" && !string.IsNullOrEmpty(t) && stored.StartsWith(t, StringComparison.Ordinal))
+						return cur + stored.Substring(t.Length);
+				}
+			}
+			catch (Exception) { }
+			return stored;
 		}
 
 		public bool TestJIG_Clear = false;

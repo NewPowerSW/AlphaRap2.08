@@ -18,6 +18,9 @@ namespace AlphaRap.MenuForm
         public LanguageSetting()
         {
             InitializeComponent();
+            // 本窗体是 SystemForm 里按需 new 出来的，不在 lstForm 里，赶不上启动扫描 ——
+            // 就地补登记进语言表（此时语言表已建好），Designer 里的文案才能跟随切语言。
+            MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
             if (dtTable.Columns.Count == 0)
             {
                 dtTable.Columns.Add("ID");
@@ -183,23 +186,8 @@ namespace AlphaRap.MenuForm
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            string message1 = "";
-            string message2 = "";
-            if (SysPara.LanguageShow == LanguageType.Chinese)
-            {
-                message1 = "是否要保存？";
-                message2 = "温馨提示";
-            }
-            else if (SysPara.LanguageShow == LanguageType.English)
-            {
-                message1 = "Are you sure to save it?";
-                message2 = "Save";
-            }
-            else if (SysPara.LanguageShow == LanguageType.Español)
-            {
-                message1 = "Seguro que quieres guardar?";
-                message2 = "Guardar";
-            }
+            string message1 = MiddleLayer.LangMsg("LanguageSetting", "msg_SaveConfirm", "是否要保存？", "Are you sure to save it?", "Seguro que quieres guardar?");
+            string message2 = MiddleLayer.LangMsg("LanguageSetting", "msg_SaveTitle", "温馨提示", "Save", "Guardar");
             if (MessageBox.Show(message1, message2, MessageBoxButtons.YesNo) == DialogResult.No)
                 return;
 

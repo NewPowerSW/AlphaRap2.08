@@ -34,7 +34,7 @@ namespace AlphaRap.MES
 		readonly object OBJ = new object();
 
 		IniFile IniFile_Dongju = new IniFile(".\\Dongju.ini");
-			#region SFC
+		#region SFC
 		#region CheckStation
 		/// <summary>
 		/// 产品别
@@ -178,7 +178,7 @@ namespace AlphaRap.MES
 			return SFCDLL.GetSpecialValue(Product, Type, Parameters);
 		}
 		#endregion
-		#region InsertIntoTable
+		#region InsertInto Table
 		public string TableName
 		{
 			get
@@ -261,17 +261,17 @@ namespace AlphaRap.MES
 
 		private void CheckStation_Text_Click(object sender, EventArgs e)
 		{
-		
+
 			try
 			{
-				
+
 				textBox1.Text = CheckStationPass(Product, Station, Barcode, LineNo, Version);
 			}
 			catch (Exception ex)
 			{
-		
+
 				MessageBox.Show(ex.ToString());
-		
+
 			}
 		}
 
@@ -378,7 +378,7 @@ namespace AlphaRap.MES
 
 			}
 			set
-			{	
+			{
 				IniFile_Dongju.WriteString("MES", "EQP_ID", value);
 				textBox_EQP_ID.Text = value;
 			}
@@ -395,6 +395,13 @@ namespace AlphaRap.MES
 			List<TextBox> List = new List<TextBox>();
 			void EnumControls(Control container)
 			{
+				//foreach (Control item in container.Controls)
+				//{
+				//	//c is the child control here
+				//	EnumControls(item);
+				//	if (item is TextBox)
+				//		List.Add((TextBox)item);
+				//}
 				foreach (Control item in container.Controls)
 				{
 					//c is the child control here
@@ -424,6 +431,6 @@ namespace AlphaRap.MES
 			textBox13.Text = SCADA_HandShake(Model_No, ProjectName, EQP_ID);
 		}
 
-		
+
 	}
 }

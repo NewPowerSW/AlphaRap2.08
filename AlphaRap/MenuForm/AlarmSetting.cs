@@ -18,6 +18,9 @@ namespace AlphaRap.MenuForm
 		public AlarmSetting()
         {
             InitializeComponent();
+            // 本窗体是 SystemForm 里按需 new 出来的，不在 lstForm 里，赶不上启动扫描 ——
+            // 就地补登记进语言表（此时语言表已建好），Designer 里的文案才能跟随切语言。
+            MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
             if (dtTable.Columns.Count == 0)
             {
                 dtTable.Columns.Add("Index");
@@ -249,23 +252,8 @@ namespace AlphaRap.MenuForm
         private void btnRemove_Click(object sender, EventArgs e)
         {
             #region MyRegion
-            string message1 = "";
-            string message2 = "";
-            if (SysPara.LanguageShow == LanguageType.Chinese)
-            {
-                message1 = "您確認要移除當前選中的行嗎？";
-                message2 = "溫馨提示";
-            }
-            else if (SysPara.LanguageShow == LanguageType.English)
-            {
-                message1 = "Are you sure to delete?";
-                message2 = "Delete";
-            }
-            else if (SysPara.LanguageShow == LanguageType.Español)
-            {
-                message1 = "Estas seguro que desea eliminar?";
-                message2 = "Eliminar";
-            }
+            string message1 = MiddleLayer.LangMsg("AlarmSetting", "msg_DeleteConfirm", "您確認要移除當前選中的行嗎？", "Are you sure to delete?", "Estas seguro que desea eliminar?");
+            string message2 = MiddleLayer.LangMsg("AlarmSetting", "msg_DeleteTitle", "溫馨提示", "Delete", "Eliminar");
 
 
 
@@ -298,23 +286,8 @@ namespace AlphaRap.MenuForm
         {
             #region MyRegion
             this.dgvData.EndEdit();
-            string message1 = "";
-            string message2 = "";
-            if (SysPara.LanguageShow == LanguageType.Chinese)
-            {
-                message1 = "是否要保存？";
-                message2 = "温馨提示";
-            }
-            else if (SysPara.LanguageShow == LanguageType.English)
-            {
-                message1 = "Are you sure to save it?";
-                message2 = "Save";
-            }
-            else if (SysPara.LanguageShow == LanguageType.Español)
-            {
-                message1 = "Seguro que quieres guardar?";
-                message2 = "Guardar";
-            }
+            string message1 = MiddleLayer.LangMsg("AlarmSetting", "msg_SaveConfirm", "是否要保存？", "Are you sure to save it?", "Seguro que quieres guardar?");
+            string message2 = MiddleLayer.LangMsg("AlarmSetting", "msg_SaveTitle", "温馨提示", "Save", "Guardar");
             if (MessageBox.Show(message1, message2, MessageBoxButtons.YesNo) == DialogResult.No)
                 return;
             foreach (DataRow forRow in this.dtTable.Rows)
@@ -322,7 +295,9 @@ namespace AlphaRap.MenuForm
                 string strIndex = forRow["Index"].ToString().Trim();
                 if (forRow["AlarID"].ToString().Trim().Length == 0)
                 {
-                    MessageBox.Show("行" + strIndex + "，[AlarID]不能為空！");
+                    MessageBox.Show(string.Format(
+                        MiddleLayer.LangMsg("AlarmSetting", "msg_AlarmRowEmpty", "行{0}，[{1}]不能為空！", "Row {0}: [{1}] must not be empty!", "La fila {0}: ¡[{1}] no puede estar vacía!"),
+                        strIndex, "AlarID"));
                     return;
                 }
                 if (forRow["DoStop"].ToString().Trim().Length == 0)
@@ -455,9 +430,11 @@ namespace AlphaRap.MenuForm
                                 if (e.FormattedValue.ToString().Trim().IndexOf(' ') != -1)
                                 {
                                     e.Cancel = true;
-                                    string strError = "行" + e.RowIndex + "," + dgvDataGrid.Columns[e.ColumnIndex].HeaderText.Trim() + " 值不能含有空格";
+                    string strError = string.Format(
+                        MiddleLayer.LangMsg("AlarmSetting", "msg_ValNoSpace", "行{0}，{1} 值不能含有空格", "Row {0}: value of {1} must not contain spaces", "La fila {0}: el valor de {1} no puede contener espacios"),
+                        e.RowIndex, dgvDataGrid.Columns[e.ColumnIndex].HeaderText.Trim());
                                     dgvDataGrid.Rows[e.RowIndex].ErrorText = strError;
-                                    MessageBox.Show(strError, "錯誤提示", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                    MessageBox.Show(strError, MiddleLayer.LangMsg("AlarmSetting", "msg_ErrorTitle", "錯誤提示", "Error", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                                     return;
                                 }
                             }
@@ -469,9 +446,11 @@ namespace AlphaRap.MenuForm
                             if (e.FormattedValue.ToString().Trim().ToUpper() != "E" && e.FormattedValue.ToString().Trim().ToUpper() != "I" && e.FormattedValue.ToString().Trim().ToUpper() != "Q" && e.FormattedValue.ToString().Trim().ToUpper() != "W")
                             {
                                 e.Cancel = true;
-                                string strError = "行" + e.RowIndex + "," + dgvDataGrid.Columns[e.ColumnIndex].HeaderText.Trim() + " 值只能為E、I、Q、W";
+                                string strError = string.Format(
+                                    MiddleLayer.LangMsg("AlarmSetting", "msg_ValOnlyEIQW", "行{0}，{1} 值只能為E、I、Q、W", "Row {0}: value of {1} must be E, I, Q or W", "La fila {0}: el valor de {1} solo puede ser E, I, Q, W"),
+                                    e.RowIndex, dgvDataGrid.Columns[e.ColumnIndex].HeaderText.Trim());
                                 dgvDataGrid.Rows[e.RowIndex].ErrorText = strError;
-                                MessageBox.Show(strError, "錯誤提示", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                MessageBox.Show(strError, MiddleLayer.LangMsg("AlarmSetting", "msg_ErrorTitle", "錯誤提示", "Error", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             }
                         }
                         break;
@@ -481,9 +460,11 @@ namespace AlphaRap.MenuForm
                             if (e.FormattedValue.ToString().Trim().ToUpper() != "FALSE" && e.FormattedValue.ToString().Trim().ToUpper() != "TRUE")
                             {
                                 e.Cancel = true;
-                                string strError = "行" + e.RowIndex + "," + dgvDataGrid.Columns[e.ColumnIndex].HeaderText.Trim() + " 值只能為True 或False";
+                                string strError = string.Format(
+                                    MiddleLayer.LangMsg("AlarmSetting", "msg_ValTrueFalse", "行{0}，{1} 值只能為True 或False", "Row {0}: value of {1} must be True or False", "La fila {0}: el valor de {1} solo puede ser True o False"),
+                                    e.RowIndex, dgvDataGrid.Columns[e.ColumnIndex].HeaderText.Trim());
                                 dgvDataGrid.Rows[e.RowIndex].ErrorText = strError;
-                                MessageBox.Show(strError, "錯誤提示", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                MessageBox.Show(strError, MiddleLayer.LangMsg("AlarmSetting", "msg_ErrorTitle", "錯誤提示", "Error", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             }
                         }
                         break;

@@ -37,6 +37,9 @@ namespace AlphaRap
             for (int i = 0; i < NPSDK.Flow_Module.FlowChart_ModuleList.Count; i++)
             {
                 TabPage p = new TabPage();
+                // 必须起名：TabPage 会被语言扫描按名字登记，名字为空时
+                // XMLExpand.GetElement 会拼出 "中文/窗体名/" 这种空段路径并抛 XPathException
+                p.Name = "flowChartTab_" + i;
                 p.Text = Flow_Module.FlowChart_ModuleList[i].Name;
                 p.AutoScroll = true;
                 tabControl1.TabPages.Add(p);

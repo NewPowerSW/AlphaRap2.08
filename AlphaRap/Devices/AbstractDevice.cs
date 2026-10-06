@@ -90,7 +90,14 @@ namespace AlphaRap
             // 开新线程，避免阻塞当前线程
             Task.Run(() =>
             {
-                MessageBox.Show($">> {foreword}\r\n\r\n异常信息：\r\n{ex}", $"{this.GetType().Name} 类的 [{DeviceName}] 异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // 提示文案走语言包（MiddleLayer.LangMsg）；异常详情（ex）保持原样
+                string title = string.Format(
+                    MiddleLayer.LangMsg("Device", "msg_DeviceExceptionTitle", "{0} 类的 [{1}] 异常", "Exception of class {0} in [{1}]", "Excepción de la clase {0} en [{1}]"),
+                    this.GetType().Name, DeviceName);
+                string body = ">> " + foreword + "\r\n\r\n"
+                            + MiddleLayer.LangMsg("Device", "msg_DeviceExceptionBody", "异常信息：", "Exception details:", "Información de la excepción:")
+                            + "\r\n" + ex;
+                MessageBox.Show(body, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				MiddleLayer.DataF.AddLogError($">> {foreword}\r\n\r\n异常信息：\r\n{ex}" + $"{this.GetType().Name} 类的 [{DeviceName}] 异常");
 
 			});

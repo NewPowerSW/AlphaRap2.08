@@ -1,12 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using AlphaRapLibrary;
 using AlphaRap.Classes;
 
@@ -88,11 +80,13 @@ namespace AlphaRap
             SysPara.items++;
         }
 
-        /// <summary>
-        /// 判断自动登出时间的合法性
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+		
 
-    }
+		/// <summary>
+		/// 判断自动登出时间的合法性
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+
+	}
 }

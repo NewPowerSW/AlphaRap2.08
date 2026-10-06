@@ -30,6 +30,41 @@ namespace AlphaRap
         public List<CogRecordDisplay> RecordDisplayList = new List<CogRecordDisplay>();
         public int RunLiveCCDIndex = 0;
         public double RunExposure = 10;
+
+        /// <summary>
+        /// 界面显示名（动态相机填"相机 / VPP"）。为空时退回类名，
+        /// 老的硬编码工位（H1_Vision_Fiducial 之类）什么都不用改。
+        /// </summary>
+        public string DisplayName;
+
+        /// <summary>
+        /// vpp 存放子目录的覆盖值。
+        /// 为空 → 用类名（**老工位的磁盘路径完全不变**，兼容现场已有 vpp）；
+        /// 动态相机填 "相机名\VPP名"，即每台相机的每个 VPP 各占一个目录，互不覆盖。
+        /// </summary>
+        public string VppFolderName;
+
+        /// <summary>vpp 相对子目录：动态工位 = 相机\VPP，老工位 = 类名。</summary>
+        public string VppSubFolder
+        {
+            get { return string.IsNullOrEmpty(VppFolderName) ? GetType().Name : VppFolderName; }
+        }
+
+        /// <summary>界面显示名：优先 DisplayName，其次类名。</summary>
+        public string StationName
+        {
+            get { return string.IsNullOrEmpty(DisplayName) ? GetType().Name : DisplayName; }
+        }
+
+        /// <summary>
+        /// vpp 完整路径 {VisionData}\{子目录}\{配方名}.vpp。
+        /// 原来这段拼接在 MiddleLayer.OpenVision、ProductManagerForm 里各写了一份，
+        /// 收到这里之后，动态相机只要改 VppFolderName 就行，不用去改三处。
+        /// </summary>
+        public string GetVppPath(string recipeName)
+        {
+            return string.Format(@"{0}\{1}\{2}.vpp", SysPara.VisionFileDirectory, VppSubFolder, recipeName);
+        }
         public VisionproInterface()
         {
             VList.Add(this);

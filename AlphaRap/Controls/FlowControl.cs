@@ -1,0 +1,156 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Drawing;
+using NPSDK;
+
+namespace AlphaRap
+{
+    public class FlowControl
+    {
+        public bool bStopWork = false; 
+        Thread FlowControlThread = null; 
+
+        public void StartThread()
+        {
+            bStopWork = false;
+            FlowControlThread = new Thread(DoWork);
+            FlowControlThread.Start();
+        }
+
+        public void StopThread()
+        {
+            if (FlowControlThread != null)
+            {
+                bStopWork = true;
+                FlowControlThread.Join();
+            }
+        }
+
+        public void DoWork()
+        {
+            int ScanTick = 0; 
+            Int64 LastSecond = 0;
+            Int64 TempSecond = 0;
+            GetTickCountEx tick = new GetTickCountEx();
+            while (!bStopWork)
+            {
+                Execute();
+
+                Thread.Sleep(5);
+                ScanTick++;
+                TempSecond = tick.Value;
+                if ((TempSecond - LastSecond) >= 1000)
+                {
+                    LastSecond = TempSecond;
+                    if (SysPara.SystemMode == RunMode.RUN)
+                    {
+                        SysPara.OperationSecond++;
+                        if (SysPara.SystemRun)
+                            SysPara.RunSecond++;
+                        else
+                            SysPara.StopSecond++;
+                    }
+                    SysPara.ScanTime = ScanTick;
+                    ScanTick = 0;
+
+                }
+            }
+        }
+
+        private void Execute()
+        {
+            try { SDKKernal.RefreshIO(); }
+            catch (Exception ex) { NPSDK.Alarm.Show("2018", ex.Message); }
+
+            try { MiddleLayer.AlwaysRun(); }
+            catch (Exception) { NPSDK.Alarm.Show("2019");}
+
+            try { MiddleLayer.alTask.AlwaysRun(); }
+            catch (Exception) { NPSDK.Alarm.Show("2019"); }
+
+            try { MiddleLayer.CheckMotorProtected(); }
+            catch (Exception) { NPSDK.Alarm.Show("2020"); }
+
+        }
+
+        #region Initial
+        private int iInitialTask = 0; 
+        public void InitialReset()
+        {
+            iInitialTask = 0;
+            SysPara.SystemMode = RunMode.INITIAL;
+            SysPara.UpConveyorInitialOk = false;
+        }
+
+        private void ExecuteInitial()
+        {
+            switch (iInitialTask)
+            {
+                case 0:
+                    MiddleLayer.InitialParameterReset();
+                    iInitialTask++;
+                    break;
+                case 1: 
+                    MiddleLayer.InitialReset();
+                    iInitialTask++;
+                    break;
+                case 2: 
+                    MiddleLayer.ServoOn();
+                    iInitialTask++;
+                    break;
+                case 3: 
+                    iInitialTask++;
+                    break;
+                case 4: 
+                    MiddleLayer.Initial();
+                    if (MiddleLayer.GetInitialOk())
+                        iInitialTask++;
+                    break;
+                case 5:
+                    MiddleLayer.StopRun();
+                    SysPara.SystemMode = RunMode.IDLE;
+                    SysPara.UpConveyorInitialOk = true;
+                    iInitialTask++;
+                    break;
+                case 6:
+                    break;
+            }
+        }
+
+        #endregion
+
+        #region Run
+        private int iRunTask = 0;
+        public void RunReset()
+        {
+            iRunTask = 0;
+            SysPara.SystemMode = RunMode.RUN;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+        }
+
+        private void ExecuteRun()
+        {
+            if (SysPara.UpConveyorInitialOk)
+            {
+                switch (iRunTask)
+                {
+                    case 0:
+                        iRunTask++;
+                        break;
+                    case 1: 
+                        MiddleLayer.RunReset();
+                        iRunTask++;
+                        break;
+                    case 2:
+                        MiddleLayer.Run();
+                        break;
+                }
+            }
+        }
+        #endregion
+    }
+}

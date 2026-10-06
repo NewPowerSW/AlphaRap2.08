@@ -161,7 +161,9 @@ namespace AlphaRap
 
 					//Log.log.Write("calibration position coordinate row is added soon!", Color.Black);
 					dgv_CalibPos.WriteRowToDataGrid(posArr);
-					break;
+                    
+
+                    break;
 				case "tab_FlowPos":
 					posArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, lbl_PosR1.Text, lbl_PosR2.Text, "ReadMe", };
 

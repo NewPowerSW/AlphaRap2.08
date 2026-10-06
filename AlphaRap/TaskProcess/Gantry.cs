@@ -149,6 +149,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_2_FlowChartRun()
 		{
+			NPSDK.Alarm.Show("4014");
 			string IP = MiddleLayer.ParF.GetSettingValue("MSet", "ScannIP");
 			int Port = MiddleLayer.ParF.GetSettingValue("MSet", "ScannPort");
 			if (!MiddleLayer.ParF.OPTScann.ConnectStatus())
@@ -211,7 +212,7 @@ namespace AlphaRap.TaskProcess
 				return false;
 			}
 		}
-		public bool CheckVisionData(VisionPostData ts, H1_Vision_Fiducial h1)
+		public bool CheckVisionData(VisionPostData ts, VpStation h1)
 		{
 			
 			if (!ts.Enable)

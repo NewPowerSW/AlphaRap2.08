@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
-using NPSDK;
+using AlphaRap;
 
 namespace Alpha
 {
@@ -94,6 +94,8 @@ namespace Alpha
         public MotorControlForm()
         {
             InitializeComponent();
+            // 按需 new 的窗体，不在 lstForm 里，赶不上启动扫描 —— 就地补登记进语言表。
+            MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
 
             #region Declarations
             ActButtons[0] = btn_Act1;

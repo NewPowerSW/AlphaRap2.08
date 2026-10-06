@@ -30,6 +30,7 @@ namespace AlphaRap.PLC
 		REGI_H3U_SM = 0x2a,     //SM
 		REGI_H3U_SD = 0x2b,     //
 		REGI_H3U_R = 0x2c,      //
+
 								//H5u
 		REGI_H5U_Y = 0x30,       //Y元件的定义	
 		REGI_H5U_X = 0x31,      //X元件的定义							
@@ -129,6 +130,7 @@ namespace AlphaRap.PLC
                     ElemType = SoftElemType.REGI_H5U_R;
                 }
                 #endregion
+
                 int ReadAddrd = Convert.ToInt32(nStartAddr.Substring(1));
 				int nRet = H5u_Read_Device_Block(ElemType, ReadAddrd, nCount, pBuf, 0);
 
@@ -197,6 +199,7 @@ namespace AlphaRap.PLC
 
         public string ReadPlcString(string nStartAddr, int nCount)   //test
         {
+
             lock (ReadPLC_Lock)
             {
                 byte[] pValue = new byte[nCount * 2];
@@ -490,12 +493,12 @@ namespace AlphaRap.PLC
 			if (result == true)
 			{
 
-				MessageBox.Show("关闭连接成功");
+				MessageBox.Show(MiddleLayer.LangMsg("PLC", "msg_PlcCloseOk", "关闭连接成功", "Connection closed", "Conexión cerrada"));
 
 			}
 			else
 			{
-				MessageBox.Show("关闭连接失败");
+				MessageBox.Show(MiddleLayer.LangMsg("PLC", "msg_PlcCloseFail", "关闭连接失败", "Failed to close connection", "Error al cerrar la conexión"));
 
 			}
 
