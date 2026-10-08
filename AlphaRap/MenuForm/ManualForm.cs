@@ -16,6 +16,9 @@ namespace AlphaRap
 			Conveyor_List.Add(OB_UpConveyor_Work_ConveyorReverse);
 			Conveyor_List.Add(OB_UpConveyor_LocalMachineReady_SMEMA);
 			Conveyor_List.Add(OB_UpConveyor_LocalMachineAvailable_SMEMA);
+
+			ApplyPageStyle();
+			MiddleLayer.LanguageChanged += (s, e) => RefreshPageTexts();
 		}
 	}
 }

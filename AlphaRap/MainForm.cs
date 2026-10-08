@@ -36,36 +36,7 @@ int nheightEllipse
         public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
         public const int GWL_STYLE = -16;
         public const int WS_DISABLED = 0x8000000;
-
-        private MENU_PageType MENU_SelectPage = MENU_PageType.Home;
         private MENU_PageType1 MENU_SelectPage1 = MENU_PageType1.Home;
-
-        private PictureBox[] MENU_Picture;
-        public enum MENU_PageType
-        {
-            Home,
-            Product,
-            Save,
-            Hard,
-            Manual,
-            Check,
-            System,
-            AddUser,
-            Rapid,
-            Log,
-            Data,
-            Vision,
-            Login,
-            LifeSpan,
-            Lock,
-            Reset,
-            Pause,
-            Stop,
-            Exit,
-            Run,
-            Mes,
-            Robot
-        }
         public enum MENU_PageType1
         {
             Save,
@@ -105,11 +76,11 @@ int nheightEllipse
         public MainForm()
         {
             InitializeComponent();
-            MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_AddUser, MENU_Rapid, MENU_Log, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Pause, MENU_Stop, MENU_Exit, MENU_Run, MENU_Mes };
 
-            // 绘制图标与菜单配色（设计期也执行，使设计视图与运行时一致）
-            RefreshButtonIcons();
-            RefreshMenuBackcolor();
+            // 主框架样式（设计期也执行，使设计视图与运行时一致）；按钮文字取自语言包
+            if (!InDesigner)
+                UiTheme.TextProvider = (form, key, zh, en, es) => MiddleLayer.LangMsg(form, key, zh, en, es);
+            ApplyFrameStyle();
 
             // 以下设置圆角区域和鼠标转发，仅在运行时执行
             if (InDesigner) return;
@@ -742,222 +713,11 @@ int nheightEllipse
                                    MessageBoxDefaultButton.Button2) == DialogResult.Yes;
         }
 
-        /// <summary>
-        /// 更新菜单栏按钮的颜色（现代浅色风格：选中=浅色圆角卡片，未选中=透明融入渐变背景）
-        /// </summary>
-        public void RefreshMenuBackcolor()
-        {
-            for (int i = 0; i < MENU_Picture.Length; i++)
-            {
-                PictureBox btn = MENU_Picture[i];
 
-                // 底部工具栏按钮的底色由 ApplyToolbarButtonStyles() 设置
-                if (btn == MENU_Run || btn == MENU_Pause || btn == MENU_Stop || btn == MENU_Reset ||
-                    btn == MENU_System || btn == MENU_Lock || btn == MENU_Exit)
-                    continue;
 
-                // 顶栏按钮（物料管理/登录）为白色图标，选中态使用深蓝底
-                if (btn == MENU_Product || btn == MENU_Login)
-                {
-                    btn.BackColor = (i == (int)MENU_SelectPage)
-                        ? Color.FromArgb(2, 78, 133)
-                        : Color.Transparent;
-                    continue;
-                }
 
-                // 左侧导航：选中态使用浅色卡片底
-                if (i == (int)MENU_SelectPage)
-                    btn.BackColor = Color.FromArgb(222, 234, 246);
-                else
-                    btn.BackColor = Color.Transparent;
-            }
-        }
 
-        /// <summary>把按钮裁成圆角：左侧导航 4px，底部工具栏 6px。</summary>
-        private void ApplyRoundedMenuRegions()
-        {
-            ApplyRoundRegion(new PictureBox[]
-            {
-                MENU_Home, MENU_Save, MENU_Rapid, MENU_Vision, MENU_Hard, MENU_Manual,
-                MENU_Data, MENU_Log, MENU_Check, MENU_AddUser, MENU_Mes, MENU_LifeSpan
-            }, 8);
 
-            ApplyRoundRegion(new PictureBox[]
-            {
-                MENU_Reset, MENU_Run, MENU_Pause, MENU_Stop, AlarmReset,
-                MENU_System, MENU_Lock, MENU_Exit
-            }, 12);
-        }
-
-        /// <param name="diameter">圆角直径（= 半径 × 2）</param>
-        private static void ApplyRoundRegion(PictureBox[] buttons, int diameter)
-        {
-            if (buttons == null) return;
-            foreach (PictureBox btn in buttons)
-            {
-                if (btn == null || btn.Width <= 0 || btn.Height <= 0) continue;
-                try
-                {
-                    int d = Math.Max(2, Math.Min(diameter, Math.Min(btn.Width, btn.Height)));
-                    using (var path = new System.Drawing.Drawing2D.GraphicsPath())
-                    {
-                        path.AddArc(0, 0, d, d, 180, 90);
-                        path.AddArc(btn.Width - d, 0, d, d, 270, 90);
-                        path.AddArc(btn.Width - d, btn.Height - d, d, d, 0, 90);
-                        path.AddArc(0, btn.Height - d, d, d, 90, 90);
-                        path.CloseFigure();
-                        if (btn.Region != null) btn.Region.Dispose();
-                        btn.Region = new Region(path);
-                    }
-                }
-                catch { }
-            }
-        }
-
-        /// <summary>
-        /// 刷新所有按钮的图标（AppIcons 在 24×24 网格上绘制），颜色按可用状态和操作类型区分：
-        /// 一般功能为深石板灰；运行 / 暂停 / 停止 / 复位为绿 / 琥珀 / 红 / 蓝；退出为红；
-        /// 禁用为浅灰（深蓝顶栏上为暗蓝白）。AppIcons 按 (图标, 尺寸, 颜色) 缓存，可由定时器反复调用。
-        /// </summary>
-        private void RefreshButtonIcons()
-        {
-            try
-            {
-                const int navSize = 28;   // 左侧导航 / 底部工具栏
-                const int topSize = 24;   // 顶栏
-
-                Color nav = AppIconColor.Nav;
-                Color dim = AppIconColor.Disabled;
-
-                MENU_Home.Image    = AppIcons.Get(AppIcon.Home,    navSize, MENU_Home.Enabled    ? nav : dim);
-                MENU_Save.Image    = AppIcons.Get(AppIcon.Save,    navSize, MENU_Save.Enabled    ? nav : dim);
-                MENU_Rapid.Image   = AppIcons.Get(AppIcon.Rapid,   navSize, MENU_Rapid.Enabled   ? nav : dim);
-                MENU_Vision.Image  = AppIcons.Get(AppIcon.Vision,  navSize, MENU_Vision.Enabled  ? nav : dim);
-                MENU_Hard.Image    = AppIcons.Get(AppIcon.Hard,    navSize, MENU_Hard.Enabled    ? nav : dim);
-                MENU_Manual.Image  = AppIcons.Get(AppIcon.Manual,  navSize, MENU_Manual.Enabled  ? nav : dim);
-                MENU_Data.Image    = AppIcons.Get(AppIcon.Data,    navSize, MENU_Data.Enabled    ? nav : dim);
-                MENU_Log.Image     = AppIcons.Get(AppIcon.Log,     navSize, MENU_Log.Enabled     ? nav : dim);
-                MENU_Check.Image   = AppIcons.Get(AppIcon.Check,   navSize, MENU_Check.Enabled   ? nav : dim);
-                MENU_AddUser.Image = AppIcons.Get(AppIcon.AddUser, navSize, MENU_AddUser.Enabled ? nav : dim);
-                MENU_Mes.Image     = AppIcons.Get(AppIcon.Mes,     navSize, MENU_Mes.Enabled     ? nav : dim);
-                MENU_LifeSpan.Image = AppIcons.Get(AppIcon.LifeSpan, navSize, MENU_LifeSpan.Enabled ? nav : dim);
-
-                // 底部工具栏按钮的底色与图标
-                ApplyToolbarButtonStyles();
-
-                // 顶栏：深蓝底 → 白色图标
-                MENU_Product.Image = AppIcons.Get(AppIcon.Product, topSize,
-                    MENU_Product.Enabled ? AppIconColor.OnDarkBar : AppIconColor.DisabledOnDark);
-                MENU_Login.Image = AppIcons.Get(AppIcon.Login, topSize,
-                    MENU_Login.Enabled ? AppIconColor.OnDarkBar : AppIconColor.DisabledOnDark);
-            }
-            catch { }
-        }
-
-        // ---------------- 底部工具栏按钮样式 ----------------
-
-        /// <summary>工具栏按钮悬停时的底色（与左侧导航选中态相同）。</summary>
-        private static readonly Color ToolbarHover = Color.FromArgb(222, 234, 246);
-
-        /// <summary>当前鼠标悬停的工具栏按钮。</summary>
-        private PictureBox _hoverToolbarButton;
-
-        /// <summary>
-        /// 底部工具栏按钮样式：平时透明底只显示图标，鼠标悬停时显示软底圆角卡片。
-        /// 图标颜色表示操作类型：运行绿 / 暂停琥珀 / 停止红 / 复位蓝 / 退出红，系统、锁定、报警复位为石板灰。
-        /// </summary>
-        private void ApplyToolbarButtonStyles()
-        {
-            try
-            {
-                const int iconSize = 44;   // 比左侧导航（28）大一档
-
-                StyleToolbarButton(MENU_Reset, AppIcon.Reset, iconSize, AppIconColor.Reset);
-                StyleToolbarButton(MENU_Run, AppIcon.Run, iconSize, AppIconColor.Run);
-                StyleToolbarButton(MENU_Pause, AppIcon.Pause, iconSize, AppIconColor.Pause);
-                StyleToolbarButton(MENU_Stop, AppIcon.Stop, iconSize, AppIconColor.Stop);
-                StyleToolbarButton(AlarmReset, AppIcon.AlarmReset, iconSize, AppIconColor.Nav, AppIconColor.Danger);
-                StyleToolbarButton(MENU_System, AppIcon.System, iconSize, AppIconColor.Nav);
-                StyleToolbarButton(MENU_Lock, AppIcon.Lock, iconSize, AppIconColor.Nav);
-                StyleToolbarButton(MENU_Exit, AppIcon.Exit, iconSize, AppIconColor.Danger);
-            }
-            catch { }
-        }
-
-        private void StyleToolbarButton(PictureBox btn, AppIcon icon, int size, Color iconColor)
-        {
-            StyleToolbarButton(btn, icon, size, iconColor, iconColor);
-        }
-
-        private void StyleToolbarButton(PictureBox btn, AppIcon icon, int size,
-            Color iconColor, Color accentColor)
-        {
-            if (btn == null) return;
-
-            bool on = btn.Enabled;
-
-            // 平时透明，悬停时显示软底卡片
-            btn.BackColor = (on && btn == _hoverToolbarButton) ? ToolbarHover : Color.Transparent;
-
-            Color main = on ? iconColor : AppIconColor.Disabled;
-            Color accent = on ? accentColor : AppIconColor.Disabled;
-            btn.Image = AppIcons.Get(icon, size, main, accent);
-        }
-
-        /// <summary>给工具栏按钮挂接悬停事件（在 MainForm_Load 中调用一次）。</summary>
-        private void HookToolbarHover()
-        {
-            PictureBox[] buttons =
-            {
-                MENU_Reset, MENU_Run, MENU_Pause, MENU_Stop, AlarmReset,
-                MENU_System, MENU_Lock, MENU_Exit
-            };
-            foreach (PictureBox btn in buttons)
-            {
-                if (btn == null) continue;
-                btn.MouseEnter += ToolbarButton_MouseEnter;
-                btn.MouseLeave += ToolbarButton_MouseLeave;
-            }
-        }
-
-        private void ToolbarButton_MouseEnter(object sender, EventArgs e)
-        {
-            PictureBox btn = sender as PictureBox;
-            if (btn == null || btn == _hoverToolbarButton) return;
-            _hoverToolbarButton = btn;
-            ApplyToolbarButtonStyles();
-        }
-
-        private void ToolbarButton_MouseLeave(object sender, EventArgs e)
-        {
-            PictureBox btn = sender as PictureBox;
-            if (btn == null || _hoverToolbarButton != btn) return;
-            _hoverToolbarButton = null;
-            ApplyToolbarButtonStyles();
-        }
-
-        /// <summary>
-        /// 把控件裁剪为圆角胶囊（用于顶栏机器状态徽章等）
-        /// </summary>
-        private static void ApplyPillRegion(Control c, int radius)
-        {
-            if (c == null || c.Width <= 0 || c.Height <= 0) return;
-            try
-            {
-                int d = Math.Max(2, Math.Min(radius * 2, Math.Min(c.Width, c.Height)));
-                using (var path = new System.Drawing.Drawing2D.GraphicsPath())
-                {
-                    path.AddArc(0, 0, d, d, 180, 90);
-                    path.AddArc(c.Width - d, 0, d, d, 270, 90);
-                    path.AddArc(c.Width - d, c.Height - d, d, d, 0, 90);
-                    path.AddArc(0, c.Height - d, d, d, 90, 90);
-                    path.CloseFigure();
-                    if (c.Region != null) c.Region.Dispose();
-                    c.Region = new Region(path);
-                }
-            }
-            catch { }
-        }
 
         #region 报警日志筛选 + 语言切换（全部 / 警告 / 报警）
 
@@ -995,23 +755,6 @@ int nheightEllipse
             }
         }
 
-        /// <summary>
-        /// 报警行配色：E 错误为红底，W 警告为深鲑鱼色底，其它类型为默认白底（新增与筛选重建共用）。
-        /// </summary>
-        public static void ApplyAlarmRowColor(ListViewItem item, string type, int index)
-        {
-            if (item == null) return;
-            switch (type)
-            {
-                case "E":
-                    item.BackColor = Color.Red;
-                    break;
-                case "W":
-                    item.BackColor = Color.DarkSalmon;
-                    break;
-                    // 其它类型不加底色（默认白底黑字）
-            }
-        }
 
         /// <summary>用缓存重建报警列表（应用当前筛选），不触发任何副作用。</summary>
         public void RebuildAlarmLogFromCache()
@@ -1181,6 +924,10 @@ int nheightEllipse
             {
                 // 标签文字 = 名称 + 条数
                 UpdateAlarmFilterCount();
+
+                // 导航与工具栏按钮文字
+                LoadFrameTexts();
+                RefreshButtonIcons();
 
                 if (languageSwitch != null) languageSwitch.Current = SysPara.LanguageShow;
             }
@@ -1601,6 +1348,7 @@ int nheightEllipse
             lock (ProductObjLock)
             {
                 SysPara.iProductOK++;
+                RecordHourly(true);
             }
         }
         public void iProductNGAdd()
@@ -1608,7 +1356,30 @@ int nheightEllipse
             lock (ProductObjLock)
             {
                 SysPara.iProductNG++;
+                RecordHourly(false);
             }
+        }
+
+        /// <summary>每小时统计所属的日期，跨天时清零。</summary>
+        private DateTime _hourlyDate = DateTime.Today;
+
+        /// <summary>记录当天每小时的投入 / 产出 / 不良 / 良率（首页每小时产量图使用）。</summary>
+        private void RecordHourly(bool ok)
+        {
+            DateTime now = DateTime.Now;
+            if (now.Date != _hourlyDate)
+            {
+                Array.Clear(SysPara.iProductHourlyInput, 0, SysPara.iProductHourlyInput.Length);
+                Array.Clear(SysPara.iProductHourlyOutput, 0, SysPara.iProductHourlyOutput.Length);
+                Array.Clear(SysPara.iProductHourlyReject, 0, SysPara.iProductHourlyReject.Length);
+                Array.Clear(SysPara.iProductHourlyYield, 0, SysPara.iProductHourlyYield.Length);
+                _hourlyDate = now.Date;
+            }
+            int h = now.Hour;
+            SysPara.iProductHourlyInput[h]++;
+            if (ok) SysPara.iProductHourlyOutput[h]++;
+            else SysPara.iProductHourlyReject[h]++;
+            SysPara.iProductHourlyYield[h] = SysPara.iProductHourlyOutput[h] * 100.0 / SysPara.iProductHourlyInput[h];
         }
 
         #region GetProductData

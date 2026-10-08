@@ -22,27 +22,13 @@ namespace AlphaRap
 			label_PLCStaus.Resize += (s, ev) => ApplyPillRegion(label_PLCStaus, 6);
 			ApplyPillRegion(label_ScannStaus, 6);
 			ApplyPillRegion(label_PLCStaus, 6);
-			// 图表只用于显示：正常已由 NoFocusChart 关掉焦点，
-			// 这里再加一道保险，防止外部代码把焦点设到图表上后残留虚线焦点框
-			chart1.Enter += ClearChartFocus;
-			chart2.Enter += ClearChartFocus;
+
+			ApplyPageStyle();
+			MiddleLayer.LanguageChanged += (s, e) => RefreshPageTexts();
+
 			bool bPlat = Convert.ToBoolean(SysPara.bPlat);
 
 			MiddleLayer.MainF.tabPage10.Parent = bPlat ? null : MiddleLayer.MainF.uiTabControl1;
-		}
-
-		/// <summary>图表意外获得焦点时立刻把焦点交还出去，避免残留虚线焦点框。</summary>
-		private void ClearChartFocus(object sender, EventArgs e)
-		{
-			try
-			{
-				Control c = sender as Control;
-				if (c == null || !c.Focused) return;
-				Form f = FindForm();
-				if (f != null)
-					BeginInvoke(new Action(delegate { try { f.ActiveControl = null; } catch { } }));
-			}
-			catch { }
 		}
 
 		/// <summary>把控件裁剪为圆角胶囊（状态指示块用）。</summary>
@@ -71,6 +57,11 @@ namespace AlphaRap
 
 		private void timer1_Tick(object sender, EventArgs e)
 		{
+			// 生产数据：累计良品 / 不良、节拍、当天每小时数量
+			string ct = !string.IsNullOrEmpty(SysPara.CircleTime) ? SysPara.CircleTime
+					  : (MiddleLayer.MainF != null ? MiddleLayer.MainF.txtCyCT.Text : "");
+			ShowValues(SysPara.iProductOK, SysPara.iProductNG, ct,
+					   SysPara.iProductHourlyOutput, SysPara.iProductHourlyReject, DateTime.Now.Hour);
 
 			#region 外部应用状态
 			// 只在状态变化时改色，避免每秒重绘
