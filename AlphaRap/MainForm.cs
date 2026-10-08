@@ -645,8 +645,7 @@ int nheightEllipse
                 return;
 
             MENU_SelectPage = PageType;
-            Panel ShowPanl = new Panel();
-            ShowPanl = panel2;
+            Panel ShowPanl = panel2;
             tableLayoutPanel4.Visible = false;
 
             RefreshMenuBackcolor();
@@ -1581,15 +1580,17 @@ int nheightEllipse
         public void WriteRunMessageResult(string RunTime, string strMessage)
         {
             ListViewItem lvi = new ListViewItem(RunTime);
-            ListView listView1 = new ListView();
             lvi.SubItems.Add(strMessage);
             lvi.SubItems.Add(SysPara.UserName);
-            listView1.Items.Add(lvi);
             string Year = DateTime.Now.Year.ToString();
             string month = DateTime.Now.Month.ToString();
             string day = DateTime.Now.Day.ToString();
             SysPara.RunMessagePath = MiddleLayer.LogF.GetSettingValue("Path", "RunPath") + "\\RunMessageData\\" + "\\" + Year + "\\" + month + "\\" + day + "\\";
-            ListViewWrite.WriteExcelData(SysPara.RunMessagePath, listView1);
+            using (ListView listView1 = new ListView())
+            {
+                listView1.Items.Add(lvi);
+                ListViewWrite.WriteExcelData(SysPara.RunMessagePath, listView1);
+            }
         }
         #endregion
 
@@ -1625,11 +1626,12 @@ int nheightEllipse
         #endregion
 
         #region reminder
+        /// <summary>菜单按钮悬停提示（所有按钮共用一个 ToolTip）。</summary>
+        private readonly ToolTip _menuTip = new ToolTip { ShowAlways = true };
+
         public void ShowWord(Control con, string word)
         {
-            ToolTip p = new ToolTip();
-            p.ShowAlways = true;
-            p.SetToolTip(con, word);
+            _menuTip.SetToolTip(con, word);
         }
         private void MouseEnter1(object sender, EventArgs e)
         {
@@ -1774,15 +1776,17 @@ int nheightEllipse
         public void AddUserResult(string UserName, string UserPermission, string LoginTime)
         {
             ListViewItem lvi = new ListViewItem(LoginTime);
-            ListView listView1 = new ListView();
             lvi.SubItems.Add(UserName);
             lvi.SubItems.Add(UserPermission);
-            listView1.Items.Add(lvi);
             string Year = DateTime.Now.Year.ToString();
             string month = DateTime.Now.Month.ToString();
             string day = DateTime.Now.Day.ToString();
             SysPara.UserMessagePath = MiddleLayer.LogF.GetSettingValue("Path", "UserPath") + "\\UserLoginData\\" + Year + "\\" + month + "\\" + day + "\\";
-            ListViewWrite.WriteExcelData(SysPara.UserMessagePath, listView1);
+            using (ListView listView1 = new ListView())
+            {
+                listView1.Items.Add(lvi);
+                ListViewWrite.WriteExcelData(SysPara.UserMessagePath, listView1);
+            }
         }
 
         //鼠标监听事件
