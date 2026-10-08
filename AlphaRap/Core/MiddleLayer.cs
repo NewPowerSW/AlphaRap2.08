@@ -186,13 +186,6 @@ namespace AlphaRap
 			MesF = CreateForm(MesF, "LENS");
 			//===============================================================
 
-			#region scoli
-			//===============================================================
-
-			////===============================启动一直运行程序===============================
-
-			#endregion
-
 			LoadingF.SetCaption("Load InitialLanguageData");
 			InitialLanguageData();
 			if (SysPara.LanguageName == "English")
@@ -377,9 +370,7 @@ namespace AlphaRap
 				#endregion
 
 				#region Write to xml file
-				// ★ 必须基于"已有文件"改，**不要每次从空文档重建** ★
-				//   运行时自己按名字登记的条目（见 LangText，VPForm 这类启动后才建页的窗体在用）
-				//   也必须留在文件里；从空文档重建会把它们整个冲掉，那些文案就永远回落到代码底稿了。
+				// 在已有语言文件的基础上更新，保留运行时按键登记的条目（见 LangText）
 				XmlDocument WriteDoc = new XmlDocument();
 				try
 				{
@@ -417,16 +408,11 @@ namespace AlphaRap
 				#endregion
 			}
 
-			// VPForm 的界面在 ModuleInitialize（CreateForm，见 InitialProject）就建好了，早于本方法；
-			// 而它的静态文案控件是 UiLabel/UiButton（Label/Button 的子类），上面的精确类型白名单扫不到，
-			// 当时 RegisterLanguage 又因 ComponentLangurageList 尚未建出来而只能先写 XML ——
-			// 所以列表建好后必须在这里补登记一次，SwitchLanguage 才换得到它的字。
+			// VPForm 在语言表建立之前已构建，且控件为 UiLabel/UiButton 子类（白名单扫描不到），在此登记
 			if (VPF != null) VPF.RegisterVpLanguage();
 			// LockForm1 同样是启动期直接 new 的（不经 CreateForm，不在 lstForm，白名单扫不到），一并补登记。
 			if (LockForm1 != null) RegisterLanguage(LockForm1, "LockForm1");
-			// ProductManagerForm：控件是 UiLabel / FlatButton 这些自绘子类（精确类型白名单扫不到），
-			// 而且它建的时候内存列表还没建好 —— 在这里补登记，文案就交给语言表了，
-			// 之后切语言统一走 MainForm.SwitchLanguageTo（页面上只剩"型号条数"这种动态文案自己算）。
+			// ProductManagerForm 的控件为 UiLabel / FlatButton 等自绘子类（白名单扫描不到），在此登记
 			if (ProductF != null) RegisterLanguage(ProductF, "ProductManagerForm");
 			// AddUserForm 同理（自绘控件 + 建得比语言表早）。
 			if (AddF != null) RegisterLanguage(AddF, "AddUserForm");
@@ -550,10 +536,8 @@ namespace AlphaRap
 		}
 
 		/// <summary>
-		/// 加载报警表（按当前语言）。
-		/// 注意：报警表文件名与 LanguageType 枚举名并不一致 —— 西班牙语的报警表实际叫 Spanish.xml，
-		/// 而枚举名是 Español，直接 ToString() 拼路径会找不到文件，导致 Alarm.Show 全部失效。
-		/// 这里做显式映射，并在对应语言表缺失时回退到 English.xml，避免整机报警彻底哑掉。
+		/// 按当前语言加载报警表。文件名与 LanguageType 枚举名不同（西班牙语为 Spanish.xml），
+		/// 此处显式映射；对应语言的文件缺失时使用 English.xml。
 		/// </summary>
 		private static void LoadAlarmTable()
 		{
@@ -589,29 +573,20 @@ namespace AlphaRap
 		}
 
 		/// <summary>
-		/// 界面语言已切换完毕。
-		///
-		/// 为什么需要这个通知：
-		///   SwitchLanguage 只会改写"被登记进语言表"的控件（白名单是精确类型：
-		///   Form/Label/GroupBox/CheckBox/CheckedListBox/Button/TabPage/RadioButton/Adlink_*/Flow_Chart）。
-		///   自管文案的页面（控件是 FieldBox/FlatButton/UiLabel 这类子类，不在白名单里）
-		///   只能靠这个事件在切语言时重新套一次文字，否则停留在这个页面切语言不会有任何变化。
+		/// 界面语言切换完成后触发。SwitchLanguage 只更新语言表中登记的控件，
+		/// 自行管理文字的页面（FieldBox / FlatButton / UiLabel 等）通过此事件刷新文字。
 		/// </summary>
 		public static event EventHandler LanguageChanged;
 
 		#region 运行时控件文案：按名字从 LanguageData\*.xml 取
-		// 干什么用：`InitialLanguageData()` 只在**启动早期**扫一次控件树（白名单精确类型），
-		// 启动之后才创建的控件（例如 VPForm 的动态相机页）进不了语言表，切语言也就不会变。
-		// 这些控件不去"记字符串"，而是**按名字到语言包的 XML 里取**：
+		// 按键从语言包取文字，供启动后才创建的控件使用：
 		//     LanguageData\{Chinese|English|Español}.xml  →  /{语言}/{窗体名}/{键}/@ComponentText
-		// 键就是控件的语义名（例如 vpBar_AddCamera），XML 里没有这个键时才用代码里的底稿补齐，
-		// 补齐后一律以 XML 为准 —— 也就是说，**翻译只改 XML，不改代码**。
+		// 键为控件的语义名（如 vpBar_AddCamera）；XML 中没有该键时用代码中的底稿写入，之后以 XML 为准。
 
 		private static XmlDocument[] _langDocs;
 
 		/// <summary>
-		/// 名字带这个后缀的控件**不进语言表**：它的文字里混了动态内容（相机名 / 路径 / 状态），
-		/// 进表就会在切语言时被换成一条写死的旧文字。这类文案由页面在语言变化事件里重算。
+		/// 控件名带此后缀时不登记进语言表（文字含相机名 / 路径 / 状态等动态内容，由页面在语言变化事件中生成）。
 		/// </summary>
 		public const string DynTextSuffix = "_dyn";
 
@@ -648,10 +623,8 @@ namespace AlphaRap
 		}
 
 		/// <summary>
-		/// 按**键（= 控件名）**取当前语言的文案（LanguageData\{当前语言}.xml）。
-		/// 只读：XML 里还没有这个键就返回 <paramref name="baseText"/>，
-		/// 条目的补齐交给 <see cref="RegisterLanguage"/>（和 Gantry 这类老页面由
-		/// InitialLanguageData 自动补齐是同一条路）。
+		/// 按键（控件名）取当前语言的文案（LanguageData\{当前语言}.xml），没有该键时返回 <paramref name="baseText"/>。
+		/// 条目的写入由 <see cref="RegisterLanguage"/> 完成。
 		/// </summary>
 		public static string LangText(string formName, string key, string baseText)
 		{
@@ -676,10 +649,8 @@ namespace AlphaRap
 		}
 
 		/// <summary>
-		/// 消息类文案（弹窗 / 报警 / ToolTip 这些"没有控件可登记"的文字）也走同一份语言包：
-		/// 三语底稿各自补进 LanguageData\{语言}.xml 的 /{语言}/{formName}/{key}（缺哪个补哪个），
-		/// 再按当前语言取。XML 里已有该键时**以 XML 为准**，代码底稿只在第一次补写时生效 ——
-		/// 和控件文案（RegisterLanguage）完全同一条路，翻译直接改 XML 或在语言设置页里改。
+		/// 取消息类文案（弹窗 / 报警 / ToolTip）：三语底稿写入 LanguageData\{语言}.xml 的 /{语言}/{formName}/{key}
+		/// （仅在该键不存在时写入），返回当前语言的文字。翻译可直接修改 XML 或在语言设置页修改。
 		/// </summary>
 		/// <param name="formName">语言包里的分组名（一般传窗体名）。</param>
 		/// <param name="key">这条文案的键，如 "msg_SaveConfirm"。</param>
@@ -718,10 +689,8 @@ namespace AlphaRap
 		}
 
 		/// <summary>
-		/// 把"启动后才建出来的"控件按名字登记进语言表 —— 与 InitialLanguageData 为老页面（如 Gantry）做的是同一件事：
-		/// 文案来自 LanguageData\{语言}.xml 的 /{语言}/{窗体名}/{控件名}，XML 里没有的键就用控件当前的
-		/// Text 补写进三份 XML（第一次跑生成条目，之后翻译只改 XML）。
-		/// 登记之后 **SwitchLanguage 会自己把它们的 Text 换成对应语言**，页面不需要再写任何换字代码。
+		/// 把启动后创建的控件按控件名登记进语言表（文字来自 LanguageData\{语言}.xml 的 /{语言}/{窗体名}/{控件名}，
+		/// XML 中没有的键用控件当前 Text 写入三份 XML）。登记后由 SwitchLanguage 更新文字。
 		/// </summary>
 		public static void RegisterLanguage(Control root, string formName)
 		{
@@ -731,9 +700,7 @@ namespace AlphaRap
 		}
 
 		/// <summary>
-		/// 登记进语言表**并立刻按当前语言套一遍文字** —— 给"按需 new 出来的窗体"用
-		/// （登录框 / 设置框 / 报警弹窗）：它们创建时不会有人调 SwitchLanguage，
-		/// 只登记不套字的话会一直显示设计器里的中文。
+		/// 把控件登记进语言表并立即按当前语言设置文字，用于按需创建的窗体（登录框 / 设置框 / 报警弹窗）。
 		/// </summary>
 		public static void RegisterAndApplyLanguage(Control root, string formName)
 		{
@@ -741,7 +708,7 @@ namespace AlphaRap
 			ApplyLanguageTexts(root, formName);
 		}
 
-		/// <summary>把控件树里能登记的控件的文字，按**当前语言**从语言包刷一遍（逻辑与 SwitchLanguage 一致）。</summary>
+		/// <summary>按当前语言从语言包刷新控件树中可登记控件的文字（逻辑与 SwitchLanguage 一致）。</summary>
 		private static void ApplyLanguageTexts(Control root, string formName)
 		{
 			try
@@ -767,19 +734,9 @@ namespace AlphaRap
 		}
 
 		/// <summary>
-		/// 该控件的 Text 是不是"界面文案"。判断口径与 InitialLanguageData 的白名单一致
-		/// （Form / Label / Button / CheckBox / RadioButton / TabPage / GroupBox / CheckedListBox / Flow_Chart），
-		/// 但用 <c>is</c> 而不是精确类型比对，这样 UiLabel / UiButton 这些自绘子类也能进来；
-		/// TextBox / DataGridView 这类"文字就是数据"的控件一律排除，免得把相机名、曝光值写进语言包。
-		///
-		/// **FlatButton / AlarmChip 必须显式列出来**：它们都是 `Control` 的直接子类
-		/// （不是 Button 的子类），靠 `is Button` 判断根本进不来 —— 以前物料管理页的
-		/// "新建/删除/使用"按钮、用户管理页的"保存权限"这类按钮，以及登录页的
-		/// "账号登录 / 指纹登录"两个 chip 就因此永远不切语言（文字停在设计器中文）。
-		///
-		/// 注意 AlarmChip 在**报警栏**里也用来做筛选标签（文字带条数、是运行期拼的），
-		/// 但那条工具条从来没有被登记进语言表（登记只对 lstForm 扫描 + 显式 RegisterLanguage 的
-		/// 几棵树生效），所以把 AlarmChip 纳入白名单不会误伤它。
+		/// 判断控件的 Text 是否为界面文案：Form / Label / Button / CheckBox / RadioButton / TabPage / GroupBox /
+		/// CheckedListBox / Flow_Chart 及其子类，以及 FlatButton / AlarmChip（二者直接继承 Control，需单独列出）。
+		/// TextBox / DataGridView 等文字即数据的控件不计入。
 		/// </summary>
 		private static bool IsLanguageControl(Control c)
 		{
@@ -806,10 +763,8 @@ namespace AlphaRap
 		{
 			try
 			{
-				// 注意：SysPara.ComponentLangurageList 在 InitialLanguageData() 才创建，而 VPForm 的页面
-				// 建得比它早 —— 那一刻列表还是 null。这里不能因为列表没建好就整体放弃：
-				// 语言包 XML 的条目照样要补（见下方 SetLangText），内存登记等列表建好后
-				// 由 InitialLanguageData 末尾的 VPF.RegisterVpLanguage() 补回来。
+				// 语言表（ComponentLangurageList）可能尚未创建：此时只写入 XML 条目，
+				// 内存登记由 InitialLanguageData 末尾的 VPF.RegisterVpLanguage() 完成
 				if (c == null) return;
 
 				string key = c.Name;
@@ -829,7 +784,7 @@ namespace AlphaRap
 					// 同一个控件只留一条（拆页重建 / 重复登记时不至于越积越多）
 					list.RemoveAll(delegate (ComponentTextInfo x) { return ReferenceEquals(x.Component, c); });
 
-					// XML 里还没有这个键 → 用控件当前的 Text 补一条（老页面也是这么被写进去的）
+					// XML 中没有该键时，用控件当前 Text 写入
 					string t = LangTextOf((LanguageType)i, formName, key);
 					if (t == null) { SetLangText((LanguageType)i, formName, key, text); t = text; }
 
@@ -880,13 +835,10 @@ namespace AlphaRap
 
 		public static void SwitchLanguage(LanguageType LanType)
 		{
-			// 报警表**最先**切：报警文字在 Show(编号) 那一刻就按当时的表解析，
-			// 表没跟上语言，主页报警就会停在旧语言。（已弹出的报警由 AlarmRunTask
-			// 刷新时经 HomeF.ResolveAlarmContent 重解析兜底。）
+			// 先切换报警表：新报警在 Show(编号) 时按当前表解析（已显示的报警由 AlarmRunTask 经 HomeF.ResolveAlarmContent 重新解析）
 			LoadAlarmTable(LanType);
 
-			// 运行时建出来的控件（见 RegisterLanguage）会随页面重建被 Dispose，
-			// 给已释放的控件赋 Text 会抛 ObjectDisposedException —— 换语言前先清掉这些登记项。
+			// 移除已释放控件的登记项（运行时创建的控件会随页面重建而释放）
 			if (SysPara.ComponentLangurageList != null)
 			{
 				for (int i = 0; i < SysPara.ComponentLangurageList.Length; i++)
@@ -1241,9 +1193,7 @@ namespace AlphaRap
 				VisionproInterface.VList[i].LoadTB(f.FullName);
 			}
 
-			// 上面已经按新配方把所有 vpp 重新载入（动态相机/VPP 与相机级标定站也在 VList 里，所以一起换）。
-			// 但 VPForm 界面上显示的路径是建页那一刻算好的字符串，配方一换就过期了 —— 让它自己刷一遍。
-			// （VPForm 还没建好时为 null，直接跳过。）
+			// 刷新视觉页面上显示的 vpp 路径（VPForm 尚未创建时为 null）
 			if (VPF != null) VPF.OnRecipeChanged();
 		}
 

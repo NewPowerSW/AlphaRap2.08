@@ -8,19 +8,8 @@ using System.Threading;
 namespace AlphaRap
 {
     /// <summary>
-    /// 用户登录。
-    ///
-    /// 重构要点：
-    ///   1. 原来是"TabControl + 两个 TabPage 互相抢 Parent"来切页（button1_Click 里
-    ///      `FingerPrintLog.Parent = null`），既难读又和 ItemSize=(10,5) 这种"把标签头压到看不见"
-    ///      的写法绑在一起。现在改成**分段切换（账号 / 指纹）**，两个面板只切可见性。
-    ///   2. 原来的布局全在 resx 里（本地化窗体 + resources.ApplyResources），且
-    ///      TabControl 尺寸 1092×819 比窗体 649 还高 → 底部内容必然被裁。
-    ///      现在改成显式的自适应布局，文字由 ApplyLanguage() 按 SysPara.LanguageShow 输出。
-    ///   3. 图标全部用 AppIcons 现画，不再依赖 resx 里的 3 张位图（合计约 140KB）。
-    ///
-    /// 对外契约（ReadUserData / OnTemplate / ResetFingerprintDB / FingerPrinfInfo /
-    /// ReadAllUserData / UserPermission / str1）全部保留原签名。
+    /// 用户登录窗口：分段切换账号登录 / 指纹登录两个面板，文字由 ApplyLanguage() 按 SysPara.LanguageShow 显示，
+    /// 图标由 AppIcons 绘制。
     /// </summary>
     public partial class UserLoginForm : Form
     {
@@ -36,8 +25,7 @@ namespace AlphaRap
 
         public UserLoginForm()
         {
-            // 保留原有的 UI 区域设置（工程内其它组件仍可能依赖它）
-            // 注意：这不是界面文案切换，只影响 .NET 自带对话框/异常消息的区域；三语都要给。
+            // 设置 UI 区域（影响 .NET 自带对话框和异常消息的语言）
             switch (SysPara.LanguageShow)
             {
                 case LanguageType.Chinese:
@@ -62,7 +50,7 @@ namespace AlphaRap
             ApplyIcons();
             ApplyLanguage();
 
-            // 回车提交（原来挂在 textPassword 上，现在输入框是自绘容器，事件挂在它的内层 TextBox）
+            // 密码框回车提交（事件挂在 FieldBox 内部的 TextBox 上）
             textPassword.Inner.KeyPress += textPassword_KeyPress;
 
             chipAccount.Click += delegate { ShowMode(false); };
@@ -110,10 +98,7 @@ namespace AlphaRap
             catch { }
         }
 
-        /// <summary>
-        /// 这里只剩**不随语言变**的固定串（品牌副标题、版本号）；
-        /// 界面文案已由语言表接管（构造里 RegisterAndApplyLanguage，键 = 控件名）。
-        /// </summary>
+        /// <summary>设置不随语言变化的文字（品牌副标题、版本号）；界面文案由语言表管理。</summary>
         private void ApplyLanguage()
         {
             try
@@ -175,7 +160,7 @@ namespace AlphaRap
             _dragging = false;
         }
 
-        // ==================== 业务逻辑（沿用原有实现） ====================
+        // ==================== 业务逻辑 ====================
 
         public bool ReadUserData(string UserName, string Password, ref PermissionType UserPermission)
         {
@@ -308,7 +293,7 @@ namespace AlphaRap
         private void UserLoginForm_Load(object sender, EventArgs e)
         {
             ReadAllUserData();
-            // 构造函数里窗体还没有句柄，Focus 不会生效，这里补一次
+            // 窗体显示后把焦点放到用户名输入框
             textUserName.FocusInput();
         }
 

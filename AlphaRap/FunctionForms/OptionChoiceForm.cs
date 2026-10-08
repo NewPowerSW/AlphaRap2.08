@@ -15,8 +15,7 @@ namespace Alpha
         public OptionChoiceForm()
         {
             InitializeComponent();
-            // 按需 new 的弹窗，不在 lstForm 里，赶不上启动扫描 —— 就地补登记进语言表。
-            // 按钮文字随各调用点 fnChangeButtonsText 覆盖，这里登记的是兜底文案。
+            // 按需创建的窗体：登记进语言表并按当前语言设置文字（按钮文字可由 fnChangeButtonsText 覆盖）
             MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
             this.ControlBox = false;
             this.Show();

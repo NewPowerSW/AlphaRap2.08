@@ -50,7 +50,6 @@ int nheightEllipse
             Manual,
             Check,
             System,
-            //Robot,
             AddUser,
             Rapid,
             Log,
@@ -108,16 +107,11 @@ int nheightEllipse
             InitializeComponent();
             MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_AddUser, MENU_Rapid, MENU_Log, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Pause, MENU_Stop, MENU_Exit, MENU_Run, MENU_Mes };
 
-            // ---- 设计期保真：先套一次图标与配色 ----
-            // 这两步只依赖 AppIcons 和 MENU_Picture，不碰 SysPara / 数据库 / 定时器，
-            // 所以放在 InDesigner 判断之前是安全的。作用是让 VS 设计视图显示的结果
-            // 和实际运行一致 —— 否则设计器会保留 Designer 里那些早已被运行期覆盖的
-            // 旧 resx 位图（一排黑色方块），看设计稿完全判断不出真实样子。
+            // 绘制图标与菜单配色（设计期也执行，使设计视图与运行时一致）
             RefreshButtonIcons();
             RefreshMenuBackcolor();
 
-            // 下面这些会改动窗体/控件的 Region 或挂全局钩子，设计器里必须跳过：
-            // 圆角 Region 会把设计视图裁掉四角；鼠标转发钩子会干扰设计器的选中操作。
+            // 以下设置圆角区域和鼠标转发，仅在运行时执行
             if (InDesigner) return;
 
             UpdateWindowRegion();
@@ -316,12 +310,11 @@ int nheightEllipse
             ApplyInitialWindowSize();
             ApplyRoundedMenuRegions();
 
-            // 顶栏机器状态徽章：圆角胶囊（随尺寸变化重算）
-            // 徽章比之前高（48px），圆角同步放大到 12 才不显生硬
+            // 顶栏机器状态徽章：圆角胶囊，尺寸变化时重算
             MachineStatus.Resize += (s, ev) => ApplyPillRegion(MachineStatus, 12);
             ApplyPillRegion(MachineStatus, 12);
 
-            // 列表控件改用 Explorer 视觉主题：表头扁平化、去掉原生 3D 边框
+            // 列表控件使用 Explorer 视觉主题（扁平表头、无 3D 边框）
             try
             {
                 SetWindowTheme(WarnningMessage.Handle, "Explorer", null);
@@ -329,23 +322,22 @@ int nheightEllipse
             }
             catch { }
 
-            // 报警日志筛选条（全部 / 警告 / 报警）：控件在设计器里，这里只补图标/事件/语言
+            // 报警日志筛选条（全部 / 警告 / 报警）：设置图标、事件和语言
             InitAlarmFilterBar();
 
             // 顶栏语言切换器（地球图标 + 语言代码）
             InitLanguageSwitch();
 
-            // 顶栏虚拟键盘开关（软键盘不再自动弹出，需要时点这里手动调出/收起）
+            // 顶栏虚拟键盘开关：点击调出或收起软键盘
             InitVirtualKeyboardToggle();
 
-            // 全部按钮改用矢量图标（之后由 timer1_Tick 持续跟随 Enabled 刷新）
+            // 绘制全部按钮的矢量图标（timer1_Tick 按 Enabled 状态持续刷新）
             RefreshButtonIcons();
 
-            // 底部工具栏的悬停反馈（沿用左侧导航"激活才浮出卡片"的语言）
+            // 底部工具栏按钮的悬停效果
             HookToolbarHover();
 
-            // 顶栏语言下拉（国旗 + CN）：设计器里从未注册过点击事件，
-            // 导致点了 Chinese/English/Español 没有任何反应，这里补上。
+            // 顶栏语言下拉菜单的点击事件
             try
             {
                 NumC2.Click += NumC2_Click;   // Chinese
@@ -354,8 +346,7 @@ int nheightEllipse
             }
             catch { }
 
-            // 底部状态栏的版本号 / 编译日期从程序集读取（原来是设计器里写死的
-            // "Version 2.0.8" 和 "Modify Date 2023/07/04"，和真实程序版本 2.0.6.0 对不上）
+            // 状态栏显示程序集版本号和编译时间
             ApplyVersionInfo();
 
             SysPara.UserName = MiddleLayer.AddF.ReadAllUserData();
@@ -370,34 +361,29 @@ int nheightEllipse
 
             MiddleLayer.OpenRecipe(SysPara.FilePath);
 
-            //鼠标监听
+            // 全局鼠标钩子（用于无操作自动登出计时）
             mh = new MouseHook();
             mh.SetHook();
             mh.MouseDownEvent += mh_MouseDownEvent;
             mh.MouseUpEvent += mh_MouseUpEvent;
             mh.MouseMoveEvent += mh_MouseMoveEvent;
 
-            //键盘监听
+            // 全局键盘钩子（用于无操作自动登出计时）
             k_hook = new KeyboardHook();
-            k_hook.KeyDownEvent += new KeyEventHandler(hook_KeyDown);//钩住键按下
-            k_hook.Start();//安装键盘钩子
+            k_hook.KeyDownEvent += new KeyEventHandler(hook_KeyDown);
+            k_hook.Start();
 
             MiddleLayer.alarmRunTask.AlarmTaskIsRun = true;
             GetProductDataINI();
 
-            // 兜底：语言有可能在本方法执行过程中才最终确定，
-            // 这里再按当前语言刷一次报警工具条（含"语言"下拉框的项目名与选中项）
+            // 按最终确定的语言刷新报警工具条和语言切换器
             SyncLanguageTexts();
         }
 
         #region 无边框窗口：初始尺寸 / 拖拽缩放 / 拖动移动（手动实现，不依赖系统窗口样式）
 
-        // ===== 说明 =====
-        // 本窗体是 FormBorderStyle.None（无边框）。为了让无边框窗口也能：
-        //   1) 拖动移动   2) 拖拽边缘缩放   3) 双击顶栏最大化/还原
-        // 这里用“完全手动”的方式实现：直接订阅窗体自身的 MouseDown/MouseMove/MouseUp，
-        // 在事件里直接改 Location/Size，不依赖 WS_THICKFRAME 等系统样式位，
-        // 因此不受系统对无边框窗口限制的影响，稳定可靠。
+        // 无边框窗口（FormBorderStyle.None）的拖动移动、边缘缩放和双击顶栏最大化/还原：
+        // 在 MouseDown/MouseMove/MouseUp 中直接修改 Location/Size 实现。
 
         private enum ResizeDirection
         {
@@ -429,10 +415,7 @@ int nheightEllipse
         // 双击判定
         private DateTime _lastTitleClickTime = DateTime.MinValue;
 
-        /// <summary>
-        /// 按 1440 x 900 初始化窗口，并保证不超出当前屏幕工作区、居中显示。
-        /// </summary>
-        /// <summary>状态栏显示真实的程序版本和编译时间，发版只需改 AssemblyInfo.cs。</summary>
+        /// <summary>状态栏显示程序集版本号（AssemblyInfo.cs）和 exe 的编译时间。</summary>
         private void ApplyVersionInfo()
         {
             try
@@ -449,6 +432,9 @@ int nheightEllipse
             }
         }
 
+        /// <summary>
+        /// 按 1440 x 900 初始化窗口，并保证不超出当前屏幕工作区、居中显示。
+        /// </summary>
         private void ApplyInitialWindowSize()
         {
             Rectangle workArea = Screen.FromControl(this).WorkingArea;
@@ -654,8 +640,7 @@ int nheightEllipse
         #region show Form      
         public void SwitchMainPage(MENU_PageType PageType)
         {
-            // 进入硬件 / 手动页会暂停设备，进入机器人页会停止设备。
-            // 原来点一下菜单就直接停产、没有任何提示；现在设备在动作时先确认，取消则留在当前页。
+            // 进入硬件/手动页会暂停设备、进入机器人页会停止设备：设备运行中先确认，取消则留在当前页
             if (!ConfirmPageSwitchSideEffect(PageType))
                 return;
 
@@ -722,9 +707,8 @@ int nheightEllipse
             }
         }
         /// <summary>
-        /// 切页前的安全确认。
-        /// Hard / Manual 会调用 PauseRun()，Robot 会调用 StopRun()；设备正在动作时先让操作员确认。
-        /// 设备空闲（含开机预加载页面时）不弹框，行为与原来完全一致。
+        /// 切页前的安全确认：Hard / Manual 页会暂停设备，Robot 页会停止设备。
+        /// 设备正在动作时弹框确认，返回 false 表示取消切页；设备空闲时直接返回 true。
         /// </summary>
         private bool ConfirmPageSwitchSideEffect(MENU_PageType pageType)
         {
@@ -768,14 +752,12 @@ int nheightEllipse
             {
                 PictureBox btn = MENU_Picture[i];
 
-                // 底部工具栏按钮的底色由 ApplyToolbarButtonStyles() 统一处理（底色与图标成对设置，
-                // 保证"实心语义色 + 白图标"不会出现同色互相吞掉的问题），这里直接跳过。
+                // 底部工具栏按钮的底色由 ApplyToolbarButtonStyles() 设置
                 if (btn == MENU_Run || btn == MENU_Pause || btn == MENU_Stop || btn == MENU_Reset ||
                     btn == MENU_System || btn == MENU_Lock || btn == MENU_Exit)
                     continue;
 
-                // 顶栏图标（物料管理/登录）已染成白色：选中态必须用更深的蓝底，
-                // 否则套用左侧的浅色卡片会让白图标完全看不见。
+                // 顶栏按钮（物料管理/登录）为白色图标，选中态使用深蓝底
                 if (btn == MENU_Product || btn == MENU_Login)
                 {
                     btn.BackColor = (i == (int)MENU_SelectPage)
@@ -784,7 +766,7 @@ int nheightEllipse
                     continue;
                 }
 
-                // 其余（左侧导航 + 顶栏 Product/Login）用选中态卡片色
+                // 左侧导航：选中态使用浅色卡片底
                 if (i == (int)MENU_SelectPage)
                     btn.BackColor = Color.FromArgb(222, 234, 246);
                 else
@@ -792,10 +774,7 @@ int nheightEllipse
             }
         }
 
-        /// <summary>
-        /// 把按钮裁成圆角。左侧导航是 4px 小圆角（贴着渐变栏，宜克制）；
-        /// 底部工具栏按钮更大、是实心色块，圆角同步放大到 6px 才不显生硬。
-        /// </summary>
+        /// <summary>把按钮裁成圆角：左侧导航 4px，底部工具栏 6px。</summary>
         private void ApplyRoundedMenuRegions()
         {
             ApplyRoundRegion(new PictureBox[]
@@ -837,14 +816,9 @@ int nheightEllipse
         }
 
         /// <summary>
-        /// 统一刷新所有按钮的图标。
-        ///
-        /// 图标由 AppIcons 在 24×24 网格上现画，颜色按"按钮是否可用 + 操作语义"决定：
-        ///   · 左侧导航 / 一般功能 → 深石板灰（整屏只有这一支基色）
-        ///   · 运行 / 暂停 / 停止 / 复位 → 绿 / 琥珀 / 红 / 蓝（机台操作的语义色）
-        ///   · 退出 → 红（与它的浅红底呼应）
-        ///   · 禁用态 → 浅灰；深蓝顶栏上则用暗蓝白
-        /// AppIcons 内部按 (图标, 尺寸, 颜色) 缓存，所以可以放心地由定时器反复调用。
+        /// 刷新所有按钮的图标（AppIcons 在 24×24 网格上绘制），颜色按可用状态和操作类型区分：
+        /// 一般功能为深石板灰；运行 / 暂停 / 停止 / 复位为绿 / 琥珀 / 红 / 蓝；退出为红；
+        /// 禁用为浅灰（深蓝顶栏上为暗蓝白）。AppIcons 按 (图标, 尺寸, 颜色) 缓存，可由定时器反复调用。
         /// </summary>
         private void RefreshButtonIcons()
         {
@@ -869,7 +843,7 @@ int nheightEllipse
                 MENU_Mes.Image     = AppIcons.Get(AppIcon.Mes,     navSize, MENU_Mes.Enabled     ? nav : dim);
                 MENU_LifeSpan.Image = AppIcons.Get(AppIcon.LifeSpan, navSize, MENU_LifeSpan.Enabled ? nav : dim);
 
-                // 底部工具栏 8 个按钮：底色 + 图标一起设定（见 ApplyToolbarButtonStyles）
+                // 底部工具栏按钮的底色与图标
                 ApplyToolbarButtonStyles();
 
                 // 顶栏：深蓝底 → 白色图标
@@ -881,34 +855,23 @@ int nheightEllipse
             catch { }
         }
 
-        // ---------------- 底部工具栏按钮样式（沿用左侧导航的语言） ----------------
+        // ---------------- 底部工具栏按钮样式 ----------------
 
-        /// <summary>
-        /// 工具栏·悬停软底卡片。
-        /// 直接复用左侧导航"选中态卡片"的颜色 (222,234,246)，
-        /// 这样底部和左侧就是同一套交互语言：平时只有图标，激活时才浮出一张软底卡片。
-        /// </summary>
+        /// <summary>工具栏按钮悬停时的底色（与左侧导航选中态相同）。</summary>
         private static readonly Color ToolbarHover = Color.FromArgb(222, 234, 246);
 
-        /// <summary>当前鼠标悬停的工具栏按钮（避免每个按钮各存一份状态）。</summary>
+        /// <summary>当前鼠标悬停的工具栏按钮。</summary>
         private PictureBox _hoverToolbarButton;
 
         /// <summary>
-        /// 底部工具栏按钮样式 —— 刻意改成**和左侧导航一模一样**的表达方式：
-        ///   · **不放常驻底色**，图标直接落在工具栏背景上（侧栏平时也是透明的）
-        ///   · 只有鼠标移上去，才浮出一张和侧栏选中态同色的软底圆角卡片
-        ///   · 颜色只表达"这是哪类操作"：运行绿 / 暂停琥珀 / 停止红 / 复位蓝 / 退出红，
-        ///     系统·锁定·报警复位用和侧栏图标相同的石板灰
-        ///
-        /// 早前几版给每个按钮都铺了常驻色块（蓝底白卡 → 白底浅灰卡 → 浅蓝卡），
-        /// 结果一是和左侧风格割裂，二是每换一次工具栏底色都要重配一批前景色。
-        /// 改成"透明底 + 悬停卡片"后，工具栏底色怎么改都不用再动按钮。
+        /// 底部工具栏按钮样式：平时透明底只显示图标，鼠标悬停时显示软底圆角卡片。
+        /// 图标颜色表示操作类型：运行绿 / 暂停琥珀 / 停止红 / 复位蓝 / 退出红，系统、锁定、报警复位为石板灰。
         /// </summary>
         private void ApplyToolbarButtonStyles()
         {
             try
             {
-                const int iconSize = 44;   // 比左侧导航（28）大一档，保证操作区仍然是视觉重心
+                const int iconSize = 44;   // 比左侧导航（28）大一档
 
                 StyleToolbarButton(MENU_Reset, AppIcon.Reset, iconSize, AppIconColor.Reset);
                 StyleToolbarButton(MENU_Run, AppIcon.Run, iconSize, AppIconColor.Run);
@@ -934,7 +897,7 @@ int nheightEllipse
 
             bool on = btn.Enabled;
 
-            // 平时透明（露出工具栏底色），悬停时才是软底卡片 —— 与左侧导航一致
+            // 平时透明，悬停时显示软底卡片
             btn.BackColor = (on && btn == _hoverToolbarButton) ? ToolbarHover : Color.Transparent;
 
             Color main = on ? iconColor : AppIconColor.Disabled;
@@ -942,10 +905,7 @@ int nheightEllipse
             btn.Image = AppIcons.Get(icon, size, main, accent);
         }
 
-        /// <summary>
-        /// 给 8 个工具栏按钮挂上悬停反馈。只在 MainForm_Load 里调一次
-        /// （不能用 Tag 做"是否已挂"的标记 —— MENU_* 的 Tag 已被页面类型占用）。
-        /// </summary>
+        /// <summary>给工具栏按钮挂接悬停事件（在 MainForm_Load 中调用一次）。</summary>
         private void HookToolbarHover()
         {
             PictureBox[] buttons =
@@ -1017,9 +977,7 @@ int nheightEllipse
             new string[] { "Todo", "Aviso", "Alarma" }
         };
 
-        // 报警筛选条的三个标签（panelAlarmFilter / flowAlarmFilter / btnAlarmFilter*）
-        // **控件与位置都在设计器里**，这里只保留语义色（图标是运行期用它们现画的）。
-        // 报警筛选的语义色：全部 = 品牌蓝 / 警告 = 琥珀 / 报警 = 红
+        // 报警筛选标签的图标颜色：全部 = 品牌蓝 / 警告 = 琥珀 / 报警 = 红
         private static readonly Color AlarmChipBrand = Color.FromArgb(4, 108, 182);
         private static readonly Color AlarmChipWarn = Color.FromArgb(219, 149, 44);
         private static readonly Color AlarmChipError = Color.FromArgb(214, 69, 69);
@@ -1039,9 +997,7 @@ int nheightEllipse
         }
 
         /// <summary>
-        /// 报警行配色 —— 已还原为最初（未改动前）的版本：
-        /// E 错误 = 整行红底，W 警告 = 整行深鲑鱼色底，文字保持默认黑色，其它类型维持默认白底。
-        /// 仍抽成一个方法，是因为筛选后重建列表也要用同一套配色，避免两处不一致。
+        /// 报警行配色：E 错误为红底，W 警告为深鲑鱼色底，其它类型为默认白底（新增与筛选重建共用）。
         /// </summary>
         public static void ApplyAlarmRowColor(ListViewItem item, string type, int index)
         {
@@ -1089,10 +1045,7 @@ int nheightEllipse
             RebuildAlarmLogFromCache();
         }
 
-        /// <summary>
-        /// 跟随报警列表刷新三个筛选标签上的条数。
-        /// 方法名保留为 public：报警任务（AlarmRunTask）与筛选重建都在调用它。
-        /// </summary>
+        /// <summary>刷新三个筛选标签上的条数（报警任务和筛选重建时调用）。</summary>
         public void UpdateAlarmFilterCount()
         {
             RefreshAlarmChipTexts();
@@ -1117,10 +1070,7 @@ int nheightEllipse
             catch { }
         }
 
-        /// <summary>
-        /// 刷新三个筛选标签的文字 = 当前语言的名称 + 该类型条数（All 73 / Warning 72 / Alarm 1）。
-        /// 条数取自缓存，与列表同一口径；切语言时会自动换成对应语言的名称。
-        /// </summary>
+        /// <summary>刷新三个筛选标签的文字：当前语言的名称 + 该类型条数（如 All 73 / Warning 72 / Alarm 1）。</summary>
         private void RefreshAlarmChipTexts()
         {
             try
@@ -1148,8 +1098,7 @@ int nheightEllipse
         // ---------------- 语言切换 ----------------
 
         /// <summary>
-        /// 顶栏语言切换器：从菜单选语言 → 走统一的 SwitchLanguageTo。
-        /// 同时把显示同步到启动时读到的当前语言（Current 的赋值不会回环触发切换）。
+        /// 顶栏语言切换器：选择语言后调用 SwitchLanguageTo；显示与启动时读取的语言同步（设置 Current 不会触发切换）。
         /// </summary>
         private void InitLanguageSwitch()
         {
@@ -1166,19 +1115,10 @@ int nheightEllipse
             catch { }
         }
 
-        // ---------------- 虚拟键盘（手动调出） ----------------
+        // ---------------- 虚拟键盘 ----------------
 
         /// <summary>
-        /// 顶栏虚拟键盘开关：软键盘不再自动弹出（自动弹会抢焦点、取消表格单元格的编辑），
-        /// 需要时点这个图标手动调出 osk，再点一次收起。
-        ///
-        /// **控件本身在设计器里**（`MainForm.Designer.cs` 的 `picVirtualKeyboard`，
-        /// 占顶栏表格 tableLayoutPanel2 第 5 列，固定 40px），所以：
-        ///   · VS 设计器里看得见它，和 EXE 跑出来的位置一致；
-        ///   · 位置/缩放由表格布局算，不需要任何代码摆位 —— 以前用代码按
-        ///     "语言切换器当时在哪"去算坐标，缩放时算到的是重排前的旧坐标，
-        ///     图标就压到语言切换器上了。
-        /// 这里只负责画图标（矢量现画，不进 .resx）和接事件。
+        /// 顶栏虚拟键盘开关（设计器中的 picVirtualKeyboard）：点击调出 osk，再次点击收起。此处绘制图标并挂接事件。
         /// </summary>
         private void InitVirtualKeyboardToggle()
         {
@@ -1226,27 +1166,21 @@ int nheightEllipse
             }
             catch (Exception ex)
             {
-                // 静默吞掉但留下排查线索（以前连异常都看不见，报警表没切到语言都没法查）
+                // 切换失败不中断界面，异常写入调试输出
                 System.Diagnostics.Debug.WriteLine("[SwitchLanguageTo] " + lanType + " -> " + ex);
             }
-            // 语言包会把已登记的控件 Text 刷成对应语言，这里再整体同步一次
+            // 同步语言包覆盖不到的文字
             SyncLanguageTexts();
         }
 
         /// <summary>
-        /// 同步"语言包覆盖不到"的文字与控件：
-        ///   1) 报警筛选标签上的条数文案（文字是运行时拼的，不走语言包）
-        ///   2) 顶栏语言切换器上显示的当前语言代码
-        ///
-        /// 为什么必须显式调用：语言包（ComponentLangurageList）是在启动早期由 InitialProject() →
-        /// InitialLanguageData() 建好并套用的，而报警工具条是 MainForm_Load 里才动态创建的，
-        /// 那时语言包早已跑完，所以它里面写死的文字（全部 / 警告 / 报警）不会自动跟着语言变。
+        /// 同步语言包覆盖不到的文字：报警筛选标签的"名称 + 条数"，以及顶栏语言切换器显示的语言代码。
         /// </summary>
         private void SyncLanguageTexts()
         {
             try
             {
-                // 标签文字 = 名称 + 条数（不能只写名称，否则会把条数抹掉）
+                // 标签文字 = 名称 + 条数
                 UpdateAlarmFilterCount();
 
                 if (languageSwitch != null) languageSwitch.Current = SysPara.LanguageShow;
@@ -1256,16 +1190,9 @@ int nheightEllipse
 
         // ---------------- 界面构建 ----------------
 
-        /// <summary>在报警列表上方插入工具条：全部 / 警告 / 报警 三个筛选标签（语言切换已移到顶栏）。</summary>
         /// <summary>
-        /// 报警列表上方的筛选条：三个标签（全部 / 警告 / 报警）。
-        /// **控件本身在设计器里**（`panelAlarmFilter` / `flowAlarmFilter` / `btnAlarmFilter*`，
-        /// 挂在 panel5 底部 30px），所以 VS 设计器里看得见、位置交给 Dock；
-        /// 这里只做运行时才能做的三件事：
-        ///   ① 画图标 —— 漏斗 / 警示三角 / 圆形叉都是 `AlarmChip` 矢量现画的，不进 `.resx`；
-        ///   ② 接点击事件（三种筛选）；
-        ///   ③ 登记进语言表并立刻按当前语言刷一遍 —— 本工具条的文字是"名称 + 条数"，
-        ///      运行期算的，语言包不会自动套用到它。
+        /// 报警列表上方的筛选条（全部 / 警告 / 报警，控件在设计器中的 panelAlarmFilter）：
+        /// 绘制图标、挂接点击事件，并登记到语言表。
         /// </summary>
         private void InitAlarmFilterBar()
         {
@@ -1286,16 +1213,14 @@ int nheightEllipse
 
                 RegisterAlarmFilterForLanguage();
                 UpdateAlarmFilterButtons();
-                // 本工具条的文字是"名称 + 条数"（运行期算），语言包不会自动套用 → 立刻刷一遍
+                // 按当前语言刷新标签文字
                 SyncLanguageTexts();
             }
             catch { }
         }
 
         /// <summary>
-        /// 把报警栏里的新控件登记进 SysPara.ComponentLangurageList。
-        /// 必须手动登记：语言表在程序启动阶段（MainForm_Load 之前）就已遍历控件树建好，
-        /// 而本工具条是 Load 时才创建的，不会被自动收录。
+        /// 把报警筛选条的控件登记进语言表 SysPara.ComponentLangurageList（语言表在 MainForm_Load 之前建好，需手动登记）。
         /// </summary>
         private void RegisterAlarmFilterForLanguage()
         {
@@ -1328,9 +1253,7 @@ int nheightEllipse
         }
 
         #endregion
-        /// <summary>
-        /// 显示当前点击窗体
-        /// </summary>
+        /// <summary>在指定面板中显示页面窗体（Dock 铺满）。</summary>
         public void ShowhMainPage(dynamic ShowPage, Panel ShowPanl)
         {
             ShowPanl.Focus();
@@ -1344,9 +1267,7 @@ int nheightEllipse
             {
                 ShowPage.TopLevel = false;
                 ShowPage.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-                // 注意：这里原来写的是 Maximized。对于 TopLevel=false 的窗体，它没有实际作用，
-                // 反而会把窗体"钉"在首次挂载时的大小上 —— 之后把主窗口最大化，页面不会跟着放大，
-                // 四周就会留出大片空白、比例失调。铺满容器靠下面的 Dock=Fill 就够了。
+                // 嵌入的页面保持 Normal 状态，由 Dock = Fill 随容器缩放
                 ShowPage.WindowState = FormWindowState.Normal;
                 ShowPage.Dock = DockStyle.Fill;
             }
@@ -1356,7 +1277,7 @@ int nheightEllipse
             ShowPage.Parent = ShowPanl;
             ShowPage.Show();
 
-            // 子页面是运行时动态加入的，补挂鼠标事件转发，保证子页面区域边缘也能缩放
+            // 子页面也转发鼠标事件，使窗口边缘缩放在子页面区域同样有效
             if (ShowPage is Control pageControl)
                 HookMouseForwarding(pageControl);
         }
@@ -1367,7 +1288,7 @@ int nheightEllipse
             MENU_PageType MENU_Page_Type = (MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName);
             SwitchMainPage(MENU_Page_Type);
         }
-        //用户登录按钮
+        // 用户登录按钮
         private void UserLogin_Click(object sender, EventArgs e)
         {
             UserLoginForm UserLoginF = new UserLoginForm();
@@ -1380,9 +1301,7 @@ int nheightEllipse
                 else
                     RefreshMenuBackcolor();
         }
-        /// <summary>
-        /// 选择用户权限
-        /// </summary>
+        /// <summary>按权限表（PermissionSetup）启用或禁用菜单按钮。</summary>
         public void SwitchPermission(PermissionType Permission)
         {
             string strSQL = "select * from PermissionSetup where Permission ='" + Permission.ToString() + "'";
@@ -1410,10 +1329,7 @@ int nheightEllipse
         #endregion
 
         #region Machine Status 
-        /// <summary>
-        /// 运行状态文案：走语言包（<see cref="MiddleLayer.LangMsg"/>）—— 不再硬编码三份字典。
-        /// 原来的语言参数保留只是兼容调用处，实际按 SysPara.LanguageShow 现取。
-        /// </summary>
+        /// <summary>各运行模式的状态文案（取自语言包，按 SysPara.LanguageShow）。</summary>
         private static Dictionary<RunMode, string> GetStatusTextMap(LanguageType language)
         {
             return new Dictionary<RunMode, string>
@@ -1445,9 +1361,7 @@ int nheightEllipse
             catch { }
         }
 
-        // ---------------- 机台状态颜色（与三色灯 / ISA-101 习惯一致） ----------------
-        // 红色只留给"报警"。原来 PAUSE 是红色，操作员会误以为设备故障；
-        // 而 AlwaysRunTask 里三色灯在 PAUSE 时亮的是黄灯（MessageWarning），屏幕要和灯一致。
+        // ---------------- 机台状态颜色（ISA-101 惯例：红色仅用于报警） ----------------
         private static readonly Color StatusRunBg = Color.FromArgb(46, 150, 67);    // 绿：运行
         private static readonly Color StatusPauseBg = Color.FromArgb(245, 166, 35); // 琥珀：暂停
         private static readonly Color StatusIdleBg = Color.FromArgb(96, 112, 130);  // 灰蓝：待机（中性，不抢眼）
@@ -1455,7 +1369,7 @@ int nheightEllipse
         private static readonly Color StatusAlarmBg = Color.FromArgb(206, 62, 62);  // 红：报警（仅此一种情况用红）
         private static readonly Color StatusDarkText = Color.FromArgb(51, 38, 0);   // 琥珀底上用深色字，保证对比度
 
-        // 状态文案按语言缓存：原来每秒新建字典并查 4 次语言包
+        // 状态文案缓存：语言或初始化状态变化时重建
         private Dictionary<RunMode, string> _statusTextMap;
         private LanguageType _statusTextLang = (LanguageType)(-1);
         private bool _statusTextInitOk;
@@ -1474,8 +1388,7 @@ int nheightEllipse
                 _statusAlarmText = MiddleLayer.LangMsg("MainForm", "msg_StatusAlarm", "设备报警", "ALARM", "ALARMA");
             }
 
-            // 1) 报警优先：有 E 类报警时，不管运行模式是什么都显示红色"报警"，并带上报警条数，
-            //    鼠标悬停可看最新一条报警内容（完整列表仍在下方报警栏）。
+            // 有 E 类报警时优先显示红色"报警"和条数，悬停显示最新一条报警及处理方法
             int errorCount;
             string latestError;
             if (TryGetActiveErrors(out errorCount, out latestError))
@@ -1495,7 +1408,7 @@ int nheightEllipse
                 _statusTip.SetToolTip(MachineStatus, "");
             }
 
-            // 2) 无报警：按运行模式着色
+            // 无报警时按运行模式着色
             string statusText;
             if (!_statusTextMap.TryGetValue(SysPara.SystemMode, out statusText))
             {
@@ -1522,8 +1435,7 @@ int nheightEllipse
         }
 
         /// <summary>
-        /// 读取当前 E 类（错误）报警的条数和最新一条内容。
-        /// AlarmList 由报警线程维护，这里只读、并整体包 try，读失败就当作无报警（下一秒再读）。
+        /// 读取当前 E 类（错误）报警的条数和最新一条内容。AlarmList 由报警线程维护，读取失败时按无报警处理。
         /// </summary>
         private static bool TryGetActiveErrors(out int count, out string latest)
         {
@@ -1563,10 +1475,7 @@ int nheightEllipse
             #endregion
 
             #region Language
-            // 机台状态条上的四个前缀文案走语言包（LangMsg）：没有 switch、没有三份字面量，
-            // 翻译直接改 LanguageData\MainForm 段。结果缓存在字段里（按语言变化才重取），
-            // 免得 1 秒一次的定时器每次都去查 XML。
-            // 型号列表的表头不在这里改 —— 由 ProductManagerForm 自己管（见它的 ApplyLanguage）。
+            // 状态条前缀文案（取自语言包 LanguageData\MainForm，按语言缓存）
             EnsureStatusLabels();
             #endregion
 
@@ -1579,8 +1488,7 @@ int nheightEllipse
 
             #region  PictureBox
 
-            // 图标已改由矢量工厂（AppIcons）统一绘制，这里不再按 imageList 索引换图。
-            // 本段只维护"按钮可用状态"，具体画成什么颜色由 RefreshButtonIcons() 按 Enabled 决定。
+            // 按运行状态设置按钮可用性，图标颜色由 RefreshButtonIcons() 按 Enabled 绘制
             MENU_Run.Enabled = SysPara.UpConveyorInitialOk
                 && (SysPara.SystemMode == RunMode.INITIAL || SysPara.SystemMode == RunMode.PAUSE);
             MENU_Pause.Enabled = SysPara.SystemMode == RunMode.RUN;
@@ -1613,17 +1521,13 @@ int nheightEllipse
         private readonly Dictionary<TextBox, int> _logLineCount = new Dictionary<TextBox, int>();
 
         /// <summary>
-        /// 运行 / 错误日志框的统一写入。
-        /// 1) 用 BeginInvoke（异步）而不是 Invoke（同步）：DataForm.AddRunLog / AddLogError 是在 lock 里
-        ///    调到这里的，同步 Invoke 时若 UI 线程恰好也在等这把锁，两边互等，界面直接卡死。
-        /// 2) 时间戳在调用线程上就拼好：原来用的是共享的 SysPara.RunMessageTime，
-        ///    异步执行时可能已被下一条覆盖，导致时间错位。
-        /// 3) 行数自己计数，不再每条都读 Lines（每次都会把整段文本拆成数组）。
+        /// 运行 / 错误日志框的统一写入：时间戳在调用线程生成，通过 BeginInvoke 异步写入界面，
+        /// 避免调用方持锁时与 UI 线程互相等待；超过 LogMaxLines 行时删除最旧的 LogTrimLines 行。
         /// </summary>
         private void AppendLogLine(TextBox box, string strMessage)
         {
             string time = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-            SysPara.RunMessageTime = time;   // 保留原有全局字段，其它地方可能在读
+            SysPara.RunMessageTime = time;   // 最近一条消息的时间（全局字段）
             if (box == null || box.IsDisposed) return;
 
             string line = time + ": " + strMessage + "\r\n";
@@ -1658,7 +1562,7 @@ int nheightEllipse
                 }
                 catch (Exception ex)
                 {
-                    // 不能再调 AddLogError（会递归回到这里），只写调试输出
+                    // 只写调试输出（调用 AddLogError 会递归回到此处）
                     System.Diagnostics.Debug.WriteLine("AppendLogLine: " + ex.Message);
                 }
             };
@@ -1734,8 +1638,7 @@ int nheightEllipse
         }
         private void SwitchRemind(MENU_PageType1 PageType)
         {
-            // 悬停提示文案走语言包（MiddleLayer.LangMsg）：键 = 菜单控件名，
-            // 三语底稿补进 LanguageData\{语言}.xml 的 /{语言}/MainForm/{键}，翻译改 XML 即可。
+            // 悬停提示文案取自语言包：键为菜单控件名（LanguageData\{语言}.xml 的 /{语言}/MainForm/{键}）
             MENU_SelectPage1 = PageType;
             switch (MENU_SelectPage1)
             {
@@ -1834,8 +1737,7 @@ int nheightEllipse
                     ModuleManager.ModuleList[i].WriteSettingData();
                 }
 
-                // VPForm 的相机/VPP/标定参数存在**自己那个 XML**（ModuleData\SettingData\VPForm.Cameras.xml）
-                // 里，不在 SettingData，上面那圈 WriteSettingData 覆盖不到，所以单独提交一次。
+                // 视觉参数单独保存在 ModuleData\SettingData\VPForm.Cameras.xml
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.CommitVpConfig();
             }
             else
@@ -1846,7 +1748,7 @@ int nheightEllipse
                     ModuleManager.ModuleList[i].ReadSettingData();
                 }
 
-                // 点"否"= 取消：VPForm 那边丢掉未保存的参数改动，回到上一次保存
+                // 选"否"：视觉参数恢复为上一次保存的值
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.RevertVpConfig();
             }
             MiddleLayer.HardF.SaveHardData();
@@ -1887,9 +1789,7 @@ int nheightEllipse
         #region MouseMonitor
 
         /// <summary>
-        /// 重置“无操作自动登出”定时器。
-        /// 程序退出过程中，全局鼠标/键盘钩子仍可能触发事件，而此时部分对象已被释放，
-        /// 因此统一在此做保护：窗体已释放则直接返回，任何异常一律忽略，避免退出时抛 NullReferenceException。
+        /// 重置无操作自动登出定时器；窗体已释放时直接返回（退出过程中钩子仍可能触发）。
         /// </summary>
         private void TryResetLoginOutTimer()
         {
@@ -1918,7 +1818,7 @@ int nheightEllipse
             }
         }
 
-        /// <summary>全局鼠标按下：只用来重置"无操作自动登出"计时（虚拟键盘的自动弹出已取消，不再记坐标）。</summary>
+        /// <summary>全局鼠标按下：重置无操作自动登出计时。</summary>
         private void mh_MouseDownEvent(object sender, MouseEventArgs e)
         {
             TryResetLoginOutTimer();
@@ -1974,14 +1874,12 @@ int nheightEllipse
             {
                 SwitchLanguageTo(LanguageType.Español);
             }
-            catch { }   // 语言包缺失时不要让界面崩掉
+            catch { }   // 语言包缺失时忽略
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // 退出第一步：停掉自动登出定时器，并摘除全局鼠标/键盘钩子。
-            // 钩子若不摘除，退出过程中每一次鼠标/键盘消息都会触发事件，
-            // 去访问正在销毁的对象（LoginOutTime、PlatF 的设置数据等），导致退出时抛 NullReferenceException。
+            // 先停止自动登出定时器并卸载全局鼠标/键盘钩子，防止退出过程中钩子事件访问已释放的对象
             try { if (LoginOutTime != null) LoginOutTime.Stop(); } catch { }
 
             try
@@ -2022,27 +1920,21 @@ int nheightEllipse
                 SwitchMainPage(MENU_PageType.Home);
                 MiddleLayer.FlowCtrl.bStopWork = true;
 
-                // 说明：Environment.Exit 会执行 CLR/WinForms 关机流程（Finalizer、STA/COM 清理、消息泵）。
-                // 本工程含 Cognex ActiveX（STA COM）、控件众多，且 FlowControl/AlwaysRunTask 等前台工作线程
-                // 会在关机流程里与 UI 竞争（在句柄已销毁的控件上 Invoke/BeginInvoke、创建窗口句柄），
-                // 先后触发过 Win32Exception“创建窗口句柄时出错”和
-                // InvalidOperationException“在创建窗口句柄之前，不能在控件上调用 Invoke 或 BeginInvoke”。
-                // 这些异常发生在 Exit 内部的关机流程中（多来自其他线程/finalizer 线程），主线程 try/catch 拦不住。
-                // 因此直接内核级结束进程：不跑任何关机流程，所有线程立即终止，不存在抛异常的窗口期。
-                // （等效任务管理器“结束进程”；工作线程未设 IsBackground，强杀本就是本工程既定退出策略）
+                // 直接结束进程，不执行 Environment.Exit 的关机流程：Cognex ActiveX 与前台工作线程
+                // 在关机流程中会访问已销毁的窗口句柄，抛出主线程无法捕获的异常。
                 try
                 {
                     System.Diagnostics.Process.GetCurrentProcess().Kill();
                 }
                 catch
                 {
-                    // 极端情况下 Kill 失败时，退回 Environment.Exit（聊胜于无）
+                    // Kill 失败时改用 Environment.Exit
                     try { System.Environment.Exit(0); } catch { }
                 }
             }
             catch
             {
-                // 退出路径上的任何异常都不再向上抛，避免退出时又弹异常对话框
+                // 退出过程中的异常不向上抛出
             }
         }
 
@@ -2058,7 +1950,7 @@ int nheightEllipse
                 }
                 catch (Exception ex)
                 {
-                    // 操作员看到简短提示，完整堆栈写进错误日志（原来是把 ex.ToString() 整段弹出来）
+                    // 界面显示简短提示，完整异常写入错误日志
                     AddErrorLog("LOTO: " + ex);
                     MessageBox.Show(MiddleLayer.LangMsg("MainForm", "msg_LotoOpenFail",
                             "无法打开上锁挂牌界面，详细信息已写入错误日志。",
@@ -2081,15 +1973,13 @@ int nheightEllipse
 
         private void btAlarmReset_Click(object sender, EventArgs e)
         {
-            // 去掉了原来的 Thread.Sleep(100)：在 UI 线程上睡眠只会让界面卡顿，
-            // 报警栏和状态条由定时器在下一拍刷新，不依赖这里等待。
+            // 报警栏和状态条由定时器刷新
             MiddleLayer.AlarmClear();
         }
 
         private void btExit_Click(object sender, EventArgs e)
         {
-            // 退出确认：文案走语言包（LangMsg）—— 三语齐全，翻译在 LanguageData\MainForm 段里改。
-            // （原来是硬编码中/英两个分支，西语环境下会显示中文。）
+            // 退出确认（文案取自语言包 LanguageData\MainForm）
             string message1 = MiddleLayer.LangMsg("MainForm", "msg_ExitConfirm",
                 "确定要退出调试吗？", "Are you sure to Exit?", "¿Seguro que quieres salir?");
             string message2 = MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo");

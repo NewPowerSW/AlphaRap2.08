@@ -13,8 +13,7 @@ namespace AlphaRap.MenuForm
         public LanguageSetting()
         {
             InitializeComponent();
-            // 本窗体是 SystemForm 里按需 new 出来的，不在 lstForm 里，赶不上启动扫描 ——
-            // 就地补登记进语言表（此时语言表已建好），Designer 里的文案才能跟随切语言。
+            // 按需创建的窗体：登记进语言表并按当前语言设置文字
             MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
             if (dtTable.Columns.Count == 0)
             {

@@ -9,25 +9,10 @@ using AlphaRapLibrary;
 namespace AlphaRap
 {
     /// <summary>
-    /// 物料管理页（内嵌在 MainForm 里的单例页面，通过 MiddleLayer.ProductF 访问）。
-    ///
-    /// 重构要点：
-    ///   1. 原来是固定 1707x1102 的绝对坐标 + 三块 FixedSingle 边框面板，
-    ///      而宿主面板只有约 1360x780 —— 右侧"管理"整块和底部都被裁掉。
-    ///      现在根容器 Dock=Fill，内部用 TableLayoutPanel 分成
-    ///      「型号列表 36% / 右侧上下两张卡 64%」，整页跟着宿主伸缩。
-    ///   2. 视觉统一到 UiKit：页头图标 + 白色圆角卡片 + 圆角输入框(FieldBox) + 圆角按钮(FlatButton)。
-    ///   3. 输入框从裸 TextBox 换成 FieldBox，但**数据绑定一条都没少**：
-    ///      绑定挂在 FieldBox.Inner 上（也就是它内部那个无边框 TextBox），路径与原来完全一致。
-    ///   4. 补了两处实际缺陷：
-    ///      - 未在列表里选中型号时"删除/使用"按钮可点（点了没反应，容易误以为程序坏了）→ 现在按选中状态启用/禁用；
-    ///      - 列表没有条数提示 → 卡片底部显示"共 N 个型号"。
-    ///
-    /// 对外契约（ctor / ReadAllProductData / CurrentModel / listView1）
-    /// 全部保留：MainForm 的语言切换与底栏配方名、MiddleLayer、AlarmRunTask 都在直接访问它们。
-    ///
-    /// 注意：**this.Text 不能改**。ModuleBaseForm.ModuleInitialize 拿 this.Text 当模块名，
-    /// 去定位 ModuleData\SettingData\ProductManagerForm.xml；所以这里不做 Text 的本地化。
+    /// 物料管理页（嵌入 MainForm 的单例页面，通过 MiddleLayer.ProductF 访问）：
+    /// 左侧型号列表（36%），右侧新建型号与型号参数两张卡片（64%），随宿主面板缩放。
+    /// "删除 / 使用"按钮按列表选中状态启用，列表底部显示型号数量。
+    /// this.Text 用作模块名（定位 ModuleData\SettingData\ProductManagerForm.xml），不做本地化。
     /// </summary>
     public partial class ProductManagerForm : ModuleBaseForm
     {
@@ -46,17 +31,14 @@ namespace AlphaRap
             ApplyLanguage();
             BindFields();
 
-            // 本页静态文案（UiLabel / FlatButton 这些自绘子类）已登记进语言表：
-            // RegisterLanguage 用 is 判断，子类也能进；真正的登记在 InitialLanguageData 末尾
-            // （那时内存列表才建好），之后切语言由 SwitchLanguageTo → SwitchLanguage 自动换字。
-            // 这里订阅事件只为**动态文案**：型号条数是运行时拼的，页面正显示着切语言要重算一次。
+            // 静态文案由语言表管理（InitialLanguageData 末尾登记），此事件用于刷新型号条数等动态文字
             MiddleLayer.LanguageChanged += ProductManagerForm_LanguageChanged;
 
             // 选中项变化 → 重新计算"删除 / 使用"是否可点
             listView1.SelectedIndexChanged += listView1_SelectedIndexChanged;
 
             ReadAllProductData();
-            RefreshCurrentModelText();   // 当前配方名（构造里原来那一小段取值逻辑统一挪进本方法）
+            RefreshCurrentModelText();   // 当前配方名
 
             RefreshActionState();
         }
@@ -108,8 +90,7 @@ namespace AlphaRap
             {
                 picPageIcon.Image = AppIcons.Get(AppIcon.Product, 34, UiKit.Brand);
 
-                // 参数输入框刻意不加前置图标：6 个框都挂图标会把版面切得很碎，
-                // 而且 PRODUCTID / STEPID 这类字段本来也没有可对应的语义图形。
+                // 参数输入框不加前置图标
                 fbNewName.Icon = AppIcons.Get(AppIcon.Edit, 20, UiKit.TextMuted);
 
                 btnCreate.Icon = AppIcons.Get(AppIcon.Plus, 18, Color.White);
@@ -140,16 +121,11 @@ namespace AlphaRap
         {
             try
             {
-                // 本页**静态文案已交给语言表**：InitialLanguageData 末尾补登记 ProductManagerForm
-                // （RegisterLanguage 用 is 判断，UiLabel / FlatButton 这些自绘子类也能进），
-                // 键 = 控件名，翻译在 LanguageData\*.xml 的 ProductManagerForm 段里改；
-                // 切语言统一走 MainForm.SwitchLanguageTo → SwitchLanguage，这里不用再逐个控件写文案。
-                //
-                // 剩下要自己管的只有**动态文案**：型号条数是运行时拼的（"共 N 个型号"），语言包管不到。
+                // 动态文案：型号条数（"共 N 个型号"）；静态文案见 LanguageData\*.xml 的 ProductManagerForm 段
                 _countFormat = MiddleLayer.LangMsg("ProductManagerForm", "msg_ModelCount",
                     "共 {0} 个型号", "{0} model(s)", "{0} modelo(s)");
 
-                // 型号列表的表头（ListView 不进语言表 —— 它的文字算数据/列头，这里自己刷）
+                // 型号列表的表头（ListView 不进语言表）
                 if (listView1 != null && listView1.Columns.Count > 0)
                     listView1.Columns[0].Text = MiddleLayer.LangMsg("ProductManagerForm", "msg_AllModels",
                         "所有产品型号", "All Product Models", "Todos los modelos de productos");
@@ -163,12 +139,7 @@ namespace AlphaRap
         // ==================== 数据绑定 ====================
 
         /// <summary>
-        /// 把 6 个 FieldBox 绑到配方表的 ProductSetting 表上。
-        ///
-        /// 为什么绑在 Inner 而不是 FieldBox 自己：
-        ///   FieldBox 是自绘 Panel，内容走 Value 属性（刻意避开 Text，防止被语言扫描覆盖），
-        ///   而 WinForms 的 Binding 只认标准控件属性；绑 Inner（内部那个真正的 TextBox）
-        ///   就等于回到原来 textBox1.DataBindings.Add("Text", ...) 的写法，双向同步的语义完全一致。
+        /// 把 6 个参数输入框绑定到配方表 ProductSetting（绑定在 FieldBox.Inner 的 Text 属性上，双向同步）。
         /// </summary>
         private void BindFields()
         {
@@ -185,7 +156,7 @@ namespace AlphaRap
             if (box == null) return;
             box.Inner.DataBindings.Add("Text", RecipeData, "ProductSetting." + column, true);
 
-            // 内容变化 → 打脏标记（沿用原 textBox4_TextChanged 的逻辑）
+            // 内容变化时标记为已修改
             box.ValueChanged += textBox4_TextChanged;
         }
 
@@ -219,12 +190,7 @@ namespace AlphaRap
         }
 
         /// <summary>
-        /// 把"当前型号"这个标签的文字重新按当前配方写一遍。
-        ///
-        /// 为什么要显式刷：`CurrentModel` 按名字被登记进了语言表（控件名是**对外契约，不能改**），
-        /// 于是切语言时语言表会拿语言包里的静态文字覆盖它 —— 但它显示的是**数据**（配方名），
-        /// 被覆盖后会显示成语言包里那条没意义的底稿，直到下次换型号才恢复。
-        /// <see cref="ApplyLanguage"/> 在切换语言后（LanguageChanged）会调用本方法，把它纠正回来。
+        /// 按当前配方刷新"当前型号"标签。该标签登记在语言表中，切换语言后由 <see cref="ApplyLanguage"/> 调用以恢复配方名。
         /// </summary>
         private void RefreshCurrentModelText()
         {

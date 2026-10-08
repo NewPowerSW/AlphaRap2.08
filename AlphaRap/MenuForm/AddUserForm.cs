@@ -7,18 +7,8 @@ using System.Windows.Forms;
 namespace AlphaRap
 {
     /// <summary>
-    /// 用户管理页（内嵌在 MainForm 里的单例页面，通过 MiddleLayer.AddF 访问）。
-    ///
-    /// 重构要点：
-    ///   1. 原来是固定 1207×1028 的绝对坐标布局，而宿主面板只有约 1348×740
-    ///      → 底部整块"权限设置"必然被裁掉。现在根容器 Dock=Fill，整页自适应。
-    ///   2. 三个功能块从"蓝色标题条 + FixedSingle 边框"改成白色圆角卡片，
-    ///      表头/网格统一走 UiKit.StyleGrid，输入框用 FieldBox。
-    ///   3. 补了三处实际缺陷（见下方各自注释）：新增按钮的可用性判断、未选中用户时
-    ///      修改/删除按钮可点、权限表缺一个显式的保存入口。
-    ///
-    /// 对外契约（ctor / ReadAllUserData / WritePermission / ModifyUserPermission /
-    /// DeleteUser / AddUser / CheckUserWhetherExist / Read）全部保留原签名。
+    /// 用户管理页（嵌入 MainForm 的单例页面，通过 MiddleLayer.AddF 访问）：用户列表、新增 / 修改 / 删除用户、权限设置，
+    /// 三块为白色圆角卡片，随宿主面板缩放。
     /// </summary>
     public partial class AddUserForm : Form
     {
@@ -47,9 +37,7 @@ namespace AlphaRap
             // 页面正显示着时切语言不会触发 VisibleChanged）。
             MiddleLayer.LanguageChanged += AddUserForm_LanguageChanged;
 
-            // 三个输入框 + 权限下拉，任意一个变化都重算"新增用户"按钮的可用性。
-            // 原实现只挂了 textPasswordConfirm.TextChanged —— 结果是选 Operator（只要用户名、
-            // 不需要密码）时按钮永远不亮，必须先随便敲一下"确认密码"才能点。
+            // 三个输入框和权限下拉框任意一个变化时，重新判断"新增用户"按钮是否可用
             textAddUserName.ValueChanged += AddUser_TextChanged;
             textPassword.ValueChanged += AddUser_TextChanged;
             textPasswordConfirm.ValueChanged += AddUser_TextChanged;
@@ -105,12 +93,7 @@ namespace AlphaRap
         {
             try
             {
-                // 本页静态文案**已交给语言表**：InitialLanguageData 末尾补登记 AddUserForm
-                // （控件是 UiLabel / FlatButton 这些自绘子类，精确类型白名单扫不到，靠 RegisterLanguage 的 is 判断进来），
-                // 键 = 控件名，翻译在 LanguageData\*.xml 的 AddUserForm 段里改；
-                // 切语言统一走 MainForm.SwitchLanguageTo → SwitchLanguage，这里不用再逐个控件写文案。
-                //
-                // 这里只准备"保存权限结果提示"要还原的那句底稿（运行时提示语，语言包管不到）。
+                // 保存权限后用于还原的提示文字；静态文案见 LanguageData\*.xml 的 AddUserForm 段
                 _rightsHintText = MiddleLayer.LangMsg("AddUserForm", "msg_RightsHint",
                     "勾选各权限允许的功能后点保存", "Tick the allowed functions, then save", "Marque las funciones permitidas y guarde");
                 ResetRightsHint();
@@ -381,11 +364,7 @@ namespace AlphaRap
             ResetRightsHint();
         }
 
-        /// <summary>
-        /// 显式保存权限。
-        /// 原来这张表只在"离开页面 / 退出程序"时通过 MainForm.SaveData() → WritePermission() 落库，
-        /// 用户改完没有任何反馈，也很难判断到底存了没有。
-        /// </summary>
+        /// <summary>保存权限表（离开页面或退出程序时也会通过 MainForm.SaveData() 保存）。</summary>
         private void btnSaveRights_Click(object sender, EventArgs e)
         {
             bool ok = WritePermission();

@@ -282,7 +282,6 @@ namespace AlphaRap.MES
 		/// <summary>
 		/// 逗号隔开的点位名称列表，点位名称规格：设备编号_参数名，例col1, col2, col3, col4
 		/// </summary>
-
 		public string TagNameList
 		{
 			get

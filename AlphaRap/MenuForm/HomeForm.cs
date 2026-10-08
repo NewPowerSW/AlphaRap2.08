@@ -71,9 +71,6 @@ namespace AlphaRap
 
 		private void timer1_Tick(object sender, EventArgs e)
 		{
-			// 虚拟键盘的**自动弹出已禁用**（原来焦点落在输入框就拉起 osk，弹窗抢焦点
-			// 会把表格单元格的编辑直接取消掉，表现为"改了保存不上"）。
-			// 需要软键盘时用主页顶栏的键盘图标手动调出（见 MainForm.ToggleVirtualKeyboard）。
 
 			#region 外部应用状态
 			// 只在状态变化时改色，避免每秒重绘
@@ -174,9 +171,7 @@ namespace AlphaRap
 
 		void BgWork_Demo(object sender, DoWorkEventArgs e)
 		{
-			// 原来是 Thread.Sleep(10) 的死循环：每秒约 100 轮 × 2 次 Ping，
-			// 还要每轮读两次配置。状态灯本身 1 秒才刷新一次，这么高的频率只是在白白占用 CPU 和网络。
-			// 现在每 1.5 秒检测一次，程序退出（gEXIT）时结束循环。
+			// 每 DeviceCheckIntervalMs 检测一次 PLC 和扫码枪是否在线，程序退出（gEXIT）时结束
 			while (!MiddleLayer.gEXIT)
 			{
 				try
@@ -306,16 +301,13 @@ namespace AlphaRap
 
 		public string GetAlarmConent(string Index)
 		{
-			// 按当前语言取对应的报警表文件（枚举名即文件名：Chinese/English/Español），
-			// 不再写死只有中英两个分支 —— AlarmTable 目录下三份文件齐全。
+			// 按当前语言取对应的报警表文件（AlarmTable\{Chinese|English|Español}.xml）
 			return GetAlarmConentOf(SysPara.LanguageShow, Index);
 		}
 
 		/// <summary>
-		/// 报警列表显示用的文案。NPSDK 驱动内部有些报警是两参数 Show(编号, 写死英文) 弹出的
-		/// （IO/电机组件初始化失败那几条，还会带上 Name=/Port= 细节），这些文字不走报警表。
-		/// 这里按编号在三种语言的表里做**前缀匹配**：能对上就把前缀换成当前语言的表内容、
-		/// 保留后面的细节；完全对不上（纯自定义文本）就原样保留，避免丢信息。
+		/// 报警列表显示用的文案：按编号在三种语言的报警表中做前缀匹配，匹配到则把前缀换成当前语言的内容并保留后面的细节
+		/// （如 NPSDK 初始化失败报警中的 Name= / Port=），匹配不到则原样返回。
 		/// </summary>
 		public string ResolveAlarmContent(string code, string stored)
 		{

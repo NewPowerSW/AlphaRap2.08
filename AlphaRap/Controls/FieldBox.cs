@@ -6,16 +6,8 @@ using System.Windows.Forms;
 namespace AlphaRap
 {
     /// <summary>
-    /// 圆角输入框：外层是自绘的圆角容器，内部放一个无边框 TextBox。
-    ///
-    /// 为什么不用原生 TextBox：
-    ///   1. WinForms 的 TextBox 只有 3D / 单线两种边框，做不出圆角，也没有"聚焦时描边变色"；
-    ///   2. 原生输入框左侧放不了图标，而带图标的输入框是这套界面的基本元素；
-    ///   3. 与其它自绘控件（AlarmChip / FlatButton / CardPanel）共用同一套圆角与描边规则。
-    ///
-    /// 内容通过 <see cref="Value"/> 读写，**故意不复用控件的 Text**：
-    /// 工程的自动语言扫描会遍历控件树并改写 Button/Label/TabPage 的 Text，
-    /// 复用 Text 会让输入内容被语言切换覆盖。Value 不参与那套机制，天然安全。
+    /// 圆角输入框：自绘圆角容器（可带左侧图标，聚焦时描边变色），内部为无边框 TextBox。
+    /// 内容通过 <see cref="Value"/> 读写（不使用 Text，避免被语言切换覆盖）。
     /// </summary>
     public class FieldBox : Panel
     {

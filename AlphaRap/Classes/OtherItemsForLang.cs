@@ -10,7 +10,6 @@ namespace AlphaRap.Classes
         /// 遍历所有的ToolStripItems in A Form
         /// </summary>
         /// <returns>回傳List</returns>
-        //  获取Form中各级菜单添加List中
         public static TStripItemTextInfo GetToolStripItems(Form formName, ref List<TStripItemTextInfo> tStripItemList)
         {
 			TStripItemTextInfo tStrItemComp = new TStripItemTextInfo();

@@ -173,12 +173,11 @@ namespace AlphaRap
 			{
 				try
 				{
-					// 未配置 IP 时直接判为离线，不再抛异常刷错误日志
+					// 未配置 IP 时判为离线
 					if (string.IsNullOrWhiteSpace(IP))
 						return false;
 
-					// Ping 实现了 IDisposable，原来每次 new 不释放；
-					// 超时从默认 5 秒缩短到 1 秒：局域网设备 1 秒不回就是离线，状态灯能更快反映断线。
+					// 超时 PingTimeoutMs 无响应即判为离线
 					using (Ping ping = new Ping())
 					{
 						PingReply reply = ping.Send(IP.Trim(), PingTimeoutMs);

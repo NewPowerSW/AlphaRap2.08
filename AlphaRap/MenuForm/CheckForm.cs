@@ -113,12 +113,7 @@ namespace AlphaRap
         /// <summary>卡片四周优先保留的留白（可用区够大时按这个值居中）。</summary>
         private const int CardOuterPadding = 144;
 
-        /// <summary>
-        /// 本窗体是运行时被 MainForm 动态挂到面板上的（TopLevel=false）。
-        /// 实测：窗口在程序启动时是 1440×900，此时它按当时的宿主大小被"钉"住，
-        /// 之后再把窗口最大化，窗体不会跟着放大 —— 右/下就会各留一大块空白。
-        /// 这里显式贴合宿主客户区，保证任何窗口尺寸下都铺满。
-        /// </summary>
+        /// <summary>使窗体贴合宿主面板的客户区（本窗体以 TopLevel=false 嵌入 MainForm）。</summary>
         private void FitToHost()
         {
             try
@@ -138,15 +133,8 @@ namespace AlphaRap
         }
 
         /// <summary>
-        /// 布局内容卡片。
-        ///
-        /// 背景：这一页原来是把内容按宿主尺寸"拉伸铺满"。窗口一最大化，两个矩阵表就被拉到
-        /// 750×850 左右，5 行平均每行 170px —— 表格变形、四周又只剩十几像素的边距，
-        /// 看起来既空又散。
-        ///
-        /// 做法：把卡片宽高限制在一个舒适区间内（约等于设计尺寸），居中的部分交给
-        /// rootTable 两侧的百分比空列 / 上下空行去吸收，形成"内容居中 + 四周留白"的观感。
-        /// 小窗口下则退化为"只留一圈小边距"，保证内容不被裁掉。
+        /// 布局内容卡片：宽高限制在接近设计尺寸的范围内并居中（rootTable 两侧空列 / 上下空行吸收多余空间），
+        /// 窗口较小时只保留一圈小边距。
         /// </summary>
         private void LayoutContentCard(Size hostSize)
         {
@@ -159,7 +147,7 @@ namespace AlphaRap
             cardW = Math.Max(360, cardW);
             cardH = Math.Max(280, cardH);
 
-            // 上限：卡片绝不超出可用区（只剩 8px 边距的极端情况）
+            // 上限：卡片不超出可用区（至少保留 8px 边距）
             cardW = Math.Min(cardW, Math.Max(160, hostSize.Width - 16));
             cardH = Math.Min(cardH, Math.Max(140, hostSize.Height - 16));
 
@@ -385,9 +373,7 @@ namespace AlphaRap
 
         private void radioButton_Click(object sender, EventArgs e)
         {
-            // 保险：显式保证这 6 个按钮始终是一组单选。
-            // WinForms 的 RadioButton 只在"同一个父容器内"自动互斥，一旦它们以后被挪进
-            // 不同容器，就会静默变成多组单选 —— 这里兜住这个坑。
+            // 保证这 6 个按钮为一组单选（RadioButton 只在同一父容器内自动互斥）
             RadioButton clicked = sender as RadioButton;
             foreach (RadioButton rb in StateButtons)
                 if (rb != null && rb != clicked) rb.Checked = false;

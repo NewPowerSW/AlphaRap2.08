@@ -33,13 +33,11 @@ namespace AlphaRap
         public string DisplayName;
 
         /// <summary>
-        /// vpp 存放子目录的覆盖值。
-        /// 为空 → 用类名（**老工位的磁盘路径完全不变**，兼容现场已有 vpp）；
-        /// 动态相机填 "相机名\VPP名"，即每台相机的每个 VPP 各占一个目录，互不覆盖。
+        /// vpp 存放子目录：为空时使用类名；相机下的 VPP 为"相机名\VPP名"，每个 VPP 各占一个目录。
         /// </summary>
         public string VppFolderName;
 
-        /// <summary>vpp 相对子目录：动态工位 = 相机\VPP，老工位 = 类名。</summary>
+        /// <summary>vpp 相对子目录：VppFolderName，为空时为类名。</summary>
         public string VppSubFolder
         {
             get { return string.IsNullOrEmpty(VppFolderName) ? GetType().Name : VppFolderName; }
@@ -51,11 +49,7 @@ namespace AlphaRap
             get { return string.IsNullOrEmpty(DisplayName) ? GetType().Name : DisplayName; }
         }
 
-        /// <summary>
-        /// vpp 完整路径 {VisionData}\{子目录}\{配方名}.vpp。
-        /// 原来这段拼接在 MiddleLayer.OpenVision、ProductManagerForm 里各写了一份，
-        /// 收到这里之后，动态相机只要改 VppFolderName 就行，不用去改三处。
-        /// </summary>
+        /// <summary>vpp 完整路径：{VisionData}\{VppFolderName}\{配方名}.vpp。</summary>
         public string GetVppPath(string recipeName)
         {
             return string.Format(@"{0}\{1}\{2}.vpp", SysPara.VisionFileDirectory, VppSubFolder, recipeName);

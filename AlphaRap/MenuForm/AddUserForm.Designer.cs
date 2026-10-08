@@ -22,13 +22,7 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// 用户管理页。
-        ///
-        /// 重构成自适应的卡片布局：原来是一屏固定 1207x1028 的绝对坐标，
-        /// 而宿主面板只有约 1348x740 —— 底部那一大块权限表必然被裁掉。
-        /// 现在根容器 Dock=Fill，整页跟着宿主伸缩。
-        /// </summary>
+        /// <summary>用户管理页布局：根容器 Dock=Fill，卡片随宿主面板缩放。</summary>
         private void InitializeComponent()
         {
             this.rootTable = new System.Windows.Forms.TableLayoutPanel();

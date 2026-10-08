@@ -874,7 +874,6 @@ namespace AlphaRap.MES
         /// <summary>
         /// 物料条码list
         /// </summary>
-
         Dictionary<string, string> TrayBarcodeBinding_dataList = new Dictionary<string, string>();
 
         public bool Tray_Barcode_Binding_interface()

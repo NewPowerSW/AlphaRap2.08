@@ -59,9 +59,7 @@ namespace AlphaRap
             {
                 ShowPage.TopLevel = false;
                 ShowPage.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-                // 原来是 Maximized：对 TopLevel=false 的页面窗体它没有实际作用，
-                // 反而会把页面"钉"在首次挂载时的大小上 —— 主窗口放大后页面不跟随，
-                // 四周留出大片空白。铺满容器靠 Dock=Fill 就够了。
+                // 嵌入的页面保持 Normal 状态，由 Dock = Fill 随容器缩放
                 ShowPage.WindowState = FormWindowState.Normal;
                 ShowPage.Dock = DockStyle.Fill;
             }

@@ -101,7 +101,7 @@
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel5 = new System.Windows.Forms.Panel();
-            // 报警筛选条（全部 / 警告 / 报警）：**写进设计器**，VS 里能看到，和 EXE 一致
+            // 报警筛选条（全部 / 警告 / 报警）
             this.panelAlarmFilter = new System.Windows.Forms.Panel();
             this.flowAlarmFilter = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAlarmFilterAll = new AlphaRap.AlarmChip();
@@ -666,9 +666,7 @@
             // 
             // picVirtualKeyboard
             // 
-            // 顶栏虚拟键盘开关。**刻意放在设计器里**：位置交给表格布局算，
-            // 不再由代码按"语言切换器当时在哪"去摆位（那样缩放时会压到切换器上）。
-            // 图标本身是运行时用 AppIcons 现画的矢量图，见 MainForm.InitVirtualKeyboardToggle()。
+            // 顶栏虚拟键盘开关，图标在运行时由 MainForm.InitVirtualKeyboardToggle() 绘制
             this.picVirtualKeyboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
             this.picVirtualKeyboard.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picVirtualKeyboard.Dock = System.Windows.Forms.DockStyle.Fill;

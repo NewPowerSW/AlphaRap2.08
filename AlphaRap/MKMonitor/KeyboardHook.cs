@@ -109,8 +109,7 @@ namespace AlphaRap
                     KeyUpEvent(this, e);
                 }
             }
-            //如果返回1，则结束消息，这个消息到此为止，不再传递。
-            //如果返回0或调用CallNextHookEx函数则消息出了这个钩子继续往下传递，也就是传给消息真正的接受者 
+            // 调用 CallNextHookEx 把消息继续传给下一个钩子和目标窗口（返回 1 则拦截消息）
             return CallNextHookEx(hKeyboardHook, nCode, wParam, lParam);
         }
         ~KeyboardHook()
