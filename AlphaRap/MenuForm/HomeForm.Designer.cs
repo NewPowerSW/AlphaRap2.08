@@ -129,7 +129,7 @@
             this.LAB_ScannStaus.Name = "LAB_ScannStaus";
             this.LAB_ScannStaus.Size = new System.Drawing.Size(55, 23);
             this.LAB_ScannStaus.TabIndex = 0;
-            this.LAB_ScannStaus.Text = "Scann";
+            this.LAB_ScannStaus.Text = "Scanner";
             this.LAB_ScannStaus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label10
@@ -301,7 +301,7 @@
             this.txtCT.Name = "txtCT";
             this.txtCT.Size = new System.Drawing.Size(77, 34);
             this.txtCT.TabIndex = 0;
-            this.txtCT.Text = "12.3 /s";
+            this.txtCT.Text = "-- s";
             this.txtCT.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label4

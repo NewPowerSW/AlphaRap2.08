@@ -441,7 +441,7 @@
             this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
             this.toolStripStatusLabel5.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.toolStripStatusLabel5.Size = new System.Drawing.Size(130, 25);
-            this.toolStripStatusLabel5.Text = "2019/03/01 00:00:00";
+            this.toolStripStatusLabel5.Text = "";
             // 
             // panel_PictureShowDown
             // 
@@ -787,7 +787,7 @@
             this.LoginText.Name = "LoginText";
             this.LoginText.Size = new System.Drawing.Size(615, 50);
             this.LoginText.TabIndex = 7;
-            this.LoginText.Text = "用户：1  权限： Admin";
+            this.LoginText.Text = "";
             this.LoginText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lbRecipeName
@@ -1381,7 +1381,7 @@
             // 
             // columnHeader9
             // 
-            this.columnHeader9.Text = "Staus";
+            this.columnHeader9.Text = "Status";
             this.columnHeader9.Width = 136;
             // 
             // tabPage1
@@ -1483,7 +1483,7 @@
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Size = new System.Drawing.Size(200, 60);
             this.tabPage6.TabIndex = 7;
-            this.tabPage6.Text = "Deskborad";
+            this.tabPage6.Text = "Dashboard";
             this.tabPage6.UseVisualStyleBackColor = true;
             // 
             // dataBControl1
@@ -1515,7 +1515,7 @@
             this.tabPage10.Name = "tabPage10";
             this.tabPage10.Size = new System.Drawing.Size(200, 60);
             this.tabPage10.TabIndex = 5;
-            this.tabPage10.Text = "Vison";
+            this.tabPage10.Text = "Vision";
             // 
             // cogRecordDisplay1
             // 

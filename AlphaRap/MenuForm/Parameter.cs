@@ -361,23 +361,25 @@ namespace AlphaRap
 			}
 		}
 		private static readonly object PingTCPLock = new object();
+		/// <summary>设备在线检测的 Ping 超时（毫秒）。</summary>
+		private const int PingTimeoutMs = 1000;
 		public bool PingTCP(string IP)
 		{
 			lock (PingTCPLock)
 			{
 				try
 				{
-					string ipstr = IP;
-					Ping ping = new Ping();
-					string data = "ping test data";
-					byte[] buf = Encoding.ASCII.GetBytes(data);
-					PingReply reply = ping.Send(ipstr);
-					if (reply.Status == IPStatus.Success)
-					{
+					// 未配置 IP 时直接判为离线，不再抛异常刷错误日志
+					if (string.IsNullOrWhiteSpace(IP))
+						return false;
 
-						return true;
+					// Ping 实现了 IDisposable，原来每次 new 不释放；
+					// 超时从默认 5 秒缩短到 1 秒：局域网设备 1 秒不回就是离线，状态灯能更快反映断线。
+					using (Ping ping = new Ping())
+					{
+						PingReply reply = ping.Send(IP.Trim(), PingTimeoutMs);
+						return reply.Status == IPStatus.Success;
 					}
-					return false;
 				}
 				catch(Exception ex)
 				{

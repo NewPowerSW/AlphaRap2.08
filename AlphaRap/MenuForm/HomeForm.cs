@@ -79,6 +79,9 @@ namespace AlphaRap
 			catch { }
 		}
 
+		private static readonly Color DeviceOnline = Color.FromArgb(34, 150, 83);
+		private static readonly Color DeviceOffline = Color.FromArgb(214, 69, 69);
+
 		private void timer1_Tick(object sender, EventArgs e)
 		{
 			// 虚拟键盘的**自动弹出已禁用**（原来焦点落在输入框就拉起 osk，弹窗抢焦点
@@ -86,8 +89,11 @@ namespace AlphaRap
 			// 需要软键盘时用主页顶栏的键盘图标手动调出（见 MainForm.ToggleVirtualKeyboard）。
 
 			#region 外部应用状态
-			label_ScannStaus.BackColor = B_Scan1connect ? Color.FromArgb(34, 150, 83) : Color.FromArgb(214, 69, 69);
-			label_PLCStaus.BackColor = B_PLCStaus ? Color.FromArgb(34, 150, 83) : Color.FromArgb(214, 69, 69);
+			// 只在状态变化时改色，避免每秒重绘
+			Color scanColor = B_Scan1connect ? DeviceOnline : DeviceOffline;
+			Color plcColor = B_PLCStaus ? DeviceOnline : DeviceOffline;
+			if (label_ScannStaus.BackColor != scanColor) label_ScannStaus.BackColor = scanColor;
+			if (label_PLCStaus.BackColor != plcColor) label_PLCStaus.BackColor = plcColor;
 			#endregion
 		}
 
@@ -176,26 +182,29 @@ namespace AlphaRap
 		public bool B_PLCStaus = false;
 		#region //后台
 
+		/// <summary>设备在线检测周期（毫秒）。</summary>
+		private const int DeviceCheckIntervalMs = 1500;
+
 		void BgWork_Demo(object sender, DoWorkEventArgs e)
 		{
-			while (true)
+			// 原来是 Thread.Sleep(10) 的死循环：每秒约 100 轮 × 2 次 Ping，
+			// 还要每轮读两次配置。状态灯本身 1 秒才刷新一次，这么高的频率只是在白白占用 CPU 和网络。
+			// 现在每 1.5 秒检测一次，程序退出（gEXIT）时结束循环。
+			while (!MiddleLayer.gEXIT)
 			{
-				Thread.Sleep(10);
 				try
 				{
-				
-					//#region //PING 各个设备IP
+					string plcIp = Convert.ToString(MiddleLayer.ParF.GetSettingValue("MSet", "PLCIP"));
+					string scanIp = Convert.ToString(MiddleLayer.ParF.GetSettingValue("MSet", "ScannIP"));
 
-					B_PLCStaus = MiddleLayer.ParF.PingTCP(MiddleLayer.ParF.GetSettingValue("MSet", "PLCIP"));
-					B_Scan1connect = MiddleLayer.ParF.PingTCP(MiddleLayer.ParF.GetSettingValue("MSet", "ScannIP"));
-
-					//#endregion
-
+					B_PLCStaus = MiddleLayer.ParF.PingTCP(plcIp);
+					B_Scan1connect = MiddleLayer.ParF.PingTCP(scanIp);
 				}
 				catch (Exception ex)
 				{
-					//MessageBox.Show("程序出来点小问题..." + ex.Message, "系统提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+					System.Diagnostics.Debug.WriteLine("Device check failed: " + ex.Message);
 				}
+				Thread.Sleep(DeviceCheckIntervalMs);
 			}
 		}
 

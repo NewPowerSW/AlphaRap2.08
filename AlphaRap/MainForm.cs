@@ -371,6 +371,10 @@ int nheightEllipse
             }
             catch { }
 
+            // 底部状态栏的版本号 / 编译日期从程序集读取（原来是设计器里写死的
+            // "Version 2.0.8" 和 "Modify Date 2023/07/04"，和真实程序版本 2.0.6.0 对不上）
+            ApplyVersionInfo();
+
             SysPara.UserName = MiddleLayer.AddF.ReadAllUserData();
             SysPara.UserPermission = PermissionType.Operator;
             SwitchPermission(SysPara.UserPermission);
@@ -448,6 +452,23 @@ int nheightEllipse
         /// <summary>
         /// 按 1440 x 900 初始化窗口，并保证不超出当前屏幕工作区、居中显示。
         /// </summary>
+        /// <summary>状态栏显示真实的程序版本和编译时间，发版只需改 AssemblyInfo.cs。</summary>
+        private void ApplyVersionInfo()
+        {
+            try
+            {
+                Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                toolStripStatusLabel4.Text = "Version " + v.Major + "." + v.Minor + "." + v.Build;
+
+                DateTime built = File.GetLastWriteTime(Application.ExecutablePath);
+                toolStripStatusLabel3.Text = " AlphaRap-SRM  Build " + built.ToString("yyyy/MM/dd HH:mm");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("ApplyVersionInfo: " + ex.Message);
+            }
+        }
+
         private void ApplyInitialWindowSize()
         {
             Rectangle workArea = Screen.FromControl(this).WorkingArea;
@@ -653,6 +674,11 @@ int nheightEllipse
         #region show Form      
         public void SwitchMainPage(MENU_PageType PageType)
         {
+            // 进入硬件 / 手动页会暂停设备，进入机器人页会停止设备。
+            // 原来点一下菜单就直接停产、没有任何提示；现在设备在动作时先确认，取消则留在当前页。
+            if (!ConfirmPageSwitchSideEffect(PageType))
+                return;
+
             MENU_SelectPage = PageType;
             //WZF 修改
             Panel ShowPanl = new Panel();
@@ -716,6 +742,44 @@ int nheightEllipse
                     break;
             }
         }
+        /// <summary>
+        /// 切页前的安全确认。
+        /// Hard / Manual 会调用 PauseRun()，Robot 会调用 StopRun()；设备正在动作时先让操作员确认。
+        /// 设备空闲（含开机预加载页面时）不弹框，行为与原来完全一致。
+        /// </summary>
+        private bool ConfirmPageSwitchSideEffect(MENU_PageType pageType)
+        {
+            bool busy = SysPara.SystemMode == RunMode.RUN
+                     || (SysPara.SystemMode == RunMode.INITIAL && !SysPara.UpConveyorInitialOk);
+
+            string message;
+            if (pageType == MENU_PageType.Hard || pageType == MENU_PageType.Manual)
+            {
+                if (!busy) return true;
+                message = MiddleLayer.LangMsg("MainForm", "msg_ConfirmPauseForPage",
+                    "设备正在运行。\r\n进入此页面会暂停设备，是否继续？",
+                    "The machine is running.\r\nOpening this page will PAUSE the machine. Continue?",
+                    "La máquina está en marcha.\r\nAbrir esta página PAUSARÁ la máquina. ¿Continuar?");
+            }
+            else if (pageType == MENU_PageType.Robot)
+            {
+                if (SysPara.SystemMode == RunMode.IDLE) return true;
+                message = MiddleLayer.LangMsg("MainForm", "msg_ConfirmStopForPage",
+                    "进入机器人页面会停止设备，之后需要重新初始化。\r\n是否继续？",
+                    "Opening the Robot page will STOP the machine and it must be initialized again.\r\nContinue?",
+                    "Abrir la página del robot DETENDRÁ la máquina y deberá inicializarse de nuevo.\r\n¿Continuar?");
+            }
+            else
+            {
+                return true;
+            }
+
+            string title = MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo");
+            // 默认按钮设为"否"：误触回车不会停机
+            return MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                                   MessageBoxDefaultButton.Button2) == DialogResult.Yes;
+        }
+
         /// <summary>
         /// 更新菜单栏按钮的颜色（现代浅色风格：选中=浅色圆角卡片，未选中=透明融入渐变背景）
         /// </summary>
@@ -1409,34 +1473,110 @@ int nheightEllipse
             catch { }
         }
 
+        // ---------------- 机台状态颜色（与三色灯 / ISA-101 习惯一致） ----------------
+        // 红色只留给"报警"。原来 PAUSE 是红色，操作员会误以为设备故障；
+        // 而 AlwaysRunTask 里三色灯在 PAUSE 时亮的是黄灯（MessageWarning），屏幕要和灯一致。
+        private static readonly Color StatusRunBg = Color.FromArgb(46, 150, 67);    // 绿：运行
+        private static readonly Color StatusPauseBg = Color.FromArgb(245, 166, 35); // 琥珀：暂停
+        private static readonly Color StatusIdleBg = Color.FromArgb(96, 112, 130);  // 灰蓝：待机（中性，不抢眼）
+        private static readonly Color StatusInitBg = Color.FromArgb(4, 108, 182);   // 品牌蓝：初始化
+        private static readonly Color StatusAlarmBg = Color.FromArgb(206, 62, 62);  // 红：报警（仅此一种情况用红）
+        private static readonly Color StatusDarkText = Color.FromArgb(51, 38, 0);   // 琥珀底上用深色字，保证对比度
+
+        // 状态文案按语言缓存：原来每秒新建字典并查 4 次语言包
+        private Dictionary<RunMode, string> _statusTextMap;
+        private LanguageType _statusTextLang = (LanguageType)(-1);
+        private bool _statusTextInitOk;
+        private string _statusAlarmText;
+        private string _lastAlarmTip;
+        private readonly ToolTip _statusTip = new ToolTip();
+
         private void UpdateMachineStatus()
         {
-            var statusTextMap = GetStatusTextMap(SysPara.LanguageShow);
-            if (statusTextMap.TryGetValue(SysPara.SystemMode, out string statusText))
+            if (_statusTextMap == null || _statusTextLang != SysPara.LanguageShow
+                || _statusTextInitOk != SysPara.UpConveyorInitialOk)
             {
-                if (SysPara.SystemMode == RunMode.RUN)
-                {
-                    MachineStatus.BackColor = Color.FromArgb(46, 150, 67);
-                    MachineStatus.ForeColor = Color.White;
-                }
-                else if (SysPara.SystemMode == RunMode.PAUSE)
-                {
-                    MachineStatus.BackColor = Color.FromArgb(214, 69, 69);
-                    MachineStatus.ForeColor = Color.White;
-                }
-                else
-                {
-                    MachineStatus.BackColor = Color.FromArgb(245, 197, 66);
-                    MachineStatus.ForeColor = Color.FromArgb(64, 48, 0);
-                }
-                MachineStatus.Text = statusText;
+                _statusTextMap = GetStatusTextMap(SysPara.LanguageShow);
+                _statusTextLang = SysPara.LanguageShow;
+                _statusTextInitOk = SysPara.UpConveyorInitialOk;
+                _statusAlarmText = MiddleLayer.LangMsg("MainForm", "msg_StatusAlarm", "设备报警", "ALARM", "ALARMA");
             }
-            else
+
+            // 1) 报警优先：有 E 类报警时，不管运行模式是什么都显示红色"报警"，并带上报警条数，
+            //    鼠标悬停可看最新一条报警内容（完整列表仍在下方报警栏）。
+            int errorCount;
+            string latestError;
+            if (TryGetActiveErrors(out errorCount, out latestError))
             {
-                // Handle unsupported system mode if needed  
-                MachineStatus.BackColor = Color.FromArgb(90, 98, 110);
-                MachineStatus.ForeColor = Color.White;
-                MachineStatus.Text = "Unknown status";
+                SetStatusLook(StatusAlarmBg, Color.White,
+                    errorCount > 1 ? _statusAlarmText + "  ×" + errorCount : _statusAlarmText);
+                if (latestError != _lastAlarmTip)
+                {
+                    _lastAlarmTip = latestError;
+                    _statusTip.SetToolTip(MachineStatus, latestError ?? "");
+                }
+                return;
+            }
+            if (_lastAlarmTip != null)
+            {
+                _lastAlarmTip = null;
+                _statusTip.SetToolTip(MachineStatus, "");
+            }
+
+            // 2) 无报警：按运行模式着色
+            string statusText;
+            if (!_statusTextMap.TryGetValue(SysPara.SystemMode, out statusText))
+            {
+                SetStatusLook(StatusIdleBg, Color.White, "Unknown status");
+                return;
+            }
+            switch (SysPara.SystemMode)
+            {
+                case RunMode.RUN: SetStatusLook(StatusRunBg, Color.White, statusText); break;
+                case RunMode.PAUSE: SetStatusLook(StatusPauseBg, StatusDarkText, statusText); break;
+                case RunMode.INITIAL:
+                    // 初始化中 / 初始化完成（就绪）都用蓝色，文字区分两者
+                    SetStatusLook(StatusInitBg, Color.White, statusText); break;
+                default: SetStatusLook(StatusIdleBg, Color.White, statusText); break;
+            }
+        }
+
+        /// <summary>只在值变化时赋值，避免每秒重绘造成闪烁。</summary>
+        private void SetStatusLook(Color back, Color fore, string text)
+        {
+            if (MachineStatus.BackColor != back) MachineStatus.BackColor = back;
+            if (MachineStatus.ForeColor != fore) MachineStatus.ForeColor = fore;
+            if (MachineStatus.Text != text) MachineStatus.Text = text;
+        }
+
+        /// <summary>
+        /// 读取当前 E 类（错误）报警的条数和最新一条内容。
+        /// AlarmList 由报警线程维护，这里只读、并整体包 try，读失败就当作无报警（下一秒再读）。
+        /// </summary>
+        private static bool TryGetActiveErrors(out int count, out string latest)
+        {
+            count = 0;
+            latest = null;
+            try
+            {
+                if (!NPSDK.Alarm.IsError) return false;
+                var list = NPSDK.Alarm.AlarmList;
+                int n = list.Count;
+                for (int i = 0; i < n; i++)
+                {
+                    NPSDK.Alarm.AlarmDataClass a = list[i];   // 结构体，不会为 null
+                    if (a.Type != "E") continue;
+                    count++;
+                    latest = a.Code + "  " + MiddleLayer.HomeF.ResolveAlarmContent(a.Code, a.Content);
+                    if (!string.IsNullOrEmpty(a.Solution))
+                        latest += "\r\n" + MiddleLayer.LangMsg("MainForm", "msg_AlarmSolution", "处理方法：", "Solution: ", "Solución: ") + a.Solution;
+                }
+                if (count == 0) count = 1;   // IsError 为真但列表还没刷新：至少按 1 条显示
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
         #endregion
@@ -1493,75 +1633,78 @@ int nheightEllipse
         }
         public void WriteRUNMessageText(string strMessage)
         {
-            //SysPara.RunMessageTime = DateTime.Now.ToString("HH:mm:ss");
-            SysPara.RunMessageTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-            if (textBox_RUNMessage == null)
-                return;
-            Action action = () =>
-            {
-                try
-                {
-                    int iTotal = 0;
-                    int iLenght = textBox_RUNMessage.Lines.Length;
-                    textBox_RUNMessage.AppendText(SysPara.RunMessageTime + ": " + strMessage + "\r\n");
-                    if (textBox_RUNMessage.Lines.Length > 200)
-                    {
-                        for (int i = 0; i < 100; i++)
-                        {
-                            iTotal = iTotal + textBox_RUNMessage.Lines[i].Length + 2;
-                        }
-                        textBox_RUNMessage.Text = textBox_RUNMessage.Text.Substring(iTotal);
-                    }
-                }
-                catch
-                {
-
-                }
-            };
-            try
-            {
-                textBox_RUNMessage.Invoke(action);
-            }
-            catch
-            {
-
-            }
+            AppendLogLine(textBox_RUNMessage, strMessage);
         }
         public void WriteErrorMessageText(string strMessage)
         {
+            AppendLogLine(textBox_ERRORMessage, strMessage);
+        }
 
-            SysPara.RunMessageTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-            if (textBox_ERRORMessage == null)
-                return;
+        // 每个日志框保留的最大行数；超过后一次性删掉最旧的 LogTrimLines 行
+        private const int LogMaxLines = 300;
+        private const int LogTrimLines = 100;
+        private readonly Dictionary<TextBox, int> _logLineCount = new Dictionary<TextBox, int>();
+
+        /// <summary>
+        /// 运行 / 错误日志框的统一写入。
+        /// 1) 用 BeginInvoke（异步）而不是 Invoke（同步）：DataForm.AddRunLog / AddLogError 是在 lock 里
+        ///    调到这里的，同步 Invoke 时若 UI 线程恰好也在等这把锁，两边互等，界面直接卡死。
+        /// 2) 时间戳在调用线程上就拼好：原来用的是共享的 SysPara.RunMessageTime，
+        ///    异步执行时可能已被下一条覆盖，导致时间错位。
+        /// 3) 行数自己计数，不再每条都读 Lines（每次都会把整段文本拆成数组）。
+        /// </summary>
+        private void AppendLogLine(TextBox box, string strMessage)
+        {
+            string time = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+            SysPara.RunMessageTime = time;   // 保留原有全局字段，其它地方可能在读
+            if (box == null || box.IsDisposed) return;
+
+            string line = time + ": " + strMessage + "\r\n";
             Action action = () =>
             {
                 try
                 {
-                    int iTotal = 0;
-                    int iLenght = textBox_ERRORMessage.Lines.Length;
+                    if (box.IsDisposed) return;
+                    box.AppendText(line);
 
-                    textBox_ERRORMessage.AppendText(SysPara.RunMessageTime + ": " + strMessage + "\r\n");
-                    if (textBox_ERRORMessage.Lines.Length > 200)
+                    int count;
+                    _logLineCount.TryGetValue(box, out count);
+                    count++;
+                    if (count > LogMaxLines)
                     {
-                        for (int i = 0; i < 100; i++)
+                        string text = box.Text;
+                        int cut = 0;
+                        for (int i = 0; i < LogTrimLines && cut >= 0; i++)
                         {
-                            iTotal = iTotal + textBox_ERRORMessage.Lines[i].Length + 2;
+                            cut = text.IndexOf("\r\n", cut, StringComparison.Ordinal);
+                            if (cut >= 0) cut += 2;
                         }
-                        textBox_ERRORMessage.Text = textBox_ERRORMessage.Text.Substring(iTotal);
+                        if (cut > 0)
+                        {
+                            box.Text = text.Substring(cut);
+                            box.SelectionStart = box.TextLength;
+                            box.ScrollToCaret();
+                            count -= LogTrimLines;
+                        }
                     }
+                    _logLineCount[box] = count;
                 }
-                catch
+                catch (Exception ex)
                 {
-
+                    // 不能再调 AddLogError（会递归回到这里），只写调试输出
+                    System.Diagnostics.Debug.WriteLine("AppendLogLine: " + ex.Message);
                 }
             };
+
             try
             {
-                textBox_ERRORMessage.Invoke(action);
+                if (!box.IsHandleCreated) return;   // 窗体还没建好或已关闭
+                if (box.InvokeRequired) box.BeginInvoke(action);
+                else action();
             }
-            catch
+            catch (InvalidOperationException)
             {
-
+                // 程序退出过程中句柄已销毁，忽略
             }
         }
         public void WriteRunMessageResult(string RunTime, string strMessage)
@@ -2155,13 +2298,25 @@ int nheightEllipse
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.ToString());
+                    // 操作员看到简短提示，完整堆栈写进错误日志（原来是把 ex.ToString() 整段弹出来）
+                    AddErrorLog("LOTO: " + ex);
+                    MessageBox.Show(MiddleLayer.LangMsg("MainForm", "msg_LotoOpenFail",
+                            "无法打开上锁挂牌界面，详细信息已写入错误日志。",
+                            "Could not open the LOTO screen. Details were written to the error log.",
+                            "No se pudo abrir la pantalla LOTO. Los detalles se guardaron en el registro de errores."),
+                        MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
             }
             else
             {
-                MessageBox.Show("The device must be in the stop mode", "notice", MessageBoxButtons.OK);
+                MessageBox.Show(MiddleLayer.LangMsg("MainForm", "msg_LotoNeedIdle",
+                        "请先停止设备（待机状态）再进行上锁挂牌。",
+                        "Stop the machine (IDLE) before LOTO.",
+                        "Detenga la máquina (en espera) antes de LOTO."),
+                    MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -2204,8 +2359,9 @@ int nheightEllipse
 
         private void btAlarmReset_Click(object sender, EventArgs e)
         {
+            // 去掉了原来的 Thread.Sleep(100)：在 UI 线程上睡眠只会让界面卡顿，
+            // 报警栏和状态条由定时器在下一拍刷新，不依赖这里等待。
             MiddleLayer.AlarmClear();
-            Thread.Sleep(100);
         }
         //int btDoorIndex = 1;
         //private void btDoor_Click(object sender, EventArgs e)
@@ -2225,13 +2381,34 @@ int nheightEllipse
         private void btClearCount_Click(object sender, EventArgs e)
         {
 
-            DialogResult reult = MessageBox.Show(" Do you want to Clear  Count?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+            // 清零是不可恢复的操作：
+            // 1) 提示里显示当前计数，让操作员确认清掉的是什么；默认按钮改为"否"，防误触回车。
+            // 2) 清零后写一条运行日志（谁、什么时间、清零前的数值），方便追溯产量问题。
+            long okBefore = (long)SysPara.iProductOK;
+            long ngBefore = (long)SysPara.iProductNG;
+            string message = MiddleLayer.LangMsg("MainForm", "msg_ClearCountConfirm",
+                    "确定要清零产量计数吗？此操作不可恢复。",
+                    "Clear the production counters? This cannot be undone.",
+                    "¿Borrar los contadores de producción? No se puede deshacer.")
+                + "\r\n\r\nOK: " + okBefore + "    NG: " + ngBefore;
+            string title = MiddleLayer.LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Advertencia");
+
+            DialogResult reult = MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
 
             if ((reult == DialogResult.Yes))
             {
                 SysPara.iProductOK = 0;
                 SysPara.iProductNG = 0;
 
+                try
+                {
+                    MiddleLayer.DataF.AddRunLog("Clear Count by " + SysPara.UserName
+                        + " (" + SysPara.UserPermission + "), before: OK=" + okBefore + ", NG=" + ngBefore);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Clear Count log failed: " + ex.Message);
+                }
             }
         }
         //int b = 0;
