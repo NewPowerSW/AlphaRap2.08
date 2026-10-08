@@ -1361,6 +1361,14 @@ namespace AlphaRap
 			return null;
 		}
 
+		/// <summary>
+		/// 取这台相机的 VPP 容器（那个 TabControl）。
+		///
+		/// ★ 相机页的布局已经搬进 <see cref="VpCameraPage"/> 设计器，VPP TabControl 是它的**内部子控件**，
+		/// 不再是 TabPage 的直接子控件 —— 原来按"直接子控件里找 TabControl"会永远找不到，
+		/// 于是 AddVpp/DeleteVpp 都拿不到容器、静默 return（表现为「点添加 VPP 没反应」）。
+		/// 正确做法：TabPage → 里面的 VpCameraPage → 它的 VppTabs。
+		/// </summary>
 		private TabControl FindVppTabControl(VpCameraConfig cam)
 		{
 			if (cam == null) return null;
@@ -1368,8 +1376,15 @@ namespace AlphaRap
 			{
 				TabPage p = tabControl1.TabPages[i];
 				if (p.Name != DynCameraPrefix + cam.Name) continue;
+
 				for (int j = 0; j < p.Controls.Count; j++)
+				{
+					VpCameraPage ctl = p.Controls[j] as VpCameraPage;
+					if (ctl != null) return ctl.VppTabs;
+
+					// 兜底：万一以后又有人把 TabControl 直接挂在页上
 					if (p.Controls[j] is TabControl) return (TabControl)p.Controls[j];
+				}
 			}
 			return null;
 		}
