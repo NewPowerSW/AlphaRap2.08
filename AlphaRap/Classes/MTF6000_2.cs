@@ -42,7 +42,6 @@ namespace AtlasLibrary
 
 				try
 				{
-					//clientSocket.Connect(new IPEndPoint(ip, Port)); //配置服务器IP与端口 
 					clientSocket.SendTimeout = 200;
 					clientSocket.ReceiveTimeout = 200;
 
@@ -51,7 +50,6 @@ namespace AtlasLibrary
 					{
 						Thread.Sleep(1000);
 						bConnectStatus = true;
-						//MessageBox.Show("网络正常");
 
 						String A = SendCommand(StartCommunicateSend);
 						time = new System.Timers.Timer(Convert.ToInt32(3000));//实例化Timer类，设置间隔时间为7000毫秒；
@@ -63,7 +61,6 @@ namespace AtlasLibrary
 					else
 					{
 						bConnectStatus = false;
-						//MessageBox.Show("连接超时");
 					}
 				}
 				catch
@@ -92,9 +89,7 @@ namespace AtlasLibrary
 		{
 			lock (reading)
 			{
-				// time.Stop();
 				SendCommand(KeepAliveSend, 100);
-				// time.Start();
 			}
 		}
 
@@ -139,7 +134,6 @@ namespace AtlasLibrary
 				byte[] result = new byte[1024];
 				int receiveLength = clientSocket.Receive(result);
 				sReadData = sReadData + Encoding.ASCII.GetString(result, 0, receiveLength).Trim();
-				// MessageBox.Show(sReadData);
 			}
 			catch (SocketException)
 			{
@@ -242,28 +236,7 @@ namespace AtlasLibrary
 					Atlas_ResultStruct.TotalResultString = returnstring;
 
 					int q = 0;
-					////////////////////////////////////////////////////////////////////////////status////////////////////////////////////////////
-					//q = returnstring.IndexOf("30202");
 
-					//if (q < 70)
-					//{
-					//    Torquestring = returnstring.Substring(q, returnstring.Length - q - 2);
-					//    q = Torquestring.IndexOf("30202");
-					//}
-
-					//if (q != -1 && (q + 17) < returnstring.Length)
-					//{
-					//    Torquestring = returnstring.Substring(q + 17, 1);
-					//    dData = Convert.ToDecimal(Decimal.Parse(Torquestring.ToString(), System.Globalization.NumberStyles.Float));
-					//    Torquestring = (dData).ToString();
-					//}
-					//else
-					//{
-					//    Torquestring = "";
-					//    dData = 0;
-					//}
-
-					//Atlas_ResultStruct.TotalStatus = dData == 1 ? true : false;
 					Atlas_ResultStruct.TotalStatus = 1 == 1 ? true : false;
 					////////////////////////////////////////////////////////////////////////////Torque////////////////////////////////////////////
 					q = returnstring.IndexOf("30230");
@@ -300,7 +273,6 @@ namespace AtlasLibrary
 
 					double _dataa = Convert.ToDouble(Torquestring);
 
-					//  MessageBox.Show(returnstring);
 					return Atlas_ResultStruct;
 				}
 				catch (Exception ex)

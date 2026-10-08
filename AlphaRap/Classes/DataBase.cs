@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Data.OleDb;
-//using ADOX;
 
 namespace AlphaRap
 {
@@ -18,7 +17,7 @@ namespace AlphaRap
                 //2、打开连接 
                 odcConnection.Open();
                 //建立SQL查询 
-                string strSQL = "select * from " + tableName;// +" order by No asc";
+                string strSQL = "select * from " + tableName;
                 OleDbDataAdapter oleDa = new OleDbDataAdapter(strSQL, odcConnection);
                 oleDa.Fill(dt);
                 //关闭连接 

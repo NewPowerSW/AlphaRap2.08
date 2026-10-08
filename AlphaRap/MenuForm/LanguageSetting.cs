@@ -278,10 +278,6 @@ namespace AlphaRap.MenuForm
             this.btnSave.Enabled = false;
             this.btnCancel.Enabled = false;
             this.btnRefresh.Enabled = true;
-            //foreach (DataGridViewRow forRow in this.dgvData.Rows)
-            //{
-            //    forRow.ReadOnly = true;
-            //}
             LoadTables();
         }
     }

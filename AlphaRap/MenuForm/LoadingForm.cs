@@ -11,7 +11,6 @@ namespace AlphaRap
         public LoadingForm()
         {
             InitializeComponent();
-            //picLogo.Image = AlphaRap.Properties.Resources.NPlogotm1;
         }
 
         public void SetCaption(string Caption)

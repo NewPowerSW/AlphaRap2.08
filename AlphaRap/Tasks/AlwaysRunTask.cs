@@ -42,34 +42,9 @@ namespace AlphaRap
 			}
 			#endregion
 
-			#region MaintainMode Scan
-			//SysPara.IsMaintenanceMode = MiddleLayer.ManualF.IB_ManualMode.IsOn();
-			//if (!SysPara.IsMaintenanceMode)
-			//{
-			//    if (!StatusChange_ModeSwitch)
-			//    {
-			//        StatusChange_ModeSwitch = true;
-			//        MiddleLayer.PauseRun();
-			//        MiddleLayer.ManualF.OB_DoorPeningAuthority.On();
-			//        MiddleLayer.SetLowSpeed();
-			//    }
-
-			//}
-			//else
-			//{
-			//    if (StatusChange_ModeSwitch)
-			//    {
-			//        MiddleLayer.PauseRun();
-			//        StatusChange_ModeSwitch = false;
-			//        MiddleLayer.ManualF.OB_DoorPeningAuthority.Off();
-			//        MiddleLayer.SetHightSpeed();
-
-			//    }
-
-			//}
-
-			#endregion
-
+			// 【已停用】以下整段扫描逻辑目前被注释，软件中不生效：
+			//   安全就绪、前/后急停、前/后安全门、启动/停止/报警复位实体按钮、三色灯、寿命计数、气压。
+			// 按设备需要启用时，取消注释后逐项核对 IO 名称和报警编号。
 			/*	#region Ready Scan
 				if (!MiddleLayer.ManualF.IB_SafetyReady.On())
 				{

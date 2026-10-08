@@ -8,9 +8,7 @@ namespace AlphaRap.FunctionForms
         public ErrorOptionForm()
         {
             this.TopMost = true;
-            //CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
-           // timer1.Start();
         }
 
         public void SetAlarmCode(string sMsg)

@@ -55,8 +55,6 @@ namespace AlphaRap
 		/// <summary>
 		/// 页面离开时提示用户对操作的数据是否保存
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
 		private void Parameter_Leave(object sender, EventArgs e)
 		{
 			if (SysPara.items > 1)
@@ -104,46 +102,6 @@ namespace AlphaRap
 			int Port = MiddleLayer.ParF.GetSettingValue("MSet", "ScannPort");
 			OPTScann.Connect(IP, Port);
 		}
-
-		//public bool bConnectSP()
-		//{
-		//	bool r1 = serialPort1.IsOpen;
-		//	if (r1)
-		//	{
-		//		serialPort1.Close();
-
-		//	}
-		//	serialPort1.Open();
-		//	return false;
-		//}
-
-		//public string sPressureData(string sComment)   // :004RDGROSS=   压力传感器命令
-		//{
-		//	bool r1 = serialPort1.IsOpen;
-		//	if (!r1)
-		//	{
-		//		serialPort1.Open();
-
-		//	}
-
-		//	string sData = "";
-		//	string sBuffer = sComment + Environment.NewLine;
-		//	serialPort1.Write(sBuffer);
-		//	Thread.Sleep(50);
-		//	sData = serialPort1.ReadExisting().Replace("\r\n", "");
-
-		//	return sData.TrimStart().Replace("\r\n", "");
-		//}
-
-		//private void button3_Click(object sender, EventArgs e)
-		//{
-		//	bConnectSP();
-		//}
-
-		//private void button4_Click(object sender, EventArgs e)
-		//{
-		//	serialPort1.Close();
-		//}
 
 		private void button5_Click(object sender, EventArgs e)
 		{

@@ -28,11 +28,6 @@ namespace AlphaRap.MenuForm
                 dtTable.Columns.Add("SPContent");
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void AlarmSetting_Load(object sender, EventArgs e)
         {
             #region MyRegion
@@ -43,11 +38,6 @@ namespace AlphaRap.MenuForm
             this.btnCancel.Enabled = false;
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void AlarmSetting_Shown(object sender, EventArgs e)
         {
             #region MyRegion
@@ -191,11 +181,6 @@ namespace AlphaRap.MenuForm
                     forCell.ReadOnly = true;
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnAdd_Click(object sender, EventArgs e)
         {
             #region MyRegion
@@ -219,11 +204,6 @@ namespace AlphaRap.MenuForm
             this.btnRefresh.Enabled = false;
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnUpdate_Click(object sender, EventArgs e)
         {
             #region MyRegion
@@ -239,11 +219,6 @@ namespace AlphaRap.MenuForm
             this.btnRefresh.Enabled = false;
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnRemove_Click(object sender, EventArgs e)
         {
             #region MyRegion
@@ -270,11 +245,6 @@ namespace AlphaRap.MenuForm
             }
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnSave_Click(object sender, EventArgs e)
         {
             #region MyRegion
@@ -303,16 +273,6 @@ namespace AlphaRap.MenuForm
                     MessageBox.Show("行" + strIndex + "，[Type]不能為空！");
                     return;
                 }
-                //if (forRow["Content"].ToString().Trim().Length == 0)
-                //{
-                //    MessageBox.Show("行" + strIndex + "，[Content]不能為空！");
-                //    return;
-                //}
-                //if (forRow["EContent"].ToString().Trim().Length == 0)
-                //{
-                //    MessageBox.Show("行" + strIndex + "，[EContent]不能為空！");
-                //    return;
-                //}
             }
             List<string> mlist = new List<string>();
             List<string> Emlist = new List<string>();
@@ -358,7 +318,6 @@ namespace AlphaRap.MenuForm
             _essw.Write(strEsText);  //这里是写入的内容
             _essw.Flush();
             _essw.Dispose();
-            //MessageBox.Show("生成完毕！");
 
             this.btnAdd.Enabled = true;
             this.btnUpdate.Enabled = true;
@@ -368,11 +327,6 @@ namespace AlphaRap.MenuForm
             this.btnRefresh.Enabled = true;
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnCancel_Click(object sender, EventArgs e)
         {
             #region MyRegion
@@ -382,29 +336,15 @@ namespace AlphaRap.MenuForm
             this.btnSave.Enabled = false;
             this.btnCancel.Enabled = false;
             this.btnRefresh.Enabled = true;
-            //foreach (DataGridViewRow forRow in this.dgvData.Rows)
-            //{
-            //    forRow.ReadOnly = true;
-            //}
             this.AlarmSetting_Shown(this, null);
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             #region MyRegion
             this.AlarmSetting_Shown(this, null);
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void dgvData_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
             #region MyRegion

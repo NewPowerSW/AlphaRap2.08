@@ -10,14 +10,12 @@ namespace AlphaRap.TaskProcess
 		}
 		public override void Initial()
 		{
-			//DownConveyInit_Flow1_1.FlowChart_Run();
 		}
 		public override void PauseRun()
 		{
 		}
 		public override void StartRun()
 		{
-			//DownConveyorAuto_Flow1_1.FlowChart_Run(false, true);
 		}
 		public override void StopRun()
 		{

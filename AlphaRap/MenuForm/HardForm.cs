@@ -27,7 +27,6 @@ namespace AlphaRap
 	}
 	public partial class HardForm : ModuleBaseForm
 	{
-		//public static HardForm m_hardform;
 		public int iRunPosCount = 0;
 		public Servo servo;
 		public string CalibPositionPath = string.Format(@"{0}\{1}\{2}\{3}\{4}", Application.StartupPath, "ModuleData", "HardForm", SysPara.RecipeName, "CalibPosition.xml");
@@ -139,14 +138,12 @@ namespace AlphaRap
 				case "tab_CalibPos":
 					posArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, lbl_PosR1.Text, lbl_PosR2.Text, "ReadMe", };
 
-					//Log.log.Write("calibration position coordinate row is added soon!", Color.Black);
 					dgv_CalibPos.WriteRowToDataGrid(posArr);
 
                     break;
 				case "tab_FlowPos":
 					posArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, lbl_PosR1.Text, lbl_PosR2.Text, "ReadMe", };
 
-					//Log.log.Write("calibration position coordinate row is added soon!", Color.Black);
 					dgv_MotorPos.WriteRowToDataGrid(posArr);
 					break;
 			}
@@ -179,7 +176,6 @@ namespace AlphaRap
 			}
 			catch (Exception)
 			{
-				//Log.log.Write("Update Error" + ex.Message, Color.Black);
 			}
 		}
 
@@ -188,47 +184,6 @@ namespace AlphaRap
 			servo.manualReset.Reset();
 			StopAllMotor();
 		}
-		//public static bool SaveXmlPara(DataGridView dgvParameters, string xmlPath, string keyWord = "Parameters")
-		//{
-		//	try
-		//	{
-		//		XmlDocument xmlDocument = new XmlDocument();
-		//		string empty = string.Empty;
-		//		empty = (xmlPath.Contains(".xml") ? xmlPath : (xmlPath + ".xml"));
-		//		XmlElement xmlElement = xmlDocument.CreateElement("Parameters");
-		//		int count = dgvParameters.Rows.Count;
-		//		if (count > 0)
-		//		{
-		//			int count2 = dgvParameters.Columns.Count;
-		//			for (int i = 0; i < count; i++)
-		//			{
-		//				XmlElement xmlElement2 = xmlDocument.CreateElement("序号" + (i + 1));
-		//				for (int j = 0; j < count2; j++)
-		//				{
-		//					XmlElement xmlElement3 = xmlDocument.CreateElement(dgvParameters.Columns[j].HeaderText.ToString());
-		//					string empty2 = string.Empty;
-		//					empty2 = ((dgvParameters.Rows[i].Cells[j].Value != null) ? dgvParameters.Rows[i].Cells[j].Value.ToString() : "");
-		//					xmlElement3.InnerText = empty2;
-		//					xmlElement2.AppendChild(xmlElement3);
-		//					xmlElement.AppendChild(xmlElement2);
-		//				}
-		//			}
-		//			xmlDocument.AppendChild(xmlDocument.CreateXmlDeclaration("1.0", "utf-8", ""));
-		//			xmlDocument.AppendChild(xmlElement);
-		//			xmlDocument.Save(empty);
-
-		//			return true;
-		//		}
-
-		//		return false;
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		MessageBox.Show("参数保存失败....");
-
-		//		return false;
-		//	}
-		//}
 
 		private void timer1_Tick(object sender, EventArgs e)
 		{
@@ -302,7 +257,7 @@ namespace AlphaRap
 			string axisName = btnName.Replace(flagStr, "");
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
-			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			int timeOut = 50000;
 			switch (axisName)
 			{
 				case "X":
@@ -331,7 +286,7 @@ namespace AlphaRap
 			string axisName = btnName.Replace(flagStr, "");
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
-			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			int timeOut = 50000;
 			switch (axisName)
 			{
 				case "X":
@@ -360,7 +315,7 @@ namespace AlphaRap
 			string axisName = btnName.Replace(flagStr, "");
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
-			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			int timeOut = 50000;
 			switch (axisName)
 			{
 				case "X":
@@ -389,7 +344,7 @@ namespace AlphaRap
 			string axisName = btnName.Replace(flagStr, "");
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
-			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			int timeOut = 50000;
 			switch (axisName)
 			{
 				case "X":
@@ -559,7 +514,7 @@ namespace AlphaRap
 			bool status = false;
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
-			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			int timeOut = 50000;
 			switch (axisName)
 			{
 				case "X":

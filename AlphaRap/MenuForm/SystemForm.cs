@@ -14,8 +14,6 @@ namespace AlphaRap
         /// <summary>
         /// 呈现参数页面
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btParameter_Click(object sender, EventArgs e)
         {
             labParameter.BackColor = Color.Green; 
@@ -26,8 +24,6 @@ namespace AlphaRap
         /// <summary>
         /// 呈现平台页面
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btPlat_Click(object sender, EventArgs e)
         {
 		
@@ -40,8 +36,6 @@ namespace AlphaRap
         /// <summary>
         /// 呈现系统设置页面
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btSystem_Click(object sender, EventArgs e)
         {
             labSystem.BackColor = Color.Green; 
@@ -53,7 +47,6 @@ namespace AlphaRap
         /// <summary>
         /// 页面呈现
         /// </summary>
-        /// <param name="ShowPage"></param>
         private void ShowhMainPage(dynamic ShowPage)
         {
             SystemGroup.Focus();

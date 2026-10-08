@@ -95,12 +95,6 @@ namespace AlphaRap.MES
 		/// <summary>
 		/// 返回值Y为通过，N是失败
 		/// </summary>
-		/// <param name="Product"></param>
-		/// <param name="Station"></param>
-		/// <param name="Barcode"></param>
-		/// <param name="LineNo"></param>
-		/// <param name="Version"></param>
-		/// <returns></returns>
 		public string CheckStationPass(string Product, string Station, string Barcode, string LineNo, string Version)
 		{
 			SFCDLL SFCDLL = new SFCDLL();
@@ -142,10 +136,6 @@ namespace AlphaRap.MES
 		/// <summary>
 		/// 返回值Y为通过，N是失败
 		/// </summary>
-		/// <param name="Product"></param>
-		/// <param name="Type"></param>
-		/// <param name="Parameters"></param>
-		/// <returns></returns>
 		public string GetSpecialValue(string Product, string Type, string Parameters)
 		{
 			SFCDLL SFCDLL = new SFCDLL();
@@ -195,11 +185,6 @@ namespace AlphaRap.MES
 		/// <summary>
 		/// 返回值Y为通过，N是失败
 		/// </summary>
-		/// <param name="Product"></param>
-		/// <param name="TableName"></param>
-		/// <param name="Key"></param>
-		/// <param name="Value"></param>
-		/// <returns></returns>
 		public string InsertInTable(string Product, string TableName, string Key, string Value)
 		{
 			SFCDLL SFCDLL = new SFCDLL();
@@ -352,13 +337,6 @@ namespace AlphaRap.MES
 			List<TextBox> List = new List<TextBox>();
 			void EnumControls(Control container)
 			{
-				//foreach (Control item in container.Controls)
-				//{
-				//	//c is the child control here
-				//	EnumControls(item);
-				//	if (item is TextBox)
-				//		List.Add((TextBox)item);
-				//}
 				foreach (Control item in container.Controls)
 				{
 					//c is the child control here

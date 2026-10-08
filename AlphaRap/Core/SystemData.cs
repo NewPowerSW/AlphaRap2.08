@@ -34,7 +34,6 @@ namespace AlphaRap
         public static double[] iProductHourlyReject = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         public static double[] iProductHourlyYield = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-        // public 
         public static int iCleanNumber;
         //saveItems
         public static int items = 1;
@@ -124,12 +123,7 @@ namespace AlphaRap
         public static UInt64 StopSecond = 0;
         public static DateTime StartWorkTM;
         public static DateTime EndWorkTM;
-        //public static string T1;
-        //public static string T2;
-        //public static string T3;
         public static string CircleTime;
-        //public static string ProcessTime;
-        //public static JTimer RunTM = new JTimer();
     }
 
     public struct ComponentTextInfo
@@ -240,13 +234,11 @@ namespace AlphaRap
     public struct RFIDCsvInfo
     {
         public DateTime RecordDateTime;
-        // public DateTime WriteDateTime;
         public string UID;
         public string PalletNo;
         public string ProcessFlowCount;    //工序计数,完成加1
         public string WorkPlaceNo;
         public string ProcessType;           //   例如：“st22”
-        //public string POneStatus;       //   OK/NG/RK，RK为返修后OK
         public string POneStatus;
         public string PTwoStatus;
         public string WkPlaceMark;      //增加
@@ -281,29 +273,19 @@ namespace AlphaRap
         public string POneBarcode1;
         public string POneBarcode2;
         public string POneBarcode3;
-        //public string POneBarcode4;
         public string POneTestData1;
         public string POneTestData2;
-        //public string POneTestData3;
         public string POneTestData4;
         public string POneTestData5;
-        //public string POneTestData6;
-        //public string POneTestData7;
-        //public string POneTestData8;
 
         //product Two
         public string PTwoBarcode1;
         public string PTwoBarcode2;
         public string PTwoBarcode3;
-        //public string PTwoBarcode4;
         public string PTwoTestData1;
         public string PTwoTestData2;
-        //public string PTwoTestData3;
         public string PTwoTestData4;
         public string PTwoTestData5;
-        //public string PTwoTestData6;
-        //public string PTwoTestData7;
-        //public string PTwoTestData8;
     }
 
     public struct RFIDRecord

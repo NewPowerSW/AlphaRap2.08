@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
-//using mscorlib;
 namespace AlphaRap.PLC
 {
 	public enum SoftElemType
@@ -23,8 +22,8 @@ namespace AlphaRap.PLC
 		REGI_H3U_DW = 0x28,     //D字元件的定义				
 		REGI_H3U_CW2 = 0x29,        //C双字元件的定义
 		REGI_H3U_SM = 0x2a,     //SM
-		REGI_H3U_SD = 0x2b,     //
-		REGI_H3U_R = 0x2c,      //
+		REGI_H3U_SD = 0x2b,
+		REGI_H3U_R = 0x2c,
 
 								//H5u
 		REGI_H5U_Y = 0x30,       //Y元件的定义	
@@ -38,7 +37,6 @@ namespace AlphaRap.PLC
 	/// <summary>
 	/// 具体PLC类：汇川5系列，使用网口 Tcp 通讯，接收指令
 	/// 可配置的属性包括：网口连接参数
-	/// V1.0 初始版本
 	/// 修改时间2023-11-19----------------
 	/// </summary>
 	public class INOVANCE
@@ -76,7 +74,6 @@ namespace AlphaRap.PLC
         /// </summary>
         /// <param name="nStartAddr">类型+地址，例如:D1010/param>
         /// <param name="nCount">长度</param>
-        /// <returns></returns>
         public string ReadPlc(string nStartAddr, int nCount, string type = "int")
 		{
 			lock(ReadPLC_Lock)
@@ -238,8 +235,6 @@ namespace AlphaRap.PLC
         /// </summary>
         /// <param name="star_nub">【Fist Port】</param>
         /// <param name="count">【ReadLenght】</param>
-        /// <param name="S_pValue"></param>
-        /// <returns></returns>
         public bool WritePlcString(string nStartAddr, string writeValue)
         {
             lock (PLCWriteLock)

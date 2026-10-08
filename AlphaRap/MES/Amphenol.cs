@@ -34,8 +34,6 @@ namespace AlphaRap.MES
 		{
 			get;
 			set;
-			//get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_InProductSn");
-			//set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_InProductSn", value);
 		}
 		/// <summary>
 		/// 入站DeviceCode
@@ -82,8 +80,6 @@ namespace AlphaRap.MES
 		{
 			get;
 			set;
-			//get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_OutProductSn");
-			//set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_OutProductSn", value);
 		}
 		/// <summary>
 		/// 出站DeviceCode
@@ -100,8 +96,6 @@ namespace AlphaRap.MES
 		{
 			get;
 			set;
-			//get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_OutEditionCode");
-			//set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_OutEditionCode", value);
 		}
 		#endregion
 
@@ -127,8 +121,6 @@ namespace AlphaRap.MES
 		/// </summary>
 		public string Binding_ProductSn
 		{
-			//get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BindingProductSn");
-			//set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_BindingProductSn", value);
 			get;
 			set;
 		}
@@ -154,8 +146,6 @@ namespace AlphaRap.MES
 		/// </summary>
 		public string BindingKeyPcbCode
 		{
-			//get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BindingKeyPcbCode");
-			//set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_BindingKeyPcbCode", value);
 			get;
 			set;
 		}
@@ -227,7 +217,6 @@ namespace AlphaRap.MES
 		/// </summary>
 		/// <param name="Url">Url地址</param>
 		/// <param name="jsonParas">上传的JSOn数据</param>
-		/// <returns></returns>
 		private string Post(string Url, string jsonParas,out string Post_Message)
 		{
 			lock (OBJ)
@@ -257,13 +246,11 @@ namespace AlphaRap.MES
 					MiddleLayer.DataF.AddLogError(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + ex.ToString());
 					writer = null;
 					Console.Write("连接服务器失败!");
-					//MessageBox.Show(ex.Message);
 				}
 				//将请求参数写入流
 
 				writer.Write(payload, 0, payload.Length);
 				writer.Close();//关闭请求流
-							   // String strValue = "";//strValue为http响应所返回的字符流
 				MiddleLayer.DataF.SaveMesLog("Send" + jsonParas);
 				HttpWebResponse response;
 				try
@@ -274,10 +261,8 @@ namespace AlphaRap.MES
 				catch (WebException ex)
 				{
 					response = ex.Response as HttpWebResponse;
-					//MessageBox.Show(ex.Message);
 				}
 				Stream s = response.GetResponseStream();
-				//  Stream postData = Request.InputStream;
 				StreamReader sRead = new StreamReader(s);
 				string postContent = sRead.ReadToEnd();
 				sRead.Close();
@@ -335,8 +320,8 @@ namespace AlphaRap.MES
 			str.Append("\"" + "ProductSn" + "\"" + ":" + "\"" + OutStation_ProductSn + "\"" + ",");
 			str.Append("\"" + "DeviceCode" + "\"" + ":" + "\"" + OutStation_DeviceCode + "\"" + ",");
 			str.Append("\"" + "EditionCode" + "\"" + ":" + "\"" + OutStation_EditionCode + "\"" + ",");
-			str.Append("\"" + "ErrorCode" + "\"" + ":" + "\"" /*+ OutStation_ErrorCode*/ + "\"" + ",");
-			str.Append("\"" + "ErrorSpot" + "\"" + ":" + "\"" /*+ OutStation_ErrorSpot*/ + "\"");
+			str.Append("\"" + "ErrorCode" + "\"" + ":" + "\"" + "\"" + ",");
+			str.Append("\"" + "ErrorSpot" + "\"" + ":" + "\"" + "\"");
 			str.Append("}");
 			MiddleLayer.DataF.SaveMesLog("OutStation:" + str.ToString());
 			Dictionary_TestList.Clear();

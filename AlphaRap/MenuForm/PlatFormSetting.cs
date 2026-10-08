@@ -19,14 +19,11 @@ namespace AlphaRap
         /// <summary>
         /// 判断间隔几个点清洗一次的数据的合法性
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
 
         private void PlatFormSetting_Leave(object sender, EventArgs e)
         {
             if (SysPara.items > 1)
             {                
-                // MiddleLayer.SystemF.SystemGroup.Focus();
                 MiddleLayer.MainF.SaveData();
                 SysPara.items = 1;
             }
@@ -40,7 +37,5 @@ namespace AlphaRap
 		/// <summary>
 		/// 判断自动登出时间的合法性
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
 	}
 }

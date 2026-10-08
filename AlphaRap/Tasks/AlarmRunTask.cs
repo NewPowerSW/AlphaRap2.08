@@ -34,7 +34,6 @@ namespace AlphaRap
 				return;
 
 			#region Alarm Message
-			 //MiddleLayer.HomeF.AlarmMessageLangLanguage(SysPara.LanguageShow);
 			if (NPSDK.Alarm.DoRefresh)
 			{
 				MiddleLayer.MainF.dataBControl1.StartAlarmTime();
@@ -89,7 +88,6 @@ namespace AlphaRap
 				}
 				MiddleLayer.MainF.WarnningMessage.EndUpdate();
 				MiddleLayer.MainF.UpdateAlarmFilterCount();
-				//MiddleLayer.HomeF.WriteExcelData();
 			}
 			#endregion
 

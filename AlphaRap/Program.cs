@@ -31,7 +31,6 @@ namespace AlphaRap
 				#endregion
 
 				 //Initial Project
-                // Application.Run(new ProductManagerForm());
 
                 Application.Run(MiddleLayer.MainF);
                 MiddleLayer.DisposeProject();

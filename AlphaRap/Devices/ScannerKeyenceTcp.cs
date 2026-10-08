@@ -8,8 +8,6 @@ namespace AlphaRap
     /// <summary>
     /// 具体设备类：基恩士网口扫码枪，使用网口 Tcp 通讯，接收指令、扫码并返回条码
     /// 可配置的属性包括：网口连接参数
-    /// 版本1.0 初始版本
-    /// 修改时间2023-3-27----------------WZF
     /// </summary>
     public class ScannerKeyenceTcp : AbstractDevice
     {
@@ -54,7 +52,6 @@ namespace AlphaRap
         /// <summary>
         /// 带参实例构造函数：提供扫码枪的设备名，加载并设置参数，打开网口
         /// </summary>
-        /// <param name="deviceName"></param>
         public ScannerKeyenceTcp(string deviceName) : base(deviceName)
         {
         }

@@ -19,7 +19,6 @@ namespace NP_PressureSensor
         /// <param name="paity">奇偶位</param>
         /// <param name="DataBits">数据位</param>
         /// <param name="stopBits">停止位</param>
-        /// <returns></returns>
         public bool OpenPort(string PortName, int BaudRate, Parity paity, int DataBits, StopBits stopBits)//打开串口
         {
             sp = new SerialPort(PortName, BaudRate, paity, DataBits, stopBits);
@@ -57,10 +56,6 @@ namespace NP_PressureSensor
         private static string ByteToHex(byte[] Bytes)
         {
             string str = string.Empty;
-            //foreach (byte Byte in Bytes)
-            //{
-            //    str += String.Format("{0:X2}", Byte) + " ";
-            //}
             for (int i = 0; i < Bytes.Length; i++)
             {
                 str += String.Format("{0:X2}", Bytes[i]) + " ";
@@ -70,7 +65,6 @@ namespace NP_PressureSensor
         /// <summary>
         /// 数据接收
         /// </summary>
-        /// <returns></returns>
         public string DataReceiveFunction()//数据接收
         {
             Byte[] data = new Byte[1024];
@@ -91,11 +85,6 @@ namespace NP_PressureSensor
                             str += String.Format("{0:X2}", data[i]) + " ";
                         }
 
-                        //string SPlit_String = str.Replace(" ", "").Substring(6, 8);
-                        //double int_10 = Convert.ToInt32(SPilt_String, 16);
-                        //string sb = (int_10 / 100).ToString();
-                        //return sb;
-                        //return SPlit_String;
                         return str;
                     }
                 }
@@ -106,7 +95,6 @@ namespace NP_PressureSensor
             }
             catch (Exception)
             {                
-                //MessageBox.Show(ex.Message);
             }
             return null;
         }
@@ -115,7 +103,6 @@ namespace NP_PressureSensor
         {
             double speed = 0;
             string[] separator = new string[] { " " };
-            //separator[0] = " ";
             if (!string.IsNullOrEmpty(dataSpeed))
             {
                 string[] command = dataSpeed.Split(separator, StringSplitOptions.RemoveEmptyEntries);
@@ -163,13 +150,11 @@ namespace NP_PressureSensor
                 {
                     HexStringToBytes(data);
                     sp.Write(HexStringToBytes(data), 0, HexStringToBytes(data).Length);
-                    //sp.WriteLine(data + "\r");
                     return true;
                 }
             }
             catch (Exception)
             {
-                //MessageBox.Show(ex.Message);
             }
             return false;
         }

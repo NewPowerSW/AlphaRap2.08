@@ -320,7 +320,6 @@ namespace AlphaRap
         /// <summary>
         /// 从数据源读取信号灯数据
         /// </summary>
-        /// <returns></returns>
         private bool ReadAllSignalTowerData()
         {
             try
@@ -356,8 +355,6 @@ namespace AlphaRap
         /// <summary>
         /// 将数据写入到数据源中
         /// </summary>
-        /// <param name="Type"></param>
-        /// <returns></returns>
         private bool WriteSignalTowerData(SignalTowerStatusType Type)
         {
             int ListIndex = TowerData.FindIndex((SingalTowerData) => SingalTowerData.SignalTowerStatus == Type);
@@ -380,8 +377,6 @@ namespace AlphaRap
         /// <summary>
         /// 模式选择
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         /// <summary>左侧竖排的 6 个机台状态按钮（它们始终是一组单选）。</summary>
         private RadioButton[] StateButtons
         {
@@ -434,9 +429,5 @@ namespace AlphaRap
                 }
             }
         }
-
-		//private void rbRedOff_R_CheckedChanged(object sender, EventArgs e)
-		//{
-		//}
 	}
 }

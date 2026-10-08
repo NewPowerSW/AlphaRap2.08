@@ -172,7 +172,6 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_5_FlowChartRun()
 		{
-			//MiddleLayer.VPF.Getdgv_H1_VisionDataList();
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 		private bool IsNumberInRange(double number, double minValue, double maxValue)

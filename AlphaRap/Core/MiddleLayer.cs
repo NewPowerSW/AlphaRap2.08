@@ -143,7 +143,6 @@ namespace AlphaRap
 
 			SysPara.LanguageDataDirectory = iniFile.ReadString("PathSetup", "LanguageDirectory", ".\\LanguageData");
 			SysPara.LanguageName = iniFile.ReadString("MachineSetup", "LanguageName", "");
-			//SysPara.bPlat = iniFile.ReadString("MachineSetup", "bPlat", "");
 
 			ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
 			SysPara.FilePath = SysPara.RecipeDataDirectory + "\\" + SysPara.RecipeName + ".xml";
@@ -189,35 +188,9 @@ namespace AlphaRap
 
 			#region scoli
 			//===============================================================
-			//if (SysPara.UseFingerprint)
-			//    FingerprintCaptureF = new FingerprintCaptureForm();
-			////===============================================================
-			//InitialLanguageData();
-			//if (SysPara.LanguageName == "English")
-			//    SysPara.LanguageShow = LanguageType.English;
-			//else
-			//    SysPara.LanguageShow = LanguageType.Chinese;
-
-			//SwitchLanguage(SysPara.LanguageShow);
-			//SwitchPermission(SysPara.UserPermission);
-
-			////任务信息
-			////==============================任务实例化=================================
-			//SpanLifeF = new LifeSpanForm();
-			//EpsonF = new Epson.Form1();
-			//RobotConnect();
-
-			//Atlas_MTF6000.Atlas_Connect("172.168.100.99", 851);
-			//if (!Atlas_MTF6000.bConnectStatus)
-			//{
-			//    NPSDK.Alarm.Show("5022");
-			//}
-			//MiddleLayer.HomeF.RFIDIntial();///RFD
 
 			////===============================启动一直运行程序===============================
 
-			//NPSDK.SetSimulation(SysPara.Simulation);
-			//  NPSDK.InitialControls();
 			#endregion
 
 			LoadingF.SetCaption("Load InitialLanguageData");
@@ -289,19 +262,6 @@ namespace AlphaRap
 			ServoOff();
 		}
 
-		/// <summary>
-		/// 关闭项目时执行的方法
-		/// </summary>
-		//public static void DisposeProject()
-		//{
-		//    MainF.mh.UnHook();
-		//    MainF.k_hook.Stop();
-		//    NPSDK.DisposeControls();
-
-		//    //CogFrameGrabbers CCD_Graber = new Cognex.VisionPro.CogFrameGrabbers();
-		//    //for (int i = 0; i < CCD_Graber.Count; i++)
-		//    //    CCD_Graber[i].Disconnect(false);
-		//}
 		#region LanguageData
 		#region Convey
 		public static void StartRunCV()
@@ -408,14 +368,10 @@ namespace AlphaRap
 				#region compare all component text data and write to list
 				//AllForm
 				foreach (Control Form in lstForm)
-				//if (Form.Name != "ManualForm")
 				{
 					InitialLanguageCallback(Form, Form.Name, ref SysPara.ComponentLangurageList[i], ref XmlDataList);
 				}
 				//MainForm
-				//TableLayoutPanel[] tlpArray = new TableLayoutPanel[] { MainF.tlMain_P2, MainF.tlMachineSetup_P1, MainF.tlProductionSetting_P1, MainF.tlMaintenance_P1 };
-				//foreach (TableLayoutPanel tlp in tlpArray)
-				//InitialLanguageCallback(tlp, MainF.Name, ref SysPara.ComponentLangurageList[i], ref XmlDataList);
 
 				InitialLanguageCallbackMForm(MainF, MainF.Name, ref SysPara.TStripLangurageList[i], ref XmlDataList2); //MainForm ToolStrip
 				#endregion
@@ -588,7 +544,6 @@ namespace AlphaRap
 					AddComLan.ComponentName = cyCtrlLangIniDataList[Index].ComponentName;
 					AddComLan.CyOff_BtnText = cyCtrlLangIniDataList[Index].CyOff_BtnText;
 					AddComLan.CyOn_BtnText = cyCtrlLangIniDataList[Index].CyOn_BtnText;
-					//AddComLan.Component = cyCtrl.Component;
 					CyCtrlLangList.Add(AddComLan);
 				}
 			}
@@ -645,7 +600,6 @@ namespace AlphaRap
 		public static event EventHandler LanguageChanged;
 
 		#region 运行时控件文案：按名字从 LanguageData\*.xml 取
-		//
 		// 干什么用：`InitialLanguageData()` 只在**启动早期**扫一次控件树（白名单精确类型），
 		// 启动之后才创建的控件（例如 VPForm 的动态相机页）进不了语言表，切语言也就不会变。
 		// 这些控件不去"记字符串"，而是**按名字到语言包的 XML 里取**：
@@ -1018,8 +972,6 @@ namespace AlphaRap
 			MiddleLayer.DataF.UserLoginLog[0] = SysPara.UserName;
 			MiddleLayer.DataF.UserLoginLog[1] = SysPara.UserPermission.ToString();
 			MiddleLayer.DataF.SaveUserLoginLog(MiddleLayer.DataF.UserLoginLog);
-
-			//MainF.AddUserResult(SysPara.UserName, SysPara.UserPermission.ToString(), SysPara.UserLoginTime);
 		}
 
 #endregion
@@ -1032,9 +984,6 @@ namespace AlphaRap
 		/// <summary>
 		/// 动态创建对象
 		/// </summary>
-		/// <param name="FormAddress"></param>
-		/// <param name="FormName"></param>
-		/// <returns></returns>
 		public static dynamic CreateForm(dynamic FormAddress, string FormName)
 		{
 			dynamic dmic = (FormAddress == null) ? null : FormAddress;
@@ -1068,11 +1017,6 @@ namespace AlphaRap
 				warning.ShowDialog();
 
 				return;
-				//MessageBox.Show("Please Reset Alarm Firstly!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Stop, MessageBoxDefaultButton.Button1);
-				//Warning warning = new Warning();
-				//warning.SetShowMessage("Please Reset Alarm Firstly!", "OK");
-				//warning.ShowDialog();
-				//return;
 			}
 			MiddleLayer.MainF.dataBControl1.StartWaitingTime();
 			switch (SysPara.SystemMode)
@@ -1255,8 +1199,6 @@ namespace AlphaRap
 		/// <summary>
 		/// 加载物料数据
 		/// </summary>
-		/// <param name="RecipePath"></param>
-		/// <returns></returns>
 		public static bool OpenRecipe(string RecipePath)
 		{
 			bool bOpenSuccess = false;
@@ -1297,7 +1239,6 @@ namespace AlphaRap
 				string path = VisionproInterface.VList[i].GetVppPath(SysPara.RecipeName);
 				FileInfo f = new FileInfo(path);
 				VisionproInterface.VList[i].LoadTB(f.FullName);
-				//LoadProcessRate = 25 + (int)(((double)65 / VisionproInterface.VList.Count) * (i + 1));
 			}
 
 			// 上面已经按新配方把所有 vpp 重新载入（动态相机/VPP 与相机级标定站也在 VList 里，所以一起换）。
@@ -1312,7 +1253,6 @@ namespace AlphaRap
 			{
 				if (SysPara.SystemRun)
 					LogManagement.Instance.SaveLog(LogManagement.LogType.MachineStatus, "Alarm stop");
-				//     StopRun();
 				NPSDK.Alarm.DoStop = false;
 			}
 
@@ -1325,7 +1265,6 @@ namespace AlphaRap
 				catch (Exception)
 				{
 					NPSDK.Alarm.Show("2010", "An unpredictable error occurred on AlwaysRun() ! ModuleName=\"" + Module.Name + "\"");
-					//        StopRun();
 				}
 			}
 		}
@@ -1355,8 +1294,6 @@ namespace AlphaRap
 
 					if (!IOState.SVON && SysPara.UpConveyorInitialOk && control.Name != "MTR_Z")
 					{
-						//SDKKernal.ShowAlarm("2033", $"Motor ${control.Name} apagado");
-						//SysPara.UpConveyorInitialOk = false;
 					}
 				}
 			}

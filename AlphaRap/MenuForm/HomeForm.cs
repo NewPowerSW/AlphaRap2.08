@@ -218,8 +218,6 @@ namespace AlphaRap
 			Position.RowCount = RowIndex;
 			Position.ColumnCount = Columns;
 
-			// Position.Columns[0].Width = (Position.Width- Position.RowHeadersWidth)/ 2;
-
 			for (int i = 0; i < Columns; i++)
 			{
 				Position.Columns[i].Width = (Position.Width) / Columns;

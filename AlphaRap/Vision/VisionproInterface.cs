@@ -263,17 +263,6 @@ namespace AlphaRap
                     MessageBox.Show(e.ToString());
                 }
             }
-
-            //Cognex.VisionPro.ImageProcessing.CogIPOneImageTool ImgTool = new Cognex.VisionPro.ImageProcessing.CogIPOneImageTool();
-            //Cognex.VisionPro.ImageProcessing.CogIPOneImageFlipRotate cflip = new Cognex.VisionPro.ImageProcessing.CogIPOneImageFlipRotate();
-
-            //ICogIPOneImageOperatorParams ip = (ICogIPOneImageOperatorParams)cflip;
-            //ImgTool.Operators.Add(ip);
-            //cflip.OperationInPixelSpace = CogIPOneImageFlipRotateOperationConstants.FlipAndRotate90Deg;
-            //ImgTool.InputImage = RecordDisplay.Image;
-            //ImgTool.Run();
-            //Cognex.VisionPro.CogImage8Grey cimg = (CogImage8Grey)ImgTool.OutputImage;
-            //RecordDisplay.Image = ImgTool.OutputImage;
         }
 
         public virtual void CreatCentrelLine(CogRecordDisplay Crd)
@@ -295,7 +284,6 @@ namespace AlphaRap
         /// </summary>
         /// <param name="b">位图流</param>
         /// <param name="angle">旋转角度[0,360](前台给的)</param>
-        /// <returns></returns>
         public static Bitmap Rotate(Bitmap b, int angle, CogRecordDisplay Crd)
         {
             angle = angle % 360;
@@ -314,8 +302,6 @@ namespace AlphaRap
             g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Bilinear;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
 
-			//Bitmap dsImage =(Bitmap)Crd.CreateContentBitmap(Cognex.VisionPro.Display.CogDisplayContentBitmapConstants.Image,null,0);
-
 			//计算偏移量
 			System.Drawing.Point Offset = new System.Drawing.Point((W - w) / 2, (H - h) / 2);
             //构造图像显示区域：让图像的中心与窗口的中心点一致
@@ -330,7 +316,6 @@ namespace AlphaRap
             g.ResetTransform();
             g.Save();
             g.Dispose();
-            //dsImage.Save("yuancd.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
             return dsImage;
         }
         #endregion 图片旋转函数

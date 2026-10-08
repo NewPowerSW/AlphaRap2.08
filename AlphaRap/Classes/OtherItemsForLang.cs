@@ -15,8 +15,6 @@ namespace AlphaRap.Classes
         {
 			TStripItemTextInfo tStrItemComp = new TStripItemTextInfo();
 
-			//ToolStripStatusLabel tStripStatusLabel = null;
-			//foreach (ToolStripStatusLabel tStrStatusLabel in formName.);
 			foreach (ToolStripMenuItem tStrMenuItem in formName.MainMenuStrip.Items)
             {
                 tStrItemComp.FormName = formName.Name;
@@ -85,21 +83,5 @@ namespace AlphaRap.Classes
                     GetCylinderCtlItems(cntrl, formName, ref cyCtrlComponentList);
             }
         }
-        //public struct DialMessage
-        //{
-        //    LanguageType LangTyep;
-        //    string DiaMessage;
-        //};
-        //List<DialMessage> DialMessages = new List<DialMessage>();
-        //public static void SelectMessageForLan(LanguageType lantype, ref List<DialMessage> DialMessages)
-        //{
-        //    string[] LanguageArray = Enum.GetNames(typeof(LanguageType));
-        //    //string[][] messageArr = new string[LanguageArray.Length] [];
-        //    List<DialMessage>[] DialMsgLan = new List<DialMessage>[LanguageArray.Length];
-        //    DialMessage
-        //    for (int i = 0; i < LanguageArray.Length; i++)
-        //    {
-        //    }
-        //}
     }
 }

@@ -9,7 +9,6 @@ namespace AlaphaRap
     /// <summary>
     /// 具体设备类：元益测力仪 (Y1080B)
     /// 可配置的属性包括：串口连接参数
-    /// V1.0 初始版本
     /// 修改时间2023-4-06----------------蔡泳
     /// </summary>
     public class ModBus_RTU : AbstractDevice
@@ -120,7 +119,6 @@ namespace AlaphaRap
         /// <param name="parity">校验位</param>
         /// <param name="dataBits">数据位</param>
         /// <param name="stopBits">停止位</param>
-        /// <returns></returns>
         public void Connect(string portName, int baudRate, int parity, int dataBits, int stopBits)
         {
             Parity par = Parity.None;
@@ -195,7 +193,6 @@ namespace AlaphaRap
         /// <param name="start">起始寄存器</param>
         /// <param name="count">寄存器数量</param>
         /// <param name="threadSleep">报文发送和接收间隔</param>
-        /// <returns></returns>
         public byte[] ReadOutputRegisters(byte slaveld, ushort start, ushort count, int threadSleep)
         {
             this.Slaveld= slaveld;
@@ -261,7 +258,6 @@ namespace AlaphaRap
         /// <summary>
         /// 读取结果(字符串格式)
         /// </summary>
-        /// <returns></returns>
         public string GetResultData()
         {
             if (ReadOutputRegisters(this.Slaveld, this.StartRegister, this.Count, this.ThreadSleep) != null)

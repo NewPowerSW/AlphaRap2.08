@@ -163,8 +163,6 @@ namespace AlphaRap
         /// <summary>
         /// 发送指令的方法
         /// </summary>
-        /// <param name="Command"></param>
-        /// <returns></returns>
         public bool Write(string Command)
         {
             try

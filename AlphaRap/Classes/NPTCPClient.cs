@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
 
-/// <summary>
-/// V1.0  song
-/// V2.0  add send and recieve byte array function 202011151100
-/// </summary>
 
 namespace NPClient
 {
@@ -108,8 +104,6 @@ namespace NPClient
         /// <summary>
         /// Sent Byte array 发送byte类型数组数据
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public bool Sent(byte[] data)
         {
             try
@@ -125,8 +119,6 @@ namespace NPClient
         /// <summary>
         /// Sent String 发送字符串型数据
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public bool Sent(string message)
         {
             try
@@ -143,8 +135,6 @@ namespace NPClient
         /// <summary>
         /// Wait Receive byte data，Delay TM No Longer Than 60000,program will force to 500 接受byte数组数据类型，等待固定时间，超时返回空
         /// </summary>
-        /// <param name="intTMOut"></param>
-        /// <returns></returns>
         public Byte[] ReceiveByte(int intTMOut)
         {
             if (intTMOut <= 0 || intTMOut >= 60000)
@@ -181,8 +171,6 @@ namespace NPClient
         /// <summary>
         /// Receive byte array 直接获取端口byte数组数据没有则返回空
         /// </summary>
-        /// <param name="intTMOut"></param>
-        /// <returns></returns>
         public Byte[] ReceiveByte()
         {
             stream.ReadTimeout = 1;
@@ -212,8 +200,6 @@ namespace NPClient
         /// <summary>
         ///Wait Receive String  ,Delay TM No Longer Than 60000,program will force to 500 接受字符串类型数据，等待固定时间，超时反馈空
         /// </summary>
-        /// <param name="intTMOut"></param>
-        /// <returns></returns>
         public string Receive(int intTMOut)
         {
             if (intTMOut <= 0 || intTMOut >= 60000)
@@ -246,8 +232,6 @@ namespace NPClient
         /// <summary>
         /// Receive directly 直接获取端口字符串数据没有则返回空
         /// </summary>
-        /// <param name="intTMOut"></param>
-        /// <returns></returns>
         public string Receive()
         {
             stream.ReadTimeout = 1;

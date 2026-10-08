@@ -37,7 +37,6 @@ namespace AlphaRap.Classes
             }
             catch (Exception)
             {
-                //Log.log.Write(ex.ToString(), Color.Red);
                 return false;
             }
         }
@@ -81,7 +80,6 @@ namespace AlphaRap.Classes
             }
             catch (Exception)
             {
-                //Log.log.Write(ex.ToString(),Color.Red);
                 return 0.0 ;
             }
         }
@@ -102,14 +100,12 @@ namespace AlphaRap.Classes
             }
             catch (Exception)
             {
-                //Log.log.Write(ex.ToString(),Color.Red);
                 return 0.0;
             }
         }
         /// <summary>
         /// 设置风速
         /// </summary>
-        /// <param name="speed"></param>
         public bool SetFFUSpeed(Int32 speed)
         {
             if (!FFUCOM.ConnectStates())
@@ -134,7 +130,6 @@ namespace AlphaRap.Classes
         /// 十六进制字符串转十进制
         /// </summary>
         /// <param name="str">十六进制字符</param>
-        /// <returns></returns>
        private static int To16Convert10(string str)
         {
             int res = 0;

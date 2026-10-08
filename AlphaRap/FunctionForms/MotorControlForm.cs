@@ -167,63 +167,25 @@ namespace Alpha
         }
         private void ChangeButtonYHMotorType(int iYHMotor)
         {
-            //Image img = Alpha.Properties.Resources.left;
             switch (YHMotorType[iYHMotor, 0])
             {
                 case MoveType.LEFT:
-                    //img = Alpha.Properties.Resources.left;
                     break;
                 case MoveType.RIGHT:
-                    //img = Alpha.Properties.Resources.right;
                     break;
                 case MoveType.FRONT:
-                    //img = Alpha.Properties.Resources.up;
                     break;
                 case MoveType.BACK:
-                    //img = Alpha.Properties.Resources.down;
                     break;
                 case MoveType.TLEFT:
-                    //img = Alpha.Properties.Resources.rotate_left;
                     break;
                 case MoveType.TRIGHT:
-                    //img = Alpha.Properties.Resources.rotate_right;
                     break;
                 case MoveType.UP:
-                    //img = Alpha.Properties.Resources.Up1;
                     break;
                 case MoveType.DOWN:
-                    //img = Alpha.Properties.Resources.Down1;
                     break;
             }
-            //btn_JOGN.BackgroundImage = img;
-            //switch (YHMotorType[iYHMotor, 1])
-            //{
-            //    case MoveType.LEFT:
-            //        img = Alpha.Properties.Resources.left;
-            //        break;
-            //    case MoveType.RIGHT:
-            //        img = Alpha.Properties.Resources.right;
-            //        break;
-            //    case MoveType.FRONT:
-            //        img = Alpha.Properties.Resources.up;
-            //        break;
-            //    case MoveType.BACK:
-            //        img = Alpha.Properties.Resources.down;
-            //        break;
-            //    case MoveType.TLEFT:
-            //        img = Alpha.Properties.Resources.rotate_left;
-            //        break;
-            //    case MoveType.TRIGHT:
-            //        img = Alpha.Properties.Resources.rotate_right;
-            //        break;
-            //    case MoveType.UP:
-            //        img = Alpha.Properties.Resources.Up1;
-            //        break;
-            //    case MoveType.DOWN:
-            //        img = Alpha.Properties.Resources.Down1;
-            //        break;
-            //}
-            //btn_JOGP.BackgroundImage = img;
 
             if (btn_JOGN.BackgroundImage != null)
                 btn_JOGN.Enabled = true;
@@ -549,9 +511,6 @@ namespace Alpha
         }
         private void button_ResetAlarm_Click(object sender, EventArgs e)
         {
-            //MiddleLayer.SliderF.Mt_SliderLeft.AlarmReset();
-            //MiddleLayer.SliderF.Mt_SliderRight.AlarmReset();
-
             NPMotor[iChoseYHMotorIndex].AlarmReset();
             NPMotor[iChoseYHMotorIndex].AlarmReset();
             NPMotor[iChoseYHMotorIndex].ServoOn();

@@ -24,7 +24,6 @@ namespace AlphaRap
     /// </summary>
     public partial class UserLoginForm : Form
     {
-        //  private AxZKFPEngXControl.AxZKFPEngX axZKFPEngX1;
         public bool str1 = false;
 
         public PermissionType UserPermission = PermissionType.None;

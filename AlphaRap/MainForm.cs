@@ -660,7 +660,6 @@ int nheightEllipse
                 return;
 
             MENU_SelectPage = PageType;
-            //WZF 修改
             Panel ShowPanl = new Panel();
             ShowPanl = panel2;
             tableLayoutPanel4.Visible = false;
@@ -1332,7 +1331,6 @@ int nheightEllipse
         /// <summary>
         /// 显示当前点击窗体
         /// </summary>
-        /// <param name="ShowPage"></param>
         public void ShowhMainPage(dynamic ShowPage, Panel ShowPanl)
         {
             ShowPanl.Focus();
@@ -1369,7 +1367,6 @@ int nheightEllipse
             MENU_PageType MENU_Page_Type = (MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName);
             SwitchMainPage(MENU_Page_Type);
         }
-        //UserLoginForm UserLoginF = new UserLoginForm();
         //用户登录按钮
         private void UserLogin_Click(object sender, EventArgs e)
         {
@@ -1386,7 +1383,6 @@ int nheightEllipse
         /// <summary>
         /// 选择用户权限
         /// </summary>
-        /// <param name="Permission"></param>
         public void SwitchPermission(PermissionType Permission)
         {
             string strSQL = "select * from PermissionSetup where Permission ='" + Permission.ToString() + "'";
@@ -1408,7 +1404,6 @@ int nheightEllipse
                     MENU_Data.Enabled = Convert.ToBoolean(readData.Rows[0]["Data"]);
                     MENU_Vision.Enabled = Convert.ToBoolean(readData.Rows[0]["Vision"]);
                     MENU_Exit.Enabled = Convert.ToBoolean(readData.Rows[0]["Exit"]);
-                    //MENU_Robot.Enabled = Convert.ToBoolean(readData.Rows[0]["Power"]);
                 }
             }
         }
@@ -1561,12 +1556,10 @@ int nheightEllipse
         private void timer1_Tick(object sender, EventArgs e)
         {
             #region Machine Status 
-            //F2024/03/10修改
             UpdateMachineStatus();
             #endregion
 
             #region ProductData
-            //AddProductData();
             #endregion
 
             #region Language
@@ -1698,58 +1691,6 @@ int nheightEllipse
 
         private readonly object ProductObjLock = new object();
 
-        //private void AddProductData()
-        //{
-        //	lock (ProductObjLock)
-        //	{
-        //		DateTime datanow = DateTime.Now;
-
-        //		txtCyCT.Text = SysPara.CircleTime + "/s";
-
-        //		if ((SysPara.iProductOK + SysPara.iProductNG).ToString() != MiddleLayer.MainF.txtPTotal.Text)
-        //		{
-        //			MiddleLayer.SpanLifeF.TimeAdd();
-        //			dataBControl1.AddProductQuantity(1);
-        //			txtPTotal.Text = (SysPara.iProductOK + SysPara.iProductNG).ToString();
-
-        //			SysPara.iProductHourlyInput[datanow.Hour] += 1;
-        //		}、
-
-        //		if (txtPOK.Text != SysPara.iProductOK.ToString())
-        //		{
-        //			hoursProductShow1.kPointAdd(DateTime.Now, (int)(SysPara.iProductOK - Convert.ToInt32(txtPOK.Text)), true);
-        //			hoursProductShow1.AllTimeDataShow(DateTime.Now);
-
-        //			hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
-        //			if (AllOutputShift.ToString() == txtPOK.Text)
-        //			{
-        //				hoursProductShow1.kPointAdd(DateTime.Now, (int)(SysPara.iProductOK - Convert.ToInt32(txtPOK.Text)), true);
-        //				hoursProductShow1.AllTimeDataShow(DateTime.Now);
-        //			}
-        //			SysPara.iProductHourlyOutput[datanow.Hour] += SysPara.iProductOK - Convert.ToInt32(txtPOK.Text);
-
-        //			txtPOK.Text = SysPara.iProductOK.ToString();
-        //		}
-
-        //		if (txtPNG.Text != SysPara.iProductNG.ToString())
-        //		{
-        //			hoursProductShow1.kPointAdd(DateTime.Now, (int)(SysPara.iProductNG - Convert.ToInt32(txtPNG.Text)), false);
-        //			hoursProductShow1.AllTimeDataShow(DateTime.Now);
-        //			dataBControl1.AddProductQuantity(Ngnumber: 1);
-        //			hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
-        //			if (AllRejectShift.ToString() == txtPNG.Text)
-        //			{
-        //				hoursProductShow1.kPointAdd(DateTime.Now, (int)(SysPara.iProductNG - Convert.ToInt32(txtPNG.Text)), false);
-        //				hoursProductShow1.AllTimeDataShow(DateTime.Now);
-        //			}
-
-        //			SysPara.iProductHourlyReject[datanow.Hour] += SysPara.iProductNG - Convert.ToInt32(txtPNG.Text);
-        //			txtPNG.Text = SysPara.iProductNG.ToString();
-        //		}
-
-        //		GetProductData();
-        //	}
-        //}
         public void iProductOKAdd()
         {
             lock (ProductObjLock)
@@ -1766,21 +1707,7 @@ int nheightEllipse
         }
 
         #region GetProductData
-        //private void GetProductData()
-        //{
-        //	DateTime datanow = DateTime.Now;
 
-        //	hoursProductShow1.GetHourShift(DateTime.Now, ref HourInputShift, ref HourOutputShift, ref HourRejectShift, ref HourYeild);
-        //	hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
-
-        //	txtPTotal.Text = AllInputShift.ToString();
-        //	txtPOK.Text = AllOutputShift.ToString();
-        //	txtPNG.Text = AllRejectShift.ToString();
-        //	txtPRatio.Text = AllYeild.ToString("F2"); ;
-        //	SysPara.iProductOK = AllOutputShift;
-        //	SysPara.iProductNG = AllRejectShift;
-
-        //}
         private void GetProductDataINI()
         {
             DateTime datanow = DateTime.Now;
@@ -1788,10 +1715,6 @@ int nheightEllipse
             hoursProductShow1.GetHourShift(DateTime.Now, ref HourInputShift, ref HourOutputShift, ref HourRejectShift, ref HourYeild);
             hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
 
-            //txtPTotal.Text = AllInputShift.ToString();
-            //txtPOK.Text = AllOutputShift.ToString();
-            //txtPNG.Text = AllRejectShift.ToString();
-            //txtPRatio.Text = AllYeild.ToString("F2"); ;
             SysPara.iProductOK = AllOutputShift;
             SysPara.iProductNG = AllRejectShift;
         }
@@ -1880,8 +1803,6 @@ int nheightEllipse
         /// <summary>
         /// 初始化按钮
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void MENU_Reset_Click(object sender, EventArgs e)
         {
             MiddleLayer.Initial();
@@ -1903,7 +1824,6 @@ int nheightEllipse
             warning.fnSetMessageAndButtons(MiddleLayer.LangMsg("MainForm", "msg_SaveConfirm", "确认要保存吗？", "Are you sure to save it？", "¿Seguro que quieres guardar?"), true, false, true);
             warning.ShowDialog();
             dr = warning.dResult;
-            //dr = MessageBox.Show((SysPara.LanguageShow == LanguageType.Chinese) ? "确认要保存吗？" : "Are you sure to save it？", (SysPara.LanguageShow == LanguageType.Chinese) ? "提示" : "Notes", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
             if (dr == DialogResult.Yes)
             {
                 plMainShow.Focus();
@@ -1949,9 +1869,6 @@ int nheightEllipse
         /// <summary>
         /// 把用户登录数据保存到文件
         /// </summary>
-        /// <param name="UserName"></param>
-        /// <param name="UserPermission"></param>
-        /// <param name="LoginTime"></param>
         public void AddUserResult(string UserName, string UserPermission, string LoginTime)
         {
             ListViewItem lvi = new ListViewItem(LoginTime);
@@ -1968,7 +1885,6 @@ int nheightEllipse
 
         //鼠标监听事件
         #region MouseMonitor
-        // bool bMonitor = false;
 
         /// <summary>
         /// 重置“无操作自动登出”定时器。
@@ -2033,22 +1949,10 @@ int nheightEllipse
             SwitchMainPage(MENU_PageType.Home);
             RefreshMenuBackcolor();
             LoginOutTime.Enabled = false;
-
-            //if (SysPara.UserPermission != PermissionType.Operator)
-            //{
-            //	SysPara.UserName = MiddleLayer.AddF.ReadAllUserData();
-            //	SysPara.UserPermission = PermissionType.Operator;
-            //	SwitchPermission(SysPara.UserPermission);
-            //	SwitchMainPage(MENU_PageType.Home);
-            //	RefreshMenuBackcolor();
-            //	LoginOutTime.Enabled = false;
-            //}
         }
         /// <summary>
         /// 切换中文状态
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void NumC2_Click(object sender, EventArgs e)
         {
             SwitchLanguageTo(LanguageType.Chinese);
@@ -2056,8 +1960,6 @@ int nheightEllipse
         /// <summary>
         /// 切换英文状态
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void NumC3_Click(object sender, EventArgs e)
         {
             SwitchLanguageTo(LanguageType.English);
@@ -2117,10 +2019,6 @@ int nheightEllipse
 
             try
             {
-                //Application.Exit();
-                //System.Environment.Exit(System.Environment.ExitCode);
-                //this.Dispose();
-                //this.Close();
                 SwitchMainPage(MENU_PageType.Home);
                 MiddleLayer.FlowCtrl.bStopWork = true;
 

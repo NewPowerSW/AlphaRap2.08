@@ -36,8 +36,6 @@ namespace AlphaRap
         /// <summary>
         /// 页面离开时执行的事件
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void MESForm_Leave(object sender, EventArgs e)
         {
             if (SysPara.items != 1)

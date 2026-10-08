@@ -7,8 +7,6 @@ namespace AlphaRap
     /// <summary>
     /// 具体设备类：基恩士网口3D，使用网口 Tcp 通讯，接收指令、扫码并返回高度
     /// 可配置的属性包括：网口连接参数
-    /// V1.0 初始版本
-    /// 修改时间2023-4-03----------------WZF
     /// </summary>
     public class Keyence3DTcp : AbstractDevice
     {
@@ -47,7 +45,6 @@ namespace AlphaRap
         /// <summary>
         /// 带参实例构造函数：提供3D的设备名，加载并设置参数，打开网口
         /// </summary>
-        /// <param name="deviceName"></param>
         public Keyence3DTcp(string deviceName) : base(deviceName)
         {
         }
@@ -157,7 +154,6 @@ namespace AlphaRap
         /// 主要功能：3D运行成功返回扫到的高度失败则返回Error
         /// </summary>
         /// <param name="Position">位置</param>
-        /// <returns></returns>
         public string Triger3D(int Position)
         {
             string Heightstring = "";
@@ -240,7 +236,6 @@ namespace AlphaRap
         /// 主要功能：切换位置，在运行Triger3D先要切换到相应的位置
         /// </summary>
         /// <param name="Position">第几个位置</param>
-        /// <returns></returns>
         public string Change3D(int Position)
         {
             string Heightstring = "";
