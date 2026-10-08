@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AlphaRap.MenuForm
@@ -20,8 +13,6 @@ namespace AlphaRap.MenuForm
         public string password_IN=string.Empty;
         public string password2_OUT = string.Empty;
 
-     
-     
 		private void LockForm1_Load(object sender, EventArgs e)
 		{
 			groupBox2.Visible = false;
@@ -38,9 +29,6 @@ namespace AlphaRap.MenuForm
 				groupBox_Login.Visible = false;
 				textBox1.Clear();
 			}
-			
-		
-		
 		}
 
 		private void button3_Click(object sender, EventArgs e)
@@ -49,12 +37,10 @@ namespace AlphaRap.MenuForm
 			groupBox_logout.Visible = true;
 			groupBox_Login.Visible = false;
 			label6.Visible = false;
-			
 		}
 
 		private void button5_Click(object sender, EventArgs e)
 		{
-			
 			if(password_IN == textBox2.Text)
 			{
 				Close();

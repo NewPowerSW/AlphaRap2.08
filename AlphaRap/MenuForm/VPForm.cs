@@ -4,13 +4,11 @@ using AlphaRapLibrary;
 using System.Drawing;
 using System.Data;
 using System.Collections.Generic;
-using Cognex.VisionPro.ToolBlock;
 
 namespace AlphaRap
 {
     public partial class VPForm : ModuleBaseForm
 	{
-		
 		public VPForm()
         {
             InitializeComponent();
@@ -31,7 +29,6 @@ namespace AlphaRap
             H1_VFiducial4.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
             H1_VCalibration.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
 
-
             // 相机 / VPP 列表存在独立的 VPForm.Cameras.xml 里（不是 SettingData，
             // 免得跟着 ReadSettingData 的清表/读表流程一起丢），见 VpConfigStore。
             // 界面在 ModuleInitialize 之后才搭，见 BuildVpUi()。
@@ -41,8 +38,6 @@ namespace AlphaRap
             // 顺带解决"启动时 SysPara.LanguageShow 还没从 ini 赋好值"的问题 ——
             // InitialProject 里 SwitchLanguage() 在建完表单之后才跑，那一刻会把文案纠正过来。
             MiddleLayer.LanguageChanged += delegate { RefreshDynamicTexts(); };
-
-
 		}
 		// 视觉工位引用
 		//
@@ -61,10 +56,8 @@ namespace AlphaRap
 		public VpStation H1_VFiducial3 = new VpStation("Camera1", VpStationKind.Fiducial, 3);
 		public VpStation H1_VFiducial4 = new VpStation("Camera1", VpStationKind.Fiducial, 3);
 
-
 		public struct VisionPostData
         {
-          
             public int Point;
             public double X;
             public double Y;
@@ -91,8 +84,6 @@ namespace AlphaRap
         /// <summary>把配方表 tb_H1_Visdata 刷进 <see cref="dgv_H1_VisionData_List"/>。</summary>
         public void Getdgv_H1_VisionDataList()
         {
-     
-
             dgv_H1_VisionData_List.Clear();
             DataTable H1dt = MiddleLayer.VPF.RecipeData.Tables["tb_H1_Visdata"];
             for (int i = 0; i < H1dt.Rows.Count; i++)
@@ -100,7 +91,6 @@ namespace AlphaRap
                 DataRow dr = H1dt.Rows[i];
                 VisionPostData data = new VisionPostData { Point = i, X = Convert.ToDouble(dr[0]), Y = Convert.ToDouble(dr[1]), R = Convert.ToDouble(dr[2]), X_Low = Convert.ToDouble(dr[3]), X_Hi = Convert.ToDouble(dr[4]), Y_Low = Convert.ToDouble(dr[5]), Y_Hi = Convert.ToDouble(dr[6]),R_Low = Convert.ToDouble(dr[7]), R_Hi = Convert.ToDouble(dr[8]), Enable = Convert.ToBoolean(dr[9]) };
 				dgv_H1_VisionData_List.Add(data);
-
             }
         }
 
@@ -148,7 +138,6 @@ namespace AlphaRap
 		/// </summary>
 		private class CameraEntry
 		{
-         
          /// <summary>配置里的相机键（就是相机名）。</summary>
             public string Key;
 			public TabPage Page;
@@ -682,22 +671,6 @@ namespace AlphaRap
 				card.RefreshTexts();
 				return;
 			}
-		}
-
-		/// <summary>在控件树里按名字前缀找一个 <see cref="UiLabel"/>（控件名里含相机/VPP 名，改名后不可靠）。</summary>
-		private static UiLabel FindUiLabelByPrefix(Control root, string namePrefix)
-		{
-			if (root == null) return null;
-
-			UiLabel self = root as UiLabel;
-			if (self != null && self.Name != null && self.Name.StartsWith(namePrefix)) return self;
-
-			for (int i = 0; i < root.Controls.Count; i++)
-			{
-				UiLabel r = FindUiLabelByPrefix(root.Controls[i], namePrefix);
-				if (r != null) return r;
-			}
-			return null;
 		}
 
 		private void DeleteCamera(VpCameraConfig cam)
@@ -1389,174 +1362,6 @@ namespace AlphaRap
 			return null;
 		}
 
-		private static UiLabel MakeCaption(Control parent, string text, ref int x)
-		{
-			UiLabel l = new UiLabel();
-			l.Name = AutoName("vpLbl");
-			l.AutoSize = false;
-			l.Text = text;
-			l.Font = new Font("宋体", 11.25F);
-			l.ForeColor = Color.FromArgb(80, 92, 106);
-			l.TextAlign = ContentAlignment.MiddleLeft;
-			l.SetBounds(x, 15, 98, 22);
-			parent.Controls.Add(l);
-			x += 102;
-			return l;
-		}
-
-		private static TextBox MakeBox(Control parent, string text, ref int x, int width)
-		{
-			TextBox t = new TextBox();
-			t.Name = AutoName("vpBox");
-			t.Text = text;
-			t.Font = new Font("宋体", 11.25F);
-			t.SetBounds(x, 13, width, 26);
-			parent.Controls.Add(t);
-			x += width + 16;
-			return t;
-		}
-
-		private static Button MakeHeadButton(Control parent, string text, ref int x)
-		{
-			UiButton b = new UiButton();
-			b.Name = AutoName("vpBtn");
-			b.Text = text;
-			b.Font = new Font("宋体", 11.25F);
-			b.FlatStyle = FlatStyle.Flat;
-			b.BackColor = Color.White;
-			b.ForeColor = Color.FromArgb(38, 50, 64);
-			b.FlatAppearance.BorderColor = Color.FromArgb(203, 216, 230);
-			b.Cursor = Cursors.Hand;
-			b.SetBounds(x, 12, 118, 30);
-			parent.Controls.Add(b);
-			x += 126;
-			return b;
-		}
-
-		// ==================== 标定卡 / VPP 页共用的排版规格 ====================
-		//
-		// 这两块的"格式"被要求统一，所以行高、缩进、标签宽、输入框宽、按钮尺寸全部集中在这里，
-		// 两边也都用同一组构建函数（MakeTitleLabel / MakePathLabel / MakeRowCaption / MakeRowBox / MakeRowButton）。
-		// 以后调外观只改这一段，两块一起变，不会再各走各的。
-		//
-		// 两块的行序也是一样的：**标题 → 内容 → 路径 → 参数 → 按钮**（按钮贴最底）。
-
-		private const int RowIndent = 10;      // 行内第一个控件的左缩进（卡片那侧由卡片自己的 Padding 提供，传 0）
-		private const int CaptionW = 76;       // 参数行标签宽（定宽，两块才对得齐）
-		private const int CaptionGap = 4;      // 标签与输入框的间隙
-		private const int NumBoxW = 86;        // 数值输入框（曝光）
-		private const int NameBoxW = 130;      // 文本输入框（名称）
-		private const int ColGap = 26;         // 同一条参数行里两组之间的间隙
-		private const int TitleRowH = 30;      // 标题 / 归属信息行
-		private const int PathRowH = 26;       // 路径行
-		private const int ParamRowH = 34;      // 参数行
-		private const int BtnRowH = 40;        // 按钮行
-		private const int BtnW = 112;          // 按钮统一宽（**不按文字长短算**，否则两排按钮参差不齐）
-		private const int BtnH = 30;           // 按钮统一高
-		private const int CompGridH = 132;     // VPP 页补偿限制表（表头 + 三行全部露出，不留滚动条）
-		private const int BtnGap = 8;          // 按钮间距
-
-		/// <summary>标题 / 归属信息行（两块同一规格）。Dock=Top，直接加到 parent 上。</summary>
-		private static UiLabel MakeTitleLabel(Control parent, string name, string text)
-		{
-			UiLabel l = new UiLabel();
-			l.Name = name;
-			l.AutoSize = false;
-			l.Dock = DockStyle.Top;
-			l.Height = TitleRowH;
-			l.TextAlign = ContentAlignment.MiddleLeft;
-			l.Font = new Font("宋体", 12F, FontStyle.Bold);
-			l.ForeColor = Color.FromArgb(38, 50, 64);
-			l.Text = text;
-			parent.Controls.Add(l);
-			return l;
-		}
-
-		/// <summary>
-		/// 路径行（两块同一规格）：都写成 <c>vpp：&lt;路径&gt;</c>，灰色小字，同样高度。
-		/// Dock=Bottom，直接加到 parent 上；左缩进用 leftPad（容器自带 Padding 的那侧传 0）。
-		/// </summary>
-		private static UiLabel MakePathLabel(Control parent, string name, string text, int leftPad)
-		{
-			UiLabel l = new UiLabel();
-			l.Name = name;
-			l.AutoSize = false;
-			l.Dock = DockStyle.Bottom;
-			l.Height = PathRowH;
-			l.TextAlign = ContentAlignment.MiddleLeft;
-			l.Padding = new Padding(leftPad, 0, 0, 0);
-			l.Font = new Font("宋体", 10.5F);
-			l.ForeColor = Color.FromArgb(110, 120, 132);
-			l.Text = text;
-			parent.Controls.Add(l);
-			return l;
-		}
-
-		/// <summary>参数行标签（定宽，两块对得齐）。</summary>
-		private static UiLabel MakeRowCaption(Control parent, string name, string text, int x)
-		{
-			UiLabel l = new UiLabel();
-			l.Name = name;
-			l.AutoSize = false;
-			l.Text = text;
-			l.Font = new Font("宋体", 11.25F);
-			l.ForeColor = Color.FromArgb(80, 92, 106);
-			l.TextAlign = ContentAlignment.MiddleLeft;
-			l.SetBounds(x, (ParamRowH - 28) / 2, CaptionW, 28);
-			parent.Controls.Add(l);
-			return l;
-		}
-
-		/// <summary>参数行输入框。</summary>
-		private static TextBox MakeRowBox(Control parent, string name, string text, int x, int width)
-		{
-			TextBox t = new TextBox();
-			t.Name = name;
-			t.Font = new Font("宋体", 11.25F);
-			t.Text = text;
-			t.SetBounds(x, (ParamRowH - 26) / 2, width, 26);
-			parent.Controls.Add(t);
-			return t;
-		}
-
-		/// <summary>
-		/// 行内按钮（两块同一规格）。放进 FlowLayoutPanel 里用（间距由 Margin 给）。
-		/// 宽度固定不算文字长度 —— 那样两排按钮会长短不一。
-		/// </summary>
-		private static UiButton MakeRowButton(Control parent, string text, EventHandler onClick)
-		{
-			UiButton b = new UiButton();
-			b.Name = AutoName("vpRowBtn");
-			b.Text = text;
-			b.Font = new Font("宋体", 11.25F);
-			b.FlatStyle = FlatStyle.Flat;
-			b.BackColor = Color.White;
-			b.ForeColor = Color.FromArgb(38, 50, 64);
-			b.FlatAppearance.BorderColor = Color.FromArgb(203, 216, 230);
-			b.Cursor = Cursors.Hand;
-			b.Size = new Size(BtnW, BtnH);
-			b.Margin = new Padding(0, 0, BtnGap, 0);
-			b.Click += onClick;
-			parent.Controls.Add(b);
-			return b;
-		}
-
-		/// <summary>
-		/// 给运行时创建的控件取唯一名字。**必须起名**：
-		/// 语言扫描会遍历整个控件树，把 Label/Button 按 control.Name 登记进语言表，
-		/// 而 XMLExpand.GetElement 是拿这个名字拼 XPath 的 ——
-		/// 名字为空就会拼出 "Chinese/VPForm/" 这种带空段的路径，
-		/// 直接抛 XPathException（表达式的计算结果必须为节点集），开机即崩。
-		/// （本方法里的控件同时也都换成了 UiLabel / UiButton，不进语言表白名单，双保险。）
-		/// </summary>
-		private static string AutoName(string prefix)
-		{
-			_autoNameSeed++;
-			return prefix + _autoNameSeed;
-		}
-
-		private static int _autoNameSeed;
-
 		// ==================== 语言：跟 Gantry 那类页面走同一套 ====================
 		//
 		// Gantry 页面里**一行语言代码都没有**：`InitialLanguageData()` 启动时按 `control.Name`
@@ -1600,17 +1405,6 @@ namespace AlphaRap
 		private static string DynTextName(string key)
 		{
 			return key + "_dyn";
-		}
-
-		/// <summary>
-		/// 带动态参数的文案：XML 里的写法就是 `string.Format` 的格式串，
-		/// 例如 `vpMsg_AppliedA` = "标定已应用到本相机下 "，用法 <c>T("键","底稿", okCount)</c>。
-		/// </summary>
-		private static string T(string key, string baseText, params object[] args)
-		{
-			string fmt = MiddleLayer.LangText(LangForm, key, baseText);
-			try { return string.Format(fmt, args); }
-			catch (Exception) { return fmt; }
 		}
 
 		/// <summary>
@@ -1666,66 +1460,6 @@ namespace AlphaRap
 			b.Cursor = Cursors.Hand;
 			if (onClick != null) b.Click += onClick;
 			parent.Controls.Add(b);
-		}
-
-		/// <summary>相机属性条上的标签（名字 = 语言键）。</summary>
-		private UiLabel MakeCaptionL(Control parent, ref int x, string key, string baseText)
-		{
-			UiLabel l = MakeCaption(parent, "", ref x);
-			l.Name = key;
-			l.Text = T(key, baseText);
-			return l;
-		}
-
-		/// <summary>相机属性条 / 相机页底栏的按钮（名字 = 语言键）。</summary>
-		private Button MakeHeadButtonL(Control parent, ref int x, string key, string baseText, EventHandler onClick)
-		{
-			Button b = MakeHeadButton(parent, "", ref x);
-			b.Name = key;
-			b.Text = T(key, baseText);
-			if (onClick != null) b.Click += onClick;
-			return b;
-		}
-
-		/// <summary>参数行标签（名字 = 语言键）。</summary>
-		private UiLabel MakeRowCaptionL(Control parent, string key, string baseText, int x)
-		{
-			UiLabel l = MakeRowCaption(parent, key, "", x);
-			l.Text = T(key, baseText);
-			return l;
-		}
-
-		/// <summary>行内按钮（名字 = 语言键）。</summary>
-		private UiButton MakeRowButtonL(Control parent, string key, string baseText, EventHandler onClick)
-		{
-			UiButton b = MakeRowButton(parent, "", onClick);
-			b.Name = key;
-			b.Text = T(key, baseText);
-			return b;
-		}
-
-		/// <summary>
-		/// 存图设置行的勾选框（名字 = 语言键，切语言由语言表自动换字）。
-		/// getter/setter 直接对到 VPP 配置的布尔字段：勾选变化 → 写字段 → **即时落盘**。
-		/// </summary>
-		private UiCheckBox MakeSaveCheck(Control parent, string key, string baseText, VpVppConfig vpp,
-			System.Func<bool> getter, System.Action<bool> setter)
-		{
-			UiCheckBox c = new UiCheckBox();
-			c.Name = key;
-			c.Text = T(key, baseText);
-			c.Font = new Font("宋体", 11.25F);
-			c.ForeColor = Color.FromArgb(80, 92, 106);
-			c.Cursor = Cursors.Hand;
-			c.Checked = getter();
-			c.CheckedChanged += delegate
-			{
-				if (getter() == c.Checked) return;
-				setter(c.Checked);
-				SaveVpConfig();
-			};
-			parent.Controls.Add(c);
-			return c;
 		}
 
 		// ==================== 相机级标定 ====================
@@ -2139,6 +1873,5 @@ namespace AlphaRap
 		}
 
 		#endregion
-
 	}
 }

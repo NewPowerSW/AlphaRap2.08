@@ -1,28 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Drawing.Drawing2D;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using System.Threading;
-using NPSDK;
-using AlphaRap.FunctionForms;
-using Alpha._0;
 
 namespace AlphaRap
 {
 	public partial class HomeForm : Form
 	{
 		public Classes.RFIDOperation RFIDOper = new Classes.RFIDOperation();
-
-
 
 		public HomeForm()
 		{
@@ -40,8 +29,6 @@ namespace AlphaRap
 			bool bPlat = Convert.ToBoolean(SysPara.bPlat);
 
 			MiddleLayer.MainF.tabPage10.Parent = bPlat ? null : MiddleLayer.MainF.uiTabControl1;
-
-
 		}
 
 		/// <summary>图表意外获得焦点时立刻把焦点交还出去，避免残留虚线焦点框。</summary>
@@ -155,7 +142,7 @@ namespace AlphaRap
 		#endregion
 
 		//BacodeScanner
-	
+
 		public static void RefreshDifferentThreadUI(Control control, Action action)
 		{
 			if (control.InvokeRequired)
@@ -212,7 +199,6 @@ namespace AlphaRap
 		#region 1.2 初始化加载点位事件
 		private void HomeForm_Load(object sender, EventArgs e)
 		{
-			
 			timer1.Enabled = true;
 
 			B_BgWork.DoWork += BgWork_Demo;
@@ -227,8 +213,6 @@ namespace AlphaRap
 		public void DataINITIAL(DataGridView Position, int RowIndex, int Columns)
 
 		{
-
-
 			Position.Rows.Clear();
 
 			Position.RowCount = RowIndex;
@@ -236,15 +220,10 @@ namespace AlphaRap
 
 			// Position.Columns[0].Width = (Position.Width- Position.RowHeadersWidth)/ 2;
 
-
-
-
 			for (int i = 0; i < Columns; i++)
 			{
 				Position.Columns[i].Width = (Position.Width) / Columns;
 				Position.Columns[i].HeaderCell.Value = (i + 1).ToString();
-
-
 			}
 
 			for (int i = 0; i < RowIndex; i++)
@@ -252,20 +231,14 @@ namespace AlphaRap
 				Position.Rows[i].Height = (Position.Height) / RowIndex;
 				Position.Rows[i].HeaderCell.Value = (i + 1).ToString();
 				Position.Rows[i].Cells[0].Value = "";
-
-
 			}
 
 			Position.ClearSelection();
-
-
 		}
-
 
 		public void SetCellColor(DataGridView Position, int RowIndex, int Columns, Color CellColor)
 		{
 			Position[Columns, RowIndex].Style.BackColor = CellColor;
-
 		}
 
 		public void SetCellValue(DataGridView Position, int RowIndex, int Columns, string CellValue)
@@ -377,12 +350,5 @@ namespace AlphaRap
 				}
 			}
 		}
-
-		private void button1_Click_1(object sender, EventArgs e)
-		{
-			NPSDK.Flow_Module.Module_AddAlarmLog("Alarm>>Code:");
-		}
-
-		
 	}
 }

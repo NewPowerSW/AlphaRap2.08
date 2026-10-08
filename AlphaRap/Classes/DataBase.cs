@@ -1,14 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 using System.Data.OleDb;
-using System.Data.SqlClient;
-using System.IO;
-using System.Windows.Forms;
-using System.Runtime.InteropServices;
 //using ADOX;
 
 namespace AlphaRap
@@ -85,7 +77,6 @@ namespace AlphaRap
             catch (Exception)
             {
                 return -1;
-
             }
             finally
             {

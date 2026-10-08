@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 //using mscorlib;
 namespace AlphaRap.PLC
 {
 	public enum SoftElemType
 	{
-
 		ELEM_QX = 0,     //QX元件
 		ELEM_MW = 1,     //MW元件
 		ELEM_X = 2,      //X元件(对应QX200~QX300)
@@ -39,7 +34,6 @@ namespace AlphaRap.PLC
 		REGI_H5U_B = 0x34,       //B元件的定义
 		REGI_H5U_D = 0x35,       //D字元件的定义
 		REGI_H5U_R = 0x36,       //R字元件的定义
-
 	}
 	/// <summary>
 	/// 具体PLC类：汇川5系列，使用网口 Tcp 通讯，接收指令
@@ -56,12 +50,6 @@ namespace AlphaRap.PLC
 		[DllImport("StandardModbusApi.dll", EntryPoint = "Exit_ETH", CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool Exit_ETH(int nNetId = 0);
 
-		[DllImport("StandardModbusApi.dll", EntryPoint = "H5u_Write_Soft_Elem", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int H5u_Write_Soft_Elem(SoftElemType eType, int nStartAddr, int nCount, byte[] pValue, int nNetId = 0);
-
-		[DllImport("StandardModbusApi.dll", EntryPoint = "H5u_Read_Soft_Elem", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int H5u_Read_Soft_Elem(SoftElemType eType, int nStartAddr, int nCount, byte[] pValue, int nNetId = 0);
-
 		[DllImport("StandardModbusApi.dll", EntryPoint = "H5u_Read_Device_Block", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int H5u_Read_Device_Block(SoftElemType eType, int nStartAddr, int nCount, byte[] pValue, int nNetId = 0);
 
@@ -72,8 +60,6 @@ namespace AlphaRap.PLC
         public static bool Connet(string sIpAddr, int nNetId = 0, int IpPort = 502)
         {
             return Init_ETH_String(sIpAddr, nNetId, IpPort);
-
-
         }
 
         readonly object ReadPLC_Lock = new object();
@@ -144,8 +130,6 @@ namespace AlphaRap.PLC
 				if (type == "int" || type == "float")
 				{
 					nCount = nCount / 2;
-                  
-
                 }
 				for (int i = 0; i < nCount; i++)
 				{
@@ -194,19 +178,14 @@ namespace AlphaRap.PLC
 				ReadErrorMessage = DateTime.Now.ToString() + "读取成功！\r\n";
 				return strData;
 			}
-			
 		}
 
         public string ReadPlcString(string nStartAddr, int nCount)   //test
         {
-
             lock (ReadPLC_Lock)
             {
                 byte[] pValue = new byte[nCount * 2];
 
-
-
-                bool bIsWord = false;
                 ReadErrorMessage = string.Empty;
                 string readType = nStartAddr.Substring(0, 1);
 
@@ -231,12 +210,10 @@ namespace AlphaRap.PLC
 
                 else if (readType == "D")
                 {
-                    bIsWord = true;
                     ElemType = SoftElemType.REGI_H5U_D;
                 }
                 else if (readType == "R")
                 {
-                    bIsWord = true;
                     ElemType = SoftElemType.REGI_H5U_R;
                 }
                 #endregion
@@ -255,7 +232,6 @@ namespace AlphaRap.PLC
 				strData = strData.Substring(0, Steing_Index);
                 return strData;
             }
-
         }
         /// <summary>
         /// WritPLCdata
@@ -293,7 +269,6 @@ namespace AlphaRap.PLC
                 }
                 else if (writeType == "D")
                 {
-                   
                     ElemType = SoftElemType.REGI_H5U_D;
                 }
                 else if (writeType == "R")
@@ -309,7 +284,6 @@ namespace AlphaRap.PLC
                 }
                 return true;
             }
-
         }
 
         readonly object PLCWriteLock = new object();
@@ -317,7 +291,6 @@ namespace AlphaRap.PLC
 		{
 			lock(PLCWriteLock)
 			{
-
 				byte[] pBuf = new byte[16000];
 				WritErrorMessage = string.Empty;
 				bool bIsWord = false;//是否字元件
@@ -436,75 +409,5 @@ namespace AlphaRap.PLC
 			}
 			return "";
 		}
-
-		private string getErrName(int err)
-		{
-			switch (err)
-			{
-				case 0: return "读写失败";
-				case 1: return "读写成功";
-				case 2: return "未连接PLC";
-				case 3: return "元件类型错误";
-				case 4: return "元件地址溢出";
-				case 5: return "元件个数超限";
-				case 6: return "通讯异常";
-				default: return "无返异常代码";
-			}
-
-		}
-
-		private int asciiToInt16(int nStartAddr, string strValue)
-		{
-			int count = 0;
-			int nRet = -1;
-			byte[] dataBuf = null;
-			if (strValue.Length % 2 == 1)
-			{
-
-				count = (strValue.Length / 2) + 1;
-				strValue = strValue.PadLeft(strValue.Length + 1, '0');
-				dataBuf = new byte[count];
-			}
-			else
-			{
-				count = strValue.Length / 2;
-				dataBuf = new byte[count];
-			}
-			dataBuf = System.Text.Encoding.ASCII.GetBytes(strValue);
-			SoftElemType ElemType = SoftElemType.REGI_H5U_D;
-			nRet = H5u_Write_Device_Block(ElemType, nStartAddr, count, dataBuf, 0);
-			return nRet;
-		}
-		private int outAsciiCode(int nStartAddr, int nCount, out string Value)
-		{
-			int nRet = -1;
-			Value = string.Empty;
-			byte[] pBuf = new byte[nCount * 2];
-			SoftElemType ElemType = SoftElemType.REGI_H5U_D;
-			nRet = H5u_Read_Device_Block(ElemType, nStartAddr, nCount, pBuf, 0);
-			Value = Encoding.ASCII.GetString(pBuf);
-			return nRet;
-		}
-
-		private void Closed()
-		{
-			int nNetId = 0;
-			bool result = Exit_ETH(nNetId);
-			if (result == true)
-			{
-
-				MessageBox.Show(MiddleLayer.LangMsg("PLC", "msg_PlcCloseOk", "关闭连接成功", "Connection closed", "Conexión cerrada"));
-
-			}
-			else
-			{
-				MessageBox.Show(MiddleLayer.LangMsg("PLC", "msg_PlcCloseFail", "关闭连接失败", "Failed to close connection", "Error al cerrar la conexión"));
-
-			}
-
-		}
-
-
-
 	}
 }

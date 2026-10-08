@@ -1,12 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
@@ -34,9 +29,8 @@ namespace AlphaRap.MenuForm
 
         public void LoadTables()
         {
-
                 dtTable.Rows.Clear();
-            
+
             XElement rootElementEnglish = XElement.Load(Application.StartupPath + "\\LanguageData\\English.xml");
             XElement rootElementSpanish = XElement.Load(Application.StartupPath + "\\LanguageData\\Español.xml");
             XElement rootElementChinese = XElement.Load(Application.StartupPath + "\\LanguageData\\Chinese.xml");
@@ -48,14 +42,13 @@ namespace AlphaRap.MenuForm
             IEnumerable<XNode> nodes =
                 from nd in rootElementEnglish.Nodes()
                 select nd;
-            
+
             foreach (XElement item in nodes)
             {
                 IEnumerable<XElement> elementsEnglish
                = from elemento in rootElementEnglish.Element(item.Name)
                    .Elements()
                  select elemento;
-
 
                 foreach (XElement element in elementsEnglish)
                 {
@@ -71,9 +64,7 @@ namespace AlphaRap.MenuForm
                     dtNewRow["Spanish"] = "";
                     dtNewRow["Chinese"] = "";
                     dtTable.Rows.Add(dtNewRow);
-
                 }
-
             }
 
             IEnumerable<XNode> nodesSpanish =
@@ -87,13 +78,12 @@ namespace AlphaRap.MenuForm
                    .Elements()
                  select elemento;
 
-
                 foreach (XElement element in elementsSpanish)
                 {
                     string Form = item.Name.ToString();
                     string Spanish = (string)element.Attribute("ComponentText");
                     string Object = element.Name.ToString();
-                    
+
                     DataRow[] dtSelect = (from d in this.dtTable.AsEnumerable() where d.Field<string>("Object") == Object.Trim() && d.Field<string>("Form") == Form.Trim() select d).ToArray();
                     if (dtSelect.Length > 0)
                     {
@@ -111,9 +101,7 @@ namespace AlphaRap.MenuForm
                         dtNewRow["Chinese"] = "";
                         dtTable.Rows.Add(dtNewRow);
                     }
-
                 }
-
             }
 
             IEnumerable<XNode> nodesChinese =
@@ -126,7 +114,6 @@ namespace AlphaRap.MenuForm
                = from elemento in rootElementChinese.Element(item.Name)
                    .Elements()
                  select elemento;
-
 
                 foreach (XElement element in elementsChinese)
                 {
@@ -151,11 +138,8 @@ namespace AlphaRap.MenuForm
                         dtNewRow["Chinese"] = Chinese;
                         dtTable.Rows.Add(dtNewRow);
                     }
-
                 }
-
             }
-
 
             this.bindingSource1.DataSource = this.dtTable;
             this.dataGridView1.DataSource = this.bindingSource1;
@@ -167,7 +151,6 @@ namespace AlphaRap.MenuForm
         private void LanguageSetting_Load(object sender, EventArgs e)
         {
             LoadTables();
-            
         }
 
         private void btnUpdate_Click(object sender, EventArgs e)
@@ -191,7 +174,6 @@ namespace AlphaRap.MenuForm
             if (MessageBox.Show(message1, message2, MessageBoxButtons.YesNo) == DialogResult.No)
                 return;
 
-
             int index = 0;
             dataGridView1.EndEdit();
             XElement rootElementEnglish = XElement.Load(Application.StartupPath + "\\LanguageData\\English.xml");
@@ -213,7 +195,6 @@ namespace AlphaRap.MenuForm
                    .Elements()
                  select elemento;
 
-
                 foreach (XElement element in elementsEnglish)
                 {
                     string dgvalue = (string)dataGridView1.Rows[index].Cells[2].Value;
@@ -224,7 +205,6 @@ namespace AlphaRap.MenuForm
                         index++;
                     }   
                 }
-
             }
             rootElementEnglish.Save(Application.StartupPath + "\\LanguageData\\English.xml");
 
@@ -240,7 +220,6 @@ namespace AlphaRap.MenuForm
                    .Elements()
                  select elemento;
 
-
                 foreach (XElement element in elementsSpanish)
                 {
                     string dgvalue = (string)dataGridView1.Rows[index].Cells[2].Value;
@@ -250,9 +229,7 @@ namespace AlphaRap.MenuForm
                         element.ReplaceAttributes(new XAttribute("ComponentText", dataGridView1.Rows[index].Cells[4].Value.ToString()));
                         index++;
                     }
-
                 }
-
             }
             rootElementSpanish.Save(Application.StartupPath + "\\LanguageData\\Español.xml");
 
@@ -278,10 +255,8 @@ namespace AlphaRap.MenuForm
                         index++;
                     }
                 }
-
             }
             rootElementChinese.Save(Application.StartupPath + "\\LanguageData\\Chinese.xml");
-
 
             this.btnUpdate.Enabled = true;
             this.btnSave.Enabled = false;

@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using AlphaRapLibrary;
 
@@ -23,7 +17,6 @@ namespace AlphaRap
 		{
 			if (SysPara.items > 1)
 			{
-
 				MiddleLayer.MainF.SaveData();
 				SysPara.items = 1;
 			}
@@ -43,19 +36,16 @@ namespace AlphaRap
 				{
 					buttonList.Add((RadioButton)c);
 				}
-				
 			}
 			foreach(RadioButton item in buttonList)
 			{
 				if(a.Name==item.Name)
 				{
 					item.Checked = !item.Checked;
-					
 				}
 			}
 			SysPara.items++;
 			label3.Focus();
-		
 		}
 	}
 }

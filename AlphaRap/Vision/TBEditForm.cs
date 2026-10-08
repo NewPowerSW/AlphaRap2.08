@@ -1,14 +1,4 @@
-﻿using Cognex.VisionPro;
-using Cognex.VisionPro.ToolBlock;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace AlphaRap
 {
@@ -19,7 +9,7 @@ namespace AlphaRap
         {
             InitializeComponent();
             EditInterface = CogInterface;
-            
+
             cogToolBlockEditV21.Subject = EditInterface.TB;
             this.Text = EditInterface.StationName;
         }

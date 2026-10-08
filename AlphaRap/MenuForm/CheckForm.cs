@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using AlphaRapLibrary;
 
 namespace AlphaRap
 {
@@ -16,11 +11,6 @@ namespace AlphaRap
         private void CheckForm_Load(object sender, EventArgs e)
         {
             radioButton25.PerformClick();
-        }
-
-        private void rbRedBlink_R_CheckedChanged(object sender, EventArgs e)
-        {
-
         }
         private List<SignalTowerData> TowerData = new List<SignalTowerData>();
         private SignalTowerStatusType SelectStatus = SignalTowerStatusType.MachineIdle;
@@ -364,31 +354,6 @@ namespace AlphaRap
             return false;
         }
         /// <summary>
-        /// 把设置的数据写入到数据源
-        /// </summary>
-        /// <returns></returns>
-        private bool WriteAllSignalTowertData()
-        {
-            for (int row = 0; row < TowerData.Count; row++)
-            {
-                string strSQL = "update SignalTowerData set " +
-                           "[Green_R]=" + (int)TowerData[row].GreenLightStatus_R +
-                          ",[Yellow_R]=" + (int)TowerData[row].YellowLightStatus_R +
-                          ",[Red_R]=" + (int)TowerData[row].RedLightStatus_R +
-                          ",[Buzzer_R]=" + (int)TowerData[row].BuzzStatus_R +
-                          ",[Green_M]=" + (int)TowerData[row].GreenLightStatus_M +
-                          ",[Yellow_M]=" + (int)TowerData[row].YellowLightStatus_M +
-                          ",[Red_M]=" + (int)TowerData[row].RedLightStatus_M +
-                          ",[Buzzer_M]=" + (int)TowerData[row].BuzzerStatus_M +
-                          " where [SignalTowerStatus]= \"" + TowerData[row].SignalTowerStatus.ToString() + "\"";
-
-                int result = DataBase.DataBaseExecute(SysPara.MdbPath, strSQL);
-                if (result != 0)
-                    return false;
-            }
-            return true;
-        }
-        /// <summary>
         /// 将数据写入到数据源中
         /// </summary>
         /// <param name="Type"></param>
@@ -445,11 +410,6 @@ namespace AlphaRap
             ChangeSelectItems(rbGroup_Buzz_MaintenanceMode, rbGroup_Buzz_MaintenanceMode[(int)TowerData[ListIndex].BuzzerStatus_M]);
         }
 
-        private void SignalTowerForm_Load(object sender, EventArgs e)
-        {
-          
-        }
-
         public void SwitchSignalTowerStatus(SignalTowerStatusType SignalTowerStatus)
         {
             for (int i = 0; i < TowerData.Count; i++)
@@ -473,15 +433,10 @@ namespace AlphaRap
                     break;
                 }
             }
-         
         }
-
-		
-
 
 		//private void rbRedOff_R_CheckedChanged(object sender, EventArgs e)
 		//{
-
 		//}
 	}
 }

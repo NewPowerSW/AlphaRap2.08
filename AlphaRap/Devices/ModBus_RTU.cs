@@ -2,12 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
-using System.Runtime;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace AlaphaRap
 {
@@ -25,7 +20,7 @@ namespace AlaphaRap
         public SerialPort _SP = new SerialPort();
 
         public ModBus_RTU(string deviceName) : base(deviceName) { }
-   
+
         /// <summary>
         /// 重写父类的属性：串口是否打开
         /// </summary>
@@ -49,7 +44,6 @@ namespace AlaphaRap
         }
 
         public bool _isRunning = false;
-
 
         /// <summary>
         /// 可配置的属性：串口号
@@ -96,12 +90,10 @@ namespace AlaphaRap
         /// </summary>
         public int ThreadSleep { get; set; } = 20;
 
-
         /// <summary>
         /// 读取的结果（字符串)
         /// </summary>
         public string ResultData { get; set; } = string.Empty;
-
 
         /// <summary>
         /// 主要功能：重写父类方法：加载配置，并打开网口
@@ -112,9 +104,7 @@ namespace AlaphaRap
             {
                 try
                 {
-                    
                         Connect(this.PortName, this.BaudRate, this.Pari, this.DataBits, this.StopBit);
-                   
                 }
                 catch (Exception ex)
                 {
@@ -238,7 +228,7 @@ namespace AlaphaRap
 
 				//发送报文
 				_SP.Write(SendCommand.ToArray(), 0, SendCommand.Count);
-                
+
                 //发送和接收间隔设置
                 Thread.Sleep(ThreadSleep);
 
@@ -268,7 +258,6 @@ namespace AlaphaRap
             }
         }
 
-
         /// <summary>
         /// 读取结果(字符串格式)
         /// </summary>
@@ -292,7 +281,6 @@ namespace AlaphaRap
             {
                 return null;
             }
-
         }
 
         #region  CRC校验
@@ -344,7 +332,6 @@ namespace AlaphaRap
              0x44, 0x84, 0x85, 0x45, 0x87, 0x47, 0x46, 0x86, 0x82, 0x42, 0x43, 0x83,
              0x41, 0x81, 0x80, 0x40
          };
-
 
         /// <summary>
         /// CRC校验

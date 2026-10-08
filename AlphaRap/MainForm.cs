@@ -1,5 +1,4 @@
 ﻿using Alpha;
-using AlphaRap.Classes;
 using AlphaRapLibrary;
 using Cognex.VisionPro;
 using System;
@@ -7,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Threading;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
@@ -29,11 +27,8 @@ int nheightEllipse
 
         [DllImport("Gdi32.dll")]
         private static extern bool DeleteObject(IntPtr hObject);
-        #endregion
-        [System.Runtime.InteropServices.DllImport("User32.dll")]
 
-
-        private static extern IntPtr WindowFromPoint(Point p);
+#endregion
 
         [System.Runtime.InteropServices.DllImport("user32.dll ")]
         public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int wndproc);
@@ -97,18 +92,7 @@ int nheightEllipse
             Log
         }
 
-        #region 111
-        HomeForm hf = MiddleLayer.HomeF;
-        ManualForm mf = MiddleLayer.ManualF;
-        SystemForm sf = MiddleLayer.SystemF;
-        HardForm hardf = MiddleLayer.HardF;
-        LogForm mesf = MiddleLayer.LogF;
-        CheckForm cf = MiddleLayer.CheckF;
-        DataForm df = MiddleLayer.DataF;
-        AddUserForm addf = MiddleLayer.AddF;
-        //LoadForm LoadFrm;
-
-
+        #region 产量统计
         int HourInputShift = 0;
         int HourOutputShift = 0;
         int HourRejectShift = 0;
@@ -329,7 +313,6 @@ int nheightEllipse
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-
             ApplyInitialWindowSize();
             ApplyRoundedMenuRegions();
 
@@ -381,7 +364,6 @@ int nheightEllipse
             RefreshMenuBackcolor();
             LoginOutTime.Enabled = false;
 
-
             SwitchMainPage(MENU_PageType.Manual);
             SwitchMainPage(MENU_PageType.Rapid);
             SwitchMainPage(MENU_PageType.Home);
@@ -400,14 +382,12 @@ int nheightEllipse
             k_hook.KeyDownEvent += new KeyEventHandler(hook_KeyDown);//钩住键按下
             k_hook.Start();//安装键盘钩子
 
-
             MiddleLayer.alarmRunTask.AlarmTaskIsRun = true;
             GetProductDataINI();
 
             // 兜底：语言有可能在本方法执行过程中才最终确定，
             // 这里再按当前语言刷一次报警工具条（含"语言"下拉框的项目名与选中项）
             SyncLanguageTexts();
-
         }
 
         #region 无边框窗口：初始尺寸 / 拖拽缩放 / 拖动移动（手动实现，不依赖系统窗口样式）
@@ -1355,8 +1335,6 @@ int nheightEllipse
         /// <param name="ShowPage"></param>
         public void ShowhMainPage(dynamic ShowPage, Panel ShowPanl)
         {
-
-
             ShowPanl.Focus();
             foreach (Control Fcontrol in panel2.Controls)
             {
@@ -1387,7 +1365,6 @@ int nheightEllipse
 
         private void MENU_Click(object sender, EventArgs e)
         {
-
             string ItemName = Convert.ToString(((Control)sender).Tag);
             MENU_PageType MENU_Page_Type = (MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName);
             SwitchMainPage(MENU_Page_Type);
@@ -1583,7 +1560,6 @@ int nheightEllipse
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-
             #region Machine Status 
             //F2024/03/10修改
             UpdateMachineStatus();
@@ -1627,9 +1603,7 @@ int nheightEllipse
 
         public void AddErrorLog(string strMessage)
         {
-
             MiddleLayer.DataF.AddLogError(strMessage);
-
         }
         public void WriteRUNMessageText(string strMessage)
         {
@@ -1782,7 +1756,6 @@ int nheightEllipse
             {
                 SysPara.iProductOK++;
             }
-
         }
         public void iProductNGAdd()
         {
@@ -1790,15 +1763,12 @@ int nheightEllipse
             {
                 SysPara.iProductNG++;
             }
-
         }
 
         #region GetProductData
         //private void GetProductData()
         //{
-
         //	DateTime datanow = DateTime.Now;
-
 
         //	hoursProductShow1.GetHourShift(DateTime.Now, ref HourInputShift, ref HourOutputShift, ref HourRejectShift, ref HourYeild);
         //	hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
@@ -1813,9 +1783,7 @@ int nheightEllipse
         //}
         private void GetProductDataINI()
         {
-
             DateTime datanow = DateTime.Now;
-
 
             hoursProductShow1.GetHourShift(DateTime.Now, ref HourInputShift, ref HourOutputShift, ref HourRejectShift, ref HourYeild);
             hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
@@ -1826,10 +1794,8 @@ int nheightEllipse
             //txtPRatio.Text = AllYeild.ToString("F2"); ;
             SysPara.iProductOK = AllOutputShift;
             SysPara.iProductNG = AllRejectShift;
-
         }
         #endregion
-
 
         #region reminder
         public void ShowWord(Control con, string word)
@@ -1909,13 +1875,8 @@ int nheightEllipse
                     break;
             }
         }
-        #endregion
 
-        private void pictureBox10_Click(object sender, EventArgs e)
-        {
-            string ItemName = Convert.ToString(((Control)sender).Tag);
-            SwitchMainPage((MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName));
-        }
+#endregion
         /// <summary>
         /// 初始化按钮
         /// </summary>
@@ -1925,15 +1886,6 @@ int nheightEllipse
         {
             MiddleLayer.Initial();
         }
-        //获取H1表格点位行集合并初始化生成点位
-
-        //获取H2表格点位行集合并初始化生成点位
-        private void GetH2PosCount()
-        {
-            DataTable dtH2 = MiddleLayer.HardF.RecipeData.Tables["tb_H2_SolderPost"];
-            int H2PosCount = dtH2.Rows.Count;
-
-        }
         //保存数据按钮
         private void SaveData_Click(object sender, EventArgs e)
         {
@@ -1941,7 +1893,6 @@ int nheightEllipse
         }
         public void SaveData()
         {
-
             SysPara.items = 1;
             SysPara.items2 = 1;
             DialogResult dr;
@@ -1959,8 +1910,6 @@ int nheightEllipse
                 MiddleLayer.AddF.WritePermission();
                 for (int i = 0; i < ModuleManager.ModuleList.Count; i++)
                 {
-
-
                     ModuleManager.ModuleList[i].WriteRecipeData(SysPara.FilePath);
                     ModuleManager.ModuleList[i].WriteSettingData();
                 }
@@ -1968,7 +1917,6 @@ int nheightEllipse
                 // VPForm 的相机/VPP/标定参数存在**自己那个 XML**（ModuleData\SettingData\VPForm.Cameras.xml）
                 // 里，不在 SettingData，上面那圈 WriteSettingData 覆盖不到，所以单独提交一次。
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.CommitVpConfig();
-
             }
             else
             {
@@ -1982,67 +1930,10 @@ int nheightEllipse
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.RevertVpConfig();
             }
             MiddleLayer.HardF.SaveHardData();
-
         }
-
-        /// <summary>
-        /// 菜单栏选择配方
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            string OrgRecipeName = SysPara.RecipeName;
-            OpenFileDialog OpenFileDir = new OpenFileDialog();
-            OpenFileDir.Filter = "XML Files|*.xml";
-
-            try
-            {
-                //SysPara.FilePath = System.IO.Directory.GetCurrentDirectory();
-                OpenFileDir.InitialDirectory = SysPara.RecipeDataDirectory.Replace(".\\", System.IO.Directory.GetCurrentDirectory() + "\\");
-            }
-            catch (Exception)
-            {
-                SysPara.RecipeDataDirectory = string.Format("{0}\\ModuleData\\RecipeData\\Recipe.xml", System.IO.Directory.GetCurrentDirectory());
-                string directory = Path.GetDirectoryName(SysPara.RecipeDataDirectory);
-                System.IO.Directory.CreateDirectory(directory);
-                OpenFileDir.InitialDirectory = directory;
-            }
-
-            if (OpenFileDir.ShowDialog() == DialogResult.OK)
-                if (MiddleLayer.OpenRecipe(OpenFileDir.FileName))
-                {
-                    string[] a = OpenFileDir.FileName.Split('\\');
-                    string[] b = a[a.Length - 1].Split('.');
-                    MiddleLayer.ProductF.CurrentModel.Text = b[0];
-                    //MiddleLayer.LogF.AddLog(LogType.Operation, string.Format("User change the recipe \"{0}\"->\"{1}\" . UserType:{2} UserName:{3}", OrgRecipeName, SysPara.RecipeName, SysPara.LoginLevel.ToString(), SysPara.LoginUserName));
-                }
-            MiddleLayer.OpenRecipe(SysPara.FilePath);
-        }
-        /// <summary>
-        /// 菜单栏新建配方
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NewToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog SaveFileDir = new SaveFileDialog();
-            SaveFileDir.Filter = "XML Files|*.xml";
-
-            string Directory = SysPara.RecipeDataDirectory.Replace(".\\", System.IO.Directory.GetCurrentDirectory() + "\\");
-            SaveFileDir.InitialDirectory = Directory;
-            if (SaveFileDir.ShowDialog() == DialogResult.OK)
-            {
-
-                MiddleLayer.HardF.WriteRecipeData(SaveFileDir.FileName);
-
-            }
-        }
-
 
         private void btStart_Click(object sender, EventArgs e)
         {
-
             MiddleLayer.StartRun();
         }
 
@@ -2152,7 +2043,6 @@ int nheightEllipse
             //	RefreshMenuBackcolor();
             //	LoginOutTime.Enabled = false;
             //}
-
         }
         /// <summary>
         /// 切换中文状态
@@ -2161,9 +2051,7 @@ int nheightEllipse
         /// <param name="e"></param>
         private void NumC2_Click(object sender, EventArgs e)
         {
-
             SwitchLanguageTo(LanguageType.Chinese);
-
         }
         /// <summary>
         /// 切换英文状态
@@ -2172,11 +2060,7 @@ int nheightEllipse
         /// <param name="e"></param>
         private void NumC3_Click(object sender, EventArgs e)
         {
-
             SwitchLanguageTo(LanguageType.English);
-
-
-
         }
 
         /// <summary>
@@ -2190,15 +2074,6 @@ int nheightEllipse
             }
             catch { }   // 语言包缺失时不要让界面崩掉
         }
-
-        private void MENU_Robot_Click(object sender, EventArgs e)
-        {
-
-            string ItemName = Convert.ToString(((Control)sender).Tag);
-            SwitchMainPage((MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName));
-        }
-
-
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -2273,28 +2148,15 @@ int nheightEllipse
             }
         }
 
-        private void MENU_Vision_Click(object sender, EventArgs e)
-        {
-            string ItemName = Convert.ToString(((Control)sender).Tag);
-            SwitchMainPage((MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName));
-        }
-
-        private void MENU_Manual_DoubleClick(object sender, EventArgs e)
-        {
-
-        }
-
         private void LOTO_Click(object sender, EventArgs e)
         {
             if (SysPara.SystemMode == RunMode.IDLE)
             {
                 try
                 {
-
                     MiddleLayer.LockForm1.groupBox2.Visible = false;
                     MiddleLayer.LockForm1.groupBox_Login.Visible = true;
                     MiddleLayer.LockForm1.ShowDialog();
-
                 }
                 catch (Exception ex)
                 {
@@ -2307,7 +2169,6 @@ int nheightEllipse
                         MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-
             }
             else
             {
@@ -2320,148 +2181,11 @@ int nheightEllipse
             }
         }
 
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-            string ItemName = Convert.ToString(((Control)sender).Tag);
-            MENU_PageType MENU_Page_Type = (MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName);
-            if (SysPara.SystemRun)
-            {
-
-            }
-            SwitchMainPage(MENU_Page_Type);
-        }
-        int a = 1;
-        //照明灯
-        //private void btLight_Click(object sender, EventArgs e)
-        //{
-        //	if (a == 1)
-        //	{
-        //		this.btLight.BackColor = Color.Green;
-        //		MiddleLayer.ManualF.OB_LEDLight.On();
-
-        //		a++;
-        //	}
-        //	else
-        //	{
-        //		btLight.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-        //		MiddleLayer.ManualF.OB_LEDLight.Off();
-
-        //		a = 1;
-        //	}
-
-        //}
-        private void Buzzer_Click(object sender, EventArgs e)
-        {
-            Console.WriteLine(SysPara.bByPass);
-            MiddleLayer.alTask.BuzzOff();
-        }
-
         private void btAlarmReset_Click(object sender, EventArgs e)
         {
             // 去掉了原来的 Thread.Sleep(100)：在 UI 线程上睡眠只会让界面卡顿，
             // 报警栏和状态条由定时器在下一拍刷新，不依赖这里等待。
             MiddleLayer.AlarmClear();
-        }
-        //int btDoorIndex = 1;
-        //private void btDoor_Click(object sender, EventArgs e)
-        //{
-        //	if (btDoorIndex == 1)
-        //	{
-        //		this.btDoor.BackColor = Color.Green;
-        //		btDoorIndex++;
-        //	}
-        //	else
-        //	{
-        //		btDoor.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-        //		btDoorIndex = 1;
-        //	}
-
-        //}
-        private void btClearCount_Click(object sender, EventArgs e)
-        {
-
-            // 清零是不可恢复的操作：
-            // 1) 提示里显示当前计数，让操作员确认清掉的是什么；默认按钮改为"否"，防误触回车。
-            // 2) 清零后写一条运行日志（谁、什么时间、清零前的数值），方便追溯产量问题。
-            long okBefore = (long)SysPara.iProductOK;
-            long ngBefore = (long)SysPara.iProductNG;
-            string message = MiddleLayer.LangMsg("MainForm", "msg_ClearCountConfirm",
-                    "确定要清零产量计数吗？此操作不可恢复。",
-                    "Clear the production counters? This cannot be undone.",
-                    "¿Borrar los contadores de producción? No se puede deshacer.")
-                + "\r\n\r\nOK: " + okBefore + "    NG: " + ngBefore;
-            string title = MiddleLayer.LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Advertencia");
-
-            DialogResult reult = MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
-
-            if ((reult == DialogResult.Yes))
-            {
-                SysPara.iProductOK = 0;
-                SysPara.iProductNG = 0;
-
-                try
-                {
-                    MiddleLayer.DataF.AddRunLog("Clear Count by " + SysPara.UserName
-                        + " (" + SysPara.UserPermission + "), before: OK=" + okBefore + ", NG=" + ngBefore);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("Clear Count log failed: " + ex.Message);
-                }
-            }
-        }
-        //int b = 0;
-        ////直通
-        //private void btByPass_Click(object sender, EventArgs e)
-        //{
-
-        //	if (b == 1)
-        //	{
-        //		btByPass.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-
-        //		SysPara.bByPass = false;
-        //		b = 0;
-        //	}
-        //	else
-        //	{
-
-        //		DialogResult reult = MessageBox.Show("是否直通模式?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
-
-        //		if ((reult == DialogResult.Yes))
-        //		{
-        //			SysPara.bByPass = true;
-        //			b = 1;
-        //			btByPass.BackColor = Color.Green;
-        //		}
-        //	}
-        //}
-
-        private void plMainShow_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void españolToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // 统一走 SwitchLanguageTo：它内部调 MiddleLayer.SwitchLanguage 之外，
-            // 还会写回 MachineSetup.ini 并做 SyncLanguageTexts —— 别绕过它直接调 SwitchLanguage。
-            SwitchLanguageTo(LanguageType.Español);
-        }
-
-        bool SideBarExpand;
-        private void pictureBox2_Click(object sender, EventArgs e)
-        {
-            //if (SideBarExpand)
-            //{
-            //	SideBarExpand = false;
-            //	Left_Show.Width = Left_Show.MinimumSize.Width;
-            //}
-            //else
-            //{
-            //	SideBarExpand = true;
-            //	Left_Show.Width = Left_Show.MaximumSize.Width;
-            //}
         }
 
         private void btExit_Click(object sender, EventArgs e)
@@ -2483,7 +2207,5 @@ int nheightEllipse
                 Close();
             }
         }
-
-
     }
 }

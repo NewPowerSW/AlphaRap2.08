@@ -38,7 +38,7 @@ namespace AlphaRap
 		public static AddUserForm AddF;
 		public static VPForm VPF;
 		public static ProductManagerForm ProductF;
-	
+
 		public static Robot RobotF;
 		public static LockForm1 LockForm1;
 
@@ -70,7 +70,6 @@ namespace AlphaRap
 
 		public static List<string> AlarmList = new List<string>();
 
-
 		public static void InitialProject3()
 		{
 			#region Load Ini File
@@ -89,7 +88,6 @@ namespace AlphaRap
 			SysPara.IOPortDirectory = iniFile.ReadString("PathSetup", "IOPortDirectory", ".\\ModuleData");
 			SysPara.LanguageDataDirectory = iniFile.ReadString("PathSetup", "LanguageDirectory", ".\\LanguageData");
 
-
 			ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
 			#endregion
 
@@ -107,8 +105,6 @@ namespace AlphaRap
 
 			#endregion
 
-		
-
 			InitialLanguageData();
 			if (SysPara.LanguageName == "English")
 				SysPara.LanguageShow = LanguageType.English;
@@ -123,7 +119,6 @@ namespace AlphaRap
 
 			OpenRecipe(string.Format("{0}\\{1}.xml", SysPara.RecipeDataDirectory, SysPara.RecipeName));
 			ServoOn();
-
 		}
 		public static FlowControl FlowCtrl;
 		/// <summary>
@@ -131,9 +126,7 @@ namespace AlphaRap
 		/// </summary>
 		public static void InitialProject()
 		{
-		
 			#region Load Ini File
-
 
 			IniFile iniFile = new IniFile(".\\MachineSetup.ini");
 			SysPara.ProjectName = iniFile.ReadString("MachineSetup", "ProjectName", "AlphaRap2.0");
@@ -152,22 +145,21 @@ namespace AlphaRap
 			SysPara.LanguageName = iniFile.ReadString("MachineSetup", "LanguageName", "");
 			//SysPara.bPlat = iniFile.ReadString("MachineSetup", "bPlat", "");
 
-
 			ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
 			SysPara.FilePath = SysPara.RecipeDataDirectory + "\\" + SysPara.RecipeName + ".xml";
 			#endregion
-	
+
 			#region Load Alarm Table
 			LoadAlarmTable();
 			#endregion
 			//=======================Module Create===========================
-			
+
 			#region FlwoChatForm
 			GantryF = CreateForm(GantryF, "Gantry");
 			UpConveyorF = CreateForm(UpConveyorF, "UpConveryor");
 			DownConveyorF = CreateForm(DownConveyorF, "DownConveryor");
 			#endregion
-			
+
 			SpanLifeF = new LifeSpanForm();
 			LoadingF.SetCaption("Load ProductManagerForm");
 			ProductF = CreateForm(ProductF, "ProductManagerForm");
@@ -215,7 +207,6 @@ namespace AlphaRap
 			//EpsonF = new Epson.Form1();
 			//RobotConnect();
 
-
 			//Atlas_MTF6000.Atlas_Connect("172.168.100.99", 851);
 			//if (!Atlas_MTF6000.bConnectStatus)
 			//{
@@ -229,7 +220,6 @@ namespace AlphaRap
 			//  NPSDK.InitialControls();
 			#endregion
 
-		
 			LoadingF.SetCaption("Load InitialLanguageData");
 			InitialLanguageData();
 			if (SysPara.LanguageName == "English")
@@ -251,14 +241,11 @@ namespace AlphaRap
 			alTask = new AlwaysRunTask();
 			alarmRunTask = new AlarmRunTask();
 
-
 			LoadingF.SetCaption("OpenRecipe");
 			OpenRecipe(string.Format("{0}\\{1}.xml", SysPara.RecipeDataDirectory, SysPara.RecipeName));
 
 			FlowCtrl = new FlowControl();
 			FlowCtrl.StartThread();
-
-			
 
 			ServoOn();
 			LoadingF.SetCaption("Load Vision");
@@ -300,9 +287,6 @@ namespace AlphaRap
 		public static void DisposeProject()
 		{
 			ServoOff();
-
-
-
 		}
 
 		/// <summary>
@@ -348,11 +332,9 @@ namespace AlphaRap
 					}
 					MiddleLayer.ManualF.Conveyor_List[i].Off();
 				}
-
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
-
 			}
 		}
 
@@ -496,7 +478,6 @@ namespace AlphaRap
 
 		private static void InitialLanguageCallback(Control cl, string FormName, ref List<ComponentTextInfo> ComponentLangurageList, ref List<ComponentTextInfo> XmlDataList)
 		{
-
 			foreach (Control control in cl.Controls)
 			{
 				Type ControlType = control.GetType();
@@ -1039,96 +1020,15 @@ namespace AlphaRap
 			MiddleLayer.DataF.SaveUserLoginLog(MiddleLayer.DataF.UserLoginLog);
 
 			//MainF.AddUserResult(SysPara.UserName, SysPara.UserPermission.ToString(), SysPara.UserLoginTime);
-
-		}
-		#endregion
-		private static void InitialIOPortData()
-		{
-			List<IOPortInfo> ComponentIOPortList = new List<IOPortInfo>();
-			List<IOPortInfo> XmlDataList = new List<IOPortInfo>();
-			#region Load from xml file
-			string sFilePath = string.Format("{0}\\IOPort.xml", SysPara.IOPortDirectory);
-			if (File.Exists(sFilePath))
-			{
-				XmlDocument ReadDoc = new XmlDocument();
-				ReadDoc.Load(sFilePath);
-				XmlElement Element = (XmlElement)ReadDoc.SelectSingleNode("PortData");
-				if (Element != null)
-				{
-					XmlNodeList FormData = Element.ChildNodes;
-					for (int j = 0; j < FormData.Count; j++)
-					{
-						XmlNodeList ComponentData = FormData[j].ChildNodes;
-						for (int k = 0; k < ComponentData.Count; k++)
-						{
-							IOPortInfo PortInfo = new IOPortInfo();
-							PortInfo.FormName = FormData[j].Name;
-							PortInfo.ComponentName = ComponentData[k].Name;
-							PortInfo.Port = ((XmlElement)ComponentData[k]).GetAttribute("Port");
-							XmlDataList.Add(PortInfo);
-						}
-					}
-				}
-			}
-			#endregion
-
-			#region compare all component IOPort data and write to list
-			//AllForm
-			foreach (Control Form in lstForm)
-			{
-				if (Form.Name != "ManualForm")
-				{
-					InitialIOPortCallback(Form, Form.Name, ref ComponentIOPortList, ref XmlDataList);
-				}
-			}
-			#endregion
-
-			#region Write to xml file
-			XmlDocument WriteDoc = new XmlDocument();
-			XmlElement FirstElement = XMLExpand.GetElement(WriteDoc, "PortData");
-			for (int j = 0; j < ComponentIOPortList.Count; j++)
-			{
-				XmlElement eSetting = XMLExpand.GetElement(WriteDoc, "PortData/" + ComponentIOPortList[j].FormName + "/" + ComponentIOPortList[j].ComponentName);
-				eSetting.SetAttribute("Port", ComponentIOPortList[j].Port);
-			}
-			if (!Directory.Exists(SysPara.IOPortDirectory))
-				Directory.CreateDirectory(SysPara.IOPortDirectory);
-			XMLExpand.WriteUnicodeXML(WriteDoc, sFilePath);
-			#endregion
 		}
 
-		private static void InitialIOPortCallback(Control cl, string FormName, ref List<IOPortInfo> ComponentIOPortList, ref List<IOPortInfo> XmlDataList)
-		{
-			foreach (dynamic control in cl.Controls)
-			{
-				Type ControlType = control.GetType();
-				bool bNeedAdded = false;
-				bNeedAdded |= (ControlType == typeof(Adlink_Motor));
-				bNeedAdded |= (ControlType == typeof(Adlink_Input));
-				bNeedAdded |= (ControlType == typeof(Adlink_Output));
-				if (control.Name != "" && bNeedAdded)
-				{
-					IOPortInfo AddComLan = new IOPortInfo();
-					int Index = XmlDataList.FindIndex(ComLan => (ComLan.FormName == FormName && ComLan.ComponentName == control.Name));
-					if (Index >= 0)
-					{
-						AddComLan.FormName = FormName;
-						AddComLan.ComponentName = XmlDataList[Index].ComponentName;
-						AddComLan.Port = XmlDataList[Index].Port;
-						control.Port = XmlDataList[Index].Port;
-					}
-					else
-					{
-						AddComLan.FormName = FormName;
-						AddComLan.ComponentName = control.Name;
-						AddComLan.Port = control.Port;
-					}
-					ComponentIOPortList.Add(AddComLan);
-				}
-				if (control.HasChildren)
-					InitialIOPortCallback(control, FormName, ref ComponentIOPortList, ref XmlDataList);
-			}
-		}
+#endregion
+#region Load from xml file
+#endregion
+#region compare all component IOPort data and write to list
+#endregion
+#region Write to xml file
+#endregion
 		/// <summary>
 		/// 动态创建对象
 		/// </summary>
@@ -1153,21 +1053,15 @@ namespace AlphaRap
 		}
 		public static void RobotConnect()
 		{
-
-
 		}
 		public static void show()
 		{
-
-
 		}
 
 		public static void Initial()
 		{
-			
 			if (NPSDK.Alarm.IsError)
 			{
-
 				OptionChoiceForm warning = new OptionChoiceForm();
 				warning.fnChangeButtonsText("OK", "OK");
 				warning.fnSetMessageAndButtons(LangMsg("MiddleLayer", "msg_ResetAlarmFirst", "请先清除报警！", "Please Reset Alarm Firstly!", "¡Restablezca la alarma primero!"), false, true, false);
@@ -1217,11 +1111,8 @@ namespace AlphaRap
 			NPSDK.Flow_Module.Module_InitialRun();
 		}
 
-
-
 		public static void StartRun()
 		{
-
 			AlarmClear();
 			Thread.Sleep(200);
 			if (NPSDK.Alarm.IsError)
@@ -1231,9 +1122,7 @@ namespace AlphaRap
 				warning.fnSetMessageAndButtons(LangMsg("MiddleLayer", "msg_ResetAlarmFirst", "请先清除报警！", "Please Reset Alarm Firstly!", "¡Restablezca la alarma primero!"), false, true, false);
 				warning.ShowDialog();
 				return;
-
 			}
-
 
 			if (SysPara.UpConveyorInitialOk)
 			{
@@ -1243,7 +1132,6 @@ namespace AlphaRap
 				{
 					if (SysPara.SystemMode == RunMode.INITIAL)
 					{
-
 						SysPara.SystemMode = RunMode.RUN;
 
 						AlarmClear();
@@ -1253,7 +1141,6 @@ namespace AlphaRap
 						NPSDK.Flow_Module.Module_StartRun();
 
 						SysPara.SystemRun = true;
-
 					}
 				}
 				else
@@ -1266,7 +1153,6 @@ namespace AlphaRap
 
 						NPSDK.Flow_Module.Module_StartRun();
 						StartRunCV();
-
 					}
 				}
 			}
@@ -1278,13 +1164,11 @@ namespace AlphaRap
 
 		public static void PauseRun()
 		{
-
 			bool stopRuncv = false;
 			if (SysPara.SystemMode == RunMode.RUN || (SysPara.SystemMode == RunMode.INITIAL && !SysPara.UpConveyorInitialOk))
 			{
 				stopRuncv = true;
 				SysPara.SystemMode = RunMode.PAUSE;
-
 			}
 			NPSDK.Flow_Module.Module_PauseRun();
 			StopManualRun();
@@ -1300,22 +1184,18 @@ namespace AlphaRap
 		/// </summary>
 		public static void StopRun()
 		{
-
 			if (SysPara.SystemMode != RunMode.IDLE)
 			{
 				SysPara.SystemRun = false;
 				SysPara.UpConveyorInitialOk = false;
 				SysPara.SystemMode = RunMode.IDLE;
 				NPSDK.Flow_Module.Module_StopRun();
-
 			}
 			NPSDK.Flow_Module.Module_StopRun();
 			MiddleLayer.MainF.dataBControl1.StopRunTime();
 			StopManualRun();
 			StopAllMotor();
-
 		}
-
 
 		public static void StopManualRun()
 		{
@@ -1326,23 +1206,17 @@ namespace AlphaRap
 
 		public static void StopAllMotor()
 		{
-
 			foreach (ControlBaseInterface control in SDKPara.ControlList)
 			{
 				if (control is Adlink_Motor)
 				{
 					((Adlink_Motor)control).Stop();
-
 				}
 			}
 		}
 
-
-
 		public static void AlarmClear()
 		{
-
-
 			foreach (ControlBaseInterface control in SDKPara.ControlList)
 				if (control is Adlink_Motor)
 				{
@@ -1350,47 +1224,32 @@ namespace AlphaRap
 					{
 						((Adlink_Motor)control).AlarmReset();
 					}
-
 				}
 
 			try
 			{
-
 				if (SysPara.SystemRun)
 				{
-
 					for (int i = 0; i < NPSDK.Alarm.AlarmList.Count; i++)
 					{
-
-
 					}
-
 				}
-
-
 			}
 			catch
 			{
-
 			}
 
 			AlarmList.Clear();
 			NPSDK.Alarm.Clear();
 			MiddleLayer.MainF.dataBControl1.StopAlarmTime();
-
 		}
 
 		public static void SetHightSpeed()
 		{
-
 		}
-
 
 		public static void SetLowSpeed()
 		{
-
-
-
 		}
 
 		/// <summary>
@@ -1433,8 +1292,6 @@ namespace AlphaRap
 
 		public static void OpenVision()
 		{
-			
-
 			for (int i = 0; i < VisionproInterface.VList.Count; i++)
 			{
 				string path = VisionproInterface.VList[i].GetVppPath(SysPara.RecipeName);
@@ -1448,7 +1305,6 @@ namespace AlphaRap
 			// （VPForm 还没建好时为 null，直接跳过。）
 			if (VPF != null) VPF.OnRecipeChanged();
 		}
-
 
 		public static void AlwaysRun()
 		{
@@ -1476,7 +1332,6 @@ namespace AlphaRap
 
 		public static void CheckMotorProtected()
 		{
-
 			if (SysPara.Simulation)
 				return;
 
@@ -1538,7 +1393,6 @@ namespace AlphaRap
 				}
 			}
 		}
-
 
 		public static bool GetInitialOk()
 		{

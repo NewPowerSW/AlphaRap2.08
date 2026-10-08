@@ -1,13 +1,6 @@
 ﻿using AlphaRap;
 using System;
-using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
-using System.Runtime;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AlaphaRap
 {
@@ -25,7 +18,7 @@ namespace AlaphaRap
         public SerialPort _SP = new SerialPort();
 
         public ATEQ_F620(string deviceName) : base(deviceName) { }
-   
+
         /// <summary>
         /// 重写父类的属性：串口是否打开
         /// </summary>
@@ -49,7 +42,6 @@ namespace AlaphaRap
         }
 
         public bool _isRunning = false;
-
 
         /// <summary>
         /// 可配置的属性：串口号
@@ -96,12 +88,10 @@ namespace AlaphaRap
         /// </summary>
         public int ThreadSleep { get; set; } = 20;
 
-
         /// <summary>
         /// 读取的结果（字符串)
         /// </summary>
         public string ResultData { get; set; } = string.Empty;
-
 
         /// <summary>
         /// 主要功能：重写父类方法：加载配置，并打开网口
@@ -112,9 +102,7 @@ namespace AlaphaRap
             {
                 try
                 {
-                   
                         Connect(this.PortName, this.BaudRate, this.Pari, this.DataBits, this.StopBit);
-                   
                 }
                 catch (Exception ex)
                 {
@@ -206,7 +194,6 @@ namespace AlaphaRap
             if (!status)
             {
                 _SP.Open();
-
             }
             string sData = "";
             sData = _SP.ReadExisting().Replace("\r\n", "");

@@ -1,12 +1,10 @@
 ﻿using Sunny.UI;
 using System;
-using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 
 namespace AlphaRap
 {
-
 	public class AlarmRunTask
 	{
 		Thread AlarmTask;
@@ -16,13 +14,11 @@ namespace AlphaRap
 			AlarmTask = new Thread(AlarmRunWork);
 			AlarmTask.Start();
 			AlarmTask.IsBackground = true;
-
 		}
 		public void StopAlarmRunTask()
 		{
 			if (AlarmTask != null)
 				AlarmTask.Join();
-
 		}
 		public void AlarmRunWork()
 		{
@@ -30,15 +26,13 @@ namespace AlphaRap
 			{
 				AlarmRun();
 				Thread.Sleep(10);
-
-
 			}
 		}
 		public void AlarmRun()
 		{
 			if (!AlarmTaskIsRun)
 				return;
-			
+
 			#region Alarm Message
 			 //MiddleLayer.HomeF.AlarmMessageLangLanguage(SysPara.LanguageShow);
 			if (NPSDK.Alarm.DoRefresh)
@@ -96,7 +90,6 @@ namespace AlphaRap
 				MiddleLayer.MainF.WarnningMessage.EndUpdate();
 				MiddleLayer.MainF.UpdateAlarmFilterCount();
 				//MiddleLayer.HomeF.WriteExcelData();
-
 			}
 			#endregion
 
@@ -105,17 +98,13 @@ namespace AlphaRap
 			if (!Runlog.IsNullOrEmpty())
 			{
 			MiddleLayer.DataF.AddRunLog(Runlog);
-
 			}
 			string Alarmlog = NPSDK.Flow_Module.Module_GetAlarmLog();
 			if (!Alarmlog.IsNullOrEmpty())
 			{
 				MiddleLayer.DataF.AddLogError(Alarmlog);
-
 			}
 			#endregion
-
 		}
 	}
-
 }

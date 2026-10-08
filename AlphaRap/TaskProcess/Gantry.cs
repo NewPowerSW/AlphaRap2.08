@@ -1,14 +1,5 @@
 ﻿using AlphaRap.PLC;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using static AlphaRap.VPForm;
 
 namespace AlphaRap.TaskProcess
@@ -32,31 +23,23 @@ namespace AlphaRap.TaskProcess
 		ProductMessage product = new ProductMessage();
 		struct VisonData
 		{
-			double X;
-			double Y;
-			double R;
 		}
 		public override void Initial()
 		{
 			GantryInit_Flow1_1.FlowChart_Run();
-
 		}
 		public override void PauseRun()
 		{
-			
 		}
 		public override void StartRun()
 		{
-
 		}
 		public override void StopRun()
 		{
-
 		}
 
 		private NPSDK.Flow_Chart.ResultType ScrewInit_Flow1_1_FlowChartRun()
 		{
-
 			SysPara.GantryInitialOK = false;
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -64,11 +47,8 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType ScrewInit_Flow1_2_FlowChartRun()
 		{
-
 			SysPara.GantryInitialOK = true;
 			return NPSDK.Flow_Chart.ResultType.NEXT;
-
-
 		}
 
 		private NPSDK.Flow_Chart.ResultType FlowAuto_Scann2_1_FlowChartRun()
@@ -102,7 +82,6 @@ namespace AlphaRap.TaskProcess
 					NPSDK.Alarm.Show("4014");
 					return NPSDK.Flow_Chart.ResultType.IDLE;
 				}
-
 			}
 
 			MiddleLayer.ParF.OPTScann.Sent("start");
@@ -161,15 +140,12 @@ namespace AlphaRap.TaskProcess
 				NPSDK.Alarm.Show("4014");
 			}
 			return NPSDK.Flow_Chart.ResultType.IDLE;
-
-
 		}
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_3_FlowChartRun()
 		{
 			string PLCIP = MiddleLayer.ParF.GetSettingValue("MSet", "PLCIP");
 			int nIpPort = MiddleLayer.ParF.GetSettingValue("MSet", "PLCPort"); ;
-
 
 			if (!MiddleLayer.ParF.OPTScann.ConnectStatus())
 			{
@@ -180,8 +156,6 @@ namespace AlphaRap.TaskProcess
 				NPSDK.Alarm.Show("4013");
 			}
 			return NPSDK.Flow_Chart.ResultType.IDLE;
-
-
 		}
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_4_FlowChartRun()
@@ -214,12 +188,10 @@ namespace AlphaRap.TaskProcess
 		}
 		public bool CheckVisionData(VisionPostData ts, VpStation h1)
 		{
-			
 			if (!ts.Enable)
 				return true;
 			if (IsNumberInRange(h1.Fiducial.x, ts.X_Low, ts.X_Hi) && IsNumberInRange(h1.Fiducial.y, ts.Y_Low, ts.Y_Hi) && IsNumberInRange(h1.Fiducial.u, ts.R_Low, ts.R_Hi))
 			{
-			
 				return true;
 			}
 			return false;
@@ -232,7 +204,6 @@ namespace AlphaRap.TaskProcess
 				{
 					if (CheckVisionData(MiddleLayer.VPF.dgv_H1_VisionData_List[0], MiddleLayer.VPF.H1_VFiducial))
 					{
-
 						plc.WritePlc("D6210", "1");
 						plc.WritePlc("D6212", MiddleLayer.VPF.H1_VFiducial.Fiducial.x.ToString());
 						plc.WritePlc("D6214", MiddleLayer.VPF.H1_VFiducial.Fiducial.y.ToString());
@@ -240,7 +211,6 @@ namespace AlphaRap.TaskProcess
 						return NPSDK.Flow_Chart.ResultType.NEXT;
 					}
 				}
-
 			}
 			return NPSDK.Flow_Chart.ResultType.IDLE;
 		}
@@ -253,7 +223,6 @@ namespace AlphaRap.TaskProcess
 		private NPSDK.Flow_Chart.ResultType FlowAuto_Vison3_5_FlowChartRun()
 		{
 			return NPSDK.Flow_Chart.ResultType.NEXT;
-
 		}
 
 		private NPSDK.Flow_Chart.ResultType FlowAuto_Heart5_2_FlowChartRun()
@@ -292,4 +261,3 @@ namespace AlphaRap.TaskProcess
 		}
 	}
 }
-

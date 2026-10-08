@@ -1,11 +1,6 @@
 ﻿
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-using System.Drawing;
 
 using System.Windows.Forms;
 
@@ -27,7 +22,7 @@ namespace AlphaRap
         public static string ProjectName;
         public static string RecipeName;
         public static string Product_RunMode;
-     
+
         //Product Message
         public static string ProductName;
         public static double iProductTotal;
@@ -136,7 +131,7 @@ namespace AlphaRap
         //public static string ProcessTime;
         //public static JTimer RunTM = new JTimer();
     }
-	
+
     public struct ComponentTextInfo
     {
         public string FormName;
@@ -157,7 +152,6 @@ namespace AlphaRap
         public string ComponentName;
         public string CyOff_BtnText;
         public string CyOn_BtnText;
-       
     }
 
     public struct CyldCtrlLangIniData
@@ -191,7 +185,6 @@ namespace AlphaRap
         public double u3;
 
         public string barcode;
-
     }
     public struct CalibrationData
     {
@@ -212,8 +205,6 @@ namespace AlphaRap
         Chinese = 0,
         English,
 		Español
-
-
 	}
     public enum RunMode
     {

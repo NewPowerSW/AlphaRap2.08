@@ -555,7 +555,6 @@
 			this.Margin = new System.Windows.Forms.Padding(5);
 			this.Name = "LogForm";
 			this.Text = "MESForm";
-			this.Load += new System.EventHandler(this.LogForm_Load);
 			this.Leave += new System.EventHandler(this.MESForm_Leave);
 			((System.ComponentModel.ISupportInitialize)(this.SettingData)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.RecipeData)).EndInit();
@@ -565,7 +564,6 @@
 			((System.ComponentModel.ISupportInitialize)(this.dataTable2)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
-
 		}
 
 		#endregion

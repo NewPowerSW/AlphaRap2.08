@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AlphaRap.FunctionForms
@@ -43,7 +36,6 @@ namespace AlphaRap.FunctionForms
             button1.Text = sMsg1;
             button2.Text = sMsg2;
             button3.Text = sMsg3;
-           
         }
         public void SetButton(int ButtonNumber)
         {
@@ -71,9 +63,7 @@ namespace AlphaRap.FunctionForms
                     button2.Visible = true;
                     button3.Visible = true;
                     break;
-
             }
-
         }
         private void button1_Click(object sender, EventArgs e)
         {
@@ -98,14 +88,6 @@ namespace AlphaRap.FunctionForms
             SysPara.ErrorWindowStatus = true;
             this.TopMost = true;
             this.Focus();
-            
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-                //this.TopMost = false;
-                //this.BringToFront();
-                //this.TopMost = true;
         }
 
         private void ErrorOptionForm_FormClosed(object sender, FormClosedEventArgs e)

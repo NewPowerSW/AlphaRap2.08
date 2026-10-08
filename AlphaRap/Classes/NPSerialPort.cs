@@ -1,20 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace AlphaRap.Classes
 {
     public class NPSerialPort
     {
-
         //create an Serial Port object        
         private SerialPort sp = new SerialPort();
 
-       
         //  Serial communication connection        
         public bool Connect(string strPortName, int iRate, int iDataBits, int iParity, int iStopBits)
         {
@@ -47,7 +41,6 @@ namespace AlphaRap.Classes
                     break;
             }
 
-         
             StopBits sb = StopBits.None;
             switch (iStopBits)
             {
@@ -83,7 +76,7 @@ namespace AlphaRap.Classes
                 return false;
             }
         }
-       
+
         public void Dispose()
         {
             try
@@ -181,7 +174,7 @@ namespace AlphaRap.Classes
                 string decodedString = utf8.GetString(readBytes);
                 return decodedString;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -201,12 +194,11 @@ namespace AlphaRap.Classes
                 string decodedString = ToHexStrFromByte(readBytes);
                 return decodedString;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
         }
-
 
         /// <summary>
         ///Read serial string data
@@ -219,7 +211,7 @@ namespace AlphaRap.Classes
                 string indata = sp.ReadExisting();
                 return indata;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "Err";
             }
@@ -238,7 +230,7 @@ namespace AlphaRap.Classes
                 sp.DiscardInBuffer();
                 return buf;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }

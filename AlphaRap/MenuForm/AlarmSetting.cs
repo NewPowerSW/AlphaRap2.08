@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AlphaRap.MenuForm
@@ -188,7 +184,6 @@ namespace AlphaRap.MenuForm
                 }
             }
 
-
             this.bindingSource1.DataSource = this.dtTable;
             this.dgvData.DataSource = this.bindingSource1;
             foreach (DataGridViewRow forRow in this.dgvData.Rows)
@@ -254,8 +249,6 @@ namespace AlphaRap.MenuForm
             #region MyRegion
             string message1 = MiddleLayer.LangMsg("AlarmSetting", "msg_DeleteConfirm", "您確認要移除當前選中的行嗎？", "Are you sure to delete?", "Estas seguro que desea eliminar?");
             string message2 = MiddleLayer.LangMsg("AlarmSetting", "msg_DeleteTitle", "溫馨提示", "Delete", "Eliminar");
-
-
 
             if (this.dgvData.Rows.Count > 0 && this.dgvData.Columns.Count > 0)
             {
@@ -347,7 +340,6 @@ namespace AlphaRap.MenuForm
             sw.Write(strText);  //这里是写入的内容
             sw.Flush();
             sw.Dispose();
-
 
             string _strPathName = strPath + @"\English.xml";
             if (System.IO.File.Exists(_strPathName))//如果文件存在则删除 

@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static AlphaRap.MainForm;
 using System.Threading;
-using AlphaRap.Classes;
 
 namespace AlphaRap
 {
@@ -32,8 +26,6 @@ namespace AlphaRap
     {
         //  private AxZKFPEngXControl.AxZKFPEngX axZKFPEngX1;
         public bool str1 = false;
-        private Task CheckCaptureTask;
-        private CancellationTokenSource StopTask = new CancellationTokenSource();
 
         public PermissionType UserPermission = PermissionType.None;
 

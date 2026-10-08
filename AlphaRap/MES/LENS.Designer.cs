@@ -2175,7 +2175,6 @@
 			this.button7.TabIndex = 28;
 			this.button7.Text = "Test";
 			this.button7.UseVisualStyleBackColor = true;
-			this.button7.Click += new System.EventHandler(this.button7_Click);
 			// 
 			// textBox65
 			// 
@@ -2884,7 +2883,6 @@
 			this.panel13.ResumeLayout(false);
 			this.panel13.PerformLayout();
 			this.ResumeLayout(false);
-
 		}
 
 		#endregion

@@ -1,14 +1,8 @@
 ﻿
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using AlphaRap.Classes;
 
 namespace AlphaRap
 {
@@ -286,18 +280,6 @@ namespace AlphaRap
         private bool CheckUserWhetherExist(string UserName)
         {
             string strSQL = "select * from UserData where UserName ='" + UserName + "'";
-            bool Successful = false;
-
-            DataTable readData = DataBase.ReadData_Adapter(SysPara.MdbPath, strSQL, ref Successful);
-            if (Successful)
-                if (readData.Rows.Count > 0)
-                    return true;
-            return false;
-        }
-
-        private bool Read(string UserName)
-        {
-            string strSQL = "select * from UserData where Permission ='" + "Operator" + "'";
             bool Successful = false;
 
             DataTable readData = DataBase.ReadData_Adapter(SysPara.MdbPath, strSQL, ref Successful);

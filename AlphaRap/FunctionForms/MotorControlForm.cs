@@ -48,7 +48,7 @@ namespace Alpha
             BRAKE = 5
         }
 		#endregion ENUMS
-		
+
 		#region VARIABLES
 		//NPMotor
 		private const int _MOTORSQTY = 6;
@@ -149,19 +149,10 @@ namespace Alpha
             }
             tmrScan.Enabled = true;
         }
-        #endregion INITIAL
 
-        #region GENERAL FUNCTIONS
-
-        #region System
-        private void YHMotorControlForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            tmrScan.Enabled = false;
-            StopRun();
-        }
-        private void btnClose_Click(object sender, EventArgs e)
-        {
-        }
+#endregion INITIAL
+#region GENERAL FUNCTIONS
+#region System
         #endregion System
 
         #region GUI
@@ -251,19 +242,19 @@ namespace Alpha
                 switch (ActuatorType[iYHMotor, i])
                 {
                     case ActionType.CYLINDER:
-                       
+
                         break;
                     case ActionType.GRIPPER:
-                      
+
                         break;
                     case ActionType.VACUUM:
-                       
+
                         break;
                     case ActionType.BLOW:
-                     
+
                         break;
                     case ActionType.BRAKE:
-                       
+
                         break;
                 }
                 ActButtons[i].BackgroundImage = img;
@@ -301,7 +292,6 @@ namespace Alpha
                         OBA.Off();
                         OBB.On();
                     }
-
                 }
                 else
                 {
@@ -565,7 +555,6 @@ namespace Alpha
             NPMotor[iChoseYHMotorIndex].AlarmReset();
             NPMotor[iChoseYHMotorIndex].AlarmReset();
             NPMotor[iChoseYHMotorIndex].ServoOn();
-
         }
         private void button5_Click(object sender, EventArgs e)
         {
@@ -794,11 +783,7 @@ namespace Alpha
             }
             tmrScan.Enabled = true;
         }
-        #endregion ASYNC
 
-        private void btn_JOGP_Click(object sender, EventArgs e)
-        {
-
-        }
+#endregion ASYNC
     }
 }

@@ -1336,7 +1336,6 @@
 			this.btn_JOGP.Size = new System.Drawing.Size(75, 68);
 			this.btn_JOGP.TabIndex = 34;
 			this.btn_JOGP.UseVisualStyleBackColor = false;
-			this.btn_JOGP.Click += new System.EventHandler(this.btn_JOGP_Click);
 			this.btn_JOGP.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btn_JOGP_MouseDown);
 			this.btn_JOGP.MouseUp += new System.Windows.Forms.MouseEventHandler(this.btn_JOGN_MouseUp);
 			// 
@@ -2164,7 +2163,6 @@
 			this.panel16.ResumeLayout(false);
 			this.panel16.PerformLayout();
 			this.ResumeLayout(false);
-
 		}
 
 		#endregion

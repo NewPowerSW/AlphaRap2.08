@@ -2,15 +2,9 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace AlphaRap.MES
 {
@@ -25,7 +19,6 @@ namespace AlphaRap.MES
 		string InStation_URL
 		{
 			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_InURL");
-			
 		}
 		/// <summary>
 		/// 入站SfcNo
@@ -33,7 +26,6 @@ namespace AlphaRap.MES
 		string InStation_SfcNo
 		{
 			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_InSfcNo");
-		
 		}
 		/// <summary>
 		/// 入站ProductSn
@@ -51,7 +43,6 @@ namespace AlphaRap.MES
 		string InStation_DeviceCode
 		{
 			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_InDeviceCode");
-	
 		}
 		#endregion
 
@@ -111,26 +102,6 @@ namespace AlphaRap.MES
 			set;
 			//get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_OutEditionCode");
 			//set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_OutEditionCode", value);
-		}
-		/// <summary>
-		/// 出站ErrorCode
-		/// </summary>
-		string OutStation_ErrorCode
-		{
-			get;
-			set;
-			//get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_OutErrorCode");
-			//set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_OutErrorCode", value);
-		}
-		/// <summary>
-		/// 出站ErrorSpot
-		/// </summary>
-		string OutStation_ErrorSpot
-		{
-			get;
-			set;
-			//get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_OutErrorSpot");
-			//set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_OutErrorSpot", value);
 		}
 		#endregion
 
@@ -315,16 +286,12 @@ namespace AlphaRap.MES
 				Post_Message = postContent;
 				return postContent;//返回Json数据
 			}
-
-
 		}
 
 		public string parseJsonOfTerminal(string jsonText, string JsonNode)
 		{
 			JObject jObj = JObject.Parse(jsonText);
 			return jObj[JsonNode].ToString();
-
-
 		}
 		/// <summary>
 		/// 入站Api
@@ -340,15 +307,12 @@ namespace AlphaRap.MES
 			str.Append("}");
 			MiddleLayer.DataF.SaveMesLog("InStation:" + str.ToString());
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(InStation_URL, str.ToString(),out Post_Message).Replace("NG", "false").Replace("OK", "true"), "Result"));
-
 		}
 		/// <summary>
 		/// 出站Api
 		/// </summary>
 		public bool OutStation()
 		{
-
-
 			StringBuilder str = new StringBuilder();
 
 			str.Append("{" + "\"" + "TestList" + "\"" + ":" + "[");
@@ -365,7 +329,6 @@ namespace AlphaRap.MES
 				{
 					str.Append("{" + "\"" + "Key" + "\"" + ":" + "\"" + item.Key + "\"" + "," + "\"" + "Value" + "\"" + ":" + "\"" + item.Value + "\"" + "}" + ",");
 				}
-
 			}
 			str.Append("\"" + "SfcNo" + "\"" + ":" + "\"" + OutStation_SfcNo + "\"" + ",");
 			str.Append("\"" + "UserID" + "\"" + ":" + "\"" + OutStation_UserID + "\"" + ",");
@@ -378,8 +341,6 @@ namespace AlphaRap.MES
 			MiddleLayer.DataF.SaveMesLog("OutStation:" + str.ToString());
 			Dictionary_TestList.Clear();
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(OutStation_URL, str.ToString(), out Post_Message).Replace("NG", "false").Replace("OK", "true"), "Result"));
-
-
 		}
 		public bool Binding()
 		{
@@ -394,11 +355,9 @@ namespace AlphaRap.MES
 			str.Append("}");
 			MiddleLayer.DataF.SaveMesLog("Binding:" + str.ToString());
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(Binding_Url, str.ToString(), out Post_Message).Replace("NG", "false").Replace("OK", "true"), "Result"));
-
 		}
 		public bool LaserMark()
 		{
-
 			StringBuilder str = new StringBuilder();
 
 			str.Append("{");
@@ -421,14 +380,11 @@ namespace AlphaRap.MES
 				{
 					str.Append("\"" + item.Key + "\"" + ":" + "\"" + item.Value + "\"" + ",");
 				}
-
 			}
 			str.Append("}");
 			MiddleLayer.DataF.SaveMesLog("LaserMark" + str.ToString());
 			Dictionary_PCBList.Clear();
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(LaserStation_URL, str.ToString(), out Post_Message), "Result"));
-
-
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -439,17 +395,6 @@ namespace AlphaRap.MES
 		private void button2_Click(object sender, EventArgs e)
 		{
 			bool r = Binding();
-		}
-
-		private void button3_Click(object sender, EventArgs e)
-		{
-			bool r = InStation();
-		}
-
-		private void button4_Click(object sender, EventArgs e)
-		{
-			Dictionary_TestList.Add("测试结果", "NULL");
-			bool r = OutStation();
 		}
 	}
 }

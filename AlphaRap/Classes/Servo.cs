@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NPSDK;
 using System.Windows.Forms;
 using System.Data;
 using System.Threading;
-using NPSDK;
 
 namespace Alpha._0
 {
@@ -52,7 +49,6 @@ namespace Alpha._0
             }
         }
 
-
         private Adlink_Motor Servo_Z;
         public Adlink_Motor ServoZ
         {
@@ -67,7 +63,6 @@ namespace Alpha._0
                 Servo_Z = value;
             }
         }
-
 
         private Adlink_Motor Servo_U;
         public Adlink_Motor ServoU
@@ -329,7 +324,6 @@ namespace Alpha._0
                     break;
             }
         }
-
 
         #region Home
         /// <summary>
@@ -608,13 +602,10 @@ namespace Alpha._0
                     }));
                     break;
                     #endregion
-
             }
             _homeWorkTh.IsBackground = true;
             _homeWorkTh.Start();
         }
-
-
 
         #endregion
         /// <summary>
@@ -717,7 +708,6 @@ namespace Alpha._0
             }
             return pos;
         }
-
 
         public static bool DelayMs(int delayMilliseconds)
         {

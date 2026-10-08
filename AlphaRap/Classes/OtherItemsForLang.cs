@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AlphaRap.Classes
@@ -16,9 +13,8 @@ namespace AlphaRap.Classes
         //  获取Form中各级菜单添加List中
         public static TStripItemTextInfo GetToolStripItems(Form formName, ref List<TStripItemTextInfo> tStripItemList)
         {
-			
 			TStripItemTextInfo tStrItemComp = new TStripItemTextInfo();
-			
+
 			//ToolStripStatusLabel tStripStatusLabel = null;
 			//foreach (ToolStripStatusLabel tStrStatusLabel in formName.);
 			foreach (ToolStripMenuItem tStrMenuItem in formName.MainMenuStrip.Items)
@@ -33,7 +29,6 @@ namespace AlphaRap.Classes
             }
             return tStrItemComp;
         }
-
 
         //检索所有子菜单
         private static void EnumetateMenu(ToolStripMenuItem item, Form formName, ref List<TStripItemTextInfo> tStripItemList)
@@ -78,7 +73,6 @@ namespace AlphaRap.Classes
         //获取CylinderControls in Form;
         public static void GetCylinderCtlItems(Control Control, String formName, ref List<CylinderCtrlTextInfo> cyCtrlComponentList)
         {
-            CylinderCtrlTextInfo cyCtrlComponent = new CylinderCtrlTextInfo();
             foreach (Control cntrl in Control.Controls)
             {
                 bool bContrlType = false;
@@ -87,7 +81,6 @@ namespace AlphaRap.Classes
                 bContrlType |= (CtlType == typeof(TabPage));
                 bContrlType |= (CtlType == typeof(GroupBox));
 
-               
                 if (bContrlType)
                     GetCylinderCtlItems(cntrl, formName, ref cyCtrlComponentList);
             }
@@ -108,6 +101,5 @@ namespace AlphaRap.Classes
         //    {
         //    }
         //}
-
     }
 }

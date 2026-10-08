@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AlphaRap
@@ -39,9 +35,6 @@ namespace AlphaRap
         //使用此功能，通过信息钩子继续下一个钩子
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern int CallNextHookEx(int idHook, int nCode, Int32 wParam, IntPtr lParam);
-        // 取得当前线程编号（线程钩子需要用到） 
-        [DllImport("kernel32.dll")]
-        static extern int GetCurrentThreadId();
         //使用WINDOWS API函数代替获取当前实例的函数,防止钩子失效
         [DllImport("kernel32.dll")]
         public static extern IntPtr GetModuleHandle(string name);
@@ -79,8 +72,6 @@ namespace AlphaRap
         //获取按键的状态
         [DllImport("user32")]
         public static extern int GetKeyboardState(byte[] pbKeyState);
-        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        private static extern short GetKeyState(int vKey);
         private const int WM_KEYDOWN = 0x100;//KEYDOWN 
         private const int WM_KEYUP = 0x101;//KEYUP
         private const int WM_SYSKEYDOWN = 0x104;//SYSKEYDOWN

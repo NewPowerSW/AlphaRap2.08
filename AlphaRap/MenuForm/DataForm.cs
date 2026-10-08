@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace AlphaRap
 {
@@ -15,7 +7,6 @@ namespace AlphaRap
 		string Errordata = string.Empty;
 		string Rundata = string.Empty;
 		string MESdata = string.Empty;
-		string UserLogindata = string.Empty;
 		readonly object LogErrorLock = new object();
 		readonly object LogRunLock = new object();
 		readonly object MesLock = new object();
@@ -24,11 +15,9 @@ namespace AlphaRap
 		public DataForm()
 		{
 			InitializeComponent();
-
 		}
 		public void AddLogError(string data)
 		{
-			
 			lock (LogErrorLock)
 			{
 				if (Errordata != data)
@@ -37,14 +26,11 @@ namespace AlphaRap
 					string[] dataArray = { data };
 					LogError.SaveDataToFile(dataArray);
 					MiddleLayer.MainF.WriteErrorMessageText(data);
-
 				}
 			}
-
 		}
 		public void AddRunLog(string data)
 		{
-			
 			lock (LogRunLock)
 			{
 				if (Rundata != data)
@@ -55,7 +41,6 @@ namespace AlphaRap
 					MiddleLayer.MainF.WriteRUNMessageText(data);
 				}
 			}
-
 		}
 		public void SaveMesLog(string data)
 		{
@@ -66,10 +51,8 @@ namespace AlphaRap
 					MESdata = data;
 					string[] dataArray = { data };
 					MESLOG.SaveDataToFile(dataArray);
-
 				}
 			}
-
 		}
 		public void SaveUserLoginLog(string[] data)
 		{	
@@ -77,11 +60,6 @@ namespace AlphaRap
 			{
 				UserLogin.SaveDataToFile(data);
 			}
-		}
-
-		private void data1_Load(object sender, EventArgs e)
-		{
-
 		}
 	}
 }

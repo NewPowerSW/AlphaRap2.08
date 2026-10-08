@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NP_PressureSensor
 {
@@ -77,7 +73,6 @@ namespace NP_PressureSensor
         /// <returns></returns>
         public string DataReceiveFunction()//数据接收
         {
-
             Byte[] data = new Byte[1024];
 
             try
@@ -89,7 +84,6 @@ namespace NP_PressureSensor
 
                     if (bytes != 0)
                     {
-
                         _data = ByteToHex(data);
                         string str = string.Empty;
                         for (int i = 0; i < bytes; i++)
@@ -110,7 +104,7 @@ namespace NP_PressureSensor
                     return null;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {                
                 //MessageBox.Show(ex.Message);
             }
@@ -140,7 +134,7 @@ namespace NP_PressureSensor
                 str = str.Trim().Replace(" ", "");
                 res = int.Parse(str, System.Globalization.NumberStyles.AllowHexSpecifier);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 res = 0;
             }
@@ -163,7 +157,6 @@ namespace NP_PressureSensor
         /// <param name="data">发送的数据</param>
         public bool SendSerialPortData(string data)
         {
-
             try
             {
                 if (sp.IsOpen)
@@ -174,7 +167,7 @@ namespace NP_PressureSensor
                     return true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //MessageBox.Show(ex.Message);
             }

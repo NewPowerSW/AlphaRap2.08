@@ -1,12 +1,5 @@
 ﻿
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using AlphaRapLibrary;
 
@@ -25,10 +18,8 @@ namespace AlphaRap
         }
         public void txtClear()
         {
-      
             txtRun.Text = GetSettingValue("Path", "RunPath");
             txtUser.Text = GetSettingValue("Path", "UserPath");
- 
         }
         public static void RefreshDifferentThreadUI(Control control, Action action)
         {
@@ -66,7 +57,7 @@ namespace AlphaRap
 				Button tb = sender as Button;
 				string TextName = tb.Name.Replace("bt", "").Replace("Path", "");
 				TextName = "txt" + TextName;
-				
+
 				foreach (Control control in Controls)
 				{
 					if ((string)control.Name == TextName)
@@ -75,14 +66,8 @@ namespace AlphaRap
 						control.Focus();
 					}
 				}
-					
 			}
 			SysPara.items++;
-		}
-
-		private void LogForm_Load(object sender, EventArgs e)
-		{
-
 		}
 	}
 }
