@@ -1,0 +1,929 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ProductSetting xmlns="ProductManagerForm">
+    <PRODUCTID>VSM2S82GM01C</PRODUCTID>
+    <STEPID>SG0192</STEPID>
+    <RECIPEID>VSM2S82GM01C</RECIPEID>
+    <PORTID>6666</PORTID>
+    <SN1KeySub>P1656620-0L-A</SN1KeySub>
+    <EnableSN1KeySub>false</EnableSN1KeySub>
+    <SN2KeySub>893</SN2KeySub>
+    <EnableSN2KeySub>false</EnableSN2KeySub>
+  </ProductSetting>
+  <MSet xmlns="PlatFormSetting" />
+  <PSet xmlns="PlatFormSetting">
+    <CV_1TrayColumnNum>5</CV_1TrayColumnNum>
+    <CV_1TrayRowNum>6</CV_1TrayRowNum>
+    <CV_2TrayColumnNum>5</CV_2TrayColumnNum>
+    <CV_2TrayRowNum>6</CV_2TrayRowNum>
+    <CameraTrayColumnNum>5</CameraTrayColumnNum>
+    <CameraTrayRowNum>5</CameraTrayRowNum>
+    <RejectTrayColumnNum>2</RejectTrayColumnNum>
+    <RejectTrayRowNum>2</RejectTrayRowNum>
+    <TrayRowdis>33</TrayRowdis>
+    <TrayColumnDis>48</TrayColumnDis>
+    <CameraRowdis>37.5</CameraRowdis>
+    <CameraColumnDis>42</CameraColumnDis>
+    <NGTrayColumnDis>48</NGTrayColumnDis>
+    <NGTrayRowdis>33</NGTrayRowdis>
+    <NGTrayColumnNum>3</NGTrayColumnNum>
+    <NGTrayRowNum>2</NGTrayRowNum>
+    <TrayOutTime>99999</TrayOutTime>
+    <PlaceCapCount>2</PlaceCapCount>
+  </PSet>
+  <MSet xmlns="Manual" />
+  <PSet xmlns="Manual" />
+  <RFID xmlns="Manual" />
+  <RSet xmlns="HardForm" />
+  <tb_H1_SolderPost xmlns="HardForm" />
+  <tb_H2_SolderPost xmlns="HardForm" />
+  <tb_H1_VisCalib xmlns="HardForm" />
+  <tb_H2_VisCalib xmlns="HardForm" />
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>1</X>
+    <Y>1</Y>
+    <Z>0</Z>
+    <U>0</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>安全位</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>1</X>
+    <Y>1</Y>
+    <Z>0</Z>
+    <U>0</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>待机位</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>472.449</X>
+    <Y>133.694</Y>
+    <Z>0</Z>
+    <U>0</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>左头拍物料</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>152.573</X>
+    <Y>133.694</Y>
+    <Z>0</Z>
+    <U>0</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>右头拍物料</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>227.125</X>
+    <Y>222.442</Y>
+    <Z>0</Z>
+    <U>0</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>预留</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>227.125</X>
+    <Y>222.442</Y>
+    <Z>0</Z>
+    <U>0</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>预留</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>569.61</X>
+    <Y>-26.46</Y>
+    <Z>34.2</Z>
+    <U>1.17</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>左头取物料</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>249.5</X>
+    <Y>-29.7</Y>
+    <Z>34.2</Z>
+    <U>0.917</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>右头取物料</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>178.739</X>
+    <Y>-16.444</Y>
+    <Z>74</Z>
+    <U>10.562</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>预留</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>130.191</X>
+    <Y>-16.945</Y>
+    <Z>74</Z>
+    <U>10.562</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>预留</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>123.775</X>
+    <Y>396.51</Y>
+    <Z>71.219</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>装配1拍照</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>123.775</X>
+    <Y>457.831</Y>
+    <Z>71.219</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>装配2拍照</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>123.775</X>
+    <Y>517.865</Y>
+    <Z>71.219</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>装配3拍照</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>123.775</X>
+    <Y>577.632</Y>
+    <Z>71.219</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>装配4拍照</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>171.25</X>
+    <Y>280.8</Y>
+    <Z>108</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>装配1</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>171.25</X>
+    <Y>340.8</Y>
+    <Z>108</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>装配2</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>171.25</X>
+    <Y>400.8</Y>
+    <Z>108</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>装配3</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>171.25</X>
+    <Y>460.8</Y>
+    <Z>108</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>装配4</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>123.775</X>
+    <Y>396.51</Y>
+    <Z>71.219</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>检测1</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>123.775</X>
+    <Y>457.831</Y>
+    <Z>71.219</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>检测2</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>123.775</X>
+    <Y>517.865</Y>
+    <Z>71.219</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>检测3</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>123.775</X>
+    <Y>577.632</Y>
+    <Z>71.219</Z>
+    <U>91.2</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>检测4</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>1</X>
+    <Y>1</Y>
+    <Z>0.001</Z>
+    <U>10.895</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>取NG1</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>1</X>
+    <Y>1</Y>
+    <Z>0.001</Z>
+    <U>10.895</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>取NG2</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>1</X>
+    <Y>1</Y>
+    <Z>0.001</Z>
+    <U>10.895</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>取NG3</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>1</X>
+    <Y>1</Y>
+    <Z>0.001</Z>
+    <U>10.895</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>取NG4</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>144.549</X>
+    <Y>580</Y>
+    <Z>92.58</Z>
+    <U>90.9</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>放NG1</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>1</X>
+    <Y>1</Y>
+    <Z>0.001</Z>
+    <U>10.895</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>true</Status>
+    <Annotation>放NG2</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>1</X>
+    <Y>1</Y>
+    <Z>0.001</Z>
+    <U>10.895</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>放NG3</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>1</X>
+    <Y>1</Y>
+    <Z>0.001</Z>
+    <U>10.895</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>放NG4</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>253.325</X>
+    <Y>142.517</Y>
+    <Z>0</Z>
+    <U>91</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>下相机拍照1</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>318.927</X>
+    <Y>708.281</Y>
+    <Z>17.6</Z>
+    <U>9.997</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>下相机拍照2</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>315.828</X>
+    <Y>706.148</Y>
+    <Z>19</Z>
+    <U>10.895</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>下相机拍照3</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>147.779</X>
+    <Y>706.148</Y>
+    <Z>-0.001</Z>
+    <U>10.895</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>下相机拍照4</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>248</X>
+    <Y>327</Y>
+    <Z>74</Z>
+    <U>0</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>扫码位</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>336.809</X>
+    <Y>165.46</Y>
+    <Z>70.92</Z>
+    <U>11.493</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>取2</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>175.334</X>
+    <Y>219.151</Y>
+    <Z>-13.407</Z>
+    <U>0</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>拍2</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>239.271</X>
+    <Y>167.697</Y>
+    <Z>73.058</Z>
+    <U>11.498</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>取1</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H1SystemPoint xmlns="HardForm">
+    <X>171.145</X>
+    <Y>219.151</Y>
+    <Z>-13.407</Z>
+    <U>0</U>
+    <VisionX>0</VisionX>
+    <VisionY>0</VisionY>
+    <VisionU>0</VisionU>
+    <Status>false</Status>
+    <Annotation>拍1</Annotation>
+  </tb-H1SystemPoint>
+  <tb-H2SystemPoint xmlns="HardForm">
+    <YPoint>0.007</YPoint>
+    <ZPoint>-0.009</ZPoint>
+    <Annotation>待机位</Annotation>
+  </tb-H2SystemPoint>
+  <tb-H2SystemPoint xmlns="HardForm">
+    <YPoint>108.5</YPoint>
+    <ZPoint>154.235</ZPoint>
+    <Annotation>取满盘位(最后一个料的位置)</Annotation>
+  </tb-H2SystemPoint>
+  <tb-H2SystemPoint xmlns="HardForm">
+    <YPoint>434.254</YPoint>
+    <ZPoint>37</ZPoint>
+    <Annotation>放满盘（或取空盘）中转位</Annotation>
+  </tb-H2SystemPoint>
+  <tb-H2SystemPoint xmlns="HardForm">
+    <YPoint>431.247</YPoint>
+    <ZPoint>37.124</ZPoint>
+    <Annotation>放满盘（或取空盘）位</Annotation>
+  </tb-H2SystemPoint>
+  <tb-H2SystemPoint xmlns="HardForm">
+    <YPoint>20</YPoint>
+    <ZPoint>21</ZPoint>
+    <Annotation>放空盘</Annotation>
+  </tb-H2SystemPoint>
+  <Scan1 xmlns="HardForm">
+    <Scan1>0</Scan1>
+    <Annotation>material position</Annotation>
+  </Scan1>
+  <Scan1 xmlns="HardForm">
+    <Scan1>277.726</Scan1>
+    <Annotation>Scan position1</Annotation>
+  </Scan1>
+  <Scan1 xmlns="HardForm">
+    <Scan1>246.457</Scan1>
+    <Annotation>Scan position2</Annotation>
+  </Scan1>
+  <Scan1 xmlns="HardForm">
+    <Scan1>-0.048</Scan1>
+    <Annotation>Out position</Annotation>
+  </Scan1>
+  <Scan1 xmlns="HardForm">
+    <Scan1>211.774</Scan1>
+    <Annotation>CPK1</Annotation>
+  </Scan1>
+  <Scan1 xmlns="HardForm">
+    <Scan1>-0.024</Scan1>
+    <Annotation>CPK2</Annotation>
+  </Scan1>
+  <Scan2 xmlns="HardForm">
+    <Scan2>0</Scan2>
+    <Annotation>material position</Annotation>
+  </Scan2>
+  <Scan2 xmlns="HardForm">
+    <Scan2>279.688</Scan2>
+    <Annotation>Scan position1</Annotation>
+  </Scan2>
+  <Scan2 xmlns="HardForm">
+    <Scan2>243.082</Scan2>
+    <Annotation>Scan position2</Annotation>
+  </Scan2>
+  <Scan2 xmlns="HardForm">
+    <Scan2>-0.135</Scan2>
+    <Annotation>Out position</Annotation>
+  </Scan2>
+  <Scan2 xmlns="HardForm">
+    <Scan2>221.63</Scan2>
+    <Annotation>CPK1</Annotation>
+  </Scan2>
+  <Scan2 xmlns="HardForm">
+    <Scan2>-0.038</Scan2>
+    <Annotation>CPK2</Annotation>
+  </Scan2>
+  <Lift xmlns="HardForm">
+    <Lift>-3.562</Lift>
+    <Annotation>Out position1</Annotation>
+  </Lift>
+  <Lift xmlns="HardForm">
+    <Lift>593.066</Lift>
+    <Annotation>material position</Annotation>
+  </Lift>
+  <Pset xmlns="VP">
+    <H1_Fiducial_X>361.622</H1_Fiducial_X>
+    <H1_Fiducial_Y>96.79</H1_Fiducial_Y>
+    <H1_Fiducial_U>1.05</H1_Fiducial_U>
+    <H1_Fiducial3_X>361.622</H1_Fiducial3_X>
+    <H1_Fiducial3_Y>96.790</H1_Fiducial3_Y>
+    <H1_Fiducial3_U>1.050</H1_Fiducial3_U>
+  </Pset>
+  <tb_H2_ScrewPost xmlns="VP" />
+  <tb_H1_VisCalib xmlns="VP">
+    <PixelX>651.271</PixelX>
+    <PixelY>576.956</PixelY>
+    <MotorPoxtX>240.314</MotorPoxtX>
+    <MotorPoxtY>-353.159</MotorPoxtY>
+    <MotorPoxtZ>1</MotorPoxtZ>
+  </tb_H1_VisCalib>
+  <tb_H1_VisCalib xmlns="VP">
+    <PixelX>675.054</PixelX>
+    <PixelY>1454.784</PixelY>
+    <MotorPoxtX>265.941</MotorPoxtX>
+    <MotorPoxtY>-353.175</MotorPoxtY>
+    <MotorPoxtZ>2</MotorPoxtZ>
+  </tb_H1_VisCalib>
+  <tb_H1_VisCalib xmlns="VP">
+    <PixelX>687.662</PixelX>
+    <PixelY>2202.579</PixelY>
+    <MotorPoxtX>287.552</MotorPoxtX>
+    <MotorPoxtY>-353.158</MotorPoxtY>
+    <MotorPoxtZ>3</MotorPoxtZ>
+  </tb_H1_VisCalib>
+  <tb_H1_VisCalib xmlns="VP">
+    <PixelX>1543.629</PixelX>
+    <PixelY>567.712</PixelY>
+    <MotorPoxtX>240.295</MotorPoxtX>
+    <MotorPoxtY>-327.227</MotorPoxtY>
+    <MotorPoxtZ>4</MotorPoxtZ>
+  </tb_H1_VisCalib>
+  <tb_H1_VisCalib xmlns="VP">
+    <PixelX>1571.105</PixelX>
+    <PixelY>1353.329</PixelY>
+    <MotorPoxtX>263.305</MotorPoxtX>
+    <MotorPoxtY>-327.239</MotorPoxtY>
+    <MotorPoxtZ>5</MotorPoxtZ>
+  </tb_H1_VisCalib>
+  <tb_H1_VisCalib xmlns="VP">
+    <PixelX>1586.759</PixelX>
+    <PixelY>2265.049</PixelY>
+    <MotorPoxtX>289.573</MotorPoxtX>
+    <MotorPoxtY>-327.242</MotorPoxtY>
+    <MotorPoxtZ>6</MotorPoxtZ>
+  </tb_H1_VisCalib>
+  <tb_H1_VisCalib xmlns="VP">
+    <PixelX>2475.632</PixelX>
+    <PixelY>498.477</PixelY>
+    <MotorPoxtX>238.647</MotorPoxtX>
+    <MotorPoxtY>-300.07</MotorPoxtY>
+    <MotorPoxtZ>7</MotorPoxtZ>
+  </tb_H1_VisCalib>
+  <tb_H1_VisCalib xmlns="VP">
+    <PixelX>2516.09</PixelX>
+    <PixelY>1387.739</PixelY>
+    <MotorPoxtX>264.629</MotorPoxtX>
+    <MotorPoxtY>-300.076</MotorPoxtY>
+    <MotorPoxtZ>8</MotorPoxtZ>
+  </tb_H1_VisCalib>
+  <tb_H1_VisCalib xmlns="VP">
+    <PixelX>2524.443</PixelX>
+    <PixelY>1881.893</PixelY>
+    <MotorPoxtX>278.88</MotorPoxtX>
+    <MotorPoxtY>-300.075</MotorPoxtY>
+    <MotorPoxtZ>9</MotorPoxtZ>
+  </tb_H1_VisCalib>
+  <tb_H1_Visdata xmlns="VP">
+    <X>280.940</X>
+    <Y>-306.436</Y>
+    <U>57.325</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Eanble>false</Eanble>
+    <Mark>Bottom1</Mark>
+  </tb_H1_Visdata>
+  <tb_H1_Visdata xmlns="VP">
+    <X>247.663</X>
+    <Y>-305.615</Y>
+    <U>57.325</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Eanble>false</Eanble>
+    <Mark>Bottom2</Mark>
+  </tb_H1_Visdata>
+  <tb_H1_Visdata xmlns="VP">
+    <X>283.777</X>
+    <Y>-290.164</Y>
+    <U>-2538.814</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Eanble>false</Eanble>
+    <Mark>Bottom3</Mark>
+  </tb_H1_Visdata>
+  <tb_H1_Visdata xmlns="VP">
+    <X>257.717</X>
+    <Y>-290.084</Y>
+    <U>-2538.814</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Eanble>false</Eanble>
+    <Mark>Bottom4</Mark>
+  </tb_H1_Visdata>
+  <tb_H2_VisCalib xmlns="VP">
+    <PixelX>535.566</PixelX>
+    <PixelY>751.173</PixelY>
+    <MotorPoxtX>22.631</MotorPoxtX>
+    <MotorPoxtY>475.823</MotorPoxtY>
+    <MotorPoxtZ>1</MotorPoxtZ>
+  </tb_H2_VisCalib>
+  <tb_H2_VisCalib xmlns="VP">
+    <PixelX>1773.539</PixelX>
+    <PixelY>752.24</PixelY>
+    <MotorPoxtX>44.513</MotorPoxtX>
+    <MotorPoxtY>475.62</MotorPoxtY>
+    <MotorPoxtZ>2</MotorPoxtZ>
+  </tb_H2_VisCalib>
+  <tb_H2_VisCalib xmlns="VP">
+    <PixelX>2925.351</PixelX>
+    <PixelY>765.371</PixelY>
+    <MotorPoxtX>64.83</MotorPoxtX>
+    <MotorPoxtY>475.617</MotorPoxtY>
+    <MotorPoxtZ>3</MotorPoxtZ>
+  </tb_H2_VisCalib>
+  <tb_H2_VisCalib xmlns="VP">
+    <PixelX>524.472</PixelX>
+    <PixelY>1474.168</PixelY>
+    <MotorPoxtX>22.606</MotorPoxtX>
+    <MotorPoxtY>488.587</MotorPoxtY>
+    <MotorPoxtZ>4</MotorPoxtZ>
+  </tb_H2_VisCalib>
+  <tb_H2_VisCalib xmlns="VP">
+    <PixelX>1842.704</PixelX>
+    <PixelY>1487.476</PixelY>
+    <MotorPoxtX>45.859</MotorPoxtX>
+    <MotorPoxtY>488.583</MotorPoxtY>
+    <MotorPoxtZ>5</MotorPoxtZ>
+  </tb_H2_VisCalib>
+  <tb_H2_VisCalib xmlns="VP">
+    <PixelX>3014.169</PixelX>
+    <PixelY>1489.707</PixelY>
+    <MotorPoxtX>66.53</MotorPoxtX>
+    <MotorPoxtY>488.381</MotorPoxtY>
+    <MotorPoxtZ>6</MotorPoxtZ>
+  </tb_H2_VisCalib>
+  <tb_H2_VisCalib xmlns="VP">
+    <PixelX>518.54</PixelX>
+    <PixelY>2070.367</PixelY>
+    <MotorPoxtX>22.608</MotorPoxtX>
+    <MotorPoxtY>499.101</MotorPoxtY>
+    <MotorPoxtZ>7</MotorPoxtZ>
+  </tb_H2_VisCalib>
+  <tb_H2_VisCalib xmlns="VP">
+    <PixelX>1706.408</PixelX>
+    <PixelY>2052.121</PixelY>
+    <MotorPoxtX>43.584</MotorPoxtX>
+    <MotorPoxtY>498.555</MotorPoxtY>
+    <MotorPoxtZ>8</MotorPoxtZ>
+  </tb_H2_VisCalib>
+  <tb_H2_VisCalib xmlns="VP">
+    <PixelX>2937.363</PixelX>
+    <PixelY>2064.881</PixelY>
+    <MotorPoxtX>65.349</MotorPoxtX>
+    <MotorPoxtY>498.56</MotorPoxtY>
+    <MotorPoxtZ>9</MotorPoxtZ>
+  </tb_H2_VisCalib>
+  <tb_H2_Visdata xmlns="VP">
+    <X>74.494</X>
+    <Y>506.298</Y>
+    <U>26.264</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Enable>true</Enable>
+    <Mark>Lens1</Mark>
+  </tb_H2_Visdata>
+  <tb_H2_Visdata xmlns="VP">
+    <X>20.009</X>
+    <Y>479.428</Y>
+    <U>26.264</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Enable>true</Enable>
+    <Mark>Lens2</Mark>
+  </tb_H2_Visdata>
+  <tb_H1_HeadCalib xmlns="VP">
+    <X>267.337</X>
+    <Y>-307.449</Y>
+    <U>154.055</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Enable>false</Enable>
+    <Mark>Bottom1</Mark>
+  </tb_H1_HeadCalib>
+  <tb_H1_HeadCalib xmlns="VP">
+    <X>267.539</X>
+    <Y>-305.000</Y>
+    <U>154.055</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Enable>false</Enable>
+    <Mark>Bottom2</Mark>
+  </tb_H1_HeadCalib>
+  <tb_H1_HeadCalib xmlns="VP">
+    <X>271.285</X>
+    <Y>-290.605</Y>
+    <U>154.055</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Enable>false</Enable>
+    <Mark>Bottom3</Mark>
+  </tb_H1_HeadCalib>
+  <tb_H1_HeadCalib xmlns="VP">
+    <X>272.454</X>
+    <Y>-290.435</Y>
+    <U>154.055</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Enable>false</Enable>
+    <Mark>Bottom4</Mark>
+  </tb_H1_HeadCalib>
+  <tb_H2_Visdata2 xmlns="VP">
+    <X>32.825</X>
+    <Y>488.535</Y>
+    <U>80.282</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Enable>False</Enable>
+    <Mark>Lens1</Mark>
+  </tb_H2_Visdata2>
+  <tb_H2_Visdata2 xmlns="VP">
+    <X>31.601</X>
+    <Y>495.498</Y>
+    <U>67.916</U>
+    <X_Low>-5</X_Low>
+    <X_Hi>5</X_Hi>
+    <Y_Low>-5</Y_Low>
+    <Y_Hi>5</Y_Hi>
+    <U_Low>-3</U_Low>
+    <U_Hi>3</U_Hi>
+    <Enable>False</Enable>
+    <Mark>Lens2</Mark>
+  </tb_H2_Visdata2>
+  <tb_H1_VisionCheck xmlns="VP">
+    <X>9.947</X>
+    <Y>14.622</Y>
+    <U>-0.070</U>
+    <X_Low>-0.5</X_Low>
+    <X_Hi>0.5</X_Hi>
+    <Y_Low>-0.5</Y_Low>
+    <Y_Hi>0.5</Y_Hi>
+    <U_Low>0</U_Low>
+    <U_Hi>0</U_Hi>
+    <Enable>true</Enable>
+    <Mark>检测1</Mark>
+  </tb_H1_VisionCheck>
+  <tb_H1_VisionCheck xmlns="VP">
+    <X>10.199</X>
+    <Y>14.567</Y>
+    <U>-0.070</U>
+    <X_Low>-0.5</X_Low>
+    <X_Hi>0.5</X_Hi>
+    <Y_Low>-0.5</Y_Low>
+    <Y_Hi>0.5</Y_Hi>
+    <U_Low>0</U_Low>
+    <U_Hi>0</U_Hi>
+    <Enable>true</Enable>
+    <Mark>检测2</Mark>
+  </tb_H1_VisionCheck>
+  <tb_H1_VisionCheck xmlns="VP">
+    <X>10.272</X>
+    <Y>14.604</Y>
+    <U>-0.070</U>
+    <X_Low>-0.5</X_Low>
+    <X_Hi>0.5</X_Hi>
+    <Y_Low>-0.5</Y_Low>
+    <Y_Hi>0.5</Y_Hi>
+    <U_Low>0</U_Low>
+    <U_Hi>0</U_Hi>
+    <Enable>true</Enable>
+    <Mark>检测3</Mark>
+  </tb_H1_VisionCheck>
+  <tb_H1_VisionCheck xmlns="VP">
+    <X>10.144</X>
+    <Y>14.640</Y>
+    <U>-0.070</U>
+    <X_Low>-0.5</X_Low>
+    <X_Hi>0.5</X_Hi>
+    <Y_Low>-0.5</Y_Low>
+    <Y_Hi>0.5</Y_Hi>
+    <U_Low>0</U_Low>
+    <U_Hi>0</U_Hi>
+    <Enable>true</Enable>
+    <Mark>检测4</Mark>
+  </tb_H1_VisionCheck>
+  <tb_ST1_VisCalib xmlns="VP">
+    <PixelX>1383.988</PixelX>
+    <PixelY>959.13</PixelY>
+    <MotorPoxtX>-179.795</MotorPoxtX>
+    <MotorPoxtY>-176.106</MotorPoxtY>
+  </tb_ST1_VisCalib>
+  <tb_ST1_VisCalib xmlns="VP">
+    <PixelX>1382.667</PixelX>
+    <PixelY>1182.907</PixelY>
+    <MotorPoxtX>-174.857</MotorPoxtX>
+    <MotorPoxtY>-176.103</MotorPoxtY>
+  </tb_ST1_VisCalib>
+  <tb_ST1_VisCalib xmlns="VP">
+    <PixelX>1378.599</PixelX>
+    <PixelY>1411.268</PixelY>
+    <MotorPoxtX>-169.884</MotorPoxtX>
+    <MotorPoxtY>-176.075</MotorPoxtY>
+  </tb_ST1_VisCalib>
+  <tb_ST1_VisCalib xmlns="VP">
+    <PixelX>1599.646</PixelX>
+    <PixelY>962.453</PixelY>
+    <MotorPoxtX>-179.811</MotorPoxtX>
+    <MotorPoxtY>-171.084</MotorPoxtY>
+  </tb_ST1_VisCalib>
+  <tb_ST1_VisCalib xmlns="VP">
+    <PixelX>1366.504</PixelX>
+    <PixelY>1416.972</PixelY>
+    <MotorPoxtX>-169.863</MotorPoxtX>
+    <MotorPoxtY>-176.112</MotorPoxtY>
+  </tb_ST1_VisCalib>
+  <tb_ST1_Visdata xmlns="VP" />
+  <tb_ST2_VisCalib xmlns="VP" />
+  <tb_ST2_Visdata xmlns="VP" />
+  <MESSETTING />
+</NewDataSet>

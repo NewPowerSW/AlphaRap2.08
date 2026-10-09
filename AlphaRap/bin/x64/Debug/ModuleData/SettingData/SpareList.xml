@@ -1,0 +1,67 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table1>
+    <partsname>Vacuum generator</partsname>
+    <ModelNo>ZK2A12K5AL-08-8</ModelNo>
+    <Lifespantimes>400000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>2152853</Usedtimes>
+    <Lastchangetime>2024/03/11</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Vacuum filter</partsname>
+    <ModelNo>ZFC74-B(CKT)</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>2152853</Usedtimes>
+    <Lastchangetime>2024/03/11</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Ring photoelectric</partsname>
+    <ModelNo>ZJL02-D15</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>2152852</Usedtimes>
+    <Lastchangetime>2024/03/11</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Fiber</partsname>
+    <ModelNo>FD-EG31</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>2152853</Usedtimes>
+    <Lastchangetime>2024/03/11</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Photoelectric</partsname>
+    <ModelNo>PM-Y67</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>2152852</Usedtimes>
+    <Lastchangetime>2024/03/11</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Slider</partsname>
+    <ModelNo>QHH15CAZ0C</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>2152852</Usedtimes>
+    <Lastchangetime>2024/03/11</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Cylinder sensor</partsname>
+    <ModelNo>551377 SMT-10M-NS-24V-E-2.5-L-OE</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>2152852</Usedtimes>
+    <Lastchangetime>2024/03/11</Lastchangetime>
+  </Table1>
+  <Table1>
+    <partsname>Stoper</partsname>
+    <ModelNo>DWG-1000000000</ModelNo>
+    <Lifespantimes>100000</Lifespantimes>
+    <Timesforalarm>100000</Timesforalarm>
+    <Usedtimes>2152852</Usedtimes>
+    <Lastchangetime>2024/03/11</Lastchangetime>
+  </Table1>
+</NewDataSet>

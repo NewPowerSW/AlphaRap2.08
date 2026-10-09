@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ProductSetting xmlns="ProductManagerForm">
+    <PRODUCTID>VSM2S83GM05A</PRODUCTID>
+    <STEPID>SG0192</STEPID>
+    <RECIPEID>VSM2S83GM05A</RECIPEID>
+    <PORTID>VSM2S83GM05A</PORTID>
+    <SN1KeySub>882</SN1KeySub>
+    <EnableSN1KeySub>false</EnableSN1KeySub>
+    <SN2KeySub>1</SN2KeySub>
+    <EnableSN2KeySub>false</EnableSN2KeySub>
+    <UseAtray>true</UseAtray>
+    <EnableAI5>true</EnableAI5>
+  </ProductSetting>
+  <MSet xmlns="PlatFormSetting" />
+  <MSet xmlns="Manual" />
+  <PSet xmlns="Manual" />
+  <RFID xmlns="Manual" />
+  <MESSETTING />
+</NewDataSet>

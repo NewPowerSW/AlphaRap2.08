@@ -19,6 +19,11 @@ mono_crash.*
 # Build results
 
 AlphaRap/bin/x64/Debug/*
+# 运行配置（新克隆后可直接运行；设备上的正式配置以机台为准）
+!AlphaRap/bin/x64/Debug/MachineSetup.ini
+!AlphaRap/bin/x64/Debug/ModuleData/
+!AlphaRap/bin/x64/Debug/LanguageData/
+!AlphaRap/bin/x64/Debug/AlarmTable/
 AlphaRapLibrary/
 Vucontrol/
 !AlphaRap/bin/x64/Debug/VisionData/

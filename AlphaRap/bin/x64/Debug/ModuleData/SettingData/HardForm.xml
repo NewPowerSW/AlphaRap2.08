@@ -1,0 +1,115 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Scan1>
+    <Scan1>1380.5</Scan1>
+    <Annotation>material position</Annotation>
+  </Scan1>
+  <Scan1>
+    <Scan1>285.124</Scan1>
+    <Annotation>Scan position1</Annotation>
+  </Scan1>
+  <Scan1>
+    <Scan1>239.976</Scan1>
+    <Annotation>Scan position2</Annotation>
+  </Scan1>
+  <Scan1>
+    <Scan1>0</Scan1>
+    <Annotation>Out position</Annotation>
+  </Scan1>
+  <Scan1>
+    <Scan1>0</Scan1>
+    <Annotation>CPK1</Annotation>
+  </Scan1>
+  <Scan1>
+    <Scan1>0</Scan1>
+    <Annotation>CPK2</Annotation>
+  </Scan1>
+  <Scan2>
+    <Scan2>1494.762</Scan2>
+    <Annotation>material position</Annotation>
+  </Scan2>
+  <Scan2>
+    <Scan2>289.876</Scan2>
+    <Annotation>Scan position1</Annotation>
+  </Scan2>
+  <Scan2>
+    <Scan2>243</Scan2>
+    <Annotation>Scan position2</Annotation>
+  </Scan2>
+  <Scan2>
+    <Scan2>-25.5</Scan2>
+    <Annotation>Out position</Annotation>
+  </Scan2>
+  <Scan2>
+    <Scan2>0</Scan2>
+    <Annotation>CPK1</Annotation>
+  </Scan2>
+  <Scan2>
+    <Scan2>0</Scan2>
+    <Annotation>CPK2</Annotation>
+  </Scan2>
+  <Scan2>
+    <Scan2>-25.5</Scan2>
+    <Annotation>0</Annotation>
+  </Scan2>
+  <Lift>
+    <Lift>-32</Lift>
+    <Annotation>Out position1</Annotation>
+  </Lift>
+  <Lift>
+    <Lift>571.5</Lift>
+    <Annotation>material position</Annotation>
+  </Lift>
+  <Lift>
+    <Lift>-32</Lift>
+    <Annotation>Out position2</Annotation>
+  </Lift>
+  <X>
+    <X>553.489</X>
+    <Annotation>material position</Annotation>
+  </X>
+  <X>
+    <X>167.9</X>
+    <Annotation>NG1</Annotation>
+  </X>
+  <X>
+    <X>215.499</X>
+    <Annotation>NG2</Annotation>
+  </X>
+  <X>
+    <X>263.15</X>
+    <Annotation>NG3</Annotation>
+  </X>
+  <X>
+    <X>311</X>
+    <Annotation>NG4</Annotation>
+  </X>
+  <X>
+    <X>358.4</X>
+    <Annotation>NG5</Annotation>
+  </X>
+  <X>
+    <X>405.6</X>
+    <Annotation>Safty Position</Annotation>
+  </X>
+  <X>
+    <X>83.394</X>
+    <Annotation>Put position1</Annotation>
+  </X>
+  <X>
+    <X>21.797</X>
+    <Annotation>Put  position2</Annotation>
+  </X>
+  <X>
+    <X>552.92</X>
+    <Annotation>Tary1 Get Pos</Annotation>
+  </X>
+  <X>
+    <X>552.92</X>
+    <Annotation>Tary2 Get Pos1</Annotation>
+  </X>
+  <X>
+    <X>589.92</X>
+    <Annotation>Tary2 Get Pos2</Annotation>
+  </X>
+</NewDataSet>

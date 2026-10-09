@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <MSet>
+    <UserScannerBarcode>false</UserScannerBarcode>
+    <UserVision>false</UserVision>
+    <UserDoor>false</UserDoor>
+    <UserTryRun>false</UserTryRun>
+    <UserBuzzer>false</UserBuzzer>
+    <DisableVisionCheck>false</DisableVisionCheck>
+    <DisableCV1>false</DisableCV1>
+    <DisableCV2>false</DisableCV2>
+    <DisableSMEMA>false</DisableSMEMA>
+    <ManualFeedin>false</ManualFeedin>
+    <FeedinDelay>10000</FeedinDelay>
+    <UseScanHousing>false</UseScanHousing>
+    <UseScanBoard>true</UseScanBoard>
+    <UseScanLens>true</UseScanLens>
+    <DisableRobot>false</DisableRobot>
+    <AxisSpeed>40</AxisSpeed>
+    <RobotSpeed>30</RobotSpeed>
+    <DryrunWithRobot>false</DryrunWithRobot>
+    <UseMes>true</UseMes>
+    <EnableRecheck>false</EnableRecheck>
+    <EnableRotaryCyl>true</EnableRotaryCyl>
+    <QTime>30</QTime>
+    <DisableQTime>false</DisableQTime>
+    <UserScan1Axis>true</UserScan1Axis>
+    <UserScan2Axis>true</UserScan2Axis>
+    <DisableMeasureHeight>false</DisableMeasureHeight>
+    <deletedays>7</deletedays>
+    <DisableAssembly>false</DisableAssembly>
+    <DisableNewHightSensor>false</DisableNewHightSensor>
+  </MSet>
+  <PSet />
+</NewDataSet>

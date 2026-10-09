@@ -1,0 +1,192 @@
+﻿<AlarmTable>
+  <A2009 Type = "E" Content = "An unpredictable error occurred on VisionRun()" DoStop = "True" />
+  <A2010 Type = "E" Content = "An unpredictable error occurred on AlwaysRun()" DoStop = "True" />
+  <A2011 Type = "E" Content = "An unpredictable error occurred on ServoOn()" DoStop = "True" />
+  <A2012 Type = "E" Content = "An unpredictable error occurred on ServoOff()" DoStop = "True" />
+  <A2013 Type = "E" Content = "An unpredictable error occurred on ExecuteReset()" DoStop = "True" />
+  <A2014 Type = "E" Content = "An unpredictable error occurred on InitialReset()" DoStop = "True" />
+  <A2015 Type = "E" Content = "An unpredictable error occurred on Initial()" DoStop = "True" />
+  <A2016 Type = "E" Content = "An unpredictable error occurred on RunReset()" DoStop = "True" />
+  <A2017 Type = "E" Content = "An unpredictable error occurred on Run()" DoStop = "True" />
+  <A2018 Type = "E" Content = "An unpredictable error occurred on Execute RefreshIO()" DoStop = "True" />
+  <A2019 Type = "E" Content = "An unpredictable error occurred on Execute AlwaysRun()" DoStop = "True" />
+  <A2020 Type = "E" Content = "An unpredictable error occurred on Execute CheckMotorProtected()" DoStop = "True" />
+  <A2021 Type = "E" Content = "An unpredictable error occurred on Execute RunAuto()" DoStop = "True" />
+  <A2022 Type = "E" Content = "An unpredictable error occurred on Execute RunHome()" DoStop = "True" />
+  <A2023 Type = "W" Content = "Setting data didn't found the column," DoStop = "False" />
+  <A2024 Type = "W" Content = "Recipe Data didn't found the column" DoStop = "False" />
+  <A2025 Type = "W" Content = "Setting data didn't set value" DoStop = "False" />
+  <A2026 Type = "W" Content = "Recipe Data didn't set value" DoStop = "False" />
+  <A2030 Type = "E" Content = "The axis alarm" DoStop = "True" />
+  <A2031 Type = "E" Content = "The axis hardware limit" DoStop = "False" />
+  <A2032 Type = "E" Content = "The axis software limit" DoStop = "False" />
+  <A2980 Type = "E" Content = "File can not Operate，Please close File" DoStop = "True" />
+
+  <A3999 Type = "E" Content = "Read Axxon Data Fail" DoStop = "True" />
+  <A4000 Type = "E" Content = "Conveyor has board, please remove board" DoStop = "True" />
+  <A4001 Type = "E" Content = "Stopper 1 or Stopper 2 move up action overtime" DoStop = "True" />
+  <A4002 Type = "E" Content = "Stopper 1 or Stopper 2 move down action overtime" DoStop = "True" />
+  <A4003 Type = "E" Content = "Stopper 3 or Stopper 4 move up action overtime" DoStop = "True" />
+  <A4004 Type = "E" Content = "Stopper 3 or Stopper 4 move down action overtime" DoStop = "True" />
+  <A4005 Type = "E" Content = "Conveyor1 Lifter  move up action overtime" DoStop = "True" />
+  <A4006 Type = "E" Content = "" DoStop = "True" />
+  <A4007 Type = "E" Content = "Conveyor2 Lifter  move up action overtime" DoStop = "True" />
+  <A4008 Type = "E" Content = "Conveyor2 Lifter  move down action overtime" DoStop = "True" />
+  <A4009 Type = "E" Content = "Conveyor load board action overtime" DoStop = "True" />
+  <A4010 Type = "E" Content = "Conveyor index board action overtime" DoStop = "True" />
+  <A4011 Type = "E" Content = "Conveyor unload board action overtime" DoStop = "True" />
+  <A4012 Type = "E" Content = "Connect to Barcode Scanner failed" DoStop = "True" />
+  <A4013 Type = "E" Content = "Scan board's Serial Number action overtime" DoStop = "True" />
+  <A4014 Type = "E" Content = "Conveyor1 Board go to Front Sensor failed" DoStop = "True" />
+  <A4015 Type = "E" Content = "Conveyor2 Board go to Front Sensor failed" DoStop = "True" />
+  <A4016 Type = "E" Content = "Conveyor1 Board go to Origin Sensor failed" DoStop = "True" />
+  <A4017 Type = "E" Content = "Conveyor2 Board go to Origin Sensor failed" DoStop = "True" />
+  <A4018 Type = "E" Content = "Conveyor1 Board Home failed" DoStop = "True" />
+  <A4019 Type = "E" Content = "Conveyor2 Board Home failed" DoStop = "True" />
+  <A4020 Type = "E" Content = "Conveyor1 Board go to work position failed" DoStop = "True" />
+  <A4021 Type = "E" Content = "Conveyor2 Board go to work position failed" DoStop = "True" />
+  <A4022 Type = "E" Content = "Conveyor1 Board go to out Sensor failed" DoStop = "True" />
+  <A4023 Type = "E" Content = "Conveyor1 Board go to out Sensor failed" DoStop = "True" />
+
+  <A4031 Type = "E" Content = "Conveyor 2 Jacking 2 Out Position Timeout"  UnitName="Unit_Conveyor2"  DoStop = "True" />
+  <A4032 Type = "E" Content = "Conveyor 2 Lifter Out Position Timeout"  UnitName="Unit_Conveyor2" DoStop = "True" />
+  <A4037 Type = "E" Content = "Conveyor 2 Lifter Back Position Timeout"  UnitName="Unit_Conveyor2"  DoStop = "True" />
+  <A4048 Type = "E" Content = "Conveyor 2 Jacking 1 Out Position Timeout"  UnitName="Unit_Conveyor2"  DoStop = "True" />
+  <A4050 Type = "E" Content = "Lens Scan Error NG Tray Full"  UnitName="Unit_CameraFeeder" DoStop = "True" />
+  <A4072 Type = "E" Content = "Conveyor 1 Jacking Up Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4105 Type = "E" Content = "Move Camera Module Put Timeout"  UnitName="Unit_Conveyor1" DoStop = "True" />
+  <A4109 Type = "E" Content = "Conveyor 1 Lift Down Timeout"  UnitName="Unit_Conveyor1" DoStop = "True" />
+  <A4111 Type = "E" Content = "Conveyor 1 Lift Up Timeout" UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4112 Type = "E" Content = "Conveyor 1 OpenClasp CLOSE Timeout"  UnitName="Unit_Conveyor1" DoStop = "True" />
+  <A4113 Type = "E" Content = "Conveyor 1 Plate Sensor no input" UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4114 Type = "E" Content = "Conveyor 1 Grippery OPEN Timeout!"  UnitName="Unit_Conveyor1" DoStop = "True" />
+  <A4115 Type = "E" Content = "Conveyor 1 OpenClasp Open Timeout" UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4116 Type = "E" Content = "Conveyor 2 OpenClasp CLOSE Timeout"  UnitName="Unit_Conveyor2" DoStop = "True" />
+  <A4117 Type = "E" Content = "Conveyor 2 Plate Sensor no input" UnitName="Unit_Conveyor2" DoStop = "True" />
+  <A4118 Type = "E" Content = "Conveyor 2 OpenClasp Open Timeout" UnitName="Unit_Conveyor2" DoStop = "True" />
+
+  <A4133 Type = "E" Content = "Lens Scan Cylinder Move Timeout"  DoStop = "True" />
+  <A4134 Type = "E" Content = "Scan Connect Fail" DoStop = "True" />
+  <A4135 Type = "E" Content = "CCD Connect Fail" DoStop = "True" />
+  <A4136 Type = "E" Content = "IB_LiftConveyor_Stop Sensor Fail"  UnitName="Unit_DownConveyor"  DoStop = "True" />
+  <A4137 Type = "E" Content = "Close lid Fail"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4138 Type = "E" Content = "LiftConveyor Move Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4139 Type = "E" Content = "Lift shaft blocking cylinder is not in place" DoStop = "True" />
+  <A4140 Type = "E" Content = "Please check whether the direction of the tray in runner 1 is correct"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4141 Type = "E" Content = "Please check whether the direction of the tray in runner 2 is correct"  UnitName="Unit_Conveyor2"  DoStop = "True" />
+
+  <A4144 Type = "E" Content = "Conveyor1 Tray Mes NG Plaese Take Out This Tray" UnitName="Unit_Conveyor1"  DoStop = "False" />
+  <A4145 Type = "E" Content = "Conveyor2 Tray Mes NG Plaese Take Out This Tray" UnitName="Unit_Conveyor2"  DoStop = "False" />
+
+  <A4156 Type = "E" Content = "LensCode can not found,Please Take Lens" UnitName="Unit_RobotPickLens"   DoStop = "True" />
+
+  <A4169 Type = "E" Content = "Pick Bottom1 Failed"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+  <A4170 Type = "E" Content = "Pick Bottom2 Failed"  UnitName="Unit_TakeHousing2"  DoStop = "True" />
+  <A4171 Type = "E" Content = "Move Camera Module Trans Out Timeout" DoStop = "True" />
+  <A4172 Type = "E" Content = "Axis1Housing1 QTime Timeout!"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+  <A4173 Type = "E" Content = "Axis2Housing1 QTime Timeout!"  UnitName="Unit_TakeHousing2"  DoStop = "True" />
+  <A4174 Type = "E" Content = "Bottom and Lens NG Tray No in Place"  DoStop = "True" />
+  <A4175 Type = "E" Content = "Bottom NG Tray Full, Please Replace"   UnitName="Unit_TakeHousing1"  DoStop = "True" />
+  <A4176 Type = "E" Content = "Conveyor Tray Housing1 Barcode is null,Please Replace"  UnitName="Unit_UpCamera"  DoStop = "True" />
+  <A4177 Type = "E" Content = "Conveyor Tray Housing1 Snap Fail,Please Recheck"  UnitName="Unit_UpCamera"  DoStop = "True" />
+  <A4178 Type = "E" Content = "Conveyor Tray Housing2 Barcode is null,Please Replace "  UnitName="Unit_UpCamera"  DoStop = "True" />
+  <A4179 Type = "E" Content = "Conveyor Tray Housing2 Snap Fail,Please Recheck "  UnitName="Unit_UpCamera"  DoStop = "True" />
+  <A4180 Type = "E" Content = "Please clear Lens"  UnitName="Unit_RobotPickLens"  DoStop = "True" />
+  <A4181 Type = "E" Content = "Feed_Rotart_Cyl_BACK Timeout"  UnitName="Unit_RobotPickLens"  DoStop = "True" />
+  <A4182 Type = "E" Content = "Feed_Rotary_Cyl_OUT Timeout"  UnitName="Unit_RobotPickLens"  DoStop = "True" />
+  <A4183 Type = "E" Content = "Feed_Transfer_Cyl_BACK Timeout"  UnitName="Unit_RobotPickLens"  DoStop = "True" />
+  <A4184 Type = "E" Content = "Feed_Lift_Cyl_DOWN Timeout!"  UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4185 Type = "E" Content = "Feed_Gripper_Cyl_CLOSE Timeout!"  UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4186 Type = "E" Content = "Feed_Lift_Cyl_UP Timeout!"  UnitName="Unit_CameraFeeder"   DoStop = "True" />
+  <A4187 Type = "E" Content = "Feed_Gripper_Cyl_OPEN Timeout!"  UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4188 Type = "E" Content = "Lens NG Tray Full,Please Replace!" DoStop = "True" />
+  <A4189 Type = "E" Content = "CameraScan_Cylinder_OUT Timeout"  UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4190 Type = "E" Content = "CameraScan_Cylinder_BACK Timeout" UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4191 Type = "E" Content = "Please Check Lens Sensor"  UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4192 Type = "E" Content = "Bottom1 Measure Height Fail.Please Check Bottom1"  UnitName=""  DoStop = "True" />
+  <A4193 Type = "E" Content = "Bottom2 Measure Height Fail.Please Check Bottom2"  UnitName=""  DoStop = "True" />
+
+
+  <A5000 Type = "E" Content = "Suction Screw Failed" DoStop = "True" />
+  <A5001 Type = "E" Content = "No Screw" DoStop = "True" />
+  <A5002 Type = "E" Content = "Screwdriver failed to start" DoStop = "True" />
+  <A5003 Type = "E" Content = "Robot initialization failed" DoStop = "True" />
+  <A5010 Type = "E" Content = "Wait Feeder 1 screw present overtime" DoStop = "True" />
+  <A5011 Type = "E" Content = "Wait Feeder 2 screw present overtime" DoStop = "True" />
+  <A5012 Type = "E" Content = "ScrewCylinder UP failed" DoStop = "False" />
+  <A5013 Type = "W" Content = "Nozzle Fastener Head 2 pick screw failed" DoStop = "False" />
+  <A5014 Type = "E" Content = "Fastener Head 1 screw repick exceed preset limit" DoStop = "True" />
+  <A5015 Type = "E" Content = "Fastener Head 2 screw repick exceed preset limit" DoStop = "True" />
+  <A5016 Type = "E" Content = "Fastener Head 1 Controller is busy" DoStop = "True" />
+  <A5017 Type = "E" Content = "Fastener Head 2 Controller is busy" DoStop = "True" />
+  <A5018 Type = "E" Content = "Fastener Head 1 Controller fasten action overtime" DoStop = "True" />
+  <A5019 Type = "E" Content = "Fastener Head 2 Controller fasten action overtime" DoStop = "True" />
+  <A5020 Type = "E" Content = "Robot Start Fail!" DoStop = "True" />
+  <A5021 Type = "E" Content = "Robot Start Screw Fail!" DoStop = "True" />
+  <A5022 Type = "E" Content = "Torque controller connect fail" DoStop = "True" />
+  <A5023 Type = "E" Content = "Fastener Head 2 wait torque controller result time out" DoStop = "True" />
+  <A5024 Type = "E" Content = "Robot ALARM" DoStop = "True" />
+  <A5040 Type = "E" Content = "Convery1 Motor Alarm" DoStop = "True" />
+  <A5041 Type = "E" Content = "Convery2 Motor Alarm" DoStop = "True" />
+  <A5042 Type = "E" Content = "BackConvery Motor Alarm" DoStop = "True" />
+  <A5043 Type = "E" Content = "PLC connect fail!" DoStop = "True" />
+  <A5050 Type = "E" Content = "Screw Fail!" DoStop = "True" />
+  <A5051 Type = "E" Content = "Send data to Robot failed!" DoStop = "True" />
+
+
+  <A7000 Type = "E" Content = "Station1_StopSensor4 Up Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7001 Type = "E" Content = "Station1 Timeout in place"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7002 Type = "E" Content = "Station1_StopSensor3 Up Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7003 Type = "E" Content = "Station1_Jacking2 Up Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7004 Type = "E" Content = "Station1_Grippery OPEN Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7005 Type = "E" Content = "Station1_LiftCylinder OUT Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7006 Type = "E" Content = "Station1_Grippery CLOSE Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7007 Type = "E" Content = "Station1_LiftCylinder BACK Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7008 Type = "E" Content = "Station1_Jacking2 Down Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7009 Type = "E" Content = "Station1_StopSensor3 DOWN Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7010 Type = "E" Content = "Station1_StopSensor1 Up Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7011 Type = "E" Content = "Station1_StopSensor2 Up Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7012 Type = "E" Content = "Station1_Jacking1 DOWN Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7020 Type = "E" Content = "Conveyor 1 Gripper has Plant,Please Take Out"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7021 Type = "E" Content = "Conveyor 2 Gripper has Plant,Please Take Out"  UnitName="Unit_Conveyor2"  DoStop = "True" />
+  <A7022 Type = "E" Content = "Lift Conveyot has Plant,Please Take Out" DoStop = "True" />
+  <A7029 Type = "E" Content = "Read ST3 data Fail!,Please Remove it by Manual"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+
+  <A8066 Type = "E" Content = "Station2_Cover_LiftCylinder_BACK Timeout"  UnitName="Unit_Conveyor2"  DoStop = "True" />
+  <A8075 Type = "E" Content = "Station1_Cover_LiftCylinder_BACK Timeout"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+
+  <A8200 Type = "E" Content = "Robot TakeLidGP1DownNG" DoStop = "True" />
+  <A8201 Type = "E" Content = "Robot TakeLidGP1UPNG" DoStop = "True" />
+  <A8202 Type = "E" Content = "Robot TakeLidGP1CloseNG" DoStop = "True" />
+  <A8203 Type = "E" Content = "Robot TakeLidGP2DownNG" DoStop = "True" />
+  <A8204 Type = "E" Content = "Robot TakeLidGP2UPNG" DoStop = "True" />
+  <A8205 Type = "E" Content = "Robot TakeLidGP2CloseNG" DoStop = "True" />
+  <A8206 Type = "E" Content = "Robot TakeBTCGP1DownNG" DoStop = "True" />
+  <A8207 Type = "E" Content = "Robot TakeBTCGP2DownNG" DoStop = "True" />
+  <A8075 Type = "E" Content = "Conveyor 1 Lift Cylinder Back Time Out" DoStop = "True" />
+  <A8066 Type = "E" Content = "Conveyor 2 Lift Cylinder Back Timeout" DoStop = "True" />
+  <A8208 Type = "E" Content = "Robot TakeLidGP1OPENNG" DoStop = "True" />
+  <A8209 Type = "E" Content = "Robot TakeLidGP2OPENNG" DoStop = "True" />
+  <A8210 Type = "E" Content = "Robot TakeBTCGP1UPNG" DoStop = "True" />
+  <A8211 Type = "E" Content = "Robot TakeBTCGP2UPNG" DoStop = "True" />
+  <A8212 Type = "E" Content = "Robot Pick Housing Fail" DoStop = "True" />
+  <A8233 Type = "E" Content = "Write Robot String Fail" DoStop = "True" />
+  <A8234 Type = "E" Content = "Write Robot Position Fail" DoStop = "True" />
+  <A8235 Type = "E" Content = "Scan Lens Fail Please Manual Scan Lens Barcode"   UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A8236 Type = "E" Content = "Conveyor 1 Have product MeasureHeight NG,Please check" UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A8237 Type = "E" Content = "Conveyor 2 Have product MeasureHeight NG,Please check"  UnitName="Unit_Conveyor2"  DoStop = "True" />
+
+
+  <A9000 Type = "W" Content = "Waiting for up station input"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+  <A9001 Type = "E" Content = "Open Jig Fail,Please Check Cyclinder" DoStop = "True" />
+  <A9002 Type = "E" Content = "Take Lens Out of Time,Please Check Lens Feeder" DoStop = "True" />
+
+  <A9010 Type = "E" Content = "UpCamera Vision Process Error" DoStop = "True" />
+  <A9011 Type = "E" Content = "Vision Recheck Fail" DoStop = "True" />
+
+  <A9991 Type = "E" Content = "Front EMG Stop 1 Press" DoStop = "True" />
+  <A9992 Type = "E" Content = "Front EMG Stop 2 Press" DoStop = "True" />
+  <A9993 Type = "E" Content = "Back EMG Stop Press" DoStop = "True" />
+  <A9994 Type = "E" Content = "Safe Door Is Open" DoStop = "True" />
+
+</AlarmTable>

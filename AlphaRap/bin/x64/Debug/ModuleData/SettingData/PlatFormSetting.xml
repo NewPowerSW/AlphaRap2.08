@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <PSet>
+    <AsmTrayColumnNum>6</AsmTrayColumnNum>
+    <AsmTrayRowNum>5</AsmTrayRowNum>
+    <AsmTrayColumnDistance>46</AsmTrayColumnDistance>
+    <AsmTrayRowDistance>48</AsmTrayRowDistance>
+    <LensATrayColumnNum>5</LensATrayColumnNum>
+    <LensATrayRowNum>5</LensATrayRowNum>
+    <LensATrayColumnDistance>37.5</LensATrayColumnDistance>
+    <LensBTrayColumnNum>9</LensBTrayColumnNum>
+    <LensBTrayRowNum>3</LensBTrayRowNum>
+    <LensBTrayColumnDistance>75</LensBTrayColumnDistance>
+    <NGTrayRowNum>2</NGTrayRowNum>
+    <NGTrayColumnNum>3</NGTrayColumnNum>
+    <NGTrayRowDistance>48</NGTrayRowDistance>
+    <NGTrayColumnDistance>48</NGTrayColumnDistance>
+  </PSet>
+</NewDataSet>

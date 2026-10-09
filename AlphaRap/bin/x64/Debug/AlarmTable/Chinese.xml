@@ -1,0 +1,305 @@
+﻿<AlarmTable>
+  <A0000 Type = "E" Content = "IO卡初始化失败" DoStop = "True" />
+  <A0001 Type = "E" Content = "运动控制板初始化失败" DoStop = "True" />
+  <A0002 Type = "E" Content = "I/O plate communication failed! IO" DoStop = "True" />
+  <A0003 Type = "E" Content = "Motion plate communication failed!" DoStop = "True" />
+  <A0004 Type = "E" Content = "Air pressure out of limit" DoStop = "True" />
+  <A0005 Type = "E" Content = "Auto or manual mode is not properly" DoStop = "True" />
+  <A0006 Type = "E" Content = "Safty module is off" DoStop = "True" />
+  <A0021 Type = "E" Content = "Emergency stop" DoStop = "true" />
+  <A0022 Type = "E" Content = "The safety door is opened" DoStop = "True" />
+  <A0100 Type = "E" Content = "轴报警" DoStop = "True" />
+  <A0101 Type = "E" Content = "The axis hardware limit" DoStop = "False" />
+  <A0102 Type = "E" Content = "The axis software limit" DoStop = "False" />
+  <A0103 Type = "E" Content = "Z-axis homing timeout" DoStop = "True" />
+  <A0104 Type = "E" Content = "Z-axis Out of safe position" DoStop = "True" />
+  <A0105 Type = "E" Content = "Z-axis moving timeout!" DoStop = "True" />
+  <A0106 Type = "E" Content = "Z-axis homing timeout" DoStop = "True" />
+  <A0108 Type = "E" Content = "X-axis Out of safe position" DoStop = "True" />
+  <A0109 Type = "E" Content = "Z-axis moving timeout!" DoStop = "True" />
+  <A0110 Type = "E" Content = "Z-axis homing timeout" DoStop = "True" />
+  <A113 Type = "E" Content = "Y-axis Out of safe position" DoStop = "True" />
+  <A114 Type = "E" Content = "Y-axis moving timeout!" DoStop = "True" />
+  <A115 Type = "E" Content = "Z-axis homing timeout" DoStop = "True" />
+  <A116 Type = "E" Content = "Z-axis homing timeout" DoStop = "True" />
+  <A119 Type = "E" Content = "Z-2-axis Out of safe position" DoStop = "True" />
+  <A120 Type = "E" Content = "Z-2-axis moving timeout!" DoStop = "True" />
+  <A121 Type = "E" Content = "Z-2-axis homing timeout" DoStop = "True" />
+  <A124 Type = "E" Content = "X-2-axis Out of safe position" DoStop = "True" />
+  <A125 Type = "E" Content = "X-2-axis moving timeout!" DoStop = "True" />
+  <A126 Type = "E" Content = "X-2-axis homing timeout" DoStop = "True" />
+  <A129 Type = "E" Content = "Y-2-axis Out of safe position" DoStop = "True" />
+  <A130 Type = "E" Content = "Y-2-axis moving timeout!" DoStop = "True" />
+  <A131 Type = "E" Content = "Y-2-axis homing timeout" DoStop = "True" />
+  <A200 Type = "E" Content = "Conveyor out timeout" DoStop = "True" />
+  <A201 Type = "E" Content = "Conveyor in timeout" DoStop = "True" />
+  <A202 Type = "E" Content = "Conveyor slow1 timeout" DoStop = "True" />
+  <A203 Type = "E" Content = "Conveyor position1 timeout" DoStop = "True" />
+  <A204 Type = "E" Content = "Conveyor lifter1 down timeout" DoStop = "True" />
+  <A205 Type = "E" Content = "Conveyor lifter1 up timeout" DoStop = "True" />
+  <A206 Type = "E" Content = "Conveyor stopper down timeout" DoStop = "True" />
+  <A207 Type = "E" Content = "Conveyor stopper up timeout" DoStop = "True" />
+  <A300 Type = "E" Content = "Camera1 connection failed!" DoStop = "True" />
+  <A301 Type = "E" Content = "Camera2 connection failed!" DoStop = "True" />
+  <A302 Type = "E" Content = "Camera1 alignment out of limit" DoStop = "True" />
+  <A303 Type = "E" Content = "Camera2 alignment out of limit" DoStop = "True" />
+  <A304 Type = "E" Content = "Camera1 detects no product" DoStop = "True" />
+  <A305 Type = "E" Content = "Camera2 detects no product" DoStop = "True" />
+  <A400 Type = "E" Content = "复位机器人超时" DoStop = "True" />
+  <A401 Type = "E" Content = "停止机器人超时" DoStop = "True" />
+  <A402 Type = "E" Content = "停止机器人超时" DoStop = "True" />
+  <A403 Type = "E" Content = "连接机器人失败" DoStop = "True" />
+  <A407 Type = "E" Content = "机器人报警" DoStop = "True" />
+  <A500 Type = "E" Content = "扫码枪连接失败" DoStop = "True" />
+  <A501 Type = "E" Content = "扫码失败" DoStop = "True" />
+  <A502 Type = "E" Content = "Wrong Barcode" DoStop = "True" />
+  <A600 Type = "E" Content = "PLC connection failed" DoStop = "True" />
+  <A601 Type = "E" Content = "Send data to PLC failed" DoStop = "True" />
+  <A602 Type = "E" Content = "Read data from PLC failed" DoStop = "True" />
+  <A700 Type = "E" Content = "Soldering alarm" DoStop = "True" />
+  <A800 Type = "E" Content = "VisionRun()报错" DoStop = "True" />
+  <A801 Type = "E" Content = "AlwaysRun()报错" DoStop = "True" />
+  <A802 Type = "E" Content = "ServoOn()报错" DoStop = "True" />
+  <A803 Type = "E" Content = "ServoOff()报错" DoStop = "True" />
+  <A804 Type = "E" Content = "ExecuteReset()报错" DoStop = "True" />
+  <A805 Type = "E" Content = "InitialReset()报错" DoStop = "True" />
+  <A806 Type = "E" Content = "Initial()报错" DoStop = "True" />
+  <A807 Type = "E" Content = "RunReset()报错" DoStop = "True" />
+  <A808 Type = "E" Content = "Run()报错" DoStop = "True" />
+  <A809 Type = "E" Content = "Execute RefreshIO()报错" DoStop = "True" />
+  <A810 Type = "E" Content = "Execute AlwaysRun()报错" DoStop = "True" />
+  <A811 Type = "E" Content = "Execute CheckMotorProtected()报错" DoStop = "True" />
+  <A812 Type = "E" Content = "Execute RunAuto()报错" DoStop = "True" />
+  <A813 Type = "E" Content = "Execute RunHome()报错" DoStop = "True" />
+  <A814 Type = "E" Content = "InitialParameterReset()报错" DoStop = "True" />
+
+  <A1000 Type = "W" Content = "输入组件初始化失败" DoStop = "False" />
+  <A1001 Type = "W" Content = "输出组件初始化失败" DoStop = "False" />
+  <A1002 Type = "W" Content = "运动组件初始化失败" DoStop = "False" />
+  <A1003 Type = "K" Content = "流程下一步未设置" DoStop = "False" />
+  <A1004 Type = "K" Content = "流程CASE1未设置" DoStop = "False" />
+  <A1005 Type = "K" Content = "流程CASE2未设置" DoStop = "False" />
+  <A1006 Type = "K" Content = "流程CASE3未设置" DoStop = "False" />
+  <A2000 Type = "W" Content = "执行初始化" DoStop = "False" />
+  <A2001 Type = "I" Content = "停止初始化" DoStop = "False" />
+  <A2002 Type = "I" Content = "取消初始化" DoStop = "False" />
+  <A2003 Type = "I" Content = "初始化完成" DoStop = "False" />
+  <A2004 Type = "I" Content = "执行自动操作" DoStop = "False" />
+  <A2005 Type = "I" Content = "停止自动操作" DoStop = "False" />
+  <A2006 Type = "I" Content = "结束自动操作" DoStop = "False" />
+  <A2007 Type = "I" Content = "自动运行已经结束" DoStop = "False" />
+  <A2009 Type = "E" Content = "VisionRun中出现错误" DoStop = "True" />
+  <A2010 Type = "E" Content = "AlwaysRun()中出现错误" DoStop = "True" />
+  <A2011 Type = "E" Content = "ServoOn()中出现错误" DoStop = "True" />
+  <A2012 Type = "E" Content = "ServoOff()中出现错误" DoStop = "True" />
+  <A2013 Type = "E" Content = "ExecuteReset()中出现错误" DoStop = "True" />
+  <A2014 Type = "E" Content = "InitialReset()中出现错误" DoStop = "True" />
+  <A2015 Type = "E" Content = "Initial()中出现错误" DoStop = "True" />
+  <A2016 Type = "E" Content = "RunReset()中出现错误" DoStop = "True" />
+  <A2017 Type = "E" Content = "Run()中出现错误" DoStop = "True" />
+  <A2018 Type = "E" Content = "RefreshIO()中出现错误" DoStop = "True" />
+  <A2019 Type = "E" Content = "AlwaysRun()中出现错误" DoStop = "True" />
+  <A2020 Type = "E" Content = "Execute CheckMotorProtected()中出现错误" DoStop = "True" />
+  <A2021 Type = "E" Content = "Execute RunAuto()中出现错误" DoStop = "True" />
+  <A2022 Type = "E" Content = "Execute RunHome()中出现错误" DoStop = "True" />
+  <A2023 Type = "W" Content = "设置参数中没有找到列" DoStop = "False" />
+  <A2024 Type = "W" Content = "配方参数中没有找到列" DoStop = "False" />
+  <A2025 Type = "W" Content = "设置参数中没有值" DoStop = "False" />
+  <A2026 Type = "W" Content = "配方参数中没有值" DoStop = "False" />
+  <A2030 Type = "E" Content = "轴报警" DoStop = "True" />
+  <A2031 Type = "E" Content = "轴到硬限位" DoStop = "False" />
+  <A2032 Type = "E" Content = "轴到软限位" DoStop = "False" />
+  <A2980 Type = "E" Content = "文件被占用，请解除占用后重试" DoStop = "True" />
+  <A3018 Type = "I" Content = "不能找到错误代码" DoStop = "True" />
+  <A3021 Type = "E" Content = "急停" DoStop = "true" />
+  <A3026 Type = "E" Content = "安全门被打开" DoStop = "True" />
+  <A3027 Type = "E" Content = "后面安全门被打开" DoStop = "True" />
+  <A3036 Type = "E" Content = "The security shutter1 is touched" DoStop = "True" />
+  <A3037 Type = "E" Content = "The security shutter2 is touched" DoStop = "True" />
+  <A3041 Type = "E" Content = "气压超限" DoStop = "True" />
+  <A3042 Type = "E" Content = "扫码气缸回位超时" DoStop = "True" />
+  <A3043 Type = "E" Content = "扫码气缸出位超时" DoStop = "True" />
+  <A3044 Type = "W" Content = "安全门禁用，门是开启状态" DoStop = "True" />
+  <A3050 Type = "E" Content = "连接光源控制器1失败" DoStop = "True" />
+  <A3051 Type = "E" Content = "连接光源控制器2失败" DoStop = "True" />
+  <A3052 Type = "E" Content = "Failed connect to torque controller 1" DoStop = "True" />
+  <A3053 Type = "E" Content = "Failed connect to torque controller 2" DoStop = "True" />
+  <A3138 Type = "E" Content = "机器人回原超时" DoStop = "True" />
+
+
+  <A4000 Type = "E" Content = "流道有板" DoStop = "True" />
+  <A4001 Type = "E" Content = "阻挡1、2动作超时" DoStop = "True" />
+  <A4002 Type = "E" Content = "阻挡1、2动作超时" DoStop = "True" />
+  <A4003 Type = "E" Content = "阻挡3、4动作超时" DoStop = "True" />
+  <A4004 Type = "E" Content = "阻挡3、4动作超时" DoStop = "True" />
+  <A4005 Type = "E" Content = "轴移动超时" DoStop = "True" />
+  <A4006 Type = "E" Content = "流道1顶升2顶升超时" DoStop = "True" />
+
+  <A4009 Type = "E" Content = "流道进板超时" DoStop = "True" />
+  <A4010 Type = "E" Content = "流道进板超时" DoStop = "True" />
+  <A4011 Type = "E" Content = "流道进板超时" DoStop = "True" />
+  <A4012 Type = "E" Content = "连接扫码枪超时" DoStop = "True" />
+  <A4013 Type = "E" Content = "扫码超时" DoStop = "True" />
+  <A4014 Type = "E" Content = "流道1失败" DoStop = "True" />
+  <A4015 Type = "E" Content = "流道2失败" DoStop = "True" />
+  <A4016 Type = "E" Content = "流道1失败" DoStop = "True" />
+  <A4017 Type = "E" Content = "流道1失败" DoStop = "True" />
+  <A4018 Type = "E" Content = "流道1失败" DoStop = "True" />
+  <A4019 Type = "E" Content = "流道1失败" DoStop = "True" />
+  <A4020 Type = "E" Content = "流道1失败" DoStop = "True" />
+  <A4021 Type = "E" Content = "流道1失败" DoStop = "True" />
+  <A4022 Type = "E" Content = "Conveyor1 Board go to out Sensor failed" DoStop = "True" />
+  <A4023 Type = "E" Content = "Conveyor1 Board go to out Sensor failed" DoStop = "True" />
+
+  <A4031 Type = "E" Content = "流道2顶升平台2顶升超时" UnitName="Unit_Conveyor2"   DoStop = "True" />
+  <A4032 Type = "E" Content = "流道2托举气缸出位超时"  UnitName="Unit_Conveyor2"  DoStop = "True" />
+  <A4037 Type = "E" Content = "流道2托举气缸回位超时"  UnitName="Unit_Conveyor2" DoStop = "True" />
+  <A4048 Type = "E" Content = "流道2顶升平台1顶升超时"  UnitName="Unit_Conveyor2" DoStop = "True" />
+  <A4050 Type = "E" Content = "镜头扫码失败NG盘放满"   UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4072 Type = "E" Content = "流道1顶升平台1超时" UnitName="Unit_Conveyor1"   DoStop = "True" />
+
+  <A4105 Type = "E" Content = "搬运模组放料超时" DoStop = "True" />
+  <A4109 Type = "E" Content = "流道1托举气缸下降超时" UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4111 Type = "E" Content = "流道1托举气缸上升超时" UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4112 Type = "E" Content = "流道1底部撑卡扣气缸关闭超时" UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4113 Type = "E" Content = "流道1上盖感应器未输入"  UnitName="Unit_Conveyor1" DoStop = "True" />
+  <A4114 Type = "E" Content = "流道1开盖气缸"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4115 Type = "E" Content = "流道1底部撑卡扣气缸打开超时" UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4116 Type = "E" Content = "流道2底部撑卡扣气缸关闭超时" UnitName="Unit_Conveyor2" DoStop = "True" />
+  <A4117 Type = "E" Content = "流道2上盖感应器未输入" UnitName="Unit_Conveyor2"  DoStop = "True" />
+  <A4118 Type = "E" Content = "流道2底部撑卡扣气缸打开超时" UnitName="Unit_Conveyor2"  DoStop = "True" />
+
+  <A4133 Type = "E" Content = "镜头扫码气缸移动超时"  DoStop = "True" />
+  <A4134 Type = "E" Content = "扫码枪连接失败"  DoStop = "True" />
+  <A4135 Type = "E" Content = "相机连接失败" DoStop = "True" />
+  <A4136 Type = "E" Content = "升降轴 tray未到位"  UnitName="Unit_DownConveyor"  DoStop = "True" />
+  <A4137 Type = "E" Content = "扣盖板异常" UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4138 Type = "E" Content = "升降轴移动气缸运动超时" UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A4139 Type = "E" Content = "升降轴阻挡气缸未到位" DoStop = "True" />
+  <A4140 Type = "E" Content = "请检查流道1托盘方向是否正确"  UnitName="Unit_Conveyor1" DoStop = "True" />
+  <A4141 Type = "E" Content = "请检查流道2托盘方向是否正确" UnitName="Unit_Conveyor2" DoStop = "True" />
+
+  <A4144 Type = "E" Content = "流道1Tray MES NG 请将此Tray取出来" UnitName="Unit_Conveyor1" DoStop = "False" />
+  <A4145 Type = "E" Content = "流道2Tray MES NG 请将此Tray取出来" UnitName="Unit_Conveyor2" DoStop = "False" />
+  <A4156 Type = "E" Content = "条码文件不存在，请取走镜头"  UnitName="Unit_RobotPickLens"  DoStop = "True" />
+
+  <A4157 Type = "E" Content = "轴1底壳1条码与MODEL不匹配，请取走"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+  <A4158 Type = "E" Content = "轴1底壳2条码与MODEL不匹配，请取走"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+  <A4159 Type = "E" Content = "轴2底壳1条码与MODEL不匹配，请取走"  UnitName="Unit_TakeHousing2"  DoStop = "True" />
+  <A4160 Type = "E" Content = "轴2底壳2条码与MODEL不匹配，请取走"  UnitName="Unit_TakeHousing2"  DoStop = "True" />
+
+  <A4169 Type = "E" Content = "机器人取底壳NG"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+  <A4170 Type = "E" Content = "机器人取底壳NG"  UnitName="Unit_TakeHousing2"  DoStop = "True" />
+  <A4171 Type = "E" Content = "镜头旋转气缸伸出超时"  UnitName="Unit_RobotPickLens"  DoStop = "True" />
+  <A4172 Type = "E" Content = "轴1底壳1点胶时间超过设定时间"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+  <A4173 Type = "E" Content = "轴2底壳1点胶时间超过设定时间"  UnitName="Unit_TakeHousing2"  DoStop = "True" />
+  <A4174 Type = "E" Content = "底壳和镜头NG盘不在位置上" UnitName=""   DoStop = "True" />
+  <A4175 Type = "E" Content = "底壳NG盘满，请清理"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+  <A4176 Type = "E" Content = "流道托盘上底壳1无条码，请取出" UnitName="Unit_UpCamera"  DoStop = "True" />
+  <A4177 Type = "E" Content = "流道托盘上拍不到底壳1，请检查" UnitName="Unit_UpCamera"  DoStop = "True" />
+  <A4178 Type = "E" Content = "流道托盘上底壳2无条码，请取出" UnitName="Unit_UpCamera"  DoStop = "True" />
+  <A4179 Type = "E" Content = "流道托盘上拍不到底壳2，请检查"  UnitName="Unit_UpCamera" DoStop = "True" />
+  <A4180 Type = "E" Content = "2号镜头位置有镜头但1号镜头位置无镜头，请取走镜头"   UnitName="Unit_RobotPickLens"  DoStop = "True" />
+  <A4181 Type = "E" Content = "镜头旋转气缸旋转超时"  UnitName="Unit_RobotPickLens"  DoStop = "True" />
+  <A4182 Type = "E" Content = "镜头旋转气缸旋转回位超时"   UnitName="Unit_RobotPickLens" DoStop = "True" />
+  <A4183 Type = "E" Content = "镜头旋转气缸退回超时"   UnitName="Unit_RobotPickLens" DoStop = "True" />
+
+  <A4184 Type = "E" Content = "取镜头夹爪气缸下降超时" UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4185 Type = "E" Content = "取镜头夹爪气缸关闭超时" UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4186 Type = "E" Content = "取镜头夹爪气缸上升超时" UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4187 Type = "E" Content = "取镜头夹爪气缸打开超时" UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4188 Type = "E" Content = "镜头NG盘满，请清理"  UnitName="Unit_DownCamera"  DoStop = "True" />
+  <A4189 Type = "E" Content = "镜头扫码气缸伸出超时"  UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4190 Type = "E" Content = "镜头扫码气缸收回超时"  UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4191 Type = "E" Content = "Lens有料感应器异常，请检查"  UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A4192 Type = "E" Content = "底壳1测高失败.请检查底壳1有没有放好"  UnitName=""  DoStop = "True" />
+  <A4193 Type = "E" Content = "底壳2测高失败.请检查底壳2有没有放好"  UnitName=""  DoStop = "True" />
+
+
+
+  <A5000 Type = "E" Content = "Suction Screw Failed" DoStop = "True" />
+  <A5001 Type = "E" Content = "No Screw" DoStop = "True" />
+  <A5002 Type = "E" Content = "Screwdriver failed to start" DoStop = "True" />
+  <A5003 Type = "E" Content = "Robot initialization failed" DoStop = "True" />
+  <A5010 Type = "E" Content = "Wait Feeder 1 screw present overtime" DoStop = "True" />
+  <A5011 Type = "E" Content = "Wait Feeder 2 screw present overtime" DoStop = "True" />
+  <A5012 Type = "E" Content = "ScrewCylinder UP failed" DoStop = "False" />
+  <A5013 Type = "W" Content = "Nozzle Fastener Head 2 pick screw failed" DoStop = "False" />
+  <A5014 Type = "E" Content = "Fastener Head 1 screw repick exceed preset limit" DoStop = "True" />
+  <A5015 Type = "E" Content = "Fastener Head 2 screw repick exceed preset limit" DoStop = "True" />
+  <A5016 Type = "E" Content = "Fastener Head 1 Controller is busy" DoStop = "True" />
+  <A5017 Type = "E" Content = "Fastener Head 2 Controller is busy" DoStop = "True" />
+  <A5018 Type = "E" Content = "Fastener Head 1 Controller fasten action overtime" DoStop = "True" />
+  <A5019 Type = "E" Content = "Fastener Head 2 Controller fasten action overtime" DoStop = "True" />
+  <A5020 Type = "E" Content = "Robot Start Fail!" DoStop = "True" />
+  <A5021 Type = "E" Content = "Robot Start Screw Fail!" DoStop = "True" />
+  <A5022 Type = "E" Content = "Torque controller connect fail" DoStop = "True" />
+  <A5023 Type = "E" Content = "Fastener Head 2 wait torque controller result time out" DoStop = "True" />
+  <A5024 Type = "E" Content = "Robot ALARM" DoStop = "True" />
+  <A5040 Type = "E" Content = "Convery1 Motor Alarm" DoStop = "True" />
+  <A5041 Type = "E" Content = "Convery2 Motor Alarm" DoStop = "True" />
+  <A5042 Type = "E" Content = "BackConvery Motor Alarm" DoStop = "True" />
+  <A5043 Type = "E" Content = "PLC connect fail!" DoStop = "True" />
+  <A5050 Type = "E" Content = "Screw Fail!" DoStop = "True" />
+  <A5051 Type = "E" Content = "Send data to Robot failed!" DoStop = "True" />
+
+  <A7000 Type = "E" Content = "上流道阻挡气缸1上升超时"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7001 Type = "E" Content = "上流道阻挡气缸1下降超时"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7002 Type = "E" Content = "上流道顶升气缸1上升超时"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7003 Type = "E" Content = "上流道顶升气缸1下降超时"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7004 Type = "E" Content = "上流道阻挡气缸2上升超时"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7005 Type = "E" Content = "上流道阻挡气缸2下降超时"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7006 Type = "E" Content = "上流道顶升气缸2上升超时"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7007 Type = "E" Content = "上流道顶升气缸2下降超时"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7008 Type = "E" Content = "上流道进料感应超时！" DoStop = "True" />
+  <A7009 Type = "E" Content = "上流道减速感应1超时！" DoStop = "True" />
+  <A7010 Type = "E" Content = "上流道到位感应1超时！" DoStop = "True" />
+  <A7011 Type = "E" Content = "上流道减速感应2超时！" DoStop = "True" />
+  <A7012 Type = "E" Content = "上流道到位感应2超时！" DoStop = "True" />
+  <A7013 Type = "E" Content = "上流道出料感应超时！" DoStop = "True" />
+  <A7014 Type = "E" Content = "下流道阻挡气缸上升超时！" DoStop = "True" />
+  <A7015 Type = "E" Content = "下流道阻挡气缸下降超时！" DoStop = "True" />
+  <A7016 Type = "E" Content = "下流道到位感应超时！" DoStop = "True" />
+  <A7017 Type = "E" Content = "下流道出料感应超时！" DoStop = "True" />
+  <A7018 Type = "E" Content = "扫码气缸出超时！" DoStop = "True" />
+  <A7019 Type = "E" Content = "扫码气缸回超时！" DoStop = "True" />
+  <A7020 Type = "E" Content = "流道1夹爪上有物料,请手动取走"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+  <A7021 Type = "E" Content = "流道2夹爪上有物料,请手动取走"  UnitName="Unit_Conveyor2"  DoStop = "True" />
+  <A7022 Type = "E" Content = "升降机有物料,请手动取走" DoStop = "True" />
+  <A7029 Type = "E" Content = "读取ST3数据失败，请手动取走底壳"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+
+  <A8066 Type = "E" Content = "流道2举升气缸回位超时"  UnitName="Unit_Conveyor2"  DoStop = "True" />
+  <A8075 Type = "E" Content = "流道1举升气缸回位超时"  UnitName="Unit_Conveyor1"  DoStop = "True" />
+
+  <A8200 Type = "E" Content = "机器人取镜头夹爪1下降气缸超时" DoStop = "True" />
+  <A8201 Type = "E" Content = "机器人取镜头夹爪1上升气缸超时" DoStop = "True" />
+  <A8202 Type = "E" Content = "机器人取镜头夹爪1关闭超时" DoStop = "True" />
+  <A8203 Type = "E" Content = "机器人取镜头夹爪2下降超时" DoStop = "True" />
+  <A8204 Type = "E" Content = "机器人取镜头夹爪2上升超时" DoStop = "True" />
+  <A8205 Type = "E" Content = "机器人取镜头夹爪2关闭超时" DoStop = "True" />
+  <A8206 Type = "E" Content = "机器人取底壳1下降气缸超时" DoStop = "True" />
+  <A8207 Type = "E" Content = "机器人取底壳2下降气缸超时" DoStop = "True" />
+  <A8208 Type = "E" Content = "机器人取镜头夹爪1打开气缸超时" DoStop = "True" />
+  <A8209 Type = "E" Content = "机器人取镜头夹爪2打开气缸超时" DoStop = "True" />
+  <A8210 Type = "E" Content = "机器人取底壳1上升气缸超时" DoStop = "True" />
+  <A8211 Type = "E" Content = "机器人取底壳2上升气缸超时" DoStop = "True" />
+  <A8212 Type = "E" Content = "机器人取底壳失败" DoStop = "True" />
+  <A8233 Type = "E" Content = "机器人写入字符串失败" DoStop = "True" />
+  <A8234 Type = "E" Content = "机器人写入点位信息失败" DoStop = "True" />
+  <A8235 Type = "E" Content = "扫描镜头条码失败，请手动扫描条码"  UnitName="Unit_CameraFeeder"  DoStop = "True" />
+  <A8236 Type = "E" Content = "流道1托盘产品有测高NG，请检查"  UnitName="Unit_Conveyor1" DoStop = "True" />
+  <A8237 Type = "E" Content = "流道2托盘产品有测高NG，请检查"  UnitName="Unit_Conveyor2" DoStop = "True" />
+
+
+  <A9000 Type = "W" Content = "等待上机进料"  UnitName="Unit_TakeHousing1"  DoStop = "True" />
+  <A9001 Type = "E" Content = "开盖失败,请检查气缸" DoStop = "True" />
+  <A9002 Type = "E" Content = "取镜头超时,请检查镜头供料器" DoStop = "True" />
+  <A9010 Type = "E" Content = "上相机视觉处理错误" DoStop = "True" />
+  <A9011 Type = "E" Content = "视觉复检失败" DoStop = "True" />
+
+  <A9991 Type = "E" Content = "Front EMG Stop 1按下" DoStop = "True" />
+  <A9992 Type = "E" Content = "Front EMG Stop 2 按下" DoStop = "True" />
+  <A9993 Type = "E" Content = "Back EMG Stop按下" DoStop = "True" />
+  <A9994 Type = "E" Content = "安全门打开" DoStop = "True" />
+
+</AlarmTable>
