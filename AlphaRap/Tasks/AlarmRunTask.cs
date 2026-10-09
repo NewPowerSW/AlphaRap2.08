@@ -61,8 +61,16 @@ namespace AlphaRap
 					data[4] = AlarmData.Type == "E" ? "ERROR" : "Information";
 					data[5] = AlarmData.Code;
 					data[6] = AlarmData.Content;
-					MiddleLayer.DataF.Alarm.SavePath = MiddleLayer.LogF.GetSettingValue("Path", "AlarmPath");
-					MiddleLayer.DataF.Alarm.SaveDataToFile(data);
+					// 写报警记录失败（如日志盘不存在）不能中断报警线程，否则后续报警都不会处理
+					try
+					{
+						MiddleLayer.DataF.Alarm.SavePath = MiddleLayer.LogF.GetSettingValue("Path", "AlarmPath");
+						MiddleLayer.DataF.Alarm.SaveDataToFile(data);
+					}
+					catch (Exception ex)
+					{
+						System.Diagnostics.Trace.WriteLine("Alarm log save failed: " + ex.Message);
+					}
 					#endregion
 
 					// E 错误：暂停运行（副作用只在此处执行一次）

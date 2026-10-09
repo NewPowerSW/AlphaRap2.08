@@ -1,10 +1,10 @@
 <?xml version="1.0" standalone="yes"?>
 <NewDataSet>
   <Path>
-    <UserPath>E:\Trinity_ST04\Log</UserPath>
-    <ProducPath>E:\Trinity_ST04\Log</ProducPath>
-    <RunPath>E:\Trinity_ST04\Log</RunPath>
-    <AlarmPath>E:\Trinity_ST04\Log</AlarmPath>
+    <UserPath>D:\Log</UserPath>
+    <ProducPath>D:\Log</ProducPath>
+    <RunPath>D:\Log</RunPath>
+    <AlarmPath>D:\Log</AlarmPath>
     <RFIDPath>D:\Log</RFIDPath>
     <RFIDFinalPath>D:\Log</RFIDFinalPath>
   </Path>
