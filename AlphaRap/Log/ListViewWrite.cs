@@ -1,0 +1,133 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace AlphaRap
+{
+    class ListViewWrite
+    {
+        private ListViewWrite()
+        {
+        }
+        //write a new file, existed file will be overwritten  
+        public static void WriteCSV(string filePathName, String[] ls)
+        {
+            WriteCSV(filePathName, true, ls);
+        }
+        //write a file, existed file will be overwritten if append = false  
+        public static void WriteCSV(string filePathName, bool append, String[] ls)
+        {
+            try
+            {
+                StreamWriter fileWriter = new StreamWriter(filePathName, append, Encoding.Default);
+
+                fileWriter.WriteLine(String.Join(",", ls));
+
+                fileWriter.Flush();
+                fileWriter.Close();
+            }
+            catch
+            {
+                //MessageBox.Show(ex.Message);
+            }
+        }
+        public static void WriteCSV(string filePathName, bool append, String strMessage)
+        {
+            StreamWriter fileWriter = new StreamWriter(filePathName, append, Encoding.Default);
+            fileWriter.WriteLine(strMessage);
+            fileWriter.Flush();
+            fileWriter.Close();
+        }
+           
+        public static List<String[]> ReadCSV(string filePathName)
+        {
+            List<String[]> ls = new List<String[]>();
+            StreamReader fileReader = new
+            StreamReader(filePathName);
+            string strLine = "";
+            while (strLine != null)
+            {
+                strLine = fileReader.ReadLine();
+                if (strLine != null && strLine.Length > 0)
+                {
+                    ls.Add(strLine.Split(','));
+                }
+            }
+            fileReader.Close();
+            return ls;
+        }
+        
+        //public static string[] strArrange = new string[22];
+        public static void WriteExcelData(string FileName, ListView listView1)
+        {
+            string[] strArrange = new string[22];
+            string strFileName = FileName + DateTime.Now.ToString("yyyy-MM-dd") + ".csv";
+            FileInfo fileInfo = new FileInfo(strFileName);
+            if (fileInfo.Exists)
+            {
+                ListViewItem lvie = listView1.Items[0];
+                for (int i = 0; i < lvie.SubItems.Count; i++)
+                {
+                    strArrange[i] = lvie.SubItems[i].Text;
+                }
+                WriteCSV(strFileName, strArrange);
+            }
+            else
+            {
+                for (int i = 0; i < listView1.Columns.Count; i++)
+                {
+                    strArrange[i] = listView1.Columns[i].Text;
+                }
+                DirectoryInfo dirInfo = new DirectoryInfo(FileName);
+                if (!dirInfo.Exists)
+                {
+                    try
+                    {
+                        dirInfo.Create();
+                    }
+                    catch (Exception)
+                    {
+                       // MessageBox.Show("路径不存在！");
+                        if (FileName==SysPara.UserMessagePath)
+                        {
+                            MiddleLayer.LogF.SettingData.Tables["Path"].Rows[0]["UserPath"] = "C:\\Log";
+                            
+                        }
+                        else if(FileName==SysPara.RunMessagePath)
+                        {
+                            MiddleLayer.LogF.SettingData.Tables["Path"].Rows[0]["RunPath"] = "C:\\Log";
+                           
+                        }
+                        else if (FileName==SysPara.ProductMessagePath)
+                        {
+                            MiddleLayer.LogF.SettingData.Tables["Path"].Rows[0]["ProducPath"] = "C:\\Log";
+
+                        }
+                        else if (FileName == SysPara.RFIDPath)
+                        {
+                            MiddleLayer.LogF.SettingData.Tables["Path"].Rows[0]["RFIDPath"] = "D:\\Log";
+                        }
+                        else if (FileName == SysPara.RFIDFinalPath)
+                        {
+                            MiddleLayer.LogF.SettingData.Tables["Path"].Rows[0]["RFIDFinalPath"] = "D:\\Log";
+                        }
+                        MiddleLayer.LogF.WriteSettingData();
+                        MiddleLayer.LogF.RefreshTxtData();                     
+                    }                   
+                }
+                WriteCSV(strFileName, strArrange);
+                ListViewItem lvie = listView1.Items[0];
+                for (int i = 0; i < lvie.SubItems.Count; i++)
+                {
+                    strArrange[i] = lvie.SubItems[i].Text;
+                }
+                WriteCSV(strFileName, strArrange);
+            }
+        }
+    }
+}
