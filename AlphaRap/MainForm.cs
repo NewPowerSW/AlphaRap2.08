@@ -1,4 +1,5 @@
 ﻿using Alpha;
+using AlphaRap.Classes;
 using AlphaRapLibrary;
 using Cognex.VisionPro;
 using System;
@@ -903,8 +904,8 @@ int nheightEllipse
                 SysPara.LanguageName = (lanType == LanguageType.Chinese) ? "Chinese"
                                       : (lanType == LanguageType.English) ? "English"
                                       : "Español";
-                IniFile IniFile = new IniFile(".\\MachineSetup.ini");
-                IniFile.WriteString("MachineSetup", "LanguageName", SysPara.LanguageName);
+                IniFile ini = new IniFile(".\\MachineSetup.ini");
+                ini.WriteString("MachineSetup", "LanguageName", SysPara.LanguageName);
             }
             catch (Exception ex)
             {
