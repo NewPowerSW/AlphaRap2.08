@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -65,9 +65,9 @@ namespace AlphaRap
         public static readonly Font Body = UiKit.Regular(10.5f);
         public static readonly Font BodyBold = UiKit.Bold(10.5f);
         public static readonly Font Section = UiKit.Bold(12f);
-        public static readonly Font NavLabel = UiKit.Regular(9f);
-        public static readonly Font ToolLabel = UiKit.Bold(10f);
-        public static readonly Font KpiValue = UiKit.Bold(26f);
+        public static readonly Font NavLabel = UiKit.Regular(10.5f);
+        public static readonly Font ToolLabel = UiKit.Bold(10.5f);
+        public static readonly Font KpiValue = UiKit.Bold(27f);
 
         // ---------------- 多语言文字 ----------------
 
@@ -93,51 +93,46 @@ namespace AlphaRap
             return zh;
         }
 
-        // ---------------- 图标 + 文字按钮图 ----------------
-
-        private static readonly Dictionary<string, Image> TileCache = new Dictionary<string, Image>();
+        // ---------------- 图标 + 文字按钮 ----------------
 
         /// <summary>
-        /// 生成"图标在上、文字在下"的按钮图（导航与工具栏共用），结果按参数缓存。
+        /// 在按钮上直接绘制"图标在上、文字在下"（导航与工具栏共用）。
+        /// 文字用 GDI 直接画到屏幕上（ClearType），图标按原始像素尺寸贴图，不做缩放插值，保证清晰。
         /// </summary>
         /// <param name="accentBar">在左侧画一条品牌色竖条（导航选中态）。</param>
-        public static Image IconLabel(AppIcon icon, string text, Size size, int iconSize,
-            Color iconColor, Color accent, Color textColor, Font font, bool accentBar)
+        public static void PaintIconLabel(Graphics g, Size size, Image icon, string text, Font font,
+            Color textColor, bool accentBar)
         {
-            if (size.Width <= 0 || size.Height <= 0) return null;
-            string key = (int)icon + "|" + text + "|" + size.Width + "x" + size.Height + "|" + iconSize + "|" +
-                         iconColor.ToArgb() + "|" + accent.ToArgb() + "|" + textColor.ToArgb() + "|" +
-                         font.Size + "|" + font.Style + "|" + accentBar;
-            Image cached;
-            if (TileCache.TryGetValue(key, out cached)) return cached;
+            if (size.Width <= 0 || size.Height <= 0) return;
+            int iconH = icon != null ? icon.Height : 0;
+            int textH = string.IsNullOrEmpty(text) ? 0 : font.Height;
+            int gap = (iconH > 0 && textH > 0) ? 3 : 0;
+            int top = Math.Max(2, (size.Height - iconH - gap - textH) / 2);
 
-            Bitmap bmp = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
-            using (Graphics g = Graphics.FromImage(bmp))
+            if (icon != null)
             {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-
-                int textH = string.IsNullOrEmpty(text) ? 0 : font.Height;
-                int top = Math.Max(2, (size.Height - iconSize - textH - 2) / 2);
-                Image ic = AppIcons.Get(icon, iconSize, iconColor, accent);
-                if (ic != null) g.DrawImage(ic, (size.Width - iconSize) / 2, top, iconSize, iconSize);
-
-                if (textH > 0)
-                {
-                    Rectangle tr = new Rectangle(2, top + iconSize + 2, size.Width - 4, textH + 2);
-                    TextRenderer.DrawText(g, text, font, tr, textColor,
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
-                        TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
-                }
-
-                if (accentBar)
-                {
-                    using (SolidBrush b = new SolidBrush(UiKit.Brand))
-                        g.FillRectangle(b, 0, 8, 3, size.Height - 16);
-                }
+                InterpolationMode im = g.InterpolationMode;
+                PixelOffsetMode pm = g.PixelOffsetMode;
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.PixelOffsetMode = PixelOffsetMode.Half;
+                g.DrawImage(icon, new Rectangle((size.Width - icon.Width) / 2, top, icon.Width, icon.Height));
+                g.InterpolationMode = im;
+                g.PixelOffsetMode = pm;
             }
-            TileCache[key] = bmp;
-            return bmp;
+
+            if (textH > 0)
+            {
+                Rectangle tr = new Rectangle(1, top + iconH + gap, size.Width - 2, textH);
+                TextRenderer.DrawText(g, text, font, tr, textColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.Top | TextFormatFlags.EndEllipsis |
+                    TextFormatFlags.NoPadding | TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix);
+            }
+
+            if (accentBar)
+            {
+                using (SolidBrush br = new SolidBrush(UiKit.Brand))
+                    g.FillRectangle(br, 0, 8, 3, size.Height - 16);
+            }
         }
 
         // ---------------- 列表 ----------------

@@ -49,7 +49,7 @@ namespace AlphaRap
         private static readonly Size NavButtonSize = new Size(74, 54);
         private const int NavIconSize = 24;
         private static readonly Size ToolButtonSize = new Size(92, 58);
-        private const int ToolIconSize = 26;
+        private const int ToolIconSize = 24;    // 图标在 24 网格上绘制，取整数倍才不会因缩放发虚
 
         /// <summary>工具栏按钮悬停时的底色。</summary>
         private static readonly Color ToolbarHover = UiTheme.Selected;
@@ -87,11 +87,11 @@ namespace AlphaRap
 
         private void StyleTopBar()
         {
-            lbRecipeName.Font = UiKit.Bold(11f);
+            lbRecipeName.Font = UiKit.Bold(10.5f);
             lbRecipeName.ForeColor = Color.White;
             LoginText.Font = UiTheme.Body;
             LoginText.ForeColor = Color.FromArgb(214, 230, 246);
-            MachineStatus.Font = UiKit.Bold(16f);
+            MachineStatus.Font = UiKit.Bold(15f);
         }
 
         // ---------------- 左侧导航 ----------------
@@ -177,7 +177,7 @@ namespace AlphaRap
         private void StyleContentTabs()
         {
             uiTabControl1.Cursor = Cursors.Default;
-            uiTabControl1.Font = UiKit.Bold(11f);
+            uiTabControl1.Font = UiKit.Bold(10.5f);
             uiTabControl1.ItemSize = new Size(132, UiTheme.TabHeight);
             uiTabControl1.FillColor = UiTheme.FrameBg;
             uiTabControl1.TabBackColor = UiTheme.FrameBg;
@@ -332,6 +332,58 @@ namespace AlphaRap
             if (b != null && !ReferenceEquals(b.Image, img)) b.Image = img;
         }
 
+        /// <summary>导航 / 工具栏按钮的显示内容：图标、文字、文字色、是否画选中竖条。</summary>
+        private sealed class ButtonFace
+        {
+            public readonly Image Icon;
+            public readonly string Text;
+            public readonly Font Font;
+            public readonly Color TextColor;
+            public readonly bool AccentBar;
+
+            public ButtonFace(Image icon, string text, Font font, Color textColor, bool accentBar)
+            {
+                Icon = icon;
+                Text = text ?? "";
+                Font = font;
+                TextColor = textColor;
+                AccentBar = accentBar;
+            }
+
+            public bool SameAs(ButtonFace o)
+            {
+                return o != null && ReferenceEquals(Icon, o.Icon) && Text == o.Text && ReferenceEquals(Font, o.Font) &&
+                       TextColor.ToArgb() == o.TextColor.ToArgb() && AccentBar == o.AccentBar;
+            }
+        }
+
+        private readonly Dictionary<PictureBox, ButtonFace> _buttonFaces = new Dictionary<PictureBox, ButtonFace>();
+
+        /// <summary>设置按钮显示内容；内容变化时才重绘。文字在 Paint 中直接绘制，不预先烘焙成图片。</summary>
+        private void SetFace(PictureBox b, ButtonFace face)
+        {
+            if (b.Image != null) b.Image = null;
+            ButtonFace old;
+            if (_buttonFaces.TryGetValue(b, out old))
+            {
+                if (old.SameAs(face)) return;
+            }
+            else
+            {
+                b.Paint += ButtonFace_Paint;
+            }
+            _buttonFaces[b] = face;
+            b.Invalidate();
+        }
+
+        private void ButtonFace_Paint(object sender, PaintEventArgs e)
+        {
+            PictureBox b = sender as PictureBox;
+            ButtonFace f;
+            if (b == null || !_buttonFaces.TryGetValue(b, out f)) return;
+            UiTheme.PaintIconLabel(e.Graphics, b.ClientSize, f.Icon, f.Text, f.Font, f.TextColor, f.AccentBar);
+        }
+
         private bool IsSelectedNav(PictureBox b)
         {
             int i = (int)MENU_SelectPage;
@@ -344,7 +396,7 @@ namespace AlphaRap
             bool sel = IsSelectedNav(b);
             Color c = !b.Enabled ? AppIconColor.Disabled : sel ? UiKit.Brand : AppIconColor.Nav;
             Color t = !b.Enabled ? UiKit.DisabledText : sel ? UiKit.Brand : UiKit.TextPrimary;
-            SetImage(b, UiTheme.IconLabel(icon, ButtonText(b), b.Size, NavIconSize, c, c, t, UiTheme.NavLabel, sel));
+            SetFace(b, new ButtonFace(AppIcons.Get(icon, NavIconSize, c), ButtonText(b), UiTheme.NavLabel, t, sel));
         }
 
         /// <summary>
@@ -377,7 +429,7 @@ namespace AlphaRap
             Color main = on ? iconColor : AppIconColor.Disabled;
             Color accent = on ? accentColor : AppIconColor.Disabled;
             Color text = !on ? UiKit.DisabledText : (iconColor == AppIconColor.Nav ? UiKit.TextPrimary : iconColor);
-            SetImage(btn, UiTheme.IconLabel(icon, ButtonText(btn), btn.Size, ToolIconSize, main, accent, text, UiTheme.ToolLabel, false));
+            SetFace(btn, new ButtonFace(AppIcons.Get(icon, ToolIconSize, main, accent), ButtonText(btn), UiTheme.ToolLabel, text, false));
         }
 
         /// <summary>给工具栏按钮挂接悬停事件（在 MainForm_Load 中调用一次）。</summary>
