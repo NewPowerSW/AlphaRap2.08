@@ -89,11 +89,12 @@
             this.lblInfo.TabIndex = 0;
             this.lblInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // band（底部这一条：路径 / 补偿限制表 / 存图设置 / 参数 / 按钮）
-            // 
+            // band（底部这一条：补偿限制表 / 路径 / 存图设置 / 参数 / 按钮）
+            // 「后加入的先停靠」⇒ 路径写在表格之后，视觉上才会落在表格下方，
+            // 与标定卡（标题 → 表格 → 路径 → 曝光 → 按钮）的行序保持一致。
             this.band.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
-            this.band.Controls.Add(this.path);
             this.band.Controls.Add(this.compRow);
+            this.band.Controls.Add(this.path);
             this.band.Controls.Add(this.saveRow);
             this.band.Controls.Add(this.paramRow);
             this.band.Controls.Add(this.foot);
