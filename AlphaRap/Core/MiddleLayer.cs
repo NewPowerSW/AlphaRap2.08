@@ -207,7 +207,8 @@ namespace AlphaRap
 			LogF = CreateForm(LogF, "LogForm");
 
 			AddF = CreateForm(AddF, "AddUserForm");
-			VPF = CreateForm(VPF, "VPForm");
+			// 未安装 VisionPro 时不创建视觉页（VPF 为 null，视觉菜单给出提示）
+			if (VisionRuntime.Installed) VPF = CreateForm(VPF, "VPForm");
 			FlowF = new Flow();
 
 			RobotF = CreateForm(RobotF, "Robot");

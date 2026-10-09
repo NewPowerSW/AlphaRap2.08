@@ -77,6 +77,7 @@ int nheightEllipse
         public MainForm()
         {
             InitializeComponent();
+            CreateVisionDisplay();
 
             // 主框架样式（设计期也执行，使设计视图与运行时一致）；按钮文字取自语言包
             if (!InDesigner)
@@ -631,6 +632,15 @@ int nheightEllipse
                     tableLayoutPanel4.Visible = true;
                     break;
                 case MENU_PageType.Vision:
+                    if (MiddleLayer.VPF == null)
+                    {
+                        MessageBox.Show(MiddleLayer.LangMsg("MainForm", "msg_NoVisionPro",
+                            "本机未安装 Cognex VisionPro，视觉功能已停用。",
+                            "Cognex VisionPro is not installed on this computer. Vision is disabled.",
+                            "Cognex VisionPro no está instalado en este equipo. La visión está desactivada."),
+                            "Vision", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
                     ShowhMainPage(MiddleLayer.VPF, ShowPanl);
                     break;
                 case MENU_PageType.Product:
@@ -1001,6 +1011,51 @@ int nheightEllipse
 
         #endregion
         /// <summary>在指定面板中显示页面窗体（Dock 铺满）。</summary>
+        /// <summary>
+        /// 创建主界面"Vision"页的 Cognex 图像显示控件。本机未安装 VisionPro 时不创建
+        /// （否则 ActiveX 初始化会在原生代码中崩溃），改为显示提示文字，cogRecordDisplay1 保持为 null。
+        /// </summary>
+        private void CreateVisionDisplay()
+        {
+            if (InDesigner || !VisionRuntime.Installed)
+            {
+                tabPage10.Controls.Add(new Label
+                {
+                    Name = MiddleLayerNames.Dyn("lblNoVisionPro"),
+                    Dock = DockStyle.Fill,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    ForeColor = UiKit.TextMuted,
+                    Text = UiTheme.T("MainForm", "vision_NotInstalled", "未安装 Cognex VisionPro，视觉显示已停用",
+                        "Cognex VisionPro is not installed. Vision display is disabled.",
+                        "Cognex VisionPro no está instalado. La visualización está desactivada.")
+                });
+                return;
+            }
+
+            // 与设计器生成顺序一致：先设属性和 OcxState，再加入父控件，最后 EndInit
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            cogRecordDisplay1 = new Cognex.VisionPro.CogRecordDisplay();
+            ((System.ComponentModel.ISupportInitialize)cogRecordDisplay1).BeginInit();
+            cogRecordDisplay1.ColorMapLowerClipColor = Color.Black;
+            cogRecordDisplay1.ColorMapLowerRoiLimit = 0D;
+            cogRecordDisplay1.ColorMapPredefined = Cognex.VisionPro.Display.CogDisplayColorMapPredefinedConstants.None;
+            cogRecordDisplay1.ColorMapUpperClipColor = Color.Black;
+            cogRecordDisplay1.ColorMapUpperRoiLimit = 1D;
+            cogRecordDisplay1.Dock = DockStyle.Fill;
+            cogRecordDisplay1.DoubleTapZoomCycleLength = 2;
+            cogRecordDisplay1.DoubleTapZoomSensitivity = 2.5D;
+            cogRecordDisplay1.Location = new Point(0, 0);
+            cogRecordDisplay1.Margin = new Padding(3, 2, 3, 2);
+            cogRecordDisplay1.MouseWheelMode = Cognex.VisionPro.Display.CogDisplayMouseWheelModeConstants.Zoom1;
+            cogRecordDisplay1.MouseWheelSensitivity = 1D;
+            cogRecordDisplay1.Name = "cogRecordDisplay1";
+            cogRecordDisplay1.OcxState = (AxHost.State)resources.GetObject("cogRecordDisplay1.OcxState");
+            cogRecordDisplay1.Size = new Size(196, 56);
+            cogRecordDisplay1.TabIndex = 80;
+            tabPage10.Controls.Add(cogRecordDisplay1);
+            ((System.ComponentModel.ISupportInitialize)cogRecordDisplay1).EndInit();
+        }
+
         public void ShowhMainPage(dynamic ShowPage, Panel ShowPanl)
         {
             ShowPanl.Focus();
@@ -1681,6 +1736,7 @@ int nheightEllipse
             catch { }
 
             // 断开 Cognex 相机；失败也不阻止退出
+            if (VisionRuntime.Installed)
             try
             {
                 CogFrameGrabbers CCD_Graber = new Cognex.VisionPro.CogFrameGrabbers();
