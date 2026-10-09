@@ -912,7 +912,9 @@
     </Compile>
     <Compile Include="Controls\UiTheme.cs" />
     <Compile Include="Controls\IoTileStyle.cs" />
-    <Compile Include="Controls\HourlyChart.cs" />
+    <Compile Include="Controls\HourlyChart.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\UiKit.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -933,6 +935,7 @@
     </Compile>
     <Compile Include="MenuForm\HomeForm.Style.cs">
       <DependentUpon>HomeForm.cs</DependentUpon>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="MenuForm\HomeForm.cs">
       <SubType>Form</SubType>

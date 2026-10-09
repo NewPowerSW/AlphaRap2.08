@@ -1,4 +1,5 @@
-﻿using AlphaRapLibrary;
+﻿using AlphaRap.Classes;
+using AlphaRapLibrary;
 
 using System;
 using System.Collections.Generic;
