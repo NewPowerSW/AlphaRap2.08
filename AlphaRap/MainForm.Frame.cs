@@ -85,13 +85,90 @@ namespace AlphaRap
 
         // ---------------- 顶栏 ----------------
 
+        /// <summary>登录芯片常态底色（比顶栏品牌蓝略亮，形成"可点"的层次）。</summary>
+        private static readonly Color LoginChipBack = Color.FromArgb(28, 126, 200);
+
+        /// <summary>登录芯片悬停底色。</summary>
+        private static readonly Color LoginChipHoverBack = Color.FromArgb(52, 148, 218);
+
         private void StyleTopBar()
         {
             lbRecipeName.Font = UiKit.Bold(11f);
             lbRecipeName.ForeColor = Color.White;
-            LoginText.Font = UiTheme.Body;
-            LoginText.ForeColor = Color.FromArgb(214, 230, 246);
-            MachineStatus.Font = UiKit.Bold(16f);
+
+            // 右上角登录芯片：圆角胶囊（登录图标 + 用户名·权限·登录时间），整块可点开登录页
+            panelLogin.BackColor = LoginChipBack;
+            panelLogin.Cursor = Cursors.Hand;
+            panelLogin.Resize += (s, ev) => ApplyPillRegion(panelLogin, 11);
+            ApplyPillRegion(panelLogin, 11);
+            LoginText.Font = UiKit.Bold(10f);
+            LoginText.ForeColor = Color.White;
+            LoginText.Cursor = Cursors.Hand;
+            LoginText.AutoEllipsis = true;
+
+            // 设备状态徽章：顶栏正中央，字号放大到 20pt
+            MachineStatus.Font = UiKit.Bold(20f);
+
+            InitLoginChip();
+        }
+
+        /// <summary>
+        /// 登录芯片的点击与悬停。面板和它的两个子控件都要接：
+        /// 只挂面板会在指针移到图标/文字上时收到 MouseLeave，悬停态一闪一闪。
+        /// </summary>
+        private void InitLoginChip()
+        {
+            panelLogin.Click += UserLogin_Click;
+            LoginText.Click += UserLogin_Click;
+
+            panelLogin.MouseEnter += LoginChip_MouseEnter;
+            panelLogin.MouseLeave += LoginChip_MouseLeave;
+            LoginText.MouseEnter += LoginChip_MouseEnter;
+            LoginText.MouseLeave += LoginChip_MouseLeave;
+            MENU_Login.MouseEnter += LoginChip_MouseEnter;
+            MENU_Login.MouseLeave += LoginChip_MouseLeave;
+
+            UpdateLoginChipTip();
+        }
+
+        private void LoginChip_MouseEnter(object sender, EventArgs e)
+        {
+            SetLoginChipHover(true);
+        }
+
+        private void LoginChip_MouseLeave(object sender, EventArgs e)
+        {
+            try
+            {
+                // 指针只是移到了芯片内的子控件上，仍保持悬停态
+                if (panelLogin.ClientRectangle.Contains(panelLogin.PointToClient(Cursor.Position))) return;
+            }
+            catch { }
+            SetLoginChipHover(false);
+        }
+
+        private void SetLoginChipHover(bool on)
+        {
+            Color c = on ? LoginChipHoverBack : LoginChipBack;
+            if (panelLogin.BackColor != c) panelLogin.BackColor = c;
+        }
+
+        /// <summary>登录芯片的悬停提示：完整用户名 / 权限 / 登录时间，外加"可点击"的说明。语言切换后由 SyncLanguageTexts 重取。</summary>
+        private readonly ToolTip _loginTip = new ToolTip { ShowAlways = true };
+
+        internal void UpdateLoginChipTip()
+        {
+            try
+            {
+                if (panelLogin == null) return;
+                string tip = MiddleLayer.LangMsg("MainForm", "msg_LoginChipUser", "用户名:  ", "UserName :  ", "Usuario :  ") + SysPara.UserName
+                           + "\n" + MiddleLayer.LangMsg("MainForm", "msg_LoginChipPerm", "权限:  ", "Permission :  ", "Permiso :  ") + SysPara.UserPermission
+                           + "\n" + MiddleLayer.LangMsg("MainForm", "msg_LoginChipTime", "登录时间:  ", "LoginTime :  ", "LoginTime :  ") + SysPara.UserLoginTime
+                           + "\n\n" + MiddleLayer.LangMsg("MainForm", "msg_LoginChipClick", "点击打开登录页", "Click to sign in", "Haga clic para iniciar sesión");
+                _loginTip.SetToolTip(panelLogin, tip);
+                _loginTip.SetToolTip(LoginText, tip);
+            }
+            catch { }
         }
 
         // ---------------- 左侧导航 ----------------

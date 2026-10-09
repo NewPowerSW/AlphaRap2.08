@@ -918,6 +918,9 @@ int nheightEllipse
                 RefreshButtonIcons();
 
                 if (languageSwitch != null) languageSwitch.Current = SysPara.LanguageShow;
+
+                // 登录芯片的悬停提示（含完整登录时间）
+                UpdateLoginChipTip();
             }
             catch { }
         }
@@ -1078,18 +1081,15 @@ int nheightEllipse
         }
         // 机台状态条前缀文案（按语言缓存，避免定时器反复查 XML）
         private LanguageType _statusLabelLang = (LanguageType)(-1);
-        private string _lblUser, _lblPermission, _lblLoginTime, _lblRecipe;
+        private string _lblRecipe;
 
         /// <summary>按当前语言（变化时才重取）准备好状态条前缀文案。</summary>
         private void EnsureStatusLabels()
         {
             try
             {
-                if (_statusLabelLang == SysPara.LanguageShow && _lblUser != null) return;
+                if (_statusLabelLang == SysPara.LanguageShow && _lblRecipe != null) return;
                 _statusLabelLang = SysPara.LanguageShow;
-                _lblUser = MiddleLayer.LangMsg("MainForm", "msg_UserLabel", "用户名:  ", "UserName :  ", "Usuario :  ");
-                _lblPermission = MiddleLayer.LangMsg("MainForm", "msg_PermissionLabel", "  权限:  ", "    UserPermission :  ", "    Permiso :  ");
-                _lblLoginTime = MiddleLayer.LangMsg("MainForm", "msg_LoginTimeLabel", "  登录时间:  ", "    LoginTime :  ", "    LoginTime :  ");
                 _lblRecipe = MiddleLayer.LangMsg("MainForm", "msg_RecipeLabel", "配方:  ", "RecipeName :  ", "Fórmula :  ");
             }
             catch { }
@@ -1215,8 +1215,11 @@ int nheightEllipse
 
             #region  RecipeName
             toolStripStatusLabel5.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            LoginText.Text = _lblUser + SysPara.UserName + _lblPermission + SysPara.UserPermission
-                           + _lblLoginTime + SysPara.UserLoginTime;
+            // 右上角登录芯片：用户名 · 权限 · 登录时刻（完整日期见悬停提示；芯片宽度有限，只显示到分钟）
+            string loginAt = SysPara.UserLoginTime ?? "";
+            DateTime loginTime;
+            if (DateTime.TryParse(loginAt, out loginTime)) loginAt = loginTime.ToString("HH:mm");
+            LoginText.Text = SysPara.UserName + " · " + SysPara.UserPermission + " · " + loginAt;
             lbRecipeName.Text = _lblRecipe + MiddleLayer.ProductF.CurrentModel.Text;
             #endregion
 

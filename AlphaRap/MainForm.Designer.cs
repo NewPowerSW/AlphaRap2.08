@@ -57,6 +57,7 @@
             this.languageSwitch = new AlphaRap.LanguageSwitch();
             this.MachineStatus = new System.Windows.Forms.Label();
             this.MENU_Login = new System.Windows.Forms.PictureBox();
+            this.panelLogin = new System.Windows.Forms.Panel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.NumC1 = new System.Windows.Forms.ToolStripMenuItem();
             this.NumC2 = new System.Windows.Forms.ToolStripMenuItem();
@@ -121,6 +122,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picLogo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVirtualKeyboard)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MENU_Login)).BeginInit();
+            this.panelLogin.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MENU_Product)).BeginInit();
             this.panel_Second.SuspendLayout();
@@ -425,25 +427,26 @@
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.BackColor = System.Drawing.Color.Transparent;
-            this.tableLayoutPanel2.ColumnCount = 8;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 6F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 3F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 23F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 3F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 43F));
-            // 第 5 列固定 40px：虚拟键盘图标（写进设计器，VS 里也看得见，位置由表格算，不靠代码摆）
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 8F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14F));
+            this.tableLayoutPanel2.ColumnCount = 9;
+            // 0 品牌标 / 1 物料 / 2 配方名 / 3 弹性 / 4 设备状态(居中) / 5 弹性 / 6 登录芯片 / 7 虚拟键盘 / 8 语言
+            // 两段等宽弹性列把设备状态顶到正中央；配方列取 276 时状态中心恒等于窗体中线
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 48F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 276F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 264F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 44F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 96F));
             this.tableLayoutPanel2.Controls.Add(this.picLogo, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.picVirtualKeyboard, 5, 0);
-            this.tableLayoutPanel2.Controls.Add(this.languageSwitch, 6, 0);
-            this.tableLayoutPanel2.Controls.Add(this.MachineStatus, 7, 0);
-            this.tableLayoutPanel2.Controls.Add(this.MENU_Login, 3, 0);
             this.tableLayoutPanel2.Controls.Add(this.menuStrip1, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.LoginText, 4, 0);
-            this.tableLayoutPanel2.Controls.Add(this.lbRecipeName, 2, 0);
             this.tableLayoutPanel2.Controls.Add(this.MENU_Product, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.lbRecipeName, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.MachineStatus, 4, 0);
+            this.tableLayoutPanel2.Controls.Add(this.panelLogin, 6, 0);
+            this.tableLayoutPanel2.Controls.Add(this.picVirtualKeyboard, 7, 0);
+            this.tableLayoutPanel2.Controls.Add(this.languageSwitch, 8, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
@@ -497,25 +500,38 @@
             // 
             this.MachineStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(197)))), ((int)(((byte)(66)))));
             this.MachineStatus.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MachineStatus.Font = new System.Drawing.Font("微软雅黑", 17F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.MachineStatus.Font = new System.Drawing.Font("微软雅黑", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.MachineStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(48)))), ((int)(((byte)(0)))));
             this.MachineStatus.Location = new System.Drawing.Point(1231, 4);
-            this.MachineStatus.Margin = new System.Windows.Forms.Padding(4, 4, 6, 4);
+            this.MachineStatus.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
             this.MachineStatus.Name = "MachineStatus";
             this.MachineStatus.Size = new System.Drawing.Size(195, 42);
             this.MachineStatus.TabIndex = 211;
             this.MachineStatus.Text = "IDLE";
             this.MachineStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // panelLogin
+            // 
+            // 右上角登录芯片：图标 + 用户名·权限·登录时间，整块可点开登录页
+            this.panelLogin.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(126)))), ((int)(((byte)(200)))));
+            this.panelLogin.Controls.Add(this.MENU_Login);
+            this.panelLogin.Controls.Add(this.LoginText);
+            this.panelLogin.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.panelLogin.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelLogin.Location = new System.Drawing.Point(0, 6);
+            this.panelLogin.Margin = new System.Windows.Forms.Padding(0, 6, 6, 6);
+            this.panelLogin.Name = "panelLogin";
+            this.panelLogin.Size = new System.Drawing.Size(258, 38);
+            this.panelLogin.TabIndex = 223;
+            // 
             // MENU_Login
             // 
             this.MENU_Login.BackColor = System.Drawing.Color.Transparent;
-            this.MENU_Login.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MENU_Login.Location = new System.Drawing.Point(457, 1);
-            this.MENU_Login.Margin = new System.Windows.Forms.Padding(1);
+            this.MENU_Login.Location = new System.Drawing.Point(8, 4);
+            this.MENU_Login.Margin = new System.Windows.Forms.Padding(0);
             this.MENU_Login.Name = "MENU_Login";
-            this.MENU_Login.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Login.Size = new System.Drawing.Size(40, 48);
+            this.MENU_Login.Padding = new System.Windows.Forms.Padding(0);
+            this.MENU_Login.Size = new System.Drawing.Size(30, 30);
             this.MENU_Login.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Login.TabIndex = 3;
             this.MENU_Login.TabStop = false;
@@ -591,14 +607,13 @@
             // LoginText
             // 
             this.LoginText.AutoEllipsis = true;
-            this.LoginText.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.LoginText.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.LoginText.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.LoginText.BackColor = System.Drawing.Color.Transparent;
+            this.LoginText.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.LoginText.ForeColor = System.Drawing.Color.White;
-            this.LoginText.Location = new System.Drawing.Point(498, 0);
+            this.LoginText.Location = new System.Drawing.Point(42, 0);
             this.LoginText.Margin = new System.Windows.Forms.Padding(0);
             this.LoginText.Name = "LoginText";
-            this.LoginText.Size = new System.Drawing.Size(615, 50);
+            this.LoginText.Size = new System.Drawing.Size(210, 38);
             this.LoginText.TabIndex = 7;
             this.LoginText.Text = "";
             this.LoginText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1167,6 +1182,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picLogo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVirtualKeyboard)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.MENU_Login)).EndInit();
+            this.panelLogin.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MENU_Product)).EndInit();
@@ -1224,6 +1240,7 @@
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
 		private System.Windows.Forms.Label MachineStatus;
 		private System.Windows.Forms.PictureBox MENU_Login;
+		private System.Windows.Forms.Panel panelLogin;
 		private System.Windows.Forms.MenuStrip menuStrip1;
 		public System.Windows.Forms.ToolStripMenuItem NumC1;
 		public System.Windows.Forms.ToolStripMenuItem NumC2;
