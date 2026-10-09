@@ -1217,6 +1217,7 @@ namespace AlphaRap
 
 		public static void OpenVision()
 		{
+			if (!VisionRuntime.Installed) return;   // 未安装 VisionPro 时不加载 vpp
 			for (int i = 0; i < VisionproInterface.VList.Count; i++)
 			{
 				string path = VisionproInterface.VList[i].GetVppPath(SysPara.RecipeName);

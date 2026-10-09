@@ -1032,6 +1032,16 @@ int nheightEllipse
                 return;
             }
 
+            CreateCogRecordDisplay();
+        }
+
+        /// <summary>
+        /// 创建 Cognex 图像显示控件。单独成方法且禁止内联：Cognex 程序集含原生代码，
+        /// 方法一被编译就会加载它；未安装 VisionPro 时加载即崩溃，所以只能在确认已安装后才调用。
+        /// </summary>
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+        private void CreateCogRecordDisplay()
+        {
             // 与设计器生成顺序一致：先设属性和 OcxState，再加入父控件，最后 EndInit
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             cogRecordDisplay1 = new Cognex.VisionPro.CogRecordDisplay();
@@ -1054,6 +1064,15 @@ int nheightEllipse
             cogRecordDisplay1.TabIndex = 80;
             tabPage10.Controls.Add(cogRecordDisplay1);
             ((System.ComponentModel.ISupportInitialize)cogRecordDisplay1).EndInit();
+        }
+
+        /// <summary>断开所有 Cognex 相机（同样只在已安装 VisionPro 时调用，原因见 CreateCogRecordDisplay）。</summary>
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+        private static void DisconnectCameras()
+        {
+            CogFrameGrabbers grabbers = new CogFrameGrabbers();
+            for (int i = 0; i < grabbers.Count; i++)
+                grabbers[i].Disconnect(true);
         }
 
         public void ShowhMainPage(dynamic ShowPage, Panel ShowPanl)
@@ -1737,15 +1756,10 @@ int nheightEllipse
 
             // 断开 Cognex 相机；失败也不阻止退出
             if (VisionRuntime.Installed)
-            try
             {
-                CogFrameGrabbers CCD_Graber = new Cognex.VisionPro.CogFrameGrabbers();
-                for (int i = 0; i < CCD_Graber.Count; i++)
-                {
-                    CCD_Graber[i].Disconnect(true);
-                }
+                try { DisconnectCameras(); }
+                catch { }
             }
-            catch { }
 
             try
             {
