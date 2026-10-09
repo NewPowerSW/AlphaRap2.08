@@ -1,18 +1,8 @@
-﻿using AlphaRap.Classes;
-using AlphaRapLibrary;
+﻿using AlphaRapLibrary;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using SFCDLL_CommonEx;
 using SFCDLL_CommonEx.Interface;
 
 namespace AlphaRap.MES
@@ -23,15 +13,6 @@ namespace AlphaRap.MES
 		{
 			InitializeComponent();
 		}
-
-		/// <summary>
-		/// MES:采用Post/Json
-		/// V1.0 初始版本
-		/// 修改时间2023-10-12----------------WZF
-		/// </summary>
-		/// 
-
-		readonly object OBJ = new object();
 
 		IniFile IniFile_Dongju = new IniFile(".\\Dongju.ini");
 		#region SFC
@@ -44,7 +25,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "Product", "");
-
 			}
 			set
 			{
@@ -60,7 +40,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "Station", "");
-
 			}
 			set
 			{
@@ -76,7 +55,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "Barcode", "");
-
 			}
 			set
 			{
@@ -92,7 +70,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "LineNo", "");
-
 			}
 			set
 			{
@@ -108,7 +85,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "Version", "");
-
 			}
 			set
 			{
@@ -119,12 +95,6 @@ namespace AlphaRap.MES
 		/// <summary>
 		/// 返回值Y为通过，N是失败
 		/// </summary>
-		/// <param name="Product"></param>
-		/// <param name="Station"></param>
-		/// <param name="Barcode"></param>
-		/// <param name="LineNo"></param>
-		/// <param name="Version"></param>
-		/// <returns></returns>
 		public string CheckStationPass(string Product, string Station, string Barcode, string LineNo, string Version)
 		{
 			SFCDLL SFCDLL = new SFCDLL();
@@ -141,7 +111,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "Type", "");
-
 			}
 			set
 			{
@@ -157,7 +126,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "Parameters", "");
-
 			}
 			set
 			{
@@ -168,10 +136,6 @@ namespace AlphaRap.MES
 		/// <summary>
 		/// 返回值Y为通过，N是失败
 		/// </summary>
-		/// <param name="Product"></param>
-		/// <param name="Type"></param>
-		/// <param name="Parameters"></param>
-		/// <returns></returns>
 		public string GetSpecialValue(string Product, string Type, string Parameters)
 		{
 			SFCDLL SFCDLL = new SFCDLL();
@@ -184,7 +148,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "TableName", "");
-
 			}
 			set
 			{
@@ -197,7 +160,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "ColumnList", "");
-
 			}
 			set
 			{
@@ -213,7 +175,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "ValueList", "");
-
 			}
 			set
 			{
@@ -224,15 +185,9 @@ namespace AlphaRap.MES
 		/// <summary>
 		/// 返回值Y为通过，N是失败
 		/// </summary>
-		/// <param name="Product"></param>
-		/// <param name="TableName"></param>
-		/// <param name="Key"></param>
-		/// <param name="Value"></param>
-		/// <returns></returns>
 		public string InsertInTable(string Product, string TableName, string Key, string Value)
 		{
 			SFCDLL SFCDLL = new SFCDLL();
-
 
 			return SFCDLL.InsertIntoTable(Product, TableName, Key, Value);
 		}
@@ -255,23 +210,17 @@ namespace AlphaRap.MES
 			EnumControls(this);
 			foreach (TextBox item in List)
 				IniFile_Dongju.WriteString("MES", item.Name.Replace("textBox_", ""), item.Text);
-
-
 		}
 
 		private void CheckStation_Text_Click(object sender, EventArgs e)
 		{
-
 			try
 			{
-
 				textBox1.Text = CheckStationPass(Product, Station, Barcode, LineNo, Version);
 			}
 			catch (Exception ex)
 			{
-
 				MessageBox.Show(ex.ToString());
-
 			}
 		}
 
@@ -285,7 +234,6 @@ namespace AlphaRap.MES
 			{
 				MessageBox.Show(ex.ToString());
 			}
-
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -298,7 +246,6 @@ namespace AlphaRap.MES
 			{
 				MessageBox.Show(ex.ToString());
 			}
-
 		}
 		#endregion
 		#region SCADA
@@ -310,7 +257,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "Model_No", "");
-
 			}
 			set
 			{
@@ -326,7 +272,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "ProjectName", "");
-
 			}
 			set
 			{
@@ -337,13 +282,11 @@ namespace AlphaRap.MES
 		/// <summary>
 		/// 逗号隔开的点位名称列表，点位名称规格：设备编号_参数名，例col1, col2, col3, col4
 		/// </summary>
-
 		public string TagNameList
 		{
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "TagNameList", "");
-
 			}
 			set
 			{
@@ -359,7 +302,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "SetValueList", "");
-
 			}
 			set
 			{
@@ -375,7 +317,6 @@ namespace AlphaRap.MES
 			get
 			{
 				return IniFile_Dongju.ReadString("MES", "EQP_ID", "");
-
 			}
 			set
 			{
@@ -395,13 +336,6 @@ namespace AlphaRap.MES
 			List<TextBox> List = new List<TextBox>();
 			void EnumControls(Control container)
 			{
-				//foreach (Control item in container.Controls)
-				//{
-				//	//c is the child control here
-				//	EnumControls(item);
-				//	if (item is TextBox)
-				//		List.Add((TextBox)item);
-				//}
 				foreach (Control item in container.Controls)
 				{
 					//c is the child control here
@@ -414,7 +348,6 @@ namespace AlphaRap.MES
 			EnumControls(this);
 			foreach (TextBox item in List)
 				item.Text = IniFile_Dongju.ReadString("MES", item.Name.Replace("textBox_", ""), "");
-
 		}
 
 		private void button4_Click(object sender, EventArgs e)
@@ -430,7 +363,5 @@ namespace AlphaRap.MES
 		{
 			textBox13.Text = SCADA_HandShake(Model_No, ProjectName, EQP_ID);
 		}
-
-
 	}
 }

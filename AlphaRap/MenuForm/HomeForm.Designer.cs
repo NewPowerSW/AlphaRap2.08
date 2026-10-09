@@ -6,7 +6,6 @@
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
@@ -29,438 +28,702 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HomeForm));
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.rootLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.kpiLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.kpiInputCard = new AlphaRap.CardPanel();
+            this.lblKpiInputValue = new AlphaRap.UiLabel();
+            this.lblKpiInputTitle = new AlphaRap.UiLabel();
+            this.kpiOkCard = new AlphaRap.CardPanel();
+            this.lblKpiOkValue = new AlphaRap.UiLabel();
+            this.lblKpiOkTitle = new AlphaRap.UiLabel();
+            this.kpiNgCard = new AlphaRap.CardPanel();
+            this.lblKpiNgValue = new AlphaRap.UiLabel();
+            this.lblKpiNgTitle = new AlphaRap.UiLabel();
+            this.kpiYieldCard = new AlphaRap.CardPanel();
+            this.lblKpiYieldValue = new AlphaRap.UiLabel();
+            this.lblKpiYieldTitle = new AlphaRap.UiLabel();
+            this.kpiCtCard = new AlphaRap.CardPanel();
+            this.lblKpiCtValue = new AlphaRap.UiLabel();
+            this.lblKpiCtTitle = new AlphaRap.UiLabel();
+            this.bodyLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.chartCard = new AlphaRap.CardPanel();
+            this.hourlyChart = new AlphaRap.HourlyChart();
+            this.lblChartTitle = new AlphaRap.UiLabel();
+            this.infoCard = new AlphaRap.CardPanel();
+            this.infoLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.lblInfoTitle = new AlphaRap.UiLabel();
+            this.lblBarcode1 = new AlphaRap.UiLabel();
+            this.txtBarcode = new System.Windows.Forms.TextBox();
+            this.lblBarcode2 = new AlphaRap.UiLabel();
+            this.txtBarcode2 = new System.Windows.Forms.TextBox();
+            this.lblBarcode3 = new AlphaRap.UiLabel();
+            this.txtBarcode3 = new System.Windows.Forms.TextBox();
+            this.lblBarcode4 = new AlphaRap.UiLabel();
+            this.txtBarcode4 = new System.Windows.Forms.TextBox();
+            this.lblHourTitle = new AlphaRap.UiLabel();
+            this.hourLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.lblHourInput = new AlphaRap.UiLabel();
+            this.tHourlyInput = new System.Windows.Forms.TextBox();
+            this.lblHourOutput = new AlphaRap.UiLabel();
+            this.tHourlyOutput = new System.Windows.Forms.TextBox();
+            this.lblHourReject = new AlphaRap.UiLabel();
+            this.tHourlyReject = new System.Windows.Forms.TextBox();
+            this.lblHourYield = new AlphaRap.UiLabel();
+            this.tHourlyYield = new System.Windows.Forms.TextBox();
+            this.connLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.label_PLCStaus = new System.Windows.Forms.Label();
-            this.LAB_ScannStaus = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label_ScannStaus = new System.Windows.Forms.Label();
-            this.chart2 = new AlphaRap.NoFocusChart();
-            this.chart1 = new AlphaRap.NoFocusChart();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtCT = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.tHourlyYield = new System.Windows.Forms.TextBox();
-            this.txtBarcode4 = new System.Windows.Forms.TextBox();
-            this.txtBarcode3 = new System.Windows.Forms.TextBox();
-            this.txtBarcode2 = new System.Windows.Forms.TextBox();
-            this.txtBarcode = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.tHourlyInput = new System.Windows.Forms.TextBox();
-            this.tHourlyOutput = new System.Windows.Forms.TextBox();
-            this.tHourlyReject = new System.Windows.Forms.TextBox();
+            this.LAB_ScannStaus = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.panel1.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
-            this.groupBox2.SuspendLayout();
+            this.rootLayout.SuspendLayout();
+            this.kpiLayout.SuspendLayout();
+            this.kpiInputCard.SuspendLayout();
+            this.kpiOkCard.SuspendLayout();
+            this.kpiNgCard.SuspendLayout();
+            this.kpiYieldCard.SuspendLayout();
+            this.kpiCtCard.SuspendLayout();
+            this.bodyLayout.SuspendLayout();
+            this.chartCard.SuspendLayout();
+            this.infoCard.SuspendLayout();
+            this.infoLayout.SuspendLayout();
+            this.hourLayout.SuspendLayout();
+            this.connLayout.SuspendLayout();
             this.SuspendLayout();
             // 
-            // panel1
+            // rootLayout
             // 
-            this.panel1.BackColor = System.Drawing.Color.White;
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.tableLayoutPanel1);
-            this.panel1.Controls.Add(this.chart2);
-            this.panel1.Controls.Add(this.chart1);
-            this.panel1.Controls.Add(this.groupBox2);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1244, 829);
-            this.panel1.TabIndex = 5;
+            this.rootLayout.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
+            this.rootLayout.ColumnCount = 1;
+            this.rootLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.rootLayout.Controls.Add(this.kpiLayout, 0, 0);
+            this.rootLayout.Controls.Add(this.bodyLayout, 0, 1);
+            this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rootLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.rootLayout.Name = "rootLayout";
+            this.rootLayout.Padding = new System.Windows.Forms.Padding(16);
+            this.rootLayout.RowCount = 2;
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 112F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             // 
-            // tableLayoutPanel1
+            // kpiLayout
             // 
-            this.tableLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
-            this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.None;
-            this.tableLayoutPanel1.ColumnCount = 5;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 5F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 3F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 5F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 3F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 84F));
-            this.tableLayoutPanel1.Controls.Add(this.label_PLCStaus, 3, 0);
-            this.tableLayoutPanel1.Controls.Add(this.LAB_ScannStaus, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label10, 2, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label_ScannStaus, 1, 0);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 802);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 1;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1242, 25);
-            this.tableLayoutPanel1.TabIndex = 16;
+            this.kpiLayout.ColumnCount = 5;
+            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.kpiLayout.Controls.Add(this.kpiInputCard, 0, 0);
+            this.kpiLayout.Controls.Add(this.kpiOkCard, 1, 0);
+            this.kpiLayout.Controls.Add(this.kpiNgCard, 2, 0);
+            this.kpiLayout.Controls.Add(this.kpiYieldCard, 3, 0);
+            this.kpiLayout.Controls.Add(this.kpiCtCard, 4, 0);
+            this.kpiLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiLayout.Margin = new System.Windows.Forms.Padding(0, 0, 0, 12);
+            this.kpiLayout.Name = "kpiLayout";
+            this.kpiLayout.RowCount = 1;
+            this.kpiLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            // 
+            // kpiInputCard
+            // 
+            this.kpiInputCard.Controls.Add(this.lblKpiInputValue);
+            this.kpiInputCard.Controls.Add(this.lblKpiInputTitle);
+            this.kpiInputCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiInputCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.kpiInputCard.Name = "kpiInputCard";
+            this.kpiInputCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
+            // 
+            // lblKpiInputValue
+            // 
+            this.lblKpiInputValue.AutoEllipsis = true;
+            this.lblKpiInputValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblKpiInputValue.Font = new System.Drawing.Font("微软雅黑", 26F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiInputValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.lblKpiInputValue.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiInputValue.Name = "lblKpiInputValue";
+            this.lblKpiInputValue.Text = "0";
+            this.lblKpiInputValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblKpiInputTitle
+            // 
+            this.lblKpiInputTitle.AutoEllipsis = true;
+            this.lblKpiInputTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblKpiInputTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiInputTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblKpiInputTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiInputTitle.Name = "lblKpiInputTitle";
+            this.lblKpiInputTitle.Size = new System.Drawing.Size(100, 24);
+            this.lblKpiInputTitle.Text = "投入";
+            this.lblKpiInputTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // kpiOkCard
+            // 
+            this.kpiOkCard.Controls.Add(this.lblKpiOkValue);
+            this.kpiOkCard.Controls.Add(this.lblKpiOkTitle);
+            this.kpiOkCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiOkCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.kpiOkCard.Name = "kpiOkCard";
+            this.kpiOkCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
+            // 
+            // lblKpiOkValue
+            // 
+            this.lblKpiOkValue.AutoEllipsis = true;
+            this.lblKpiOkValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblKpiOkValue.Font = new System.Drawing.Font("微软雅黑", 26F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiOkValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(150)))), ((int)(((byte)(67)))));
+            this.lblKpiOkValue.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiOkValue.Name = "lblKpiOkValue";
+            this.lblKpiOkValue.Text = "0";
+            this.lblKpiOkValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblKpiOkTitle
+            // 
+            this.lblKpiOkTitle.AutoEllipsis = true;
+            this.lblKpiOkTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblKpiOkTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiOkTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblKpiOkTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiOkTitle.Name = "lblKpiOkTitle";
+            this.lblKpiOkTitle.Size = new System.Drawing.Size(100, 24);
+            this.lblKpiOkTitle.Text = "良品";
+            this.lblKpiOkTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // kpiNgCard
+            // 
+            this.kpiNgCard.Controls.Add(this.lblKpiNgValue);
+            this.kpiNgCard.Controls.Add(this.lblKpiNgTitle);
+            this.kpiNgCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiNgCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.kpiNgCard.Name = "kpiNgCard";
+            this.kpiNgCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
+            // 
+            // lblKpiNgValue
+            // 
+            this.lblKpiNgValue.AutoEllipsis = true;
+            this.lblKpiNgValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblKpiNgValue.Font = new System.Drawing.Font("微软雅黑", 26F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiNgValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(206)))), ((int)(((byte)(62)))), ((int)(((byte)(62)))));
+            this.lblKpiNgValue.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiNgValue.Name = "lblKpiNgValue";
+            this.lblKpiNgValue.Text = "0";
+            this.lblKpiNgValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblKpiNgTitle
+            // 
+            this.lblKpiNgTitle.AutoEllipsis = true;
+            this.lblKpiNgTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblKpiNgTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiNgTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblKpiNgTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiNgTitle.Name = "lblKpiNgTitle";
+            this.lblKpiNgTitle.Size = new System.Drawing.Size(100, 24);
+            this.lblKpiNgTitle.Text = "不良";
+            this.lblKpiNgTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // kpiYieldCard
+            // 
+            this.kpiYieldCard.Controls.Add(this.lblKpiYieldValue);
+            this.kpiYieldCard.Controls.Add(this.lblKpiYieldTitle);
+            this.kpiYieldCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiYieldCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.kpiYieldCard.Name = "kpiYieldCard";
+            this.kpiYieldCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
+            // 
+            // lblKpiYieldValue
+            // 
+            this.lblKpiYieldValue.AutoEllipsis = true;
+            this.lblKpiYieldValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblKpiYieldValue.Font = new System.Drawing.Font("微软雅黑", 26F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiYieldValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
+            this.lblKpiYieldValue.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiYieldValue.Name = "lblKpiYieldValue";
+            this.lblKpiYieldValue.Text = "0";
+            this.lblKpiYieldValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblKpiYieldTitle
+            // 
+            this.lblKpiYieldTitle.AutoEllipsis = true;
+            this.lblKpiYieldTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblKpiYieldTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiYieldTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblKpiYieldTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiYieldTitle.Name = "lblKpiYieldTitle";
+            this.lblKpiYieldTitle.Size = new System.Drawing.Size(100, 24);
+            this.lblKpiYieldTitle.Text = "良率";
+            this.lblKpiYieldTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // kpiCtCard
+            // 
+            this.kpiCtCard.Controls.Add(this.lblKpiCtValue);
+            this.kpiCtCard.Controls.Add(this.lblKpiCtTitle);
+            this.kpiCtCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiCtCard.Margin = new System.Windows.Forms.Padding(0);
+            this.kpiCtCard.Name = "kpiCtCard";
+            this.kpiCtCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
+            // 
+            // lblKpiCtValue
+            // 
+            this.lblKpiCtValue.AutoEllipsis = true;
+            this.lblKpiCtValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblKpiCtValue.Font = new System.Drawing.Font("微软雅黑", 26F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiCtValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.lblKpiCtValue.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiCtValue.Name = "lblKpiCtValue";
+            this.lblKpiCtValue.Text = "0";
+            this.lblKpiCtValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblKpiCtTitle
+            // 
+            this.lblKpiCtTitle.AutoEllipsis = true;
+            this.lblKpiCtTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblKpiCtTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiCtTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblKpiCtTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiCtTitle.Name = "lblKpiCtTitle";
+            this.lblKpiCtTitle.Size = new System.Drawing.Size(100, 24);
+            this.lblKpiCtTitle.Text = "节拍";
+            this.lblKpiCtTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // bodyLayout
+            // 
+            this.bodyLayout.ColumnCount = 2;
+            this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 64F));
+            this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 36F));
+            this.bodyLayout.Controls.Add(this.chartCard, 0, 0);
+            this.bodyLayout.Controls.Add(this.infoCard, 1, 0);
+            this.bodyLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.bodyLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.bodyLayout.Name = "bodyLayout";
+            this.bodyLayout.RowCount = 1;
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            // 
+            // chartCard
+            // 
+            this.chartCard.Controls.Add(this.hourlyChart);
+            this.chartCard.Controls.Add(this.lblChartTitle);
+            this.chartCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chartCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.chartCard.Name = "chartCard";
+            this.chartCard.Padding = new System.Windows.Forms.Padding(16, 12, 16, 12);
+            // 
+            // hourlyChart
+            // 
+            this.hourlyChart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hourlyChart.Name = "hourlyChart";
+            // 
+            // lblChartTitle
+            // 
+            this.lblChartTitle.AutoEllipsis = true;
+            this.lblChartTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblChartTitle.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblChartTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.lblChartTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblChartTitle.Name = "lblChartTitle";
+            this.lblChartTitle.Size = new System.Drawing.Size(100, 30);
+            this.lblChartTitle.Text = "今日每小时产量";
+            this.lblChartTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // infoCard
+            // 
+            this.infoCard.Controls.Add(this.infoLayout);
+            this.infoCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.infoCard.Margin = new System.Windows.Forms.Padding(0);
+            this.infoCard.Name = "infoCard";
+            this.infoCard.Padding = new System.Windows.Forms.Padding(16, 12, 16, 12);
+            // 
+            // infoLayout
+            // 
+            this.infoLayout.BackColor = System.Drawing.Color.White;
+            this.infoLayout.ColumnCount = 2;
+            this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 72F));
+            this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.infoLayout.Controls.Add(this.lblInfoTitle, 0, 0);
+            this.infoLayout.Controls.Add(this.lblBarcode1, 0, 1);
+            this.infoLayout.Controls.Add(this.txtBarcode, 1, 1);
+            this.infoLayout.Controls.Add(this.lblBarcode2, 0, 2);
+            this.infoLayout.Controls.Add(this.txtBarcode2, 1, 2);
+            this.infoLayout.Controls.Add(this.lblBarcode3, 0, 3);
+            this.infoLayout.Controls.Add(this.txtBarcode3, 1, 3);
+            this.infoLayout.Controls.Add(this.lblBarcode4, 0, 4);
+            this.infoLayout.Controls.Add(this.txtBarcode4, 1, 4);
+            this.infoLayout.Controls.Add(this.lblHourTitle, 0, 6);
+            this.infoLayout.Controls.Add(this.hourLayout, 0, 7);
+            this.infoLayout.Controls.Add(this.connLayout, 0, 9);
+            this.infoLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.infoLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.infoLayout.Name = "infoLayout";
+            this.infoLayout.RowCount = 10;
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 14F));
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 56F));
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.infoLayout.SetColumnSpan(this.lblInfoTitle, 2);
+            this.infoLayout.SetColumnSpan(this.lblHourTitle, 2);
+            this.infoLayout.SetColumnSpan(this.hourLayout, 2);
+            this.infoLayout.SetColumnSpan(this.connLayout, 2);
+            // 
+            // lblInfoTitle
+            // 
+            this.lblInfoTitle.AutoEllipsis = true;
+            this.lblInfoTitle.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblInfoTitle.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblInfoTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.lblInfoTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblInfoTitle.Name = "lblInfoTitle";
+            this.lblInfoTitle.Text = "生产信息";
+            this.lblInfoTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblBarcode1
+            // 
+            this.lblBarcode1.AutoEllipsis = true;
+            this.lblBarcode1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblBarcode1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblBarcode1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblBarcode1.Margin = new System.Windows.Forms.Padding(0);
+            this.lblBarcode1.Name = "lblBarcode1";
+            this.lblBarcode1.Text = "条码 1";
+            this.lblBarcode1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // txtBarcode
+            // 
+            this.txtBarcode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
+            this.txtBarcode.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.txtBarcode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtBarcode.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtBarcode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.txtBarcode.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
+            this.txtBarcode.Name = "txtBarcode";
+            // 
+            // lblBarcode2
+            // 
+            this.lblBarcode2.AutoEllipsis = true;
+            this.lblBarcode2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblBarcode2.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblBarcode2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblBarcode2.Margin = new System.Windows.Forms.Padding(0);
+            this.lblBarcode2.Name = "lblBarcode2";
+            this.lblBarcode2.Text = "条码 2";
+            this.lblBarcode2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // txtBarcode2
+            // 
+            this.txtBarcode2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
+            this.txtBarcode2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.txtBarcode2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtBarcode2.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtBarcode2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.txtBarcode2.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
+            this.txtBarcode2.Name = "txtBarcode2";
+            // 
+            // lblBarcode3
+            // 
+            this.lblBarcode3.AutoEllipsis = true;
+            this.lblBarcode3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblBarcode3.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblBarcode3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblBarcode3.Margin = new System.Windows.Forms.Padding(0);
+            this.lblBarcode3.Name = "lblBarcode3";
+            this.lblBarcode3.Text = "条码 3";
+            this.lblBarcode3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // txtBarcode3
+            // 
+            this.txtBarcode3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
+            this.txtBarcode3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.txtBarcode3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtBarcode3.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtBarcode3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.txtBarcode3.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
+            this.txtBarcode3.Name = "txtBarcode3";
+            // 
+            // lblBarcode4
+            // 
+            this.lblBarcode4.AutoEllipsis = true;
+            this.lblBarcode4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblBarcode4.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblBarcode4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblBarcode4.Margin = new System.Windows.Forms.Padding(0);
+            this.lblBarcode4.Name = "lblBarcode4";
+            this.lblBarcode4.Text = "条码 4";
+            this.lblBarcode4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // txtBarcode4
+            // 
+            this.txtBarcode4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
+            this.txtBarcode4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.txtBarcode4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtBarcode4.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtBarcode4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.txtBarcode4.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
+            this.txtBarcode4.Name = "txtBarcode4";
+            // 
+            // lblHourTitle
+            // 
+            this.lblHourTitle.AutoEllipsis = true;
+            this.lblHourTitle.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblHourTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblHourTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.lblHourTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblHourTitle.Name = "lblHourTitle";
+            this.lblHourTitle.Text = "本小时";
+            this.lblHourTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // hourLayout
+            // 
+            this.hourLayout.ColumnCount = 4;
+            this.hourLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.hourLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.hourLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.hourLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.hourLayout.Controls.Add(this.lblHourInput, 0, 0);
+            this.hourLayout.Controls.Add(this.tHourlyInput, 0, 1);
+            this.hourLayout.Controls.Add(this.lblHourOutput, 1, 0);
+            this.hourLayout.Controls.Add(this.tHourlyOutput, 1, 1);
+            this.hourLayout.Controls.Add(this.lblHourReject, 2, 0);
+            this.hourLayout.Controls.Add(this.tHourlyReject, 2, 1);
+            this.hourLayout.Controls.Add(this.lblHourYield, 3, 0);
+            this.hourLayout.Controls.Add(this.tHourlyYield, 3, 1);
+            this.hourLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hourLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.hourLayout.Name = "hourLayout";
+            this.hourLayout.RowCount = 2;
+            this.hourLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+            this.hourLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            // 
+            // lblHourInput
+            // 
+            this.lblHourInput.AutoEllipsis = true;
+            this.lblHourInput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblHourInput.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblHourInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblHourInput.Margin = new System.Windows.Forms.Padding(0);
+            this.lblHourInput.Name = "lblHourInput";
+            this.lblHourInput.Text = "投入";
+            this.lblHourInput.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // tHourlyInput
+            // 
+            this.tHourlyInput.BackColor = System.Drawing.Color.White;
+            this.tHourlyInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tHourlyInput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tHourlyInput.Font = new System.Drawing.Font("微软雅黑", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tHourlyInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.tHourlyInput.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
+            this.tHourlyInput.Name = "tHourlyInput";
+            this.tHourlyInput.ReadOnly = true;
+            this.tHourlyInput.TabStop = false;
+            this.tHourlyInput.Text = "0";
+            // 
+            // lblHourOutput
+            // 
+            this.lblHourOutput.AutoEllipsis = true;
+            this.lblHourOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblHourOutput.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblHourOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblHourOutput.Margin = new System.Windows.Forms.Padding(0);
+            this.lblHourOutput.Name = "lblHourOutput";
+            this.lblHourOutput.Text = "产出";
+            this.lblHourOutput.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // tHourlyOutput
+            // 
+            this.tHourlyOutput.BackColor = System.Drawing.Color.White;
+            this.tHourlyOutput.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tHourlyOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tHourlyOutput.Font = new System.Drawing.Font("微软雅黑", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tHourlyOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.tHourlyOutput.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
+            this.tHourlyOutput.Name = "tHourlyOutput";
+            this.tHourlyOutput.ReadOnly = true;
+            this.tHourlyOutput.TabStop = false;
+            this.tHourlyOutput.Text = "0";
+            // 
+            // lblHourReject
+            // 
+            this.lblHourReject.AutoEllipsis = true;
+            this.lblHourReject.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblHourReject.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblHourReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblHourReject.Margin = new System.Windows.Forms.Padding(0);
+            this.lblHourReject.Name = "lblHourReject";
+            this.lblHourReject.Text = "不良";
+            this.lblHourReject.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // tHourlyReject
+            // 
+            this.tHourlyReject.BackColor = System.Drawing.Color.White;
+            this.tHourlyReject.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tHourlyReject.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tHourlyReject.Font = new System.Drawing.Font("微软雅黑", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tHourlyReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.tHourlyReject.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
+            this.tHourlyReject.Name = "tHourlyReject";
+            this.tHourlyReject.ReadOnly = true;
+            this.tHourlyReject.TabStop = false;
+            this.tHourlyReject.Text = "0";
+            // 
+            // lblHourYield
+            // 
+            this.lblHourYield.AutoEllipsis = true;
+            this.lblHourYield.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblHourYield.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblHourYield.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblHourYield.Margin = new System.Windows.Forms.Padding(0);
+            this.lblHourYield.Name = "lblHourYield";
+            this.lblHourYield.Text = "良率";
+            this.lblHourYield.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // tHourlyYield
+            // 
+            this.tHourlyYield.BackColor = System.Drawing.Color.White;
+            this.tHourlyYield.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tHourlyYield.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tHourlyYield.Font = new System.Drawing.Font("微软雅黑", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tHourlyYield.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.tHourlyYield.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
+            this.tHourlyYield.Name = "tHourlyYield";
+            this.tHourlyYield.ReadOnly = true;
+            this.tHourlyYield.TabStop = false;
+            this.tHourlyYield.Text = "0";
+            // 
+            // connLayout
+            // 
+            this.connLayout.Controls.Add(this.label_PLCStaus);
+            this.connLayout.Controls.Add(this.label10);
+            this.connLayout.Controls.Add(this.label_ScannStaus);
+            this.connLayout.Controls.Add(this.LAB_ScannStaus);
+            this.connLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.connLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.connLayout.Name = "connLayout";
+            this.connLayout.WrapContents = false;
             // 
             // label_PLCStaus
             // 
-            this.label_PLCStaus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(150)))), ((int)(((byte)(83)))));
-            this.label_PLCStaus.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
-            this.label_PLCStaus.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label_PLCStaus.ForeColor = System.Drawing.Color.White;
-            this.label_PLCStaus.Location = new System.Drawing.Point(166, 1);
+            this.label_PLCStaus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(150)))), ((int)(((byte)(67)))));
+            this.label_PLCStaus.Margin = new System.Windows.Forms.Padding(0, 9, 6, 0);
             this.label_PLCStaus.Name = "label_PLCStaus";
-            this.label_PLCStaus.Size = new System.Drawing.Size(31, 23);
-            this.label_PLCStaus.TabIndex = 3;
-            // 
-            // LAB_ScannStaus
-            // 
-            this.LAB_ScannStaus.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.LAB_ScannStaus.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.LAB_ScannStaus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(72)))), ((int)(((byte)(88)))));
-            this.LAB_ScannStaus.Location = new System.Drawing.Point(4, 1);
-            this.LAB_ScannStaus.Name = "LAB_ScannStaus";
-            this.LAB_ScannStaus.Size = new System.Drawing.Size(55, 23);
-            this.LAB_ScannStaus.TabIndex = 0;
-            this.LAB_ScannStaus.Text = "Scann";
-            this.LAB_ScannStaus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label_PLCStaus.Size = new System.Drawing.Size(12, 12);
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label10.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label10.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(72)))), ((int)(((byte)(88)))));
-            this.label10.Location = new System.Drawing.Point(104, 1);
+            this.label10.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label10.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.label10.Margin = new System.Windows.Forms.Padding(0, 5, 22, 0);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(55, 23);
-            this.label10.TabIndex = 2;
             this.label10.Text = "PLC";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label_ScannStaus
             // 
-            this.label_ScannStaus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(150)))), ((int)(((byte)(83)))));
-            this.label_ScannStaus.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
-            this.label_ScannStaus.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label_ScannStaus.ForeColor = System.Drawing.Color.White;
-            this.label_ScannStaus.Location = new System.Drawing.Point(66, 1);
+            this.label_ScannStaus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(150)))), ((int)(((byte)(67)))));
+            this.label_ScannStaus.Margin = new System.Windows.Forms.Padding(0, 9, 6, 0);
             this.label_ScannStaus.Name = "label_ScannStaus";
-            this.label_ScannStaus.Size = new System.Drawing.Size(31, 23);
-            this.label_ScannStaus.TabIndex = 1;
+            this.label_ScannStaus.Size = new System.Drawing.Size(12, 12);
             // 
-            // chart2
+            // LAB_ScannStaus
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chart2.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart2.Legends.Add(legend1);
-            this.chart2.Location = new System.Drawing.Point(505, 11);
-            this.chart2.Name = "chart2";
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Legend = "Legend1";
-            series1.Name = "temperature";
-            this.chart2.Series.Add(series1);
-            this.chart2.Size = new System.Drawing.Size(470, 300);
-            this.chart2.TabIndex = 15;
-            this.chart2.Text = "chart2";
-            // 
-            // chart1
-            // 
-            chartArea2.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.chart1.Legends.Add(legend2);
-            this.chart1.Location = new System.Drawing.Point(18, 11);
-            this.chart1.Name = "chart1";
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series2.Legend = "Legend1";
-            series2.Name = "Prseeure";
-            this.chart1.Series.Add(series2);
-            this.chart1.Size = new System.Drawing.Size(470, 300);
-            this.chart1.TabIndex = 14;
-            this.chart1.Text = "chart1";
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.BackColor = System.Drawing.Color.Silver;
-            this.groupBox2.Controls.Add(this.label12);
-            this.groupBox2.Controls.Add(this.label6);
-            this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Controls.Add(this.label5);
-            this.groupBox2.Controls.Add(this.label14);
-            this.groupBox2.Controls.Add(this.label8);
-            this.groupBox2.Controls.Add(this.label7);
-            this.groupBox2.Controls.Add(this.label1);
-            this.groupBox2.Controls.Add(this.txtCT);
-            this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Controls.Add(this.tHourlyYield);
-            this.groupBox2.Controls.Add(this.txtBarcode4);
-            this.groupBox2.Controls.Add(this.txtBarcode3);
-            this.groupBox2.Controls.Add(this.txtBarcode2);
-            this.groupBox2.Controls.Add(this.txtBarcode);
-            this.groupBox2.Controls.Add(this.label3);
-            this.groupBox2.Controls.Add(this.tHourlyInput);
-            this.groupBox2.Controls.Add(this.tHourlyOutput);
-            this.groupBox2.Controls.Add(this.tHourlyReject);
-            this.groupBox2.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.groupBox2.Location = new System.Drawing.Point(62, 1202);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(436, 347);
-            this.groupBox2.TabIndex = 11;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "生产信息";
-            // 
-            // label12
-            // 
-            this.label12.Location = new System.Drawing.Point(51, 311);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(69, 23);
-            this.label12.TabIndex = 1;
-            this.label12.Text = "CT :";
-            this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label6
-            // 
-            this.label6.Location = new System.Drawing.Point(5, 272);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(115, 23);
-            this.label6.TabIndex = 1;
-            this.label6.Text = "Hourly Yield:";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label2
-            // 
-            this.label2.BackColor = System.Drawing.Color.Gainsboro;
-            this.label2.Font = new System.Drawing.Font("微软雅黑", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(248, 311);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(178, 30);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "重   置";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label5
-            // 
-            this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label5.Location = new System.Drawing.Point(3, 30);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(430, 314);
-            this.label5.TabIndex = 1;
-            this.label5.Text = "Hourly Reject:";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label14
-            // 
-            this.label14.Location = new System.Drawing.Point(3, 128);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(117, 23);
-            this.label14.TabIndex = 1;
-            this.label14.Text = "Barcode4:";
-            this.label14.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label8
-            // 
-            this.label8.Location = new System.Drawing.Point(3, 93);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(117, 23);
-            this.label8.TabIndex = 1;
-            this.label8.Text = "Barcode3:";
-            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label7
-            // 
-            this.label7.Location = new System.Drawing.Point(3, 58);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(117, 23);
-            this.label7.TabIndex = 1;
-            this.label7.Text = "Barcode2:";
-            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label1
-            // 
-            this.label1.Location = new System.Drawing.Point(7, 19);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(114, 23);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Barcode1:";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // txtCT
-            // 
-            this.txtCT.Location = new System.Drawing.Point(126, 307);
-            this.txtCT.Name = "txtCT";
-            this.txtCT.Size = new System.Drawing.Size(77, 34);
-            this.txtCT.TabIndex = 0;
-            this.txtCT.Text = "12.3 /s";
-            this.txtCT.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // label4
-            // 
-            this.label4.Location = new System.Drawing.Point(-4, 200);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(125, 23);
-            this.label4.TabIndex = 1;
-            this.label4.Text = "Hourly Output:";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // tHourlyYield
-            // 
-            this.tHourlyYield.Location = new System.Drawing.Point(126, 272);
-            this.tHourlyYield.Name = "tHourlyYield";
-            this.tHourlyYield.Size = new System.Drawing.Size(77, 34);
-            this.tHourlyYield.TabIndex = 0;
-            this.tHourlyYield.Text = "100%";
-            this.tHourlyYield.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // txtBarcode4
-            // 
-            this.txtBarcode4.Location = new System.Drawing.Point(126, 122);
-            this.txtBarcode4.Name = "txtBarcode4";
-            this.txtBarcode4.Size = new System.Drawing.Size(300, 34);
-            this.txtBarcode4.TabIndex = 0;
-            this.txtBarcode4.TabStop = false;
-            this.txtBarcode4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // txtBarcode3
-            // 
-            this.txtBarcode3.Location = new System.Drawing.Point(126, 87);
-            this.txtBarcode3.Name = "txtBarcode3";
-            this.txtBarcode3.Size = new System.Drawing.Size(300, 34);
-            this.txtBarcode3.TabIndex = 0;
-            this.txtBarcode3.TabStop = false;
-            this.txtBarcode3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // txtBarcode2
-            // 
-            this.txtBarcode2.Location = new System.Drawing.Point(126, 52);
-            this.txtBarcode2.Name = "txtBarcode2";
-            this.txtBarcode2.Size = new System.Drawing.Size(300, 34);
-            this.txtBarcode2.TabIndex = 0;
-            this.txtBarcode2.TabStop = false;
-            this.txtBarcode2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // txtBarcode
-            // 
-            this.txtBarcode.Location = new System.Drawing.Point(126, 17);
-            this.txtBarcode.Name = "txtBarcode";
-            this.txtBarcode.Size = new System.Drawing.Size(300, 34);
-            this.txtBarcode.TabIndex = 0;
-            this.txtBarcode.TabStop = false;
-            this.txtBarcode.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // label3
-            // 
-            this.label3.Location = new System.Drawing.Point(3, 167);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(117, 23);
-            this.label3.TabIndex = 1;
-            this.label3.Text = "Hourly Input:";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // tHourlyInput
-            // 
-            this.tHourlyInput.Location = new System.Drawing.Point(126, 165);
-            this.tHourlyInput.Name = "tHourlyInput";
-            this.tHourlyInput.Size = new System.Drawing.Size(77, 34);
-            this.tHourlyInput.TabIndex = 0;
-            this.tHourlyInput.Text = "0";
-            this.tHourlyInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // tHourlyOutput
-            // 
-            this.tHourlyOutput.Location = new System.Drawing.Point(126, 200);
-            this.tHourlyOutput.Name = "tHourlyOutput";
-            this.tHourlyOutput.Size = new System.Drawing.Size(77, 34);
-            this.tHourlyOutput.TabIndex = 0;
-            this.tHourlyOutput.Text = "0";
-            this.tHourlyOutput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // tHourlyReject
-            // 
-            this.tHourlyReject.Location = new System.Drawing.Point(126, 237);
-            this.tHourlyReject.Name = "tHourlyReject";
-            this.tHourlyReject.Size = new System.Drawing.Size(77, 34);
-            this.tHourlyReject.TabIndex = 0;
-            this.tHourlyReject.Text = "0";
-            this.tHourlyReject.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.LAB_ScannStaus.AutoSize = true;
+            this.LAB_ScannStaus.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.LAB_ScannStaus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.LAB_ScannStaus.Margin = new System.Windows.Forms.Padding(0, 5, 22, 0);
+            this.LAB_ScannStaus.Name = "LAB_ScannStaus";
+            this.LAB_ScannStaus.Text = "扫码枪";
             // 
             // timer1
             // 
+            this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // imageList1
-            // 
-            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
-            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList1.Images.SetKeyName(0, "无标题.png");
             // 
             // HomeForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BackColor = System.Drawing.Color.White;
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(1244, 829);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
+            this.ClientSize = new System.Drawing.Size(1338, 562);
             this.ControlBox = false;
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.rootLayout);
+            this.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "HomeForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "HomeForm";
             this.Load += new System.EventHandler(this.HomeForm_Load);
-            this.panel1.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.connLayout.ResumeLayout(false);
+            this.connLayout.PerformLayout();
+            this.hourLayout.ResumeLayout(false);
+            this.hourLayout.PerformLayout();
+            this.infoLayout.ResumeLayout(false);
+            this.infoLayout.PerformLayout();
+            this.infoCard.ResumeLayout(false);
+            this.chartCard.ResumeLayout(false);
+            this.bodyLayout.ResumeLayout(false);
+            this.kpiCtCard.ResumeLayout(false);
+            this.kpiYieldCard.ResumeLayout(false);
+            this.kpiNgCard.ResumeLayout(false);
+            this.kpiOkCard.ResumeLayout(false);
+            this.kpiInputCard.ResumeLayout(false);
+            this.kpiLayout.ResumeLayout(false);
+            this.rootLayout.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.TextBox txtCT;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.ImageList imageList1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox tHourlyYield;
-        public System.Windows.Forms.TextBox tHourlyReject;
-        private System.Windows.Forms.TextBox tHourlyOutput;
-        private System.Windows.Forms.TextBox tHourlyInput;
-        private System.Windows.Forms.Label label7;
-        public System.Windows.Forms.TextBox txtBarcode2;
+        private System.Windows.Forms.TableLayoutPanel rootLayout;
+        private System.Windows.Forms.TableLayoutPanel kpiLayout;
+        private AlphaRap.CardPanel kpiInputCard;
+        private AlphaRap.UiLabel lblKpiInputValue;
+        private AlphaRap.UiLabel lblKpiInputTitle;
+        private AlphaRap.CardPanel kpiOkCard;
+        private AlphaRap.UiLabel lblKpiOkValue;
+        private AlphaRap.UiLabel lblKpiOkTitle;
+        private AlphaRap.CardPanel kpiNgCard;
+        private AlphaRap.UiLabel lblKpiNgValue;
+        private AlphaRap.UiLabel lblKpiNgTitle;
+        private AlphaRap.CardPanel kpiYieldCard;
+        private AlphaRap.UiLabel lblKpiYieldValue;
+        private AlphaRap.UiLabel lblKpiYieldTitle;
+        private AlphaRap.CardPanel kpiCtCard;
+        private AlphaRap.UiLabel lblKpiCtValue;
+        private AlphaRap.UiLabel lblKpiCtTitle;
+        private System.Windows.Forms.TableLayoutPanel bodyLayout;
+        private AlphaRap.CardPanel chartCard;
+        private AlphaRap.HourlyChart hourlyChart;
+        private AlphaRap.UiLabel lblChartTitle;
+        private AlphaRap.CardPanel infoCard;
+        private System.Windows.Forms.TableLayoutPanel infoLayout;
+        private AlphaRap.UiLabel lblInfoTitle;
+        private AlphaRap.UiLabel lblBarcode1;
         public System.Windows.Forms.TextBox txtBarcode;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.Label label8;
-        public System.Windows.Forms.TextBox txtBarcode4;
+        private AlphaRap.UiLabel lblBarcode2;
+        public System.Windows.Forms.TextBox txtBarcode2;
+        private AlphaRap.UiLabel lblBarcode3;
         public System.Windows.Forms.TextBox txtBarcode3;
-		private AlphaRap.NoFocusChart chart2;
-		private AlphaRap.NoFocusChart chart1;
-		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-		private System.Windows.Forms.Label label_PLCStaus;
-		private System.Windows.Forms.Label LAB_ScannStaus;
-		private System.Windows.Forms.Label label10;
-		private System.Windows.Forms.Label label_ScannStaus;
-	}
+        private AlphaRap.UiLabel lblBarcode4;
+        public System.Windows.Forms.TextBox txtBarcode4;
+        private AlphaRap.UiLabel lblHourTitle;
+        private System.Windows.Forms.TableLayoutPanel hourLayout;
+        private AlphaRap.UiLabel lblHourInput;
+        private System.Windows.Forms.TextBox tHourlyInput;
+        private AlphaRap.UiLabel lblHourOutput;
+        private System.Windows.Forms.TextBox tHourlyOutput;
+        private AlphaRap.UiLabel lblHourReject;
+        public System.Windows.Forms.TextBox tHourlyReject;
+        private AlphaRap.UiLabel lblHourYield;
+        private System.Windows.Forms.TextBox tHourlyYield;
+        private System.Windows.Forms.FlowLayoutPanel connLayout;
+        private System.Windows.Forms.Label label_PLCStaus;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label_ScannStaus;
+        private System.Windows.Forms.Label LAB_ScannStaus;
+        private System.Windows.Forms.Timer timer1;
+    }
 }

@@ -21,14 +21,7 @@ namespace AlphaRap
     }
 
     /// <summary>
-    /// 自绘圆角按钮：图标 + 文字，含悬停/按下的状态反馈。
-    ///
-    /// 为什么不用原生 Button：
-    ///   1. 圆角 Region 是硬裁（锯齿），而 Flat 样式的边框画在矩形边上、圆角处会被裁出缺口；
-    ///   2. 原生按钮没法把图标和文字作为一个整体居中排布；
-    ///   3. 与 AlarmChip / FieldBox 等自绘控件保持同一套视觉语言。
-    ///
-    /// 默认把 Selectable 关掉（不抢焦点），避免点完按钮留下焦点虚线框。
+    /// 自绘圆角按钮：图标与文字整体居中，含悬停 / 按下状态；不可获焦（点击后不留焦点虚线框）。
     /// </summary>
     public class FlatButton : Control
     {
@@ -169,11 +162,7 @@ namespace AlphaRap
             if (_pressed) { _pressed = false; Invalidate(); }
         }
 
-        /// <summary>
-        /// 等价于 Button.PerformClick()。
-        /// Control 本身没有这个方法（只有 ButtonBase 才有），所以自己补一个，
-        /// 让"回车提交"这类逻辑可以直接照搬原写法。
-        /// </summary>
+        /// <summary>以代码方式触发 Click 事件（同 Button.PerformClick）。</summary>
         public void PerformClick()
         {
             if (Enabled) OnClick(EventArgs.Empty);

@@ -1,18 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using static AlphaRap.CheckForm;
 using System.Threading;
-using System.Drawing;
-using NPSDK;
 namespace AlphaRap
 {
 	class AlwaysRunTask
 	{
-
 		private JTimer BlinkTM = new JTimer();
 		private bool BlinkIsOn = false;
 		private const int BlinkTime = 500;
@@ -22,7 +14,6 @@ namespace AlphaRap
 
 		public AlwaysRunTask()
 		{
-
 		}
 
 		public void StartAlwaysRun()
@@ -40,8 +31,6 @@ namespace AlphaRap
 		}
 		public void AlwaysRun()
 		{
-
-
 			if (SysPara.Simulation)
 				return;
 
@@ -53,49 +42,18 @@ namespace AlphaRap
 			}
 			#endregion
 
-			#region MaintainMode Scan
-			//SysPara.IsMaintenanceMode = MiddleLayer.ManualF.IB_ManualMode.IsOn();
-			//if (!SysPara.IsMaintenanceMode)
-			//{
-			//    if (!StatusChange_ModeSwitch)
-			//    {
-
-			//        StatusChange_ModeSwitch = true;
-			//        MiddleLayer.PauseRun();
-			//        MiddleLayer.ManualF.OB_DoorPeningAuthority.On();
-			//        MiddleLayer.SetLowSpeed();
-			//    }
-
-			//}
-			//else
-			//{
-			//    if (StatusChange_ModeSwitch)
-			//    {
-			//        MiddleLayer.PauseRun();
-			//        StatusChange_ModeSwitch = false;
-			//        MiddleLayer.ManualF.OB_DoorPeningAuthority.Off();
-			//        MiddleLayer.SetHightSpeed();
-
-			//    }
-
-			//}
-
-			#endregion
-
+			// 【已停用】以下整段扫描逻辑目前被注释，软件中不生效：
+			//   安全就绪、前/后急停、前/后安全门、启动/停止/报警复位实体按钮、三色灯、寿命计数、气压。
+			// 按设备需要启用时，取消注释后逐项核对 IO 名称和报警编号。
 			/*	#region Ready Scan
 				if (!MiddleLayer.ManualF.IB_SafetyReady.On())
 				{
-
-
 					NPSDK.Alarm.Show("3024", SysPara.LanguageShow == LanguageType.Chinese ? "请按复位按钮上电" : "Please button Reset button to power on");
 				}
 				else
 				{
-
-
 				}
 				#endregion
-
 
 				#region Emergency Stop Scan
 				if (!MiddleLayer.ManualF.IB_Front_EmergencyStop.On())
@@ -115,7 +73,6 @@ namespace AlphaRap
 				}
 				else
 				{
-
 					if (!StatusChange_Emergency)
 						StatusChange_Emergency = true;
 				}
@@ -132,13 +89,11 @@ namespace AlphaRap
 						SysPara.SystemMode = RunMode.IDLE;
 						SysPara.UpConveyorInitialOk = false;
 						StatusChange_Emergency = false;
-
 					}
 					NPSDK.Alarm.Show("3022");
 				}
 				else
 				{
-
 					if (!StatusChange_Emergency)
 						StatusChange_Emergency = true;
 				}
@@ -148,10 +103,8 @@ namespace AlphaRap
 
 				//if (!MiddleLayer.ManualF.IB_BackSlideDoorOpen.Input())
 				//{
-
 				//    if (SysPara.SystemMode == RunMode.RUN || (SysPara.SystemMode == RunMode.INITIAL && !SysPara.UpConveyorInitialOk))
 				//    {
-
 				//        if (!StatusChange_BackSafetyDoor)
 				//        {
 				//            MiddleLayer.ManualF.OB_FluorescentLight.Ouput_On();
@@ -168,7 +121,6 @@ namespace AlphaRap
 				//        {
 				//            NPSDK.Alarm.Show("3043");
 				//        }
-
 
 				//    }
 
@@ -218,13 +170,11 @@ namespace AlphaRap
 				//}
 				#endregion
 
-
 				#region Start Button Scan
 				if (MiddleLayer.ManualF.IB_StartButton.On())
 				{
 					if (!StatusChange_Start && MiddleLayer.MainF.MENU_Run.Enabled)
 					{
-
 						MiddleLayer.StartRun();
 						StatusChange_Start = true;
 					}
@@ -241,7 +191,6 @@ namespace AlphaRap
 				{
 					if (!StatusChange_Stop)
 					{
-
 						MiddleLayer.PauseRun();
 						StatusChange_Stop = true;
 					}
@@ -313,7 +262,6 @@ namespace AlphaRap
 
 				if (BuzzerNeedWork && !MiddleLayer.SystemS.GetSettingValue("MSet", "UserBuzzer"))// !GetSettingValue("PSet", "DisableSafetyBuzzer")
 				{
-
 					Control_SignalTower(MiddleLayer.CheckF.BuzzerStatus, MiddleLayer.ManualF.OB_Buzz);
 				}
 
@@ -330,18 +278,14 @@ namespace AlphaRap
 				}
 				catch { }
 				#endregion
-		
+
 			#region Air Pressure Scan
 			if (!MiddleLayer.ManualF.IB_Air.On())
 			{
-
-
 				NPSDK.Alarm.Show("3041");
 			}
 
 #endregion*/
-
-
 		}
 
 		public static void RefreshDifferentThreadUI(Control control, Action action)
@@ -357,48 +301,17 @@ namespace AlphaRap
 			}
 		}
 
-
-		private void Control_SignalTower(Status status, NPSDK.Adlink_Output OB)
-		{
-			switch (status)
-			{
-				case Status.Off:
-					OB.Off();
-					break;
-				case Status.On:
-					OB.On();
-					break;
-				case Status.Blink:
-					if (BlinkIsOn)
-					{
-						OB.On();
-
-					}
-
-					else
-					{
-						OB.On();
-					}
-
-					break;
-			}
-		}
-
 		public void BuzzOff()
 		{
 			if (BuzzerNeedWork)
 			{
 				BuzzerNeedWork = false;
 				MiddleLayer.ManualF.OB_Buzz.On();
-
 			}
 			else
 			{
-
 				BuzzerNeedWork = true;
-
 			}
-
 		}
 	}
 }

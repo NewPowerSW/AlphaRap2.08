@@ -1,12 +1,10 @@
 ﻿using Sunny.UI;
 using System;
-using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 
 namespace AlphaRap
 {
-
 	public class AlarmRunTask
 	{
 		Thread AlarmTask;
@@ -16,13 +14,11 @@ namespace AlphaRap
 			AlarmTask = new Thread(AlarmRunWork);
 			AlarmTask.Start();
 			AlarmTask.IsBackground = true;
-
 		}
 		public void StopAlarmRunTask()
 		{
 			if (AlarmTask != null)
 				AlarmTask.Join();
-
 		}
 		public void AlarmRunWork()
 		{
@@ -30,17 +26,14 @@ namespace AlphaRap
 			{
 				AlarmRun();
 				Thread.Sleep(10);
-
-
 			}
 		}
 		public void AlarmRun()
 		{
 			if (!AlarmTaskIsRun)
 				return;
-			
+
 			#region Alarm Message
-			 //MiddleLayer.HomeF.AlarmMessageLangLanguage(SysPara.LanguageShow);
 			if (NPSDK.Alarm.DoRefresh)
 			{
 				MiddleLayer.MainF.dataBControl1.StartAlarmTime();
@@ -51,10 +44,7 @@ namespace AlphaRap
 				for (int i = 0; i < NPSDK.Alarm.AlarmList.Count; i++)
 				{
 					NPSDK.Alarm.AlarmDataClass AlarmData = NPSDK.Alarm.AlarmList[i];
-					// 显示文案按当前语言重新解析 —— NPSDK 驱动里有些报警是两参数
-					// Show(编号, 写死英文) 弹的（如 IO/电机初始化失败），不走报警表，
-					// 不在这里重解析的话切了语言列表也还是英文（见 HomeF.ResolveAlarmContent）。
-					// 日志文件仍写 AlarmData.Content 原始内容。
+					// 显示文案按当前语言解析（见 HomeF.ResolveAlarmContent），日志文件写入原始内容
 					string showContent = MiddleLayer.HomeF.ResolveAlarmContent(AlarmData.Code, AlarmData.Content);
 					ListViewItem Alarm = new ListViewItem(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
 					Alarm.SubItems.Add(AlarmData.Type);
@@ -95,8 +85,6 @@ namespace AlphaRap
 				}
 				MiddleLayer.MainF.WarnningMessage.EndUpdate();
 				MiddleLayer.MainF.UpdateAlarmFilterCount();
-				//MiddleLayer.HomeF.WriteExcelData();
-
 			}
 			#endregion
 
@@ -105,17 +93,13 @@ namespace AlphaRap
 			if (!Runlog.IsNullOrEmpty())
 			{
 			MiddleLayer.DataF.AddRunLog(Runlog);
-
 			}
 			string Alarmlog = NPSDK.Flow_Module.Module_GetAlarmLog();
 			if (!Alarmlog.IsNullOrEmpty())
 			{
 				MiddleLayer.DataF.AddLogError(Alarmlog);
-
 			}
 			#endregion
-
 		}
 	}
-
 }

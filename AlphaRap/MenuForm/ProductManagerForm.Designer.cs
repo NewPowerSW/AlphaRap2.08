@@ -23,20 +23,8 @@
         #region Windows Form Designer generated code
 
         /// <summary>
-        /// 物料管理页。
-        ///
-        /// 重构说明：
-        ///   原来是固定 1707x1102 的绝对坐标（三块 FixedSingle 面板 + 蓝色标题条），
-        ///   而宿主面板只有约 1360x780 —— 右侧"管理"整块和底部都会被裁掉。
-        ///   现在根容器 Dock=Fill，内部用 TableLayoutPanel 分成
-        ///   「型号列表(36%) / 右侧上下两张卡(64%)」，整页跟着宿主伸缩。
-        ///
-        /// 视觉沿用 UiKit：品牌蓝页头图标 + 白色圆角卡片 + FieldBox 输入框 + FlatButton 按钮。
-        ///
-        /// 注意：listView1 与 CurrentModel 两个控件名不能改，
-        /// MainForm（语言切换 / 底栏配方名）与 MiddleLayer 都在直接访问它们。
-        /// 另外 this.Text 也不能改：ModuleBaseForm 用它当模块名去定位
-        /// ModuleData\SettingData\ProductManagerForm.xml。
+        /// 物料管理页布局：根容器 Dock=Fill，TableLayoutPanel 分为型号列表（36%）和右侧两张卡片（64%）。
+        /// 控件名 listView1、CurrentModel 被 MainForm 和 MiddleLayer 直接访问；this.Text 用作模块名。
         /// </summary>
         private void InitializeComponent()
         {

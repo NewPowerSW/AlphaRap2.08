@@ -181,7 +181,7 @@
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
-            // 停靠顺序 = 后加的先停靠 ⇒ 自上而下 head(顶 52) / 标定卡(顶 268) / vppTabs(填)，右侧一列显示(380)纵跨
+            // 停靠顺序（后加入的先停靠）：自上而下 head(52) / 标定卡(268) / vppTabs(填充)，右侧显示区(380)
             this.Controls.Add(this.vppTabs);
             this.Controls.Add(this.calibHost);
             this.Controls.Add(this.dispHost);

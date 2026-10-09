@@ -196,10 +196,7 @@
             // 
             // tabPageDesignPreview
             // 
-            // 设计器里只放这一页"代表页"，目的是让 VS 设计视图能看到相机页的真实骨架
-            // （真实相机页的数量由 VPForm.Cameras.xml 决定，设计器里画不出来）。
-            // **运行时在 VPForm 构造函数里立刻移除**，见 RemoveDesignPreviewPage()。
-            // 相机页的布局本身在 VpCameraPage 的设计器里改，不是在这里改。
+            // 设计视图预览页（运行时由 RemoveDesignPreviewPage() 移除；相机页布局在 VpCameraPage 设计器中修改）
             this.tabPageDesignPreview.Controls.Add(this.cameraPagePreview);
             this.tabPageDesignPreview.Location = new System.Drawing.Point(4, 26);
             this.tabPageDesignPreview.Name = "tabPageDesignPreview";

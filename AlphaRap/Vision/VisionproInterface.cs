@@ -2,14 +2,10 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Cognex.VisionPro;
 using Cognex.VisionPro.CalibFix;
-using Cognex.VisionPro.ImageProcessing;
 using Cognex.VisionPro.ToolBlock;
 
 namespace AlphaRap
@@ -23,7 +19,6 @@ namespace AlphaRap
         public bool IsAccept;
 
         private Task RunTask;
-        private Task LoadTBTask;
 
         public bool AutoVisionRunDisplay = true;
         public int VisionRunDisplayIndex = 0;
@@ -38,13 +33,11 @@ namespace AlphaRap
         public string DisplayName;
 
         /// <summary>
-        /// vpp 存放子目录的覆盖值。
-        /// 为空 → 用类名（**老工位的磁盘路径完全不变**，兼容现场已有 vpp）；
-        /// 动态相机填 "相机名\VPP名"，即每台相机的每个 VPP 各占一个目录，互不覆盖。
+        /// vpp 存放子目录：为空时使用类名；相机下的 VPP 为"相机名\VPP名"，每个 VPP 各占一个目录。
         /// </summary>
         public string VppFolderName;
 
-        /// <summary>vpp 相对子目录：动态工位 = 相机\VPP，老工位 = 类名。</summary>
+        /// <summary>vpp 相对子目录：VppFolderName，为空时为类名。</summary>
         public string VppSubFolder
         {
             get { return string.IsNullOrEmpty(VppFolderName) ? GetType().Name : VppFolderName; }
@@ -56,11 +49,7 @@ namespace AlphaRap
             get { return string.IsNullOrEmpty(DisplayName) ? GetType().Name : DisplayName; }
         }
 
-        /// <summary>
-        /// vpp 完整路径 {VisionData}\{子目录}\{配方名}.vpp。
-        /// 原来这段拼接在 MiddleLayer.OpenVision、ProductManagerForm 里各写了一份，
-        /// 收到这里之后，动态相机只要改 VppFolderName 就行，不用去改三处。
-        /// </summary>
+        /// <summary>vpp 完整路径：{VisionData}\{VppFolderName}\{配方名}.vpp。</summary>
         public string GetVppPath(string recipeName)
         {
             return string.Format(@"{0}\{1}\{2}.vpp", SysPara.VisionFileDirectory, VppSubFolder, recipeName);
@@ -98,8 +87,7 @@ namespace AlphaRap
 				}
                 IsLoadTBOk = true;
             }
-            catch (Exception e) { }
-          
+            catch (Exception) { }
         }
         public void SaveTB()
         {
@@ -169,10 +157,6 @@ namespace AlphaRap
             return false;
         }
 
-
-
-
-
         public object GetOutput(string OutputName)
         {
             try
@@ -234,7 +218,7 @@ namespace AlphaRap
             catch (Exception) { return false; }
             return true;
         }
-		
+
         public void RunLive(CogRecordDisplay RecordDisplay)
         {
             if (RecordDisplay.LiveDisplayRunning)
@@ -242,14 +226,11 @@ namespace AlphaRap
                 RecordDisplay.StopLiveDisplay();
                 RecordDisplay.StaticGraphics.Clear();
                 RecordDisplay.InteractiveGraphics.Clear();
-				
             }
             else
             {
-
                 try
                 {
-
                     RecordDisplay.Image = null;
                     RecordDisplay.StaticGraphics.Clear();
                     RecordDisplay.InteractiveGraphics.Clear();
@@ -262,7 +243,6 @@ namespace AlphaRap
                     CogFrameGrabbers CCD_Graber = new Cognex.VisionPro.CogFrameGrabbers();
                     if (CCD_Graber == null)
                         throw new Exception("Failed to create the CogFrameGrabbers object.");
-					
 
                     ICogAcqFifo Fifo = CCD_Graber[RunLiveCCDIndex].CreateAcqFifo(CCD_Graber[RunLiveCCDIndex].AvailableVideoFormats[0], CogAcqFifoPixelFormatConstants.Format8Grey, 0, true);
                     ICogAcqExposure Exposure = Fifo.OwnedExposureParams;
@@ -271,34 +251,12 @@ namespace AlphaRap
                     RecordDisplay.StopLiveDisplay();
                     RecordDisplay.StartLiveDisplay(Fifo);
                     RecordDisplay.AutoFit = true;
-
                 }
                 catch(Exception e)
                 {
-
-
                     MessageBox.Show(e.ToString());
-
                 }
-                
-
-
-
             }
-
-
-            //Cognex.VisionPro.ImageProcessing.CogIPOneImageTool ImgTool = new Cognex.VisionPro.ImageProcessing.CogIPOneImageTool();
-            //Cognex.VisionPro.ImageProcessing.CogIPOneImageFlipRotate cflip = new Cognex.VisionPro.ImageProcessing.CogIPOneImageFlipRotate();
-
-            //ICogIPOneImageOperatorParams ip = (ICogIPOneImageOperatorParams)cflip;
-            //ImgTool.Operators.Add(ip);
-            //cflip.OperationInPixelSpace = CogIPOneImageFlipRotateOperationConstants.FlipAndRotate90Deg;
-            //ImgTool.InputImage = RecordDisplay.Image;
-            //ImgTool.Run();
-            //Cognex.VisionPro.CogImage8Grey cimg = (CogImage8Grey)ImgTool.OutputImage;
-            //RecordDisplay.Image = ImgTool.OutputImage;
-
-
         }
 
         public virtual void CreatCentrelLine(CogRecordDisplay Crd)
@@ -312,11 +270,7 @@ namespace AlphaRap
             hline.SetFromStartXYEndXY(0, 972, 2592, 972);
             Crd.InteractiveGraphics.Add(vline, "vline", true);
             Crd.InteractiveGraphics.Add(hline, "hline", true);
-
-
-
         }
-
 
         #region 图片旋转函数
         /// <summary>
@@ -324,7 +278,6 @@ namespace AlphaRap
         /// </summary>
         /// <param name="b">位图流</param>
         /// <param name="angle">旋转角度[0,360](前台给的)</param>
-        /// <returns></returns>
         public static Bitmap Rotate(Bitmap b, int angle, CogRecordDisplay Crd)
         {
             angle = angle % 360;
@@ -343,8 +296,6 @@ namespace AlphaRap
             g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Bilinear;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
 
-			//Bitmap dsImage =(Bitmap)Crd.CreateContentBitmap(Cognex.VisionPro.Display.CogDisplayContentBitmapConstants.Image,null,0);
-
 			//计算偏移量
 			System.Drawing.Point Offset = new System.Drawing.Point((W - w) / 2, (H - h) / 2);
             //构造图像显示区域：让图像的中心与窗口的中心点一致
@@ -359,12 +310,8 @@ namespace AlphaRap
             g.ResetTransform();
             g.Save();
             g.Dispose();
-            //dsImage.Save("yuancd.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
             return dsImage;
         }
         #endregion 图片旋转函数
-
-
-
     }
 }

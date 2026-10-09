@@ -73,7 +73,6 @@
 			this.groupBox3.Size = new System.Drawing.Size(455, 202);
 			this.groupBox3.TabIndex = 20;
 			this.groupBox3.TabStop = false;
-			this.groupBox3.Enter += new System.EventHandler(this.groupBox3_Enter);
 			// 
 			// textBox4
 			// 
@@ -200,7 +199,6 @@
 			((System.ComponentModel.ISupportInitialize)(this.dataTable1)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.dataTable2)).EndInit();
 			this.ResumeLayout(false);
-
         }
 
         #endregion

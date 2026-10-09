@@ -341,7 +341,6 @@
             this.tbMassage.Name = "tbMassage";
             this.tbMassage.Size = new System.Drawing.Size(672, 126);
             this.tbMassage.TabIndex = 31;
-            this.tbMassage.TextChanged += new System.EventHandler(this.tbMassage_TextChanged);
             // 
             // Client
             // 
@@ -768,7 +767,6 @@
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
             this.ResumeLayout(false);
-
         }
 
         #endregion

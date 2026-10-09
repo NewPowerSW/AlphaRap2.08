@@ -18,7 +18,7 @@ namespace AlphaRap
     {
         public NoFocusChart()
         {
-            // 不可获焦：点击与 Tab 都不再抢焦点
+            // 不可获焦：点击与 Tab 都不获取焦点
             SetStyle(ControlStyles.Selectable, false);
             TabStop = false;
         }

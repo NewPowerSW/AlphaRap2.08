@@ -13,14 +13,7 @@ namespace AlphaRap
     }
 
     /// <summary>
-    /// 报警筛选条用的标签（chip）：左侧图标 + 文字，整体自绘。
-    ///
-    /// 为什么不用 Button + Region：
-    ///   圆角 Region 是硬裁（有锯齿），而 Flat 样式的边框又画在矩形边上，
-    ///   圆角处会被裁掉出现缺口。只有自绘才能同时得到干净的圆角与抗锯齿描边。
-    ///
-    /// 继承 Control 但关掉 Selectable —— 点击后不会抢焦点，也就不会留下焦点虚线框
-    /// （与 NoFocusChart 同一处理思路）。
+    /// 自绘标签（chip）：左侧图标 + 文字，抗锯齿圆角与描边；不可获焦（点击后不留焦点虚线框）。
     /// </summary>
     public class AlarmChip : Control
     {

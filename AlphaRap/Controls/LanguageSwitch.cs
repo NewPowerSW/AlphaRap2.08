@@ -6,22 +6,14 @@ using System.Windows.Forms;
 namespace AlphaRap
 {
     /// <summary>
-    /// 顶栏语言切换器：地球图标 + 当前语言代码，点击弹出语言菜单。
-    ///
-    /// 图标用 GDI+ 现画（不依赖图片资源），因此不存在"PNG 与底色不搭"的问题：
-    /// 原来的国旗图标是彩色位图，压在深蓝顶栏上颜色发闷；换成单色地球线稿后，
-    /// 与顶栏的白色文字、白色购物车/人像图标完全同一套视觉语言。
+    /// 顶栏语言切换器：单色地球图标（GDI+ 绘制）+ 当前语言代码，点击弹出语言菜单。
     /// </summary>
     public class LanguageSwitch : Control
     {
         /// <summary>语言代码，索引 = (int)LanguageType：0=Chinese / 1=English / 2=Español。</summary>
         private static readonly string[] LanguageCodes = { "CN", "EN", "ES" };
 
-        /// <summary>
-        /// 菜单项一律用"该语言自己的写法"（中文 / English / Español）。
-        /// 不用"当前界面语言"去翻译语言名 —— 一个看不懂当前界面语言的人，
-        /// 正是最需要靠母语名字找到自己语言的人。
-        /// </summary>
+        /// <summary>菜单项使用各语言自己的名称（中文 / English / Español），不随界面语言翻译。</summary>
         private static readonly string[] LanguageNativeNames = { "中文", "English", "Español" };
 
         private const int IconSize = 20;      // 地球图标边长

@@ -1,25 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
-/// <summary>
-/// V1.0  song
-/// V2.0  add send and recieve byte array function 202011151100
-/// </summary>
 
 namespace NPClient
 {
 	public class TCPCLient
     {
-
         // tcp client  通信对象
         private TcpClient tcpClient = new TcpClient();
         private NetworkStream stream = null;
@@ -47,13 +33,11 @@ namespace NPClient
                     return false;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
-
             }
         }
-
 
         /// <summary>
         ///disconnect server 断开服务端
@@ -64,19 +48,15 @@ namespace NPClient
             {
                 if (stream != null)
                 {
-
                     stream.Dispose();
-
                 }
                 if (tcpClient != null)
                 {
-
                     tcpClient.Close();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-
             }
         }
 
@@ -91,12 +71,9 @@ namespace NPClient
             }
             catch (Exception)
             {
-
                 return false;
             }
-
         }
-
 
         /// <summary>
         /// Connect 连接服务端
@@ -119,17 +96,14 @@ namespace NPClient
                     return false;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
-
         }
         /// <summary>
         /// Sent Byte array 发送byte类型数组数据
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public bool Sent(byte[] data)
         {
             try
@@ -141,13 +115,10 @@ namespace NPClient
             {
                 return false;
             }
-
         }
         /// <summary>
         /// Sent String 发送字符串型数据
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public bool Sent(string message)
         {
             try
@@ -160,13 +131,10 @@ namespace NPClient
             {
                 return false;
             }
-
         }
         /// <summary>
         /// Wait Receive byte data，Delay TM No Longer Than 60000,program will force to 500 接受byte数组数据类型，等待固定时间，超时返回空
         /// </summary>
-        /// <param name="intTMOut"></param>
-        /// <returns></returns>
         public Byte[] ReceiveByte(int intTMOut)
         {
             if (intTMOut <= 0 || intTMOut >= 60000)
@@ -193,9 +161,8 @@ namespace NPClient
                         return dataReseice;
                     }
                 }
-
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -204,8 +171,6 @@ namespace NPClient
         /// <summary>
         /// Receive byte array 直接获取端口byte数组数据没有则返回空
         /// </summary>
-        /// <param name="intTMOut"></param>
-        /// <returns></returns>
         public Byte[] ReceiveByte()
         {
             stream.ReadTimeout = 1;
@@ -226,7 +191,7 @@ namespace NPClient
                     return dataReseice;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -235,8 +200,6 @@ namespace NPClient
         /// <summary>
         ///Wait Receive String  ,Delay TM No Longer Than 60000,program will force to 500 接受字符串类型数据，等待固定时间，超时反馈空
         /// </summary>
-        /// <param name="intTMOut"></param>
-        /// <returns></returns>
         public string Receive(int intTMOut)
         {
             if (intTMOut <= 0 || intTMOut >= 60000)
@@ -269,8 +232,6 @@ namespace NPClient
         /// <summary>
         /// Receive directly 直接获取端口字符串数据没有则返回空
         /// </summary>
-        /// <param name="intTMOut"></param>
-        /// <returns></returns>
         public string Receive()
         {
             stream.ReadTimeout = 1;
@@ -288,7 +249,6 @@ namespace NPClient
             }
             catch (Exception ex)
             {
-
                 string a = ex.ToString();
                 if (ex.HResult == -2146232800)
                 {
@@ -300,4 +260,3 @@ namespace NPClient
         }
     }
 }
-

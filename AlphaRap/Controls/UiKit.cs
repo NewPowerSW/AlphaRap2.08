@@ -7,11 +7,7 @@ using System.Windows.Forms;
 namespace AlphaRap
 {
     /// <summary>
-    /// 登录 / 用户管理两个窗体共用的视觉规范。
-    ///
-    /// 配色直接沿用主界面：品牌蓝顶栏、白色工作区、浅蓝灰页面底色。
-    /// 这里集中定义，避免两个窗体各写一套色值——以前正是因为色值散落各处，
-    /// 改一次底色就要满工程找十六进制。
+    /// 界面共用的视觉规范（颜色、字体、圆角、表格样式）：品牌蓝顶栏、白色工作区、浅蓝灰页面底色。
     /// </summary>
     public static class UiKit
     {
@@ -107,11 +103,7 @@ namespace AlphaRap
         }
 
         /// <summary>
-        /// 向上找到第一个"不透明"的祖先背景色。
-        ///
-        /// 自绘控件要先把整块区域刷成父容器底色，才能把圆角以外的部分"擦掉"。
-        /// 但 TableLayoutPanel 常被设成 BackColor = Transparent（A=0），
-        /// 直接拿它去 g.Clear 会刷成黑色 —— 必须一路往上找。
+        /// 向上查找第一个不透明祖先的背景色，供自绘控件填充圆角以外的区域（透明背景直接 Clear 会变成黑色）。
         /// </summary>
         public static Color ResolveParentBack(Control c)
         {
@@ -144,11 +136,7 @@ namespace AlphaRap
             return l;
         }
 
-        /// <summary>
-        /// 把 DataGridView 刷成扁平样式。
-        /// 原来的网格是 3D 蚀刻表头 + 凹陷单元格边框，很显旧；
-        /// 这里统一成"浅色表头 + 无单元格边框 + 斑马纹 + 品牌色选中行"。
-        /// </summary>
+        /// <summary>把 DataGridView 设为扁平样式：浅色表头、无单元格边框、斑马纹、品牌色选中行。</summary>
         public static void StyleGrid(DataGridView g)
         {
             if (g == null) return;
@@ -226,12 +214,7 @@ namespace AlphaRap
         }
     }
 
-    /// <summary>
-    /// 圆角卡片面板：自绘白底 + 1px 浅描边 + 圆角。
-    ///
-    /// 为什么不用"Panel + Region"：Region 是硬裁（边缘锯齿），而且 Panel 的边框画在矩形边上、
-    /// 圆角处会被裁出缺口。只有整块自绘才能同时得到干净的圆角与抗锯齿描边。
-    /// </summary>
+    /// <summary>圆角卡片面板：自绘白底 + 1px 浅描边 + 抗锯齿圆角。</summary>
     public class CardPanel : Panel
     {
         public int CornerRadius { get; set; }
@@ -307,22 +290,8 @@ namespace AlphaRap
     }
 
     /// <summary>
-    /// 不受语言包接管的 Label。
-    ///
-    /// 为什么需要它：
-    ///   MiddleLayer.InitialLanguageData() 会把每个控件的文字登记进三份语言表，
-    ///   而登记时用的是"控件当时的 Text"。这些页面是在 SysPara.LanguageShow 被赋值**之前**
-    ///   创建的（SysPara.LanguageShow 的初值是 English），于是登记进去的是英文；
-    ///   更要命的是 InitialLanguageData() 每次启动都会用这份登记结果**覆盖写回**
-    ///   Chinese.xml / English.xml / Español.xml —— 中文表里也被写成英文，
-    ///   之后切中文就会把英文再贴回来，页面永远切不回中文。
-    ///
-    /// 而语言扫描的白名单是**精确类型**比对（ControlType == typeof(Label)），
-    /// 所以只要继承一层，控件就不会被登记：
-    ///   → 不会被语言包改写，也不会把我的页面文案污染进语言 XML；
-    ///   → 文案完全由页面自己的 ApplyLanguage() 决定。
-    ///
-    /// 按钮侧同理：FlatButton 继承自 Control、FieldBox 继承自 Panel，本来就不在白名单里。
+    /// 不被启动时语言扫描登记的 Label（InitialLanguageData 按精确类型 typeof(Label) 扫描，子类不会被登记），
+    /// 文字由所在页面的 ApplyLanguage() 设置，或通过 MiddleLayer.RegisterLanguage 显式登记。
     /// </summary>
     public class UiLabel : Label
     {
@@ -334,13 +303,8 @@ namespace AlphaRap
     }
 
     /// <summary>
-    /// 不受语言包接管的 Button（理由见 <see cref="UiLabel"/>）。
-    ///
-    /// 运行时（代码里）创建的按钮尤其要用它：
-    /// 语言扫描会把 `Button` 按名字登记进语言表，然后 XMLExpand.GetElement 拿名字拼 XPath，
-    /// **名字为空的控件会拼出 "Chinese/FormName/" 这种带空段的路径，直接抛
-    /// XPathException(表达式的计算结果必须为节点集)** —— 设计器里的控件都有名字所以从没暴露过，
-    /// 代码里 new 出来的控件一旦忘了起名，程序启动就崩。
+    /// 不被启动时语言扫描登记的 Button（同 <see cref="UiLabel"/>）。代码中创建的按钮应使用它：
+    /// 语言扫描按控件名拼 XPath，名字为空的 Button 会导致 XPathException。
     /// </summary>
     public class UiButton : Button
     {

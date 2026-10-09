@@ -1,28 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Drawing.Drawing2D;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using System.Threading;
-using NPSDK;
-using AlphaRap.FunctionForms;
-using Alpha._0;
 
 namespace AlphaRap
 {
 	public partial class HomeForm : Form
 	{
 		public Classes.RFIDOperation RFIDOper = new Classes.RFIDOperation();
-
-
 
 		public HomeForm()
 		{
@@ -33,29 +22,13 @@ namespace AlphaRap
 			label_PLCStaus.Resize += (s, ev) => ApplyPillRegion(label_PLCStaus, 6);
 			ApplyPillRegion(label_ScannStaus, 6);
 			ApplyPillRegion(label_PLCStaus, 6);
-			// 图表只用于显示：正常已由 NoFocusChart 关掉焦点，
-			// 这里再加一道保险，防止外部代码把焦点设到图表上后残留虚线焦点框
-			chart1.Enter += ClearChartFocus;
-			chart2.Enter += ClearChartFocus;
+
+			ApplyPageStyle();
+			MiddleLayer.LanguageChanged += (s, e) => RefreshPageTexts();
+
 			bool bPlat = Convert.ToBoolean(SysPara.bPlat);
 
 			MiddleLayer.MainF.tabPage10.Parent = bPlat ? null : MiddleLayer.MainF.uiTabControl1;
-
-
-		}
-
-		/// <summary>图表意外获得焦点时立刻把焦点交还出去，避免残留虚线焦点框。</summary>
-		private void ClearChartFocus(object sender, EventArgs e)
-		{
-			try
-			{
-				Control c = sender as Control;
-				if (c == null || !c.Focused) return;
-				Form f = FindForm();
-				if (f != null)
-					BeginInvoke(new Action(delegate { try { f.ActiveControl = null; } catch { } }));
-			}
-			catch { }
 		}
 
 		/// <summary>把控件裁剪为圆角胶囊（状态指示块用）。</summary>
@@ -79,15 +52,23 @@ namespace AlphaRap
 			catch { }
 		}
 
+		private static readonly Color DeviceOnline = Color.FromArgb(34, 150, 83);
+		private static readonly Color DeviceOffline = Color.FromArgb(214, 69, 69);
+
 		private void timer1_Tick(object sender, EventArgs e)
 		{
-			// 虚拟键盘的**自动弹出已禁用**（原来焦点落在输入框就拉起 osk，弹窗抢焦点
-			// 会把表格单元格的编辑直接取消掉，表现为"改了保存不上"）。
-			// 需要软键盘时用主页顶栏的键盘图标手动调出（见 MainForm.ToggleVirtualKeyboard）。
+			// 生产数据：累计良品 / 不良、节拍、当天每小时数量
+			string ct = !string.IsNullOrEmpty(SysPara.CircleTime) ? SysPara.CircleTime
+					  : (MiddleLayer.MainF != null ? MiddleLayer.MainF.txtCyCT.Text : "");
+			ShowValues(SysPara.iProductOK, SysPara.iProductNG, ct,
+					   SysPara.iProductHourlyOutput, SysPara.iProductHourlyReject, DateTime.Now.Hour);
 
 			#region 外部应用状态
-			label_ScannStaus.BackColor = B_Scan1connect ? Color.FromArgb(34, 150, 83) : Color.FromArgb(214, 69, 69);
-			label_PLCStaus.BackColor = B_PLCStaus ? Color.FromArgb(34, 150, 83) : Color.FromArgb(214, 69, 69);
+			// 只在状态变化时改色，避免每秒重绘
+			Color scanColor = B_Scan1connect ? DeviceOnline : DeviceOffline;
+			Color plcColor = B_PLCStaus ? DeviceOnline : DeviceOffline;
+			if (label_ScannStaus.BackColor != scanColor) label_ScannStaus.BackColor = scanColor;
+			if (label_PLCStaus.BackColor != plcColor) label_PLCStaus.BackColor = plcColor;
 			#endregion
 		}
 
@@ -149,7 +130,7 @@ namespace AlphaRap
 		#endregion
 
 		//BacodeScanner
-	
+
 		public static void RefreshDifferentThreadUI(Control control, Action action)
 		{
 			if (control.InvokeRequired)
@@ -176,26 +157,27 @@ namespace AlphaRap
 		public bool B_PLCStaus = false;
 		#region //后台
 
+		/// <summary>设备在线检测周期（毫秒）。</summary>
+		private const int DeviceCheckIntervalMs = 1500;
+
 		void BgWork_Demo(object sender, DoWorkEventArgs e)
 		{
-			while (true)
+			// 每 DeviceCheckIntervalMs 检测一次 PLC 和扫码枪是否在线，程序退出（gEXIT）时结束
+			while (!MiddleLayer.gEXIT)
 			{
-				Thread.Sleep(10);
 				try
 				{
-				
-					//#region //PING 各个设备IP
+					string plcIp = Convert.ToString(MiddleLayer.ParF.GetSettingValue("MSet", "PLCIP"));
+					string scanIp = Convert.ToString(MiddleLayer.ParF.GetSettingValue("MSet", "ScannIP"));
 
-					B_PLCStaus = MiddleLayer.ParF.PingTCP(MiddleLayer.ParF.GetSettingValue("MSet", "PLCIP"));
-					B_Scan1connect = MiddleLayer.ParF.PingTCP(MiddleLayer.ParF.GetSettingValue("MSet", "ScannIP"));
-
-					//#endregion
-
+					B_PLCStaus = MiddleLayer.ParF.PingTCP(plcIp);
+					B_Scan1connect = MiddleLayer.ParF.PingTCP(scanIp);
 				}
 				catch (Exception ex)
 				{
-					//MessageBox.Show("程序出来点小问题..." + ex.Message, "系统提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+					System.Diagnostics.Debug.WriteLine("Device check failed: " + ex.Message);
 				}
+				Thread.Sleep(DeviceCheckIntervalMs);
 			}
 		}
 
@@ -203,7 +185,6 @@ namespace AlphaRap
 		#region 1.2 初始化加载点位事件
 		private void HomeForm_Load(object sender, EventArgs e)
 		{
-			
 			timer1.Enabled = true;
 
 			B_BgWork.DoWork += BgWork_Demo;
@@ -218,24 +199,15 @@ namespace AlphaRap
 		public void DataINITIAL(DataGridView Position, int RowIndex, int Columns)
 
 		{
-
-
 			Position.Rows.Clear();
 
 			Position.RowCount = RowIndex;
 			Position.ColumnCount = Columns;
 
-			// Position.Columns[0].Width = (Position.Width- Position.RowHeadersWidth)/ 2;
-
-
-
-
 			for (int i = 0; i < Columns; i++)
 			{
 				Position.Columns[i].Width = (Position.Width) / Columns;
 				Position.Columns[i].HeaderCell.Value = (i + 1).ToString();
-
-
 			}
 
 			for (int i = 0; i < RowIndex; i++)
@@ -243,20 +215,14 @@ namespace AlphaRap
 				Position.Rows[i].Height = (Position.Height) / RowIndex;
 				Position.Rows[i].HeaderCell.Value = (i + 1).ToString();
 				Position.Rows[i].Cells[0].Value = "";
-
-
 			}
 
 			Position.ClearSelection();
-
-
 		}
-
 
 		public void SetCellColor(DataGridView Position, int RowIndex, int Columns, Color CellColor)
 		{
 			Position[Columns, RowIndex].Style.BackColor = CellColor;
-
 		}
 
 		public void SetCellValue(DataGridView Position, int RowIndex, int Columns, string CellValue)
@@ -326,16 +292,13 @@ namespace AlphaRap
 
 		public string GetAlarmConent(string Index)
 		{
-			// 按当前语言取对应的报警表文件（枚举名即文件名：Chinese/English/Español），
-			// 不再写死只有中英两个分支 —— AlarmTable 目录下三份文件齐全。
+			// 按当前语言取对应的报警表文件（AlarmTable\{Chinese|English|Español}.xml）
 			return GetAlarmConentOf(SysPara.LanguageShow, Index);
 		}
 
 		/// <summary>
-		/// 报警列表显示用的文案。NPSDK 驱动内部有些报警是两参数 Show(编号, 写死英文) 弹出的
-		/// （IO/电机组件初始化失败那几条，还会带上 Name=/Port= 细节），这些文字不走报警表。
-		/// 这里按编号在三种语言的表里做**前缀匹配**：能对上就把前缀换成当前语言的表内容、
-		/// 保留后面的细节；完全对不上（纯自定义文本）就原样保留，避免丢信息。
+		/// 报警列表显示用的文案：按编号在三种语言的报警表中做前缀匹配，匹配到则把前缀换成当前语言的内容并保留后面的细节
+		/// （如 NPSDK 初始化失败报警中的 Name= / Port=），匹配不到则原样返回。
 		/// </summary>
 		public string ResolveAlarmContent(string code, string stored)
 		{
@@ -368,12 +331,5 @@ namespace AlphaRap
 				}
 			}
 		}
-
-		private void button1_Click_1(object sender, EventArgs e)
-		{
-			NPSDK.Flow_Module.Module_AddAlarmLog("Alarm>>Code:");
-		}
-
-		
 	}
 }

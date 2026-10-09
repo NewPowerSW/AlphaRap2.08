@@ -888,7 +888,7 @@
             this.OB_Upconveyor_AlarmClear.ReverseState = false;
             this.OB_Upconveyor_AlarmClear.Size = new System.Drawing.Size(250, 30);
             this.OB_Upconveyor_AlarmClear.TabIndex = 96;
-            this.OB_Upconveyor_AlarmClear.Text = "马达报警解除";
+            this.OB_Upconveyor_AlarmClear.Text = "Motor Alarm Clear";
             this.OB_Upconveyor_AlarmClear.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // IB_UpConveyor_Work_BoardAlarm
@@ -954,7 +954,7 @@
             this.OB_UpConveyor_Work_StopUp_Cylinder.ReverseState = false;
             this.OB_UpConveyor_Work_StopUp_Cylinder.Size = new System.Drawing.Size(250, 30);
             this.OB_UpConveyor_Work_StopUp_Cylinder.TabIndex = 75;
-            this.OB_UpConveyor_Work_StopUp_Cylinder.Text = "StopUp_Sensor";
+            this.OB_UpConveyor_Work_StopUp_Cylinder.Text = "StopUp_Cylinder";
             this.OB_UpConveyor_Work_StopUp_Cylinder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // OB_UpConveyor_Work_StopDown_Cylinder
@@ -1317,7 +1317,7 @@
             this.OB_DownConveyor_StopUp_Cylinder.ReverseState = false;
             this.OB_DownConveyor_StopUp_Cylinder.Size = new System.Drawing.Size(250, 30);
             this.OB_DownConveyor_StopUp_Cylinder.TabIndex = 93;
-            this.OB_DownConveyor_StopUp_Cylinder.Text = "StopUp_Sensor";
+            this.OB_DownConveyor_StopUp_Cylinder.Text = "StopUp_Cylinder";
             this.OB_DownConveyor_StopUp_Cylinder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // OB_DownConveyor_StopDown_Cylinder

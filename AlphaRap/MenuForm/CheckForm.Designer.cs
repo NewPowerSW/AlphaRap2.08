@@ -271,7 +271,6 @@
             this.rbRedBlink_R.TabIndex = 4;
             this.rbRedBlink_R.TabStop = true;
             this.rbRedBlink_R.UseVisualStyleBackColor = true;
-            this.rbRedBlink_R.CheckedChanged += new System.EventHandler(this.rbRedBlink_R_CheckedChanged);
             this.rbRedBlink_R.MouseClick += new System.Windows.Forms.MouseEventHandler(this.rbGroup_RedLight_RunMode_Click);
             // 
             // rbYellowOff_R
@@ -928,7 +927,6 @@
             this.contentTable.ResumeLayout(false);
             this.tblStateLeft.ResumeLayout(false);
             this.ResumeLayout(false);
-
         }
 
         #endregion

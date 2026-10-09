@@ -1,20 +1,12 @@
 ﻿using AlphaRap;
 using System;
-using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
-using System.Runtime;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AlaphaRap
 {
     /// <summary>
     /// 具体设备类：ATEQ_F620
     /// 可配置的属性包括：串口连接参数
-    /// V1.0 初始版本
     /// 修改时间2023-4-10----------------欧益儒
     /// </summary>
     public class ATEQ_F620 : AbstractDevice
@@ -25,7 +17,7 @@ namespace AlaphaRap
         public SerialPort _SP = new SerialPort();
 
         public ATEQ_F620(string deviceName) : base(deviceName) { }
-   
+
         /// <summary>
         /// 重写父类的属性：串口是否打开
         /// </summary>
@@ -49,7 +41,6 @@ namespace AlaphaRap
         }
 
         public bool _isRunning = false;
-
 
         /// <summary>
         /// 可配置的属性：串口号
@@ -96,12 +87,10 @@ namespace AlaphaRap
         /// </summary>
         public int ThreadSleep { get; set; } = 20;
 
-
         /// <summary>
         /// 读取的结果（字符串)
         /// </summary>
         public string ResultData { get; set; } = string.Empty;
-
 
         /// <summary>
         /// 主要功能：重写父类方法：加载配置，并打开网口
@@ -112,9 +101,7 @@ namespace AlaphaRap
             {
                 try
                 {
-                   
                         Connect(this.PortName, this.BaudRate, this.Pari, this.DataBits, this.StopBit);
-                   
                 }
                 catch (Exception ex)
                 {
@@ -130,7 +117,6 @@ namespace AlaphaRap
         /// <param name="parity">校验位</param>
         /// <param name="dataBits">数据位</param>
         /// <param name="stopBits">停止位</param>
-        /// <returns></returns>
         public void Connect(string portName, int baudRate, int parity, int dataBits, int stopBits)
         {
             Parity par = Parity.Even;
@@ -206,7 +192,6 @@ namespace AlaphaRap
             if (!status)
             {
                 _SP.Open();
-
             }
             string sData = "";
             sData = _SP.ReadExisting().Replace("\r\n", "");

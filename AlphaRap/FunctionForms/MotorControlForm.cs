@@ -48,7 +48,7 @@ namespace Alpha
             BRAKE = 5
         }
 		#endregion ENUMS
-		
+
 		#region VARIABLES
 		//NPMotor
 		private const int _MOTORSQTY = 6;
@@ -94,7 +94,7 @@ namespace Alpha
         public MotorControlForm()
         {
             InitializeComponent();
-            // 按需 new 的窗体，不在 lstForm 里，赶不上启动扫描 —— 就地补登记进语言表。
+            // 按需创建的窗体：登记进语言表并按当前语言设置文字
             MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
 
             #region Declarations
@@ -149,19 +149,10 @@ namespace Alpha
             }
             tmrScan.Enabled = true;
         }
-        #endregion INITIAL
 
-        #region GENERAL FUNCTIONS
-
-        #region System
-        private void YHMotorControlForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            tmrScan.Enabled = false;
-            StopRun();
-        }
-        private void btnClose_Click(object sender, EventArgs e)
-        {
-        }
+#endregion INITIAL
+#region GENERAL FUNCTIONS
+#region System
         #endregion System
 
         #region GUI
@@ -176,63 +167,25 @@ namespace Alpha
         }
         private void ChangeButtonYHMotorType(int iYHMotor)
         {
-            //Image img = Alpha.Properties.Resources.left;
             switch (YHMotorType[iYHMotor, 0])
             {
                 case MoveType.LEFT:
-                    //img = Alpha.Properties.Resources.left;
                     break;
                 case MoveType.RIGHT:
-                    //img = Alpha.Properties.Resources.right;
                     break;
                 case MoveType.FRONT:
-                    //img = Alpha.Properties.Resources.up;
                     break;
                 case MoveType.BACK:
-                    //img = Alpha.Properties.Resources.down;
                     break;
                 case MoveType.TLEFT:
-                    //img = Alpha.Properties.Resources.rotate_left;
                     break;
                 case MoveType.TRIGHT:
-                    //img = Alpha.Properties.Resources.rotate_right;
                     break;
                 case MoveType.UP:
-                    //img = Alpha.Properties.Resources.Up1;
                     break;
                 case MoveType.DOWN:
-                    //img = Alpha.Properties.Resources.Down1;
                     break;
             }
-            //btn_JOGN.BackgroundImage = img;
-            //switch (YHMotorType[iYHMotor, 1])
-            //{
-            //    case MoveType.LEFT:
-            //        img = Alpha.Properties.Resources.left;
-            //        break;
-            //    case MoveType.RIGHT:
-            //        img = Alpha.Properties.Resources.right;
-            //        break;
-            //    case MoveType.FRONT:
-            //        img = Alpha.Properties.Resources.up;
-            //        break;
-            //    case MoveType.BACK:
-            //        img = Alpha.Properties.Resources.down;
-            //        break;
-            //    case MoveType.TLEFT:
-            //        img = Alpha.Properties.Resources.rotate_left;
-            //        break;
-            //    case MoveType.TRIGHT:
-            //        img = Alpha.Properties.Resources.rotate_right;
-            //        break;
-            //    case MoveType.UP:
-            //        img = Alpha.Properties.Resources.Up1;
-            //        break;
-            //    case MoveType.DOWN:
-            //        img = Alpha.Properties.Resources.Down1;
-            //        break;
-            //}
-            //btn_JOGP.BackgroundImage = img;
 
             if (btn_JOGN.BackgroundImage != null)
                 btn_JOGN.Enabled = true;
@@ -251,19 +204,19 @@ namespace Alpha
                 switch (ActuatorType[iYHMotor, i])
                 {
                     case ActionType.CYLINDER:
-                       
+
                         break;
                     case ActionType.GRIPPER:
-                      
+
                         break;
                     case ActionType.VACUUM:
-                       
+
                         break;
                     case ActionType.BLOW:
-                     
+
                         break;
                     case ActionType.BRAKE:
-                       
+
                         break;
                 }
                 ActButtons[i].BackgroundImage = img;
@@ -301,7 +254,6 @@ namespace Alpha
                         OBA.Off();
                         OBB.On();
                     }
-
                 }
                 else
                 {
@@ -559,13 +511,9 @@ namespace Alpha
         }
         private void button_ResetAlarm_Click(object sender, EventArgs e)
         {
-            //MiddleLayer.SliderF.Mt_SliderLeft.AlarmReset();
-            //MiddleLayer.SliderF.Mt_SliderRight.AlarmReset();
-
             NPMotor[iChoseYHMotorIndex].AlarmReset();
             NPMotor[iChoseYHMotorIndex].AlarmReset();
             NPMotor[iChoseYHMotorIndex].ServoOn();
-
         }
         private void button5_Click(object sender, EventArgs e)
         {
@@ -794,11 +742,7 @@ namespace Alpha
             }
             tmrScan.Enabled = true;
         }
-        #endregion ASYNC
 
-        private void btn_JOGP_Click(object sender, EventArgs e)
-        {
-
-        }
+#endregion ASYNC
     }
 }

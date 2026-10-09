@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Drawing;
 using NPSDK;
 
 namespace AlphaRap
@@ -57,7 +51,6 @@ namespace AlphaRap
                     }
                     SysPara.ScanTime = ScanTick;
                     ScanTick = 0;
-
                 }
             }
         }
@@ -75,81 +68,20 @@ namespace AlphaRap
 
             try { MiddleLayer.CheckMotorProtected(); }
             catch (Exception) { NPSDK.Alarm.Show("2020"); }
-
         }
 
-        #region Initial
-        private int iInitialTask = 0; 
+#region Initial
         public void InitialReset()
         {
-            iInitialTask = 0;
             SysPara.SystemMode = RunMode.INITIAL;
             SysPara.UpConveyorInitialOk = false;
         }
 
-        private void ExecuteInitial()
-        {
-            switch (iInitialTask)
-            {
-                case 0:
-                    MiddleLayer.InitialParameterReset();
-                    iInitialTask++;
-                    break;
-                case 1: 
-                    MiddleLayer.InitialReset();
-                    iInitialTask++;
-                    break;
-                case 2: 
-                    MiddleLayer.ServoOn();
-                    iInitialTask++;
-                    break;
-                case 3: 
-                    iInitialTask++;
-                    break;
-                case 4: 
-                    MiddleLayer.Initial();
-                    if (MiddleLayer.GetInitialOk())
-                        iInitialTask++;
-                    break;
-                case 5:
-                    MiddleLayer.StopRun();
-                    SysPara.SystemMode = RunMode.IDLE;
-                    SysPara.UpConveyorInitialOk = true;
-                    iInitialTask++;
-                    break;
-                case 6:
-                    break;
-            }
-        }
-
-        #endregion
-
-        #region Run
-        private int iRunTask = 0;
+#endregion
+#region Run
         public void RunReset()
         {
-            iRunTask = 0;
             SysPara.SystemMode = RunMode.RUN;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-        }
-
-        private void ExecuteRun()
-        {
-            if (SysPara.UpConveyorInitialOk)
-            {
-                switch (iRunTask)
-                {
-                    case 0:
-                        iRunTask++;
-                        break;
-                    case 1: 
-                        MiddleLayer.RunReset();
-                        iRunTask++;
-                        break;
-                    case 2:
-                        MiddleLayer.Run();
-                        break;
-                }
-            }
         }
         #endregion
     }

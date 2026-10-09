@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Threading;
 using System.IO;
-using System.Text.RegularExpressions;
 using AlphaRapLibrary;
 using Alpha;
 using Alpha._0;
 using NPSDK;
-using Microsoft.VisualBasic.FileIO;
-using System.Xml;
 
 namespace AlphaRap
 {
@@ -38,7 +27,6 @@ namespace AlphaRap
 	}
 	public partial class HardForm : ModuleBaseForm
 	{
-		//public static HardForm m_hardform;
 		public int iRunPosCount = 0;
 		public Servo servo;
 		public string CalibPositionPath = string.Format(@"{0}\{1}\{2}\{3}\{4}", Application.StartupPath, "ModuleData", "HardForm", SysPara.RecipeName, "CalibPosition.xml");
@@ -57,11 +45,6 @@ namespace AlphaRap
 			dgv_MotorPos.DgvHeader = new string[] { "Number", "X", "Y", "Z", "R1", "R2", "Annotation" }; ;
 			dgv_MotorPos.myDgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dgv_MotorPos.RaiseSelectedEvent += dgv_MotorPos_RaiseSelectedEvent;
-		}
-		private void HardForm_Load(object sender, EventArgs e)
-		{
-
-
 		}
 		private void dgv_CalibPos_RaiseSelectedEvent(bool bComplete)
 		{
@@ -107,8 +90,6 @@ namespace AlphaRap
 				if (control is Adlink_Motor)
 				{
 					((Adlink_Motor)control).Stop();
-
-
 				}
 			servo.manualReset.Set();
 		}
@@ -146,7 +127,6 @@ namespace AlphaRap
 			servo.GotoAxis(ServoAixsName.Z, posZ);
 			servo.GotoAxis(ServoAixsName.R1, posR1);
 			servo.GotoAxis(ServoAixsName.R2, posR2);
-
 		}
 
 		private void btn_WriteCurrentPos_Click(object sender, EventArgs e)
@@ -158,17 +138,12 @@ namespace AlphaRap
 				case "tab_CalibPos":
 					posArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, lbl_PosR1.Text, lbl_PosR2.Text, "ReadMe", };
 
-
-					//Log.log.Write("calibration position coordinate row is added soon!", Color.Black);
 					dgv_CalibPos.WriteRowToDataGrid(posArr);
-                    
 
                     break;
 				case "tab_FlowPos":
 					posArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, lbl_PosR1.Text, lbl_PosR2.Text, "ReadMe", };
 
-
-					//Log.log.Write("calibration position coordinate row is added soon!", Color.Black);
 					dgv_MotorPos.WriteRowToDataGrid(posArr);
 					break;
 			}
@@ -199,17 +174,9 @@ namespace AlphaRap
 						break;
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
-
-
-				//Log.log.Write("Update Error" + ex.Message, Color.Black);
 			}
-		}
-
-		private void bt_Continue_Click(object sender, EventArgs e)
-		{
-			dgv_CalibPos.tsm_MoveUp_Click(null, null);
 		}
 
 		private void bt_Stop_Click(object sender, EventArgs e)
@@ -217,48 +184,6 @@ namespace AlphaRap
 			servo.manualReset.Reset();
 			StopAllMotor();
 		}
-		//public static bool SaveXmlPara(DataGridView dgvParameters, string xmlPath, string keyWord = "Parameters")
-		//{
-		//	try
-		//	{
-		//		XmlDocument xmlDocument = new XmlDocument();
-		//		string empty = string.Empty;
-		//		empty = (xmlPath.Contains(".xml") ? xmlPath : (xmlPath + ".xml"));
-		//		XmlElement xmlElement = xmlDocument.CreateElement("Parameters");
-		//		int count = dgvParameters.Rows.Count;
-		//		if (count > 0)
-		//		{
-		//			int count2 = dgvParameters.Columns.Count;
-		//			for (int i = 0; i < count; i++)
-		//			{
-		//				XmlElement xmlElement2 = xmlDocument.CreateElement("序号" + (i + 1));
-		//				for (int j = 0; j < count2; j++)
-		//				{
-		//					XmlElement xmlElement3 = xmlDocument.CreateElement(dgvParameters.Columns[j].HeaderText.ToString());
-		//					string empty2 = string.Empty;
-		//					empty2 = ((dgvParameters.Rows[i].Cells[j].Value != null) ? dgvParameters.Rows[i].Cells[j].Value.ToString() : "");
-		//					xmlElement3.InnerText = empty2;
-		//					xmlElement2.AppendChild(xmlElement3);
-		//					xmlElement.AppendChild(xmlElement2);
-		//				}
-		//			}
-		//			xmlDocument.AppendChild(xmlDocument.CreateXmlDeclaration("1.0", "utf-8", ""));
-		//			xmlDocument.AppendChild(xmlElement);
-		//			xmlDocument.Save(empty);
-
-		//			return true;
-		//		}
-
-		//		return false;
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		MessageBox.Show("参数保存失败....");
-
-		//		return false;
-		//	}
-		//}
-
 
 		private void timer1_Tick(object sender, EventArgs e)
 		{
@@ -332,7 +257,7 @@ namespace AlphaRap
 			string axisName = btnName.Replace(flagStr, "");
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
-			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			int timeOut = 50000;
 			switch (axisName)
 			{
 				case "X":
@@ -361,7 +286,7 @@ namespace AlphaRap
 			string axisName = btnName.Replace(flagStr, "");
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
-			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			int timeOut = 50000;
 			switch (axisName)
 			{
 				case "X":
@@ -390,7 +315,7 @@ namespace AlphaRap
 			string axisName = btnName.Replace(flagStr, "");
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
-			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			int timeOut = 50000;
 			switch (axisName)
 			{
 				case "X":
@@ -419,7 +344,7 @@ namespace AlphaRap
 			string axisName = btnName.Replace(flagStr, "");
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
-			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			int timeOut = 50000;
 			switch (axisName)
 			{
 				case "X":
@@ -511,18 +436,13 @@ namespace AlphaRap
 			string tabName = tab_Pos.SelectedTab.Name;
 			switch (tabName)
 			{
-
 				case "tab_CalibPos":
 					dgv_CalibPos.tsm_MoveUp_Click(null, null);
 					break;
 
-
-
 				case "tab_FlowPos":
 					dgv_MotorPos.tsm_MoveUp_Click(null, null);
 					break;
-
-
 			}
 		}
 
@@ -542,7 +462,6 @@ namespace AlphaRap
 					dgv_MotorPos.tsm_MoveDown_Click(null, null);
 					break;
 					#endregion
-
 			}
 		}
 
@@ -561,7 +480,6 @@ namespace AlphaRap
 			posR2 = double.Parse(dgvRowDataArr[5]);
 			AxisValue = new double[] { posX, posY, posZ, posR1, posR2 };
 			return AxisValue;
-
 		}
 		public bool GotoAxisPoint(double[] AxisPoint)
 		{
@@ -596,7 +514,7 @@ namespace AlphaRap
 			bool status = false;
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
-			int timeOut = 50000;//GetSettingValue("MSet", "MoveTimeOut");
+			int timeOut = 50000;
 			switch (axisName)
 			{
 				case "X":
@@ -623,7 +541,6 @@ namespace AlphaRap
 					servo.HomeAxis(ServoAixsName.R2, HighSpeed, LowSpeed, timeOut);
 					status = servo.Servo_R2_IsHomeOK;
 					return status;
-
 			}
 			return status;
 		}

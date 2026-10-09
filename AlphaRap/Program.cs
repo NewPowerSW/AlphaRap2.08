@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Principal;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AlphaRap
@@ -17,7 +12,6 @@ namespace AlphaRap
         [STAThread]
         static void Main()
         {
-          
             bool ISRuned;
             System.Threading.Mutex mutex = new System.Threading.Mutex(true, "OnlyRunOneInstance", out ISRuned);
             if (ISRuned)
@@ -37,7 +31,6 @@ namespace AlphaRap
 				#endregion
 
 				 //Initial Project
-                // Application.Run(new ProductManagerForm());
 
                 Application.Run(MiddleLayer.MainF);
                 MiddleLayer.DisposeProject();

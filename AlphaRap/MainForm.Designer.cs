@@ -32,18 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.LoginOutTime = new System.Windows.Forms.Timer(this.components);
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.label13 = new System.Windows.Forms.Label();
-            this.uiRoundProcess4 = new Sunny.UI.UIRoundProcess();
-            this.label42 = new System.Windows.Forms.Label();
             this.txtCyCT = new System.Windows.Forms.TextBox();
-            this.uiRoundProcess5 = new Sunny.UI.UIRoundProcess();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.uiRoundProcess3 = new Sunny.UI.UIRoundProcess();
-            this.uiRoundProcess1 = new Sunny.UI.UIRoundProcess();
-            this.uiRoundProcess2 = new Sunny.UI.UIRoundProcess();
             this.miniToolStrip = new System.Windows.Forms.MenuStrip();
             this.tableLayoutPanel_Main = new System.Windows.Forms.TableLayoutPanel();
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
@@ -101,7 +90,7 @@
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel5 = new System.Windows.Forms.Panel();
-            // 报警筛选条（全部 / 警告 / 报警）：**写进设计器**，VS 里能看到，和 EXE 一致
+            // 报警筛选条（全部 / 警告 / 报警）
             this.panelAlarmFilter = new System.Windows.Forms.Panel();
             this.flowAlarmFilter = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAlarmFilterAll = new AlphaRap.AlarmChip();
@@ -132,7 +121,6 @@
             this.cogRecordDisplay1 = new Cognex.VisionPro.CogRecordDisplay();
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).BeginInit();
-            this.panel3.SuspendLayout();
             this.tableLayoutPanel_Main.SuspendLayout();
             this.statusStrip2.SuspendLayout();
             this.panel_PictureShowDown.SuspendLayout();
@@ -199,64 +187,6 @@
             this.LoginOutTime.Interval = 60000;
             this.LoginOutTime.Tick += new System.EventHandler(this.LoginOutTime_Tick);
             // 
-            // panel3
-            // 
-            this.panel3.BackColor = System.Drawing.Color.White;
-            this.panel3.Controls.Add(this.label13);
-            this.panel3.Controls.Add(this.uiRoundProcess4);
-            this.panel3.Controls.Add(this.label42);
-            this.panel3.Controls.Add(this.txtCyCT);
-            this.panel3.Controls.Add(this.uiRoundProcess5);
-            this.panel3.Controls.Add(this.label11);
-            this.panel3.Controls.Add(this.label10);
-            this.panel3.Controls.Add(this.label9);
-            this.panel3.Controls.Add(this.uiRoundProcess3);
-            this.panel3.Controls.Add(this.uiRoundProcess1);
-            this.panel3.Controls.Add(this.uiRoundProcess2);
-            this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel3.Location = new System.Drawing.Point(1714, 3);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(185, 878);
-            this.panel3.TabIndex = 31;
-            // 
-            // label13
-            // 
-            this.label13.BackColor = System.Drawing.Color.White;
-            this.label13.Font = new System.Drawing.Font("微软雅黑", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label13.ForeColor = System.Drawing.Color.Green;
-            this.label13.Location = new System.Drawing.Point(62, 361);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(61, 28);
-            this.label13.TabIndex = 240;
-            this.label13.Text = "Yield:";
-            this.label13.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // uiRoundProcess4
-            // 
-            this.uiRoundProcess4.BackColor = System.Drawing.Color.White;
-            this.uiRoundProcess4.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.uiRoundProcess4.ForeColor = System.Drawing.Color.PaleTurquoise;
-            this.uiRoundProcess4.Inner = 45;
-            this.uiRoundProcess4.Location = new System.Drawing.Point(37, 338);
-            this.uiRoundProcess4.MinimumSize = new System.Drawing.Size(1, 1);
-            this.uiRoundProcess4.Name = "uiRoundProcess4";
-            this.uiRoundProcess4.ProcessBackColor = System.Drawing.Color.Green;
-            this.uiRoundProcess4.Size = new System.Drawing.Size(110, 103);
-            this.uiRoundProcess4.Style = Sunny.UI.UIStyle.Custom;
-            this.uiRoundProcess4.TabIndex = 238;
-            this.uiRoundProcess4.Text = "uiRoundProcess4";
-            // 
-            // label42
-            // 
-            this.label42.Font = new System.Drawing.Font("微软雅黑", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label42.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.label42.Location = new System.Drawing.Point(59, 472);
-            this.label42.Name = "label42";
-            this.label42.Size = new System.Drawing.Size(69, 29);
-            this.label42.TabIndex = 237;
-            this.label42.Text = "CT:";
-            this.label42.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // txtCyCT
             // 
             this.txtCyCT.BackColor = System.Drawing.Color.White;
@@ -269,96 +199,6 @@
             this.txtCyCT.TabIndex = 236;
             this.txtCyCT.Text = "0";
             this.txtCyCT.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // uiRoundProcess5
-            // 
-            this.uiRoundProcess5.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.uiRoundProcess5.ForeColor = System.Drawing.Color.PaleTurquoise;
-            this.uiRoundProcess5.Inner = 45;
-            this.uiRoundProcess5.Location = new System.Drawing.Point(37, 447);
-            this.uiRoundProcess5.MinimumSize = new System.Drawing.Size(1, 1);
-            this.uiRoundProcess5.Name = "uiRoundProcess5";
-            this.uiRoundProcess5.ProcessBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.uiRoundProcess5.ProcessColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.uiRoundProcess5.Size = new System.Drawing.Size(110, 103);
-            this.uiRoundProcess5.Style = Sunny.UI.UIStyle.Custom;
-            this.uiRoundProcess5.TabIndex = 229;
-            this.uiRoundProcess5.Text = "uiRoundProcess5";
-            // 
-            // label11
-            // 
-            this.label11.Font = new System.Drawing.Font("微软雅黑", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label11.ForeColor = System.Drawing.Color.Red;
-            this.label11.Location = new System.Drawing.Point(60, 259);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(65, 21);
-            this.label11.TabIndex = 233;
-            this.label11.Text = "Reject:";
-            this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label10
-            // 
-            this.label10.Font = new System.Drawing.Font("微软雅黑", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label10.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.label10.Location = new System.Drawing.Point(58, 143);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(69, 30);
-            this.label10.TabIndex = 234;
-            this.label10.Text = "Output:";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label9
-            // 
-            this.label9.Font = new System.Drawing.Font("微软雅黑", 7.8F, System.Drawing.FontStyle.Bold);
-            this.label9.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.label9.Location = new System.Drawing.Point(62, 33);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(62, 28);
-            this.label9.TabIndex = 235;
-            this.label9.Text = "Input:";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // uiRoundProcess3
-            // 
-            this.uiRoundProcess3.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.uiRoundProcess3.ForeColor = System.Drawing.Color.PaleTurquoise;
-            this.uiRoundProcess3.Inner = 45;
-            this.uiRoundProcess3.Location = new System.Drawing.Point(37, 229);
-            this.uiRoundProcess3.MinimumSize = new System.Drawing.Size(1, 1);
-            this.uiRoundProcess3.Name = "uiRoundProcess3";
-            this.uiRoundProcess3.ProcessBackColor = System.Drawing.Color.Red;
-            this.uiRoundProcess3.Size = new System.Drawing.Size(110, 103);
-            this.uiRoundProcess3.Style = Sunny.UI.UIStyle.Custom;
-            this.uiRoundProcess3.TabIndex = 228;
-            this.uiRoundProcess3.Text = "uiRoundProcess3";
-            // 
-            // uiRoundProcess1
-            // 
-            this.uiRoundProcess1.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.uiRoundProcess1.ForeColor = System.Drawing.Color.PaleTurquoise;
-            this.uiRoundProcess1.Inner = 45;
-            this.uiRoundProcess1.Location = new System.Drawing.Point(37, 120);
-            this.uiRoundProcess1.MinimumSize = new System.Drawing.Size(1, 1);
-            this.uiRoundProcess1.Name = "uiRoundProcess1";
-            this.uiRoundProcess1.ProcessBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.uiRoundProcess1.Size = new System.Drawing.Size(110, 103);
-            this.uiRoundProcess1.Style = Sunny.UI.UIStyle.Custom;
-            this.uiRoundProcess1.TabIndex = 227;
-            this.uiRoundProcess1.Text = "uiRoundProcess1";
-            // 
-            // uiRoundProcess2
-            // 
-            this.uiRoundProcess2.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.uiRoundProcess2.ForeColor = System.Drawing.Color.PaleTurquoise;
-            this.uiRoundProcess2.Inner = 45;
-            this.uiRoundProcess2.Location = new System.Drawing.Point(37, 14);
-            this.uiRoundProcess2.MinimumSize = new System.Drawing.Size(1, 1);
-            this.uiRoundProcess2.Name = "uiRoundProcess2";
-            this.uiRoundProcess2.ProcessBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.uiRoundProcess2.Size = new System.Drawing.Size(110, 100);
-            this.uiRoundProcess2.Style = Sunny.UI.UIStyle.Custom;
-            this.uiRoundProcess2.TabIndex = 226;
-            this.uiRoundProcess2.Text = "uiRoundProcess2";
             // 
             // miniToolStrip
             // 
@@ -441,7 +281,7 @@
             this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
             this.toolStripStatusLabel5.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.toolStripStatusLabel5.Size = new System.Drawing.Size(130, 25);
-            this.toolStripStatusLabel5.Text = "2019/03/01 00:00:00";
+            this.toolStripStatusLabel5.Text = "";
             // 
             // panel_PictureShowDown
             // 
@@ -666,9 +506,7 @@
             // 
             // picVirtualKeyboard
             // 
-            // 顶栏虚拟键盘开关。**刻意放在设计器里**：位置交给表格布局算，
-            // 不再由代码按"语言切换器当时在哪"去摆位（那样缩放时会压到切换器上）。
-            // 图标本身是运行时用 AppIcons 现画的矢量图，见 MainForm.InitVirtualKeyboardToggle()。
+            // 顶栏虚拟键盘开关，图标在运行时由 MainForm.InitVirtualKeyboardToggle() 绘制
             this.picVirtualKeyboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
             this.picVirtualKeyboard.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picVirtualKeyboard.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -787,7 +625,7 @@
             this.LoginText.Name = "LoginText";
             this.LoginText.Size = new System.Drawing.Size(615, 50);
             this.LoginText.TabIndex = 7;
-            this.LoginText.Text = "用户：1  权限： Admin";
+            this.LoginText.Text = "";
             this.LoginText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lbRecipeName
@@ -1381,7 +1219,7 @@
             // 
             // columnHeader9
             // 
-            this.columnHeader9.Text = "Staus";
+            this.columnHeader9.Text = "Status";
             this.columnHeader9.Width = 136;
             // 
             // tabPage1
@@ -1483,7 +1321,7 @@
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Size = new System.Drawing.Size(200, 60);
             this.tabPage6.TabIndex = 7;
-            this.tabPage6.Text = "Deskborad";
+            this.tabPage6.Text = "Dashboard";
             this.tabPage6.UseVisualStyleBackColor = true;
             // 
             // dataBControl1
@@ -1515,7 +1353,7 @@
             this.tabPage10.Name = "tabPage10";
             this.tabPage10.Size = new System.Drawing.Size(200, 60);
             this.tabPage10.TabIndex = 5;
-            this.tabPage10.Text = "Vison";
+            this.tabPage10.Text = "Vision";
             // 
             // cogRecordDisplay1
             // 
@@ -1560,8 +1398,6 @@
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).EndInit();
-            this.panel3.ResumeLayout(false);
-            this.panel3.PerformLayout();
             this.tableLayoutPanel_Main.ResumeLayout(false);
             this.tableLayoutPanel_Main.PerformLayout();
             this.statusStrip2.ResumeLayout(false);
@@ -1627,20 +1463,9 @@
         #endregion
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Timer LoginOutTime;
-		private System.Windows.Forms.Panel panel3;
-		private System.Windows.Forms.Label label13;
 
-		private Sunny.UI.UIRoundProcess uiRoundProcess4;
-		private System.Windows.Forms.Label label42;
 		public System.Windows.Forms.TextBox txtCyCT;
-		private Sunny.UI.UIRoundProcess uiRoundProcess5;
-		private System.Windows.Forms.Label label11;
-		private System.Windows.Forms.Label label10;
 	
-		private System.Windows.Forms.Label label9;
-		private Sunny.UI.UIRoundProcess uiRoundProcess3;
-		private Sunny.UI.UIRoundProcess uiRoundProcess1;
-		private Sunny.UI.UIRoundProcess uiRoundProcess2;
 		private System.Windows.Forms.MenuStrip miniToolStrip;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel_Main;
 		private System.Windows.Forms.StatusStrip statusStrip2;

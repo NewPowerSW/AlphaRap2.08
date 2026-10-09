@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NPSDK;
 using System.Windows.Forms;
 using System.Data;
 using System.Threading;
-using NPSDK;
 
 namespace Alpha._0
 {
@@ -52,7 +49,6 @@ namespace Alpha._0
             }
         }
 
-
         private Adlink_Motor Servo_Z;
         public Adlink_Motor ServoZ
         {
@@ -67,7 +63,6 @@ namespace Alpha._0
                 Servo_Z = value;
             }
         }
-
 
         private Adlink_Motor Servo_U;
         public Adlink_Motor ServoU
@@ -203,8 +198,6 @@ namespace Alpha._0
         /// <summary>
         /// Enable all servo
         /// </summary>
-        /// <param name="motors"></param>
-        /// <returns></returns>
         public bool ServoAllOn()
         {
             if (motors == null)
@@ -221,8 +214,6 @@ namespace Alpha._0
         /// <summary>
         /// Disnable all servo
         /// </summary>
-        /// <param name="motors"></param>
-        /// <returns></returns>
         public bool ServoAllOff()
         {
             if (motors == null)
@@ -239,8 +230,6 @@ namespace Alpha._0
         /// <summary>
         /// Single Axis enable
         /// </summary>
-        /// <param name="axis"></param>
-        /// <param name="isOn"></param>
         public void ServoOnOrOff(ServoAixsName axis, bool isOn)
         {
             switch (axis)
@@ -281,8 +270,6 @@ namespace Alpha._0
         /// <summary>
         /// Stop all axis
         /// </summary>
-        /// <param name="motors"></param>
-        /// <returns></returns>
         public bool StopAllMortos()
         {
             if (motors == null)
@@ -299,7 +286,6 @@ namespace Alpha._0
         /// <summary>
         /// Stop single axis
         /// </summary>
-        /// <param name="axis"></param>
         public void StopMotor(ServoAixsName axis)
         {
             switch (axis)
@@ -329,7 +315,6 @@ namespace Alpha._0
                     break;
             }
         }
-
 
         #region Home
         /// <summary>
@@ -608,13 +593,10 @@ namespace Alpha._0
                     }));
                     break;
                     #endregion
-
             }
             _homeWorkTh.IsBackground = true;
             _homeWorkTh.Start();
         }
-
-
 
         #endregion
         /// <summary>
@@ -622,7 +604,6 @@ namespace Alpha._0
         /// </summary>
         /// <param name="axis">axis</param>
         /// <param name="pos">position</param>
-        /// <returns></returns>
         public bool GotoAxis(ServoAixsName axis, double pos)
         {
             bool status = false;
@@ -660,7 +641,6 @@ namespace Alpha._0
         /// </summary>
         /// <param name="tarName">备注内容</param>
         /// <param name="table">表</param>
-        /// <returns></returns>
         public double[] GetDestPosition(DataTable table, string tarName)
         {
             double[] destP = { 0, 0, 0 };
@@ -684,8 +664,6 @@ namespace Alpha._0
         /// <summary>
         /// Get current axis position
         /// </summary>
-        /// <param name="axis"></param>
-        /// <returns></returns>
         public double GetCurrentPos(ServoAixsName axis)
         {
             double pos = 0;
@@ -718,7 +696,6 @@ namespace Alpha._0
             return pos;
         }
 
-
         public static bool DelayMs(int delayMilliseconds)
         {
             DateTime now = DateTime.Now;
@@ -736,7 +713,6 @@ namespace Alpha._0
         internal bool GetAllAxisBusy()
         {
 	        return false;
-            //throw new NotImplementedException();
         }
     }
 

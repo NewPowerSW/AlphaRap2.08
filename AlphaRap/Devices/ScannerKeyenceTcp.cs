@@ -2,20 +2,15 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace AlphaRap
 {
     /// <summary>
     /// 具体设备类：基恩士网口扫码枪，使用网口 Tcp 通讯，接收指令、扫码并返回条码
     /// 可配置的属性包括：网口连接参数
-    /// 版本1.0 初始版本
-    /// 修改时间2023-3-27----------------WZF
     /// </summary>
     public class ScannerKeyenceTcp : AbstractDevice
     {
-
         #region 1. 字段、属性
 
         // 字段：Tcp 客户端，用于通讯。默认 IP 地址为：192.168.100.100，端口号 9004，读取超时 1000ms
@@ -38,7 +33,6 @@ namespace AlphaRap
             }
         }
 
-
         /// <summary>
         /// 重写父类的属性：扫码枪是否正在运行：扫码中
         /// </summary>
@@ -53,20 +47,16 @@ namespace AlphaRap
 
         #endregion
 
-
         #region 2. 构造函数
 
         /// <summary>
         /// 带参实例构造函数：提供扫码枪的设备名，加载并设置参数，打开网口
         /// </summary>
-        /// <param name="deviceName"></param>
         public ScannerKeyenceTcp(string deviceName) : base(deviceName)
         {
-            
         }
 
         #endregion
-
 
         #region 3. 可配置的属性
 
@@ -75,18 +65,15 @@ namespace AlphaRap
         /// </summary>
         public string IP { get; set; } = "192.168.100.100";
 
-
         /// <summary>
         /// 可配置的属性：网口的端口号，默认值为 9004
         /// </summary>
         public int Port { get; set; } = 9004;
 
-
         /// <summary>
         /// 可配置的属性：网口读取超时。读取等待超过此时间，视为未接收到数据。单位 ms，默认值为 1000
         /// </summary>
         public int TimeOut { get; set; } = 1000;
-
 
         /// <summary>
         /// 可配置的属性：网口在读取条码时的缓存区最大长度。默认值为 100
@@ -94,7 +81,6 @@ namespace AlphaRap
         public int length { get; set; } = 100;
 
         #endregion
-
 
         #region 4. 主要功能：重写 Open / Close：打开、关闭网口
 
@@ -109,7 +95,6 @@ namespace AlphaRap
                 OpenScanner();
             }
         }
-
 
         /// <summary>
         /// 主要功能：重写父类方法：停止扫码，并关闭网口
@@ -129,7 +114,6 @@ namespace AlphaRap
             }
         }
 
-
         // 私有方法：加载并设置参数，打开网口
         private void OpenScanner()
         {
@@ -138,9 +122,8 @@ namespace AlphaRap
                 //网口关闭时，才能修改参数
                 if (!_tcpClient.Connected)
                 {
-
                     //使用异步方式
-                 
+
                         try
                         {
                             _tcpClient.Connect(IP, Port); //连接网口
@@ -150,17 +133,13 @@ namespace AlphaRap
                         {
                             ShowException("连接扫码枪网口失败！", ex);
                         }
-
-                   
                 }
-
             }
             catch (Exception ex)
             {
                 ShowException("打开扫码枪网口失败！", ex);
             }
         }
-
 
         // 私有方法：关闭网口，释放相关资源
         private void CloseScanner()
@@ -178,7 +157,6 @@ namespace AlphaRap
 
         #endregion
 
-
         #region 4. 主要功能：扫码、停止扫码
 
         /// <summary>
@@ -193,7 +171,6 @@ namespace AlphaRap
             }
         }
 
-
         /// <summary>
         /// 主要功能：重写父类方法：停止运行：停止扫码
         /// </summary>
@@ -206,14 +183,12 @@ namespace AlphaRap
             }
         }
 
-
         /// <summary>
         /// 主要功能：方法：扫码一次
         /// </summary>
         /// <returns>如果扫码成功，返回扫到的条码；如果扫码失败，停止扫码并返回 ERROR</returns>
         public string ScanOnce()
         {
-
             //如果扫码枪已连接
             if (IsConnected)
             {
@@ -251,7 +226,6 @@ namespace AlphaRap
                     catch (Exception ex)
 					{
 						ShowException("扫码枪 [" + DeviceName + "] 扫码失败！\r\n异常信息:\r\n", ex);
-						
                     }
 
                     StopScanning(); //发生错误，停止扫码
@@ -261,11 +235,9 @@ namespace AlphaRap
             return "ERROR"; //扫码枪未连接，或发生错误，返回 ERROR
         }
 
-
         // 私有方法：停止扫码
         private void StopScanning()
         {
-
             //如果扫码枪已连接
             if (IsConnected)
             {
@@ -277,7 +249,5 @@ namespace AlphaRap
         }
 
         #endregion
-
     }// class
-
 }// namespace

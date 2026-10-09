@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Windows.Forms;
 
@@ -14,13 +10,11 @@ namespace AtlasLibrary
 {
 	public class MTF6000_1
 	{
-
 		private static ManualResetEvent TimeoutObject = new ManualResetEvent(false);
 		Socket clientSocket;
 		public bool bConnectStatus;
 		private string sReadData = null;
 		System.Timers.Timer time;
-
 
 		private readonly object read = new object();
 		private readonly object reading = new object();
@@ -28,8 +22,6 @@ namespace AtlasLibrary
 		private const string KeepAliveSend = "002099990010        \0";
 		private const string UnSubscribeSend = "002900090010        120100100\0";
 		private const string SubscribeSend = "006000080010        1201001310000000000000000000000000000001\0";
-		private const string EndCommunicateSend = "002000030010        \0";
-		private const string TighteningResult = "006000080010        1201001310000000000000000000000000000001 \0";
 
 		public struct _Result
 		{
@@ -37,22 +29,17 @@ namespace AtlasLibrary
 			public string PeekTorque;
 			public string TotalAngle;
 			public bool TotalStatus;
-
-
 		}
 		public _Result Atlas_ResultStruct = new _Result();
 		public void Atlas_Connect(string IP, int Port)
 		{
-
 			if (!bConnectStatus)
 			{
-
 				clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 				IPAddress ip = IPAddress.Parse(IP);
 
 				try
 				{
-					//clientSocket.Connect(new IPEndPoint(ip, Port)); //配置服务器IP与端口 
 					clientSocket.SendTimeout = 200;
 					clientSocket.ReceiveTimeout = 200;
 
@@ -61,7 +48,6 @@ namespace AtlasLibrary
 					{
 						Thread.Sleep(1000);
 						bConnectStatus = true;
-						//MessageBox.Show("网络正常");
 
 						String A = SendCommand(StartCommunicateSend);
 						time = new System.Timers.Timer(Convert.ToInt32(5000));//实例化Timer类，设置间隔时间为7000毫秒；
@@ -69,37 +55,27 @@ namespace AtlasLibrary
 						time.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
 						time.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件；
 						time.Start();
-
 					}
 					else
 					{
 						bConnectStatus = false;
-						//MessageBox.Show("连接超时");
 					}
-
-
-
-
 				}
-				catch (Exception e)
+				catch (Exception)
 				{
 					bConnectStatus = false;
 					return;
 				}
-
 			}
 		}
 
 		public void Disconnect()
 		{
-
 			bConnectStatus = false;
 			time.Stop();
 			time.Enabled = false;
 			time.AutoReset = false;
 			clientSocket.Disconnect(true);
-
-
 		}
 
 		private void CallBackMethod(IAsyncResult asyncresult)
@@ -111,21 +87,14 @@ namespace AtlasLibrary
 		{
 			lock (reading)
 			{
-
-				// time.Stop();
 				SendCommand(KeepAliveSend, 100);
-				// time.Start();
-
 			}
-
 		}
-
 
 		public string SendCommand(string commandStr, int timeout = 0)
 		{
 			lock (read)
 			{
-
 				Stopwatch timer = new Stopwatch();
 				timer.Reset();
 
@@ -135,23 +104,19 @@ namespace AtlasLibrary
 					if (!bConnectStatus) // 未連線則先連線
 					{
 						return "";
-
-
 					}
 					if (bConnectStatus && clientSocket != null)
 					{
 						string lon = commandStr;   // CR is terminator
 						Byte[] command = ASCIIEncoding.ASCII.GetBytes(lon);
 						clientSocket.Send(command);
-
-
 					}
 					Thread.Sleep((int)timeout);
 					ReceiveData();
 					sReadData.Trim();
 					return sReadData;
 				}
-				catch (Exception ex)
+				catch (Exception)
 				{
 					bConnectStatus = false;
 
@@ -160,22 +125,17 @@ namespace AtlasLibrary
 			}
 		}
 
-
 		public void ReceiveData()
 		{
 			try
 			{
-
 				byte[] result = new byte[1024];
 				int receiveLength = clientSocket.Receive(result);
 				sReadData = sReadData + Encoding.ASCII.GetString(result, 0, receiveLength).Trim();
-				// MessageBox.Show(sReadData);
 			}
-			catch (SocketException ex)
+			catch (SocketException)
 			{
-
 			}
-
 		}
 
 		public int MID0006_Tightening_Program_Upload()
@@ -183,34 +143,27 @@ namespace AtlasLibrary
 			string SpeedString = "0";
 			try
 			{
-
 				string MID0006 = "003600060010        2501001070001301 \0";
 
 				string returnstring;
 				returnstring = SendCommand(MID0006, 500);
 				returnstring = returnstring + SendCommand(MID0006, 500);
 				SpeedString = returnstring.Substring(returnstring.LastIndexOf("30100001020000002230104001020000002030101004021010002") + 53, 4);
-
-
 			}
-			catch (SocketException ex)
+			catch (SocketException)
 			{
-
 			}
 			return Convert.ToInt32(SpeedString);
 		}
-
 
 		public void MID0006_Tightening_Program_Download(int Speed)
 		{
 			try
 			{
-
 				string MID0006 = "003600060010        2501001070001301 \0";
 
 				string returnstring = "";
 				string returnstring2 = "";
-				string returnstring3 = "";
 				int index = 0;
 				bool flag = true;
 
@@ -225,8 +178,6 @@ namespace AtlasLibrary
 					returnstring = returnstring.Replace("30108001060000001030101004021010001" + returnstring2, "30108001060000001030101004021010001" + String.Format("{0:D4}", Speed));
 				}
 
-
-
 				index = returnstring.IndexOf("30104001020000002030101004021010002", index + 20);
 				flag = index > 10;
 				if (flag)
@@ -235,30 +186,21 @@ namespace AtlasLibrary
 					returnstring = returnstring.Replace("30104001020000002030101004021010002" + returnstring2, "30104001020000002030101004021010002" + String.Format("{0:D4}", Speed));
 				}
 
-
 				returnstring = returnstring.Replace("18702501", "18702500");
 				returnstring = returnstring.Replace("\0", " \0");
 				string returnstring4 = SendCommand(returnstring, 500);
-
 			}
-			catch (SocketException ex)
+			catch (SocketException)
 			{
-
 			}
-
 		}
-
-
 
 		public _Result Atlas_ReadTighteningResult(int timeout = 0)
 		{
-
 			lock (reading)
 			{
-
 				try
 				{
-
 					Stopwatch timer = new Stopwatch();
 					timer.Stop();
 					timer.Reset();
@@ -266,21 +208,15 @@ namespace AtlasLibrary
 					Atlas_ResultStruct.PeekTorque = "0";
 					Atlas_ResultStruct.TotalAngle = "0";
 
-
 					String returnstring = "";
 					String Torquestring;
 					Decimal dData;
-
-
-
-
 
 					while (!returnstring.Contains("30202") || !returnstring.Contains("30230") || !returnstring.Contains("30231")
 						|| (returnstring.LastIndexOf("30202") + 17 + 12) >= returnstring.Length
 						|| (returnstring.LastIndexOf("30230") + 17 + 12) >= returnstring.Length
 						|| (returnstring.LastIndexOf("30231") + 17 + 12) >= returnstring.Length)
 					{
-
 						SendCommand(UnSubscribeSend, 20);
 						SendCommand(UnSubscribeSend, 20);
 						SendCommand(UnSubscribeSend, 20);
@@ -292,40 +228,13 @@ namespace AtlasLibrary
 							Atlas_ResultStruct.TotalAngle = "0";
 							Atlas_ResultStruct.TotalStatus = false;
 							return Atlas_ResultStruct;
-
 						}
-
 					}
-
 
 					Atlas_ResultStruct.TotalResultString = returnstring;
 
-
 					int q = 0;
-					////////////////////////////////////////////////////////////////////////////status////////////////////////////////////////////
-					//q = returnstring.IndexOf("30202");
 
-					//if (q < 70)
-					//{
-
-					//    Torquestring = returnstring.Substring(q, returnstring.Length - q - 2);
-					//    q = Torquestring.IndexOf("30202");
-					//}
-
-					//if (q != -1 && (q + 17) < returnstring.Length)
-					//{
-					//    Torquestring = returnstring.Substring(q + 17, 1);
-					//    dData = Convert.ToDecimal(Decimal.Parse(Torquestring.ToString(), System.Globalization.NumberStyles.Float));
-					//    Torquestring = (dData).ToString();
-					//}
-					//else
-					//{
-
-					//    Torquestring = "";
-					//    dData = 0;
-					//}
-
-					//Atlas_ResultStruct.TotalStatus = dData == 1 ? true : false;
 					Atlas_ResultStruct.TotalStatus = 1 == 1 ? true : false;
 					////////////////////////////////////////////////////////////////////////////Torque////////////////////////////////////////////
 					q = returnstring.LastIndexOf("30230");
@@ -356,8 +265,6 @@ namespace AtlasLibrary
 						dData = 0;
 					}
 					Atlas_ResultStruct.TotalAngle = Torquestring.ToString();
-					//  MessageBox.Show(returnstring);
-
 
 					double _dataa = Convert.ToDouble(Torquestring);
 
@@ -369,15 +276,8 @@ namespace AtlasLibrary
 					Atlas_ResultStruct.PeekTorque = "99999";
 					Atlas_ResultStruct.TotalAngle = "99999";
 					return Atlas_ResultStruct;
-
-
 				}
-
 			}
-
-
-
 		}
-
 	}
 }

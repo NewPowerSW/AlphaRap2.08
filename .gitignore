@@ -32,6 +32,8 @@ bld/
 #[Bb]in/
 [Oo]bj/
 [Ll]og/
+# AlphaRap/Log 是源代码目录（XMLExpand、IniFile、ListViewWrite 等），不是运行日志
+!/AlphaRap/Log/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

@@ -1329,7 +1329,6 @@
 			this.Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
 			this.Name = "HardForm";
 			this.Text = "HardForm";
-			this.Load += new System.EventHandler(this.HardForm_Load);
 			((System.ComponentModel.ISupportInitialize)(this.SettingData)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.RecipeData)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.dataTable1)).EndInit();
@@ -1360,7 +1359,6 @@
 			((System.ComponentModel.ISupportInitialize)(this.tb_H1_UnloadPost)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.dataTable2)).EndInit();
 			this.ResumeLayout(false);
-
         }
 
         #endregion

@@ -7,8 +7,6 @@ namespace AlphaRap
     /// <summary>
     /// 抽象类：设备抽象类，定义了设备通用的属性和方法，包括设备名、参数配置、打开、关闭、运行、停止等。
     /// 带参实例构造函数需提供设备名。
-    ///  版本1.0 初始版本
-    /// 修改时间2023-3-27----------------WZF
     /// </summary>
     public abstract class AbstractDevice
     {

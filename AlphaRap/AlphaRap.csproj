@@ -798,6 +798,9 @@
     <Compile Include="MenuForm\LockForm1.Designer.cs">
       <DependentUpon>LockForm1.cs</DependentUpon>
     </Compile>
+    <Compile Include="MenuForm\ManualForm.Style.cs">
+      <DependentUpon>ManualForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MenuForm\ManualForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -886,6 +889,9 @@
     <Compile Include="MenuForm\CheckForm.Designer.cs">
       <DependentUpon>CheckForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MainForm.Frame.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -904,6 +910,9 @@
     <Compile Include="Controls\AppIcons.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\UiTheme.cs" />
+    <Compile Include="Controls\IoTileStyle.cs" />
+    <Compile Include="Controls\HourlyChart.cs" />
     <Compile Include="Controls\UiKit.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -921,6 +930,9 @@
     </Compile>
     <Compile Include="MenuForm\HardForm.Designer.cs">
       <DependentUpon>HardForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MenuForm\HomeForm.Style.cs">
+      <DependentUpon>HomeForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MenuForm\HomeForm.cs">
       <SubType>Form</SubType>

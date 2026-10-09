@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AlphaRap.MenuForm
@@ -18,8 +14,7 @@ namespace AlphaRap.MenuForm
 		public AlarmSetting()
         {
             InitializeComponent();
-            // 本窗体是 SystemForm 里按需 new 出来的，不在 lstForm 里，赶不上启动扫描 ——
-            // 就地补登记进语言表（此时语言表已建好），Designer 里的文案才能跟随切语言。
+            // 按需创建的窗体：登记进语言表并按当前语言设置文字
             MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
             if (dtTable.Columns.Count == 0)
             {
@@ -32,11 +27,6 @@ namespace AlphaRap.MenuForm
                 dtTable.Columns.Add("SPContent");
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void AlarmSetting_Load(object sender, EventArgs e)
         {
             #region MyRegion
@@ -47,11 +37,6 @@ namespace AlphaRap.MenuForm
             this.btnCancel.Enabled = false;
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void AlarmSetting_Shown(object sender, EventArgs e)
         {
             #region MyRegion
@@ -188,7 +173,6 @@ namespace AlphaRap.MenuForm
                 }
             }
 
-
             this.bindingSource1.DataSource = this.dtTable;
             this.dgvData.DataSource = this.bindingSource1;
             foreach (DataGridViewRow forRow in this.dgvData.Rows)
@@ -196,11 +180,6 @@ namespace AlphaRap.MenuForm
                     forCell.ReadOnly = true;
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnAdd_Click(object sender, EventArgs e)
         {
             #region MyRegion
@@ -224,11 +203,6 @@ namespace AlphaRap.MenuForm
             this.btnRefresh.Enabled = false;
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnUpdate_Click(object sender, EventArgs e)
         {
             #region MyRegion
@@ -244,18 +218,11 @@ namespace AlphaRap.MenuForm
             this.btnRefresh.Enabled = false;
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnRemove_Click(object sender, EventArgs e)
         {
             #region MyRegion
             string message1 = MiddleLayer.LangMsg("AlarmSetting", "msg_DeleteConfirm", "您確認要移除當前選中的行嗎？", "Are you sure to delete?", "Estas seguro que desea eliminar?");
             string message2 = MiddleLayer.LangMsg("AlarmSetting", "msg_DeleteTitle", "溫馨提示", "Delete", "Eliminar");
-
-
 
             if (this.dgvData.Rows.Count > 0 && this.dgvData.Columns.Count > 0)
             {
@@ -277,11 +244,6 @@ namespace AlphaRap.MenuForm
             }
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnSave_Click(object sender, EventArgs e)
         {
             #region MyRegion
@@ -310,16 +272,6 @@ namespace AlphaRap.MenuForm
                     MessageBox.Show("行" + strIndex + "，[Type]不能為空！");
                     return;
                 }
-                //if (forRow["Content"].ToString().Trim().Length == 0)
-                //{
-                //    MessageBox.Show("行" + strIndex + "，[Content]不能為空！");
-                //    return;
-                //}
-                //if (forRow["EContent"].ToString().Trim().Length == 0)
-                //{
-                //    MessageBox.Show("行" + strIndex + "，[EContent]不能為空！");
-                //    return;
-                //}
             }
             List<string> mlist = new List<string>();
             List<string> Emlist = new List<string>();
@@ -348,7 +300,6 @@ namespace AlphaRap.MenuForm
             sw.Flush();
             sw.Dispose();
 
-
             string _strPathName = strPath + @"\English.xml";
             if (System.IO.File.Exists(_strPathName))//如果文件存在则删除 
                 System.IO.File.Delete(_strPathName);
@@ -366,7 +317,6 @@ namespace AlphaRap.MenuForm
             _essw.Write(strEsText);  //这里是写入的内容
             _essw.Flush();
             _essw.Dispose();
-            //MessageBox.Show("生成完毕！");
 
             this.btnAdd.Enabled = true;
             this.btnUpdate.Enabled = true;
@@ -376,11 +326,6 @@ namespace AlphaRap.MenuForm
             this.btnRefresh.Enabled = true;
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnCancel_Click(object sender, EventArgs e)
         {
             #region MyRegion
@@ -390,29 +335,15 @@ namespace AlphaRap.MenuForm
             this.btnSave.Enabled = false;
             this.btnCancel.Enabled = false;
             this.btnRefresh.Enabled = true;
-            //foreach (DataGridViewRow forRow in this.dgvData.Rows)
-            //{
-            //    forRow.ReadOnly = true;
-            //}
             this.AlarmSetting_Shown(this, null);
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             #region MyRegion
             this.AlarmSetting_Shown(this, null);
             #endregion
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void dgvData_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
             #region MyRegion

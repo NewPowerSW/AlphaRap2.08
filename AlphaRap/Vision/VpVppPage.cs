@@ -4,18 +4,10 @@ using System.Windows.Forms;
 namespace AlphaRap
 {
     /// <summary>
-    /// 一个 VPP 页（**每个 VPP 一份**，塞进相机的 VPP 子 TabControl 的那一页里）：
-    /// 归属行（相机 / Index / VPP 名）→ 底部一条：vpp 路径 / 补偿限制表 / 存图设置 / 参数 / 操作按钮。
-    ///
-    /// 为什么抽成 UserControl：
-    ///   原来这一页是 VPForm 运行时用代码拼的（VS 设计器里看不到），改行高、间距、勾选框位置只能改代码。
-    ///   现在**布局写在 VpVppPage.Designer.cs 里**，设计视图看到的就是 EXE 里的样子。
-    ///
-    /// 分工：本类只管布局、填数据、把控件事件转给 <see cref="Owner"/>(VPForm)；
-    ///   业务（拍照 / 保存 VPP / 应用曝光 / 增删限制行 / 落盘）仍在 VPForm 里。
-    ///
-    /// ⚠ 停靠顺序（Dock 是"最后加入的最先停靠"）在 Designer 里必须保持
-    ///   band 内：`path → compRow → saveRow → paramRow → foot`（自上而下就是 路径/补偿表/存图/参数/按钮）。
+    /// VPP 页（每个 VPP 一份，放在相机的 VPP 子 TabControl 中）：归属行（相机 / Index / VPP 名）、
+    /// vpp 路径、补偿限制表、存图设置、参数和操作按钮。
+    /// 本类负责布局、填充数据并把控件事件转给 <see cref="Owner"/>（VPForm），业务在 VPForm 中处理。
+    /// Designer 中 band 内的停靠顺序须保持 path → compRow → saveRow → paramRow → foot。
     /// </summary>
     public partial class VpVppPage : UserControl
     {
@@ -72,7 +64,7 @@ namespace AlphaRap
                 {
                     if (Vpp != null) Vpp.SaveImagePath = tbSavePath.Text.Trim();
                 };
-                // 路径打完字失焦才落盘，免得每敲一个字符写一次文件
+                // 路径在失焦时保存
                 tbSavePath.Leave += delegate { if (Owner != null) Owner.SaveVpConfig(); };
 
                 tbSaveDays.Text = (Vpp != null) ? Vpp.SaveImageKeepDays.ToString() : "0";
@@ -89,7 +81,7 @@ namespace AlphaRap
                     if (Owner != null) Owner.SaveVpConfig();
                 };
 
-                // 操作按钮（「实时显示」不在这里 —— 它是相机级的，按钮在相机属性条上）
+                // 操作按钮（「实时显示」为相机级，按钮在相机属性条上）
                 btnEditTb.Click += delegate { if (Owner != null) Owner.EditStation(Vpp); };
                 btnCapture.Click += delegate { if (Owner != null) Owner.RunStation(Vpp); };
                 btnSaveVpp.Click += delegate { if (Owner != null) Owner.SaveStation(Vpp); };
@@ -100,10 +92,8 @@ namespace AlphaRap
         }
 
         /// <summary>
-        /// 归属行 / 路径行 / 表头 / 标签按钮 按当前语言重算。
-        /// · 归属行与路径行带相机名、通道号、配方路径 ⇒ **动态文字**（控件名以 `_dyn` 结尾，不进语言表），
-        ///   切语言时由 <c>VPForm.RefreshDynamicTexts</c>（以及换配方时的 OnRecipeChanged）调到这里现算；
-        /// · 其余是固定文案，语言表也管，但**新建的页面当场就要是当前语言**（新建时没人替它调 SwitchLanguage）。
+        /// 按当前语言刷新归属行、路径行、表头和标签按钮。归属行与路径行为动态文字（控件名以 _dyn 结尾，不进语言表），
+        /// 由 VPForm.RefreshDynamicTexts 和 OnRecipeChanged 调用；新建页面时也调用一次。
         /// </summary>
         public void RefreshTexts()
         {
@@ -146,7 +136,7 @@ namespace AlphaRap
             };
         }
 
-        /// <summary>取当前语言的文案：LanguageData\{语言}.xml 是唯一来源，底稿只在键还不存在时兜底。</summary>
+        /// <summary>取当前语言的文案（LanguageData\{语言}.xml），没有该键时使用底稿。</summary>
         private static string LangText(string key, string baseText)
         {
             return MiddleLayer.LangText(LangForm, key, baseText);

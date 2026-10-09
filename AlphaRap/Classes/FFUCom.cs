@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace AlphaRap.Classes
 {
@@ -40,9 +35,8 @@ namespace AlphaRap.Classes
                 else
                     return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                //Log.log.Write(ex.ToString(), Color.Red);
                 return false;
             }
         }
@@ -84,12 +78,10 @@ namespace AlphaRap.Classes
                 if (command.Length >= 4){ speed = To16Convert10(command[3]) / FFUSpeedRate; }
                 return speed;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                //Log.log.Write(ex.ToString(),Color.Red);
                 return 0.0 ;
             }
-           
         }
 
         public double GetFFUSpeed2()
@@ -106,17 +98,14 @@ namespace AlphaRap.Classes
                 if (command.Length >= 4) { speed = To16Convert10(command[3]) / FFUSpeedRate; }
                 return speed;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                //Log.log.Write(ex.ToString(),Color.Red);
                 return 0.0;
             }
-
         }
         /// <summary>
         /// 设置风速
         /// </summary>
-        /// <param name="speed"></param>
         public bool SetFFUSpeed(Int32 speed)
         {
             if (!FFUCOM.ConnectStates())
@@ -141,7 +130,6 @@ namespace AlphaRap.Classes
         /// 十六进制字符串转十进制
         /// </summary>
         /// <param name="str">十六进制字符</param>
-        /// <returns></returns>
        private static int To16Convert10(string str)
         {
             int res = 0;
@@ -152,13 +140,12 @@ namespace AlphaRap.Classes
                 //方法1
                 res = int.Parse(str, System.Globalization.NumberStyles.AllowHexSpecifier);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 res = 0;
             }
 
             return res;
-
         }
         #endregion
 

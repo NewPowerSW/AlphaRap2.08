@@ -1,14 +1,6 @@
 ﻿using AlphaRapLibrary;
 using NPSDK;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace AlphaRap
 {
@@ -24,10 +16,9 @@ namespace AlphaRap
 			Conveyor_List.Add(OB_UpConveyor_Work_ConveyorReverse);
 			Conveyor_List.Add(OB_UpConveyor_LocalMachineReady_SMEMA);
 			Conveyor_List.Add(OB_UpConveyor_LocalMachineAvailable_SMEMA);
-			
-			
-		}
 
-		
+			ApplyPageStyle();
+			MiddleLayer.LanguageChanged += (s, e) => RefreshPageTexts();
+		}
 	}
 }

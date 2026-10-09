@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AlphaRap.Classes
@@ -13,14 +10,10 @@ namespace AlphaRap.Classes
         /// 遍历所有的ToolStripItems in A Form
         /// </summary>
         /// <returns>回傳List</returns>
-        //  获取Form中各级菜单添加List中
         public static TStripItemTextInfo GetToolStripItems(Form formName, ref List<TStripItemTextInfo> tStripItemList)
         {
-			
 			TStripItemTextInfo tStrItemComp = new TStripItemTextInfo();
-			
-			//ToolStripStatusLabel tStripStatusLabel = null;
-			//foreach (ToolStripStatusLabel tStrStatusLabel in formName.);
+
 			foreach (ToolStripMenuItem tStrMenuItem in formName.MainMenuStrip.Items)
             {
                 tStrItemComp.FormName = formName.Name;
@@ -33,7 +26,6 @@ namespace AlphaRap.Classes
             }
             return tStrItemComp;
         }
-
 
         //检索所有子菜单
         private static void EnumetateMenu(ToolStripMenuItem item, Form formName, ref List<TStripItemTextInfo> tStripItemList)
@@ -78,7 +70,6 @@ namespace AlphaRap.Classes
         //获取CylinderControls in Form;
         public static void GetCylinderCtlItems(Control Control, String formName, ref List<CylinderCtrlTextInfo> cyCtrlComponentList)
         {
-            CylinderCtrlTextInfo cyCtrlComponent = new CylinderCtrlTextInfo();
             foreach (Control cntrl in Control.Controls)
             {
                 bool bContrlType = false;
@@ -87,27 +78,9 @@ namespace AlphaRap.Classes
                 bContrlType |= (CtlType == typeof(TabPage));
                 bContrlType |= (CtlType == typeof(GroupBox));
 
-               
                 if (bContrlType)
                     GetCylinderCtlItems(cntrl, formName, ref cyCtrlComponentList);
             }
         }
-        //public struct DialMessage
-        //{
-        //    LanguageType LangTyep;
-        //    string DiaMessage;
-        //};
-        //List<DialMessage> DialMessages = new List<DialMessage>();
-        //public static void SelectMessageForLan(LanguageType lantype, ref List<DialMessage> DialMessages)
-        //{
-        //    string[] LanguageArray = Enum.GetNames(typeof(LanguageType));
-        //    //string[][] messageArr = new string[LanguageArray.Length] [];
-        //    List<DialMessage>[] DialMsgLan = new List<DialMessage>[LanguageArray.Length];
-        //    DialMessage
-        //    for (int i = 0; i < LanguageArray.Length; i++)
-        //    {
-        //    }
-        //}
-
     }
 }

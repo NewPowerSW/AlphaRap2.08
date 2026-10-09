@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using AlphaRapLibrary;
 
 namespace AlphaRap
 {
@@ -16,11 +11,6 @@ namespace AlphaRap
         private void CheckForm_Load(object sender, EventArgs e)
         {
             radioButton25.PerformClick();
-        }
-
-        private void rbRedBlink_R_CheckedChanged(object sender, EventArgs e)
-        {
-
         }
         private List<SignalTowerData> TowerData = new List<SignalTowerData>();
         private SignalTowerStatusType SelectStatus = SignalTowerStatusType.MachineIdle;
@@ -123,12 +113,7 @@ namespace AlphaRap
         /// <summary>卡片四周优先保留的留白（可用区够大时按这个值居中）。</summary>
         private const int CardOuterPadding = 144;
 
-        /// <summary>
-        /// 本窗体是运行时被 MainForm 动态挂到面板上的（TopLevel=false）。
-        /// 实测：窗口在程序启动时是 1440×900，此时它按当时的宿主大小被"钉"住，
-        /// 之后再把窗口最大化，窗体不会跟着放大 —— 右/下就会各留一大块空白。
-        /// 这里显式贴合宿主客户区，保证任何窗口尺寸下都铺满。
-        /// </summary>
+        /// <summary>使窗体贴合宿主面板的客户区（本窗体以 TopLevel=false 嵌入 MainForm）。</summary>
         private void FitToHost()
         {
             try
@@ -148,15 +133,8 @@ namespace AlphaRap
         }
 
         /// <summary>
-        /// 布局内容卡片。
-        ///
-        /// 背景：这一页原来是把内容按宿主尺寸"拉伸铺满"。窗口一最大化，两个矩阵表就被拉到
-        /// 750×850 左右，5 行平均每行 170px —— 表格变形、四周又只剩十几像素的边距，
-        /// 看起来既空又散。
-        ///
-        /// 做法：把卡片宽高限制在一个舒适区间内（约等于设计尺寸），居中的部分交给
-        /// rootTable 两侧的百分比空列 / 上下空行去吸收，形成"内容居中 + 四周留白"的观感。
-        /// 小窗口下则退化为"只留一圈小边距"，保证内容不被裁掉。
+        /// 布局内容卡片：宽高限制在接近设计尺寸的范围内并居中（rootTable 两侧空列 / 上下空行吸收多余空间），
+        /// 窗口较小时只保留一圈小边距。
         /// </summary>
         private void LayoutContentCard(Size hostSize)
         {
@@ -169,7 +147,7 @@ namespace AlphaRap
             cardW = Math.Max(360, cardW);
             cardH = Math.Max(280, cardH);
 
-            // 上限：卡片绝不超出可用区（只剩 8px 边距的极端情况）
+            // 上限：卡片不超出可用区（至少保留 8px 边距）
             cardW = Math.Min(cardW, Math.Max(160, hostSize.Width - 16));
             cardH = Math.Min(cardH, Math.Max(140, hostSize.Height - 16));
 
@@ -330,7 +308,6 @@ namespace AlphaRap
         /// <summary>
         /// 从数据源读取信号灯数据
         /// </summary>
-        /// <returns></returns>
         private bool ReadAllSignalTowerData()
         {
             try
@@ -364,35 +341,8 @@ namespace AlphaRap
             return false;
         }
         /// <summary>
-        /// 把设置的数据写入到数据源
-        /// </summary>
-        /// <returns></returns>
-        private bool WriteAllSignalTowertData()
-        {
-            for (int row = 0; row < TowerData.Count; row++)
-            {
-                string strSQL = "update SignalTowerData set " +
-                           "[Green_R]=" + (int)TowerData[row].GreenLightStatus_R +
-                          ",[Yellow_R]=" + (int)TowerData[row].YellowLightStatus_R +
-                          ",[Red_R]=" + (int)TowerData[row].RedLightStatus_R +
-                          ",[Buzzer_R]=" + (int)TowerData[row].BuzzStatus_R +
-                          ",[Green_M]=" + (int)TowerData[row].GreenLightStatus_M +
-                          ",[Yellow_M]=" + (int)TowerData[row].YellowLightStatus_M +
-                          ",[Red_M]=" + (int)TowerData[row].RedLightStatus_M +
-                          ",[Buzzer_M]=" + (int)TowerData[row].BuzzerStatus_M +
-                          " where [SignalTowerStatus]= \"" + TowerData[row].SignalTowerStatus.ToString() + "\"";
-
-                int result = DataBase.DataBaseExecute(SysPara.MdbPath, strSQL);
-                if (result != 0)
-                    return false;
-            }
-            return true;
-        }
-        /// <summary>
         /// 将数据写入到数据源中
         /// </summary>
-        /// <param name="Type"></param>
-        /// <returns></returns>
         private bool WriteSignalTowerData(SignalTowerStatusType Type)
         {
             int ListIndex = TowerData.FindIndex((SingalTowerData) => SingalTowerData.SignalTowerStatus == Type);
@@ -415,8 +365,6 @@ namespace AlphaRap
         /// <summary>
         /// 模式选择
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         /// <summary>左侧竖排的 6 个机台状态按钮（它们始终是一组单选）。</summary>
         private RadioButton[] StateButtons
         {
@@ -425,9 +373,7 @@ namespace AlphaRap
 
         private void radioButton_Click(object sender, EventArgs e)
         {
-            // 保险：显式保证这 6 个按钮始终是一组单选。
-            // WinForms 的 RadioButton 只在"同一个父容器内"自动互斥，一旦它们以后被挪进
-            // 不同容器，就会静默变成多组单选 —— 这里兜住这个坑。
+            // 保证这 6 个按钮为一组单选（RadioButton 只在同一父容器内自动互斥）
             RadioButton clicked = sender as RadioButton;
             foreach (RadioButton rb in StateButtons)
                 if (rb != null && rb != clicked) rb.Checked = false;
@@ -443,11 +389,6 @@ namespace AlphaRap
             ChangeSelectItems(rbGroup_YellowLight_MaintenanceMode, rbGroup_YellowLight_MaintenanceMode[(int)TowerData[ListIndex].YellowLightStatus_M]);
             ChangeSelectItems(rbGroup_RedLight_MaintenanceMode, rbGroup_RedLight_MaintenanceMode[(int)TowerData[ListIndex].RedLightStatus_M]);
             ChangeSelectItems(rbGroup_Buzz_MaintenanceMode, rbGroup_Buzz_MaintenanceMode[(int)TowerData[ListIndex].BuzzerStatus_M]);
-        }
-
-        private void SignalTowerForm_Load(object sender, EventArgs e)
-        {
-          
         }
 
         public void SwitchSignalTowerStatus(SignalTowerStatusType SignalTowerStatus)
@@ -473,15 +414,6 @@ namespace AlphaRap
                     break;
                 }
             }
-         
         }
-
-		
-
-
-		//private void rbRedOff_R_CheckedChanged(object sender, EventArgs e)
-		//{
-
-		//}
 	}
 }

@@ -14,8 +14,6 @@ namespace AlphaRap
         /// <summary>
         /// 呈现参数页面
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btParameter_Click(object sender, EventArgs e)
         {
             labParameter.BackColor = Color.Green; 
@@ -26,8 +24,6 @@ namespace AlphaRap
         /// <summary>
         /// 呈现平台页面
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btPlat_Click(object sender, EventArgs e)
         {
 		
@@ -40,8 +36,6 @@ namespace AlphaRap
         /// <summary>
         /// 呈现系统设置页面
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btSystem_Click(object sender, EventArgs e)
         {
             labSystem.BackColor = Color.Green; 
@@ -53,7 +47,6 @@ namespace AlphaRap
         /// <summary>
         /// 页面呈现
         /// </summary>
-        /// <param name="ShowPage"></param>
         private void ShowhMainPage(dynamic ShowPage)
         {
             SystemGroup.Focus();
@@ -66,9 +59,7 @@ namespace AlphaRap
             {
                 ShowPage.TopLevel = false;
                 ShowPage.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-                // 原来是 Maximized：对 TopLevel=false 的页面窗体它没有实际作用，
-                // 反而会把页面"钉"在首次挂载时的大小上 —— 主窗口放大后页面不跟随，
-                // 四周留出大片空白。铺满容器靠 Dock=Fill 就够了。
+                // 嵌入的页面保持 Normal 状态，由 Dock = Fill 随容器缩放
                 ShowPage.WindowState = FormWindowState.Normal;
                 ShowPage.Dock = DockStyle.Fill;
             }

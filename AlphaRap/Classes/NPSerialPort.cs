@@ -1,20 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace AlphaRap.Classes
 {
     public class NPSerialPort
     {
-
         //create an Serial Port object        
         private SerialPort sp = new SerialPort();
 
-       
         //  Serial communication connection        
         public bool Connect(string strPortName, int iRate, int iDataBits, int iParity, int iStopBits)
         {
@@ -47,7 +41,6 @@ namespace AlphaRap.Classes
                     break;
             }
 
-         
             StopBits sb = StopBits.None;
             switch (iStopBits)
             {
@@ -83,7 +76,7 @@ namespace AlphaRap.Classes
                 return false;
             }
         }
-       
+
         public void Dispose()
         {
             try
@@ -96,8 +89,6 @@ namespace AlphaRap.Classes
         /// <summary>
         /// write string
         /// </summary>
-        /// <param name="strWrite"></param>
-        /// <returns></returns>
         public bool Write(string strWrite)
         {
             try
@@ -115,8 +106,6 @@ namespace AlphaRap.Classes
         /// <summary>
         /// HEX write
         /// </summary>
-        /// <param name="cmd"></param>
-        /// <returns></returns>
         public bool Write(byte[] cmd)
         {
             try
@@ -135,8 +124,6 @@ namespace AlphaRap.Classes
         /// <summary>
         /// HEX write
         /// </summary>
-        /// <param name="cmd"></param>
-        /// <returns></returns>
         public bool Write_StringToHex(string cmd)
         {
             try
@@ -152,10 +139,6 @@ namespace AlphaRap.Classes
                 return false;
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public bool ConnectStates()
         {
             try
@@ -170,7 +153,6 @@ namespace AlphaRap.Classes
         /// <summary>
         /// read string
         /// </summary>
-        /// <returns></returns>
         public string readSting()
         {
             try
@@ -181,7 +163,7 @@ namespace AlphaRap.Classes
                 string decodedString = utf8.GetString(readBytes);
                 return decodedString;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -190,7 +172,6 @@ namespace AlphaRap.Classes
         /// <summary>
         /// read string in hexadecimal format
         /// </summary>
-        /// <returns></returns>
         public string readStingByHex()
         {
             try
@@ -201,17 +182,15 @@ namespace AlphaRap.Classes
                 string decodedString = ToHexStrFromByte(readBytes);
                 return decodedString;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
         }
 
-
         /// <summary>
         ///Read serial string data
         /// </summary>
-        /// <returns></returns>
         public string ReadStr()
         {
             try
@@ -219,7 +198,7 @@ namespace AlphaRap.Classes
                 string indata = sp.ReadExisting();
                 return indata;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "Err";
             }
@@ -227,7 +206,6 @@ namespace AlphaRap.Classes
         /// <summary>
         /// read array of hexadecimal characters
         /// </summary>
-        /// <returns></returns>
         public byte[] readChar()
         {
             try
@@ -238,14 +216,11 @@ namespace AlphaRap.Classes
                 sp.DiscardInBuffer();
                 return buf;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public void ClearInBuffer()
         {
             try
@@ -257,9 +232,6 @@ namespace AlphaRap.Classes
                 throw;
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public void ClearOutBuffer()
         {
             try
@@ -271,10 +243,6 @@ namespace AlphaRap.Classes
                 throw;
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public bool ConnectComPressL(string strPortName, string CommunicationPara)
         {
             try
@@ -307,8 +275,6 @@ namespace AlphaRap.Classes
         /// <summary>
         /// Byte array to hexadecimal string: space separated
         /// </summary>
-        /// <param name="byteDatas"></param>
-        /// <returns></returns>
         public string ToHexStrFromByte(byte[] byteDatas)
         {
             StringBuilder builder = new StringBuilder();

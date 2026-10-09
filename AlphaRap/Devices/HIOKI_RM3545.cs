@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace AlphaRap
 {
@@ -33,7 +30,6 @@ namespace AlphaRap
         #region 构造函数
         public HIOKI_RM3545(string deviceName) : base(deviceName)
         {
-
         }
         #endregion
 
@@ -110,7 +106,6 @@ namespace AlphaRap
             Thread.Sleep(300);
             try
             {
-              
                     MyCom.PortName = PortName;
                     MyCom.BaudRate = BaudRate;
                     MyCom.Parity = Pari;
@@ -121,7 +116,6 @@ namespace AlphaRap
                     MyCom.DataReceived += new SerialDataReceivedEventHandler(MyCom_DataReceived);
 
                     MyCom.Open();
-               
             }
             catch (Exception ex)
             {
@@ -169,8 +163,6 @@ namespace AlphaRap
         /// <summary>
         /// 发送指令的方法
         /// </summary>
-        /// <param name="Command"></param>
-        /// <returns></returns>
         public bool Write(string Command)
         {
             try
@@ -184,8 +176,6 @@ namespace AlphaRap
             return true;
         }
 
-
         #endregion
-
     }
 }

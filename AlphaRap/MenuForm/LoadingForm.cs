@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using System.Windows.Forms;
 using System.Threading;
 
@@ -18,7 +11,6 @@ namespace AlphaRap
         public LoadingForm()
         {
             InitializeComponent();
-            //picLogo.Image = AlphaRap.Properties.Resources.NPlogotm1;
         }
 
         public void SetCaption(string Caption)

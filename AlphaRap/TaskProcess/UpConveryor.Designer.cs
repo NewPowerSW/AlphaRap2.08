@@ -136,7 +136,6 @@
             // FlowChartTable
             // 
             this.FlowChartTable.Size = new System.Drawing.Size(1068, 803);
-            this.FlowChartTable.SelectedIndexChanged += new System.EventHandler(this.FlowChartTable_SelectedIndexChanged);
             // 
             // UPConveyInit_Flow1_1
             // 
@@ -1575,7 +1574,6 @@
             this.tabPage3.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
             this.ResumeLayout(false);
-
         }
 
 		#endregion

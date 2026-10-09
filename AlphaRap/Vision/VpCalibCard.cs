@@ -4,22 +4,10 @@ using System.Windows.Forms;
 namespace AlphaRap
 {
     /// <summary>
-    /// 标定卡（**一台相机一张**）：标题 / 标定点表格 / 路径提示 / 标定曝光 / 操作按钮。
-    ///
-    /// 为什么抽成 UserControl：
-    ///   原来这张卡是 VPForm 在运行时用代码拼出来的（VS 设计器里看不到），
-    ///   改行高、间距、按钮顺序都只能改代码。现在**布局写在 VpCalibCard.Designer.cs 里**，
-    ///   设计视图看到的就是 EXE 里的样子，改外观直接在设计器里改。
-    ///
-    /// 分工：
-    ///   · 本类只管布局、填数据、把控件事件转给 <see cref="Owner"/>(VPForm)；
-    ///   · 所有业务（拍照、加点、应用到本相机、写盘）仍在 VPForm 里，一行没动。
-    ///
-    /// 相机入口（<c>VPForm.CameraEntry</c> 是私有嵌套类型）放在 <c>Tag</c> 里由 VPForm 读写，
-    /// 所以本类不需要知道它的类型。
-    ///
-    /// ⚠ 停靠顺序（Dock 是"最后加入的最先停靠"）在 Designer 里必须保持
-    ///   `grid → tip → expRow → btns → title`，否则标题或表格会被挤成 0 高。
+    /// 标定卡（一台相机一张）：标题 / 标定点表格 / 路径提示 / 标定曝光 / 操作按钮。
+    /// 本类负责布局、填充数据并把控件事件转给 <see cref="Owner"/>（VPForm），标定业务在 VPForm 中处理；
+    /// 相机入口存放在 Tag 中，由 VPForm 读写。
+    /// Designer 中的停靠顺序须保持 grid → tip → expRow → btns → title（Dock 后加入的先停靠）。
     /// </summary>
     public partial class VpCalibCard : UserControl
     {
@@ -54,7 +42,7 @@ namespace AlphaRap
                 RefreshTexts();
                 if (Owner != null) Owner.FillCalibrationGrid(this);
 
-                // 单元格改完立刻写回标定点并落盘。以前没有这个钩子 ⇒ 表里改 MotorPosX/Y 改完就丢。
+                // 单元格编辑完成后立即写回标定点并保存
                 gridPoints.CellEndEdit += delegate(object s, DataGridViewCellEventArgs e)
                 {
                     if (Owner != null) Owner.OnCalibGridEdited(this, e);
@@ -92,11 +80,8 @@ namespace AlphaRap
         }
 
         /// <summary>
-        /// 标题 / 提示 / 固定文案按当前语言重算。
-        /// · 标题和提示里带相机名与点数，属**动态文字**（控件名以 `_dyn` 结尾，不进语言表），
-        ///   切语言时由 <c>VPForm.RefreshDynamicTexts</c> 调到 <see cref="RefreshTexts"/> 现算；
-        /// · 标签与按钮是固定文案，语言表也管，但**新建的卡片当场就要是当前语言**
-        ///   （新建时没人会替它调 SwitchLanguage），所以这里一起套一遍。
+        /// 按当前语言刷新标题、提示和固定文案。标题和提示为动态文字（控件名以 _dyn 结尾，不进语言表），
+        /// 由 VPForm.RefreshDynamicTexts 调用；新建卡片时也调用一次。
         /// </summary>
         public void RefreshTexts()
         {
@@ -119,13 +104,13 @@ namespace AlphaRap
             catch (Exception) { }
         }
 
-        /// <summary>取当前语言的文案：LanguageData\{语言}.xml 是唯一来源，底稿只在键还不存在时兜底。</summary>
+        /// <summary>取当前语言的文案（LanguageData\{语言}.xml），没有该键时使用底稿。</summary>
         private static string LangText(string key, string baseText)
         {
             return MiddleLayer.LangText(LangForm, key, baseText);
         }
 
-        /// <summary>曝光框的兜底值：有标定用标定的曝光，否则用相机的默认曝光（再没有就 10）。</summary>
+        /// <summary>曝光框的默认值：标定的曝光，没有标定时用相机的默认曝光（未设置时为 10）。</summary>
         private double DefaultExposure()
         {
             if (Calib != null) return Calib.Exposure;

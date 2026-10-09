@@ -1,15 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 using System.Data.OleDb;
-using System.Data.SqlClient;
-using System.IO;
-using System.Windows.Forms;
-using System.Runtime.InteropServices;
-//using ADOX;
 
 namespace AlphaRap
 {
@@ -26,7 +17,7 @@ namespace AlphaRap
                 //2、打开连接 
                 odcConnection.Open();
                 //建立SQL查询 
-                string strSQL = "select * from " + tableName;// +" order by No asc";
+                string strSQL = "select * from " + tableName;
                 OleDbDataAdapter oleDa = new OleDbDataAdapter(strSQL, odcConnection);
                 oleDa.Fill(dt);
                 //关闭连接 
@@ -85,7 +76,6 @@ namespace AlphaRap
             catch (Exception)
             {
                 return -1;
-
             }
             finally
             {

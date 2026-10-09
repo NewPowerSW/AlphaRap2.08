@@ -1,5 +1,4 @@
 ﻿using Alpha;
-using AlphaRap.Classes;
 using AlphaRapLibrary;
 using Cognex.VisionPro;
 using System;
@@ -7,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Threading;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
@@ -29,11 +27,8 @@ int nheightEllipse
 
         [DllImport("Gdi32.dll")]
         private static extern bool DeleteObject(IntPtr hObject);
-        #endregion
-        [System.Runtime.InteropServices.DllImport("User32.dll")]
 
-
-        private static extern IntPtr WindowFromPoint(Point p);
+#endregion
 
         [System.Runtime.InteropServices.DllImport("user32.dll ")]
         public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int wndproc);
@@ -41,37 +36,7 @@ int nheightEllipse
         public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
         public const int GWL_STYLE = -16;
         public const int WS_DISABLED = 0x8000000;
-
-        private MENU_PageType MENU_SelectPage = MENU_PageType.Home;
         private MENU_PageType1 MENU_SelectPage1 = MENU_PageType1.Home;
-
-        private PictureBox[] MENU_Picture;
-        public enum MENU_PageType
-        {
-            Home,
-            Product,
-            Save,
-            Hard,
-            Manual,
-            Check,
-            System,
-            //Robot,
-            AddUser,
-            Rapid,
-            Log,
-            Data,
-            Vision,
-            Login,
-            LifeSpan,
-            Lock,
-            Reset,
-            Pause,
-            Stop,
-            Exit,
-            Run,
-            Mes,
-            Robot
-        }
         public enum MENU_PageType1
         {
             Save,
@@ -97,18 +62,7 @@ int nheightEllipse
             Log
         }
 
-        #region 111
-        HomeForm hf = MiddleLayer.HomeF;
-        ManualForm mf = MiddleLayer.ManualF;
-        SystemForm sf = MiddleLayer.SystemF;
-        HardForm hardf = MiddleLayer.HardF;
-        LogForm mesf = MiddleLayer.LogF;
-        CheckForm cf = MiddleLayer.CheckF;
-        DataForm df = MiddleLayer.DataF;
-        AddUserForm addf = MiddleLayer.AddF;
-        //LoadForm LoadFrm;
-
-
+        #region 产量统计
         int HourInputShift = 0;
         int HourOutputShift = 0;
         int HourRejectShift = 0;
@@ -122,18 +76,13 @@ int nheightEllipse
         public MainForm()
         {
             InitializeComponent();
-            MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_AddUser, MENU_Rapid, MENU_Log, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Pause, MENU_Stop, MENU_Exit, MENU_Run, MENU_Mes };
 
-            // ---- 设计期保真：先套一次图标与配色 ----
-            // 这两步只依赖 AppIcons 和 MENU_Picture，不碰 SysPara / 数据库 / 定时器，
-            // 所以放在 InDesigner 判断之前是安全的。作用是让 VS 设计视图显示的结果
-            // 和实际运行一致 —— 否则设计器会保留 Designer 里那些早已被运行期覆盖的
-            // 旧 resx 位图（一排黑色方块），看设计稿完全判断不出真实样子。
-            RefreshButtonIcons();
-            RefreshMenuBackcolor();
+            // 主框架样式（设计期也执行，使设计视图与运行时一致）；按钮文字取自语言包
+            if (!InDesigner)
+                UiTheme.TextProvider = (form, key, zh, en, es) => MiddleLayer.LangMsg(form, key, zh, en, es);
+            ApplyFrameStyle();
 
-            // 下面这些会改动窗体/控件的 Region 或挂全局钩子，设计器里必须跳过：
-            // 圆角 Region 会把设计视图裁掉四角；鼠标转发钩子会干扰设计器的选中操作。
+            // 以下设置圆角区域和鼠标转发，仅在运行时执行
             if (InDesigner) return;
 
             UpdateWindowRegion();
@@ -329,16 +278,14 @@ int nheightEllipse
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-
             ApplyInitialWindowSize();
             ApplyRoundedMenuRegions();
 
-            // 顶栏机器状态徽章：圆角胶囊（随尺寸变化重算）
-            // 徽章比之前高（48px），圆角同步放大到 12 才不显生硬
+            // 顶栏机器状态徽章：圆角胶囊，尺寸变化时重算
             MachineStatus.Resize += (s, ev) => ApplyPillRegion(MachineStatus, 12);
             ApplyPillRegion(MachineStatus, 12);
 
-            // 列表控件改用 Explorer 视觉主题：表头扁平化、去掉原生 3D 边框
+            // 列表控件使用 Explorer 视觉主题（扁平表头、无 3D 边框）
             try
             {
                 SetWindowTheme(WarnningMessage.Handle, "Explorer", null);
@@ -346,23 +293,22 @@ int nheightEllipse
             }
             catch { }
 
-            // 报警日志筛选条（全部 / 警告 / 报警）：控件在设计器里，这里只补图标/事件/语言
+            // 报警日志筛选条（全部 / 警告 / 报警）：设置图标、事件和语言
             InitAlarmFilterBar();
 
             // 顶栏语言切换器（地球图标 + 语言代码）
             InitLanguageSwitch();
 
-            // 顶栏虚拟键盘开关（软键盘不再自动弹出，需要时点这里手动调出/收起）
+            // 顶栏虚拟键盘开关：点击调出或收起软键盘
             InitVirtualKeyboardToggle();
 
-            // 全部按钮改用矢量图标（之后由 timer1_Tick 持续跟随 Enabled 刷新）
+            // 绘制全部按钮的矢量图标（timer1_Tick 按 Enabled 状态持续刷新）
             RefreshButtonIcons();
 
-            // 底部工具栏的悬停反馈（沿用左侧导航"激活才浮出卡片"的语言）
+            // 底部工具栏按钮的悬停效果
             HookToolbarHover();
 
-            // 顶栏语言下拉（国旗 + CN）：设计器里从未注册过点击事件，
-            // 导致点了 Chinese/English/Español 没有任何反应，这里补上。
+            // 顶栏语言下拉菜单的点击事件
             try
             {
                 NumC2.Click += NumC2_Click;   // Chinese
@@ -371,12 +317,14 @@ int nheightEllipse
             }
             catch { }
 
+            // 状态栏显示程序集版本号和编译时间
+            ApplyVersionInfo();
+
             SysPara.UserName = MiddleLayer.AddF.ReadAllUserData();
             SysPara.UserPermission = PermissionType.Operator;
             SwitchPermission(SysPara.UserPermission);
             RefreshMenuBackcolor();
             LoginOutTime.Enabled = false;
-
 
             SwitchMainPage(MENU_PageType.Manual);
             SwitchMainPage(MENU_PageType.Rapid);
@@ -384,36 +332,29 @@ int nheightEllipse
 
             MiddleLayer.OpenRecipe(SysPara.FilePath);
 
-            //鼠标监听
+            // 全局鼠标钩子（用于无操作自动登出计时）
             mh = new MouseHook();
             mh.SetHook();
             mh.MouseDownEvent += mh_MouseDownEvent;
             mh.MouseUpEvent += mh_MouseUpEvent;
             mh.MouseMoveEvent += mh_MouseMoveEvent;
 
-            //键盘监听
+            // 全局键盘钩子（用于无操作自动登出计时）
             k_hook = new KeyboardHook();
-            k_hook.KeyDownEvent += new KeyEventHandler(hook_KeyDown);//钩住键按下
-            k_hook.Start();//安装键盘钩子
-
+            k_hook.KeyDownEvent += new KeyEventHandler(hook_KeyDown);
+            k_hook.Start();
 
             MiddleLayer.alarmRunTask.AlarmTaskIsRun = true;
             GetProductDataINI();
 
-            // 兜底：语言有可能在本方法执行过程中才最终确定，
-            // 这里再按当前语言刷一次报警工具条（含"语言"下拉框的项目名与选中项）
+            // 按最终确定的语言刷新报警工具条和语言切换器
             SyncLanguageTexts();
-
         }
 
         #region 无边框窗口：初始尺寸 / 拖拽缩放 / 拖动移动（手动实现，不依赖系统窗口样式）
 
-        // ===== 说明 =====
-        // 本窗体是 FormBorderStyle.None（无边框）。为了让无边框窗口也能：
-        //   1) 拖动移动   2) 拖拽边缘缩放   3) 双击顶栏最大化/还原
-        // 这里用“完全手动”的方式实现：直接订阅窗体自身的 MouseDown/MouseMove/MouseUp，
-        // 在事件里直接改 Location/Size，不依赖 WS_THICKFRAME 等系统样式位，
-        // 因此不受系统对无边框窗口限制的影响，稳定可靠。
+        // 无边框窗口（FormBorderStyle.None）的拖动移动、边缘缩放和双击顶栏最大化/还原：
+        // 在 MouseDown/MouseMove/MouseUp 中直接修改 Location/Size 实现。
 
         private enum ResizeDirection
         {
@@ -444,6 +385,23 @@ int nheightEllipse
 
         // 双击判定
         private DateTime _lastTitleClickTime = DateTime.MinValue;
+
+        /// <summary>状态栏显示程序集版本号（AssemblyInfo.cs）和 exe 的编译时间。</summary>
+        private void ApplyVersionInfo()
+        {
+            try
+            {
+                Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                toolStripStatusLabel4.Text = "Version " + v.Major + "." + v.Minor + "." + v.Build;
+
+                DateTime built = File.GetLastWriteTime(Application.ExecutablePath);
+                toolStripStatusLabel3.Text = " AlphaRap-SRM  Build " + built.ToString("yyyy/MM/dd HH:mm");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("ApplyVersionInfo: " + ex.Message);
+            }
+        }
 
         /// <summary>
         /// 按 1440 x 900 初始化窗口，并保证不超出当前屏幕工作区、居中显示。
@@ -653,10 +611,12 @@ int nheightEllipse
         #region show Form      
         public void SwitchMainPage(MENU_PageType PageType)
         {
+            // 进入硬件/手动页会暂停设备、进入机器人页会停止设备：设备运行中先确认，取消则留在当前页
+            if (!ConfirmPageSwitchSideEffect(PageType))
+                return;
+
             MENU_SelectPage = PageType;
-            //WZF 修改
-            Panel ShowPanl = new Panel();
-            ShowPanl = panel2;
+            Panel ShowPanl = panel2;
             tableLayoutPanel4.Visible = false;
 
             RefreshMenuBackcolor();
@@ -717,245 +677,47 @@ int nheightEllipse
             }
         }
         /// <summary>
-        /// 更新菜单栏按钮的颜色（现代浅色风格：选中=浅色圆角卡片，未选中=透明融入渐变背景）
+        /// 切页前的安全确认：Hard / Manual 页会暂停设备，Robot 页会停止设备。
+        /// 设备正在动作时弹框确认，返回 false 表示取消切页；设备空闲时直接返回 true。
         /// </summary>
-        public void RefreshMenuBackcolor()
+        private bool ConfirmPageSwitchSideEffect(MENU_PageType pageType)
         {
-            for (int i = 0; i < MENU_Picture.Length; i++)
+            bool busy = SysPara.SystemMode == RunMode.RUN
+                     || (SysPara.SystemMode == RunMode.INITIAL && !SysPara.UpConveyorInitialOk);
+
+            string message;
+            if (pageType == MENU_PageType.Hard || pageType == MENU_PageType.Manual)
             {
-                PictureBox btn = MENU_Picture[i];
-
-                // 底部工具栏按钮的底色由 ApplyToolbarButtonStyles() 统一处理（底色与图标成对设置，
-                // 保证"实心语义色 + 白图标"不会出现同色互相吞掉的问题），这里直接跳过。
-                if (btn == MENU_Run || btn == MENU_Pause || btn == MENU_Stop || btn == MENU_Reset ||
-                    btn == MENU_System || btn == MENU_Lock || btn == MENU_Exit)
-                    continue;
-
-                // 顶栏图标（物料管理/登录）已染成白色：选中态必须用更深的蓝底，
-                // 否则套用左侧的浅色卡片会让白图标完全看不见。
-                if (btn == MENU_Product || btn == MENU_Login)
-                {
-                    btn.BackColor = (i == (int)MENU_SelectPage)
-                        ? Color.FromArgb(2, 78, 133)
-                        : Color.Transparent;
-                    continue;
-                }
-
-                // 其余（左侧导航 + 顶栏 Product/Login）用选中态卡片色
-                if (i == (int)MENU_SelectPage)
-                    btn.BackColor = Color.FromArgb(222, 234, 246);
-                else
-                    btn.BackColor = Color.Transparent;
+                if (!busy) return true;
+                message = MiddleLayer.LangMsg("MainForm", "msg_ConfirmPauseForPage",
+                    "设备正在运行。\r\n进入此页面会暂停设备，是否继续？",
+                    "The machine is running.\r\nOpening this page will PAUSE the machine. Continue?",
+                    "La máquina está en marcha.\r\nAbrir esta página PAUSARÁ la máquina. ¿Continuar?");
             }
-        }
-
-        /// <summary>
-        /// 把按钮裁成圆角。左侧导航是 4px 小圆角（贴着渐变栏，宜克制）；
-        /// 底部工具栏按钮更大、是实心色块，圆角同步放大到 6px 才不显生硬。
-        /// </summary>
-        private void ApplyRoundedMenuRegions()
-        {
-            ApplyRoundRegion(new PictureBox[]
+            else if (pageType == MENU_PageType.Robot)
             {
-                MENU_Home, MENU_Save, MENU_Rapid, MENU_Vision, MENU_Hard, MENU_Manual,
-                MENU_Data, MENU_Log, MENU_Check, MENU_AddUser, MENU_Mes, MENU_LifeSpan
-            }, 8);
-
-            ApplyRoundRegion(new PictureBox[]
-            {
-                MENU_Reset, MENU_Run, MENU_Pause, MENU_Stop, AlarmReset,
-                MENU_System, MENU_Lock, MENU_Exit
-            }, 12);
-        }
-
-        /// <param name="diameter">圆角直径（= 半径 × 2）</param>
-        private static void ApplyRoundRegion(PictureBox[] buttons, int diameter)
-        {
-            if (buttons == null) return;
-            foreach (PictureBox btn in buttons)
-            {
-                if (btn == null || btn.Width <= 0 || btn.Height <= 0) continue;
-                try
-                {
-                    int d = Math.Max(2, Math.Min(diameter, Math.Min(btn.Width, btn.Height)));
-                    using (var path = new System.Drawing.Drawing2D.GraphicsPath())
-                    {
-                        path.AddArc(0, 0, d, d, 180, 90);
-                        path.AddArc(btn.Width - d, 0, d, d, 270, 90);
-                        path.AddArc(btn.Width - d, btn.Height - d, d, d, 0, 90);
-                        path.AddArc(0, btn.Height - d, d, d, 90, 90);
-                        path.CloseFigure();
-                        if (btn.Region != null) btn.Region.Dispose();
-                        btn.Region = new Region(path);
-                    }
-                }
-                catch { }
+                if (SysPara.SystemMode == RunMode.IDLE) return true;
+                message = MiddleLayer.LangMsg("MainForm", "msg_ConfirmStopForPage",
+                    "进入机器人页面会停止设备，之后需要重新初始化。\r\n是否继续？",
+                    "Opening the Robot page will STOP the machine and it must be initialized again.\r\nContinue?",
+                    "Abrir la página del robot DETENDRÁ la máquina y deberá inicializarse de nuevo.\r\n¿Continuar?");
             }
-        }
-
-        /// <summary>
-        /// 统一刷新所有按钮的图标。
-        ///
-        /// 图标由 AppIcons 在 24×24 网格上现画，颜色按"按钮是否可用 + 操作语义"决定：
-        ///   · 左侧导航 / 一般功能 → 深石板灰（整屏只有这一支基色）
-        ///   · 运行 / 暂停 / 停止 / 复位 → 绿 / 琥珀 / 红 / 蓝（机台操作的语义色）
-        ///   · 退出 → 红（与它的浅红底呼应）
-        ///   · 禁用态 → 浅灰；深蓝顶栏上则用暗蓝白
-        /// AppIcons 内部按 (图标, 尺寸, 颜色) 缓存，所以可以放心地由定时器反复调用。
-        /// </summary>
-        private void RefreshButtonIcons()
-        {
-            try
+            else
             {
-                const int navSize = 28;   // 左侧导航 / 底部工具栏
-                const int topSize = 24;   // 顶栏
-
-                Color nav = AppIconColor.Nav;
-                Color dim = AppIconColor.Disabled;
-
-                MENU_Home.Image    = AppIcons.Get(AppIcon.Home,    navSize, MENU_Home.Enabled    ? nav : dim);
-                MENU_Save.Image    = AppIcons.Get(AppIcon.Save,    navSize, MENU_Save.Enabled    ? nav : dim);
-                MENU_Rapid.Image   = AppIcons.Get(AppIcon.Rapid,   navSize, MENU_Rapid.Enabled   ? nav : dim);
-                MENU_Vision.Image  = AppIcons.Get(AppIcon.Vision,  navSize, MENU_Vision.Enabled  ? nav : dim);
-                MENU_Hard.Image    = AppIcons.Get(AppIcon.Hard,    navSize, MENU_Hard.Enabled    ? nav : dim);
-                MENU_Manual.Image  = AppIcons.Get(AppIcon.Manual,  navSize, MENU_Manual.Enabled  ? nav : dim);
-                MENU_Data.Image    = AppIcons.Get(AppIcon.Data,    navSize, MENU_Data.Enabled    ? nav : dim);
-                MENU_Log.Image     = AppIcons.Get(AppIcon.Log,     navSize, MENU_Log.Enabled     ? nav : dim);
-                MENU_Check.Image   = AppIcons.Get(AppIcon.Check,   navSize, MENU_Check.Enabled   ? nav : dim);
-                MENU_AddUser.Image = AppIcons.Get(AppIcon.AddUser, navSize, MENU_AddUser.Enabled ? nav : dim);
-                MENU_Mes.Image     = AppIcons.Get(AppIcon.Mes,     navSize, MENU_Mes.Enabled     ? nav : dim);
-                MENU_LifeSpan.Image = AppIcons.Get(AppIcon.LifeSpan, navSize, MENU_LifeSpan.Enabled ? nav : dim);
-
-                // 底部工具栏 8 个按钮：底色 + 图标一起设定（见 ApplyToolbarButtonStyles）
-                ApplyToolbarButtonStyles();
-
-                // 顶栏：深蓝底 → 白色图标
-                MENU_Product.Image = AppIcons.Get(AppIcon.Product, topSize,
-                    MENU_Product.Enabled ? AppIconColor.OnDarkBar : AppIconColor.DisabledOnDark);
-                MENU_Login.Image = AppIcons.Get(AppIcon.Login, topSize,
-                    MENU_Login.Enabled ? AppIconColor.OnDarkBar : AppIconColor.DisabledOnDark);
+                return true;
             }
-            catch { }
+
+            string title = MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo");
+            // 默认按钮设为"否"：误触回车不会停机
+            return MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                                   MessageBoxDefaultButton.Button2) == DialogResult.Yes;
         }
 
-        // ---------------- 底部工具栏按钮样式（沿用左侧导航的语言） ----------------
 
-        /// <summary>
-        /// 工具栏·悬停软底卡片。
-        /// 直接复用左侧导航"选中态卡片"的颜色 (222,234,246)，
-        /// 这样底部和左侧就是同一套交互语言：平时只有图标，激活时才浮出一张软底卡片。
-        /// </summary>
-        private static readonly Color ToolbarHover = Color.FromArgb(222, 234, 246);
 
-        /// <summary>当前鼠标悬停的工具栏按钮（避免每个按钮各存一份状态）。</summary>
-        private PictureBox _hoverToolbarButton;
 
-        /// <summary>
-        /// 底部工具栏按钮样式 —— 刻意改成**和左侧导航一模一样**的表达方式：
-        ///   · **不放常驻底色**，图标直接落在工具栏背景上（侧栏平时也是透明的）
-        ///   · 只有鼠标移上去，才浮出一张和侧栏选中态同色的软底圆角卡片
-        ///   · 颜色只表达"这是哪类操作"：运行绿 / 暂停琥珀 / 停止红 / 复位蓝 / 退出红，
-        ///     系统·锁定·报警复位用和侧栏图标相同的石板灰
-        ///
-        /// 早前几版给每个按钮都铺了常驻色块（蓝底白卡 → 白底浅灰卡 → 浅蓝卡），
-        /// 结果一是和左侧风格割裂，二是每换一次工具栏底色都要重配一批前景色。
-        /// 改成"透明底 + 悬停卡片"后，工具栏底色怎么改都不用再动按钮。
-        /// </summary>
-        private void ApplyToolbarButtonStyles()
-        {
-            try
-            {
-                const int iconSize = 44;   // 比左侧导航（28）大一档，保证操作区仍然是视觉重心
 
-                StyleToolbarButton(MENU_Reset, AppIcon.Reset, iconSize, AppIconColor.Reset);
-                StyleToolbarButton(MENU_Run, AppIcon.Run, iconSize, AppIconColor.Run);
-                StyleToolbarButton(MENU_Pause, AppIcon.Pause, iconSize, AppIconColor.Pause);
-                StyleToolbarButton(MENU_Stop, AppIcon.Stop, iconSize, AppIconColor.Stop);
-                StyleToolbarButton(AlarmReset, AppIcon.AlarmReset, iconSize, AppIconColor.Nav, AppIconColor.Danger);
-                StyleToolbarButton(MENU_System, AppIcon.System, iconSize, AppIconColor.Nav);
-                StyleToolbarButton(MENU_Lock, AppIcon.Lock, iconSize, AppIconColor.Nav);
-                StyleToolbarButton(MENU_Exit, AppIcon.Exit, iconSize, AppIconColor.Danger);
-            }
-            catch { }
-        }
 
-        private void StyleToolbarButton(PictureBox btn, AppIcon icon, int size, Color iconColor)
-        {
-            StyleToolbarButton(btn, icon, size, iconColor, iconColor);
-        }
-
-        private void StyleToolbarButton(PictureBox btn, AppIcon icon, int size,
-            Color iconColor, Color accentColor)
-        {
-            if (btn == null) return;
-
-            bool on = btn.Enabled;
-
-            // 平时透明（露出工具栏底色），悬停时才是软底卡片 —— 与左侧导航一致
-            btn.BackColor = (on && btn == _hoverToolbarButton) ? ToolbarHover : Color.Transparent;
-
-            Color main = on ? iconColor : AppIconColor.Disabled;
-            Color accent = on ? accentColor : AppIconColor.Disabled;
-            btn.Image = AppIcons.Get(icon, size, main, accent);
-        }
-
-        /// <summary>
-        /// 给 8 个工具栏按钮挂上悬停反馈。只在 MainForm_Load 里调一次
-        /// （不能用 Tag 做"是否已挂"的标记 —— MENU_* 的 Tag 已被页面类型占用）。
-        /// </summary>
-        private void HookToolbarHover()
-        {
-            PictureBox[] buttons =
-            {
-                MENU_Reset, MENU_Run, MENU_Pause, MENU_Stop, AlarmReset,
-                MENU_System, MENU_Lock, MENU_Exit
-            };
-            foreach (PictureBox btn in buttons)
-            {
-                if (btn == null) continue;
-                btn.MouseEnter += ToolbarButton_MouseEnter;
-                btn.MouseLeave += ToolbarButton_MouseLeave;
-            }
-        }
-
-        private void ToolbarButton_MouseEnter(object sender, EventArgs e)
-        {
-            PictureBox btn = sender as PictureBox;
-            if (btn == null || btn == _hoverToolbarButton) return;
-            _hoverToolbarButton = btn;
-            ApplyToolbarButtonStyles();
-        }
-
-        private void ToolbarButton_MouseLeave(object sender, EventArgs e)
-        {
-            PictureBox btn = sender as PictureBox;
-            if (btn == null || _hoverToolbarButton != btn) return;
-            _hoverToolbarButton = null;
-            ApplyToolbarButtonStyles();
-        }
-
-        /// <summary>
-        /// 把控件裁剪为圆角胶囊（用于顶栏机器状态徽章等）
-        /// </summary>
-        private static void ApplyPillRegion(Control c, int radius)
-        {
-            if (c == null || c.Width <= 0 || c.Height <= 0) return;
-            try
-            {
-                int d = Math.Max(2, Math.Min(radius * 2, Math.Min(c.Width, c.Height)));
-                using (var path = new System.Drawing.Drawing2D.GraphicsPath())
-                {
-                    path.AddArc(0, 0, d, d, 180, 90);
-                    path.AddArc(c.Width - d, 0, d, d, 270, 90);
-                    path.AddArc(c.Width - d, c.Height - d, d, d, 0, 90);
-                    path.AddArc(0, c.Height - d, d, d, 90, 90);
-                    path.CloseFigure();
-                    if (c.Region != null) c.Region.Dispose();
-                    c.Region = new Region(path);
-                }
-            }
-            catch { }
-        }
 
         #region 报警日志筛选 + 语言切换（全部 / 警告 / 报警）
 
@@ -974,9 +736,7 @@ int nheightEllipse
             new string[] { "Todo", "Aviso", "Alarma" }
         };
 
-        // 报警筛选条的三个标签（panelAlarmFilter / flowAlarmFilter / btnAlarmFilter*）
-        // **控件与位置都在设计器里**，这里只保留语义色（图标是运行期用它们现画的）。
-        // 报警筛选的语义色：全部 = 品牌蓝 / 警告 = 琥珀 / 报警 = 红
+        // 报警筛选标签的图标颜色：全部 = 品牌蓝 / 警告 = 琥珀 / 报警 = 红
         private static readonly Color AlarmChipBrand = Color.FromArgb(4, 108, 182);
         private static readonly Color AlarmChipWarn = Color.FromArgb(219, 149, 44);
         private static readonly Color AlarmChipError = Color.FromArgb(214, 69, 69);
@@ -995,25 +755,6 @@ int nheightEllipse
             }
         }
 
-        /// <summary>
-        /// 报警行配色 —— 已还原为最初（未改动前）的版本：
-        /// E 错误 = 整行红底，W 警告 = 整行深鲑鱼色底，文字保持默认黑色，其它类型维持默认白底。
-        /// 仍抽成一个方法，是因为筛选后重建列表也要用同一套配色，避免两处不一致。
-        /// </summary>
-        public static void ApplyAlarmRowColor(ListViewItem item, string type, int index)
-        {
-            if (item == null) return;
-            switch (type)
-            {
-                case "E":
-                    item.BackColor = Color.Red;
-                    break;
-                case "W":
-                    item.BackColor = Color.DarkSalmon;
-                    break;
-                    // 其它类型不加底色（默认白底黑字）
-            }
-        }
 
         /// <summary>用缓存重建报警列表（应用当前筛选），不触发任何副作用。</summary>
         public void RebuildAlarmLogFromCache()
@@ -1046,10 +787,7 @@ int nheightEllipse
             RebuildAlarmLogFromCache();
         }
 
-        /// <summary>
-        /// 跟随报警列表刷新三个筛选标签上的条数。
-        /// 方法名保留为 public：报警任务（AlarmRunTask）与筛选重建都在调用它。
-        /// </summary>
+        /// <summary>刷新三个筛选标签上的条数（报警任务和筛选重建时调用）。</summary>
         public void UpdateAlarmFilterCount()
         {
             RefreshAlarmChipTexts();
@@ -1074,10 +812,7 @@ int nheightEllipse
             catch { }
         }
 
-        /// <summary>
-        /// 刷新三个筛选标签的文字 = 当前语言的名称 + 该类型条数（All 73 / Warning 72 / Alarm 1）。
-        /// 条数取自缓存，与列表同一口径；切语言时会自动换成对应语言的名称。
-        /// </summary>
+        /// <summary>刷新三个筛选标签的文字：当前语言的名称 + 该类型条数（如 All 73 / Warning 72 / Alarm 1）。</summary>
         private void RefreshAlarmChipTexts()
         {
             try
@@ -1105,8 +840,7 @@ int nheightEllipse
         // ---------------- 语言切换 ----------------
 
         /// <summary>
-        /// 顶栏语言切换器：从菜单选语言 → 走统一的 SwitchLanguageTo。
-        /// 同时把显示同步到启动时读到的当前语言（Current 的赋值不会回环触发切换）。
+        /// 顶栏语言切换器：选择语言后调用 SwitchLanguageTo；显示与启动时读取的语言同步（设置 Current 不会触发切换）。
         /// </summary>
         private void InitLanguageSwitch()
         {
@@ -1123,19 +857,10 @@ int nheightEllipse
             catch { }
         }
 
-        // ---------------- 虚拟键盘（手动调出） ----------------
+        // ---------------- 虚拟键盘 ----------------
 
         /// <summary>
-        /// 顶栏虚拟键盘开关：软键盘不再自动弹出（自动弹会抢焦点、取消表格单元格的编辑），
-        /// 需要时点这个图标手动调出 osk，再点一次收起。
-        ///
-        /// **控件本身在设计器里**（`MainForm.Designer.cs` 的 `picVirtualKeyboard`，
-        /// 占顶栏表格 tableLayoutPanel2 第 5 列，固定 40px），所以：
-        ///   · VS 设计器里看得见它，和 EXE 跑出来的位置一致；
-        ///   · 位置/缩放由表格布局算，不需要任何代码摆位 —— 以前用代码按
-        ///     "语言切换器当时在哪"去算坐标，缩放时算到的是重排前的旧坐标，
-        ///     图标就压到语言切换器上了。
-        /// 这里只负责画图标（矢量现画，不进 .resx）和接事件。
+        /// 顶栏虚拟键盘开关（设计器中的 picVirtualKeyboard）：点击调出 osk，再次点击收起。此处绘制图标并挂接事件。
         /// </summary>
         private void InitVirtualKeyboardToggle()
         {
@@ -1183,28 +908,26 @@ int nheightEllipse
             }
             catch (Exception ex)
             {
-                // 静默吞掉但留下排查线索（以前连异常都看不见，报警表没切到语言都没法查）
+                // 切换失败不中断界面，异常写入调试输出
                 System.Diagnostics.Debug.WriteLine("[SwitchLanguageTo] " + lanType + " -> " + ex);
             }
-            // 语言包会把已登记的控件 Text 刷成对应语言，这里再整体同步一次
+            // 同步语言包覆盖不到的文字
             SyncLanguageTexts();
         }
 
         /// <summary>
-        /// 同步"语言包覆盖不到"的文字与控件：
-        ///   1) 报警筛选标签上的条数文案（文字是运行时拼的，不走语言包）
-        ///   2) 顶栏语言切换器上显示的当前语言代码
-        ///
-        /// 为什么必须显式调用：语言包（ComponentLangurageList）是在启动早期由 InitialProject() →
-        /// InitialLanguageData() 建好并套用的，而报警工具条是 MainForm_Load 里才动态创建的，
-        /// 那时语言包早已跑完，所以它里面写死的文字（全部 / 警告 / 报警）不会自动跟着语言变。
+        /// 同步语言包覆盖不到的文字：报警筛选标签的"名称 + 条数"，以及顶栏语言切换器显示的语言代码。
         /// </summary>
         private void SyncLanguageTexts()
         {
             try
             {
-                // 标签文字 = 名称 + 条数（不能只写名称，否则会把条数抹掉）
+                // 标签文字 = 名称 + 条数
                 UpdateAlarmFilterCount();
+
+                // 导航与工具栏按钮文字
+                LoadFrameTexts();
+                RefreshButtonIcons();
 
                 if (languageSwitch != null) languageSwitch.Current = SysPara.LanguageShow;
             }
@@ -1213,16 +936,9 @@ int nheightEllipse
 
         // ---------------- 界面构建 ----------------
 
-        /// <summary>在报警列表上方插入工具条：全部 / 警告 / 报警 三个筛选标签（语言切换已移到顶栏）。</summary>
         /// <summary>
-        /// 报警列表上方的筛选条：三个标签（全部 / 警告 / 报警）。
-        /// **控件本身在设计器里**（`panelAlarmFilter` / `flowAlarmFilter` / `btnAlarmFilter*`，
-        /// 挂在 panel5 底部 30px），所以 VS 设计器里看得见、位置交给 Dock；
-        /// 这里只做运行时才能做的三件事：
-        ///   ① 画图标 —— 漏斗 / 警示三角 / 圆形叉都是 `AlarmChip` 矢量现画的，不进 `.resx`；
-        ///   ② 接点击事件（三种筛选）；
-        ///   ③ 登记进语言表并立刻按当前语言刷一遍 —— 本工具条的文字是"名称 + 条数"，
-        ///      运行期算的，语言包不会自动套用到它。
+        /// 报警列表上方的筛选条（全部 / 警告 / 报警，控件在设计器中的 panelAlarmFilter）：
+        /// 绘制图标、挂接点击事件，并登记到语言表。
         /// </summary>
         private void InitAlarmFilterBar()
         {
@@ -1243,16 +959,14 @@ int nheightEllipse
 
                 RegisterAlarmFilterForLanguage();
                 UpdateAlarmFilterButtons();
-                // 本工具条的文字是"名称 + 条数"（运行期算），语言包不会自动套用 → 立刻刷一遍
+                // 按当前语言刷新标签文字
                 SyncLanguageTexts();
             }
             catch { }
         }
 
         /// <summary>
-        /// 把报警栏里的新控件登记进 SysPara.ComponentLangurageList。
-        /// 必须手动登记：语言表在程序启动阶段（MainForm_Load 之前）就已遍历控件树建好，
-        /// 而本工具条是 Load 时才创建的，不会被自动收录。
+        /// 把报警筛选条的控件登记进语言表 SysPara.ComponentLangurageList（语言表在 MainForm_Load 之前建好，需手动登记）。
         /// </summary>
         private void RegisterAlarmFilterForLanguage()
         {
@@ -1285,14 +999,9 @@ int nheightEllipse
         }
 
         #endregion
-        /// <summary>
-        /// 显示当前点击窗体
-        /// </summary>
-        /// <param name="ShowPage"></param>
+        /// <summary>在指定面板中显示页面窗体（Dock 铺满）。</summary>
         public void ShowhMainPage(dynamic ShowPage, Panel ShowPanl)
         {
-
-
             ShowPanl.Focus();
             foreach (Control Fcontrol in panel2.Controls)
             {
@@ -1304,9 +1013,7 @@ int nheightEllipse
             {
                 ShowPage.TopLevel = false;
                 ShowPage.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-                // 注意：这里原来写的是 Maximized。对于 TopLevel=false 的窗体，它没有实际作用，
-                // 反而会把窗体"钉"在首次挂载时的大小上 —— 之后把主窗口最大化，页面不会跟着放大，
-                // 四周就会留出大片空白、比例失调。铺满容器靠下面的 Dock=Fill 就够了。
+                // 嵌入的页面保持 Normal 状态，由 Dock = Fill 随容器缩放
                 ShowPage.WindowState = FormWindowState.Normal;
                 ShowPage.Dock = DockStyle.Fill;
             }
@@ -1316,20 +1023,18 @@ int nheightEllipse
             ShowPage.Parent = ShowPanl;
             ShowPage.Show();
 
-            // 子页面是运行时动态加入的，补挂鼠标事件转发，保证子页面区域边缘也能缩放
+            // 子页面也转发鼠标事件，使窗口边缘缩放在子页面区域同样有效
             if (ShowPage is Control pageControl)
                 HookMouseForwarding(pageControl);
         }
 
         private void MENU_Click(object sender, EventArgs e)
         {
-
             string ItemName = Convert.ToString(((Control)sender).Tag);
             MENU_PageType MENU_Page_Type = (MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName);
             SwitchMainPage(MENU_Page_Type);
         }
-        //UserLoginForm UserLoginF = new UserLoginForm();
-        //用户登录按钮
+        // 用户登录按钮
         private void UserLogin_Click(object sender, EventArgs e)
         {
             UserLoginForm UserLoginF = new UserLoginForm();
@@ -1342,10 +1047,7 @@ int nheightEllipse
                 else
                     RefreshMenuBackcolor();
         }
-        /// <summary>
-        /// 选择用户权限
-        /// </summary>
-        /// <param name="Permission"></param>
+        /// <summary>按权限表（PermissionSetup）启用或禁用菜单按钮。</summary>
         public void SwitchPermission(PermissionType Permission)
         {
             string strSQL = "select * from PermissionSetup where Permission ='" + Permission.ToString() + "'";
@@ -1367,17 +1069,13 @@ int nheightEllipse
                     MENU_Data.Enabled = Convert.ToBoolean(readData.Rows[0]["Data"]);
                     MENU_Vision.Enabled = Convert.ToBoolean(readData.Rows[0]["Vision"]);
                     MENU_Exit.Enabled = Convert.ToBoolean(readData.Rows[0]["Exit"]);
-                    //MENU_Robot.Enabled = Convert.ToBoolean(readData.Rows[0]["Power"]);
                 }
             }
         }
         #endregion
 
         #region Machine Status 
-        /// <summary>
-        /// 运行状态文案：走语言包（<see cref="MiddleLayer.LangMsg"/>）—— 不再硬编码三份字典。
-        /// 原来的语言参数保留只是兼容调用处，实际按 SysPara.LanguageShow 现取。
-        /// </summary>
+        /// <summary>各运行模式的状态文案（取自语言包，按 SysPara.LanguageShow）。</summary>
         private static Dictionary<RunMode, string> GetStatusTextMap(LanguageType language)
         {
             return new Dictionary<RunMode, string>
@@ -1409,55 +1107,121 @@ int nheightEllipse
             catch { }
         }
 
+        // ---------------- 机台状态颜色（ISA-101 惯例：红色仅用于报警） ----------------
+        private static readonly Color StatusRunBg = Color.FromArgb(46, 150, 67);    // 绿：运行
+        private static readonly Color StatusPauseBg = Color.FromArgb(245, 166, 35); // 琥珀：暂停
+        private static readonly Color StatusIdleBg = Color.FromArgb(96, 112, 130);  // 灰蓝：待机（中性，不抢眼）
+        private static readonly Color StatusInitBg = Color.FromArgb(4, 108, 182);   // 品牌蓝：初始化
+        private static readonly Color StatusAlarmBg = Color.FromArgb(206, 62, 62);  // 红：报警（仅此一种情况用红）
+        private static readonly Color StatusDarkText = Color.FromArgb(51, 38, 0);   // 琥珀底上用深色字，保证对比度
+
+        // 状态文案缓存：语言或初始化状态变化时重建
+        private Dictionary<RunMode, string> _statusTextMap;
+        private LanguageType _statusTextLang = (LanguageType)(-1);
+        private bool _statusTextInitOk;
+        private string _statusAlarmText;
+        private string _lastAlarmTip;
+        private readonly ToolTip _statusTip = new ToolTip();
+
         private void UpdateMachineStatus()
         {
-            var statusTextMap = GetStatusTextMap(SysPara.LanguageShow);
-            if (statusTextMap.TryGetValue(SysPara.SystemMode, out string statusText))
+            if (_statusTextMap == null || _statusTextLang != SysPara.LanguageShow
+                || _statusTextInitOk != SysPara.UpConveyorInitialOk)
             {
-                if (SysPara.SystemMode == RunMode.RUN)
-                {
-                    MachineStatus.BackColor = Color.FromArgb(46, 150, 67);
-                    MachineStatus.ForeColor = Color.White;
-                }
-                else if (SysPara.SystemMode == RunMode.PAUSE)
-                {
-                    MachineStatus.BackColor = Color.FromArgb(214, 69, 69);
-                    MachineStatus.ForeColor = Color.White;
-                }
-                else
-                {
-                    MachineStatus.BackColor = Color.FromArgb(245, 197, 66);
-                    MachineStatus.ForeColor = Color.FromArgb(64, 48, 0);
-                }
-                MachineStatus.Text = statusText;
+                _statusTextMap = GetStatusTextMap(SysPara.LanguageShow);
+                _statusTextLang = SysPara.LanguageShow;
+                _statusTextInitOk = SysPara.UpConveyorInitialOk;
+                _statusAlarmText = MiddleLayer.LangMsg("MainForm", "msg_StatusAlarm", "设备报警", "ALARM", "ALARMA");
             }
-            else
+
+            // 有 E 类报警时优先显示红色"报警"和条数，悬停显示最新一条报警及处理方法
+            int errorCount;
+            string latestError;
+            if (TryGetActiveErrors(out errorCount, out latestError))
             {
-                // Handle unsupported system mode if needed  
-                MachineStatus.BackColor = Color.FromArgb(90, 98, 110);
-                MachineStatus.ForeColor = Color.White;
-                MachineStatus.Text = "Unknown status";
+                SetStatusLook(StatusAlarmBg, Color.White,
+                    errorCount > 1 ? _statusAlarmText + "  ×" + errorCount : _statusAlarmText);
+                if (latestError != _lastAlarmTip)
+                {
+                    _lastAlarmTip = latestError;
+                    _statusTip.SetToolTip(MachineStatus, latestError ?? "");
+                }
+                return;
+            }
+            if (_lastAlarmTip != null)
+            {
+                _lastAlarmTip = null;
+                _statusTip.SetToolTip(MachineStatus, "");
+            }
+
+            // 无报警时按运行模式着色
+            string statusText;
+            if (!_statusTextMap.TryGetValue(SysPara.SystemMode, out statusText))
+            {
+                SetStatusLook(StatusIdleBg, Color.White, "Unknown status");
+                return;
+            }
+            switch (SysPara.SystemMode)
+            {
+                case RunMode.RUN: SetStatusLook(StatusRunBg, Color.White, statusText); break;
+                case RunMode.PAUSE: SetStatusLook(StatusPauseBg, StatusDarkText, statusText); break;
+                case RunMode.INITIAL:
+                    // 初始化中 / 初始化完成（就绪）都用蓝色，文字区分两者
+                    SetStatusLook(StatusInitBg, Color.White, statusText); break;
+                default: SetStatusLook(StatusIdleBg, Color.White, statusText); break;
+            }
+        }
+
+        /// <summary>只在值变化时赋值，避免每秒重绘造成闪烁。</summary>
+        private void SetStatusLook(Color back, Color fore, string text)
+        {
+            if (MachineStatus.BackColor != back) MachineStatus.BackColor = back;
+            if (MachineStatus.ForeColor != fore) MachineStatus.ForeColor = fore;
+            if (MachineStatus.Text != text) MachineStatus.Text = text;
+        }
+
+        /// <summary>
+        /// 读取当前 E 类（错误）报警的条数和最新一条内容。AlarmList 由报警线程维护，读取失败时按无报警处理。
+        /// </summary>
+        private static bool TryGetActiveErrors(out int count, out string latest)
+        {
+            count = 0;
+            latest = null;
+            try
+            {
+                if (!NPSDK.Alarm.IsError) return false;
+                var list = NPSDK.Alarm.AlarmList;
+                int n = list.Count;
+                for (int i = 0; i < n; i++)
+                {
+                    NPSDK.Alarm.AlarmDataClass a = list[i];   // 结构体，不会为 null
+                    if (a.Type != "E") continue;
+                    count++;
+                    latest = a.Code + "  " + MiddleLayer.HomeF.ResolveAlarmContent(a.Code, a.Content);
+                    if (!string.IsNullOrEmpty(a.Solution))
+                        latest += "\r\n" + MiddleLayer.LangMsg("MainForm", "msg_AlarmSolution", "处理方法：", "Solution: ", "Solución: ") + a.Solution;
+                }
+                if (count == 0) count = 1;   // IsError 为真但列表还没刷新：至少按 1 条显示
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
         #endregion
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-
             #region Machine Status 
-            //F2024/03/10修改
             UpdateMachineStatus();
             #endregion
 
             #region ProductData
-            //AddProductData();
             #endregion
 
             #region Language
-            // 机台状态条上的四个前缀文案走语言包（LangMsg）：没有 switch、没有三份字面量，
-            // 翻译直接改 LanguageData\MainForm 段。结果缓存在字段里（按语言变化才重取），
-            // 免得 1 秒一次的定时器每次都去查 XML。
-            // 型号列表的表头不在这里改 —— 由 ProductManagerForm 自己管（见它的 ApplyLanguage）。
+            // 状态条前缀文案（取自语言包 LanguageData\MainForm，按语言缓存）
             EnsureStatusLabels();
             #endregion
 
@@ -1470,8 +1234,7 @@ int nheightEllipse
 
             #region  PictureBox
 
-            // 图标已改由矢量工厂（AppIcons）统一绘制，这里不再按 imageList 索引换图。
-            // 本段只维护"按钮可用状态"，具体画成什么颜色由 RefreshButtonIcons() 按 Enabled 决定。
+            // 按运行状态设置按钮可用性，图标颜色由 RefreshButtonIcons() 按 Enabled 绘制
             MENU_Run.Enabled = SysPara.UpConveyorInitialOk
                 && (SysPara.SystemMode == RunMode.INITIAL || SysPara.SystemMode == RunMode.PAUSE);
             MENU_Pause.Enabled = SysPara.SystemMode == RunMode.RUN;
@@ -1487,213 +1250,159 @@ int nheightEllipse
 
         public void AddErrorLog(string strMessage)
         {
-
             MiddleLayer.DataF.AddLogError(strMessage);
-
         }
         public void WriteRUNMessageText(string strMessage)
         {
-            //SysPara.RunMessageTime = DateTime.Now.ToString("HH:mm:ss");
-            SysPara.RunMessageTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-            if (textBox_RUNMessage == null)
-                return;
-            Action action = () =>
-            {
-                try
-                {
-                    int iTotal = 0;
-                    int iLenght = textBox_RUNMessage.Lines.Length;
-                    textBox_RUNMessage.AppendText(SysPara.RunMessageTime + ": " + strMessage + "\r\n");
-                    if (textBox_RUNMessage.Lines.Length > 200)
-                    {
-                        for (int i = 0; i < 100; i++)
-                        {
-                            iTotal = iTotal + textBox_RUNMessage.Lines[i].Length + 2;
-                        }
-                        textBox_RUNMessage.Text = textBox_RUNMessage.Text.Substring(iTotal);
-                    }
-                }
-                catch
-                {
-
-                }
-            };
-            try
-            {
-                textBox_RUNMessage.Invoke(action);
-            }
-            catch
-            {
-
-            }
+            AppendLogLine(textBox_RUNMessage, strMessage);
         }
         public void WriteErrorMessageText(string strMessage)
         {
+            AppendLogLine(textBox_ERRORMessage, strMessage);
+        }
 
-            SysPara.RunMessageTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-            if (textBox_ERRORMessage == null)
-                return;
+        // 每个日志框保留的最大行数；超过后一次性删掉最旧的 LogTrimLines 行
+        private const int LogMaxLines = 300;
+        private const int LogTrimLines = 100;
+        private readonly Dictionary<TextBox, int> _logLineCount = new Dictionary<TextBox, int>();
+
+        /// <summary>
+        /// 运行 / 错误日志框的统一写入：时间戳在调用线程生成，通过 BeginInvoke 异步写入界面，
+        /// 避免调用方持锁时与 UI 线程互相等待；超过 LogMaxLines 行时删除最旧的 LogTrimLines 行。
+        /// </summary>
+        private void AppendLogLine(TextBox box, string strMessage)
+        {
+            string time = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+            SysPara.RunMessageTime = time;   // 最近一条消息的时间（全局字段）
+            if (box == null || box.IsDisposed) return;
+
+            string line = time + ": " + strMessage + "\r\n";
             Action action = () =>
             {
                 try
                 {
-                    int iTotal = 0;
-                    int iLenght = textBox_ERRORMessage.Lines.Length;
+                    if (box.IsDisposed) return;
+                    box.AppendText(line);
 
-                    textBox_ERRORMessage.AppendText(SysPara.RunMessageTime + ": " + strMessage + "\r\n");
-                    if (textBox_ERRORMessage.Lines.Length > 200)
+                    int count;
+                    _logLineCount.TryGetValue(box, out count);
+                    count++;
+                    if (count > LogMaxLines)
                     {
-                        for (int i = 0; i < 100; i++)
+                        string text = box.Text;
+                        int cut = 0;
+                        for (int i = 0; i < LogTrimLines && cut >= 0; i++)
                         {
-                            iTotal = iTotal + textBox_ERRORMessage.Lines[i].Length + 2;
+                            cut = text.IndexOf("\r\n", cut, StringComparison.Ordinal);
+                            if (cut >= 0) cut += 2;
                         }
-                        textBox_ERRORMessage.Text = textBox_ERRORMessage.Text.Substring(iTotal);
+                        if (cut > 0)
+                        {
+                            box.Text = text.Substring(cut);
+                            box.SelectionStart = box.TextLength;
+                            box.ScrollToCaret();
+                            count -= LogTrimLines;
+                        }
                     }
+                    _logLineCount[box] = count;
                 }
-                catch
+                catch (Exception ex)
                 {
-
+                    // 只写调试输出（调用 AddLogError 会递归回到此处）
+                    System.Diagnostics.Debug.WriteLine("AppendLogLine: " + ex.Message);
                 }
             };
+
             try
             {
-                textBox_ERRORMessage.Invoke(action);
+                if (!box.IsHandleCreated) return;   // 窗体还没建好或已关闭
+                if (box.InvokeRequired) box.BeginInvoke(action);
+                else action();
             }
-            catch
+            catch (InvalidOperationException)
             {
-
+                // 程序退出过程中句柄已销毁，忽略
             }
         }
         public void WriteRunMessageResult(string RunTime, string strMessage)
         {
             ListViewItem lvi = new ListViewItem(RunTime);
-            ListView listView1 = new ListView();
             lvi.SubItems.Add(strMessage);
             lvi.SubItems.Add(SysPara.UserName);
-            listView1.Items.Add(lvi);
             string Year = DateTime.Now.Year.ToString();
             string month = DateTime.Now.Month.ToString();
             string day = DateTime.Now.Day.ToString();
             SysPara.RunMessagePath = MiddleLayer.LogF.GetSettingValue("Path", "RunPath") + "\\RunMessageData\\" + "\\" + Year + "\\" + month + "\\" + day + "\\";
-            ListViewWrite.WriteExcelData(SysPara.RunMessagePath, listView1);
+            using (ListView listView1 = new ListView())
+            {
+                listView1.Items.Add(lvi);
+                ListViewWrite.WriteExcelData(SysPara.RunMessagePath, listView1);
+            }
         }
         #endregion
 
         private readonly object ProductObjLock = new object();
 
-        //private void AddProductData()
-        //{
-        //	lock (ProductObjLock)
-        //	{
-        //		DateTime datanow = DateTime.Now;
-
-        //		txtCyCT.Text = SysPara.CircleTime + "/s";
-
-        //		if ((SysPara.iProductOK + SysPara.iProductNG).ToString() != MiddleLayer.MainF.txtPTotal.Text)
-        //		{
-        //			MiddleLayer.SpanLifeF.TimeAdd();
-        //			dataBControl1.AddProductQuantity(1);
-        //			txtPTotal.Text = (SysPara.iProductOK + SysPara.iProductNG).ToString();
-
-        //			SysPara.iProductHourlyInput[datanow.Hour] += 1;
-        //		}、
-
-        //		if (txtPOK.Text != SysPara.iProductOK.ToString())
-        //		{
-        //			hoursProductShow1.kPointAdd(DateTime.Now, (int)(SysPara.iProductOK - Convert.ToInt32(txtPOK.Text)), true);
-        //			hoursProductShow1.AllTimeDataShow(DateTime.Now);
-
-        //			hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
-        //			if (AllOutputShift.ToString() == txtPOK.Text)
-        //			{
-        //				hoursProductShow1.kPointAdd(DateTime.Now, (int)(SysPara.iProductOK - Convert.ToInt32(txtPOK.Text)), true);
-        //				hoursProductShow1.AllTimeDataShow(DateTime.Now);
-        //			}
-        //			SysPara.iProductHourlyOutput[datanow.Hour] += SysPara.iProductOK - Convert.ToInt32(txtPOK.Text);
-
-        //			txtPOK.Text = SysPara.iProductOK.ToString();
-        //		}
-
-        //		if (txtPNG.Text != SysPara.iProductNG.ToString())
-        //		{
-        //			hoursProductShow1.kPointAdd(DateTime.Now, (int)(SysPara.iProductNG - Convert.ToInt32(txtPNG.Text)), false);
-        //			hoursProductShow1.AllTimeDataShow(DateTime.Now);
-        //			dataBControl1.AddProductQuantity(Ngnumber: 1);
-        //			hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
-        //			if (AllRejectShift.ToString() == txtPNG.Text)
-        //			{
-        //				hoursProductShow1.kPointAdd(DateTime.Now, (int)(SysPara.iProductNG - Convert.ToInt32(txtPNG.Text)), false);
-        //				hoursProductShow1.AllTimeDataShow(DateTime.Now);
-        //			}
-
-        //			SysPara.iProductHourlyReject[datanow.Hour] += SysPara.iProductNG - Convert.ToInt32(txtPNG.Text);
-        //			txtPNG.Text = SysPara.iProductNG.ToString();
-        //		}
-
-        //		GetProductData();
-        //	}
-        //}
         public void iProductOKAdd()
         {
             lock (ProductObjLock)
             {
                 SysPara.iProductOK++;
+                RecordHourly(true);
             }
-
         }
         public void iProductNGAdd()
         {
             lock (ProductObjLock)
             {
                 SysPara.iProductNG++;
+                RecordHourly(false);
             }
+        }
 
+        /// <summary>每小时统计所属的日期，跨天时清零。</summary>
+        private DateTime _hourlyDate = DateTime.Today;
+
+        /// <summary>记录当天每小时的投入 / 产出 / 不良 / 良率（首页每小时产量图使用）。</summary>
+        private void RecordHourly(bool ok)
+        {
+            DateTime now = DateTime.Now;
+            if (now.Date != _hourlyDate)
+            {
+                Array.Clear(SysPara.iProductHourlyInput, 0, SysPara.iProductHourlyInput.Length);
+                Array.Clear(SysPara.iProductHourlyOutput, 0, SysPara.iProductHourlyOutput.Length);
+                Array.Clear(SysPara.iProductHourlyReject, 0, SysPara.iProductHourlyReject.Length);
+                Array.Clear(SysPara.iProductHourlyYield, 0, SysPara.iProductHourlyYield.Length);
+                _hourlyDate = now.Date;
+            }
+            int h = now.Hour;
+            SysPara.iProductHourlyInput[h]++;
+            if (ok) SysPara.iProductHourlyOutput[h]++;
+            else SysPara.iProductHourlyReject[h]++;
+            SysPara.iProductHourlyYield[h] = SysPara.iProductHourlyOutput[h] * 100.0 / SysPara.iProductHourlyInput[h];
         }
 
         #region GetProductData
-        //private void GetProductData()
-        //{
 
-        //	DateTime datanow = DateTime.Now;
-
-
-        //	hoursProductShow1.GetHourShift(DateTime.Now, ref HourInputShift, ref HourOutputShift, ref HourRejectShift, ref HourYeild);
-        //	hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
-
-        //	txtPTotal.Text = AllInputShift.ToString();
-        //	txtPOK.Text = AllOutputShift.ToString();
-        //	txtPNG.Text = AllRejectShift.ToString();
-        //	txtPRatio.Text = AllYeild.ToString("F2"); ;
-        //	SysPara.iProductOK = AllOutputShift;
-        //	SysPara.iProductNG = AllRejectShift;
-
-        //}
         private void GetProductDataINI()
         {
-
             DateTime datanow = DateTime.Now;
-
 
             hoursProductShow1.GetHourShift(DateTime.Now, ref HourInputShift, ref HourOutputShift, ref HourRejectShift, ref HourYeild);
             hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
 
-            //txtPTotal.Text = AllInputShift.ToString();
-            //txtPOK.Text = AllOutputShift.ToString();
-            //txtPNG.Text = AllRejectShift.ToString();
-            //txtPRatio.Text = AllYeild.ToString("F2"); ;
             SysPara.iProductOK = AllOutputShift;
             SysPara.iProductNG = AllRejectShift;
-
         }
         #endregion
 
-
         #region reminder
+        /// <summary>菜单按钮悬停提示（所有按钮共用一个 ToolTip）。</summary>
+        private readonly ToolTip _menuTip = new ToolTip { ShowAlways = true };
+
         public void ShowWord(Control con, string word)
         {
-            ToolTip p = new ToolTip();
-            p.ShowAlways = true;
-            p.SetToolTip(con, word);
+            _menuTip.SetToolTip(con, word);
         }
         private void MouseEnter1(object sender, EventArgs e)
         {
@@ -1702,8 +1411,7 @@ int nheightEllipse
         }
         private void SwitchRemind(MENU_PageType1 PageType)
         {
-            // 悬停提示文案走语言包（MiddleLayer.LangMsg）：键 = 菜单控件名，
-            // 三语底稿补进 LanguageData\{语言}.xml 的 /{语言}/MainForm/{键}，翻译改 XML 即可。
+            // 悬停提示文案取自语言包：键为菜单控件名（LanguageData\{语言}.xml 的 /{语言}/MainForm/{键}）
             MENU_SelectPage1 = PageType;
             switch (MENU_SelectPage1)
             {
@@ -1766,30 +1474,14 @@ int nheightEllipse
                     break;
             }
         }
-        #endregion
 
-        private void pictureBox10_Click(object sender, EventArgs e)
-        {
-            string ItemName = Convert.ToString(((Control)sender).Tag);
-            SwitchMainPage((MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName));
-        }
+#endregion
         /// <summary>
         /// 初始化按钮
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void MENU_Reset_Click(object sender, EventArgs e)
         {
             MiddleLayer.Initial();
-        }
-        //获取H1表格点位行集合并初始化生成点位
-
-        //获取H2表格点位行集合并初始化生成点位
-        private void GetH2PosCount()
-        {
-            DataTable dtH2 = MiddleLayer.HardF.RecipeData.Tables["tb_H2_SolderPost"];
-            int H2PosCount = dtH2.Rows.Count;
-
         }
         //保存数据按钮
         private void SaveData_Click(object sender, EventArgs e)
@@ -1798,7 +1490,6 @@ int nheightEllipse
         }
         public void SaveData()
         {
-
             SysPara.items = 1;
             SysPara.items2 = 1;
             DialogResult dr;
@@ -1809,23 +1500,18 @@ int nheightEllipse
             warning.fnSetMessageAndButtons(MiddleLayer.LangMsg("MainForm", "msg_SaveConfirm", "确认要保存吗？", "Are you sure to save it？", "¿Seguro que quieres guardar?"), true, false, true);
             warning.ShowDialog();
             dr = warning.dResult;
-            //dr = MessageBox.Show((SysPara.LanguageShow == LanguageType.Chinese) ? "确认要保存吗？" : "Are you sure to save it？", (SysPara.LanguageShow == LanguageType.Chinese) ? "提示" : "Notes", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
             if (dr == DialogResult.Yes)
             {
                 plMainShow.Focus();
                 MiddleLayer.AddF.WritePermission();
                 for (int i = 0; i < ModuleManager.ModuleList.Count; i++)
                 {
-
-
                     ModuleManager.ModuleList[i].WriteRecipeData(SysPara.FilePath);
                     ModuleManager.ModuleList[i].WriteSettingData();
                 }
 
-                // VPForm 的相机/VPP/标定参数存在**自己那个 XML**（ModuleData\SettingData\VPForm.Cameras.xml）
-                // 里，不在 SettingData，上面那圈 WriteSettingData 覆盖不到，所以单独提交一次。
+                // 视觉参数单独保存在 ModuleData\SettingData\VPForm.Cameras.xml
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.CommitVpConfig();
-
             }
             else
             {
@@ -1835,71 +1521,14 @@ int nheightEllipse
                     ModuleManager.ModuleList[i].ReadSettingData();
                 }
 
-                // 点"否"= 取消：VPForm 那边丢掉未保存的参数改动，回到上一次保存
+                // 选"否"：视觉参数恢复为上一次保存的值
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.RevertVpConfig();
             }
             MiddleLayer.HardF.SaveHardData();
-
         }
-
-        /// <summary>
-        /// 菜单栏选择配方
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            string OrgRecipeName = SysPara.RecipeName;
-            OpenFileDialog OpenFileDir = new OpenFileDialog();
-            OpenFileDir.Filter = "XML Files|*.xml";
-
-            try
-            {
-                //SysPara.FilePath = System.IO.Directory.GetCurrentDirectory();
-                OpenFileDir.InitialDirectory = SysPara.RecipeDataDirectory.Replace(".\\", System.IO.Directory.GetCurrentDirectory() + "\\");
-            }
-            catch (Exception)
-            {
-                SysPara.RecipeDataDirectory = string.Format("{0}\\ModuleData\\RecipeData\\Recipe.xml", System.IO.Directory.GetCurrentDirectory());
-                string directory = Path.GetDirectoryName(SysPara.RecipeDataDirectory);
-                System.IO.Directory.CreateDirectory(directory);
-                OpenFileDir.InitialDirectory = directory;
-            }
-
-            if (OpenFileDir.ShowDialog() == DialogResult.OK)
-                if (MiddleLayer.OpenRecipe(OpenFileDir.FileName))
-                {
-                    string[] a = OpenFileDir.FileName.Split('\\');
-                    string[] b = a[a.Length - 1].Split('.');
-                    MiddleLayer.ProductF.CurrentModel.Text = b[0];
-                    //MiddleLayer.LogF.AddLog(LogType.Operation, string.Format("User change the recipe \"{0}\"->\"{1}\" . UserType:{2} UserName:{3}", OrgRecipeName, SysPara.RecipeName, SysPara.LoginLevel.ToString(), SysPara.LoginUserName));
-                }
-            MiddleLayer.OpenRecipe(SysPara.FilePath);
-        }
-        /// <summary>
-        /// 菜单栏新建配方
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NewToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog SaveFileDir = new SaveFileDialog();
-            SaveFileDir.Filter = "XML Files|*.xml";
-
-            string Directory = SysPara.RecipeDataDirectory.Replace(".\\", System.IO.Directory.GetCurrentDirectory() + "\\");
-            SaveFileDir.InitialDirectory = Directory;
-            if (SaveFileDir.ShowDialog() == DialogResult.OK)
-            {
-
-                MiddleLayer.HardF.WriteRecipeData(SaveFileDir.FileName);
-
-            }
-        }
-
 
         private void btStart_Click(object sender, EventArgs e)
         {
-
             MiddleLayer.StartRun();
         }
 
@@ -1915,31 +1544,27 @@ int nheightEllipse
         /// <summary>
         /// 把用户登录数据保存到文件
         /// </summary>
-        /// <param name="UserName"></param>
-        /// <param name="UserPermission"></param>
-        /// <param name="LoginTime"></param>
         public void AddUserResult(string UserName, string UserPermission, string LoginTime)
         {
             ListViewItem lvi = new ListViewItem(LoginTime);
-            ListView listView1 = new ListView();
             lvi.SubItems.Add(UserName);
             lvi.SubItems.Add(UserPermission);
-            listView1.Items.Add(lvi);
             string Year = DateTime.Now.Year.ToString();
             string month = DateTime.Now.Month.ToString();
             string day = DateTime.Now.Day.ToString();
             SysPara.UserMessagePath = MiddleLayer.LogF.GetSettingValue("Path", "UserPath") + "\\UserLoginData\\" + Year + "\\" + month + "\\" + day + "\\";
-            ListViewWrite.WriteExcelData(SysPara.UserMessagePath, listView1);
+            using (ListView listView1 = new ListView())
+            {
+                listView1.Items.Add(lvi);
+                ListViewWrite.WriteExcelData(SysPara.UserMessagePath, listView1);
+            }
         }
 
         //鼠标监听事件
         #region MouseMonitor
-        // bool bMonitor = false;
 
         /// <summary>
-        /// 重置“无操作自动登出”定时器。
-        /// 程序退出过程中，全局鼠标/键盘钩子仍可能触发事件，而此时部分对象已被释放，
-        /// 因此统一在此做保护：窗体已释放则直接返回，任何异常一律忽略，避免退出时抛 NullReferenceException。
+        /// 重置无操作自动登出定时器；窗体已释放时直接返回（退出过程中钩子仍可能触发）。
         /// </summary>
         private void TryResetLoginOutTimer()
         {
@@ -1968,7 +1593,7 @@ int nheightEllipse
             }
         }
 
-        /// <summary>全局鼠标按下：只用来重置"无操作自动登出"计时（虚拟键盘的自动弹出已取消，不再记坐标）。</summary>
+        /// <summary>全局鼠标按下：重置无操作自动登出计时。</summary>
         private void mh_MouseDownEvent(object sender, MouseEventArgs e)
         {
             TryResetLoginOutTimer();
@@ -1999,41 +1624,20 @@ int nheightEllipse
             SwitchMainPage(MENU_PageType.Home);
             RefreshMenuBackcolor();
             LoginOutTime.Enabled = false;
-
-            //if (SysPara.UserPermission != PermissionType.Operator)
-            //{
-            //	SysPara.UserName = MiddleLayer.AddF.ReadAllUserData();
-            //	SysPara.UserPermission = PermissionType.Operator;
-            //	SwitchPermission(SysPara.UserPermission);
-            //	SwitchMainPage(MENU_PageType.Home);
-            //	RefreshMenuBackcolor();
-            //	LoginOutTime.Enabled = false;
-            //}
-
         }
         /// <summary>
         /// 切换中文状态
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void NumC2_Click(object sender, EventArgs e)
         {
-
             SwitchLanguageTo(LanguageType.Chinese);
-
         }
         /// <summary>
         /// 切换英文状态
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void NumC3_Click(object sender, EventArgs e)
         {
-
             SwitchLanguageTo(LanguageType.English);
-
-
-
         }
 
         /// <summary>
@@ -2045,23 +1649,12 @@ int nheightEllipse
             {
                 SwitchLanguageTo(LanguageType.Español);
             }
-            catch { }   // 语言包缺失时不要让界面崩掉
+            catch { }   // 语言包缺失时忽略
         }
-
-        private void MENU_Robot_Click(object sender, EventArgs e)
-        {
-
-            string ItemName = Convert.ToString(((Control)sender).Tag);
-            SwitchMainPage((MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName));
-        }
-
-
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // 退出第一步：停掉自动登出定时器，并摘除全局鼠标/键盘钩子。
-            // 钩子若不摘除，退出过程中每一次鼠标/键盘消息都会触发事件，
-            // 去访问正在销毁的对象（LoginOutTime、PlatF 的设置数据等），导致退出时抛 NullReferenceException。
+            // 先停止自动登出定时器并卸载全局鼠标/键盘钩子，防止退出过程中钩子事件访问已释放的对象
             try { if (LoginOutTime != null) LoginOutTime.Stop(); } catch { }
 
             try
@@ -2099,46 +1692,25 @@ int nheightEllipse
 
             try
             {
-                //Application.Exit();
-                //System.Environment.Exit(System.Environment.ExitCode);
-                //this.Dispose();
-                //this.Close();
                 SwitchMainPage(MENU_PageType.Home);
                 MiddleLayer.FlowCtrl.bStopWork = true;
 
-                // 说明：Environment.Exit 会执行 CLR/WinForms 关机流程（Finalizer、STA/COM 清理、消息泵）。
-                // 本工程含 Cognex ActiveX（STA COM）、控件众多，且 FlowControl/AlwaysRunTask 等前台工作线程
-                // 会在关机流程里与 UI 竞争（在句柄已销毁的控件上 Invoke/BeginInvoke、创建窗口句柄），
-                // 先后触发过 Win32Exception“创建窗口句柄时出错”和
-                // InvalidOperationException“在创建窗口句柄之前，不能在控件上调用 Invoke 或 BeginInvoke”。
-                // 这些异常发生在 Exit 内部的关机流程中（多来自其他线程/finalizer 线程），主线程 try/catch 拦不住。
-                // 因此直接内核级结束进程：不跑任何关机流程，所有线程立即终止，不存在抛异常的窗口期。
-                // （等效任务管理器“结束进程”；工作线程未设 IsBackground，强杀本就是本工程既定退出策略）
+                // 直接结束进程，不执行 Environment.Exit 的关机流程：Cognex ActiveX 与前台工作线程
+                // 在关机流程中会访问已销毁的窗口句柄，抛出主线程无法捕获的异常。
                 try
                 {
                     System.Diagnostics.Process.GetCurrentProcess().Kill();
                 }
                 catch
                 {
-                    // 极端情况下 Kill 失败时，退回 Environment.Exit（聊胜于无）
+                    // Kill 失败时改用 Environment.Exit
                     try { System.Environment.Exit(0); } catch { }
                 }
             }
             catch
             {
-                // 退出路径上的任何异常都不再向上抛，避免退出时又弹异常对话框
+                // 退出过程中的异常不向上抛出
             }
-        }
-
-        private void MENU_Vision_Click(object sender, EventArgs e)
-        {
-            string ItemName = Convert.ToString(((Control)sender).Tag);
-            SwitchMainPage((MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName));
-        }
-
-        private void MENU_Manual_DoubleClick(object sender, EventArgs e)
-        {
-
         }
 
         private void LOTO_Click(object sender, EventArgs e)
@@ -2147,150 +1719,42 @@ int nheightEllipse
             {
                 try
                 {
-
                     MiddleLayer.LockForm1.groupBox2.Visible = false;
                     MiddleLayer.LockForm1.groupBox_Login.Visible = true;
                     MiddleLayer.LockForm1.ShowDialog();
-
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.ToString());
+                    // 界面显示简短提示，完整异常写入错误日志
+                    AddErrorLog("LOTO: " + ex);
+                    MessageBox.Show(MiddleLayer.LangMsg("MainForm", "msg_LotoOpenFail",
+                            "无法打开上锁挂牌界面，详细信息已写入错误日志。",
+                            "Could not open the LOTO screen. Details were written to the error log.",
+                            "No se pudo abrir la pantalla LOTO. Los detalles se guardaron en el registro de errores."),
+                        MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-
             }
             else
             {
-                MessageBox.Show("The device must be in the stop mode", "notice", MessageBoxButtons.OK);
+                MessageBox.Show(MiddleLayer.LangMsg("MainForm", "msg_LotoNeedIdle",
+                        "请先停止设备（待机状态）再进行上锁挂牌。",
+                        "Stop the machine (IDLE) before LOTO.",
+                        "Detenga la máquina (en espera) antes de LOTO."),
+                    MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-        }
-
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-            string ItemName = Convert.ToString(((Control)sender).Tag);
-            MENU_PageType MENU_Page_Type = (MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName);
-            if (SysPara.SystemRun)
-            {
-
-            }
-            SwitchMainPage(MENU_Page_Type);
-        }
-        int a = 1;
-        //照明灯
-        //private void btLight_Click(object sender, EventArgs e)
-        //{
-        //	if (a == 1)
-        //	{
-        //		this.btLight.BackColor = Color.Green;
-        //		MiddleLayer.ManualF.OB_LEDLight.On();
-
-        //		a++;
-        //	}
-        //	else
-        //	{
-        //		btLight.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-        //		MiddleLayer.ManualF.OB_LEDLight.Off();
-
-        //		a = 1;
-        //	}
-
-        //}
-        private void Buzzer_Click(object sender, EventArgs e)
-        {
-            Console.WriteLine(SysPara.bByPass);
-            MiddleLayer.alTask.BuzzOff();
         }
 
         private void btAlarmReset_Click(object sender, EventArgs e)
         {
+            // 报警栏和状态条由定时器刷新
             MiddleLayer.AlarmClear();
-            Thread.Sleep(100);
-        }
-        //int btDoorIndex = 1;
-        //private void btDoor_Click(object sender, EventArgs e)
-        //{
-        //	if (btDoorIndex == 1)
-        //	{
-        //		this.btDoor.BackColor = Color.Green;
-        //		btDoorIndex++;
-        //	}
-        //	else
-        //	{
-        //		btDoor.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-        //		btDoorIndex = 1;
-        //	}
-
-        //}
-        private void btClearCount_Click(object sender, EventArgs e)
-        {
-
-            DialogResult reult = MessageBox.Show(" Do you want to Clear  Count?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
-
-            if ((reult == DialogResult.Yes))
-            {
-                SysPara.iProductOK = 0;
-                SysPara.iProductNG = 0;
-
-            }
-        }
-        //int b = 0;
-        ////直通
-        //private void btByPass_Click(object sender, EventArgs e)
-        //{
-
-        //	if (b == 1)
-        //	{
-        //		btByPass.BackColor = Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-
-        //		SysPara.bByPass = false;
-        //		b = 0;
-        //	}
-        //	else
-        //	{
-
-        //		DialogResult reult = MessageBox.Show("是否直通模式?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
-
-        //		if ((reult == DialogResult.Yes))
-        //		{
-        //			SysPara.bByPass = true;
-        //			b = 1;
-        //			btByPass.BackColor = Color.Green;
-        //		}
-        //	}
-        //}
-
-        private void plMainShow_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void españolToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // 统一走 SwitchLanguageTo：它内部调 MiddleLayer.SwitchLanguage 之外，
-            // 还会写回 MachineSetup.ini 并做 SyncLanguageTexts —— 别绕过它直接调 SwitchLanguage。
-            SwitchLanguageTo(LanguageType.Español);
-        }
-
-        bool SideBarExpand;
-        private void pictureBox2_Click(object sender, EventArgs e)
-        {
-            //if (SideBarExpand)
-            //{
-            //	SideBarExpand = false;
-            //	Left_Show.Width = Left_Show.MinimumSize.Width;
-            //}
-            //else
-            //{
-            //	SideBarExpand = true;
-            //	Left_Show.Width = Left_Show.MaximumSize.Width;
-            //}
         }
 
         private void btExit_Click(object sender, EventArgs e)
         {
-            // 退出确认：文案走语言包（LangMsg）—— 三语齐全，翻译在 LanguageData\MainForm 段里改。
-            // （原来是硬编码中/英两个分支，西语环境下会显示中文。）
+            // 退出确认（文案取自语言包 LanguageData\MainForm）
             string message1 = MiddleLayer.LangMsg("MainForm", "msg_ExitConfirm",
                 "确定要退出调试吗？", "Are you sure to Exit?", "¿Seguro que quieres salir?");
             string message2 = MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo");
@@ -2306,7 +1770,5 @@ int nheightEllipse
                 Close();
             }
         }
-
-
     }
 }
