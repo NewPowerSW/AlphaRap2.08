@@ -25,7 +25,6 @@ namespace AlphaRap
 					Errordata = data;
 					string[] dataArray = { data };
 					LogError.SaveDataToFile(dataArray);
-					MiddleLayer.MainF.WriteErrorMessageText(data);
 				}
 			}
 		}
@@ -38,7 +37,6 @@ namespace AlphaRap
 					Rundata = data;
 					string[] dataArray = { data };
 					LogRun.SaveDataToFile(dataArray);
-					MiddleLayer.MainF.WriteRUNMessageText(data);
 				}
 			}
 		}

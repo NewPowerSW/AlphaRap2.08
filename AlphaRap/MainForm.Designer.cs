@@ -99,24 +99,6 @@
             this.uiTabControl1 = new Sunny.UI.UITabControl();
             this.tabPage22 = new System.Windows.Forms.TabPage();
             this.plMainShow = new System.Windows.Forms.Panel();
-            this.tabPage9 = new System.Windows.Forms.TabPage();
-            this.uiTabControlMenu1 = new Sunny.UI.UITabControlMenu();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
-            this.listView1 = new System.Windows.Forms.ListView();
-            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader15 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader9 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.textBox_RUNMessage = new System.Windows.Forms.TextBox();
-            this.tabPage7 = new System.Windows.Forms.TabPage();
-            this.textBox_ERRORMessage = new System.Windows.Forms.TextBox();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.hoursProductShow1 = new PointShow.HoursProductShow();
-            this.tabPage6 = new System.Windows.Forms.TabPage();
-            this.dataBControl1 = new DashBoard.DataBControl();
             this.tabPage10 = new System.Windows.Forms.TabPage();
             this.cogRecordDisplay1 = new Cognex.VisionPro.CogRecordDisplay();
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
@@ -165,13 +147,6 @@
             this.flowAlarmFilter.SuspendLayout();
             this.uiTabControl1.SuspendLayout();
             this.tabPage22.SuspendLayout();
-            this.tabPage9.SuspendLayout();
-            this.uiTabControlMenu1.SuspendLayout();
-            this.tabPage5.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.tabPage7.SuspendLayout();
-            this.tabPage3.SuspendLayout();
-            this.tabPage6.SuspendLayout();
             this.tabPage10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.cogRecordDisplay1)).BeginInit();
             this.SuspendLayout();
@@ -1067,8 +1042,6 @@
             // uiTabControl1
             // 
             this.uiTabControl1.Controls.Add(this.tabPage22);
-            this.uiTabControl1.Controls.Add(this.tabPage9);
-            this.uiTabControl1.Controls.Add(this.tabPage6);
             this.uiTabControl1.Controls.Add(this.tabPage10);
             this.uiTabControl1.Cursor = System.Windows.Forms.Cursors.No;
             this.uiTabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1119,230 +1092,6 @@
             this.plMainShow.Name = "plMainShow";
             this.plMainShow.Size = new System.Drawing.Size(1338, 562);
             this.plMainShow.TabIndex = 12;
-            // 
-            // tabPage9
-            // 
-            this.tabPage9.BackColor = System.Drawing.Color.Black;
-            this.tabPage9.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.tabPage9.Controls.Add(this.uiTabControlMenu1);
-            this.tabPage9.Location = new System.Drawing.Point(0, 38);
-            this.tabPage9.Name = "tabPage9";
-            this.tabPage9.Size = new System.Drawing.Size(1342, 566);
-            this.tabPage9.TabIndex = 4;
-            this.tabPage9.Text = "Data";
-            // 
-            // uiTabControlMenu1
-            // 
-            this.uiTabControlMenu1.Alignment = System.Windows.Forms.TabAlignment.Left;
-            this.uiTabControlMenu1.Controls.Add(this.tabPage5);
-            this.uiTabControlMenu1.Controls.Add(this.tabPage1);
-            this.uiTabControlMenu1.Controls.Add(this.tabPage7);
-            this.uiTabControlMenu1.Controls.Add(this.tabPage3);
-            this.uiTabControlMenu1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.uiTabControlMenu1.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
-            this.uiTabControlMenu1.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.uiTabControlMenu1.ItemSize = new System.Drawing.Size(165, 35);
-            this.uiTabControlMenu1.Location = new System.Drawing.Point(0, 0);
-            this.uiTabControlMenu1.MenuStyle = Sunny.UI.UIMenuStyle.Custom;
-            this.uiTabControlMenu1.Multiline = true;
-            this.uiTabControlMenu1.Name = "uiTabControlMenu1";
-            this.uiTabControlMenu1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.uiTabControlMenu1.SelectedIndex = 0;
-            this.uiTabControlMenu1.Size = new System.Drawing.Size(1338, 562);
-            this.uiTabControlMenu1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
-            this.uiTabControlMenu1.Style = Sunny.UI.UIStyle.Custom;
-            this.uiTabControlMenu1.TabBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.uiTabControlMenu1.TabIndex = 26;
-            this.uiTabControlMenu1.TabSelectedColor = System.Drawing.Color.White;
-            this.uiTabControlMenu1.TabSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.uiTabControlMenu1.TabUnSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-            // 
-            // tabPage5
-            // 
-            this.tabPage5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
-            this.tabPage5.Controls.Add(this.listView1);
-            this.tabPage5.Font = new System.Drawing.Font("Century Gothic", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabPage5.Location = new System.Drawing.Point(166, 0);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.tabPage5.Size = new System.Drawing.Size(1172, 562);
-            this.tabPage5.TabIndex = 0;
-            this.tabPage5.Text = "ProductionData";
-            // 
-            // listView1
-            // 
-            this.listView1.BackColor = System.Drawing.Color.White;
-            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader5,
-            this.columnHeader6,
-            this.columnHeader7,
-            this.columnHeader8,
-            this.columnHeader15,
-            this.columnHeader9});
-            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listView1.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.listView1.FullRowSelect = true;
-            this.listView1.GridLines = true;
-            this.listView1.HideSelection = false;
-            this.listView1.Location = new System.Drawing.Point(0, 0);
-            this.listView1.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(1172, 562);
-            this.listView1.TabIndex = 4;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
-            // 
-            // columnHeader5
-            // 
-            this.columnHeader5.Text = "Index";
-            this.columnHeader5.Width = 85;
-            // 
-            // columnHeader6
-            // 
-            this.columnHeader6.Text = "Time";
-            this.columnHeader6.Width = 132;
-            // 
-            // columnHeader7
-            // 
-            this.columnHeader7.Text = "PCBCode";
-            this.columnHeader7.Width = 383;
-            // 
-            // columnHeader8
-            // 
-            this.columnHeader8.Text = "HousingCode";
-            this.columnHeader8.Width = 438;
-            // 
-            // columnHeader15
-            // 
-            this.columnHeader15.Text = "HousingCodeLevel";
-            this.columnHeader15.Width = 412;
-            // 
-            // columnHeader9
-            // 
-            this.columnHeader9.Text = "Status";
-            this.columnHeader9.Width = 136;
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.tabPage1.Controls.Add(this.textBox_RUNMessage);
-            this.tabPage1.Font = new System.Drawing.Font("Century Gothic", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabPage1.Location = new System.Drawing.Point(661, 0);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.tabPage1.Size = new System.Drawing.Size(0, 56);
-            this.tabPage1.TabIndex = 1;
-            this.tabPage1.Text = "RunLog";
-            // 
-            // textBox_RUNMessage
-            // 
-            this.textBox_RUNMessage.BackColor = System.Drawing.Color.White;
-            this.textBox_RUNMessage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox_RUNMessage.Font = new System.Drawing.Font("微软雅黑", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox_RUNMessage.Location = new System.Drawing.Point(0, 0);
-            this.textBox_RUNMessage.Multiline = true;
-            this.textBox_RUNMessage.Name = "textBox_RUNMessage";
-            this.textBox_RUNMessage.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.textBox_RUNMessage.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_RUNMessage.Size = new System.Drawing.Size(0, 56);
-            this.textBox_RUNMessage.TabIndex = 1;
-            // 
-            // tabPage7
-            // 
-            this.tabPage7.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.tabPage7.Controls.Add(this.textBox_ERRORMessage);
-            this.tabPage7.Font = new System.Drawing.Font("Century Gothic", 10.8F);
-            this.tabPage7.Location = new System.Drawing.Point(661, 0);
-            this.tabPage7.Name = "tabPage7";
-            this.tabPage7.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.tabPage7.Size = new System.Drawing.Size(0, 56);
-            this.tabPage7.TabIndex = 2;
-            this.tabPage7.Text = "ErrorLog";
-            // 
-            // textBox_ERRORMessage
-            // 
-            this.textBox_ERRORMessage.BackColor = System.Drawing.Color.White;
-            this.textBox_ERRORMessage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox_ERRORMessage.Font = new System.Drawing.Font("微软雅黑", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox_ERRORMessage.ForeColor = System.Drawing.Color.Red;
-            this.textBox_ERRORMessage.Location = new System.Drawing.Point(0, 0);
-            this.textBox_ERRORMessage.Multiline = true;
-            this.textBox_ERRORMessage.Name = "textBox_ERRORMessage";
-            this.textBox_ERRORMessage.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.textBox_ERRORMessage.Size = new System.Drawing.Size(0, 56);
-            this.textBox_ERRORMessage.TabIndex = 1;
-            // 
-            // tabPage3
-            // 
-            this.tabPage3.Controls.Add(this.hoursProductShow1);
-            this.tabPage3.Font = new System.Drawing.Font("Century Gothic", 10.8F);
-            this.tabPage3.Location = new System.Drawing.Point(661, 0);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.tabPage3.Size = new System.Drawing.Size(0, 56);
-            this.tabPage3.TabIndex = 3;
-            this.tabPage3.Text = "CapacityData";
-            this.tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // hoursProductShow1
-            // 
-            this.hoursProductShow1.BackColor = System.Drawing.Color.White;
-            this.hoursProductShow1.Color_BackGround = System.Drawing.Color.White;
-            this.hoursProductShow1.Color_IDLE = System.Drawing.Color.Silver;
-            this.hoursProductShow1.Color_NG = System.Drawing.Color.Red;
-            this.hoursProductShow1.Color_OK = System.Drawing.Color.LawnGreen;
-            this.hoursProductShow1.Color_Target = System.Drawing.Color.Yellow;
-            this.hoursProductShow1.ColumnWidth = 20;
-            this.hoursProductShow1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hoursProductShow1.Font = new System.Drawing.Font("微软雅黑", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.hoursProductShow1.Location = new System.Drawing.Point(0, 0);
-            this.hoursProductShow1.Margin = new System.Windows.Forms.Padding(0);
-            this.hoursProductShow1.MaxX = 24;
-            this.hoursProductShow1.MaxY = 400;
-            this.hoursProductShow1.MinX = 0;
-            this.hoursProductShow1.MinY = 0;
-            this.hoursProductShow1.Name = "hoursProductShow1";
-            this.hoursProductShow1.SavePath = "";
-            this.hoursProductShow1.ScaleX = 24;
-            this.hoursProductShow1.ScaleY = 10;
-            this.hoursProductShow1.Size = new System.Drawing.Size(0, 56);
-            this.hoursProductShow1.StartTime = PointShow.HoursProductShow.StartTimeD.Hour_0;
-            this.hoursProductShow1.TabIndex = 78;
-            this.hoursProductShow1.Target = 0;
-            this.hoursProductShow1.TargetEnable = true;
-            this.hoursProductShow1.Xlable = "Hours";
-            this.hoursProductShow1.Ylable = "Quantity";
-            // 
-            // tabPage6
-            // 
-            this.tabPage6.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.tabPage6.Controls.Add(this.dataBControl1);
-            this.tabPage6.Location = new System.Drawing.Point(0, 40);
-            this.tabPage6.Name = "tabPage6";
-            this.tabPage6.Size = new System.Drawing.Size(200, 60);
-            this.tabPage6.TabIndex = 7;
-            this.tabPage6.Text = "Dashboard";
-            this.tabPage6.UseVisualStyleBackColor = true;
-            // 
-            // dataBControl1
-            // 
-            this.dataBControl1.AlarmFilePath = "D:\\Log\\Alarm";
-            this.dataBControl1.AlarmTimeText = null;
-            this.dataBControl1.BackColor = System.Drawing.Color.White;
-            this.dataBControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataBControl1.Location = new System.Drawing.Point(0, 0);
-            this.dataBControl1.Margin = new System.Windows.Forms.Padding(10, 12, 10, 12);
-            this.dataBControl1.Name = "dataBControl1";
-            this.dataBControl1.Ngnumer = 0;
-            this.dataBControl1.Oknumer = 0;
-            this.dataBControl1.ProductInfoPath = "D:\\Log\\ProductInfo";
-            this.dataBControl1.RunFilePath = "D:\\Log\\LogRun";
-            this.dataBControl1.RunTimeText = null;
-            this.dataBControl1.Size = new System.Drawing.Size(196, 56);
-            this.dataBControl1.TabIndex = 0;
-            this.dataBControl1.Total = 0;
-            this.dataBControl1.WaitTimeText = null;
-            this.dataBControl1.Yield = 0D;
             // 
             // tabPage10
             // 
@@ -1445,15 +1194,6 @@
             this.panel5.ResumeLayout(false);
             this.uiTabControl1.ResumeLayout(false);
             this.tabPage22.ResumeLayout(false);
-            this.tabPage9.ResumeLayout(false);
-            this.uiTabControlMenu1.ResumeLayout(false);
-            this.tabPage5.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage1.PerformLayout();
-            this.tabPage7.ResumeLayout(false);
-            this.tabPage7.PerformLayout();
-            this.tabPage3.ResumeLayout(false);
-            this.tabPage6.ResumeLayout(false);
             this.tabPage10.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.cogRecordDisplay1)).EndInit();
             this.ResumeLayout(false);
@@ -1530,24 +1270,6 @@
 		public Sunny.UI.UITabControl uiTabControl1;
 		private System.Windows.Forms.TabPage tabPage22;
 		public System.Windows.Forms.Panel plMainShow;
-		private System.Windows.Forms.TabPage tabPage9;
-		private Sunny.UI.UITabControlMenu uiTabControlMenu1;
-		private System.Windows.Forms.TabPage tabPage5;
-		public System.Windows.Forms.ListView listView1;
-		private System.Windows.Forms.ColumnHeader columnHeader5;
-		private System.Windows.Forms.ColumnHeader columnHeader6;
-		private System.Windows.Forms.ColumnHeader columnHeader7;
-		private System.Windows.Forms.ColumnHeader columnHeader8;
-		private System.Windows.Forms.ColumnHeader columnHeader15;
-		private System.Windows.Forms.ColumnHeader columnHeader9;
-		private System.Windows.Forms.TabPage tabPage1;
-		private System.Windows.Forms.TextBox textBox_RUNMessage;
-		private System.Windows.Forms.TabPage tabPage7;
-		public System.Windows.Forms.TextBox textBox_ERRORMessage;
-		private System.Windows.Forms.TabPage tabPage3;
-		public PointShow.HoursProductShow hoursProductShow1;
-		private System.Windows.Forms.TabPage tabPage6;
-		public DashBoard.DataBControl dataBControl1;
 		public System.Windows.Forms.TabPage tabPage10;
 		public Cognex.VisionPro.CogRecordDisplay cogRecordDisplay1;
 		private System.Windows.Forms.PictureBox AlarmReset;

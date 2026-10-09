@@ -970,7 +970,6 @@ namespace AlphaRap
 
 				return;
 			}
-			MiddleLayer.MainF.dataBControl1.StartWaitingTime();
 			switch (SysPara.SystemMode)
 			{
 				case RunMode.IDLE:
@@ -1022,8 +1021,6 @@ namespace AlphaRap
 
 			if (SysPara.UpConveyorInitialOk)
 			{
-				MiddleLayer.MainF.dataBControl1.StopWaitingTime();
-				MiddleLayer.MainF.dataBControl1.StartRunTime();
 				if (!SysPara.SystemRun)
 				{
 					if (SysPara.SystemMode == RunMode.INITIAL)
@@ -1088,7 +1085,6 @@ namespace AlphaRap
 				NPSDK.Flow_Module.Module_StopRun();
 			}
 			NPSDK.Flow_Module.Module_StopRun();
-			MiddleLayer.MainF.dataBControl1.StopRunTime();
 			StopManualRun();
 			StopAllMotor();
 		}
@@ -1137,7 +1133,6 @@ namespace AlphaRap
 
 			AlarmList.Clear();
 			NPSDK.Alarm.Clear();
-			MiddleLayer.MainF.dataBControl1.StopAlarmTime();
 		}
 
 		public static void SetHightSpeed()

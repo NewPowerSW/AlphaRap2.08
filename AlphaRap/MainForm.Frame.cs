@@ -207,7 +207,6 @@ namespace AlphaRap
             }
 
             UiTheme.StyleListView(WarnningMessage, 30);
-            UiTheme.StyleListView(listView1, UiTheme.RowHeight);
             if (WarnningMessage.Columns.Count >= 4)
             {
                 WarnningMessage.Columns[0].Width = 180;

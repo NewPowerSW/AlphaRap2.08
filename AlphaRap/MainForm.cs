@@ -63,17 +63,6 @@ int nheightEllipse
             Log
         }
 
-        #region 产量统计
-        int HourInputShift = 0;
-        int HourOutputShift = 0;
-        int HourRejectShift = 0;
-        double HourYeild = 0;
-
-        int AllInputShift = 0;
-        int AllOutputShift = 0;
-        int AllRejectShift = 0;
-        double AllYeild = 0;
-        #endregion
         public MainForm()
         {
             InitializeComponent();
@@ -290,7 +279,6 @@ int nheightEllipse
             try
             {
                 SetWindowTheme(WarnningMessage.Handle, "Explorer", null);
-                SetWindowTheme(listView1.Handle, "Explorer", null);
             }
             catch { }
 
@@ -346,7 +334,6 @@ int nheightEllipse
             k_hook.Start();
 
             MiddleLayer.alarmRunTask.AlarmTaskIsRun = true;
-            GetProductDataINI();
 
             // 按最终确定的语言刷新报警工具条和语言切换器
             SyncLanguageTexts();
@@ -1253,78 +1240,6 @@ int nheightEllipse
         {
             MiddleLayer.DataF.AddLogError(strMessage);
         }
-        public void WriteRUNMessageText(string strMessage)
-        {
-            AppendLogLine(textBox_RUNMessage, strMessage);
-        }
-        public void WriteErrorMessageText(string strMessage)
-        {
-            AppendLogLine(textBox_ERRORMessage, strMessage);
-        }
-
-        // 每个日志框保留的最大行数；超过后一次性删掉最旧的 LogTrimLines 行
-        private const int LogMaxLines = 300;
-        private const int LogTrimLines = 100;
-        private readonly Dictionary<TextBox, int> _logLineCount = new Dictionary<TextBox, int>();
-
-        /// <summary>
-        /// 运行 / 错误日志框的统一写入：时间戳在调用线程生成，通过 BeginInvoke 异步写入界面，
-        /// 避免调用方持锁时与 UI 线程互相等待；超过 LogMaxLines 行时删除最旧的 LogTrimLines 行。
-        /// </summary>
-        private void AppendLogLine(TextBox box, string strMessage)
-        {
-            string time = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-            SysPara.RunMessageTime = time;   // 最近一条消息的时间（全局字段）
-            if (box == null || box.IsDisposed) return;
-
-            string line = time + ": " + strMessage + "\r\n";
-            Action action = () =>
-            {
-                try
-                {
-                    if (box.IsDisposed) return;
-                    box.AppendText(line);
-
-                    int count;
-                    _logLineCount.TryGetValue(box, out count);
-                    count++;
-                    if (count > LogMaxLines)
-                    {
-                        string text = box.Text;
-                        int cut = 0;
-                        for (int i = 0; i < LogTrimLines && cut >= 0; i++)
-                        {
-                            cut = text.IndexOf("\r\n", cut, StringComparison.Ordinal);
-                            if (cut >= 0) cut += 2;
-                        }
-                        if (cut > 0)
-                        {
-                            box.Text = text.Substring(cut);
-                            box.SelectionStart = box.TextLength;
-                            box.ScrollToCaret();
-                            count -= LogTrimLines;
-                        }
-                    }
-                    _logLineCount[box] = count;
-                }
-                catch (Exception ex)
-                {
-                    // 只写调试输出（调用 AddLogError 会递归回到此处）
-                    System.Diagnostics.Debug.WriteLine("AppendLogLine: " + ex.Message);
-                }
-            };
-
-            try
-            {
-                if (!box.IsHandleCreated) return;   // 窗体还没建好或已关闭
-                if (box.InvokeRequired) box.BeginInvoke(action);
-                else action();
-            }
-            catch (InvalidOperationException)
-            {
-                // 程序退出过程中句柄已销毁，忽略
-            }
-        }
         public void WriteRunMessageResult(string RunTime, string strMessage)
         {
             ListViewItem lvi = new ListViewItem(RunTime);
@@ -1383,19 +1298,6 @@ int nheightEllipse
             SysPara.iProductHourlyYield[h] = SysPara.iProductHourlyOutput[h] * 100.0 / SysPara.iProductHourlyInput[h];
         }
 
-        #region GetProductData
-
-        private void GetProductDataINI()
-        {
-            DateTime datanow = DateTime.Now;
-
-            hoursProductShow1.GetHourShift(DateTime.Now, ref HourInputShift, ref HourOutputShift, ref HourRejectShift, ref HourYeild);
-            hoursProductShow1.GetAllShift(DateTime.Now, ref AllInputShift, ref AllOutputShift, ref AllRejectShift, ref AllYeild);
-
-            SysPara.iProductOK = AllOutputShift;
-            SysPara.iProductNG = AllRejectShift;
-        }
-        #endregion
 
         #region reminder
         /// <summary>菜单按钮悬停提示（所有按钮共用一个 ToolTip）。</summary>

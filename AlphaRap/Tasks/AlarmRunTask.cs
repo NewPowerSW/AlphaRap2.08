@@ -36,7 +36,6 @@ namespace AlphaRap
 			#region Alarm Message
 			if (NPSDK.Alarm.DoRefresh)
 			{
-				MiddleLayer.MainF.dataBControl1.StartAlarmTime();
 				NPSDK.Alarm.DoRefresh = false;
 				MiddleLayer.MainF.WarnningMessage.BeginUpdate();
 				MiddleLayer.MainF.WarnningMessage.Items.Clear();
