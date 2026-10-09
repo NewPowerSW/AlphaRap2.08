@@ -197,14 +197,37 @@ namespace AlphaRap
 		private void BuildVpPages()
 		{
 			// 先让主界面"视觉"页按相机把显示格子建好，下面建页时 RegisterDisplay 才取得到对应显示
+			SyncMainDisplays();
+
+			for (int i = 0; i < _cameras.Count; i++)
+			{
+				CreateCameraStations(_cameras[i]);
+				tabControl1.TabPages.Add(BuildCameraPage(_cameras[i]));
+			}
+		}
+
+		/// <summary>
+		/// 把主界面"视觉"页的显示格子按当前相机列表同步，并把"本相机在主界面的显示"
+		/// 重新挂进本相机各工位（含标定站），使两边显示同一张图。
+		/// 相机增删、改名后必须调用，否则主界面不会出现 / 移除对应的显示格子。
+		/// </summary>
+		private void SyncMainDisplays()
+		{
 			List<string> camKeys = new List<string>();
 			for (int i = 0; i < _cameras.Count; i++) camKeys.Add(_cameras[i].Name);
 			try { MiddleLayer.MainF.SetCameraDisplays(camKeys); } catch (Exception) { }
 
 			for (int i = 0; i < _cameras.Count; i++)
 			{
-				CreateCameraStations(_cameras[i]);
-				tabControl1.TabPages.Add(BuildCameraPage(_cameras[i]));
+				VpCameraConfig cam = _cameras[i];
+				CameraEntry e = FindEntry(cam.Name);
+				if (e == null) continue;
+
+				for (int j = 0; j < cam.Vpps.Count; j++)
+					if (cam.Vpps[j].Station != null) RegisterDisplay(cam.Vpps[j].Station, e.Display);
+
+				VpCalibration calib = _config.GetCalibration(cam.Name);
+				if (calib != null && calib.Station != null) RegisterDisplay(calib.Station, e.Display);
 			}
 		}
 
@@ -292,6 +315,9 @@ namespace AlphaRap
 			cam.CameraIndex = 0;
 			cam.Exposure = 10;
 			_cameras.Add(cam);
+
+			// 先在主界面"视觉"页补上这台相机的显示格子，下面建页时 RegisterDisplay 才取得到它
+			SyncMainDisplays();
 
 			TabPage page = BuildCameraPage(cam);
 			tabControl1.TabPages.Add(page);
@@ -516,6 +542,9 @@ namespace AlphaRap
 			// 标定卡片标题含相机名，重建卡片
 			if (entry != null) RefreshCalibrationCard(entry);
 
+			// 主界面"视觉"页的格子标签也跟着改名
+			SyncMainDisplays();
+
 			SaveVpConfig();
 		}
 
@@ -635,6 +664,9 @@ namespace AlphaRap
 				tabControl1.TabPages.RemoveAt(i);
 				p.Dispose();
 			}
+
+			// 主界面"视觉"页去掉这台相机的显示格子
+			SyncMainDisplays();
 
 			SaveVpConfig();
 		}

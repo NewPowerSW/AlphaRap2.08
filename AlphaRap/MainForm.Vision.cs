@@ -15,6 +15,10 @@ namespace AlphaRap
     /// 一起挂进该工位的 RecordDisplayList（见 VPForm.RegisterDisplay），
     /// 于是 VisionproInterface 推记录时两个显示同时更新。
     ///
+    /// 相机增删（VPForm.AddCamera / DeleteCamera）与改名都会调用 SetCameraDisplays 同步；
+    /// 重建时**复用已有相机格里的显示控件实例**（不销毁重建），因为该控件已被工位的
+    /// RecordDisplayList 引用，销毁它会让老相机的画面失效。
+    ///
     /// 显示控件在运行时创建（设计器里不再放 cogRecordDisplay1），
     /// OcxState 复用 VPForm.resx 的 vpDynDisp.OcxState。
     /// </summary>
@@ -36,7 +40,7 @@ namespace AlphaRap
 
         /// <summary>
         /// 按相机列表重建"视觉"页的显示格子；列表没变时不重建。
-        /// 由 VPForm 在建页前调用（见 VPForm.BuildVpPages），这样建工位时才取得到对应显示。
+        /// 由 VPForm 在相机增删/改名以及建页前调用（见 VPForm.SyncMainDisplays）。
         /// </summary>
         public void SetCameraDisplays(IList<string> cameraNames)
         {
@@ -52,15 +56,9 @@ namespace AlphaRap
                     }
                 }
 
-                if (keys.Count == _camDisplayKeys.Count)
-                {
-                    bool same = true;
-                    for (int i = 0; i < keys.Count; i++)
-                        if (keys[i] != _camDisplayKeys[i]) { same = false; break; }
-                    if (same) return;
-                }
+                if (SameCameraKeys(keys)) return;
 
-                BuildCameraDisplayGrid(keys);
+                RebuildCameraDisplays(keys);
             }
             catch (Exception ex)
             {
@@ -76,8 +74,32 @@ namespace AlphaRap
             return _camDisplays.TryGetValue(cameraName, out d) ? d : null;
         }
 
-        private void BuildCameraDisplayGrid(List<string> keys)
+        private bool SameCameraKeys(List<string> keys)
         {
+            if (keys.Count != _camDisplayKeys.Count) return false;
+            for (int i = 0; i < keys.Count; i++)
+                if (keys[i] != _camDisplayKeys[i]) return false;
+            return true;
+        }
+
+        /// <summary>相机列表变化时重建界面；**保留仍在用的显示控件实例**，只重建外层容器。</summary>
+        private void RebuildCameraDisplays(List<string> keys)
+        {
+            // 先把已有显示控件从旧容器里摘下来：它们可能已被工位的 RecordDisplayList 引用，
+            // 不能跟着旧容器一起 Dispose，否则老相机的画面会失效。
+            for (int i = 0; i < _camDisplayKeys.Count; i++)
+            {
+                CogRecordDisplay d;
+                if (!_camDisplays.TryGetValue(_camDisplayKeys[i], out d)) continue;
+
+                if (d.Parent != null) d.Parent.Controls.Remove(d);
+                if (!keys.Contains(_camDisplayKeys[i]))
+                {
+                    _camDisplays.Remove(_camDisplayKeys[i]);   // 相机已删除，显示控件也一并销毁
+                    d.Dispose();
+                }
+            }
+
             // 拆掉上一次的根控件（网格或提示）
             if (_camDisplayRoot != null)
             {
@@ -85,7 +107,6 @@ namespace AlphaRap
                 _camDisplayRoot.Dispose();
                 _camDisplayRoot = null;
             }
-            _camDisplays.Clear();
             _camDisplayKeys.Clear();
 
             if (keys.Count == 0)
@@ -112,15 +133,47 @@ namespace AlphaRap
                 grid.RowStyles.Add(new RowStyle(SizeType.Percent, 100f / rows));
 
             for (int i = 0; i < keys.Count; i++)
-                grid.Controls.Add(BuildCameraCell(keys[i]), i % cols, i / cols);
+            {
+                CogRecordDisplay disp;
+                if (!_camDisplays.TryGetValue(keys[i], out disp))
+                {
+                    disp = CreateCameraDisplay(keys[i]);
+                    _camDisplays[keys[i]] = disp;
+                }
+                grid.Controls.Add(BuildCameraCell(keys[i], disp), i % cols, i / cols);
+            }
 
             _camDisplayKeys.AddRange(keys);
             _camDisplayRoot = grid;
             tabPage10.Controls.Add(grid);
         }
 
-        /// <summary>一格：顶部相机名标签 + 下方该相机的显示控件。</summary>
-        private Control BuildCameraCell(string cameraName)
+        /// <summary>新建一个该相机的显示控件（ActiveX，必须先设 OcxState）。</summary>
+        private CogRecordDisplay CreateCameraDisplay(string cameraName)
+        {
+            CogRecordDisplay disp = new CogRecordDisplay();
+            disp.Name = CamDisplayPrefix + cameraName;
+
+            // CogRecordDisplay 是 ActiveX：代码创建时必须先给 OcxState，否则实例不创建、只画一块深蓝占位色。
+            // 复用 VPForm 那份 blob（同一个控件类型），它由 VPForm 运行期读取，不依赖设计器控件。
+            try
+            {
+                object ocx = new ComponentResourceManager(typeof(VPForm)).GetObject("vpDynDisp.OcxState");
+                if (ocx is AxHost.State) disp.OcxState = (AxHost.State)ocx;
+            }
+            catch (Exception) { }
+
+            disp.Dock = DockStyle.Fill;
+            disp.ColorMapPredefined = Cognex.VisionPro.Display.CogDisplayColorMapPredefinedConstants.None;
+            disp.ColorMapLowerClipColor = Color.Black;
+            disp.ColorMapLowerRoiLimit = 0D;
+            disp.ColorMapUpperClipColor = Color.Black;
+            disp.ColorMapUpperRoiLimit = 1D;
+            return disp;
+        }
+
+        /// <summary>一格：顶部相机名标签 + 下方该相机的显示控件（显示控件由调用方传入并复用）。</summary>
+        private Control BuildCameraCell(string cameraName, CogRecordDisplay disp)
         {
             Panel cell = new Panel();
             cell.Name = CamCellPrefix + cameraName;
@@ -139,28 +192,9 @@ namespace AlphaRap
             caption.Padding = new Padding(8, 0, 0, 0);
             caption.Text = cameraName;      // 标签写相机名，与 VPForm 的相机页签一致
 
-            CogRecordDisplay disp = new CogRecordDisplay();
-            disp.Name = CamDisplayPrefix + cameraName;
-            // CogRecordDisplay 是 ActiveX：代码创建时必须先给 OcxState，否则实例不创建、只画一块深蓝占位色。
-            // 复用 VPForm 那份 blob（同一个控件类型），它由 VPForm 运行期读取，不依赖设计器控件。
-            try
-            {
-                object ocx = new ComponentResourceManager(typeof(VPForm)).GetObject("vpDynDisp.OcxState");
-                if (ocx is AxHost.State) disp.OcxState = (AxHost.State)ocx;
-            }
-            catch (Exception) { }
-            disp.Dock = DockStyle.Fill;
-            disp.ColorMapPredefined = Cognex.VisionPro.Display.CogDisplayColorMapPredefinedConstants.None;
-            disp.ColorMapLowerClipColor = Color.Black;
-            disp.ColorMapLowerRoiLimit = 0D;
-            disp.ColorMapUpperClipColor = Color.Black;
-            disp.ColorMapUpperRoiLimit = 1D;
-
             // 停靠顺序是"后加入的先停靠"：先加显示（Fill）、后加标签（Top），标签才会占到顶部
             cell.Controls.Add(disp);
             cell.Controls.Add(caption);
-
-            _camDisplays[cameraName] = disp;
             return cell;
         }
 
