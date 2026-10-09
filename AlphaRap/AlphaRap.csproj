@@ -504,6 +504,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\x64\Debug\NP_PressureSensor.dll</HintPath>
     </Reference>
+    <Reference Include="ReaLTaiizor, Version=3.7.9.5, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Debug\ReaLTaiizor.dll</HintPath>
+    </Reference>
     <Reference Include="OPTControl, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\x64\Debug\OPTControl.dll</HintPath>
