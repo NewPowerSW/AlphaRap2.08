@@ -89,6 +89,7 @@ namespace AlphaRap
 			SysPara.LanguageDataDirectory = iniFile.ReadString("PathSetup", "LanguageDirectory", ".\\LanguageData");
 
 			ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
+			EnsureDataDirectories();
 			#endregion
 
 			#region Load Alarm Table
@@ -120,6 +121,34 @@ namespace AlphaRap
 			OpenRecipe(string.Format("{0}\\{1}.xml", SysPara.RecipeDataDirectory, SysPara.RecipeName));
 			ServoOn();
 		}
+		/// <summary>
+		/// 创建运行所需的数据目录（新克隆的工程没有这些目录，缺失时各页面读取会抛 DirectoryNotFoundException）。
+		/// 只建空目录，不生成任何配方或设置文件。
+		/// </summary>
+		private static void EnsureDataDirectories()
+		{
+			string[] dirs =
+			{
+				SysPara.LogFilePath, SysPara.VisionFileDirectory, SysPara.AlarmTableDirectory,
+				SysPara.SettingDataDirectory, SysPara.RecipeDataDirectory, SysPara.MESDirectory,
+				SysPara.IOPortDirectory, SysPara.LanguageDataDirectory
+			};
+			foreach (string d in dirs)
+			{
+				if (string.IsNullOrEmpty(d)) continue;
+				try { Directory.CreateDirectory(ResolveAppPath(d)); }
+				catch { }
+			}
+		}
+
+		/// <summary>相对路径（如 .\\ModuleData）按程序所在目录解析；绝对路径原样返回。</summary>
+		public static string ResolveAppPath(string path)
+		{
+			if (string.IsNullOrEmpty(path) || Path.IsPathRooted(path)) return path;
+			string rel = path.StartsWith(".\\") || path.StartsWith("./") ? path.Substring(2) : path;
+			return Path.Combine(Application.StartupPath, rel);
+		}
+
 		public static FlowControl FlowCtrl;
 		/// <summary>
 		/// 初始化项目
@@ -146,6 +175,7 @@ namespace AlphaRap
 
 			ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
 			SysPara.FilePath = SysPara.RecipeDataDirectory + "\\" + SysPara.RecipeName + ".xml";
+			EnsureDataDirectories();
 			#endregion
 
 			#region Load Alarm Table

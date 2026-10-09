@@ -211,11 +211,11 @@ namespace AlphaRap
         {
             RECIPEIDList.Clear();
 
-            string path = System.Windows.Forms.Application.StartupPath + "\\" + SysPara.RecipeDataDirectory.Substring(1);
-            DirectoryInfo root = new DirectoryInfo(path);
+            DirectoryInfo root = new DirectoryInfo(MiddleLayer.ResolveAppPath(SysPara.RecipeDataDirectory));
+            if (!root.Exists) root.Create();
             listView1.BeginUpdate();
             listView1.Items.Clear();
-            foreach (FileInfo f in root.GetFiles())
+            foreach (FileInfo f in root.GetFiles("*.xml"))
             {
                 string[] Sp2 = new string[1];
                 Sp2[0] = ".xml";
@@ -232,7 +232,7 @@ namespace AlphaRap
                 Sp[1] = "</RECIPEID>";
                 string[] dataARRY = XMLString.Split(Sp, StringSplitOptions.RemoveEmptyEntries);
 
-                RECIPEIDList.Add(dataARRY[1]);
+                RECIPEIDList.Add(dataARRY.Length > 1 ? dataARRY[1] : "");
             }
 
             listView1.EndUpdate();
