@@ -16,13 +16,8 @@ namespace AlphaRap
             // 移除设计器中的预览页；真实相机页按 VPForm.Cameras.xml 生成（见 BuildVpPages）
             RemoveDesignPreviewPage();
 
-            // 固定视觉工位（供 TaskProcess/Gantry.cs 调用，如 MiddleLayer.VPF.H1_VFiducial.RunTB()），
-            // 结果显示到主界面的 cogRecordDisplay1。
-            H1_VFiducial.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
-            H1_VFiducial2.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
-            H1_VFiducial3.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
-            H1_VFiducial4.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
-            H1_VCalibration.RecordDisplayList.Add(MiddleLayer.MainF.cogRecordDisplay1);
+            // 固定视觉工位（供 TaskProcess/Gantry.cs 调用，如 MiddleLayer.VPF.H1_VFiducial.RunTB()）。
+            // 画面不再送主界面：主界面"视觉"页只显示配置里的相机（见 BuildVpPages），老工位只出结果不出图。
 
             // 相机 / VPP 配置保存在独立的 VPForm.Cameras.xml（见 VpConfigStore），界面在 ModuleInitialize 后构建（见 BuildVpUi）
             // 语言切换时刷新含动态内容的文字（相机名 / 路径 / 点数 / 实时状态 / 工具条提示）
@@ -201,6 +196,11 @@ namespace AlphaRap
 		/// <summary>按当前 <see cref="_config"/> 构建全部相机页。</summary>
 		private void BuildVpPages()
 		{
+			// 先让主界面"视觉"页按相机把显示格子建好，下面建页时 RegisterDisplay 才取得到对应显示
+			List<string> camKeys = new List<string>();
+			for (int i = 0; i < _cameras.Count; i++) camKeys.Add(_cameras[i].Name);
+			try { MiddleLayer.MainF.SetCameraDisplays(camKeys); } catch (Exception) { }
+
 			for (int i = 0; i < _cameras.Count; i++)
 			{
 				CreateCameraStations(_cameras[i]);
@@ -382,6 +382,13 @@ namespace AlphaRap
 		}
 
 		private static void RegisterDisplay(VpStation st, Cognex.VisionPro.CogRecordDisplay disp)
+		{
+			AddDisplay(st, disp);
+			// 主界面"视觉"页上同一台相机的显示也收这张图，两边看到的是同一张
+			AddDisplay(st, MiddleLayer.MainF.GetCameraDisplay(st != null ? st.CameraName : null));
+		}
+
+		private static void AddDisplay(VpStation st, Cognex.VisionPro.CogRecordDisplay disp)
 		{
 			if (st == null || disp == null) return;
 			for (int i = 0; i < st.RecordDisplayList.Count; i++)
