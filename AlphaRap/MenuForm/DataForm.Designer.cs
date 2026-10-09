@@ -45,12 +45,17 @@
 			DataSave.DataFormat dataFormat15 = new DataSave.DataFormat();
 			DataSave.DataFormat dataFormat16 = new DataSave.DataFormat();
 			DataSave.DataFormat dataFormat17 = new DataSave.DataFormat();
+			DataSave.DataFormat dataFormat18 = new DataSave.DataFormat();
+			DataSave.DataFormat dataFormat19 = new DataSave.DataFormat();
+			DataSave.DataFormat dataFormat20 = new DataSave.DataFormat();
+			DataSave.DataFormat dataFormat21 = new DataSave.DataFormat();
 			this.data1 = new DataSave.Data();
 			this.MESLOG = new DataSave.TypeCollection1();
 			this.Alarm = new DataSave.TypeCollection1();
 			this.LogRun = new DataSave.TypeCollection1();
 			this.LogError = new DataSave.TypeCollection1();
 			this.UserLogin = new DataSave.TypeCollection1();
+			this.UserOperationLog = new DataSave.TypeCollection1();
 			this.SuspendLayout();
 			// 
 			// data1
@@ -65,6 +70,7 @@
 			this.data1.ParameterSet.Add(this.LogRun);
 			this.data1.ParameterSet.Add(this.LogError);
 			this.data1.ParameterSet.Add(this.UserLogin);
+			this.data1.ParameterSet.Add(this.UserOperationLog);
 			this.data1.Size = new System.Drawing.Size(1224, 740);
 			this.data1.TabIndex = 0;
 			// 
@@ -127,6 +133,19 @@
 			this.UserLogin.SavePath = "D:\\Log\\UserLogin";
 			this.UserLogin.Text = "UserLogin";
 			// 
+			// UserOperationLog
+			// 
+			dataFormat18.Name = "Time";
+			dataFormat19.Name = "UserID";
+			dataFormat20.Name = "UserPermission";
+			dataFormat21.Name = "Action";
+			this.UserOperationLog.Items.Add(dataFormat18);
+			this.UserOperationLog.Items.Add(dataFormat19);
+			this.UserOperationLog.Items.Add(dataFormat20);
+			this.UserOperationLog.Items.Add(dataFormat21);
+			this.UserOperationLog.SavePath = "D:\\操作日志";
+			this.UserOperationLog.Text = "OperationLog";
+			// 
 			// DataForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -146,5 +165,6 @@
         public DataSave.TypeCollection1 LogRun;
         public DataSave.TypeCollection1 LogError;
 		public DataSave.TypeCollection1 UserLogin;
+		public DataSave.TypeCollection1 UserOperationLog;
 	}
 }

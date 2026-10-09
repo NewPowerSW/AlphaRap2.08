@@ -323,6 +323,7 @@ namespace AlphaRap
 			tabControl1.TabPages.Add(page);
 			tabControl1.SelectedTab = page;
 
+			OperationLog.Write("VPForm", "添加相机：" + cam.Name);
 			SaveVpConfig();
 		}
 
@@ -668,6 +669,7 @@ namespace AlphaRap
 			// 主界面"视觉"页去掉这台相机的显示格子
 			SyncMainDisplays();
 
+			OperationLog.Write("VPForm", "删除相机：" + cam.Name);
 			SaveVpConfig();
 		}
 
@@ -726,6 +728,7 @@ namespace AlphaRap
 			if (entry != null && vpp.Station != null) entry.Targets.Add(vpp.Station);
 
 			MiddleLayer.RegisterLanguage(page, LangForm);   // 静态文案按控件名登记进语言表
+			OperationLog.Write("VPForm", "添加 VPP：" + cam.Name + " / " + vpp.Name);
 			SaveVpConfig();
 		}
 
@@ -1553,6 +1556,7 @@ namespace AlphaRap
 
 			SaveVpConfig();
 			RefreshCalibrationCard(entry);
+			OperationLog.Write("VPForm", "添加标定：相机 " + entry.Key);
 		}
 
 		private void EditCalibrationTB(CameraEntry entry)

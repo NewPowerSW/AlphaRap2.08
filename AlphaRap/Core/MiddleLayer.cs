@@ -924,6 +924,11 @@ namespace AlphaRap
 			MiddleLayer.DataF.UserLoginLog[0] = SysPara.UserName;
 			MiddleLayer.DataF.UserLoginLog[1] = SysPara.UserPermission.ToString();
 			MiddleLayer.DataF.SaveUserLoginLog(MiddleLayer.DataF.UserLoginLog);
+
+			// 界面操作日志：记下本次登录 / 切换用户的工号与权限
+			OperationLog.Write("UserLoginForm",
+				(SysPara.UserName == "None" ? "注销" : "登录")
+				+ "　工号：" + SysPara.UserName + "　权限：" + SysPara.UserPermission);
 		}
 
 #endregion
@@ -1149,6 +1154,7 @@ namespace AlphaRap
 		public static bool OpenRecipe(string RecipePath)
 		{
 			bool bOpenSuccess = false;
+			string oldRecipeName = SysPara.RecipeName;
 			try
 			{
 				SysPara.RecipeDataDirectory = Path.GetDirectoryName(RecipePath);
@@ -1176,6 +1182,11 @@ namespace AlphaRap
 			IniFile IniFile = new IniFile(".\\MachineSetup.ini");
 			IniFile.WriteString("MachineSetup", "RecipeName", SysPara.RecipeName);
 			IniFile.WriteString("PathSetup", "RecipeDirectory", SysPara.RecipeDataDirectory.Replace(System.IO.Directory.GetCurrentDirectory() + "\\", ".\\"));
+
+			// 界面操作日志：只有真的换了配方才记（启动时也会调本函数）
+			if (bOpenSuccess && oldRecipeName != SysPara.RecipeName)
+				OperationLog.Write("ProductManagerForm", "切换配方：" + oldRecipeName + " → " + SysPara.RecipeName);
+
 			return bOpenSuccess;
 		}
 

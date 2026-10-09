@@ -79,6 +79,9 @@ int nheightEllipse
 
             // 把整个控件树的鼠标事件转发到主窗体，这样无论按在哪个子控件上都能拖动/缩放
             HookMouseForwarding(this);
+
+            // 界面操作日志：点任何按钮 / 勾选 / 图标 / 页签都记一条（工号 / 权限 / 时间 / 操作内容）
+            OperationLog.InstallFilter();
         }
 
         /// <summary>是否运行在 VS 的 WinForms 设计器中（设计期跳过运行期逻辑）。</summary>
@@ -604,6 +607,17 @@ int nheightEllipse
                 return;
 
             MENU_SelectPage = PageType;
+
+            // 关键操作单独记一条，比"点击了某个按钮"更清楚
+            switch (PageType)
+            {
+                case MENU_PageType.Run: OperationLog.Write("MainForm", "启动运行"); break;
+                case MENU_PageType.Stop: OperationLog.Write("MainForm", "停止运行"); break;
+                case MENU_PageType.Pause: OperationLog.Write("MainForm", "暂停运行"); break;
+                case MENU_PageType.Reset: OperationLog.Write("MainForm", "复位设备"); break;
+                case MENU_PageType.Lock: OperationLog.Write("MainForm", "锁定设备"); break;
+            }
+
             Panel ShowPanl = panel2;
             tableLayoutPanel4.Visible = false;
 
@@ -1446,6 +1460,8 @@ int nheightEllipse
 
                 // 视觉参数单独保存在 ModuleData\SettingData\VPForm.Cameras.xml
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.CommitVpConfig();
+
+                OperationLog.Write("MainForm", "保存系统参数（配方：" + SysPara.RecipeName + "）");
             }
             else
             {
@@ -1457,6 +1473,8 @@ int nheightEllipse
 
                 // 选"否"：视觉参数恢复为上一次保存的值
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.RevertVpConfig();
+
+                OperationLog.Write("MainForm", "放弃保存，参数还原为上次保存值");
             }
             MiddleLayer.HardF.SaveHardData();
         }

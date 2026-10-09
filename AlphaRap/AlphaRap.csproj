@@ -719,6 +719,7 @@
     <Compile Include="Classes\FFU.cs" />
     <Compile Include="Classes\FFUCom.cs" />
     <Compile Include="Classes\LogManagement.cs" />
+    <Compile Include="Classes\OperationLog.cs" />
     <Compile Include="Classes\MTF6000_1.cs" />
     <Compile Include="Classes\MTF6000_2.cs" />
     <Compile Include="Classes\NPSerialPort.cs" />
