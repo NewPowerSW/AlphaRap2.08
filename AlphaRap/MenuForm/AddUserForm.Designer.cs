@@ -484,7 +484,7 @@
             this.textPassword.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.textPassword.MaxLength = 32767;
             this.textPassword.Name = "textPassword";
-            this.textPassword.PasswordChar = '●';
+            this.textPassword.PasswordChar = '*';
             this.textPassword.Size = new System.Drawing.Size(422, 32);
             this.textPassword.TabIndex = 5;
             this.textPassword.Value = "";
@@ -512,7 +512,7 @@
             this.textPasswordConfirm.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.textPasswordConfirm.MaxLength = 32767;
             this.textPasswordConfirm.Name = "textPasswordConfirm";
-            this.textPasswordConfirm.PasswordChar = '●';
+            this.textPasswordConfirm.PasswordChar = '*';
             this.textPasswordConfirm.Size = new System.Drawing.Size(422, 32);
             this.textPasswordConfirm.TabIndex = 7;
             this.textPasswordConfirm.Value = "";
