@@ -106,8 +106,14 @@ namespace AlphaRap
             LoginText.Cursor = Cursors.Hand;
             LoginText.AutoEllipsis = true;
 
-            // 设备状态徽章：顶栏正中央，字号放大到 20pt
-            MachineStatus.Font = UiKit.Bold(20f);
+            // 设备状态徽章：顶栏正中央；深藏蓝底 + 左侧状态色竖条 + 22pt 白字
+            MachineStatus.Font = UiKit.Bold(22f);
+            MachineStatus.ForeColor = Color.White;
+            MachineStatus.TextAlign = ContentAlignment.MiddleCenter;
+            MachineStatus.AutoSize = false;
+            MachineStatus.AutoEllipsis = true;
+            MachineStatus.Paint -= MachineStatus_Paint;
+            MachineStatus.Paint += MachineStatus_Paint;
 
             InitLoginChip();
         }

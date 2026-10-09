@@ -434,7 +434,7 @@
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 48F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 276F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 220F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 264F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 44F));
@@ -498,14 +498,16 @@
             // 
             // MachineStatus
             // 
-            this.MachineStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(197)))), ((int)(((byte)(66)))));
+            this.MachineStatus.AutoEllipsis = true;
+            this.MachineStatus.AutoSize = false;
+            this.MachineStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(11)))), ((int)(((byte)(46)))), ((int)(((byte)(77)))));
             this.MachineStatus.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MachineStatus.Font = new System.Drawing.Font("微软雅黑", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.MachineStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(48)))), ((int)(((byte)(0)))));
-            this.MachineStatus.Location = new System.Drawing.Point(1231, 4);
-            this.MachineStatus.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
+            this.MachineStatus.Font = new System.Drawing.Font("微软雅黑", 22F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.MachineStatus.ForeColor = System.Drawing.Color.White;
+            this.MachineStatus.Location = new System.Drawing.Point(1231, 2);
+            this.MachineStatus.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.MachineStatus.Name = "MachineStatus";
-            this.MachineStatus.Size = new System.Drawing.Size(195, 42);
+            this.MachineStatus.Size = new System.Drawing.Size(215, 46);
             this.MachineStatus.TabIndex = 211;
             this.MachineStatus.Text = "IDLE";
             this.MachineStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;

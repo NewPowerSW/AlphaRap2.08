@@ -1095,13 +1095,23 @@ int nheightEllipse
             catch { }
         }
 
-        // ---------------- 机台状态颜色（ISA-101 惯例：红色仅用于报警） ----------------
-        private static readonly Color StatusRunBg = Color.FromArgb(46, 150, 67);    // 绿：运行
-        private static readonly Color StatusPauseBg = Color.FromArgb(245, 166, 35); // 琥珀：暂停
-        private static readonly Color StatusIdleBg = Color.FromArgb(96, 112, 130);  // 灰蓝：待机（中性，不抢眼）
-        private static readonly Color StatusInitBg = Color.FromArgb(4, 108, 182);   // 品牌蓝：初始化
-        private static readonly Color StatusAlarmBg = Color.FromArgb(206, 62, 62);  // 红：报警（仅此一种情况用红）
-        private static readonly Color StatusDarkText = Color.FromArgb(51, 38, 0);   // 琥珀底上用深色字，保证对比度
+        // ---------------- 机台状态徽章：深藏蓝底 + 左侧状态色竖条 + 白字（沿用现有蓝色主题；红只用于报警） ----------------
+        private static readonly Color StatusBadgeBg = Color.FromArgb(11, 46, 77);       // 深藏蓝底（比顶栏更深，压住蓝色背景）
+        private static readonly Color StatusBadgeAlarmBg = Color.FromArgb(96, 26, 26);  // 报警时整块转深红
+
+        // 竖条用的语义色：顶栏是蓝色，这几档都调亮过一档，纯色块在白字旁才够跳
+        private static readonly Color StatusRunAccent = Color.FromArgb(56, 176, 88);     // 绿：运行
+        private static readonly Color StatusPauseAccent = Color.FromArgb(247, 176, 47);  // 琥珀：暂停
+        private static readonly Color StatusIdleAccent = Color.FromArgb(140, 160, 182);  // 灰蓝：待机
+        private static readonly Color StatusInitAccent = Color.FromArgb(58, 158, 226);   // 亮蓝：初始化
+        private static readonly Color StatusAlarmAccent = Color.FromArgb(232, 76, 76);   // 红：报警
+
+        /// <summary>当前状态竖条颜色（MachineStatus_Paint 里用）。</summary>
+        private Color _statusAccent = StatusIdleAccent;
+
+        private const int StatusBarInset = 9;   // 竖条距徽章左边的距离
+        private const int StatusBarWidth = 6;   // 竖条宽度
+        private const int StatusBarPadY = 11;   // 竖条上下留白
 
         // 状态文案缓存：语言或初始化状态变化时重建
         private Dictionary<RunMode, string> _statusTextMap;
@@ -1127,7 +1137,7 @@ int nheightEllipse
             string latestError;
             if (TryGetActiveErrors(out errorCount, out latestError))
             {
-                SetStatusLook(StatusAlarmBg, Color.White,
+                SetStatusLook(StatusBadgeAlarmBg, StatusAlarmAccent,
                     errorCount > 1 ? _statusAlarmText + "  ×" + errorCount : _statusAlarmText);
                 if (latestError != _lastAlarmTip)
                 {
@@ -1146,26 +1156,44 @@ int nheightEllipse
             string statusText;
             if (!_statusTextMap.TryGetValue(SysPara.SystemMode, out statusText))
             {
-                SetStatusLook(StatusIdleBg, Color.White, "Unknown status");
+                SetStatusLook(StatusBadgeBg, StatusIdleAccent, "Unknown status");
                 return;
             }
             switch (SysPara.SystemMode)
             {
-                case RunMode.RUN: SetStatusLook(StatusRunBg, Color.White, statusText); break;
-                case RunMode.PAUSE: SetStatusLook(StatusPauseBg, StatusDarkText, statusText); break;
+                case RunMode.RUN: SetStatusLook(StatusBadgeBg, StatusRunAccent, statusText); break;
+                case RunMode.PAUSE: SetStatusLook(StatusBadgeBg, StatusPauseAccent, statusText); break;
                 case RunMode.INITIAL:
-                    // 初始化中 / 初始化完成（就绪）都用蓝色，文字区分两者
-                    SetStatusLook(StatusInitBg, Color.White, statusText); break;
-                default: SetStatusLook(StatusIdleBg, Color.White, statusText); break;
+                    // 初始化中 / 初始化完成（就绪）都用蓝色竖条，文字区分两者
+                    SetStatusLook(StatusBadgeBg, StatusInitAccent, statusText); break;
+                default: SetStatusLook(StatusBadgeBg, StatusIdleAccent, statusText); break;
             }
         }
 
-        /// <summary>只在值变化时赋值，避免每秒重绘造成闪烁。</summary>
-        private void SetStatusLook(Color back, Color fore, string text)
+        /// <summary>
+        /// 设置徽章外观：深藏蓝底（报警时深红底）+ 左侧状态色竖条 + 白字。
+        /// 只在值变化时赋值并重绘，避免每秒刷新造成闪烁。
+        /// </summary>
+        private void SetStatusLook(Color fill, Color accent, string text)
         {
-            if (MachineStatus.BackColor != back) MachineStatus.BackColor = back;
-            if (MachineStatus.ForeColor != fore) MachineStatus.ForeColor = fore;
+            bool repaint = _statusAccent != accent;
+            if (MachineStatus.BackColor != fill) MachineStatus.BackColor = fill;
+            if (MachineStatus.ForeColor != Color.White) MachineStatus.ForeColor = Color.White;
             if (MachineStatus.Text != text) MachineStatus.Text = text;
+            if (repaint)
+            {
+                _statusAccent = accent;
+                MachineStatus.Invalidate();
+            }
+        }
+
+        /// <summary>徽章左侧的状态色竖条（颜色随运行模式 / 报警变化）。</summary>
+        private void MachineStatus_Paint(object sender, PaintEventArgs e)
+        {
+            int h = MachineStatus.Height - StatusBarPadY * 2;
+            if (h <= 6) return;
+            using (SolidBrush b = new SolidBrush(_statusAccent))
+                e.Graphics.FillRectangle(b, StatusBarInset, StatusBarPadY, StatusBarWidth, h);
         }
 
         /// <summary>
