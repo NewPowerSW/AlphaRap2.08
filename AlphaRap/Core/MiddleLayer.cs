@@ -23,7 +23,6 @@ namespace AlphaRap
 
 		public static LifeSpan.LifeSpanForm SpanLifeF;
 		public static Flow FlowF;
-		public static Epson.Form1 EpsonF;
 		public static MainForm MainF;
 		public static SystemForm SystemF;
 		public static HomeForm HomeF;

@@ -7,7 +7,6 @@ namespace AlphaRap
 {
 	public partial class ManualForm : ModuleBaseForm
 	{
-		internal readonly object OB_StoptButton_Light;
 		public List<Adlink_Output> Conveyor_List = new List<Adlink_Output>();
 		public ManualForm()
 		{

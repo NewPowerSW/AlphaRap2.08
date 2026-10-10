@@ -30,6 +30,9 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <!-- CS0436：Connected Services 生成的 IExtMainService 与 AlphaRapService.dll 中同名类型冲突；
+         两者都是必需的（前者是 WCF 代理，后者提供 CT* 数据契约），只能抑制。 -->
+    <NoWarn>$(NoWarn);0436</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -57,7 +60,6 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
@@ -67,7 +69,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -89,14 +90,6 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ABB.Robotics.Adapters.IRC5, Version=5.15.2005.2, Culture=neutral, PublicKeyToken=1da709b7d1f14b7b, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\x64\Debug\ABB.Robotics.Adapters.IRC5.dll</HintPath>
-    </Reference>
-    <Reference Include="ABB.Robotics.Controllers.PC, Version=6.8.8148.134, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\x64\Debug\ABB.Robotics.Controllers.PC.dll</HintPath>
-    </Reference>
     <Reference Include="AlphaRapService, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\x64\Debug\AlphaRapService.dll</HintPath>
@@ -460,10 +453,6 @@
     <Reference Include="DMC3000SDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\x64\Debug\DMC3000SDK.dll</HintPath>
-    </Reference>
-    <Reference Include="Epson, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\x64\Debug\Epson.dll</HintPath>
     </Reference>
     <Reference Include="HoursProductShow, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

@@ -156,11 +156,6 @@ namespace AlphaRap.Classes
         private const string LNGPTwoTestData1 = "0008";
         private const string LNGPTwoTestData2 = "0008";
 
-        //final station clear 
-        private const string ADDRFinalStart = "00064";
-        private const string LNGFinal = "0032";
-        private readonly int FinalClearBlks = 54;
-
         //Internal Insulation Barcode address
         private const string ADDRPOneInterInsuBarcode = "00128";
         private const string ADDRPTwoInterInsuBarcode = "00160";

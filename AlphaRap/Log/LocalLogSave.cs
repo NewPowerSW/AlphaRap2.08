@@ -110,7 +110,7 @@ namespace AlphaRap
 				try {
                     AppendLogToFile(filePath, text); 
                 }
-                catch(Exception ex) {
+                catch (Exception) {
                     
                 }
             }//lock

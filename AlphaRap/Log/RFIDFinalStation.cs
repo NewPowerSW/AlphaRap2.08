@@ -134,7 +134,6 @@ namespace AlphaRap.Classes
         private const string RFIDHead1 = "01";
         private const string RFIDHead2 = "02";
 
-        private bool ManualRFIDRead = false;     //自动读流程，设置为False
         public bool AlarmRFID = false;
         public string RFIDErrorMsg = "";     //预留
 

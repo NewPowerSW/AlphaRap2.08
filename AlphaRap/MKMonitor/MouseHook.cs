@@ -101,8 +101,6 @@ namespace AlphaRap
         public delegate void MouseMoveHandler(object sender, MouseEventArgs e);
         public event MouseMoveHandler MouseMoveEvent;
 
-        public delegate void MouseClickHandler(object sender, MouseEventArgs e);
-        public event MouseClickHandler MouseClickEvent;
 
         public delegate void MouseDownHandler(object sender, MouseEventArgs e);
         public event MouseDownHandler MouseDownEvent;
@@ -110,7 +108,5 @@ namespace AlphaRap
         public delegate void MouseUpHandler(object sender, MouseEventArgs e);
         public event MouseUpHandler MouseUpEvent;
 
-        public delegate void KeyHandler(object sender, KeyEventArgs e);
-        public event KeyHandler KeyEvent;
     }
 }
