@@ -9,13 +9,15 @@ namespace AlphaRap
     /// <summary>
     /// 设备调试控件：从工具箱拖到窗体上即可用，不需要写代码。
     ///
-    /// · <b>选设备类</b>：加载时用反射列出本程序集里所有继承 <see cref="AbstractDevice"/> 且带
-    ///   <c>(string deviceName)</c> 构造函数的类，下拉框直接选。
+    /// · <b>选设备类</b>：加载时用反射列出本程序集里所有继承 <see cref="AbstractDevice"/> 的具体类
+    ///   （不论构造函数签名、不论 public/internal），下拉框直接选。
+    ///   **以后再新增通讯类，重新生成后会自动出现在这个下拉框里。**
     /// · <b>填连接参数</b>：下面那张参数表按所选设备类自动生成（IP / Port / 串口号 / 波特率 …），
     ///   直接改，改完就作用到设备实例上。
-    /// · <b>打开 / 关闭 / 发送 / 接收</b>：收发走 <see cref="AbstractDevice.Send"/> /
-    ///   <see cref="AbstractDevice.Receive"/>；老设备类没实现时控件会退回反射查找
-    ///   Write / Sent / Read 之类的公开方法。收发内容带时间戳记在最下面的框里。
+    /// · <b>打开 / 关闭 / 发送 / 接收</b>：收发优先走 <see cref="AbstractDevice.Send"/> /
+    ///   <see cref="AbstractDevice.Receive"/>；没重写的类会退回按方法名找
+    ///   Send / Sent / Write / Read 之类的公开方法；两者都没有时日志里会明确写出来。
+    ///   选中设备类时会先在日志里打一条该类的**收发能力**说明。
     ///
     /// 设计期可在属性窗口预设 <see cref="DeviceTypeName"/>（类名，如 ScannerKeyenceTcp）与 <see cref="DeviceName"/>。
     /// </summary>
@@ -29,7 +31,7 @@ namespace AlphaRap
         /// <summary>列表刷新中：此时下拉框的选中变化不算作"用户选了设备类"。</summary>
         private bool _loading;
 
-        /// <summary>名称像"发送"的方法（兜底用，找不到就报错提示重写 Send）。</summary>
+        /// <summary>名称像"发送"的方法（兜底用，找不到就明确提示该重写什么）。</summary>
         private static readonly string[] SendMethodNames =
             { "Send", "Sent", "Write", "SendData", "SendCommand", "SendString", "SendMsg" };
 
@@ -81,11 +83,21 @@ namespace AlphaRap
         [Browsable(false)]
         public AbstractDevice Device { get { return _device; } }
 
+        /// <summary>当前下拉框里列出的设备类（宿主可用来做校验/提示）。</summary>
+        [Browsable(false)]
+        public List<Type> DeviceTypes { get { return new List<Type>(_types); } }
+
         /// <summary>连接状态或所选设备类变化时触发。</summary>
         public event EventHandler ConnectedChanged;
 
         /// <summary>收到数据时触发，参数是收到的文本。</summary>
         public event EventHandler<string> Received;
+
+        /// <summary>重新扫描设备类列表（新增的通讯类重新生成后调一次就能出现；已选中的类尽量保持不变）。</summary>
+        public void RefreshDeviceTypes()
+        {
+            BuildTypeList();
+        }
 
         /// <summary>打开连接；返回空串表示成功，非空为失败原因。</summary>
         public string OpenDevice()
@@ -134,7 +146,7 @@ namespace AlphaRap
             {
                 if (_device == null && !CreateDevice()) return "未选择设备类。";
 
-                string err = _device.SupportsRawIo ? _device.Send(text) : ReflectSend(text);
+                string err = _device.SupportsRawIo ? _device.Send(text) : ReflectSend(_device, text);
                 err = err ?? string.Empty;
 
                 AppendLog(string.IsNullOrEmpty(err) ? "发送" : "发送失败",
@@ -156,7 +168,7 @@ namespace AlphaRap
             {
                 if (_device == null && !CreateDevice()) return string.Empty;
 
-                string text = _device.SupportsRawIo ? _device.Receive() : ReflectReceive();
+                string text = _device.SupportsRawIo ? _device.Receive() : ReflectReceive(_device);
                 text = text ?? string.Empty;
 
                 if (text.Length > 0)
@@ -194,18 +206,23 @@ namespace AlphaRap
             }
         }
 
-        /// <summary>反射列出本程序集里所有可实例化的设备类（继承 AbstractDevice 且带 (string) 构造函数）。</summary>
+        /// <summary>
+        /// 反射列出本程序集里所有继承 <see cref="AbstractDevice"/> 的具体类。
+        /// **刻意不限制构造函数签名**——原先要求必须有 (string) 构造，会把后来新增、
+        /// 只带无参构造或别的签名的通讯类悄悄漏掉；实例化时再按实际签名挑合适的构造函数。
+        /// </summary>
         private void BuildTypeList()
         {
             _types.Clear();
             Type baseType = typeof(AbstractDevice);
 
+            string keep = cboType.SelectedItem is Type ? ((Type)cboType.SelectedItem).Name : _deviceTypeName;
             try
             {
                 foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
                 {
                     if (t == baseType || t.IsAbstract || !baseType.IsAssignableFrom(t)) continue;
-                    if (t.GetConstructor(new[] { typeof(string) }) == null) continue;   // 要 (string deviceName)
+                    if (t.GetConstructors().Length == 0) continue;    // 没有可用构造函数，实例化不了
                     _types.Add(t);
                 }
             }
@@ -218,7 +235,11 @@ namespace AlphaRap
 
             cboType.DisplayMember = "Name";
             _loading = true;
-            try { cboType.DataSource = new List<Type>(_types); }
+            try
+            {
+                cboType.DataSource = new List<Type>(_types);
+                if (!string.IsNullOrEmpty(keep)) SelectTypeByName(keep);   // 刷新时不跳回第一个
+            }
             finally { _loading = false; }
         }
 
@@ -253,7 +274,8 @@ namespace AlphaRap
 
             try
             {
-                _device = (AbstractDevice)Activator.CreateInstance(t, new object[] { name });
+                _device = NewDevice(t, name);
+                AppendLog("设备类", _device.DeviceName + "（" + t.Name + "）：" + DescribeIo(_device));
             }
             catch (Exception ex)
             {
@@ -266,6 +288,56 @@ namespace AlphaRap
             return _device != null;
         }
 
+        /// <summary>
+        /// 按类实际提供的构造函数建实例：优先 (string deviceName)，其次无参，
+        /// 再次取第一个公开构造函数并把参数填默认值。这样不管新类怎么写构造，控件都能把它建起来。
+        /// </summary>
+        private static AbstractDevice NewDevice(Type t, string name)
+        {
+            ConstructorInfo ci = t.GetConstructor(new[] { typeof(string) });
+            if (ci != null) return (AbstractDevice)ci.Invoke(new object[] { name });
+
+            ci = t.GetConstructor(Type.EmptyTypes);
+            if (ci != null) return (AbstractDevice)ci.Invoke(null);
+
+            ConstructorInfo[] all = t.GetConstructors();
+            if (all.Length == 0)
+                throw new MissingMethodException(t.Name + " 没有可用的公开构造函数。");
+
+            ParameterInfo[] ps = all[0].GetParameters();
+            object[] args = new object[ps.Length];
+            for (int i = 0; i < ps.Length; i++)
+                args[i] = ps[i].ParameterType.IsValueType
+                        ? Activator.CreateInstance(ps[i].ParameterType)
+                        : null;
+            return (AbstractDevice)all[0].Invoke(args);
+        }
+
+        /// <summary>描述这个设备实例到底能不能收发（选中类时写进日志，一眼看出"有没有发送功能"）。</summary>
+        private static string DescribeIo(AbstractDevice d)
+        {
+            if (d == null) return string.Empty;
+
+            string tx;
+            if (d.SupportsRawIo) tx = "支持发送（已重写 Send）";
+            else
+            {
+                MethodInfo mi = FindCandidateMethod(d, SendMethodNames, 1);
+                tx = (mi != null) ? ("支持发送（按方法名调到 " + mi.Name + "）")
+                                  : "不支持发送（未重写 SupportsRawIo/Send，也没找到可用方法）";
+            }
+
+            string rx;
+            if (d.SupportsRawIo) rx = "支持接收";
+            else
+            {
+                MethodInfo mi = FindCandidateMethod(d, RecvMethodNames, 0);
+                rx = (mi != null) ? ("支持接收（按方法名调到 " + mi.Name + "）") : "不支持接收";
+            }
+
+            return tx + "，" + rx;
+        }
+
         private void CloseSilently()
         {
             try { if (_device != null) _device.Close(); }
@@ -276,32 +348,32 @@ namespace AlphaRap
 
         #region 兜底：老设备类没实现 Send / Receive 时按方法名找
 
-        private string ReflectSend(string text)
+        private string ReflectSend(AbstractDevice d, string text)
         {
-            MethodInfo mi = FindCandidateMethod(SendMethodNames, 1);
+            MethodInfo mi = FindCandidateMethod(d, SendMethodNames, 1);
             if (mi == null)
-                return "该设备类没实现 Send，也找不到可用的发送方法（可在它里面重写 AbstractDevice.Send）。";
+                return "该设备类没有发送能力：既未重写 SupportsRawIo/Send，也找不到 Send/Sent/Write/… 这类公开方法。";
 
-            object r = mi.Invoke(_device, new object[] { text });
+            object r = mi.Invoke(d, new object[] { text });
             if (r is string) return (string)r;
             if (r is bool) return ((bool)r) ? string.Empty : "设备的发送方法返回失败。";
             return string.Empty;
         }
 
-        private string ReflectReceive()
+        private string ReflectReceive(AbstractDevice d)
         {
-            MethodInfo mi = FindCandidateMethod(RecvMethodNames, 0);
+            MethodInfo mi = FindCandidateMethod(d, RecvMethodNames, 0);
             if (mi == null) return string.Empty;
 
-            object r = mi.Invoke(_device, null);
+            object r = mi.Invoke(d, null);
             return (r == null) ? string.Empty : r.ToString();
         }
 
-        private MethodInfo FindCandidateMethod(string[] names, int argCount)
+        private static MethodInfo FindCandidateMethod(AbstractDevice d, string[] names, int argCount)
         {
-            if (_device == null) return null;
+            if (d == null) return null;
 
-            Type t = _device.GetType();
+            Type t = d.GetType();
             foreach (string n in names)
             {
                 MethodInfo mi = t.GetMethod(n, BindingFlags.Public | BindingFlags.Instance);
