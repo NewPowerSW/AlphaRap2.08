@@ -52,6 +52,7 @@ namespace AlphaRap
             {
                 LiveInstances.Add(this);                                    // 供 MainForm 的【保存】按钮统一保存
                 this.Disposed += delegate { LiveInstances.Remove(this); };
+                if (propGrid != null) propGrid.PropertyValueChanged += propGrid_PropertyValueChanged;
                 CreateDevice();
             }
         }
@@ -104,6 +105,29 @@ namespace AlphaRap
         public void RefreshDeviceTypes()
         {
             BuildTypeList();
+        }
+
+        /// <summary>
+        /// 检测本机 TCP 是否被代理软件（Clash/Mihomo 的 TUN 模式等）**整体接管**：
+        /// 去连一个保留地址 192.0.2.1:80（RFC5737 TEST-NET-1，公网永不路由），正常情况下必然连不上；
+        /// 若它也能"连上"，说明所有 TCP 都被代理接住了 —— 此时任何"已连接"都不足信。
+        /// </summary>
+        public static bool IsTcpHijacked()
+        {
+            try
+            {
+                using (System.Net.Sockets.TcpClient probe = new System.Net.Sockets.TcpClient())
+                {
+                    IAsyncResult ar = probe.BeginConnect("192.0.2.1", 80, null, null);
+                    if (!ar.AsyncWaitHandle.WaitOne(700, false)) return false;   // 连不上 ⇒ 正常
+                    probe.EndConnect(ar);
+                    return true;                                                 // 连上了 ⇒ 被代理接管
+                }
+            }
+            catch (Exception)
+            {
+                return false;                                                    // 被拒绝/报错 ⇒ 正常
+            }
         }
 
         /// <summary>打开连接；返回空串表示成功，非空为失败原因。</summary>
@@ -699,6 +723,21 @@ namespace AlphaRap
         {
             txtRecv.Clear();
             _logLines = 0;
+        }
+
+        /// <summary>
+        /// 参数表改过值就提示"要保存"——本控件的参数不会自动落盘，
+        /// 必须点主界面左侧【保存】并在确认框选"是"（见 MainForm.SaveData → DeviceControl.SaveAll）。
+        /// </summary>
+        private void propGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        {
+            if (InDesigner || _device == null) return;
+
+            string label = (e == null || e.ChangedItem == null) ? "?" : e.ChangedItem.Label;
+            string val = (e == null || e.ChangedItem == null) ? string.Empty : Convert.ToString(e.ChangedItem.Value);
+
+            AppendLog("参数", "已修改 " + label + " = " + val + "（未保存）"
+                + " —— 点主界面【保存】选\"是\"才会写入 " + Path.GetFileName(XmlFilePath));
         }
 
         /// <summary>刷新状态行（设备名 / 类名 / 连没连）。</summary>
