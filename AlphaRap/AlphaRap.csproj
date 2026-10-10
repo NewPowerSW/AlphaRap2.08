@@ -916,6 +916,12 @@
     </Compile>
     <Compile Include="Controls\UiTheme.cs" />
     <Compile Include="Controls\IoTileStyle.cs" />
+    <Compile Include="Controls\DeviceControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\DeviceControl.Designer.cs">
+      <DependentUpon>DeviceControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\HourlyChart.cs">
       <SubType>Component</SubType>
     </Compile>
