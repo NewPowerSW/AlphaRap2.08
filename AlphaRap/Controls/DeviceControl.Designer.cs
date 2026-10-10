@@ -39,6 +39,7 @@
             this.btnRecv = new AlphaRap.FlatButton();
             this.btnClose = new AlphaRap.FlatButton();
             this.btnOpen = new AlphaRap.FlatButton();
+            this.btnClear = new AlphaRap.FlatButton();
             this.panelParam = new System.Windows.Forms.Panel();
             this.propGrid = new System.Windows.Forms.PropertyGrid();
             this.lblParam = new AlphaRap.UiLabel();
@@ -115,6 +116,7 @@
             this.panelMid.Controls.Add(this.btnRecv);
             this.panelMid.Controls.Add(this.btnClose);
             this.panelMid.Controls.Add(this.btnOpen);
+            this.panelMid.Controls.Add(this.btnClear);
             this.panelMid.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelMid.Location = new System.Drawing.Point(0, 34);
             this.panelMid.Name = "panelMid";
@@ -127,10 +129,29 @@
             this.lblState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
             this.lblState.Location = new System.Drawing.Point(292, 10);
             this.lblState.Name = "lblState";
-            this.lblState.Size = new System.Drawing.Size(320, 18);
+            this.lblState.Size = new System.Drawing.Size(236, 18);
             this.lblState.TabIndex = 3;
             this.lblState.Text = "未选择设备类";
             this.lblState.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // btnClear
+            // 
+            this.btnClear.BackColor = System.Drawing.Color.Transparent;
+            this.btnClear.CornerRadius = 6;
+            this.btnClear.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClear.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnClear.Icon = null;
+            this.btnClear.IconGap = 8;
+            this.btnClear.IconSize = 18;
+            this.btnClear.Location = new System.Drawing.Point(536, 5);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Selectable = false;
+            this.btnClear.Size = new System.Drawing.Size(88, 28);
+            this.btnClear.TabIndex = 4;
+            this.btnClear.TabStop = false;
+            this.btnClear.Text = "清空记录";
+            this.btnClear.Variant = AlphaRap.FlatButtonVariant.Surface;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
             // btnRecv
             // 
@@ -314,6 +335,7 @@
         private System.Windows.Forms.TextBox txtName;
         private System.Windows.Forms.Panel panelMid;
         private FlatButton btnOpen;
+        private FlatButton btnClear;
         private FlatButton btnClose;
         private FlatButton btnRecv;
         private UiLabel lblState;

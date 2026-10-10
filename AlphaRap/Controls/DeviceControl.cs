@@ -590,6 +590,43 @@ namespace AlphaRap
 
         #region 界面
 
+        /// <summary>
+        /// 空间紧张时压缩"连接参数"表，保证底部的【发送】行和记录框始终可见。
+        /// 这几块都是固定高的 Dock 行，一旦叠加超过控件高度，最后停靠的那一栏会被压成 0 高
+        /// —— 宿主把控件 Dock=Fill 到一个不够高的容器时，就会看不到【发送】。
+        /// </summary>
+        private void FitParamPanel()
+        {
+            if (_fitting) return;
+            if (panelTop == null || panelMid == null || panelParam == null ||
+                panelSend == null || txtRecv == null) return;
+
+            _fitting = true;
+            try
+            {
+                const int ParamWant = 168;   // 参数表设计高度
+                const int ParamMin = 66;     // 至少要露几行
+                const int SendH = 36;        // 【发送】行设计高度
+                const int LogMin = 56;       // 记录框至少留这么高
+
+                int room = ClientSize.Height - panelTop.Height - panelMid.Height - SendH - LogMin;
+                int want = ParamWant;
+                if (room < want) want = Math.Max(ParamMin, room);
+
+                if (want > 0 && panelParam.Height != want) panelParam.Height = want;
+            }
+            finally { _fitting = false; }
+        }
+
+        /// <summary>防止 FitParamPanel 里改高度又触发 OnResize 造成递归。</summary>
+        private bool _fitting;
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            FitParamPanel();     // 宿主把控件压矮时，让【发送】行与记录框不被挤掉
+        }
+
         private void DeviceControl_Load(object sender, EventArgs e)
         {
             LoadFromXml();          // 离线参数：按 XML 上次保存的值套到设备实例上（此时才取得到窗体名做键）
@@ -647,6 +684,13 @@ namespace AlphaRap
         {
             string err = SendData(txtSend.Text);
             if (!string.IsNullOrEmpty(err)) AppendLog("提示", err);
+        }
+
+        /// <summary>清空下面的记录框。</summary>
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            txtRecv.Clear();
+            _logLines = 0;
         }
 
         /// <summary>刷新状态行（设备名 / 类名 / 连没连）。</summary>
