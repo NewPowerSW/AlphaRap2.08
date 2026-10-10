@@ -79,9 +79,6 @@ int nheightEllipse
 
             // 把整个控件树的鼠标事件转发到主窗体，这样无论按在哪个子控件上都能拖动/缩放
             HookMouseForwarding(this);
-
-            // 界面操作日志：点任何按钮 / 勾选 / 图标 / 页签都记一条（工号 / 权限 / 时间 / 操作内容）
-            OperationLog.InstallFilter();
         }
 
         /// <summary>是否运行在 VS 的 WinForms 设计器中（设计期跳过运行期逻辑）。</summary>
@@ -616,6 +613,7 @@ int nheightEllipse
                 case MENU_PageType.Pause: OperationLog.Write("MainForm", "暂停运行"); break;
                 case MENU_PageType.Reset: OperationLog.Write("MainForm", "复位设备"); break;
                 case MENU_PageType.Lock: OperationLog.Write("MainForm", "锁定设备"); break;
+                case MENU_PageType.Exit: OperationLog.Write("MainForm", "退出程序"); break;
             }
 
             Panel ShowPanl = panel2;

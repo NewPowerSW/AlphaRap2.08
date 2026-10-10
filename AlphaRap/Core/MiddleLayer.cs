@@ -204,6 +204,9 @@ namespace AlphaRap
 			SDKKernal.SetSimulation(SysPara.Simulation);
 			SDKKernal.InitializeComponent();
 
+			// 界面操作日志：设备初始化（IO / 运动内核装载完成）
+			OperationLog.Write("MainForm", "设备初始化完成（仿真=" + SysPara.Simulation + "）");
+
 			alTask = new AlwaysRunTask();
 			alarmRunTask = new AlarmRunTask();
 

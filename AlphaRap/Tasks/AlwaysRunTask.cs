@@ -67,6 +67,7 @@ namespace AlphaRap
 						SysPara.UpConveyorInitialOk = false;
 						StatusChange_Emergency = false;
 						MiddleLayer.DataF.AddLogError(LogManagement.LogType.Operation + $"{SysPara.UserName}Front_EmergencyStop is On");
+						OperationLog.Write("MainForm", "急停触发：前门");
 					}
 
 					NPSDK.Alarm.Show("3021");
@@ -89,6 +90,7 @@ namespace AlphaRap
 						SysPara.SystemMode = RunMode.IDLE;
 						SysPara.UpConveyorInitialOk = false;
 						StatusChange_Emergency = false;
+						OperationLog.Write("MainForm", "急停触发：后门");
 					}
 					NPSDK.Alarm.Show("3022");
 				}

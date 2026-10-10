@@ -254,6 +254,8 @@ namespace AlphaRap
             string Directory = SysPara.RecipeDataDirectory.Replace(".\\", System.IO.Directory.GetCurrentDirectory() + "\\");
             if (fbNewName.Value != "")
             {
+                OperationLog.Write("ProductManagerForm", "新建型号：" + fbNewName.Value
+                    + "（复制自 " + CurrentModel.Text + "）");
                 string filePath = Directory + "\\" + fbNewName.Value + ".xml";
 
                 string filePath1 = Directory + "\\" + CurrentModel.Text + ".xml";
@@ -302,6 +304,7 @@ namespace AlphaRap
                     return;
                 }
 
+                OperationLog.Write("ProductManagerForm", "删除型号：" + listView1.SelectedItems[0].Text);
                 string filePath = SysPara.RecipeDataDirectory + "\\" + listView1.SelectedItems[0].Text + ".xml";
                 File.Delete(filePath);
 
@@ -331,6 +334,7 @@ namespace AlphaRap
                 string[] Sp2 = new string[1];
                 Sp2[0] = ".xml";
 
+                OperationLog.Write("ProductManagerForm", "切换当前型号：" + listView1.SelectedItems[0].Text);
                 string filePath = SysPara.RecipeDataDirectory + "\\" + listView1.SelectedItems[0].Text + ".xml";
                 MiddleLayer.OpenRecipe(filePath);
                 string[] a = filePath.Split('\\');

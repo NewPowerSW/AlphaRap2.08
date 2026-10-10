@@ -231,6 +231,14 @@ namespace AlphaRap
 			}
 		}
 
+		/// <summary>操作日志里用的"相机 / VPP"标识（拿不到相机名时退化为 VPP 名）。</summary>
+		private static string LogTag(VpVppConfig vpp)
+		{
+			if (vpp == null) return "?";
+			string cam = (vpp.Station != null) ? vpp.Station.CameraName : null;
+			return (string.IsNullOrEmpty(cam) ? "" : cam + " / ") + vpp.Name;
+		}
+
 		/// <summary>
 		/// 移除设计器预览页（tabPageDesignPreview）。该页只用于在设计视图中显示相机页骨架。
 		/// </summary>
@@ -475,7 +483,12 @@ namespace AlphaRap
 				changed = true;
 			}
 
-			if (changed) SaveVpConfig();
+			if (changed)
+			{
+				OperationLog.Write("VPForm", "修改相机参数：" + cam.Name
+					+ "（Index " + cam.CameraIndex + "，默认曝光 " + cam.Exposure.ToString("F1") + "）");
+				SaveVpConfig();
+			}
 		}
 
 		/// <summary>失焦时把无法解析的数字还原为当前值。</summary>
@@ -546,6 +559,7 @@ namespace AlphaRap
 			// 主界面"视觉"页的格子标签也跟着改名
 			SyncMainDisplays();
 
+			OperationLog.Write("VPForm", "相机改名：" + oldName + " → " + newName);
 			SaveVpConfig();
 		}
 
@@ -818,6 +832,7 @@ namespace AlphaRap
 
 			VpCompLimitItem it = new VpCompLimitItem(name, 0, 0);
 			vpp.CompLimits.Add(it);
+			OperationLog.Write("VPForm", "补偿限制：添加行「" + name + "」（" + LogTag(vpp) + "）");
 			FillCompLimitGrid(grid, vpp);
 			SaveVpConfig();
 
@@ -841,6 +856,7 @@ namespace AlphaRap
 			if (it == null) return;
 
 			vpp.CompLimits.Remove(it);
+			OperationLog.Write("VPForm", "补偿限制：删除行「" + it.Item + "」（" + LogTag(vpp) + "）");
 			FillCompLimitGrid(grid, vpp);
 			SaveVpConfig();
 		}
@@ -882,7 +898,12 @@ namespace AlphaRap
 				changed = true;
 			}
 
-			if (changed) SaveVpConfig();
+			if (changed)
+			{
+				OperationLog.Write("VPForm", "补偿限制：修改「" + it.Item + "」为 ["
+					+ it.Min.ToString("F3") + ", " + it.Max.ToString("F3") + "]（" + LogTag(vpp) + "）");
+				SaveVpConfig();
+			}
 		}
 
 		/// <summary>创建视觉站（构造时自动登记到 VisionproInterface.VList，OpenVision 时按配方加载 vpp）。</summary>
@@ -1041,6 +1062,7 @@ namespace AlphaRap
 				}
 				if (!EnsureIdle(T("vpAct_RenameVpp", "改名 VPP"))) { box.Text = vpp.Name; return; }
 
+				OperationLog.Write("VPForm", "VPP 改名：" + cam.Name + " / " + vpp.Name + " → " + newName);
 				vpp.Name = newName;
 				if (vpp.Station != null)
 				{
@@ -1087,6 +1109,7 @@ namespace AlphaRap
 			if (!EnsureIdle(T("vpAct_DeleteVpp", "删除 VPP"))) return;
 			if (!ConfirmDeleteVpp(vpp)) return;
 
+			OperationLog.Write("VPForm", "删除 VPP：" + LogTag(vpp));
 			RemoveVpp(cam, vpp, vppTabs);
 			SaveVpConfig();
 		}
@@ -1563,6 +1586,7 @@ namespace AlphaRap
 		{
 			VpCalibration calib = _config.GetCalibration(entry.Key);
 			if (calib == null || calib.Station == null) return;
+			OperationLog.Write("VPForm", "打开 ToolBlock 编辑：相机 " + entry.Key);
 			if (!calib.Station.IsLoadTBOk) calib.Station.LoadTB(calib.Station.GetVppPath(SysPara.RecipeName));
 			calib.Station.EditTB();
 		}
@@ -1684,6 +1708,8 @@ namespace AlphaRap
 				else allOk = false;
 			}
 
+			OperationLog.Write("VPForm", "应用标定：相机 " + entry.Key + " → "
+				+ entry.Targets.Count + " 个 VPP");
 			SaveVpConfig();
 
 			if (allOk)

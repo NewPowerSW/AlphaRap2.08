@@ -176,6 +176,8 @@ namespace AlphaRap
         private void btnModifyPermission_Click(object sender, EventArgs e)
         {
             if (cbSelectedPermission.SelectedItem == null) return;
+            OperationLog.Write("AddUserForm", "修改用户权限：" + textSelectedUserName.Value
+                + " → " + cbSelectedPermission.SelectedItem);
             ModifyUserPermission(textSelectedUserName.Value, cbSelectedPermission.SelectedItem.ToString());
             ReadAllUserData();
         }
@@ -195,6 +197,7 @@ namespace AlphaRap
 
         private void btnDeleteUser_Click(object sender, EventArgs e)
         {
+            OperationLog.Write("AddUserForm", "删除用户：" + textSelectedUserName.Value);
             DeleteUser(textSelectedUserName.Value);
             ReadAllUserData();
         }
@@ -250,6 +253,8 @@ namespace AlphaRap
             int TmpIndex = dgvUserList.Rows.Count;
             if (AddUser(textAddUserName.Value, textPassword.Value, cbAddUserPermission.SelectedItem.ToString()))
             {
+                OperationLog.Write("AddUserForm", "新增用户：" + textAddUserName.Value
+                    + "（权限 " + cbAddUserPermission.SelectedItem + "）");
                 ReadAllUserData();
                 textAddUserName.Value = string.Empty;
                 textPassword.Value = string.Empty;
@@ -368,6 +373,7 @@ namespace AlphaRap
         private void btnSaveRights_Click(object sender, EventArgs e)
         {
             bool ok = WritePermission();
+            OperationLog.Write("AddUserForm", "保存权限表：" + (ok ? "成功" : "失败"));
             // 运行时提示语走语言包（三语，可在 LanguageData\AddUserForm 段里改）
             lblRightsHint.Text = ok
                 ? MiddleLayer.LangMsg("AddUserForm", "msg_RightsSaved", "权限已保存", "Permissions saved", "Permisos guardados")

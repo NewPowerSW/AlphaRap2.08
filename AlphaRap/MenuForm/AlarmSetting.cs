@@ -230,6 +230,8 @@ namespace AlphaRap.MenuForm
                 {
                     if (MessageBox.Show(message1, message2, MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
+                        OperationLog.Write("AlarmSetting", "删除报警行：第 "
+                            + (this.dgvData.CurrentRow.Index + 1) + " 行");
                         this.dgvData.Rows.RemoveAt(this.dgvData.CurrentRow.Index);
                         this.dtTable.AcceptChanges();
 
@@ -317,6 +319,9 @@ namespace AlphaRap.MenuForm
             _essw.Write(strEsText);  //这里是写入的内容
             _essw.Flush();
             _essw.Dispose();
+
+            OperationLog.Write("AlarmSetting", "保存报警表：共 " + this.dtTable.Rows.Count
+                + " 条（中文 / 英文 / 西语三份）");
 
             this.btnAdd.Enabled = true;
             this.btnUpdate.Enabled = true;

@@ -132,6 +132,10 @@ namespace AlphaRap
 		private void btn_WriteCurrentPos_Click(object sender, EventArgs e)
 		{
 			string tabName = tab_Pos.SelectedTab.Name;
+			OperationLog.Write("HardForm", "写入当前位置到表格："
+				+ (tabName == "tab_CalibPos" ? "标定点" : "流程点") + " ("
+				+ lbl_PosX.Text + ", " + lbl_PosY.Text + ", " + lbl_PosZ.Text + ", "
+				+ lbl_PosR1.Text + ", " + lbl_PosR2.Text + ")");
 			string[] posArr = new string[] { "" };
 			switch (tabName)
 			{
@@ -152,6 +156,10 @@ namespace AlphaRap
 		private void btn_UpdateSelectedPos_Click(object sender, EventArgs e)
 		{
 			string tabName = tab_Pos.SelectedTab.Name;
+			OperationLog.Write("HardForm", "用当前位置更新选中行："
+				+ (tabName == "tab_CalibPos" ? "标定点" : "流程点") + " ("
+				+ lbl_PosX.Text + ", " + lbl_PosY.Text + ", " + lbl_PosZ.Text + ", "
+				+ lbl_PosR1.Text + ", " + lbl_PosR2.Text + ")");
 			int index = -1;
 			string[] upDateArr = new string[] { lbl_PosX.Text, lbl_PosY.Text, lbl_PosZ.Text, lbl_PosR1.Text, lbl_PosR2.Text, "ReadMe" };
 			int endindex;
