@@ -176,6 +176,35 @@ namespace AlphaRap
             return true;
         }
 
+        #region 5. 通用收发（供 DeviceControl 使用）
+
+        /// <summary>本类实现了通用发送 / 接收。</summary>
+        public override bool SupportsRawIo { get { return true; } }
+
+        /// <summary>原样发送一段文本。返回空串表示成功。</summary>
+        public override string Send(string data)
+        {
+            if (!IsConnected) return "串口未打开。";
+            return Write(data ?? string.Empty) ? string.Empty : "发送失败。";
+        }
+
+        /// <summary>读取一段返回文本（没有数据时返回空串）。</summary>
+        public override string Receive()
+        {
+            if (!IsConnected) return string.Empty;
+
+            try
+            {
+                return (MyCom.ReadExisting() ?? string.Empty).Trim();
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+
+        #endregion
+
         #endregion
     }
 }

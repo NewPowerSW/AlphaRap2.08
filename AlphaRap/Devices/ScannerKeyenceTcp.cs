@@ -248,6 +248,58 @@ namespace AlphaRap
             _isRunning = false; //停止扫码                            
         }
 
+        #region 5. 通用收发（供 DeviceControl 使用）
+
+        /// <summary>本类实现了通用发送 / 接收。</summary>
+        public override bool SupportsRawIo { get { return true; } }
+
+        /// <summary>原样发送一段文本（没有换行时自动补 \r\n）。返回空串表示成功。</summary>
+        public override string Send(string data)
+        {
+            if (!IsConnected) return "网口未连接。";
+
+            try
+            {
+                lock (_lockObj)
+                {
+                    string text = data ?? string.Empty;
+                    if (!text.EndsWith("\n")) text += "\r\n";
+
+                    byte[] buf = Encoding.Default.GetBytes(text);
+                    _netStream.Write(buf, 0, buf.Length);
+                }
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        /// <summary>读取一段返回文本；等待超过 TimeOut 视为没有数据（返回空串）。</summary>
+        public override string Receive()
+        {
+            if (!IsConnected) return string.Empty;
+
+            try
+            {
+                lock (_lockObj)
+                {
+                    _netStream.ReadTimeout = TimeOut;
+
+                    byte[] buf = new byte[Math.Max(1, length)];
+                    int n = _netStream.Read(buf, 0, buf.Length);
+                    return Encoding.Default.GetString(buf, 0, n).Trim();
+                }
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+
+        #endregion
+
         #endregion
     }// class
 }// namespace

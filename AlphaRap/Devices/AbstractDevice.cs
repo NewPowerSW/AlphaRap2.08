@@ -104,6 +104,30 @@ namespace AlphaRap
         #endregion
 
 
+        #region 5. 可选的通用收发接口（供 DeviceControl 这类的通用界面使用）
+
+        /// <summary>
+        /// 抽象类的属性：本设备类有没有实现通用发送 / 接收（见 Send / Receive）。
+        /// 子类实现后请重写并返回 true。
+        /// </summary>
+        public virtual bool SupportsRawIo { get { return false; } }
+
+
+        /// <summary>
+        /// 抽象类的方法：按本设备的协议原样发送一段文本。返回空串表示成功，非空为失败说明。
+        /// 默认返回"未实现"，需要通用收发能力的子类请重写。
+        /// </summary>
+        /// <param name="data">要发送的文本</param>
+        public virtual string Send(string data) { return "设备类 [" + GetType().Name + "] 未实现 Send。"; }
+
+
+        /// <summary>
+        /// 抽象类的方法：接收一段文本（没有数据时返回空串）。默认返回空串，需要通用收发能力的子类请重写。
+        /// </summary>
+        public virtual string Receive() { return string.Empty; }
+
+        #endregion
+
     }// class
 
 }// namespace
