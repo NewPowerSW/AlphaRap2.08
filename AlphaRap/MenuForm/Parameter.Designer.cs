@@ -35,7 +35,7 @@
             this.dataColumn4 = new System.Data.DataColumn();
             this.dataColumn5 = new System.Data.DataColumn();
             this.dataTable2 = new System.Data.DataTable();
-            this.deviceControl1 = new AlphaRap.DeviceControl();
+        this.deviceControl1 = new AlphaRap.DeviceControl();
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable1)).BeginInit();
@@ -86,24 +86,21 @@
             // dataTable2
             // 
             this.dataTable2.TableName = "PSet";
-            // 
-            // deviceControl1
-            // 
-            this.deviceControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
-            this.deviceControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.deviceControl1.DeviceName = "Device1";
+        // 
+        // deviceControl1
+        // 
             this.deviceControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.deviceControl1.Font = new System.Drawing.Font("宋体", 10F);
             this.deviceControl1.Location = new System.Drawing.Point(0, 0);
             this.deviceControl1.Name = "deviceControl1";
-            this.deviceControl1.Size = new System.Drawing.Size(1187, 1061);
+            this.deviceControl1.Size = new System.Drawing.Size(1192, 1023);
             this.deviceControl1.TabIndex = 0;
+            this.Controls.Add(this.deviceControl1);
             // 
             // Parameter
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(1187, 1061);
-            this.Controls.Add(this.deviceControl1);
+            this.ClientSize = new System.Drawing.Size(1192, 1023);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Margin = new System.Windows.Forms.Padding(5);
             this.Name = "Parameter";
@@ -124,6 +121,6 @@
 		private System.Data.DataColumn dataColumn3;
 		private System.Data.DataColumn dataColumn4;
 		private System.Data.DataColumn dataColumn5;
-        private DeviceControl deviceControl1;
+		private DeviceControl deviceControl1;
     }
 }
