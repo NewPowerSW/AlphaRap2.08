@@ -160,26 +160,7 @@ namespace AlphaRap
 		/// <summary>设备在线检测周期（毫秒）。</summary>
 		private const int DeviceCheckIntervalMs = 1500;
 
-		void BgWork_Demo(object sender, DoWorkEventArgs e)
-		{
-			// 每 DeviceCheckIntervalMs 检测一次 PLC 和扫码枪是否在线，程序退出（gEXIT）时结束
-			while (!MiddleLayer.gEXIT)
-			{
-				try
-				{
-					string plcIp = Convert.ToString(MiddleLayer.ParF.GetSettingValue("MSet", "PLCIP"));
-					string scanIp = Convert.ToString(MiddleLayer.ParF.GetSettingValue("MSet", "ScannIP"));
-
-					B_PLCStaus = MiddleLayer.ParF.PingTCP(plcIp);
-					B_Scan1connect = MiddleLayer.ParF.PingTCP(scanIp);
-				}
-				catch (Exception ex)
-				{
-					System.Diagnostics.Debug.WriteLine("Device check failed: " + ex.Message);
-				}
-				Thread.Sleep(DeviceCheckIntervalMs);
-			}
-		}
+		
 
 		#endregion
 		#region 1.2 初始化加载点位事件
@@ -187,7 +168,7 @@ namespace AlphaRap
 		{
 			timer1.Enabled = true;
 
-			B_BgWork.DoWork += BgWork_Demo;
+			
 			B_BgWork.RunWorkerAsync();
 
 			MiddleLayer.HardF.StopAllMotor();
