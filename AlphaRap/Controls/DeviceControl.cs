@@ -154,6 +154,7 @@ namespace AlphaRap
             try
             {
                 if (_device == null && !CreateDevice()) return "未选择设备类。";
+                if (!_device.IsConnected) return "未连接设备，无法发送。请先点【打开连接】。";
 
                 string err = _device.SupportsRawIo ? _device.Send(text) : ReflectSend(_device, text);
                 err = err ?? string.Empty;
@@ -176,6 +177,11 @@ namespace AlphaRap
             try
             {
                 if (_device == null && !CreateDevice()) return string.Empty;
+                if (!_device.IsConnected)
+                {
+                    AppendLog("提示", "未连接设备，无法接收。请先点【打开连接】。");
+                    return string.Empty;
+                }
 
                 string text = _device.SupportsRawIo ? _device.Receive() : ReflectReceive(_device);
                 text = text ?? string.Empty;
@@ -711,6 +717,10 @@ namespace AlphaRap
                               + (connected ? "已连接" : "未连接");
                 lblState.ForeColor = connected ? UiKit.Success : UiKit.Danger;
             }
+
+            // 收发必须在连接状态下才能触发（未连接时按钮置灰、点击不响应）
+            if (btnSend != null) btnSend.Enabled = connected;
+            if (btnRecv != null) btnRecv.Enabled = connected;
 
             EventHandler h = ConnectedChanged;
             if (h != null) h(this, EventArgs.Empty);

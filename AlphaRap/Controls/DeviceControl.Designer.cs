@@ -216,7 +216,7 @@
             this.panelParam.Controls.Add(this.propGrid);
             this.panelParam.Controls.Add(this.lblParam);
             this.panelParam.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelParam.Location = new System.Drawing.Point(0, 72);
+            this.panelParam.Location = new System.Drawing.Point(0, 146);
             this.panelParam.Name = "panelParam";
             this.panelParam.Size = new System.Drawing.Size(662, 168);
             this.panelParam.TabIndex = 2;
@@ -251,8 +251,8 @@
             this.panelSend.BackColor = System.Drawing.Color.White;
             this.panelSend.Controls.Add(this.btnSend);
             this.panelSend.Controls.Add(this.txtSend);
-            this.panelSend.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelSend.Location = new System.Drawing.Point(0, 509);
+            this.panelSend.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelSend.Location = new System.Drawing.Point(0, 110);
             this.panelSend.Name = "panelSend";
             this.panelSend.Size = new System.Drawing.Size(662, 36);
             this.panelSend.TabIndex = 3;
@@ -307,8 +307,8 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.txtRecv);
-            this.Controls.Add(this.panelSend);
             this.Controls.Add(this.panelParam);
+            this.Controls.Add(this.panelSend);
             this.Controls.Add(this.panelMid);
             this.Controls.Add(this.panelTop);
             this.Font = new System.Drawing.Font("宋体", 10F);

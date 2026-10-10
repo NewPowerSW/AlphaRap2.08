@@ -24,9 +24,10 @@ namespace AlphaRap
             {
                 try
                 {
-                    // ⚠ 只信底层 ConnectStatus() 会出现"从未连接也报已连接"；
-                    //    这里要求本类真的成功调用过 Connect（_opened）才认为已连接。
-                    return _opened && Keyence3D.ConnectStatus();
+                    // ⚠ 底层 NPClient.TCPCLient 的连接是**异步发起**的（BeginConnect/ConnectCallback），
+                    //    Connect() 立即返回、ConnectStatus() 会乐观地报 true ⇒ 设备不存在也显示"已连接"。
+                    //    所以这里必须要求本类自己独立探测成功过（_verified）才算连上。
+                    return _opened && _verified && Keyence3D.ConnectStatus();
                 }
                 catch (Exception)
                 {
@@ -35,8 +36,33 @@ namespace AlphaRap
             }
         }
 
-        /// <summary>本类是否成功调用过 Connect（底层 ConnectStatus() 单独用不可靠）。</summary>
+        /// <summary>本类是否真的调用过库的 Connect（且没抛异常）。</summary>
         private bool _opened;
+
+        /// <summary>本类是否用标准 TcpClient 独立探测确认过 IP:Port 真能握手。</summary>
+        private bool _verified;
+
+        /// <summary>
+        /// 用标准 TcpClient 独立探测一次 IP:Port（超时 timeoutMs 毫秒）。
+        /// 库自己的 Connect 是异步的、拿不到结果，只有这里才是"真的连得上"的证据。
+        /// </summary>
+        private static bool ProbeTcp(string ip, int port, int timeoutMs)
+        {
+            try
+            {
+                using (System.Net.Sockets.TcpClient probe = new System.Net.Sockets.TcpClient())
+                {
+                    IAsyncResult ar = probe.BeginConnect(ip, port, null, null);
+                    if (!ar.AsyncWaitHandle.WaitOne(timeoutMs, false)) return false;   // 超时 ⇒ 不可达
+                    probe.EndConnect(ar);                                              // 异常 ⇒ 被拒绝
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
         /// <summary>
         /// 重写父类的属性：扫码枪是否正在运行：扫码中
@@ -117,16 +143,31 @@ namespace AlphaRap
                 //网口关闭时，才能修改参数
                 if (!Keyence3D.ConnectStatus())
                 {
-                        try
-                        {
-                            Keyence3D.Connect(IP, Port); //连接网口
-                            _opened = true;
-                        }
-                        catch (Exception ex)
-                        {
-                            _opened = false;
-                            ShowException("连接3D网口失败！", ex);
-                        }
+                    // 先用标准 TcpClient 独立探测：库的 Connect 是异步的、不等结果就返回，
+                    // 不探测的话"设备根本不在"也会被报成已连接。
+                    _verified = ProbeTcp(IP, Port, 600);
+                    if (!_verified)
+                    {
+                        _opened = false;
+                        return;                     // 探测不通，就不去调库了
+                    }
+
+                    try
+                    {
+                        Keyence3D.Connect(IP, Port); //连接网口
+                        _opened = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        _opened = false;
+                        _verified = false;
+                        ShowException("连接3D网口失败！", ex);
+                    }
+                }
+                else
+                {
+                    _opened = true;                 // 库说已连（说明之前真的连过）
+                    _verified = true;
                 }
             }
             catch (Exception ex)
@@ -142,6 +183,7 @@ namespace AlphaRap
             {
                 Keyence3D.Disconnect(); //关闭连接并释放
                 _opened = false;
+                _verified = false;
             }
             catch (Exception ex)
             {
