@@ -1459,6 +1459,9 @@ int nheightEllipse
                 // 视觉参数单独保存在 ModuleData\SettingData\VPForm.Cameras.xml
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.CommitVpConfig();
 
+                // 设备控件（DeviceControl）的离线参数：ModuleData\SettingData\DeviceControl.xml
+                DeviceControl.SaveAll();
+
                 OperationLog.Write("MainForm", "保存系统参数（配方：" + SysPara.RecipeName + "）");
                 if (MiddleLayer.ProductF != null)
                     OperationLog.Write("ProductManagerForm",
@@ -1474,6 +1477,9 @@ int nheightEllipse
 
                 // 选"否"：视觉参数恢复为上一次保存的值
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.RevertVpConfig();
+
+                // 选"否"：设备控件参数也回滚到上次保存的值
+                DeviceControl.ReloadAll();
 
                 OperationLog.Write("MainForm", "放弃保存，参数还原为上次保存值");
             }

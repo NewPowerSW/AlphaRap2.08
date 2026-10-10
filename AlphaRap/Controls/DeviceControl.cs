@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace AlphaRap
 {
@@ -46,7 +48,12 @@ namespace AlphaRap
             BuildTypeList();
 
             // 设计期不建设备实例（免得 VS 设计器里碰真实端口）；运行期先建一个，参数表立刻可编辑
-            if (!InDesigner) CreateDevice();
+            if (!InDesigner)
+            {
+                LiveInstances.Add(this);                                    // 供 MainForm 的【保存】按钮统一保存
+                this.Disposed += delegate { LiveInstances.Remove(this); };
+                CreateDevice();
+            }
         }
 
         #region 设计期属性
@@ -391,10 +398,202 @@ namespace AlphaRap
 
         #endregion
 
+        #region 参数持久化（XML，跟随 MainForm 的【保存】按钮）
+
+        /// <summary>所有存活的 DeviceControl（MainForm 的【保存】按钮会遍历它们写入 / 还原）。</summary>
+        private static readonly List<DeviceControl> LiveInstances = new List<DeviceControl>();
+
+        /// <summary>
+        /// 参数文件：{SettingDataDirectory}\DeviceControl.xml —— 机器级、离线可编辑（不依赖设备在线），
+        /// 与 VPForm.Cameras.xml 放在同一目录。
+        /// </summary>
+        public static string XmlFilePath
+        {
+            get
+            {
+                string dir = SysPara.SettingDataDirectory;
+                if (string.IsNullOrEmpty(dir)) dir = @".\ModuleData\SettingData";
+                return Path.Combine(dir, "DeviceControl.xml");
+            }
+        }
+
+        /// <summary>XML 里的唯一键：窗体名_控件名（同一个窗体上放两个 DeviceControl 也不会撞）。</summary>
+        private string XmlKey
+        {
+            get
+            {
+                Form f = FindForm();
+                string formName = (f == null || string.IsNullOrEmpty(f.Name)) ? "Form" : f.Name;
+                string ctlName = string.IsNullOrEmpty(this.Name) ? "DeviceControl" : this.Name;
+                return formName + "_" + ctlName;
+            }
+        }
+
+        /// <summary>主界面【保存】选"是"时由 MainForm.SaveData() 调用：把所有 DeviceControl 的参数写入 XML。</summary>
+        public static void SaveAll()
+        {
+            try
+            {
+                string path = XmlFilePath;
+                XmlDocument doc = new XmlDocument();
+                try { if (File.Exists(path)) doc.Load(path); }
+                catch (Exception) { doc = new XmlDocument(); }
+
+                if (doc.DocumentElement == null)
+                {
+                    doc = new XmlDocument();
+                    doc.AppendChild(doc.CreateElement("DeviceControl"));
+                }
+
+                for (int i = 0; i < LiveInstances.Count; i++)
+                    LiveInstances[i].WriteToDoc(doc);
+
+                string dir = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+                doc.Save(path);
+            }
+            catch (Exception) { }
+        }
+
+        /// <summary>主界面【保存】选"否"时由 MainForm.SaveData() 调用：把参数还原成 XML 里上次保存的值。</summary>
+        public static void ReloadAll()
+        {
+            for (int i = 0; i < LiveInstances.Count; i++)
+                LiveInstances[i].LoadFromXml();
+        }
+
+        /// <summary>把本实例当前设备参数写进 XML 文档（没有对应节点就新建）。</summary>
+        private void WriteToDoc(XmlDocument doc)
+        {
+            if (_device == null || doc.DocumentElement == null) return;
+
+            string key = XmlKey;
+            XmlElement node = null;
+            for (int i = 0; i < doc.DocumentElement.ChildNodes.Count; i++)
+            {
+                XmlElement e = doc.DocumentElement.ChildNodes[i] as XmlElement;
+                if (e != null && e.Name == "Device" && e.GetAttribute("Key") == key) { node = e; break; }
+            }
+            if (node == null)
+            {
+                node = doc.CreateElement("Device");
+                node.SetAttribute("Key", key);
+                doc.DocumentElement.AppendChild(node);
+            }
+
+            node.SetAttribute("Type", _device.GetType().Name);
+            node.SetAttribute("DeviceName", _device.DeviceName ?? string.Empty);
+
+            for (int i = node.ChildNodes.Count - 1; i >= 0; i--) node.RemoveChild(node.ChildNodes[i]);   // 清掉旧参数
+
+            foreach (PropertyInfo p in WritableProperties(_device.GetType()))
+            {
+                try
+                {
+                    object v = p.GetValue(_device, null);
+                    XmlElement item = doc.CreateElement(p.Name);
+                    item.InnerText = ToInvariantString(v, p.PropertyType);
+                    node.AppendChild(item);
+                }
+                catch (Exception) { }
+            }
+        }
+
+        /// <summary>从 XML 读回本实例的参数并套到设备实例上（离线保存的核心：整个过程不依赖设备在线）。</summary>
+        public void LoadFromXml()
+        {
+            try
+            {
+                string path = XmlFilePath;
+                if (_device == null || !File.Exists(path)) return;
+
+                XmlDocument doc = new XmlDocument();
+                doc.Load(path);
+                if (doc.DocumentElement == null) return;
+
+                string key = XmlKey;
+                bool applied = false;
+                for (int i = 0; i < doc.DocumentElement.ChildNodes.Count; i++)
+                {
+                    XmlElement e = doc.DocumentElement.ChildNodes[i] as XmlElement;
+                    if (e == null || e.Name != "Device" || e.GetAttribute("Key") != key) continue;
+
+                    foreach (XmlNode c in e.ChildNodes)
+                        if (ApplyOne(_device, c.Name, c.InnerText)) applied = true;
+                    break;
+                }
+
+                if (!applied) return;
+
+                if (propGrid != null) propGrid.Refresh();       // 参数表显示载入后的值
+                AppendLog("参数", "已从 " + Path.GetFileName(path) + " 载入离线参数");
+            }
+            catch (Exception) { }
+        }
+
+        /// <summary>可持久化的属性：public、可读可写、非索引器、未被 [Browsable(false)] 屏蔽。</summary>
+        private static List<PropertyInfo> WritableProperties(Type t)
+        {
+            List<PropertyInfo> list = new List<PropertyInfo>();
+            foreach (PropertyInfo p in t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (!p.CanRead || !p.CanWrite) continue;
+                if (p.GetIndexParameters().Length > 0) continue;
+
+                object[] attrs = p.GetCustomAttributes(typeof(BrowsableAttribute), false);
+                if (attrs.Length > 0 && !((BrowsableAttribute)attrs[0]).Browsable) continue;
+
+                list.Add(p);
+            }
+            return list;
+        }
+
+        /// <summary>把属性值转成可写进 XML 的字符串（走 TypeConverter，enum / bool / int 都能正确处理）。</summary>
+        private static string ToInvariantString(object v, Type t)
+        {
+            if (v == null) return string.Empty;
+            try
+            {
+                TypeConverter tc = TypeDescriptor.GetConverter(t);
+                if (tc != null && tc.CanConvertTo(typeof(string))) return tc.ConvertToInvariantString(v);
+            }
+            catch (Exception) { }
+            return v.ToString();
+        }
+
+        /// <summary>把 XML 里的字符串按属性类型转回来并写进设备实例；成功返回 true。</summary>
+        private static bool ApplyOne(AbstractDevice d, string propName, string text)
+        {
+            try
+            {
+                PropertyInfo p = d.GetType().GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
+                if (p == null || !p.CanWrite) return false;
+
+                Type t = p.PropertyType;
+                object v;
+                if (t == typeof(string)) v = text;
+                else
+                {
+                    TypeConverter tc = TypeDescriptor.GetConverter(t);
+                    v = (tc != null && tc.CanConvertFrom(typeof(string))) ? tc.ConvertFromInvariantString(text) : null;
+                }
+                if (v == null) return false;
+
+                p.SetValue(d, v, null);
+                return true;
+            }
+            catch (Exception) { return false; }
+        }
+
+        #endregion
+
         #region 界面
 
         private void DeviceControl_Load(object sender, EventArgs e)
         {
+            LoadFromXml();          // 离线参数：按 XML 上次保存的值套到设备实例上（此时才取得到窗体名做键）
+
             if (AutoOpen)
             {
                 string err = OpenDevice();
