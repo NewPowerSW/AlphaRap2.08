@@ -801,6 +801,7 @@
     </Compile>
     <Compile Include="MenuForm\ManualForm.Style.cs">
       <DependentUpon>ManualForm.cs</DependentUpon>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="MenuForm\ManualForm.cs">
       <SubType>Form</SubType>
@@ -892,9 +893,11 @@
     </Compile>
     <Compile Include="MainForm.Frame.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Vision.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -916,12 +919,6 @@
     </Compile>
     <Compile Include="Controls\UiTheme.cs" />
     <Compile Include="Controls\IoTileStyle.cs" />
-    <Compile Include="Controls\DeviceControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\DeviceControl.Designer.cs">
-      <DependentUpon>DeviceControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\HourlyChart.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -936,6 +933,12 @@
     </Compile>
     <Compile Include="Controls\AlarmChip.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\DeviceControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\DeviceControl.Designer.cs">
+      <DependentUpon>DeviceControl.cs</DependentUpon>
     </Compile>
     <Compile Include="MenuForm\HardForm.cs">
       <SubType>Form</SubType>
