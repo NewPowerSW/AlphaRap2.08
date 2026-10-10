@@ -1460,6 +1460,9 @@ int nheightEllipse
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.CommitVpConfig();
 
                 OperationLog.Write("MainForm", "保存系统参数（配方：" + SysPara.RecipeName + "）");
+                if (MiddleLayer.ProductF != null)
+                    OperationLog.Write("ProductManagerForm",
+                        "保存配方参数：" + MiddleLayer.ProductF.BuildParamSummary());
             }
             else
             {

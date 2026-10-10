@@ -562,10 +562,12 @@ namespace Alpha
         private void button10_Click(object sender, EventArgs e)
         {
             NPMotor[iChoseYHMotorIndex].ServoOn();
+            OperationLog.Write("MotorControlForm", "伺服使能：电机 #" + iChoseYHMotorIndex);
         }
         private void button12_Click(object sender, EventArgs e)
         {
             NPMotor[iChoseYHMotorIndex].ServoOff();
+            OperationLog.Write("MotorControlForm", "伺服禁用：电机 #" + iChoseYHMotorIndex);
         }
         #endregion GUI
 

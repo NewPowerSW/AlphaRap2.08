@@ -51,13 +51,13 @@ namespace AlphaRap
 
                 // 存图设置：四个勾 = 四个独立开关，改动即时落盘（不跟主页【保存】）
                 WireCheck(cbSaveImg, delegate { return Vpp.SaveImageEnabled; },
-                                     delegate(bool v) { Vpp.SaveImageEnabled = v; });
+                                     delegate(bool v) { Vpp.SaveImageEnabled = v; LogSaveImage("存图", v ? "开" : "关"); });
                 WireCheck(cbOrig, delegate { return Vpp.SaveImageOriginal; },
-                                  delegate(bool v) { Vpp.SaveImageOriginal = v; });
+                                  delegate(bool v) { Vpp.SaveImageOriginal = v; LogSaveImage("原图", v ? "开" : "关"); });
                 WireCheck(cbSnap, delegate { return Vpp.SaveImageSnapshot; },
-                                  delegate(bool v) { Vpp.SaveImageSnapshot = v; });
+                                  delegate(bool v) { Vpp.SaveImageSnapshot = v; LogSaveImage("截图", v ? "开" : "关"); });
                 WireCheck(cbAutoDel, delegate { return Vpp.SaveImageAutoDelete; },
-                                     delegate(bool v) { Vpp.SaveImageAutoDelete = v; });
+                                     delegate(bool v) { Vpp.SaveImageAutoDelete = v; LogSaveImage("自动删除", v ? "开" : "关"); });
 
                 tbSavePath.Text = (Vpp != null && Vpp.SaveImagePath != null) ? Vpp.SaveImagePath : "";
                 tbSavePath.TextChanged += delegate
@@ -65,7 +65,11 @@ namespace AlphaRap
                     if (Vpp != null) Vpp.SaveImagePath = tbSavePath.Text.Trim();
                 };
                 // 路径在失焦时保存
-                tbSavePath.Leave += delegate { if (Owner != null) Owner.SaveVpConfig(); };
+                tbSavePath.Leave += delegate
+                {
+                    if (Owner != null) Owner.SaveVpConfig();
+                    LogSaveImage("路径", tbSavePath.Text.Trim());
+                };
 
                 tbSaveDays.Text = (Vpp != null) ? Vpp.SaveImageKeepDays.ToString() : "0";
                 tbSaveDays.Leave += delegate
@@ -79,6 +83,7 @@ namespace AlphaRap
                     if (Vpp == null || days == Vpp.SaveImageKeepDays) return;
                     Vpp.SaveImageKeepDays = days;
                     if (Owner != null) Owner.SaveVpConfig();
+                    LogSaveImage("保留天数", days.ToString());
                 };
 
                 // 操作按钮（「实时显示」为相机级，按钮在相机属性条上）
@@ -134,6 +139,14 @@ namespace AlphaRap
                 setter(box.Checked);
                 if (Owner != null) Owner.SaveVpConfig();
             };
+        }
+
+        /// <summary>存图设置改动时记一条操作日志（归到 VPForm 目录）。</summary>
+        private void LogSaveImage(string what, string value)
+        {
+            string cam = (Cam != null) ? Cam.Name : "";
+            string vpp = (Vpp != null) ? Vpp.Name : "";
+            OperationLog.Write("VPForm", "存图设置：" + cam + " / " + vpp + " " + what + " = " + value);
         }
 
         /// <summary>取当前语言的文案（LanguageData\{语言}.xml），没有该键时使用底稿。</summary>

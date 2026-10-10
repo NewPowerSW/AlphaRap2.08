@@ -184,6 +184,7 @@ namespace AlphaRap
             ChangeSelectItems(rbGroup_GreenLight_RunMode, sender);
             RefreshSelectItemValue();
             WriteSignalTowerData(SelectStatus);
+            OperationLog.Write("CheckForm", "信号塔配置：" + SelectStatus + " / " + SignalLogDesc(sender));
         }
 
         private void rbGroup_YellowLight_RunMode_Click(object sender, MouseEventArgs e)
@@ -191,6 +192,7 @@ namespace AlphaRap
             ChangeSelectItems(rbGroup_YellowLight_RunMode, sender);
             RefreshSelectItemValue();
             WriteSignalTowerData(SelectStatus);
+            OperationLog.Write("CheckForm", "信号塔配置：" + SelectStatus + " / " + SignalLogDesc(sender));
         }
 
         private void rbGroup_RedLight_RunMode_Click(object sender, MouseEventArgs e)
@@ -198,6 +200,7 @@ namespace AlphaRap
             ChangeSelectItems(rbGroup_RedLight_RunMode, sender);
             RefreshSelectItemValue();
             WriteSignalTowerData(SelectStatus);
+            OperationLog.Write("CheckForm", "信号塔配置：" + SelectStatus + " / " + SignalLogDesc(sender));
         }
 
         private void rbGroup_Buzzer_RunMode_Click(object sender, MouseEventArgs e)
@@ -205,6 +208,7 @@ namespace AlphaRap
             ChangeSelectItems(rbGroup_Buzz_RunMode, sender);
             RefreshSelectItemValue();
             WriteSignalTowerData(SelectStatus);
+            OperationLog.Write("CheckForm", "信号塔配置：" + SelectStatus + " / " + SignalLogDesc(sender));
         }
 
         private void rbGroup_GreenLight_MaintenanceMode_Click(object sender, MouseEventArgs e)
@@ -212,6 +216,7 @@ namespace AlphaRap
             ChangeSelectItems(rbGroup_GreenLight_MaintenanceMode, sender);
             RefreshSelectItemValue();
             WriteSignalTowerData(SelectStatus);
+            OperationLog.Write("CheckForm", "信号塔配置：" + SelectStatus + " / " + SignalLogDesc(sender));
         }
 
         private void rbGroup_YellowLight_MaintenanceMode_Click(object sender, MouseEventArgs e)
@@ -219,6 +224,7 @@ namespace AlphaRap
             ChangeSelectItems(rbGroup_YellowLight_MaintenanceMode, sender);
             RefreshSelectItemValue();
             WriteSignalTowerData(SelectStatus);
+            OperationLog.Write("CheckForm", "信号塔配置：" + SelectStatus + " / " + SignalLogDesc(sender));
         }
 
         private void rbGroup_RedLight_MaintenanceMode_Click(object sender, MouseEventArgs e)
@@ -226,6 +232,7 @@ namespace AlphaRap
             ChangeSelectItems(rbGroup_RedLight_MaintenanceMode, sender);
             RefreshSelectItemValue();
             WriteSignalTowerData(SelectStatus);
+            OperationLog.Write("CheckForm", "信号塔配置：" + SelectStatus + " / " + SignalLogDesc(sender));
         }
 
         private void rbGroup_Buzzer_MaintenanceMode_Click(object sender, MouseEventArgs e)
@@ -233,8 +240,18 @@ namespace AlphaRap
             ChangeSelectItems(rbGroup_Buzz_MaintenanceMode, sender);
             RefreshSelectItemValue();
             WriteSignalTowerData(SelectStatus);
+            OperationLog.Write("CheckForm", "信号塔配置：" + SelectStatus + " / " + SignalLogDesc(sender));
         }
         #endregion
+        /// <summary>信号塔配置日志用的"哪一组 / 选了哪个"。</summary>
+        private static string SignalLogDesc(object sender)
+        {
+            RadioButton rb = sender as RadioButton;
+            if (rb == null) return "?";
+            string group = (rb.Parent != null) ? rb.Parent.Text : null;
+            return (string.IsNullOrEmpty(group) ? rb.Name : group) + " → " + rb.Text;
+        }
+
         private void ChangeSelectItems(RadioButton[] Group, object SelectedItem)
         {
             RadioButton target = SelectedItem as RadioButton;

@@ -65,10 +65,54 @@ namespace AlphaRap
 		public override void ServoOn()
 		{
 			servo.ServoAllOn();
+			OperationLog.Write("HardForm", "伺服使能：全部轴");
 		}
 		public override void ServoOff()
 		{
 			servo.ServoAllOff();
+			OperationLog.Write("HardForm", "伺服禁用：全部轴");
+		}
+
+		// ==================== 操作日志：点动（松开时记一条） ====================
+
+		private bool _jogLogWired;
+		private bool _jogActive;
+		private DateTime _jogStart;
+		private string _jogDesc;
+
+		/// <summary>建窗体时挂一次：点动按钮按下开始计时、松开记一条（轴 + 方向 + 持续时间）。</summary>
+		public override void ModuleInitialize(string ModuleName)
+		{
+			base.ModuleInitialize(ModuleName);
+			WireJogLog();
+		}
+
+		private void WireJogLog()
+		{
+			if (_jogLogWired) return;
+			_jogLogWired = true;
+
+			HookJog(btn_AxisX_Left, "X 负向");
+			HookJog(btn_AxisX_Right, "X 正向");
+			HookJog(btn_AxisY_Back, "Y 负向");
+			HookJog(btn_AxisY_Forward, "Y 正向");
+			HookJog(btn_AxisZ_Up, "Z 负向");
+			HookJog(btn_AxisZ_Down, "Z 正向");
+			HookJog(btn_AxisR_Up, "R 负向");
+			HookJog(btn_AxisR_Down, "R 正向");
+		}
+
+		private void HookJog(Button btn, string desc)
+		{
+			if (btn == null) return;
+			btn.MouseDown += delegate { _jogDesc = desc; _jogStart = DateTime.Now; _jogActive = true; };
+			btn.MouseUp += delegate
+			{
+				if (!_jogActive) return;
+				_jogActive = false;
+				double sec = (DateTime.Now - _jogStart).TotalSeconds;
+				OperationLog.Write("HardForm", "点动：" + _jogDesc + "，持续 " + sec.ToString("F1") + " 秒");
+			};
 		}
 
 		private void But_XYZ_Click_1(object sender, EventArgs e)
@@ -263,6 +307,7 @@ namespace AlphaRap
 			string btnName = ((Button)sender).Name;
 			string flagStr = "btn_Home";
 			string axisName = btnName.Replace(flagStr, "");
+			OperationLog.Write("HardForm", "回零：轴 " + axisName);
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
 			int timeOut = 50000;
@@ -292,6 +337,7 @@ namespace AlphaRap
 			string btnName = ((Button)sender).Name;
 			string flagStr = "btn_Home";
 			string axisName = btnName.Replace(flagStr, "");
+			OperationLog.Write("HardForm", "回零：轴 " + axisName);
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
 			int timeOut = 50000;
@@ -321,6 +367,7 @@ namespace AlphaRap
 			string btnName = ((Button)sender).Name;
 			string flagStr = "btn_Home";
 			string axisName = btnName.Replace(flagStr, "");
+			OperationLog.Write("HardForm", "回零：轴 " + axisName);
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
 			int timeOut = 50000;
@@ -350,6 +397,7 @@ namespace AlphaRap
 			string btnName = ((Button)sender).Name;
 			string flagStr = "btn_Home";
 			string axisName = btnName.Replace(flagStr, "");
+			OperationLog.Write("HardForm", "回零：轴 " + axisName);
 			double HighSpeed = GetSettingValue("MSet", "AxisZ_HomeHighSpd");
 			double LowSpeed = GetSettingValue("MSet", "AxisZ_HomeLowSpd");
 			int timeOut = 50000;

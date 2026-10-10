@@ -160,6 +160,22 @@ namespace AlphaRap
             box.ValueChanged += textBox4_TextChanged;
         }
 
+        /// <summary>配方参数快照（主界面【保存】时写进操作日志）。</summary>
+        internal string BuildParamSummary()
+        {
+            try
+            {
+                return "型号=" + CurrentModel.Text
+                     + "，PRODUCTID=" + fbProductId.Value
+                     + "，STEPID=" + fbStepId.Value
+                     + "，RECIPEID=" + fbRecipeId.Value
+                     + "，PORTID=" + fbPortId.Value
+                     + "，SN1KeySub=" + fbSn1.Value
+                     + "，SN2KeySub=" + fbSn2.Value;
+            }
+            catch (Exception) { return "?"; }
+        }
+
         // ==================== 状态刷新 ====================
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
