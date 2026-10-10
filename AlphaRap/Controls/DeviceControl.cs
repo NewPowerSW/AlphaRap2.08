@@ -33,6 +33,9 @@ namespace AlphaRap
         /// <summary>列表刷新中：此时下拉框的选中变化不算作"用户选了设备类"。</summary>
         private bool _loading;
 
+        /// <summary>正在按 XML 还原设备类：期间下拉框的选中变化不要再触发一次自动载入（会重复套参数、刷两条日志）。</summary>
+        private bool _suppressAutoLoad;
+
         /// <summary>名称像"发送"的方法（兜底用，找不到就明确提示该重写什么）。</summary>
         private static readonly string[] SendMethodNames =
             { "Send", "Sent", "Write", "SendData", "SendCommand", "SendString", "SendMsg" };
@@ -500,24 +503,48 @@ namespace AlphaRap
         {
             if (_device == null || doc.DocumentElement == null) return;
 
-            string key = XmlKey;
-            XmlElement node = null;
-            for (int i = 0; i < doc.DocumentElement.ChildNodes.Count; i++)
-            {
-                XmlElement e = doc.DocumentElement.ChildNodes[i] as XmlElement;
-                if (e != null && e.Name == "Device" && e.GetAttribute("Key") == key) { node = e; break; }
-            }
-            if (node == null)
-            {
-                node = doc.CreateElement("Device");
-                node.SetAttribute("Key", key);
-                doc.DocumentElement.AppendChild(node);
-            }
+            XmlElement node = FindOrCreateDeviceNode(doc, XmlKey);
+            string typeName = _device.GetType().Name;
 
-            node.SetAttribute("Type", _device.GetType().Name);
+            // 旧格式迁移：<Device Type="X"> 下直接挂参数 —— 搬进 <Type Name="X"> 分组，只做一次
+            string legacyType = node.GetAttribute("Type");
+            bool hasStray = false;
+            for (int i = 0; i < node.ChildNodes.Count; i++)
+            {
+                XmlElement ce = node.ChildNodes[i] as XmlElement;
+                if (ce != null && ce.Name != "Type") { hasStray = true; break; }
+            }
+            if (hasStray)
+            {
+                XmlElement target = string.IsNullOrEmpty(legacyType) ? null : FindTypeNode(node, legacyType);
+                if (target == null && !string.IsNullOrEmpty(legacyType))
+                {
+                    target = doc.CreateElement("Type");
+                    target.SetAttribute("Name", legacyType);
+                    node.AppendChild(target);
+                }
+                for (int i = node.ChildNodes.Count - 1; i >= 0; i--)
+                {
+                    XmlNode c = node.ChildNodes[i];
+                    if (c is XmlElement && ((XmlElement)c).Name == "Type") continue;   // 分组节点本身不动
+                    node.RemoveChild(c);
+                    if (target != null) target.PrependChild(c);
+                }
+            }
+            if (!string.IsNullOrEmpty(legacyType)) node.RemoveAttribute("Type");
+
+            node.SetAttribute("LastType", typeName);                            // 记住"上次用的是哪个设备类"
             node.SetAttribute("DeviceName", _device.DeviceName ?? string.Empty);
 
-            for (int i = node.ChildNodes.Count - 1; i >= 0; i--) node.RemoveChild(node.ChildNodes[i]);   // 清掉旧参数
+            XmlElement typeNode = FindTypeNode(node, typeName);
+            if (typeNode == null)
+            {
+                typeNode = doc.CreateElement("Type");
+                typeNode.SetAttribute("Name", typeName);
+                node.AppendChild(typeNode);
+            }
+
+            for (int i = typeNode.ChildNodes.Count - 1; i >= 0; i--) typeNode.RemoveChild(typeNode.ChildNodes[i]);   // 只清这个类的旧参数
 
             foreach (PropertyInfo p in WritableProperties(_device.GetType()))
             {
@@ -526,7 +553,7 @@ namespace AlphaRap
                     object v = p.GetValue(_device, null);
                     XmlElement item = doc.CreateElement(p.Name);
                     item.InnerText = ToInvariantString(v, p.PropertyType);
-                    node.AppendChild(item);
+                    typeNode.AppendChild(item);
                 }
                 catch (Exception) { }
             }
@@ -535,33 +562,107 @@ namespace AlphaRap
         /// <summary>从 XML 读回本实例的参数并套到设备实例上（离线保存的核心：整个过程不依赖设备在线）。</summary>
         public void LoadFromXml()
         {
+            LoadFromXml(true);
+        }
+
+        /// <param name="restoreType">
+        /// true（启动时）：按 XML 里记录的"上次保存的设备类"还原下拉框与设备实例；
+        /// false（用户手动切换设备类时）：只把该类上次保存的参数套上去。
+        /// </param>
+        private void LoadFromXml(bool restoreType)
+        {
             try
             {
                 string path = XmlFilePath;
-                if (_device == null || !File.Exists(path)) return;
+                if (!File.Exists(path)) return;
 
                 XmlDocument doc = new XmlDocument();
                 doc.Load(path);
                 if (doc.DocumentElement == null) return;
 
-                string key = XmlKey;
-                bool applied = false;
-                for (int i = 0; i < doc.DocumentElement.ChildNodes.Count; i++)
-                {
-                    XmlElement e = doc.DocumentElement.ChildNodes[i] as XmlElement;
-                    if (e == null || e.Name != "Device" || e.GetAttribute("Key") != key) continue;
+                XmlElement node = FindDeviceNode(doc, XmlKey);
+                if (node == null) return;
 
-                    foreach (XmlNode c in e.ChildNodes)
-                        if (ApplyOne(_device, c.Name, c.InnerText)) applied = true;
-                    break;
+                if (restoreType)
+                {
+                    // 关键：控件的默认选择是列表里第一个类（按名字排序，如 ATEQ_F620）。
+                    // 若与 XML 记的类型不同，参数名对不上 ⇒ 一个属性也套不进去
+                    // （现象：重启后设备类变回 ATEQ_F620、参数全是默认值）。
+                    string last = node.GetAttribute("LastType");
+                    if (string.IsNullOrEmpty(last)) last = node.GetAttribute("Type");           // 旧格式
+                    if (!string.IsNullOrEmpty(last)
+                        && (_device == null || !string.Equals(_device.GetType().Name, last, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        _suppressAutoLoad = true;
+                        try { SelectTypeByName(last); }        // 触发 cboType_SelectedIndexChanged → CreateDevice()
+                        finally { _suppressAutoLoad = false; }
+                    }
                 }
 
-                if (!applied) return;
+                if (_device == null) return;
+                string typeName = _device.GetType().Name;
+
+                XmlElement paramsNode = FindTypeNode(node, typeName);
+                if (paramsNode == null
+                    && string.Equals(node.GetAttribute("Type"), typeName, StringComparison.OrdinalIgnoreCase))
+                {
+                    paramsNode = node;                          // 旧格式：参数直接挂在 <Device> 下
+                }
+
+                bool applied = false;
+                if (paramsNode != null)
+                {
+                    for (int i = 0; i < paramsNode.ChildNodes.Count; i++)
+                    {
+                        XmlNode c = paramsNode.ChildNodes[i];
+                        if (c is XmlElement && ((XmlElement)c).Name == "Type") continue;
+                        if (ApplyOne(_device, c.Name, c.InnerText)) applied = true;
+                    }
+                }
 
                 if (propGrid != null) propGrid.Refresh();       // 参数表显示载入后的值
-                AppendLog("参数", "已从 " + Path.GetFileName(path) + " 载入离线参数");
+                if (applied)
+                    AppendLog("参数", "已从 " + Path.GetFileName(path) + " 载入离线参数（设备类 " + typeName + "）");
             }
             catch (Exception) { }
+        }
+
+        /// <summary>取本控件在 XML 里的 &lt;Device&gt; 节点（找不到返回 null）。</summary>
+        private static XmlElement FindDeviceNode(XmlDocument doc, string key)
+        {
+            if (doc == null || doc.DocumentElement == null) return null;
+            for (int i = 0; i < doc.DocumentElement.ChildNodes.Count; i++)
+            {
+                XmlElement e = doc.DocumentElement.ChildNodes[i] as XmlElement;
+                if (e != null && e.Name == "Device" && e.GetAttribute("Key") == key) return e;
+            }
+            return null;
+        }
+
+        /// <summary>取本控件节点下某个设备类的参数分组 &lt;Type Name="..."&gt;（找不到返回 null）。</summary>
+        private static XmlElement FindTypeNode(XmlElement deviceNode, string typeName)
+        {
+            if (deviceNode == null || string.IsNullOrEmpty(typeName)) return null;
+            for (int i = 0; i < deviceNode.ChildNodes.Count; i++)
+            {
+                XmlElement e = deviceNode.ChildNodes[i] as XmlElement;
+                if (e != null && e.Name == "Type"
+                    && string.Equals(e.GetAttribute("Name"), typeName, StringComparison.OrdinalIgnoreCase)) return e;
+            }
+            return null;
+        }
+
+        /// <summary>取本控件的 &lt;Device&gt; 节点，没有就建一个。</summary>
+        private static XmlElement FindOrCreateDeviceNode(XmlDocument doc, string key)
+        {
+            XmlElement node = FindDeviceNode(doc, key);
+            if (node == null)
+            {
+                node = doc.CreateElement("Device");
+                node.SetAttribute("Key", key);
+                doc.DocumentElement.AppendChild(node);
+            }
+            return node;
         }
 
         /// <summary>可持久化的属性：public、可读可写、非索引器、未被 [Browsable(false)] 屏蔽。</summary>
@@ -681,6 +782,7 @@ namespace AlphaRap
             if (_device != null && _device.GetType() == t) return;
 
             CreateDevice();
+            if (!_suppressAutoLoad) LoadFromXml(false);          // 切到哪个类，就把那个类上次保存的参数读回来
         }
 
         private void txtName_Leave(object sender, EventArgs e)
