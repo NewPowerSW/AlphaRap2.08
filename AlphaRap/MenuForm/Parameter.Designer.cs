@@ -84,6 +84,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.txtRobotSpeed = new System.Windows.Forms.TextBox();
+            this.tabPage7 = new System.Windows.Forms.TabPage();
+            this.deviceControl1 = new AlphaRap.DeviceControl();
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RobotSpeed)).BeginInit();
@@ -100,6 +102,7 @@
             this.tabPage6.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPage7.SuspendLayout();
             this.SuspendLayout();
             // 
             // SettingData
@@ -115,7 +118,7 @@
             this.label7.Location = new System.Drawing.Point(62, 39);
             this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(173, 31);
+            this.label7.Size = new System.Drawing.Size(273, 50);
             this.label7.TabIndex = 14;
             this.label7.Text = "Speed Ratio :";
             // 
@@ -127,7 +130,7 @@
             this.RobotSpeed.Maximum = 100;
             this.RobotSpeed.Minimum = 1;
             this.RobotSpeed.Name = "RobotSpeed";
-            this.RobotSpeed.Size = new System.Drawing.Size(631, 56);
+            this.RobotSpeed.Size = new System.Drawing.Size(631, 90);
             this.RobotSpeed.TabIndex = 13;
             this.RobotSpeed.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.RobotSpeed.Value = 33;
@@ -181,6 +184,7 @@
             this.tabPage.Controls.Add(this.tabPage6);
             this.tabPage.Controls.Add(this.tabPage2);
             this.tabPage.Controls.Add(this.tabPage3);
+            this.tabPage.Controls.Add(this.tabPage7);
             this.tabPage.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tabPage.Location = new System.Drawing.Point(0, 13);
             this.tabPage.Margin = new System.Windows.Forms.Padding(4);
@@ -194,11 +198,11 @@
             this.tabPage4.BackColor = System.Drawing.Color.White;
             this.tabPage4.Controls.Add(this.groupBox1);
             this.tabPage4.Controls.Add(this.groupBox2);
-            this.tabPage4.Location = new System.Drawing.Point(4, 36);
+            this.tabPage4.Location = new System.Drawing.Point(8, 56);
             this.tabPage4.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage4.Size = new System.Drawing.Size(1192, 1332);
+            this.tabPage4.Size = new System.Drawing.Size(1184, 1308);
             this.tabPage4.TabIndex = 1;
             this.tabPage4.Text = "Convery";
             // 
@@ -228,7 +232,7 @@
             this.textBox2.Location = new System.Drawing.Point(308, 44);
             this.textBox2.Margin = new System.Windows.Forms.Padding(4);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(333, 34);
+            this.textBox2.Size = new System.Drawing.Size(333, 50);
             this.textBox2.TabIndex = 32;
             this.textBox2.Text = "192.168.10.10";
             this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -328,7 +332,7 @@
             this.textBox1.Location = new System.Drawing.Point(308, 44);
             this.textBox1.Margin = new System.Windows.Forms.Padding(4);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(333, 34);
+            this.textBox1.Size = new System.Drawing.Size(333, 50);
             this.textBox1.TabIndex = 32;
             this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -405,10 +409,10 @@
             // 
             this.tabPage1.BackColor = System.Drawing.Color.White;
             this.tabPage1.Controls.Add(this.groupBox3);
-            this.tabPage1.Location = new System.Drawing.Point(4, 36);
+            this.tabPage1.Location = new System.Drawing.Point(8, 56);
             this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Size = new System.Drawing.Size(1192, 1332);
+            this.tabPage1.Size = new System.Drawing.Size(1184, 1308);
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "Pressure";
             // 
@@ -435,7 +439,7 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(33, 62);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(62, 27);
+            this.label5.Size = new System.Drawing.Size(99, 42);
             this.label5.TabIndex = 32;
             this.label5.Text = "COM";
             // 
@@ -445,7 +449,7 @@
             this.textBox8.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.SettingData, "MSet.Pressure_COM", true));
             this.textBox8.Location = new System.Drawing.Point(112, 60);
             this.textBox8.Name = "textBox8";
-            this.textBox8.Size = new System.Drawing.Size(158, 34);
+            this.textBox8.Size = new System.Drawing.Size(158, 50);
             this.textBox8.TabIndex = 31;
             // 
             // button9
@@ -495,10 +499,10 @@
             // 
             this.tabPage5.BackColor = System.Drawing.Color.White;
             this.tabPage5.Controls.Add(this.Ping);
-            this.tabPage5.Location = new System.Drawing.Point(4, 36);
+            this.tabPage5.Location = new System.Drawing.Point(8, 56);
             this.tabPage5.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Size = new System.Drawing.Size(1192, 1332);
+            this.tabPage5.Size = new System.Drawing.Size(1184, 1308);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "IP Ping";
             // 
@@ -510,7 +514,7 @@
             this.Ping.Dock = System.Windows.Forms.DockStyle.Top;
             this.Ping.Location = new System.Drawing.Point(0, 0);
             this.Ping.Name = "Ping";
-            this.Ping.Size = new System.Drawing.Size(1192, 271);
+            this.Ping.Size = new System.Drawing.Size(1184, 271);
             this.Ping.TabIndex = 169;
             this.Ping.TabStop = false;
             this.Ping.Text = "Ping";
@@ -557,9 +561,9 @@
             this.tabPage6.Controls.Add(this.button12);
             this.tabPage6.Controls.Add(this.txtIP);
             this.tabPage6.Controls.Add(this.btnConnect);
-            this.tabPage6.Location = new System.Drawing.Point(4, 36);
+            this.tabPage6.Location = new System.Drawing.Point(8, 56);
             this.tabPage6.Name = "tabPage6";
-            this.tabPage6.Size = new System.Drawing.Size(1192, 1332);
+            this.tabPage6.Size = new System.Drawing.Size(1184, 1308);
             this.tabPage6.TabIndex = 6;
             this.tabPage6.Text = "PLC";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -569,7 +573,7 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(68, 98);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(54, 27);
+            this.label4.Size = new System.Drawing.Size(87, 42);
             this.label4.TabIndex = 48;
             this.label4.Text = "Port";
             // 
@@ -578,7 +582,7 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(68, 29);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(32, 27);
+            this.label3.Size = new System.Drawing.Size(50, 42);
             this.label3.TabIndex = 47;
             this.label3.Text = "IP";
             // 
@@ -589,7 +593,7 @@
             this.textBox7.Location = new System.Drawing.Point(73, 129);
             this.textBox7.Margin = new System.Windows.Forms.Padding(4);
             this.textBox7.Name = "textBox7";
-            this.textBox7.Size = new System.Drawing.Size(169, 34);
+            this.textBox7.Size = new System.Drawing.Size(169, 50);
             this.textBox7.TabIndex = 46;
             // 
             // textBox5
@@ -598,7 +602,7 @@
             this.textBox5.Location = new System.Drawing.Point(263, 129);
             this.textBox5.Margin = new System.Windows.Forms.Padding(4);
             this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(169, 34);
+            this.textBox5.Size = new System.Drawing.Size(169, 50);
             this.textBox5.TabIndex = 45;
             this.textBox5.Text = "1";
             this.textBox5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -609,7 +613,7 @@
             this.textBox3.Location = new System.Drawing.Point(263, 60);
             this.textBox3.Margin = new System.Windows.Forms.Padding(4);
             this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(169, 34);
+            this.textBox3.Size = new System.Drawing.Size(169, 50);
             this.textBox3.TabIndex = 44;
             this.textBox3.Text = "M100";
             this.textBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -643,7 +647,7 @@
             this.txtIP.Location = new System.Drawing.Point(73, 60);
             this.txtIP.Margin = new System.Windows.Forms.Padding(4);
             this.txtIP.Name = "txtIP";
-            this.txtIP.Size = new System.Drawing.Size(169, 34);
+            this.txtIP.Size = new System.Drawing.Size(169, 50);
             this.txtIP.TabIndex = 36;
             // 
             // btnConnect
@@ -660,9 +664,9 @@
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.OPTController);
-            this.tabPage2.Location = new System.Drawing.Point(4, 36);
+            this.tabPage2.Location = new System.Drawing.Point(8, 56);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(1192, 1332);
+            this.tabPage2.Size = new System.Drawing.Size(1184, 1308);
             this.tabPage2.TabIndex = 7;
             this.tabPage2.Text = "OPTControl";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -674,7 +678,7 @@
             this.OPTController.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.OPTController.Location = new System.Drawing.Point(0, 0);
             this.OPTController.Name = "OPTController";
-            this.OPTController.Size = new System.Drawing.Size(1192, 486);
+            this.OPTController.Size = new System.Drawing.Size(1184, 486);
             this.OPTController.TabIndex = 55;
             // 
             // tabPage3
@@ -686,11 +690,11 @@
             this.tabPage3.Controls.Add(this.txtRobotSpeed);
             this.tabPage3.Controls.Add(this.RobotSpeed);
             this.tabPage3.Controls.Add(this.label7);
-            this.tabPage3.Location = new System.Drawing.Point(4, 36);
+            this.tabPage3.Location = new System.Drawing.Point(8, 56);
             this.tabPage3.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage3.Size = new System.Drawing.Size(1192, 1332);
+            this.tabPage3.Size = new System.Drawing.Size(1184, 1308);
             this.tabPage3.TabIndex = 0;
             this.tabPage3.Text = "Speed";
             // 
@@ -702,7 +706,7 @@
             this.label2.Location = new System.Drawing.Point(860, 57);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(42, 27);
+            this.label2.Size = new System.Drawing.Size(66, 41);
             this.label2.TabIndex = 14;
             this.label2.Text = "100";
             // 
@@ -714,7 +718,7 @@
             this.label1.Location = new System.Drawing.Point(277, 58);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(20, 23);
+            this.label1.Size = new System.Drawing.Size(30, 35);
             this.label1.TabIndex = 14;
             this.label1.Text = "1";
             // 
@@ -733,10 +737,32 @@
             this.txtRobotSpeed.Leave += new System.EventHandler(this.txtRobotSpeed_Leave);
             this.txtRobotSpeed.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DataChangeBar_Click);
             // 
+            // tabPage7
+            // 
+            this.tabPage7.Controls.Add(this.deviceControl1);
+            this.tabPage7.Location = new System.Drawing.Point(8, 56);
+            this.tabPage7.Name = "tabPage7";
+            this.tabPage7.Size = new System.Drawing.Size(1184, 1308);
+            this.tabPage7.TabIndex = 8;
+            this.tabPage7.Text = "tabPage7";
+            this.tabPage7.UseVisualStyleBackColor = true;
+            // 
+            // deviceControl1
+            // 
+            this.deviceControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
+            this.deviceControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.deviceControl1.DeviceName = "Device1";
+            this.deviceControl1.DeviceTypeName = null;
+            this.deviceControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.deviceControl1.Font = new System.Drawing.Font("宋体", 10F);
+            this.deviceControl1.Location = new System.Drawing.Point(0, 0);
+            this.deviceControl1.Name = "deviceControl1";
+            this.deviceControl1.Size = new System.Drawing.Size(1184, 1308);
+            this.deviceControl1.TabIndex = 15;
+            // 
             // Parameter
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(1187, 1061);
             this.Controls.Add(this.tabPage);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -766,7 +792,9 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            this.tabPage7.ResumeLayout(false);
             this.ResumeLayout(false);
+
         }
 
         #endregion
@@ -826,5 +854,7 @@
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.TabPage tabPage2;
 		public OPTControl.OPTControl OPTController;
-	}
+        private System.Windows.Forms.TabPage tabPage7;
+        private DeviceControl deviceControl1;
+    }
 }

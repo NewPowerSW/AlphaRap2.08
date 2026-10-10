@@ -50,7 +50,7 @@ namespace AlphaRap
         #region 设计期属性
 
         /// <summary>预设的设备类名，如 ScannerKeyenceTcp；下拉框选择时会同步写回这里。</summary>
-        [Category("Device"), Description("预设的设备类名，如 ScannerKeyenceTcp / Keyence3DTcp / ATEQ_F620 / ModBus_RTU。留空则运行时取列表第一个。")]
+        [Category("Device"), DefaultValue(null), Description("预设的设备类名，如 ScannerKeyenceTcp / Keyence3DTcp / ATEQ_F620 / ModBus_RTU。留空则运行时取列表第一个。")]
         public string DeviceTypeName
         {
             get { return _deviceTypeName; }

@@ -19,6 +19,9 @@ namespace AlphaRap
             XmlElement FatherElement = null;
             XmlElement ChildElement = null;
             string[] Nodes = NodeLocation.Split('/'); //切割Nodes
+            // 空段（如 "Chinese/Form/"）会拼出非法 XPath ⇒ SelectSingleNode 抛 XPathException；直接放弃
+            for (int k = 0; k < Nodes.Length; k++)
+                if (string.IsNullOrEmpty(Nodes[k])) return null;
             for (int i = 0; i < Nodes.Length; i++)
             {
                 if ((ChildElement = (XmlElement)Doc.SelectSingleNode(GetNodePath(Nodes, i))) == null)

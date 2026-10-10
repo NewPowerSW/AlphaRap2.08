@@ -388,13 +388,17 @@ namespace AlphaRap
 				XMLExpand.GetElement(WriteDoc, LanguageArray[i]);
 				for (int j = 0; j < SysPara.ComponentLangurageList[i].Count; j++)
 				{
-					XmlElement eSetting = XMLExpand.GetElement(WriteDoc, LanguageArray[i] + "/" + SysPara.ComponentLangurageList[i][j].FormName + "/" + SysPara.ComponentLangurageList[i][j].ComponentName);
-					eSetting.SetAttribute("ComponentText", SysPara.ComponentLangurageList[i][j].ComponentText);
+					string compName = SysPara.ComponentLangurageList[i][j].ComponentName;
+					if (string.IsNullOrEmpty(compName)) continue;          // 空名会拼出非法 XPath
+					XmlElement eSetting = XMLExpand.GetElement(WriteDoc, LanguageArray[i] + "/" + SysPara.ComponentLangurageList[i][j].FormName + "/" + compName);
+					if (eSetting != null) eSetting.SetAttribute("ComponentText", SysPara.ComponentLangurageList[i][j].ComponentText);
 				}
 				for (int j = 0; j < SysPara.TStripLangurageList[i].Count; j++)   //MainForm ToolStrip
 				{
-					XmlElement eSetting = XMLExpand.GetElement(WriteDoc, LanguageArray[i] + "/" + SysPara.TStripLangurageList[i][j].FormName + "/" + SysPara.TStripLangurageList[i][j].ComponentName);
-					eSetting.SetAttribute("ComponentText", SysPara.TStripLangurageList[i][j].ComponentText);
+					string tsName = SysPara.TStripLangurageList[i][j].ComponentName;
+					if (string.IsNullOrEmpty(tsName)) continue;            // 空名会拼出非法 XPath
+					XmlElement eSetting = XMLExpand.GetElement(WriteDoc, LanguageArray[i] + "/" + SysPara.TStripLangurageList[i][j].FormName + "/" + tsName);
+					if (eSetting != null) eSetting.SetAttribute("ComponentText", SysPara.TStripLangurageList[i][j].ComponentText);
 				}
 
 				if (!Directory.Exists(SysPara.LanguageDataDirectory))
@@ -444,7 +448,9 @@ namespace AlphaRap
 				bool bCylinderControl = false;
 				bCylinderControl |= (control.Name == "btnOn");
 				bCylinderControl |= (control.Name == "btnOff");
-				if (bNeedAdded && !bCylinderControl)
+				// 名字为空的控件不登记：PropertyGrid 这类系统控件的内部子控件名都是空的，
+				// 空名写回 XML 时会拼出 "Chinese/Form/" 这种非法 XPath ⇒ XPathException
+				if (bNeedAdded && !bCylinderControl && !string.IsNullOrEmpty(control.Name))
 				{
 					ComponentTextInfo AddComLan = new ComponentTextInfo();
 					if (ControlType == typeof(NPSDK.Flow_Chart))
