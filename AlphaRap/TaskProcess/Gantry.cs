@@ -13,17 +13,6 @@ namespace AlphaRap.TaskProcess
 		}
 
 		INOVANCE plc = new INOVANCE();
-		/// <summary>
-		/// 产品数据
-		/// </summary>
-		struct ProductMessage
-		{
-			public string barcode;
-		}
-		ProductMessage product = new ProductMessage();
-		struct VisonData
-		{
-		}
 		public override void Initial()
 		{
 			GantryInit_Flow1_1.FlowChart_Run();
@@ -70,23 +59,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType FlowAuto_Scann2_2_FlowChartRun()
 		{
-			string IP = MiddleLayer.ParF.GetSettingValue("PSet", "txtIP1");
-			int Port = MiddleLayer.ParF.GetSettingValue("PSet", "Port");
-			MiddleLayer.ParF.OPTScann.Connect(IP, Port);
-			if (!MiddleLayer.ParF.OPTScann.ConnectStatus())
-			{
-				bool r = MiddleLayer.ParF.OPTScann.Connect(IP, Port);
-				if (!r)
-				{
-					MiddleLayer.DataF.AddLogError(MiddleLayer.HomeF.GetAlarmConent("4014"));
-					NPSDK.Alarm.Show("4014");
-					return NPSDK.Flow_Chart.ResultType.IDLE;
-				}
-			}
-
-			MiddleLayer.ParF.OPTScann.Sent("start");
-			Thread.Sleep(300);
-			product.barcode = MiddleLayer.ParF.OPTScann.Receive();
+			
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
@@ -128,33 +101,13 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_2_FlowChartRun()
 		{
-			NPSDK.Alarm.Show("4014");
-			string IP = MiddleLayer.ParF.GetSettingValue("MSet", "ScannIP");
-			int Port = MiddleLayer.ParF.GetSettingValue("MSet", "ScannPort");
-			if (!MiddleLayer.ParF.OPTScann.ConnectStatus())
-			{
-				if (MiddleLayer.ParF.OPTScann.Connect(IP, Port))
-				{
-					return NPSDK.Flow_Chart.ResultType.NEXT;
-				}
-				NPSDK.Alarm.Show("4014");
-			}
+			
 			return NPSDK.Flow_Chart.ResultType.IDLE;
 		}
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_3_FlowChartRun()
 		{
-			string PLCIP = MiddleLayer.ParF.GetSettingValue("MSet", "PLCIP");
-			int nIpPort = MiddleLayer.ParF.GetSettingValue("MSet", "PLCPort"); ;
-
-			if (!MiddleLayer.ParF.OPTScann.ConnectStatus())
-			{
-				if (INOVANCE.Init_ETH_String(PLCIP, 0, nIpPort))
-				{
-					return NPSDK.Flow_Chart.ResultType.NEXT;
-				}
-				NPSDK.Alarm.Show("4013");
-			}
+			
 			return NPSDK.Flow_Chart.ResultType.IDLE;
 		}
 
