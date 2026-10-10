@@ -1032,6 +1032,9 @@
     <Compile Include="Vision\VpCameraPage.Designer.cs">
       <DependentUpon>VpCameraPage.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Controls\DeviceControl.resx">
+      <DependentUpon>DeviceControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FunctionForms\ErrorOptionForm.resx">
       <DependentUpon>ErrorOptionForm.cs</DependentUpon>
     </EmbeddedResource>

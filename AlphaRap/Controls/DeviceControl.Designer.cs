@@ -62,35 +62,21 @@
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(620, 34);
+            this.panelTop.Size = new System.Drawing.Size(662, 34);
             this.panelTop.TabIndex = 0;
             // 
-            // lblType
+            // txtName
             // 
-            this.lblType.AutoSize = false;
-            this.lblType.Font = new System.Drawing.Font("宋体", 10F);
-            this.lblType.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.lblType.Location = new System.Drawing.Point(8, 8);
-            this.lblType.Name = "lblType";
-            this.lblType.Size = new System.Drawing.Size(62, 18);
-            this.lblType.TabIndex = 0;
-            this.lblType.Text = "设备类";
-            this.lblType.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // cboType
-            // 
-            this.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboType.Font = new System.Drawing.Font("宋体", 10F);
-            this.cboType.FormattingEnabled = true;
-            this.cboType.Location = new System.Drawing.Point(72, 4);
-            this.cboType.Name = "cboType";
-            this.cboType.Size = new System.Drawing.Size(240, 24);
-            this.cboType.TabIndex = 1;
-            this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
+            this.txtName.Font = new System.Drawing.Font("宋体", 10F);
+            this.txtName.Location = new System.Drawing.Point(386, 4);
+            this.txtName.Name = "txtName";
+            this.txtName.Size = new System.Drawing.Size(180, 38);
+            this.txtName.TabIndex = 3;
+            this.txtName.Text = "Device1";
+            this.txtName.Leave += new System.EventHandler(this.txtName_Leave);
             // 
             // lblName
             // 
-            this.lblName.AutoSize = false;
             this.lblName.Font = new System.Drawing.Font("宋体", 10F);
             this.lblName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.lblName.Location = new System.Drawing.Point(326, 8);
@@ -100,15 +86,27 @@
             this.lblName.Text = "设备名";
             this.lblName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // txtName
+            // cboType
             // 
-            this.txtName.Font = new System.Drawing.Font("宋体", 10F);
-            this.txtName.Location = new System.Drawing.Point(386, 4);
-            this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(180, 24);
-            this.txtName.TabIndex = 3;
-            this.txtName.Text = "Device1";
-            this.txtName.Leave += new System.EventHandler(this.txtName_Leave);
+            this.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboType.Font = new System.Drawing.Font("宋体", 10F);
+            this.cboType.FormattingEnabled = true;
+            this.cboType.Location = new System.Drawing.Point(72, 4);
+            this.cboType.Name = "cboType";
+            this.cboType.Size = new System.Drawing.Size(240, 35);
+            this.cboType.TabIndex = 1;
+            this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
+            // 
+            // lblType
+            // 
+            this.lblType.Font = new System.Drawing.Font("宋体", 10F);
+            this.lblType.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.lblType.Location = new System.Drawing.Point(8, 8);
+            this.lblType.Name = "lblType";
+            this.lblType.Size = new System.Drawing.Size(62, 18);
+            this.lblType.TabIndex = 0;
+            this.lblType.Text = "设备类";
+            this.lblType.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // panelMid
             // 
@@ -120,45 +118,11 @@
             this.panelMid.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelMid.Location = new System.Drawing.Point(0, 34);
             this.panelMid.Name = "panelMid";
-            this.panelMid.Size = new System.Drawing.Size(620, 38);
+            this.panelMid.Size = new System.Drawing.Size(662, 38);
             this.panelMid.TabIndex = 1;
-            // 
-            // btnOpen
-            // 
-            this.btnOpen.CornerRadius = 6;
-            this.btnOpen.Location = new System.Drawing.Point(6, 5);
-            this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(88, 28);
-            this.btnOpen.TabIndex = 0;
-            this.btnOpen.Text = "打开连接";
-            this.btnOpen.Variant = AlphaRap.FlatButtonVariant.Primary;
-            this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
-            // 
-            // btnClose
-            // 
-            this.btnClose.CornerRadius = 6;
-            this.btnClose.Location = new System.Drawing.Point(100, 5);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(88, 28);
-            this.btnClose.TabIndex = 1;
-            this.btnClose.Text = "关闭连接";
-            this.btnClose.Variant = AlphaRap.FlatButtonVariant.Surface;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
-            // 
-            // btnRecv
-            // 
-            this.btnRecv.CornerRadius = 6;
-            this.btnRecv.Location = new System.Drawing.Point(194, 5);
-            this.btnRecv.Name = "btnRecv";
-            this.btnRecv.Size = new System.Drawing.Size(88, 28);
-            this.btnRecv.TabIndex = 2;
-            this.btnRecv.Text = "接收一次";
-            this.btnRecv.Variant = AlphaRap.FlatButtonVariant.Surface;
-            this.btnRecv.Click += new System.EventHandler(this.btnRecv_Click);
             // 
             // lblState
             // 
-            this.lblState.AutoSize = false;
             this.lblState.Font = new System.Drawing.Font("宋体", 10F);
             this.lblState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
             this.lblState.Location = new System.Drawing.Point(292, 10);
@@ -168,6 +132,63 @@
             this.lblState.Text = "未选择设备类";
             this.lblState.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // btnRecv
+            // 
+            this.btnRecv.BackColor = System.Drawing.Color.Transparent;
+            this.btnRecv.CornerRadius = 6;
+            this.btnRecv.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnRecv.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnRecv.Icon = null;
+            this.btnRecv.IconGap = 8;
+            this.btnRecv.IconSize = 18;
+            this.btnRecv.Location = new System.Drawing.Point(194, 5);
+            this.btnRecv.Name = "btnRecv";
+            this.btnRecv.Selectable = false;
+            this.btnRecv.Size = new System.Drawing.Size(88, 28);
+            this.btnRecv.TabIndex = 2;
+            this.btnRecv.TabStop = false;
+            this.btnRecv.Text = "接收一次";
+            this.btnRecv.Variant = AlphaRap.FlatButtonVariant.Surface;
+            this.btnRecv.Click += new System.EventHandler(this.btnRecv_Click);
+            // 
+            // btnClose
+            // 
+            this.btnClose.BackColor = System.Drawing.Color.Transparent;
+            this.btnClose.CornerRadius = 6;
+            this.btnClose.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClose.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnClose.Icon = null;
+            this.btnClose.IconGap = 8;
+            this.btnClose.IconSize = 18;
+            this.btnClose.Location = new System.Drawing.Point(100, 5);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Selectable = false;
+            this.btnClose.Size = new System.Drawing.Size(88, 28);
+            this.btnClose.TabIndex = 1;
+            this.btnClose.TabStop = false;
+            this.btnClose.Text = "关闭连接";
+            this.btnClose.Variant = AlphaRap.FlatButtonVariant.Surface;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            // 
+            // btnOpen
+            // 
+            this.btnOpen.BackColor = System.Drawing.Color.Transparent;
+            this.btnOpen.CornerRadius = 6;
+            this.btnOpen.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnOpen.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnOpen.Icon = null;
+            this.btnOpen.IconGap = 8;
+            this.btnOpen.IconSize = 18;
+            this.btnOpen.Location = new System.Drawing.Point(6, 5);
+            this.btnOpen.Name = "btnOpen";
+            this.btnOpen.Selectable = false;
+            this.btnOpen.Size = new System.Drawing.Size(88, 28);
+            this.btnOpen.TabIndex = 0;
+            this.btnOpen.TabStop = false;
+            this.btnOpen.Text = "打开连接";
+            this.btnOpen.Variant = AlphaRap.FlatButtonVariant.Primary;
+            this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
+            // 
             // panelParam
             // 
             this.panelParam.BackColor = System.Drawing.Color.White;
@@ -176,12 +197,25 @@
             this.panelParam.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelParam.Location = new System.Drawing.Point(0, 72);
             this.panelParam.Name = "panelParam";
-            this.panelParam.Size = new System.Drawing.Size(620, 168);
+            this.panelParam.Size = new System.Drawing.Size(662, 168);
             this.panelParam.TabIndex = 2;
+            // 
+            // propGrid
+            // 
+            this.propGrid.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.propGrid.CommandsVisibleIfAvailable = false;
+            this.propGrid.Font = new System.Drawing.Font("宋体", 9F);
+            this.propGrid.HelpVisible = false;
+            this.propGrid.Location = new System.Drawing.Point(6, 26);
+            this.propGrid.Name = "propGrid";
+            this.propGrid.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
+            this.propGrid.Size = new System.Drawing.Size(650, 136);
+            this.propGrid.TabIndex = 1;
+            this.propGrid.ToolbarVisible = false;
             // 
             // lblParam
             // 
-            this.lblParam.AutoSize = false;
             this.lblParam.Font = new System.Drawing.Font("宋体", 10F);
             this.lblParam.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
             this.lblParam.Location = new System.Drawing.Point(8, 6);
@@ -191,52 +225,46 @@
             this.lblParam.Text = "连接参数（按所选设备类自动列出，可直接编辑）";
             this.lblParam.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // propGrid
-            // 
-            this.propGrid.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.propGrid.CommandsVisibleIfAvailable = false;
-            this.propGrid.Font = new System.Drawing.Font("宋体", 9F);
-            this.propGrid.HelpVisible = false;
-            this.propGrid.Location = new System.Drawing.Point(6, 26);
-            this.propGrid.Name = "propGrid";
-            this.propGrid.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
-            this.propGrid.Size = new System.Drawing.Size(608, 136);
-            this.propGrid.TabIndex = 1;
-            this.propGrid.ToolbarVisible = false;
-            // 
             // panelSend
             // 
             this.panelSend.BackColor = System.Drawing.Color.White;
             this.panelSend.Controls.Add(this.btnSend);
             this.panelSend.Controls.Add(this.txtSend);
             this.panelSend.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelSend.Location = new System.Drawing.Point(0, 424);
+            this.panelSend.Location = new System.Drawing.Point(0, 509);
             this.panelSend.Name = "panelSend";
-            this.panelSend.Size = new System.Drawing.Size(620, 36);
+            this.panelSend.Size = new System.Drawing.Size(662, 36);
             this.panelSend.TabIndex = 3;
-            // 
-            // txtSend
-            // 
-            this.txtSend.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSend.Font = new System.Drawing.Font("Consolas", 10F);
-            this.txtSend.Location = new System.Drawing.Point(6, 5);
-            this.txtSend.Name = "txtSend";
-            this.txtSend.Size = new System.Drawing.Size(504, 23);
-            this.txtSend.TabIndex = 0;
             // 
             // btnSend
             // 
             this.btnSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSend.BackColor = System.Drawing.Color.Transparent;
             this.btnSend.CornerRadius = 6;
-            this.btnSend.Location = new System.Drawing.Point(518, 4);
+            this.btnSend.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnSend.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnSend.Icon = null;
+            this.btnSend.IconGap = 8;
+            this.btnSend.IconSize = 18;
+            this.btnSend.Location = new System.Drawing.Point(560, 4);
             this.btnSend.Name = "btnSend";
+            this.btnSend.Selectable = false;
             this.btnSend.Size = new System.Drawing.Size(88, 28);
             this.btnSend.TabIndex = 1;
+            this.btnSend.TabStop = false;
             this.btnSend.Text = "发送";
             this.btnSend.Variant = AlphaRap.FlatButtonVariant.Primary;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
+            // 
+            // txtSend
+            // 
+            this.txtSend.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSend.Font = new System.Drawing.Font("Consolas", 10F);
+            this.txtSend.Location = new System.Drawing.Point(6, 5);
+            this.txtSend.Name = "txtSend";
+            this.txtSend.Size = new System.Drawing.Size(546, 39);
+            this.txtSend.TabIndex = 0;
             // 
             // txtRecv
             // 
@@ -249,7 +277,7 @@
             this.txtRecv.Name = "txtRecv";
             this.txtRecv.ReadOnly = true;
             this.txtRecv.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtRecv.Size = new System.Drawing.Size(620, 184);
+            this.txtRecv.Size = new System.Drawing.Size(662, 269);
             this.txtRecv.TabIndex = 4;
             // 
             // DeviceControl
@@ -264,7 +292,7 @@
             this.Controls.Add(this.panelTop);
             this.Font = new System.Drawing.Font("宋体", 10F);
             this.Name = "DeviceControl";
-            this.Size = new System.Drawing.Size(620, 460);
+            this.Size = new System.Drawing.Size(662, 545);
             this.Load += new System.EventHandler(this.DeviceControl_Load);
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
@@ -273,6 +301,8 @@
             this.panelSend.ResumeLayout(false);
             this.panelSend.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
