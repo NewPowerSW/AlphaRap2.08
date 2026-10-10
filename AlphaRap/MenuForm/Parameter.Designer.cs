@@ -78,8 +78,6 @@
             this.button12 = new System.Windows.Forms.Button();
             this.txtIP = new System.Windows.Forms.TextBox();
             this.btnConnect = new System.Windows.Forms.Button();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.OPTController = new OPTControl.OPTControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -100,7 +98,6 @@
             this.tabPage5.SuspendLayout();
             this.Ping.SuspendLayout();
             this.tabPage6.SuspendLayout();
-            this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage7.SuspendLayout();
             this.SuspendLayout();
@@ -182,7 +179,6 @@
             this.tabPage.Controls.Add(this.tabPage1);
             this.tabPage.Controls.Add(this.tabPage5);
             this.tabPage.Controls.Add(this.tabPage6);
-            this.tabPage.Controls.Add(this.tabPage2);
             this.tabPage.Controls.Add(this.tabPage3);
             this.tabPage.Controls.Add(this.tabPage7);
             this.tabPage.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -661,26 +657,6 @@
             this.btnConnect.UseVisualStyleBackColor = true;
             this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
             // 
-            // tabPage2
-            // 
-            this.tabPage2.Controls.Add(this.OPTController);
-            this.tabPage2.Location = new System.Drawing.Point(8, 56);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(1184, 1308);
-            this.tabPage2.TabIndex = 7;
-            this.tabPage2.Text = "OPTControl";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // OPTController
-            // 
-            this.OPTController.BackColor = System.Drawing.Color.White;
-            this.OPTController.Dock = System.Windows.Forms.DockStyle.Top;
-            this.OPTController.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.OPTController.Location = new System.Drawing.Point(0, 0);
-            this.OPTController.Name = "OPTController";
-            this.OPTController.Size = new System.Drawing.Size(1184, 486);
-            this.OPTController.TabIndex = 55;
-            // 
             // tabPage3
             // 
             this.tabPage3.BackColor = System.Drawing.Color.White;
@@ -789,7 +765,6 @@
             this.Ping.PerformLayout();
             this.tabPage6.ResumeLayout(false);
             this.tabPage6.PerformLayout();
-            this.tabPage2.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
             this.tabPage7.ResumeLayout(false);
@@ -852,8 +827,6 @@
 		private System.Windows.Forms.TextBox textBox11;
 		private System.Windows.Forms.Button button13;
 		private System.Windows.Forms.Label label4;
-		private System.Windows.Forms.TabPage tabPage2;
-		public OPTControl.OPTControl OPTController;
         private System.Windows.Forms.TabPage tabPage7;
         private DeviceControl deviceControl1;
     }
