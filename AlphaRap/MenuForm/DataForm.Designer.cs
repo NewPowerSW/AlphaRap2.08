@@ -143,7 +143,7 @@
 			this.UserOperationLog.Items.Add(dataFormat19);
 			this.UserOperationLog.Items.Add(dataFormat20);
 			this.UserOperationLog.Items.Add(dataFormat21);
-			this.UserOperationLog.SavePath = "D:\\操作日志";
+			this.UserOperationLog.SavePath = "D:\\Log\\OperationLog";
 			this.UserOperationLog.Text = "OperationLog";
 			// 
 			// DataForm

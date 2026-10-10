@@ -1196,7 +1196,7 @@
   <ItemGroup>
     <Content Include="AlphaRap128.ico" />
     <None Include="Resources\VZzuY3.png" />
-    <None Include="Resources\灯.png" />
+    <None Include="Resources\Lamp.png" />
     <None Include="Connected Services\ExtMainServiceClient\ExtSystemService.disco" />
     <None Include="Connected Services\ExtMainServiceClient\configuration91.svcinfo" />
     <None Include="Connected Services\ExtMainServiceClient\configuration.svcinfo" />
@@ -1259,7 +1259,7 @@
     <Content Include="Resources\Picture\9.png" />
     <Content Include="Resources\Picture\9a.png" />
     <Content Include="Resources\Picture\timg.png" />
-    <Content Include="Resources\Picture\无标题.png" />
+    <Content Include="Resources\Picture\Untitled.png" />
     <Content Include="Resources\timg %282%29.png" />
     <Content Include="Resources\timg.png" />
   </ItemGroup>
