@@ -29,7 +29,17 @@ namespace AlphaRap
         {
             get
             {
-                return _tcpClient.Connected;
+                try
+                {
+                    // ⚠ TcpClient.Connected 只反映"最后一次 I/O 的结果"，且会被 TUN/代理软件
+                    //    伪造的握手骗过（表现：设备根本不存在也报"已连接"）。
+                    //    这里额外要求网络流已建立；要确认真能通，请用 ScanOnce() 看有没有真实回包。
+                    return _tcpClient != null && _netStream != null && _tcpClient.Connected;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
             }
         }
 
@@ -131,6 +141,7 @@ namespace AlphaRap
                         }
                         catch (Exception ex)
                         {
+                            _netStream = null;      // 连接失败：清掉流，IsConnected 才会如实返回 false
                             ShowException("连接扫码枪网口失败！", ex);
                         }
                 }
@@ -146,8 +157,10 @@ namespace AlphaRap
         {
             try
             {
-                _netStream.Close(); //关闭流对象
-                _tcpClient.Close(); //关闭连接并释放                
+                if (_netStream != null) { _netStream.Close(); _netStream = null; } //关闭流对象
+                _tcpClient.Close(); //关闭连接并释放
+                // TcpClient.Close() 之后该实例不能再 Connect，必须重建，否则"关闭后再打开"会抛异常
+                _tcpClient = new TcpClient();                
             }
             catch (Exception ex)
             {

@@ -22,9 +22,21 @@ namespace AlphaRap
         {
             get
             {
-                return Keyence3D.ConnectStatus();
+                try
+                {
+                    // ⚠ 只信底层 ConnectStatus() 会出现"从未连接也报已连接"；
+                    //    这里要求本类真的成功调用过 Connect（_opened）才认为已连接。
+                    return _opened && Keyence3D.ConnectStatus();
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
             }
         }
+
+        /// <summary>本类是否成功调用过 Connect（底层 ConnectStatus() 单独用不可靠）。</summary>
+        private bool _opened;
 
         /// <summary>
         /// 重写父类的属性：扫码枪是否正在运行：扫码中
@@ -108,9 +120,11 @@ namespace AlphaRap
                         try
                         {
                             Keyence3D.Connect(IP, Port); //连接网口
+                            _opened = true;
                         }
                         catch (Exception ex)
                         {
+                            _opened = false;
                             ShowException("连接3D网口失败！", ex);
                         }
                 }
@@ -126,7 +140,8 @@ namespace AlphaRap
         {
             try
             {
-                Keyence3D.Disconnect(); //关闭连接并释放                
+                Keyence3D.Disconnect(); //关闭连接并释放
+                _opened = false;
             }
             catch (Exception ex)
             {

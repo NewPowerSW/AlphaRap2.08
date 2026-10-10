@@ -118,7 +118,9 @@ namespace AlphaRap
                     + (_device.IsConnected ? " 已连接" : " 未连接"));
                 RefreshState();
 
-                return _device.IsConnected ? string.Empty : "已调用 Open()，但设备报告未连接。";
+                return _device.IsConnected ? string.Empty
+                    : "没有连上：设备报告未连接。请检查 IP / 端口 / 网线；另外代理软件（如 Clash 的 TUN 模式）会接管 TCP 连接，"
+                    + "让不存在的设备也显示连上，排查时请先关掉它。";
             }
             catch (Exception ex)
             {
