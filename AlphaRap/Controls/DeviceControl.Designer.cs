@@ -40,6 +40,8 @@
             this.btnClose = new AlphaRap.FlatButton();
             this.btnOpen = new AlphaRap.FlatButton();
             this.btnClear = new AlphaRap.FlatButton();
+            this.btnAddDev = new AlphaRap.FlatButton();
+            this.btnDelDev = new AlphaRap.FlatButton();
             this.panelParam = new System.Windows.Forms.Panel();
             this.propGrid = new System.Windows.Forms.PropertyGrid();
             this.lblParam = new AlphaRap.UiLabel();
@@ -56,6 +58,8 @@
             // panelTop
             // 
             this.panelTop.BackColor = System.Drawing.Color.White;
+            this.panelTop.Controls.Add(this.btnDelDev);
+            this.panelTop.Controls.Add(this.btnAddDev);
             this.panelTop.Controls.Add(this.txtName);
             this.panelTop.Controls.Add(this.lblName);
             this.panelTop.Controls.Add(this.cboType);
@@ -69,9 +73,9 @@
             // txtName
             // 
             this.txtName.Font = new System.Drawing.Font("宋体", 10F);
-            this.txtName.Location = new System.Drawing.Point(386, 4);
+            this.txtName.Location = new System.Drawing.Point(508, 4);
             this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(180, 38);
+            this.txtName.Size = new System.Drawing.Size(148, 38);
             this.txtName.TabIndex = 3;
             this.txtName.Text = "Device1";
             this.txtName.Leave += new System.EventHandler(this.txtName_Leave);
@@ -80,7 +84,7 @@
             // 
             this.lblName.Font = new System.Drawing.Font("宋体", 10F);
             this.lblName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.lblName.Location = new System.Drawing.Point(326, 8);
+            this.lblName.Location = new System.Drawing.Point(448, 8);
             this.lblName.Name = "lblName";
             this.lblName.Size = new System.Drawing.Size(56, 18);
             this.lblName.TabIndex = 2;
@@ -94,7 +98,7 @@
             this.cboType.FormattingEnabled = true;
             this.cboType.Location = new System.Drawing.Point(72, 4);
             this.cboType.Name = "cboType";
-            this.cboType.Size = new System.Drawing.Size(240, 35);
+            this.cboType.Size = new System.Drawing.Size(228, 35);
             this.cboType.TabIndex = 1;
             this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
             // 
@@ -106,8 +110,48 @@
             this.lblType.Name = "lblType";
             this.lblType.Size = new System.Drawing.Size(62, 18);
             this.lblType.TabIndex = 0;
-            this.lblType.Text = "设备类";
+            this.lblType.Text = "设备";
             this.lblType.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // btnAddDev
+            // 
+            this.btnAddDev.BackColor = System.Drawing.Color.Transparent;
+            this.btnAddDev.CornerRadius = 6;
+            this.btnAddDev.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAddDev.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnAddDev.Icon = null;
+            this.btnAddDev.IconGap = 8;
+            this.btnAddDev.IconSize = 18;
+            this.btnAddDev.Location = new System.Drawing.Point(306, 4);
+            this.btnAddDev.Name = "btnAddDev";
+            this.btnAddDev.Selectable = false;
+            this.btnAddDev.Size = new System.Drawing.Size(66, 26);
+            this.btnAddDev.TabIndex = 5;
+            this.btnAddDev.TabStop = false;
+            this.btnAddDev.Text = "添加";
+            this.btnAddDev.Variant = AlphaRap.FlatButtonVariant.Primary;
+            this.btnAddDev.Click += new System.EventHandler(this.btnAddDev_Click);
+
+            // 
+            // btnDelDev
+            // 
+            this.btnDelDev.BackColor = System.Drawing.Color.Transparent;
+            this.btnDelDev.CornerRadius = 6;
+            this.btnDelDev.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDelDev.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnDelDev.Icon = null;
+            this.btnDelDev.IconGap = 8;
+            this.btnDelDev.IconSize = 18;
+            this.btnDelDev.Location = new System.Drawing.Point(376, 4);
+            this.btnDelDev.Name = "btnDelDev";
+            this.btnDelDev.Selectable = false;
+            this.btnDelDev.Size = new System.Drawing.Size(66, 26);
+            this.btnDelDev.TabIndex = 6;
+            this.btnDelDev.TabStop = false;
+            this.btnDelDev.Text = "删除";
+            this.btnDelDev.Variant = AlphaRap.FlatButtonVariant.Surface;
+            this.btnDelDev.Click += new System.EventHandler(this.btnDelDev_Click);
+
             // 
             // panelMid
             // 
@@ -338,6 +382,8 @@
         private FlatButton btnClear;
         private FlatButton btnClose;
         private FlatButton btnRecv;
+        private FlatButton btnAddDev;
+        private FlatButton btnDelDev;
         private UiLabel lblState;
         private System.Windows.Forms.Panel panelParam;
         private UiLabel lblParam;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -9,32 +10,46 @@ using System.Xml;
 namespace AlphaRap
 {
     /// <summary>
-    /// 设备调试控件：从工具箱拖到窗体上即可用，不需要写代码。
+    /// 设备管理控件：从工具箱拖到窗体上即可用，不需要写代码。
     ///
-    /// · <b>选设备类</b>：加载时用反射列出本程序集里所有继承 <see cref="AbstractDevice"/> 的具体类
-    ///   （不论构造函数签名、不论 public/internal），下拉框直接选。
-    ///   **以后再新增通讯类，重新生成后会自动出现在这个下拉框里。**
-    /// · <b>填连接参数</b>：下面那张参数表按所选设备类自动生成（IP / Port / 串口号 / 波特率 …），
-    ///   直接改，改完就作用到设备实例上。
-    /// · <b>打开 / 关闭 / 发送 / 接收</b>：收发优先走 <see cref="AbstractDevice.Send"/> /
-    ///   <see cref="AbstractDevice.Receive"/>；没重写的类会退回按方法名找
-    ///   Send / Sent / Write / Read 之类的公开方法；两者都没有时日志里会明确写出来。
-    ///   选中设备类时会先在日志里打一条该类的**收发能力**说明。
+    /// · <b>添加 / 删除设备</b>：一个控件可以管理**多台**设备。【添加】时用反射列出本程序集里所有继承
+    ///   <see cref="AbstractDevice"/> 的具体类（不论构造函数签名、不论 public/internal）任选一个，
+    ///   自动起名 Device1/Device2…，名字可在"设备名"框里改。【删除】会连同它的参数一起从配置里移除。
+    ///   **以后再新增通讯类，重新生成后在【添加】的列表里就会出现。**
+    /// · <b>选择设备</b>：左边的下拉框列出已配置的设备（显示 名字（类名）），选哪台就编辑哪台的参数。
+    /// · <b>填连接参数</b>：中间那张参数表按该设备的类自动生成（IP / Port / 串口号 / 波特率 …），直接改。
+    /// · <b>打开 / 关闭 / 发送 / 接收</b>：只作用于当前选中的设备；收发优先走
+    ///   <see cref="AbstractDevice.Send"/> / <see cref="AbstractDevice.Receive"/>，没重写的类退回按方法名找
+    ///   Send / Sent / Write / Read 之类的公开方法；都没有时日志里会明确写出来。
+    ///   未连接时【发送】【接收】置灰。
     ///
-    /// 设计期可在属性窗口预设 <see cref="DeviceTypeName"/>（类名，如 ScannerKeyenceTcp）与 <see cref="DeviceName"/>。
+    /// 参数保存在 {SettingDataDirectory}\DeviceControl.xml，**跟随 MainForm 的【保存】按钮**（选"是"写入、选"否"回滚）。
     /// </summary>
     public partial class DeviceControl : UserControl
     {
-        private AbstractDevice _device;
-        private readonly List<Type> _types = new List<Type>();
+        /// <summary>一台已配置的设备。一个 DeviceControl 可以管理多台。</summary>
+        private class DeviceItem
+        {
+            public string Name;             // 设备名（在控件内唯一，同时是 XML 里的 Name）
+            public Type DeviceType;         // AbstractDevice 的具体子类
+            public AbstractDevice Instance; // 该设备的实例（参数表绑它）
+
+            public override string ToString()
+            {
+                return Name + "（" + ((DeviceType == null) ? "?" : DeviceType.Name) + "）";
+            }
+        }
+
+        private AbstractDevice _device;                                  // = 当前设备的实例（_current.Instance）
+        private readonly List<DeviceItem> _devices = new List<DeviceItem>();
+        private DeviceItem _current;                                     // 当前选中的设备
+        private string _pendingCurrent;                                   // XML 里记录的"上次选中的设备名"
+        private readonly List<Type> _types = new List<Type>();            // 可添加的设备类（反射扫描结果）
         private string _deviceTypeName;
         private int _logLines;
 
-        /// <summary>列表刷新中：此时下拉框的选中变化不算作"用户选了设备类"。</summary>
+        /// <summary>设备列表刷新中：此时下拉框的选中变化不算作用户操作。</summary>
         private bool _loading;
-
-        /// <summary>正在按 XML 还原设备类：期间下拉框的选中变化不要再触发一次自动载入（会重复套参数、刷两条日志）。</summary>
-        private bool _suppressAutoLoad;
 
         /// <summary>名称像"发送"的方法（兜底用，找不到就明确提示该重写什么）。</summary>
         private static readonly string[] SendMethodNames =
@@ -48,30 +63,25 @@ namespace AlphaRap
         {
             InitializeComponent();
 
-            BuildTypeList();
+            BuildTypeList();        // 反射扫描设备类，供【添加】时挑选
 
-            // 设计期不建设备实例（免得 VS 设计器里碰真实端口）；运行期先建一个，参数表立刻可编辑
+            // 设计期不碰真实端口、也不建实例；运行期的设备来自 XML（Load 事件）或【添加】按钮
             if (!InDesigner)
             {
                 LiveInstances.Add(this);                                    // 供 MainForm 的【保存】按钮统一保存
                 this.Disposed += delegate { LiveInstances.Remove(this); };
                 if (propGrid != null) propGrid.PropertyValueChanged += propGrid_PropertyValueChanged;
-                CreateDevice();
             }
         }
 
         #region 设计期属性
 
-        /// <summary>预设的设备类名，如 ScannerKeyenceTcp；下拉框选择时会同步写回这里。</summary>
-        [Category("Device"), DefaultValue(null), Description("预设的设备类名，如 ScannerKeyenceTcp / Keyence3DTcp / ATEQ_F620 / ModBus_RTU。留空则运行时取列表第一个。")]
+        /// <summary>【添加】时预选的设备类名（如 ScannerKeyenceTcp）。设备本身在【添加】按钮里管理。</summary>
+        [Category("Device"), DefaultValue(null), Description("【添加】时预选的设备类名，如 ScannerKeyenceTcp / Keyence3DTcp / ATEQ_F620 / ModBus_RTU。")]
         public string DeviceTypeName
         {
             get { return _deviceTypeName; }
-            set
-            {
-                _deviceTypeName = value;
-                SelectTypeByName(value);
-            }
+            set { _deviceTypeName = value; }
         }
 
         /// <summary>设备名：传给设备类构造函数（一般作为配置文件 section）。</summary>
@@ -138,7 +148,7 @@ namespace AlphaRap
         {
             try
             {
-                if (_device == null && !CreateDevice()) return "未选择设备类。";
+                if (_device == null) return "还没有添加设备，请先点【添加】。";
 
                 _device.Open();
                 AppendLog("打开", _device.DeviceName + "（" + _device.GetType().Name + "）"
@@ -180,7 +190,7 @@ namespace AlphaRap
 
             try
             {
-                if (_device == null && !CreateDevice()) return "未选择设备类。";
+                if (_device == null) return "还没有添加设备，请先点【添加】。";
                 if (!_device.IsConnected) return "未连接设备，无法发送。请先点【打开连接】。";
 
                 string err = _device.SupportsRawIo ? _device.Send(text) : ReflectSend(_device, text);
@@ -203,7 +213,11 @@ namespace AlphaRap
         {
             try
             {
-                if (_device == null && !CreateDevice()) return string.Empty;
+                if (_device == null)
+                {
+                    AppendLog("提示", "还没有添加设备，请先点【添加】。");
+                    return string.Empty;
+                }
                 if (!_device.IsConnected)
                 {
                     AppendLog("提示", "未连接设备，无法接收。请先点【打开连接】。");
@@ -257,8 +271,6 @@ namespace AlphaRap
         {
             _types.Clear();
             Type baseType = typeof(AbstractDevice);
-
-            string keep = cboType.SelectedItem is Type ? ((Type)cboType.SelectedItem).Name : _deviceTypeName;
             try
             {
                 foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
@@ -275,59 +287,76 @@ namespace AlphaRap
                 return string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
             });
 
-            cboType.DisplayMember = "Name";
-            _loading = true;
-            try
+            // 顺手把已配置的设备类补进来：万一某个类改名/被删，历史配置也不会整条丢掉
+            for (int i = 0; i < _devices.Count; i++)
             {
-                cboType.DataSource = new List<Type>(_types);
-                if (!string.IsNullOrEmpty(keep)) SelectTypeByName(keep);   // 刷新时不跳回第一个
+                bool found = false;
+                for (int j = 0; j < _types.Count; j++)
+                    if (_types[j] == _devices[i].DeviceType) { found = true; break; }
+                if (!found && _devices[i].DeviceType != null) _types.Add(_devices[i].DeviceType);
             }
-            finally { _loading = false; }
         }
 
-        private void SelectTypeByName(string typeName)
+        /// <summary>在"设备"下拉框里选中指定名字的设备。</summary>
+        private void SelectDeviceByName(string name)
         {
-            if (cboType == null || _types.Count == 0 || string.IsNullOrEmpty(typeName)) return;
+            if (cboType == null || string.IsNullOrEmpty(name)) return;
 
-            for (int i = 0; i < _types.Count; i++)
+            for (int i = 0; i < _devices.Count; i++)
             {
-                if (!string.Equals(_types[i].Name, typeName, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!string.Equals(_devices[i].Name, name, StringComparison.OrdinalIgnoreCase)) continue;
                 if (cboType.SelectedIndex != i) cboType.SelectedIndex = i;
                 return;
             }
         }
 
-        /// <summary>按当前下拉框选择建一个设备实例，并把它的可配置属性挂到参数表上。</summary>
-        private bool CreateDevice()
+        /// <summary>重建"设备"下拉框（数据源 = _devices），并选中指定名字的设备。</summary>
+        private void RebuildDeviceList(string selectName)
         {
-            CloseSilently();
+            if (cboType == null) return;
 
-            _device = null;
-            Type t = cboType.SelectedItem as Type;
-            if (t == null)
-            {
-                propGrid.SelectedObject = null;
-                RefreshState();
-                return false;
-            }
-
-            string name = (txtName == null) ? null : txtName.Text;
-            if (string.IsNullOrEmpty(name)) name = string.IsNullOrEmpty(this.Name) ? "Device1" : this.Name;
-
+            _loading = true;
             try
             {
-                _device = NewDevice(t, name);
-                AppendLog("设备类", _device.DeviceName + "（" + t.Name + "）：" + DescribeIo(_device));
+                cboType.DataSource = null;
+                cboType.DisplayMember = string.Empty;               // 用 DeviceItem.ToString() ⇒ "名字（类名）"
+                cboType.DataSource = new List<DeviceItem>(_devices);
+                if (!string.IsNullOrEmpty(selectName)) SelectDeviceByName(selectName);
             }
-            catch (Exception ex)
-            {
-                _device = null;
-                AppendLog("错误", "创建 " + t.Name + " 失败：" + ex.Message);
-            }
+            finally { _loading = false; }
+        }
 
-            propGrid.SelectedObject = _device;   // 参数表：IP / Port / 串口号…自动列出
+        private DeviceItem FindDevice(string name)
+        {
+            for (int i = 0; i < _devices.Count; i++)
+                if (string.Equals(_devices[i].Name, name, StringComparison.OrdinalIgnoreCase)) return _devices[i];
+            return null;
+        }
+
+        /// <summary>自动起一个没被占用的设备名：Device1 / Device2 …</summary>
+        private string AutoDeviceName()
+        {
+            for (int i = 1; ; i++)
+            {
+                string n = "Device" + i;
+                if (FindDevice(n) == null) return n;
+            }
+        }
+
+        /// <summary>切换到指定设备（实例在【添加】时已建好，这里只做挂载与界面同步）。</summary>
+        private void SwitchToDevice(DeviceItem item)
+        {
+            CloseSilently();                                     // 换设备前先断开上一台
+
+            _current = item;
+            _device = (item == null) ? null : item.Instance;
+
+            if (txtName != null) txtName.Text = (_current == null) ? string.Empty : _current.Name;
+            if (propGrid != null) propGrid.SelectedObject = _device;     // 参数表：IP / Port / 串口号…自动列出
             RefreshState();
-            return _device != null;
+
+            if (_current != null)
+                AppendLog("设备", _current.Name + "（" + _current.DeviceType.Name + "）：" + DescribeIo(_device));
         }
 
         /// <summary>
@@ -498,133 +527,156 @@ namespace AlphaRap
                 LiveInstances[i].LoadFromXml();
         }
 
-        /// <summary>把本实例当前设备参数写进 XML 文档（没有对应节点就新建）。</summary>
+        /// <summary>
+        /// 把本控件管理的**所有设备**写进 XML（每台一条 &lt;Item Name="…" Type="…"&gt;）。
+        /// 旧格式（Device 直挂参数 / 按设备类分组的 &lt;Type&gt;）会在保存时统一转成新结构。
+        /// </summary>
         private void WriteToDoc(XmlDocument doc)
         {
-            if (_device == null || doc.DocumentElement == null) return;
+            if (doc == null || doc.DocumentElement == null) return;
 
             XmlElement node = FindOrCreateDeviceNode(doc, XmlKey);
-            string typeName = _device.GetType().Name;
 
-            // 旧格式迁移：<Device Type="X"> 下直接挂参数 —— 搬进 <Type Name="X"> 分组，只做一次
-            string legacyType = node.GetAttribute("Type");
-            bool hasStray = false;
-            for (int i = 0; i < node.ChildNodes.Count; i++)
+            for (int i = node.ChildNodes.Count - 1; i >= 0; i--) node.RemoveChild(node.ChildNodes[i]);   // 旧结构整体重建
+            node.RemoveAttribute("Type");
+            node.RemoveAttribute("LastType");
+            node.RemoveAttribute("DeviceName");
+            node.SetAttribute("Current", (_current == null) ? string.Empty : _current.Name);             // 记住上次选中的设备
+
+            for (int k = 0; k < _devices.Count; k++)
             {
-                XmlElement ce = node.ChildNodes[i] as XmlElement;
-                if (ce != null && ce.Name != "Type") { hasStray = true; break; }
-            }
-            if (hasStray)
-            {
-                XmlElement target = string.IsNullOrEmpty(legacyType) ? null : FindTypeNode(node, legacyType);
-                if (target == null && !string.IsNullOrEmpty(legacyType))
+                DeviceItem it = _devices[k];
+
+                XmlElement itemNode = doc.CreateElement("Item");
+                itemNode.SetAttribute("Name", it.Name);
+                itemNode.SetAttribute("Type", it.DeviceType.Name);
+
+                foreach (PropertyInfo p in WritableProperties(it.DeviceType))
                 {
-                    target = doc.CreateElement("Type");
-                    target.SetAttribute("Name", legacyType);
-                    node.AppendChild(target);
+                    try
+                    {
+                        object v = p.GetValue(it.Instance, null);
+                        XmlElement e = doc.CreateElement(p.Name);
+                        e.InnerText = ToInvariantString(v, p.PropertyType);
+                        itemNode.AppendChild(e);
+                    }
+                    catch (Exception) { }
                 }
-                for (int i = node.ChildNodes.Count - 1; i >= 0; i--)
-                {
-                    XmlNode c = node.ChildNodes[i];
-                    if (c is XmlElement && ((XmlElement)c).Name == "Type") continue;   // 分组节点本身不动
-                    node.RemoveChild(c);
-                    if (target != null) target.PrependChild(c);
-                }
-            }
-            if (!string.IsNullOrEmpty(legacyType)) node.RemoveAttribute("Type");
-
-            node.SetAttribute("LastType", typeName);                            // 记住"上次用的是哪个设备类"
-            node.SetAttribute("DeviceName", _device.DeviceName ?? string.Empty);
-
-            XmlElement typeNode = FindTypeNode(node, typeName);
-            if (typeNode == null)
-            {
-                typeNode = doc.CreateElement("Type");
-                typeNode.SetAttribute("Name", typeName);
-                node.AppendChild(typeNode);
-            }
-
-            for (int i = typeNode.ChildNodes.Count - 1; i >= 0; i--) typeNode.RemoveChild(typeNode.ChildNodes[i]);   // 只清这个类的旧参数
-
-            foreach (PropertyInfo p in WritableProperties(_device.GetType()))
-            {
-                try
-                {
-                    object v = p.GetValue(_device, null);
-                    XmlElement item = doc.CreateElement(p.Name);
-                    item.InnerText = ToInvariantString(v, p.PropertyType);
-                    typeNode.AppendChild(item);
-                }
-                catch (Exception) { }
+                node.AppendChild(itemNode);
             }
         }
 
-        /// <summary>从 XML 读回本实例的参数并套到设备实例上（离线保存的核心：整个过程不依赖设备在线）。</summary>
+        /// <summary>
+        /// 从 XML 重建本控件的**设备列表**（离线保存的核心：整个过程不依赖设备在线）。
+        /// 【保存】选"否"回滚时也走这里 —— 会把"添加过但没保存"的设备丢掉、"删掉的"设备找回来。
+        /// 兼容两种旧格式：① &lt;Device Type="X"&gt; 参数直挂；② &lt;Type Name="X"&gt; 按设备类分组。
+        /// </summary>
         public void LoadFromXml()
-        {
-            LoadFromXml(true);
-        }
-
-        /// <param name="restoreType">
-        /// true（启动时）：按 XML 里记录的"上次保存的设备类"还原下拉框与设备实例；
-        /// false（用户手动切换设备类时）：只把该类上次保存的参数套上去。
-        /// </param>
-        private void LoadFromXml(bool restoreType)
         {
             try
             {
+                CloseSilently();
+                _devices.Clear();
+                _current = null;
+                _device = null;
+                _pendingCurrent = null;
+
+                if (_types.Count == 0) BuildTypeList();     // 万一还没扫过设备类
+
                 string path = XmlFilePath;
-                if (!File.Exists(path)) return;
-
-                XmlDocument doc = new XmlDocument();
-                doc.Load(path);
-                if (doc.DocumentElement == null) return;
-
-                XmlElement node = FindDeviceNode(doc, XmlKey);
-                if (node == null) return;
-
-                if (restoreType)
+                if (File.Exists(path))
                 {
-                    // 关键：控件的默认选择是列表里第一个类（按名字排序，如 ATEQ_F620）。
-                    // 若与 XML 记的类型不同，参数名对不上 ⇒ 一个属性也套不进去
-                    // （现象：重启后设备类变回 ATEQ_F620、参数全是默认值）。
-                    string last = node.GetAttribute("LastType");
-                    if (string.IsNullOrEmpty(last)) last = node.GetAttribute("Type");           // 旧格式
-                    if (!string.IsNullOrEmpty(last)
-                        && (_device == null || !string.Equals(_device.GetType().Name, last, StringComparison.OrdinalIgnoreCase)))
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(path);
+                    if (doc.DocumentElement != null)
                     {
-                        _suppressAutoLoad = true;
-                        try { SelectTypeByName(last); }        // 触发 cboType_SelectedIndexChanged → CreateDevice()
-                        finally { _suppressAutoLoad = false; }
+                        XmlElement node = FindDeviceNode(doc, XmlKey);
+                        if (node != null) LoadDevicesFrom(node);
                     }
                 }
 
-                if (_device == null) return;
-                string typeName = _device.GetType().Name;
+                string want = _pendingCurrent;
+                if (FindDevice(want) == null) want = (_devices.Count > 0) ? _devices[0].Name : null;
 
-                XmlElement paramsNode = FindTypeNode(node, typeName);
-                if (paramsNode == null
-                    && string.Equals(node.GetAttribute("Type"), typeName, StringComparison.OrdinalIgnoreCase))
-                {
-                    paramsNode = node;                          // 旧格式：参数直接挂在 <Device> 下
-                }
+                RebuildDeviceList(want);
+                SwitchToDevice(FindDevice(want));
 
-                bool applied = false;
-                if (paramsNode != null)
-                {
-                    for (int i = 0; i < paramsNode.ChildNodes.Count; i++)
-                    {
-                        XmlNode c = paramsNode.ChildNodes[i];
-                        if (c is XmlElement && ((XmlElement)c).Name == "Type") continue;
-                        if (ApplyOne(_device, c.Name, c.InnerText)) applied = true;
-                    }
-                }
-
-                if (propGrid != null) propGrid.Refresh();       // 参数表显示载入后的值
-                if (applied)
-                    AppendLog("参数", "已从 " + Path.GetFileName(path) + " 载入离线参数（设备类 " + typeName + "）");
+                if (_devices.Count > 0)
+                    AppendLog("参数", "已从 " + Path.GetFileName(path) + " 载入 " + _devices.Count + " 台设备");
             }
             catch (Exception) { }
+        }
+
+        /// <summary>从一个 &lt;Device&gt; 节点读出设备列表（新格式优先，其次两种旧格式）。</summary>
+        private void LoadDevicesFrom(XmlElement node)
+        {
+            _pendingCurrent = node.GetAttribute("Current");
+            string savedName = node.GetAttribute("DeviceName");     // 旧格式里的设备名
+            string lastType = node.GetAttribute("LastType");        // 旧格式：上次用的设备类
+            string legacyType = node.GetAttribute("Type");          // 更旧的格式：类型写在 Device 属性上
+
+            // ① 新格式：每台设备一条 <Item Name="…" Type="…">
+            for (int i = 0; i < node.ChildNodes.Count; i++)
+            {
+                XmlElement e = node.ChildNodes[i] as XmlElement;
+                if (e == null || e.Name != "Item") continue;
+                AddDeviceFromXml(e.GetAttribute("Type"), e.GetAttribute("Name"), e);
+            }
+            if (_devices.Count > 0) return;
+
+            // ② 旧格式 A：<Type Name="X"> 按设备类分组（每类一条记录）
+            for (int i = 0; i < node.ChildNodes.Count; i++)
+            {
+                XmlElement e = node.ChildNodes[i] as XmlElement;
+                if (e == null || e.Name != "Type") continue;
+
+                string tn = e.GetAttribute("Name");
+                bool isLast = string.Equals(tn, lastType, StringComparison.OrdinalIgnoreCase);
+                string nm = (isLast && !string.IsNullOrEmpty(savedName)) ? savedName : tn;
+                AddDeviceFromXml(tn, nm, e);
+                if (isLast) _pendingCurrent = nm;
+            }
+            if (_devices.Count > 0) return;
+
+            // ③ 旧格式 B：<Device Type="X"> 参数直接挂在 Device 下
+            if (!string.IsNullOrEmpty(legacyType))
+                AddDeviceFromXml(legacyType,
+                    string.IsNullOrEmpty(savedName) ? legacyType : savedName, node);
+        }
+
+        /// <summary>按类型名找到设备类 → 建实例 → 套 XML 里的参数 → 加入设备列表。</summary>
+        private void AddDeviceFromXml(string typeName, string name, XmlElement paramNode)
+        {
+            if (string.IsNullOrEmpty(typeName)) return;
+
+            Type t = null;
+            for (int i = 0; i < _types.Count; i++)
+                if (string.Equals(_types[i].Name, typeName, StringComparison.OrdinalIgnoreCase)) { t = _types[i]; break; }
+            if (t == null) return;                                   // 类被删/改名了 ⇒ 跳过这条（其余照常载入）
+
+            if (string.IsNullOrEmpty(name)) name = AutoDeviceName();
+            if (FindDevice(name) != null) name = AutoDeviceName();    // 重名就去重
+
+            AbstractDevice inst;
+            try { inst = NewDevice(t, name); }
+            catch (Exception) { return; }
+
+            if (paramNode != null)
+            {
+                for (int i = 0; i < paramNode.ChildNodes.Count; i++)
+                {
+                    XmlNode c = paramNode.ChildNodes[i];
+                    if (c is XmlElement && (((XmlElement)c).Name == "Item" || ((XmlElement)c).Name == "Type")) continue;
+                    ApplyOne(inst, c.Name, c.InnerText);
+                }
+            }
+            else { }
+
+            DeviceItem item = new DeviceItem();
+            item.Name = name;
+            item.DeviceType = t;
+            item.Instance = inst;
+            _devices.Add(item);
         }
 
         /// <summary>取本控件在 XML 里的 &lt;Device&gt; 节点（找不到返回 null）。</summary>
@@ -771,31 +823,163 @@ namespace AlphaRap
             }
         }
 
+        /// <summary>下拉框里选了另一台设备。</summary>
         private void cboType_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_loading) return;                                // 列表刷新引起的变化，不算用户选择
+            if (InDesigner) return;                              // 设计期不碰实例
 
-            Type t = cboType.SelectedItem as Type;
-            if (t != null) _deviceTypeName = t.Name;
+            DeviceItem item = cboType.SelectedItem as DeviceItem;
+            if (item == _current) return;                        // 没变
 
-            if (InDesigner) return;                              // 设计期不建实例
-            if (_device != null && _device.GetType() == t) return;
-
-            CreateDevice();
-            if (!_suppressAutoLoad) LoadFromXml(false);          // 切到哪个类，就把那个类上次保存的参数读回来
+            SwitchToDevice(item);
         }
 
+        /// <summary>改设备名（只改条目名；设备实例不动，所以不会丢参数）。</summary>
         private void txtName_Leave(object sender, EventArgs e)
         {
-            if (InDesigner || _device == null) return;
-            if (_device.DeviceName == txtName.Text) return;
+            if (InDesigner || _current == null) return;
 
-            if (_device.IsConnected)
+            string want = (txtName.Text ?? string.Empty).Trim();
+            if (want.Length == 0) { txtName.Text = _current.Name; return; }              // 空名不接受
+            if (string.Equals(want, _current.Name, StringComparison.Ordinal)) return;
+
+            if (FindDevice(want) != null)                                               // 不能重名
             {
-                AppendLog("提示", "设备已连接，改名要重开连接后才生效。");
+                AppendLog("提示", "已有同名设备 " + want + "，改回原名。");
+                txtName.Text = _current.Name;
                 return;
             }
-            CreateDevice();     // 未连接时直接按新名字重建
+
+            string old = _current.Name;
+            _current.Name = want;
+            RebuildDeviceList(want);                        // 刷新下拉框显示
+            AppendLog("改名", "设备 " + old + " → " + want + "（点主界面【保存】后写入配置）");
+        }
+
+        /// <summary>添加一台设备：先选设备类，再自动起名（名字可在"设备名"框里改）。</summary>
+        private void btnAddDev_Click(object sender, EventArgs e)
+        {
+            Type t = PickDeviceType();
+            if (t == null) return;
+
+            string name = AutoDeviceName();
+            AbstractDevice inst;
+            try { inst = NewDevice(t, name); }
+            catch (Exception ex)
+            {
+                AppendLog("错误", "创建 " + t.Name + " 失败：" + ex.Message);
+                return;
+            }
+
+            DeviceItem item = new DeviceItem();
+            item.Name = name;
+            item.DeviceType = t;
+            item.Instance = inst;
+            _devices.Add(item);
+
+            RebuildDeviceList(name);
+            SwitchToDevice(item);
+            AppendLog("添加", "已添加设备 " + name + "（" + t.Name + "）—— 点主界面【保存】选\"是\"才会写入配置文件");
+        }
+
+        /// <summary>删除当前设备（它的参数会在下次【保存】时从配置文件里移除）。</summary>
+        private void btnDelDev_Click(object sender, EventArgs e)
+        {
+            if (_current == null) { AppendLog("提示", "还没有可删除的设备。"); return; }
+
+            string what = _current.Name + "（" + _current.DeviceType.Name + "）";
+            DialogResult r = MessageBox.Show(
+                "确定删除设备 " + what + " 吗？" + Environment.NewLine + "它的参数会在下次保存时从配置文件里移除。",
+                "删除设备", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (r != DialogResult.Yes) return;
+
+            CloseSilently();
+            _devices.Remove(_current);
+            _current = null;
+            _device = null;
+
+            DeviceItem next = (_devices.Count > 0) ? _devices[0] : null;
+            RebuildDeviceList(next == null ? null : next.Name);
+            SwitchToDevice(next);
+
+            AppendLog("删除", "已删除设备 " + what + " —— 点主界面【保存】后从配置文件移除");
+        }
+
+        /// <summary>弹一个小框挑选设备类（列出本程序集里全部 AbstractDevice 具体子类）；取消返回 null。</summary>
+        private Type PickDeviceType()
+        {
+            if (_types.Count == 0) BuildTypeList();
+            if (_types.Count == 0)
+            {
+                AppendLog("提示", "没有找到继承 AbstractDevice 的设备类。");
+                return null;
+            }
+
+            Type picked = null;
+            using (Form dlg = new Form())
+            {
+                dlg.Text = Msg("AddDevice", "添加设备", "Add device", "Agregar dispositivo");
+                dlg.StartPosition = FormStartPosition.CenterParent;
+                dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
+                dlg.MinimizeBox = false;
+                dlg.MaximizeBox = false;
+                dlg.ShowInTaskbar = false;
+                dlg.ClientSize = new Size(380, 124);
+                dlg.Font = this.Font;
+
+                Label lb = new Label();
+                lb.Text = Msg("DeviceType", "选择设备类：", "Device type:", "Tipo de dispositivo:");
+                lb.Location = new Point(16, 16);
+                lb.AutoSize = true;
+                dlg.Controls.Add(lb);
+
+                ComboBox cbo = new ComboBox();
+                cbo.DropDownStyle = ComboBoxStyle.DropDownList;
+                cbo.Location = new Point(16, 42);
+                cbo.Width = 348;
+                cbo.DisplayMember = "Name";
+                cbo.DataSource = new List<Type>(_types);
+                if (!string.IsNullOrEmpty(_deviceTypeName))                 // 设计期预设过就默认选中
+                {
+                    for (int i = 0; i < _types.Count; i++)
+                        if (string.Equals(_types[i].Name, _deviceTypeName, StringComparison.OrdinalIgnoreCase))
+                        { cbo.SelectedIndex = i; break; }
+                }
+                dlg.Controls.Add(cbo);
+
+                Button ok = new Button();
+                ok.Text = Msg("msg_OK", "确定", "OK", "Aceptar");
+                ok.DialogResult = DialogResult.OK;
+                ok.Location = new Point(208, 84);
+                ok.Size = new Size(76, 26);
+                dlg.Controls.Add(ok);
+
+                Button cancel = new Button();
+                cancel.Text = Msg("msg_Cancel", "取消", "Cancel", "Cancelar");
+                cancel.DialogResult = DialogResult.Cancel;
+                cancel.Location = new Point(288, 84);
+                cancel.Size = new Size(76, 26);
+                dlg.Controls.Add(cancel);
+
+                dlg.AcceptButton = ok;
+                dlg.CancelButton = cancel;
+
+                if (dlg.ShowDialog(FindForm()) == DialogResult.OK) picked = cbo.SelectedItem as Type;
+            }
+            return picked;
+        }
+
+        /// <summary>取当前语言的文案（走 MiddleLayer 语言包；取不到就回中文）。注意 LangMsg 首参是**窗体名**不是窗体对象。</summary>
+        private string Msg(string key, string zh, string en, string es)
+        {
+            try
+            {
+                Form f = FindForm();
+                string formName = (f == null || string.IsNullOrEmpty(f.Name)) ? "DeviceControl" : f.Name;
+                return MiddleLayer.LangMsg(formName, key, zh, en, es);
+            }
+            catch (Exception) { return zh; }
         }
 
         private void btnOpen_Click(object sender, EventArgs e)
@@ -847,14 +1031,14 @@ namespace AlphaRap
         {
             bool connected = _device != null && _device.IsConnected;
 
-            if (_device == null)
+            if (_current == null)
             {
-                lblState.Text = "未选择设备类";
+                lblState.Text = (_devices.Count == 0) ? "尚未添加设备，点【添加】" : "未选择设备";
                 lblState.ForeColor = UiKit.TextMuted;
             }
             else
             {
-                lblState.Text = _device.DeviceName + "（" + _device.GetType().Name + "）："
+                lblState.Text = _current.Name + "（" + _current.DeviceType.Name + "）："
                               + (connected ? "已连接" : "未连接");
                 lblState.ForeColor = connected ? UiKit.Success : UiKit.Danger;
             }
