@@ -48,6 +48,9 @@ namespace AlphaRap
         private string _deviceTypeName;
         private int _logLines;
 
+        /// <summary>单设备模式：一个面板只代表一台设备（隐藏内部设备下拉/添加/删除，右上角出【移除】）。</summary>
+        private bool _singleDevice;
+
         /// <summary>设备列表刷新中：此时下拉框的选中变化不算作用户操作。</summary>
         private bool _loading;
 
@@ -64,6 +67,7 @@ namespace AlphaRap
             InitializeComponent();
 
             BuildTypeList();        // 反射扫描设备类，供【添加】时挑选
+            ApplyMode();            // 按 SingleDevice 决定顶行显示"设备下拉/添加/删除"还是"设备类名 + 移除"
 
             // 设计期不碰真实端口、也不建实例；运行期的设备来自 XML（Load 事件）或【添加】按钮
             if (!InDesigner)
@@ -96,6 +100,19 @@ namespace AlphaRap
         [Category("Device"), DefaultValue(false), Description("控件加载时是否自动打开连接。")]
         public bool AutoOpen { get; set; }
 
+        /// <summary>
+        /// 单设备模式：**一个面板只代表一台设备**。
+        /// 打开后隐藏内部的"设备下拉框 + 【添加】/【删除】"，改为右上角显示【移除】，
+        /// 顶行左侧直接显示本面板绑定的设备类名。适合宿主窗体（如 Parameter）用按钮动态增删面板。
+        /// 设备本身用 <see cref="BindDevice"/> 绑定；参数仍走 XML（跟随 MainForm 的【保存】）。
+        /// </summary>
+        [Category("Device"), DefaultValue(false), Description("单设备模式：一个面板只代表一台设备（隐藏内部设备下拉与添加/删除，右上角显示【移除】）。")]
+        public bool SingleDevice
+        {
+            get { return _singleDevice; }
+            set { _singleDevice = value; ApplyMode(); }
+        }
+
         #endregion
 
         #region 对外接口（宿主窗体可以直接调）
@@ -113,6 +130,49 @@ namespace AlphaRap
 
         /// <summary>收到数据时触发，参数是收到的文本。</summary>
         public event EventHandler<string> Received;
+
+        /// <summary>单设备模式下点了【移除】。宿主收到后把本面板从容器里拿掉（并 Dispose）。</summary>
+        public event EventHandler RemoveRequested;
+
+        /// <summary>单设备模式下绑定的设备类名；还没绑定时返回空串。</summary>
+        [Browsable(false)]
+        public string BoundTypeName
+        {
+            get { return (_current == null || _current.DeviceType == null) ? string.Empty : _current.DeviceType.Name; }
+        }
+
+        /// <summary>
+        /// 单设备模式：绑定一台设备（建实例 → 加入设备列表 → 切过去）。返回空串=成功，非空为失败原因。
+        /// 宿主的"添加设备"按钮建好面板后调它即可。
+        /// </summary>
+        public string BindDevice(string typeName, string deviceName)
+        {
+            if (string.IsNullOrEmpty(typeName)) return "没有指定设备类。";
+
+            if (_types.Count == 0) BuildTypeList();
+
+            Type t = null;
+            for (int i = 0; i < _types.Count; i++)
+                if (string.Equals(_types[i].Name, typeName, StringComparison.OrdinalIgnoreCase)) { t = _types[i]; break; }
+            if (t == null) return "找不到设备类 " + typeName + "（本程序集里没有这个 AbstractDevice 子类）。";
+
+            string name = string.IsNullOrEmpty(deviceName) ? AutoDeviceName() : deviceName;
+            if (FindDevice(name) != null) name = AutoDeviceName();
+
+            AbstractDevice inst;
+            try { inst = NewDevice(t, name); }
+            catch (Exception ex) { return "创建 " + t.Name + " 失败：" + ex.Message; }
+
+            DeviceItem item = new DeviceItem();
+            item.Name = name;
+            item.DeviceType = t;
+            item.Instance = inst;
+            _devices.Add(item);
+
+            RebuildDeviceList(name);
+            SwitchToDevice(item);
+            return string.Empty;
+        }
 
         /// <summary>重新扫描设备类列表（新增的通讯类重新生成后调一次就能出现；已选中的类尽量保持不变）。</summary>
         public void RefreshDeviceTypes()
@@ -263,13 +323,13 @@ namespace AlphaRap
         }
 
         /// <summary>
-        /// 反射列出本程序集里所有继承 <see cref="AbstractDevice"/> 的具体类。
+        /// 反射列出本程序集里所有继承 <see cref="AbstractDevice"/> 的具体类（按名字排序）。
         /// **刻意不限制构造函数签名**——原先要求必须有 (string) 构造，会把后来新增、
         /// 只带无参构造或别的签名的通讯类悄悄漏掉；实例化时再按实际签名挑合适的构造函数。
         /// </summary>
-        private void BuildTypeList()
+        public static List<Type> ScanDeviceTypes()
         {
-            _types.Clear();
+            List<Type> list = new List<Type>();
             Type baseType = typeof(AbstractDevice);
             try
             {
@@ -277,15 +337,22 @@ namespace AlphaRap
                 {
                     if (t == baseType || t.IsAbstract || !baseType.IsAssignableFrom(t)) continue;
                     if (t.GetConstructors().Length == 0) continue;    // 没有可用构造函数，实例化不了
-                    _types.Add(t);
+                    list.Add(t);
                 }
             }
             catch (Exception) { }
 
-            _types.Sort(delegate (Type a, Type b)
+            list.Sort(delegate (Type a, Type b)
             {
                 return string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
             });
+            return list;
+        }
+
+        private void BuildTypeList()
+        {
+            _types.Clear();
+            _types.AddRange(ScanDeviceTypes());
 
             // 顺手把已配置的设备类补进来：万一某个类改名/被删，历史配置也不会整条丢掉
             for (int i = 0; i < _devices.Count; i++)
@@ -354,8 +421,9 @@ namespace AlphaRap
             if (txtName != null) txtName.Text = (_current == null) ? string.Empty : _current.Name;
             if (propGrid != null) propGrid.SelectedObject = _device;     // 参数表：IP / Port / 串口号…自动列出
             RefreshState();
+            ApplyMode();                                                 // 单设备模式下把设备类名写进顶行
 
-            if (_current != null)
+            if (_current != null && _current.DeviceType != null)
                 AppendLog("设备", _current.Name + "（" + _current.DeviceType.Name + "）：" + DescribeIo(_device));
         }
 
@@ -481,19 +549,28 @@ namespace AlphaRap
             }
         }
 
-        /// <summary>XML 里的唯一键：窗体名_控件名（同一个窗体上放两个 DeviceControl 也不会撞）。</summary>
+        /// <summary>取控件所属窗体的名字（取不到就用 "Form"）；XML 的 Key 前缀就是它。</summary>
+        private static string FormNameOf(DeviceControl c)
+        {
+            Form f = (c == null) ? null : c.FindForm();
+            return (f == null || string.IsNullOrEmpty(f.Name)) ? "Form" : f.Name;
+        }
+
+        /// <summary>XML 里的唯一键：窗体名_控件名（同一个窗体上放多个 DeviceControl 也不会撞）。</summary>
         private string XmlKey
         {
             get
             {
-                Form f = FindForm();
-                string formName = (f == null || string.IsNullOrEmpty(f.Name)) ? "Form" : f.Name;
                 string ctlName = string.IsNullOrEmpty(this.Name) ? "DeviceControl" : this.Name;
-                return formName + "_" + ctlName;
+                return FormNameOf(this) + "_" + ctlName;
             }
         }
 
-        /// <summary>主界面【保存】选"是"时由 MainForm.SaveData() 调用：把所有 DeviceControl 的参数写入 XML。</summary>
+        /// <summary>
+        /// 主界面【保存】选"是"时由 MainForm.SaveData() 调用：把所有 DeviceControl 的参数写入 XML。
+        /// 单设备面板（宿主动态增删的那种）会先把该窗体名下的旧节点整体清掉再逐面板重写 ——
+        /// 否则"删掉过的面板"会在 XML 里留下孤儿节点，下次启动又冒出来。
+        /// </summary>
         public static void SaveAll()
         {
             try
@@ -509,6 +586,8 @@ namespace AlphaRap
                     doc.AppendChild(doc.CreateElement("DeviceControl"));
                 }
 
+                PurgeHostedFormNodes(doc);
+
                 for (int i = 0; i < LiveInstances.Count; i++)
                     LiveInstances[i].WriteToDoc(doc);
 
@@ -520,11 +599,109 @@ namespace AlphaRap
             catch (Exception) { }
         }
 
+        /// <summary>
+        /// "单设备面板"的宿主窗体名（**登记制**）。
+        /// 保存时会先清掉这些窗体名下的全部旧 &lt;Device&gt; 节点 —— 靠"存活实例"是判不出"最后一个面板也被删了"的，
+        /// 那种情况下实例数为 0，会把已删面板的节点留在 XML 里，下次启动又冒出来。
+        /// </summary>
+        private static readonly List<string> HostedForms = new List<string>();
+
+        /// <summary>宿主登记：本窗体用"单设备面板"模式（构造或显示时调一次即可）。</summary>
+        public static void RegisterPanelHost(string formName)
+        {
+            if (string.IsNullOrEmpty(formName)) return;
+            if (!HostedForms.Contains(formName)) HostedForms.Add(formName);
+        }
+
+        /// <summary>宿主注销（宿主 Dispose 时调）。</summary>
+        public static void UnregisterPanelHost(string formName)
+        {
+            if (!string.IsNullOrEmpty(formName)) HostedForms.Remove(formName);
+        }
+
+        /// <summary>清掉"有单设备面板的窗体"名下的所有 &lt;Device&gt; 节点（含已删面板的遗留）。</summary>
+        private static void PurgeHostedFormNodes(XmlDocument doc)
+        {
+            if (doc == null || doc.DocumentElement == null) return;
+
+            List<string> forms = new List<string>(HostedForms);
+            for (int i = 0; i < LiveInstances.Count; i++)
+            {
+                if (!LiveInstances[i]._singleDevice) continue;
+                string f = FormNameOf(LiveInstances[i]);
+                if (!forms.Contains(f)) forms.Add(f);
+            }
+            if (forms.Count == 0) return;
+
+            XmlElement root = doc.DocumentElement;
+            for (int i = root.ChildNodes.Count - 1; i >= 0; i--)
+            {
+                XmlElement e = root.ChildNodes[i] as XmlElement;
+                if (e == null || e.Name != "Device") continue;
+
+                string key = e.GetAttribute("Key");
+                for (int k = 0; k < forms.Count; k++)
+                {
+                    if (key.StartsWith(forms[k] + "_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        root.RemoveChild(e);
+                        break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>宿主收到它就该按 XML 重建面板集合（"选否"回滚时也要把面板集合一起回滚）。</summary>
+        public static event EventHandler ReloadPanelsRequested;
+
         /// <summary>主界面【保存】选"否"时由 MainForm.SaveData() 调用：把参数还原成 XML 里上次保存的值。</summary>
         public static void ReloadAll()
         {
+            // 先让宿主按 XML 重建面板（"加了没保存/删了没保存"的面板集合本身也要回滚）
+            EventHandler h = ReloadPanelsRequested;
+            if (h != null)
+            {
+                try { h(null, EventArgs.Empty); }
+                catch (Exception) { }
+            }
+
             for (int i = 0; i < LiveInstances.Count; i++)
                 LiveInstances[i].LoadFromXml();
+        }
+
+        /// <summary>
+        /// 列出 XML 里属于指定窗体的面板控件名（**按 XML 文档顺序** —— 也就是面板的排列顺序）。
+        /// 宿主用它决定"启动时该建几个面板、每个叫什么名字"。
+        /// </summary>
+        public static List<string> ReadFormPanelNames(string formName)
+        {
+            List<string> names = new List<string>();
+            if (string.IsNullOrEmpty(formName)) return names;
+
+            try
+            {
+                string path = XmlFilePath;
+                if (!File.Exists(path)) return names;
+
+                XmlDocument doc = new XmlDocument();
+                doc.Load(path);
+                if (doc.DocumentElement == null) return names;
+
+                string prefix = formName + "_";
+                for (int i = 0; i < doc.DocumentElement.ChildNodes.Count; i++)
+                {
+                    XmlElement e = doc.DocumentElement.ChildNodes[i] as XmlElement;
+                    if (e == null || e.Name != "Device") continue;
+
+                    string key = e.GetAttribute("Key");
+                    if (!key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) continue;
+
+                    string ctl = key.Substring(prefix.Length);
+                    if (ctl.Length > 0) names.Add(ctl);
+                }
+            }
+            catch (Exception) { }
+            return names;
         }
 
         /// <summary>
@@ -776,6 +953,35 @@ namespace AlphaRap
         #region 界面
 
         /// <summary>
+        /// 按 <see cref="SingleDevice"/> 切换顶行形态：
+        /// · 多设备模式：设备[下拉] [添加][删除] … 设备名[框]
+        /// · 单设备模式：**设备类名** … 设备名[框] … [移除]
+        /// </summary>
+        private void ApplyMode()
+        {
+            if (cboType == null || lblType == null || btnAddDev == null ||
+                btnDelDev == null || btnRemovePanel == null) return;
+
+            bool single = _singleDevice;
+
+            cboType.Visible = !single;
+            btnAddDev.Visible = !single;
+            btnDelDev.Visible = !single;
+            btnRemovePanel.Visible = single;
+
+            if (single)
+            {
+                lblType.Width = 300;
+                lblType.Text = string.IsNullOrEmpty(BoundTypeName) ? "设备" : BoundTypeName;
+            }
+            else
+            {
+                lblType.Width = 62;
+                lblType.Text = "设备";
+            }
+        }
+
+        /// <summary>
         /// 空间紧张时压缩"连接参数"表，保证底部的【发送】行和记录框始终可见。
         /// 这几块都是固定高的 Dock 行，一旦叠加超过控件高度，最后停靠的那一栏会被压成 0 高
         /// —— 宿主把控件 Dock=Fill 到一个不够高的容器时，就会看不到【发送】。
@@ -814,7 +1020,11 @@ namespace AlphaRap
 
         private void DeviceControl_Load(object sender, EventArgs e)
         {
-            LoadFromXml();          // 离线参数：按 XML 上次保存的值套到设备实例上（此时才取得到窗体名做键）
+            // 单设备模式：面板由宿主（Parameter）负责建好、绑定设备、再按 XML 套参数。
+            // 这里若自作主张 LoadFromXml，会按"窗体名_控件名"去 XML 找节点，
+            // 而此刻宿主可能还没给面板命名/绑定设备类 —— 所以交给宿主决定何时载入。
+            if (!_singleDevice)
+                LoadFromXml();      // 离线参数：按 XML 上次保存的值套到设备实例上（此时才取得到窗体名做键）
 
             if (AutoOpen)
             {
@@ -916,20 +1126,34 @@ namespace AlphaRap
                 return null;
             }
 
+            Form f = FindForm();
+            string group = (f == null || string.IsNullOrEmpty(f.Name)) ? "DeviceControl" : f.Name;
+            return PickDeviceTypeDialog(f, this.Font, group, _deviceTypeName);
+        }
+
+        /// <summary>
+        /// 弹小框选设备类（宿主窗体的"添加设备"按钮可以直接用）。取消返回 null。
+        /// 文案走 MiddleLayer 语言包，分组名 = 调用方窗体名（取不到就用 "DeviceControl"）。
+        /// </summary>
+        public static Type PickDeviceTypeDialog(IWin32Window owner, Font uiFont, string langGroup, string presetTypeName)
+        {
+            List<Type> types = ScanDeviceTypes();
+            if (types.Count == 0) return null;
+
             Type picked = null;
             using (Form dlg = new Form())
             {
-                dlg.Text = Msg("AddDevice", "添加设备", "Add device", "Agregar dispositivo");
+                dlg.Text = LangMsg(langGroup, "AddDevice", "添加设备", "Add device", "Agregar dispositivo");
                 dlg.StartPosition = FormStartPosition.CenterParent;
                 dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
                 dlg.MinimizeBox = false;
                 dlg.MaximizeBox = false;
                 dlg.ShowInTaskbar = false;
                 dlg.ClientSize = new Size(380, 124);
-                dlg.Font = this.Font;
+                if (uiFont != null) dlg.Font = uiFont;
 
                 Label lb = new Label();
-                lb.Text = Msg("DeviceType", "选择设备类：", "Device type:", "Tipo de dispositivo:");
+                lb.Text = LangMsg(langGroup, "DeviceType", "选择设备类：", "Device type:", "Tipo de dispositivo:");
                 lb.Location = new Point(16, 16);
                 lb.AutoSize = true;
                 dlg.Controls.Add(lb);
@@ -939,24 +1163,24 @@ namespace AlphaRap
                 cbo.Location = new Point(16, 42);
                 cbo.Width = 348;
                 cbo.DisplayMember = "Name";
-                cbo.DataSource = new List<Type>(_types);
-                if (!string.IsNullOrEmpty(_deviceTypeName))                 // 设计期预设过就默认选中
+                cbo.DataSource = new List<Type>(types);
+                if (!string.IsNullOrEmpty(presetTypeName))                   // 预设过就默认选中
                 {
-                    for (int i = 0; i < _types.Count; i++)
-                        if (string.Equals(_types[i].Name, _deviceTypeName, StringComparison.OrdinalIgnoreCase))
+                    for (int i = 0; i < types.Count; i++)
+                        if (string.Equals(types[i].Name, presetTypeName, StringComparison.OrdinalIgnoreCase))
                         { cbo.SelectedIndex = i; break; }
                 }
                 dlg.Controls.Add(cbo);
 
                 Button ok = new Button();
-                ok.Text = Msg("msg_OK", "确定", "OK", "Aceptar");
+                ok.Text = LangMsg(langGroup, "msg_OK", "确定", "OK", "Aceptar");
                 ok.DialogResult = DialogResult.OK;
                 ok.Location = new Point(208, 84);
                 ok.Size = new Size(76, 26);
                 dlg.Controls.Add(ok);
 
                 Button cancel = new Button();
-                cancel.Text = Msg("msg_Cancel", "取消", "Cancel", "Cancelar");
+                cancel.Text = LangMsg(langGroup, "msg_Cancel", "取消", "Cancel", "Cancelar");
                 cancel.DialogResult = DialogResult.Cancel;
                 cancel.Location = new Point(288, 84);
                 cancel.Size = new Size(76, 26);
@@ -965,7 +1189,7 @@ namespace AlphaRap
                 dlg.AcceptButton = ok;
                 dlg.CancelButton = cancel;
 
-                if (dlg.ShowDialog(FindForm()) == DialogResult.OK) picked = cbo.SelectedItem as Type;
+                if (dlg.ShowDialog(owner) == DialogResult.OK) picked = cbo.SelectedItem as Type;
             }
             return picked;
         }
@@ -973,11 +1197,18 @@ namespace AlphaRap
         /// <summary>取当前语言的文案（走 MiddleLayer 语言包；取不到就回中文）。注意 LangMsg 首参是**窗体名**不是窗体对象。</summary>
         private string Msg(string key, string zh, string en, string es)
         {
+            Form f = FindForm();
+            string formName = (f == null || string.IsNullOrEmpty(f.Name)) ? "DeviceControl" : f.Name;
+            return LangMsg(formName, key, zh, en, es);
+        }
+
+        /// <summary>取当前语言的文案（静态版；group 为窗体名）。</summary>
+        private static string LangMsg(string group, string key, string zh, string en, string es)
+        {
             try
             {
-                Form f = FindForm();
-                string formName = (f == null || string.IsNullOrEmpty(f.Name)) ? "DeviceControl" : f.Name;
-                return MiddleLayer.LangMsg(formName, key, zh, en, es);
+                if (string.IsNullOrEmpty(group)) group = "DeviceControl";
+                return MiddleLayer.LangMsg(group, key, zh, en, es);
             }
             catch (Exception) { return zh; }
         }
@@ -1009,6 +1240,13 @@ namespace AlphaRap
         {
             txtRecv.Clear();
             _logLines = 0;
+        }
+
+        /// <summary>单设备模式：点【移除】——只是通知宿主，真正的移除（含 Dispose）由宿主做。</summary>
+        private void btnRemovePanel_Click(object sender, EventArgs e)
+        {
+            EventHandler h = RemoveRequested;
+            if (h != null) h(this, EventArgs.Empty);
         }
 
         /// <summary>

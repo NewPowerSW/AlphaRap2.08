@@ -42,6 +42,7 @@
             this.btnClear = new AlphaRap.FlatButton();
             this.btnAddDev = new AlphaRap.FlatButton();
             this.btnDelDev = new AlphaRap.FlatButton();
+            this.btnRemovePanel = new AlphaRap.FlatButton();
             this.panelParam = new System.Windows.Forms.Panel();
             this.propGrid = new System.Windows.Forms.PropertyGrid();
             this.lblParam = new AlphaRap.UiLabel();
@@ -59,6 +60,7 @@
             // 
             this.panelTop.BackColor = System.Drawing.Color.White;
             this.panelTop.Controls.Add(this.btnDelDev);
+            this.panelTop.Controls.Add(this.btnRemovePanel);
             this.panelTop.Controls.Add(this.btnAddDev);
             this.panelTop.Controls.Add(this.txtName);
             this.panelTop.Controls.Add(this.lblName);
@@ -151,6 +153,27 @@
             this.btnDelDev.Text = "删除";
             this.btnDelDev.Variant = AlphaRap.FlatButtonVariant.Surface;
             this.btnDelDev.Click += new System.EventHandler(this.btnDelDev_Click);
+            // 
+            // btnRemovePanel（仅"单设备模式"下可见：一个面板 = 一台设备，点它把整个面板从宿主页面移除）
+            // 
+            this.btnRemovePanel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRemovePanel.BackColor = System.Drawing.Color.Transparent;
+            this.btnRemovePanel.CornerRadius = 6;
+            this.btnRemovePanel.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnRemovePanel.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnRemovePanel.Icon = null;
+            this.btnRemovePanel.IconGap = 8;
+            this.btnRemovePanel.IconSize = 18;
+            this.btnRemovePanel.Location = new System.Drawing.Point(562, 4);
+            this.btnRemovePanel.Name = "btnRemovePanel";
+            this.btnRemovePanel.Selectable = false;
+            this.btnRemovePanel.Size = new System.Drawing.Size(88, 26);
+            this.btnRemovePanel.TabIndex = 7;
+            this.btnRemovePanel.TabStop = false;
+            this.btnRemovePanel.Text = "移除";
+            this.btnRemovePanel.Variant = AlphaRap.FlatButtonVariant.Danger;
+            this.btnRemovePanel.Visible = false;
+            this.btnRemovePanel.Click += new System.EventHandler(this.btnRemovePanel_Click);
 
             // 
             // panelMid
@@ -384,6 +407,7 @@
         private FlatButton btnRecv;
         private FlatButton btnAddDev;
         private FlatButton btnDelDev;
+        private FlatButton btnRemovePanel;
         private UiLabel lblState;
         private System.Windows.Forms.Panel panelParam;
         private UiLabel lblParam;

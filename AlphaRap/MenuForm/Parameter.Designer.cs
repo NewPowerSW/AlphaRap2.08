@@ -35,7 +35,10 @@
             this.dataColumn4 = new System.Data.DataColumn();
             this.dataColumn5 = new System.Data.DataColumn();
             this.dataTable2 = new System.Data.DataTable();
-        this.deviceControl1 = new AlphaRap.DeviceControl();
+            this.panelHost = new System.Windows.Forms.Panel();
+            this.btnAddDevice = new AlphaRap.FlatButton();
+            this.flowDevices = new System.Windows.Forms.FlowLayoutPanel();
+            this.panelHost.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable1)).BeginInit();
@@ -86,16 +89,49 @@
             // dataTable2
             // 
             this.dataTable2.TableName = "PSet";
-        // 
-        // deviceControl1
-        // 
-            this.deviceControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.deviceControl1.Font = new System.Drawing.Font("宋体", 10F);
-            this.deviceControl1.Location = new System.Drawing.Point(0, 0);
-            this.deviceControl1.Name = "deviceControl1";
-            this.deviceControl1.Size = new System.Drawing.Size(1192, 1023);
-            this.deviceControl1.TabIndex = 0;
-            this.Controls.Add(this.deviceControl1);
+            // 
+            // panelHost（顶部工具条：添加设备）
+            // 
+            this.panelHost.BackColor = System.Drawing.Color.White;
+            this.panelHost.Controls.Add(this.btnAddDevice);
+            this.panelHost.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelHost.Location = new System.Drawing.Point(0, 0);
+            this.panelHost.Name = "panelHost";
+            this.panelHost.Size = new System.Drawing.Size(1192, 46);
+            this.panelHost.TabIndex = 0;
+            // 
+            // btnAddDevice
+            // 
+            this.btnAddDevice.BackColor = System.Drawing.Color.Transparent;
+            this.btnAddDevice.CornerRadius = 6;
+            this.btnAddDevice.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAddDevice.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnAddDevice.Icon = null;
+            this.btnAddDevice.IconGap = 8;
+            this.btnAddDevice.IconSize = 18;
+            this.btnAddDevice.Location = new System.Drawing.Point(10, 8);
+            this.btnAddDevice.Name = "btnAddDevice";
+            this.btnAddDevice.Selectable = false;
+            this.btnAddDevice.Size = new System.Drawing.Size(132, 30);
+            this.btnAddDevice.TabIndex = 0;
+            this.btnAddDevice.TabStop = false;
+            this.btnAddDevice.Text = "添加设备";
+            this.btnAddDevice.Variant = AlphaRap.FlatButtonVariant.Primary;
+            this.btnAddDevice.Click += new System.EventHandler(this.btnAddDevice_Click);
+            // 
+            // flowDevices（设备面板容器：一个面板 = 一台设备，竖向单列 + 滚动）
+            // 
+            this.flowDevices.AutoScroll = true;
+            this.flowDevices.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
+            this.flowDevices.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowDevices.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowDevices.Location = new System.Drawing.Point(0, 46);
+            this.flowDevices.Name = "flowDevices";
+            this.flowDevices.Padding = new System.Windows.Forms.Padding(6);
+            this.flowDevices.Size = new System.Drawing.Size(1192, 977);
+            this.flowDevices.TabIndex = 1;
+            this.flowDevices.WrapContents = false;
+            this.flowDevices.Resize += new System.EventHandler(this.flowDevices_Resize);
             // 
             // Parameter
             // 
@@ -105,10 +141,13 @@
             this.Margin = new System.Windows.Forms.Padding(5);
             this.Name = "Parameter";
             this.Text = " ";
+            this.Controls.Add(this.flowDevices);
+            this.Controls.Add(this.panelHost);
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable2)).EndInit();
+            this.panelHost.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -121,6 +160,8 @@
 		private System.Data.DataColumn dataColumn3;
 		private System.Data.DataColumn dataColumn4;
 		private System.Data.DataColumn dataColumn5;
-		private DeviceControl deviceControl1;
+        private System.Windows.Forms.Panel panelHost;
+        private FlatButton btnAddDevice;
+        private System.Windows.Forms.FlowLayoutPanel flowDevices;
     }
 }
