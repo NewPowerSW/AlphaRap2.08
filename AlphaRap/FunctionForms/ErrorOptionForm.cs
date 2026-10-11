@@ -9,6 +9,7 @@ namespace AlphaRap.FunctionForms
         {
             this.TopMost = true;
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
         }
 
         public void SetAlarmCode(string sMsg)

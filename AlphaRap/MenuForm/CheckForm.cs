@@ -64,6 +64,7 @@ namespace AlphaRap
         public CheckForm()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
 
             rbGroup_GreenLight_RunMode = new RadioButton[] { rbGreenOff_R, rbGreenOn_R, rbGreenBlink_R };
             rbGroup_YellowLight_RunMode = new RadioButton[] { rbYellowOff_R, rbYellowOn_R, rbYellowBlink_R };

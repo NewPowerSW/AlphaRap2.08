@@ -12,6 +12,7 @@ namespace AlphaRap
 		public VPForm()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
 
             // 移除设计器中的预览页；真实相机页按 VPForm.Cameras.xml 生成（见 BuildVpPages）
             RemoveDesignPreviewPage();

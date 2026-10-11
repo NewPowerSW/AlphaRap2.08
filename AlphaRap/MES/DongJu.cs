@@ -13,6 +13,7 @@ namespace AlphaRap.MES
 		public DongJu()
 		{
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 		}
 
 		IniFile IniFile_Dongju = new IniFile(".\\Dongju.ini");

@@ -32,6 +32,7 @@ namespace AlphaRap
 		public Parameter()
 		{
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 
 			this.Load += Parameter_Load;
 			this.Disposed += Parameter_Disposed;

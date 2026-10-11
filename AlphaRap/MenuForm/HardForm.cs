@@ -35,6 +35,7 @@ namespace AlphaRap
 		public HardForm()
 		{
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 
 			servo = new Servo(MTR_H1_X, MTR_H1_Y, MTR_H1_Z, MTR_H1_R1, MTR_H1_R2, MTR_H1_R3);
 

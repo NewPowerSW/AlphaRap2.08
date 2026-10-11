@@ -7,6 +7,7 @@ namespace AlphaRap.MenuForm
         public Robot()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
         }
 	}
 }

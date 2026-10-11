@@ -10,6 +10,7 @@ namespace AlphaRap
         public LogForm()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
         }
 
         public void RefreshTxtData()

@@ -8,6 +8,7 @@ namespace AlphaRap
         public PlatFormSetting()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
             ReadSettingData();          
         }
         /// <summary>离开页面时，若参数有修改则保存。</summary>

@@ -1261,6 +1261,7 @@ namespace AlphaRap.MES
         public LENS()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
         }
         readonly Object OBJ = new object();
         /// <summary>

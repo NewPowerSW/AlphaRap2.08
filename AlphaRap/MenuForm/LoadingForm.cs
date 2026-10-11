@@ -11,6 +11,7 @@ namespace AlphaRap
         public LoadingForm()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
         }
 
         public void SetCaption(string Caption)

@@ -16,6 +16,7 @@ namespace AlphaRap
 		public DataForm()
 		{
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 		}
 		public void AddLogError(string data)
 		{

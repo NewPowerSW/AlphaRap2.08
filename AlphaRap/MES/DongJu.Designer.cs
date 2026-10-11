@@ -784,7 +784,7 @@
 			// DongJu
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.ClientSize = new System.Drawing.Size(1346, 608);
 			this.Controls.Add(this.tableLayoutPanel3);
 			this.Controls.Add(this.label1);

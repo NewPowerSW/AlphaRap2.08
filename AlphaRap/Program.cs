@@ -19,6 +19,9 @@ namespace AlphaRap
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
+                // 高 DPI：先确定缩放系数，再创建任何窗体（窗体构造函数里会把设计尺寸整体放大）
+                UiTheme.InitDpi();
+
 				#region LogShow
 				MiddleLayer.LoadingF = new LoadingForm();
 				MiddleLayer.LoadingF.Show();

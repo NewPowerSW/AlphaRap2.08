@@ -7,6 +7,7 @@ namespace AlphaRap.TaskProcess
 		{
 			CheckForIllegalCrossThreadCalls = false;
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 		}
 		public override void Initial()
 		{

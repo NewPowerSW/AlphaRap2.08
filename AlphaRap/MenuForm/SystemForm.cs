@@ -10,6 +10,7 @@ namespace AlphaRap
         public SystemForm()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
         }
         /// <summary>
         /// 呈现参数页面

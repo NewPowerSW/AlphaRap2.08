@@ -8,6 +8,7 @@ namespace AlphaRap.MenuForm
         public LockForm1()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
         }
 
         public string password_IN=string.Empty;

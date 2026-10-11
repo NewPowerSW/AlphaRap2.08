@@ -16,6 +16,7 @@ namespace AlphaRap
 		public Warning()
 		{
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 			this.ControlBox = false;
 
 		}

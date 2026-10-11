@@ -10,6 +10,7 @@ namespace AlphaRap
             CheckForIllegalCrossThreadCalls = false;
 
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
         }
 
         public void AddFlowChart()

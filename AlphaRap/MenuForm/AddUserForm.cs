@@ -18,6 +18,7 @@ namespace AlphaRap
         public AddUserForm()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
 
             foreach (var item in Enum.GetValues(typeof(PermissionType)))
             {

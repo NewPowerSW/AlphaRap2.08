@@ -6,7 +6,8 @@ namespace AlphaRap
     {
         public SpanLife()
         {
-            InitializeComponent();        
+            InitializeComponent();
+            UiTheme.ApplyDpi(this);        
             AddFlowChart();
         }
 

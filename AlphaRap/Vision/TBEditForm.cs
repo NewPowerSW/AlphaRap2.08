@@ -8,6 +8,7 @@ namespace AlphaRap
         public TBEditForm(VisionproInterface CogInterface)
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
             EditInterface = CogInterface;
 
             cogToolBlockEditV21.Subject = EditInterface.TB;

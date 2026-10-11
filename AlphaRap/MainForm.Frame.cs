@@ -188,13 +188,13 @@ namespace AlphaRap
 
             foreach (FlowLayoutPanel flow in new[] { Panl_PictureShowTop, Panl_PictureShowDown })
             {
-                flow.Padding = new Padding(0, 6, 0, 0);
+                flow.Padding = UiTheme.Dpi(new Padding(0, 6, 0, 0));
                 flow.BackColor = Color.Transparent;
             }
             foreach (PictureBox b in NavButtons())
             {
-                b.Size = NavButtonSize;
-                b.Margin = new Padding(1, 2, 1, 2);
+                b.Size = UiTheme.Dpi(NavButtonSize);
+                b.Margin = UiTheme.Dpi(new Padding(1, 2, 1, 2));
                 b.SizeMode = PictureBoxSizeMode.CenterImage;
                 b.Cursor = Cursors.Hand;
             }
@@ -233,16 +233,16 @@ namespace AlphaRap
             panel_PictureShowDown.BackColor = UiKit.Surface;
             panel_PictureShowDown.Paint -= Toolbar_Paint;
             panel_PictureShowDown.Paint += Toolbar_Paint;
-            panel_PictureShowLeft.Width = 5 * (ToolButtonSize.Width + 8) + 16;
-            panel_PictureShowRight.Width = 3 * (ToolButtonSize.Width + 8) + 16;
-            panel_PictureShowLeft.Padding = new Padding(12, 4, 0, 0);
-            panel_PictureShowRight.Padding = new Padding(0, 4, 8, 0);
+            panel_PictureShowLeft.Width = UiTheme.Dpi(5 * (ToolButtonSize.Width + 8) + 16);
+            panel_PictureShowRight.Width = UiTheme.Dpi(3 * (ToolButtonSize.Width + 8) + 16);
+            panel_PictureShowLeft.Padding = UiTheme.Dpi(new Padding(12, 4, 0, 0));
+            panel_PictureShowRight.Padding = UiTheme.Dpi(new Padding(0, 4, 8, 0));
             panel_PictureShowLeft.BackColor = Color.Transparent;
             panel_PictureShowRight.BackColor = Color.Transparent;
             foreach (PictureBox b in ToolbarButtons())
             {
-                b.Size = ToolButtonSize;
-                b.Margin = new Padding(4, 1, 4, 1);
+                b.Size = UiTheme.Dpi(ToolButtonSize);
+                b.Margin = UiTheme.Dpi(new Padding(4, 1, 4, 1));
                 b.SizeMode = PictureBoxSizeMode.CenterImage;
                 b.Cursor = Cursors.Hand;
             }
@@ -261,7 +261,7 @@ namespace AlphaRap
         {
             uiTabControl1.Cursor = Cursors.Default;
             uiTabControl1.Font = UiKit.Bold(11f);
-            uiTabControl1.ItemSize = new Size(132, UiTheme.TabHeight);
+            uiTabControl1.ItemSize = new Size(UiTheme.Dpi(132), UiTheme.TabHeight);
             uiTabControl1.FillColor = UiTheme.FrameBg;
             uiTabControl1.TabBackColor = UiTheme.FrameBg;
             uiTabControl1.TabSelectedColor = UiKit.PageBg;
@@ -275,16 +275,16 @@ namespace AlphaRap
 
         private void StyleAlarmPanel()
         {
-            panelAlarmFilter.Height = 38;
+            panelAlarmFilter.Height = UiTheme.Dpi(38);
             panelAlarmFilter.BackColor = UiKit.Surface;
-            flowAlarmFilter.Padding = new Padding(8, 5, 0, 0);
+            flowAlarmFilter.Padding = UiTheme.Dpi(new Padding(8, 5, 0, 0));
             flowAlarmFilter.BackColor = UiKit.Surface;
             foreach (Control chip in new Control[] { btnAlarmFilterAll, btnAlarmFilterWarn, btnAlarmFilterAlarm })
             {
                 AlarmChip c = (AlarmChip)chip;
-                c.Height = 28;
-                c.Margin = new Padding(0, 0, 8, 0);
-                c.CornerRadius = 14;
+                c.Height = UiTheme.Dpi(28);
+                c.Margin = UiTheme.Dpi(new Padding(0, 0, 8, 0));
+                c.CornerRadius = UiTheme.Dpi(14);
                 c.BorderColor = Color.FromArgb(200, 210, 222);
                 c.TextColor = UiKit.TextPrimary;
             }
@@ -292,10 +292,10 @@ namespace AlphaRap
             UiTheme.StyleListView(WarnningMessage, 30);
             if (WarnningMessage.Columns.Count >= 4)
             {
-                WarnningMessage.Columns[0].Width = 180;
-                WarnningMessage.Columns[1].Width = 80;
-                WarnningMessage.Columns[2].Width = 90;
-                WarnningMessage.Columns[3].Width = 900;
+                WarnningMessage.Columns[0].Width = UiTheme.Dpi(180);
+                WarnningMessage.Columns[1].Width = UiTheme.Dpi(80);
+                WarnningMessage.Columns[2].Width = UiTheme.Dpi(90);
+                WarnningMessage.Columns[3].Width = UiTheme.Dpi(900);
             }
         }
 
@@ -401,9 +401,9 @@ namespace AlphaRap
                 ApplyToolbarButtonStyles();
 
                 // 顶栏：深蓝底上的白色图标
-                SetImage(MENU_Product, AppIcons.Get(AppIcon.Product, 24,
+                SetImage(MENU_Product, AppIcons.Get(AppIcon.Product, UiTheme.Dpi(24),
                     MENU_Product.Enabled ? AppIconColor.OnDarkBar : AppIconColor.DisabledOnDark));
-                SetImage(MENU_Login, AppIcons.Get(AppIcon.Login, 24,
+                SetImage(MENU_Login, AppIcons.Get(AppIcon.Login, UiTheme.Dpi(24),
                     MENU_Login.Enabled ? AppIconColor.OnDarkBar : AppIconColor.DisabledOnDark));
             }
             catch { }
@@ -518,8 +518,8 @@ namespace AlphaRap
         /// <summary>把按钮裁成圆角：左侧导航 8px，底部工具栏 12px（直径）。</summary>
         private void ApplyRoundedMenuRegions()
         {
-            ApplyRoundRegion(NavButtons(), 12);
-            ApplyRoundRegion(ToolbarButtons(), 12);
+            ApplyRoundRegion(NavButtons(), UiTheme.Dpi(12));
+            ApplyRoundRegion(ToolbarButtons(), UiTheme.Dpi(12));
         }
 
         /// <param name="diameter">圆角直径（= 半径 × 2）</param>
@@ -545,6 +545,7 @@ namespace AlphaRap
         private static void ApplyPillRegion(Control c, int radius)
         {
             if (c == null || c.Width <= 0 || c.Height <= 0) return;
+            radius = UiTheme.Dpi(radius);
             try
             {
                 using (GraphicsPath path = UiKit.RoundRect(new Rectangle(0, 0, c.Width, c.Height), radius))

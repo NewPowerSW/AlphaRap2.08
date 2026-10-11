@@ -76,6 +76,7 @@ namespace AlphaRap
             try
             {
                 if (c.Width <= 0 || c.Height <= 0) return;
+                radius = UiTheme.Dpi(radius);
                 int d = Math.Max(2, Math.Min(radius * 2, Math.Min(c.Width, c.Height)));
                 using (GraphicsPath path = new GraphicsPath())
                 {
@@ -159,8 +160,8 @@ namespace AlphaRap
                 g.ColumnHeadersDefaultCellStyle.Font = Bold(9.5f);
                 g.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(240, 245, 250);
                 g.ColumnHeadersDefaultCellStyle.SelectionForeColor = TextPrimary;
-                g.ColumnHeadersDefaultCellStyle.Padding = new Padding(6, 0, 6, 0);
-                g.ColumnHeadersHeight = 36;
+                g.ColumnHeadersDefaultCellStyle.Padding = UiTheme.Dpi(new Padding(6, 0, 6, 0));
+                g.ColumnHeadersHeight = UiTheme.Dpi(36);
                 g.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
                 g.DefaultCellStyle.BackColor = Surface;
@@ -168,9 +169,9 @@ namespace AlphaRap
                 g.DefaultCellStyle.SelectionBackColor = BrandSoft;
                 g.DefaultCellStyle.SelectionForeColor = BrandDark;
                 g.DefaultCellStyle.Font = Regular(9.5f);
-                g.DefaultCellStyle.Padding = new Padding(6, 0, 6, 0);
+                g.DefaultCellStyle.Padding = UiTheme.Dpi(new Padding(6, 0, 6, 0));
                 g.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 251, 253);
-                g.RowTemplate.Height = 32;
+                g.RowTemplate.Height = UiTheme.Dpi(32);
                 g.Font = Regular(9.5f);
             }
             catch { }
@@ -242,7 +243,7 @@ namespace AlphaRap
             g.Clear(UiKit.ResolveParentBack(this));
 
             Rectangle rect = new Rectangle(0, 0, Width - 1, Height - 1);
-            using (GraphicsPath path = UiKit.RoundRect(rect, CornerRadius))
+            using (GraphicsPath path = UiKit.RoundRect(rect, UiTheme.Dpi(CornerRadius)))
             {
                 using (SolidBrush b = new SolidBrush(FillColor)) g.FillPath(b, path);
                 if (ShowBorder)

@@ -25,6 +25,7 @@ namespace AlphaRap
         {
             CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
 
             StyleListView();
             ApplyIcons();

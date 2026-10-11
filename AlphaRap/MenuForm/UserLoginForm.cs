@@ -40,6 +40,7 @@ namespace AlphaRap
             }
 
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
 
             // 本窗体的文案交给语言表：按需 new 出来的窗体，构造里"登记 + 立刻按当前语言套一遍"
             // （键 = 控件名，翻译在 LanguageData\UserLoginForm 段里改；切语言统一走 SwitchLanguageTo）。

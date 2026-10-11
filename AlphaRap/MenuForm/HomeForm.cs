@@ -16,6 +16,7 @@ namespace AlphaRap
 		public HomeForm()
 		{
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 
 			// 状态块裁成圆角胶囊（工业 HMI 风格），并随尺寸变化重算
 			label_ScannStaus.Resize += (s, ev) => ApplyPillRegion(label_ScannStaus, 6);

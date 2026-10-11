@@ -49,7 +49,7 @@
 			// TBEditForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.ClientSize = new System.Drawing.Size(1332, 716);
 			this.Controls.Add(this.cogToolBlockEditV21);
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);

@@ -66,6 +66,7 @@ int nheightEllipse
         public MainForm()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
 
             // 主框架样式（设计期也执行，使设计视图与运行时一致）；按钮文字取自语言包
             if (!InDesigner)
@@ -424,7 +425,8 @@ int nheightEllipse
                 return;
             }
 
-            IntPtr hRgn = CreateRoundRectRgn(0, 0, Width + 1, Height + 1, WindowCornerRadius, WindowCornerRadius);
+            int corner = UiTheme.Dpi(WindowCornerRadius);
+            IntPtr hRgn = CreateRoundRectRgn(0, 0, Width + 1, Height + 1, corner, corner);
             if (hRgn == IntPtr.Zero) return;
 
             System.Drawing.Region oldRegion = Region;

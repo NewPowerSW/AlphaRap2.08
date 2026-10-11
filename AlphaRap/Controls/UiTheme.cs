@@ -14,22 +14,83 @@ namespace AlphaRap
     /// </summary>
     public static class UiTheme
     {
-        // ---------------- 尺寸 ----------------
+        // ---------------- DPI 缩放 ----------------
+
+        /// <summary>
+        /// 全局 DPI 缩放系数（1.0 = 96 DPI 设计基准）。程序启动时由 <see cref="InitDpi"/> 设定。
+        /// 设计器里的坐标/尺寸一律按 96 DPI 编写，运行时由 <see cref="ApplyDpi"/> 整体放大。
+        /// </summary>
+        public static float Scale = 1f;
+
+        /// <summary>把 96 DPI 的设计尺寸换算成当前 DPI 的像素。</summary>
+        public static int Dpi(int v) { return Scale == 1f ? v : (int)Math.Round(v * Scale, MidpointRounding.AwayFromZero); }
+        public static Size Dpi(Size v) { return Scale == 1f ? v : new Size(Dpi(v.Width), Dpi(v.Height)); }
+        public static Point Dpi(Point v) { return Scale == 1f ? v : new Point(Dpi(v.X), Dpi(v.Y)); }
+        public static Padding Dpi(Padding v) { return Scale == 1f ? v : new Padding(Dpi(v.Left), Dpi(v.Top), Dpi(v.Right), Dpi(v.Bottom)); }
+
+        /// <summary>按主屏 DPI 初始化缩放系数（必须在创建任何窗体之前调用）。</summary>
+        public static void InitDpi()
+        {
+            try
+            {
+                using (Graphics g = Graphics.FromHwnd(IntPtr.Zero)) Scale = g.DpiX / 96f;
+            }
+            catch { }
+            if (Scale < 1f || Scale > 4f) Scale = 1f;   // 异常值不缩放，免得小屏上界面反而变小
+        }
+
+        /// <summary>
+        /// 把一个窗体的整棵控件树按 DPI 整体放大一次；之后往这棵树里新加的控件会自动跟着放大
+        /// （见 <see cref="HookTree"/>），所以运行时自建的页面/控件不必再逐个处理。
+        /// 同一个窗体只生效一次，避免嵌套页面被重复放大。
+        /// </summary>
+        public static void ApplyDpi(Form f)
+        {
+            if (f == null || Scale == 1f) return;
+            if (!Scaled.Add(f)) return;
+
+            Size client = f.ClientSize;
+            f.Scale(new SizeF(Scale, Scale));
+            // Scale() 对"窗体自身尺寸"的处理依实现而定，这里显式兜底
+            f.ClientSize = new Size(Dpi(client.Width), Dpi(client.Height));
+            HookTree(f);
+        }
+
+        private static readonly HashSet<Control> Scaled = new HashSet<Control>();
+        private static readonly HashSet<Control> Hooked = new HashSet<Control>();
+
+        /// <summary>给整棵树挂上"新加控件自动跟随缩放"的钩子。</summary>
+        private static void HookTree(Control root)
+        {
+            if (!Hooked.Add(root)) return;
+            root.ControlAdded += TreeChildAdded;
+            foreach (Control c in root.Controls) HookTree(c);
+        }
+
+        private static void TreeChildAdded(object sender, ControlEventArgs e)
+        {
+            Control c = e.Control;
+            if (c == null) return;
+            if (Scaled.Add(c)) c.Scale(new SizeF(Scale, Scale));
+            HookTree(c);
+        }
+
+        // ---------------- 尺寸（96 DPI 设计值，运行期自动换算） ----------------
 
         /// <summary>卡片之间的间距。</summary>
-        public const int Gap = 12;
+        public static int Gap { get { return Dpi(12); } }
 
         /// <summary>页面四周的留白。</summary>
-        public const int PagePad = 16;
+        public static int PagePad { get { return Dpi(16); } }
 
         /// <summary>卡片圆角半径。</summary>
-        public const int Radius = 8;
+        public static int Radius { get { return Dpi(8); } }
 
         /// <summary>列表行高（触摸操作的最小可点高度）。</summary>
-        public const int RowHeight = 32;
+        public static int RowHeight { get { return Dpi(32); } }
 
         /// <summary>选项卡标签高度。</summary>
-        public const int TabHeight = 40;
+        public static int TabHeight { get { return Dpi(40); } }
 
         // ---------------- 颜色 ----------------
 
@@ -112,13 +173,17 @@ namespace AlphaRap
             if (size.Width <= 0 || size.Height <= 0) return null;
 
             Color bg = Color.FromArgb(255, backColor);      // 强制不透明
-            string key = (int)icon + "|" + text + "|" + size.Width + "x" + size.Height + "|" + iconSize + "|" +
+            string key = Scale + "|" + (int)icon + "|" + text + "|" + size.Width + "x" + size.Height + "|" + iconSize + "|" +
                          iconColor.ToArgb() + "|" + accent.ToArgb() + "|" + textColor.ToArgb() + "|" +
                          font.Size + "|" + font.Style + "|" + accentBar + "|" + bg.ToArgb();
             Image cached;
             if (TileCache.TryGetValue(key, out cached)) return cached;
 
             Bitmap bmp = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
+            // 位图按 96 DPI 建；字号与图标边长在这里手动按 DPI 换算，保证与已放大的位图尺寸匹配
+            int icSize = Dpi(iconSize);
+            Font f = (Scale == 1f) ? font
+                : new Font(font.FontFamily, font.Size * Scale, font.Style, GraphicsUnit.Point, ((byte)(134)));
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -128,15 +193,15 @@ namespace AlphaRap
                 using (SolidBrush b = new SolidBrush(bg))
                     g.FillRectangle(b, 0, 0, size.Width, size.Height);
 
-                int textH = string.IsNullOrEmpty(text) ? 0 : font.Height;
-                int top = Math.Max(2, (size.Height - iconSize - textH - 2) / 2);
-                Image ic = AppIcons.Get(icon, iconSize, iconColor, accent);
-                if (ic != null) g.DrawImage(ic, (size.Width - iconSize) / 2, top, iconSize, iconSize);
+                int textH = string.IsNullOrEmpty(text) ? 0 : f.Height;
+                int top = Math.Max(Dpi(2), (size.Height - icSize - textH - Dpi(2)) / 2);
+                Image ic = AppIcons.Get(icon, icSize, iconColor, accent);
+                if (ic != null) g.DrawImage(ic, (size.Width - icSize) / 2, top, icSize, icSize);
 
                 if (textH > 0)
                 {
-                    Rectangle tr = new Rectangle(2, top + iconSize + 2, size.Width - 4, textH + 2);
-                    TextRenderer.DrawText(g, text, font, tr, textColor,
+                    Rectangle tr = new Rectangle(Dpi(2), top + icSize + Dpi(2), size.Width - Dpi(4), textH + Dpi(2));
+                    TextRenderer.DrawText(g, text, f, tr, textColor,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
                         TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
                 }
@@ -144,9 +209,10 @@ namespace AlphaRap
                 if (accentBar)
                 {
                     using (SolidBrush b = new SolidBrush(UiKit.Brand))
-                        g.FillRectangle(b, 0, 8, 3, size.Height - 16);
+                        g.FillRectangle(b, 0, Dpi(8), Dpi(3), size.Height - Dpi(16));
                 }
             }
+            if (!ReferenceEquals(f, font)) f.Dispose();
             TileCache[key] = bmp;
             return bmp;
         }
@@ -168,7 +234,7 @@ namespace AlphaRap
 
             // 行高由 SmallImageList 的高度决定
             ImageList rows = new ImageList();
-            rows.ImageSize = new Size(1, Math.Max(16, rowHeight));
+            rows.ImageSize = new Size(1, Dpi(Math.Max(16, rowHeight)));
             lv.SmallImageList = rows;
 
             lv.OwnerDraw = true;
@@ -185,7 +251,7 @@ namespace AlphaRap
             using (SolidBrush b = new SolidBrush(HeaderBg)) e.Graphics.FillRectangle(b, e.Bounds);
             using (Pen p = new Pen(UiKit.Line))
                 e.Graphics.DrawLine(p, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1);
-            Rectangle tr = new Rectangle(e.Bounds.X + 10, e.Bounds.Y, e.Bounds.Width - 12, e.Bounds.Height);
+            Rectangle tr = new Rectangle(e.Bounds.X + Dpi(10), e.Bounds.Y, e.Bounds.Width - Dpi(12), e.Bounds.Height);
             TextRenderer.DrawText(e.Graphics, e.Header.Text, BodyBold, tr, UiKit.TextMuted,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
@@ -205,7 +271,7 @@ namespace AlphaRap
             using (SolidBrush b = new SolidBrush(back)) e.Graphics.FillRectangle(b, e.Bounds);
             using (Pen p = new Pen(UiKit.Line))
                 e.Graphics.DrawLine(p, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1);
-            Rectangle tr = new Rectangle(e.Bounds.X + 10, e.Bounds.Y, e.Bounds.Width - 12, e.Bounds.Height);
+            Rectangle tr = new Rectangle(e.Bounds.X + Dpi(10), e.Bounds.Y, e.Bounds.Width - Dpi(12), e.Bounds.Height);
             TextRenderer.DrawText(e.Graphics, e.SubItem.Text, Body, tr, fore,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
         }
@@ -221,9 +287,9 @@ namespace AlphaRap
             if (tc == null) return;
             tc.DrawMode = TabDrawMode.OwnerDrawFixed;
             tc.SizeMode = TabSizeMode.Fixed;
-            tc.Padding = new Point(16, 6);
+            tc.Padding = new Point(Dpi(16), Dpi(6));
             tc.Font = primary ? Section : BodyBold;
-            tc.ItemSize = new Size(MeasureTabWidth(tc), primary ? TabHeight : TabHeight - 6);
+            tc.ItemSize = new Size(MeasureTabWidth(tc), primary ? TabHeight : TabHeight - Dpi(6));
             tc.Tag = primary ? "tab:1" : "tab:2";
             tc.DrawItem -= TabControl_DrawItem;
             tc.DrawItem += TabControl_DrawItem;
@@ -237,10 +303,10 @@ namespace AlphaRap
         /// <summary>按最长的标签文字计算统一的标签宽度（TabSizeMode.Fixed 下所有标签等宽）。</summary>
         public static int MeasureTabWidth(TabControl tc)
         {
-            int w = 96;
+            int w = Dpi(96);
             foreach (TabPage p in tc.TabPages)
-                w = Math.Max(w, TextRenderer.MeasureText(p.Text ?? "", tc.Font).Width + 36);
-            return Math.Min(w, 320);
+                w = Math.Max(w, TextRenderer.MeasureText(p.Text ?? "", tc.Font).Width + Dpi(36));
+            return Math.Min(w, Dpi(320));
         }
 
         private static void TabControl_DrawItem(object sender, DrawItemEventArgs e)
@@ -255,17 +321,17 @@ namespace AlphaRap
             // 标签条整体底色（覆盖系统绘制的边框）
             Color strip = primary ? FrameBg : UiKit.PageBg;
             using (SolidBrush b = new SolidBrush(strip))
-                g.FillRectangle(b, new Rectangle(r.X - 2, r.Y - 2, r.Width + 4, r.Height + 4));
+                g.FillRectangle(b, new Rectangle(r.X - Dpi(2), r.Y - Dpi(2), r.Width + Dpi(4), r.Height + Dpi(4)));
 
-            Rectangle card = new Rectangle(r.X + 2, r.Y + 3, r.Width - 4, r.Height - 3);
+            Rectangle card = new Rectangle(r.X + Dpi(2), r.Y + Dpi(3), r.Width - Dpi(4), r.Height - Dpi(3));
             if (sel)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                using (GraphicsPath path = UiKit.RoundRect(new Rectangle(card.X, card.Y, card.Width, card.Height + 8), 6))
+                using (GraphicsPath path = UiKit.RoundRect(new Rectangle(card.X, card.Y, card.Width, card.Height + Dpi(8)), 6))
                 using (SolidBrush b = new SolidBrush(primary ? UiKit.PageBg : UiKit.Surface))
                     g.FillPath(b, path);
                 using (SolidBrush b = new SolidBrush(UiKit.Brand))
-                    g.FillRectangle(b, card.X + 10, card.Bottom - 3, card.Width - 20, 3);
+                    g.FillRectangle(b, card.X + Dpi(10), card.Bottom - Dpi(3), card.Width - Dpi(20), Dpi(3));
             }
 
             TextRenderer.DrawText(g, tc.TabPages[e.Index].Text, tc.Font, card,

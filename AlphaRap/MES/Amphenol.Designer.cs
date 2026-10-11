@@ -698,7 +698,7 @@
 			// Amphenol
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.ClientSize = new System.Drawing.Size(1302, 555);
 			this.Controls.Add(this.tableLayoutPanel2);
 			this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);

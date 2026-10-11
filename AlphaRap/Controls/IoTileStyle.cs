@@ -15,11 +15,11 @@ namespace AlphaRap
     /// </summary>
     public static class IoPanelLayout
     {
-        public const int TileHeight = 40;
-        public const int TileMinWidth = 260;
-        public const int TileMaxWidth = 360;
-        public const int TileGap = 10;
-        public const int HeaderHeight = 30;
+        public static int TileHeight { get { return UiTheme.Dpi(40); } }
+        public static int TileMinWidth { get { return UiTheme.Dpi(260); } }
+        public static int TileMaxWidth { get { return UiTheme.Dpi(360); } }
+        public static int TileGap { get { return UiTheme.Dpi(10); } }
+        public static int HeaderHeight { get { return UiTheme.Dpi(30); } }
 
         private class Section
         {
@@ -157,7 +157,7 @@ namespace AlphaRap
             header.Visible = tiles.Count > 0;
             if (tiles.Count == 0) return y;
             header.Bounds = new Rectangle(x0 + scroll.X, y + scroll.Y, cols * tileW + (cols - 1) * TileGap, HeaderHeight);
-            y += HeaderHeight + 4;
+            y += HeaderHeight + UiTheme.Dpi(4);
             for (int i = 0; i < tiles.Count; i++)
             {
                 int r = i / cols, c = i % cols;
@@ -176,7 +176,7 @@ namespace AlphaRap
     /// </summary>
     public static class IoTileStyle
     {
-        private const int IndicatorMargin = 8;
+        private static int IndicatorMargin { get { return UiTheme.Dpi(8); } }
         private static readonly HashSet<Control> Styled = new HashSet<Control>();
         private static readonly HashSet<Control> IndicatorHooked = new HashSet<Control>();
 
@@ -223,7 +223,7 @@ namespace AlphaRap
                 // 指示图的底色保持与卡片一致（控件内部刷新状态时可能改回系统色）
                 pic.BackColorChanged += (o, e) => { if (pic.BackColor != UiKit.Surface) pic.BackColor = UiKit.Surface; };
             }
-            int h = Math.Min(pic.Height, tile.Height - 8);
+            int h = Math.Min(pic.Height, tile.Height - UiTheme.Dpi(8));
             pic.Bounds = new Rectangle(tile.Width - pic.Width - IndicatorMargin, (tile.Height - h) / 2, pic.Width, h);
             UpdatePadding(tile);
         }
@@ -239,14 +239,14 @@ namespace AlphaRap
         private static int PortWidth(Control tile)
         {
             string p = PortText(tile);
-            return p.Length == 0 ? 0 : TextRenderer.MeasureText(p, UiTheme.Caption).Width + 10;
+            return p.Length == 0 ? 0 : TextRenderer.MeasureText(p, UiTheme.Caption).Width + UiTheme.Dpi(10);
         }
 
         private static void UpdatePadding(Control tile)
         {
             PictureBox pic = tile.Controls.OfType<PictureBox>().FirstOrDefault();
             int right = (pic != null ? pic.Width + IndicatorMargin * 2 : IndicatorMargin) + PortWidth(tile);
-            Padding want = new Padding(14, 0, right, 0);
+            Padding want = new Padding(UiTheme.Dpi(14), 0, right, 0);
             if (tile.Padding != want) tile.Padding = want;
         }
 
@@ -271,7 +271,8 @@ namespace AlphaRap
             // 左侧色条：输入灰、输出品牌蓝
             Color mark = tile is Adlink_Input ? UiTheme.InputMark
                        : tile is Adlink_Cylinder ? UiKit.Warn : UiKit.Brand;
-            using (SolidBrush b = new SolidBrush(mark)) g.FillRectangle(b, 1, 8, 3, tile.Height - 16);
+            using (SolidBrush b = new SolidBrush(mark))
+                g.FillRectangle(b, UiTheme.Dpi(1), UiTheme.Dpi(8), UiTheme.Dpi(3), tile.Height - UiTheme.Dpi(16));
 
             // IO 地址
             string port = PortText(tile);
@@ -294,7 +295,7 @@ namespace AlphaRap
             cyl.MaximumSize = Size.Empty;
             cyl.MinimumSize = Size.Empty;
             cyl.BackColor = UiKit.Surface;
-            cyl.Padding = new Padding(14, 5, 6, 5);
+            cyl.Padding = UiTheme.Dpi(new Padding(14, 5, 6, 5));
 
             foreach (Button b in Descendants(cyl).OfType<Button>())
             {
@@ -314,7 +315,7 @@ namespace AlphaRap
                 tlp.CellBorderStyle = TableLayoutPanelCellBorderStyle.None;
                 tlp.Padding = Padding.Empty;
                 tlp.Dock = DockStyle.Right;
-                tlp.Width = 150;
+                tlp.Width = UiTheme.Dpi(150);
                 tlp.Margin = new Padding(0);
             }
 

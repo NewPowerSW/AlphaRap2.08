@@ -10,6 +10,7 @@ namespace AlphaRap
 		public SystemSetting()
 		{
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 			SysPara.items = 1;
 		}
 

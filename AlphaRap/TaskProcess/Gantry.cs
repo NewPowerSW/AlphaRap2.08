@@ -10,6 +10,7 @@ namespace AlphaRap.TaskProcess
 		{
 			CheckForIllegalCrossThreadCalls = false;
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 		}
 
 		INOVANCE plc = new INOVANCE();

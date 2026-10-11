@@ -13,6 +13,7 @@ namespace AlphaRap.MenuForm
         public LanguageSetting()
         {
             InitializeComponent();
+            UiTheme.ApplyDpi(this);
             // 按需创建的窗体：登记进语言表并按当前语言设置文字
             MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
             if (dtTable.Columns.Count == 0)

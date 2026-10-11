@@ -210,6 +210,7 @@ namespace AlphaRap.MES
 		public Amphenol()
 		{
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 		}
 		readonly Object OBJ = new object();
 		/// <summary>

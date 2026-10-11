@@ -12,6 +12,7 @@ namespace AlphaRap
 		{
 			CheckForIllegalCrossThreadCalls = false;
 			InitializeComponent();
+            UiTheme.ApplyDpi(this);
 			Conveyor_List.Add(OB_UpConveyor_Work_ConveyorForward);
 			Conveyor_List.Add(OB_UpConveyor_Work_ConveyorReverse);
 			Conveyor_List.Add(OB_UpConveyor_LocalMachineReady_SMEMA);
