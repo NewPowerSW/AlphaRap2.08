@@ -28,9 +28,10 @@ namespace AlphaRap
         public static Point Dpi(Point v) { return Scale == 1f ? v : new Point(Dpi(v.X), Dpi(v.Y)); }
         public static Padding Dpi(Padding v) { return Scale == 1f ? v : new Padding(Dpi(v.Left), Dpi(v.Top), Dpi(v.Right), Dpi(v.Bottom)); }
 
-        /// <summary>按主屏 DPI 初始化缩放系数（必须在创建任何窗体之前调用）。</summary>
+        /// <summary>按主屏 DPI 初始化缩放系数（必须在创建任何窗口之前调用）。</summary>
         public static void InitDpi()
         {
+            EnsureDpiAware();
             try
             {
                 // 进程不是 DPI 感知时，Windows 会把整个窗口位图拉伸；这时自己绝不能再缩放（会双重放大）
@@ -46,8 +47,30 @@ namespace AlphaRap
             if (Scale < 1f || Scale > 4f) Scale = 1f;   // 异常值不缩放，免得小屏上界面反而变小
         }
 
+        /// <summary>
+        /// 兜底声明 DPI 感知。manifest 正常时这些调用会直接返回（无害）；
+        /// 万一 manifest 没被采纳，这里补上——否则整个窗口会被 Windows 位图拉伸，全界面发虚。
+        /// 必须在创建第一个窗口之前调用。
+        /// </summary>
+        private static void EnsureDpiAware()
+        {
+            try { if (IsProcessDPIAware()) return; } catch { }
+            try { SetProcessDpiAwarenessContext(new IntPtr(-2)); return; } catch { }   // SYSTEM_AWARE（Win10 1607+）
+            try { SetProcessDpiAwareness(1); return; } catch { }                       // PROCESS_SYSTEM_DPI_AWARE（Win8.1+）
+            try { SetProcessDPIAware(); } catch { }                                    // Vista+
+        }
+
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern bool IsProcessDPIAware();
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr SetProcessDpiAwarenessContext(IntPtr value);
+
+        [System.Runtime.InteropServices.DllImport("shcore.dll")]
+        private static extern int SetProcessDpiAwareness(int value);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetProcessDPIAware();
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern uint GetDpiForSystem();
