@@ -134,6 +134,9 @@ namespace AlphaRap
         /// <summary>单设备模式下点了【移除】。宿主收到后把本面板从容器里拿掉（并 Dispose）。</summary>
         public event EventHandler RemoveRequested;
 
+        /// <summary>设备名变了（在"设备名"框里改，或绑定设备时定下来）。宿主用它同步页签标题之类的显示。</summary>
+        public event EventHandler DeviceNameChanged;
+
         /// <summary>单设备模式下绑定的设备类名；还没绑定时返回空串。</summary>
         [Browsable(false)]
         public string BoundTypeName
@@ -171,7 +174,15 @@ namespace AlphaRap
 
             RebuildDeviceList(name);
             SwitchToDevice(item);
+            RaiseNameChanged();          // 名字定下来了，通知宿主（页签标题等）
             return string.Empty;
+        }
+
+        /// <summary>通知宿主"设备名变了"。</summary>
+        private void RaiseNameChanged()
+        {
+            EventHandler h = DeviceNameChanged;
+            if (h != null) h(this, EventArgs.Empty);
         }
 
         /// <summary>重新扫描设备类列表（新增的通讯类重新生成后调一次就能出现；已选中的类尽量保持不变）。</summary>
@@ -1064,6 +1075,7 @@ namespace AlphaRap
             string old = _current.Name;
             _current.Name = want;
             RebuildDeviceList(want);                        // 刷新下拉框显示
+            RaiseNameChanged();                             // 让宿主同步页签标题
             AppendLog("改名", "设备 " + old + " → " + want + "（点主界面【保存】后写入配置）");
         }
 

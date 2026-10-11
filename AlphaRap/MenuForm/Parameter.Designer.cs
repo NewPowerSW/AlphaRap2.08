@@ -37,7 +37,7 @@
             this.dataTable2 = new System.Data.DataTable();
             this.panelHost = new System.Windows.Forms.Panel();
             this.btnAddDevice = new AlphaRap.FlatButton();
-            this.flowDevices = new System.Windows.Forms.FlowLayoutPanel();
+            this.tabDevices = new System.Windows.Forms.TabControl();
             this.panelHost.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).BeginInit();
@@ -119,19 +119,13 @@
             this.btnAddDevice.Variant = AlphaRap.FlatButtonVariant.Primary;
             this.btnAddDevice.Click += new System.EventHandler(this.btnAddDevice_Click);
             // 
-            // flowDevices（设备面板容器：一个面板 = 一台设备，竖向单列 + 滚动）
+            // tabDevices（设备页签容器：一个页签 = 一台设备，横向排列）
             // 
-            this.flowDevices.AutoScroll = true;
-            this.flowDevices.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
-            this.flowDevices.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowDevices.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowDevices.Location = new System.Drawing.Point(0, 46);
-            this.flowDevices.Name = "flowDevices";
-            this.flowDevices.Padding = new System.Windows.Forms.Padding(6);
-            this.flowDevices.Size = new System.Drawing.Size(1192, 977);
-            this.flowDevices.TabIndex = 1;
-            this.flowDevices.WrapContents = false;
-            this.flowDevices.Resize += new System.EventHandler(this.flowDevices_Resize);
+            this.tabDevices.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabDevices.Location = new System.Drawing.Point(0, 46);
+            this.tabDevices.Name = "tabDevices";
+            this.tabDevices.Size = new System.Drawing.Size(1192, 977);
+            this.tabDevices.TabIndex = 1;
             // 
             // Parameter
             // 
@@ -141,7 +135,7 @@
             this.Margin = new System.Windows.Forms.Padding(5);
             this.Name = "Parameter";
             this.Text = " ";
-            this.Controls.Add(this.flowDevices);
+            this.Controls.Add(this.tabDevices);
             this.Controls.Add(this.panelHost);
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).EndInit();
@@ -162,6 +156,6 @@
 		private System.Data.DataColumn dataColumn5;
         private System.Windows.Forms.Panel panelHost;
         private FlatButton btnAddDevice;
-        private System.Windows.Forms.FlowLayoutPanel flowDevices;
+        private System.Windows.Forms.TabControl tabDevices;
     }
 }
