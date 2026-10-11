@@ -26,7 +26,7 @@ namespace AlphaRap
                      ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.Selectable, false);
             BackColor = UiKit.Surface;
-            Font = UiTheme.Caption;
+            Font = UiTheme.Body;
         }
 
         /// <summary>更新数据（数组长度为 24，下标为小时）；数据未变化时不重绘。</summary>
@@ -51,19 +51,25 @@ namespace AlphaRap
             g.Clear(BackColor);
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            const int legendH = 26;
-            const int axisW = 44;
-            const int hourH = 22;
+            const int legendH = 30;
+            const int axisW = 52;
+            const int hourH = 26;
             Rectangle plot = new Rectangle(axisW, legendH + 6, Width - axisW - 6, Height - legendH - hourH - 10);
             if (plot.Width < 60 || plot.Height < 40) return;
-
-            DrawLegend(g, new Rectangle(axisW, 0, Width - axisW, legendH));
 
             double max = 0;
             for (int h = 0; h < 24; h++) max = Math.Max(max, _ok[h] + _ng[h]);
             double step;
             double top = NiceCeiling(max, out step);
             int ticks = (int)Math.Round(top / step);
+            float slot = plot.Width / 24f;
+
+            // 当前小时底标：先铺在网格之下，且没数据时不画（否则空白区里出现一块蓝柱，看着像故障）
+            if (max > 0 && _currentHour >= 0 && _currentHour < 24)
+                using (SolidBrush b = new SolidBrush(UiTheme.Selected))
+                    g.FillRectangle(b, plot.Left + slot * _currentHour, plot.Top, slot, plot.Height);
+
+            DrawLegend(g, new Rectangle(axisW, 0, Width - axisW, legendH));
 
             // 横向网格与刻度
             using (Pen grid = new Pen(UiKit.Line) { DashStyle = DashStyle.Dot })
@@ -73,20 +79,15 @@ namespace AlphaRap
                     int y = plot.Bottom - (int)Math.Round(plot.Height * i / (double)ticks);
                     g.DrawLine(grid, plot.Left, y, plot.Right, y);
                     string label = (step * i).ToString("0.#");
-                    TextRenderer.DrawText(g, label, Font, new Rectangle(0, y - 9, axisW - 8, 18), UiKit.TextMuted,
+                    TextRenderer.DrawText(g, label, Font, new Rectangle(0, y - 10, axisW - 10, 20), UiKit.TextSecondary,
                         TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
                 }
             }
 
-            float slot = plot.Width / 24f;
             float barW = Math.Max(3f, slot * 0.58f);
             for (int h = 0; h < 24; h++)
             {
                 float x = plot.Left + slot * h;
-                if (h == _currentHour)
-                    using (SolidBrush b = new SolidBrush(UiTheme.Selected))
-                        g.FillRectangle(b, x, plot.Top, slot, plot.Height);
-
                 float bx = x + (slot - barW) / 2f;
                 float okH = (float)(plot.Height * _ok[h] / top);
                 float ngH = (float)(plot.Height * _ng[h] / top);
@@ -94,8 +95,8 @@ namespace AlphaRap
                 if (ngH > 0) using (SolidBrush b = new SolidBrush(NgColor)) g.FillRectangle(b, bx, plot.Bottom - okH - ngH, barW, ngH);
 
                 if (h % 2 == 0)
-                    TextRenderer.DrawText(g, h.ToString(), Font, new Rectangle((int)x - 6, plot.Bottom + 4, (int)slot + 12, hourH),
-                        h == _currentHour ? UiKit.Brand : UiKit.TextMuted, TextFormatFlags.HorizontalCenter | TextFormatFlags.Top);
+                    TextRenderer.DrawText(g, h.ToString(), Font, new Rectangle((int)x - 8, plot.Bottom + 5, (int)slot + 16, hourH),
+                        h == _currentHour ? UiKit.Brand : UiKit.TextSecondary, TextFormatFlags.HorizontalCenter | TextFormatFlags.Top);
             }
 
             if (max <= 0)
@@ -108,10 +109,10 @@ namespace AlphaRap
             int x = r.Left;
             foreach (var item in new[] { Tuple.Create(OkLegend, OkColor), Tuple.Create(NgLegend, NgColor) })
             {
-                using (SolidBrush b = new SolidBrush(item.Item2)) g.FillRectangle(b, x, r.Top + 8, 10, 10);
+                using (SolidBrush b = new SolidBrush(item.Item2)) g.FillRectangle(b, x, r.Top + 8, 12, 12);
                 Size sz = TextRenderer.MeasureText(item.Item1, Font);
-                TextRenderer.DrawText(g, item.Item1, Font, new Point(x + 14, r.Top + 5), UiKit.TextMuted);
-                x += 14 + sz.Width + 16;
+                TextRenderer.DrawText(g, item.Item1, Font, new Point(x + 17, r.Top + 5), UiKit.TextSecondary);
+                x += 17 + sz.Width + 18;
             }
         }
 

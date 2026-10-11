@@ -38,6 +38,10 @@ namespace AlphaRap
             lblHourOutput.Text = UiTheme.T("HomeForm", "hour_Output", "产出", "Output", "Salida");
             lblHourReject.Text = UiTheme.T("HomeForm", "hour_Reject", "不良", "NG", "NG");
             lblHourYield.Text = UiTheme.T("HomeForm", "hour_Yield", "良率", "Yield", "Rendimiento");
+
+            // 底部设备连接状态（原来在 Designer 里写死中文，切英文/西语不会变）
+            label10.Text = UiTheme.T("HomeForm", "conn_Plc", "PLC", "PLC", "PLC");
+            LAB_ScannStaus.Text = UiTheme.T("HomeForm", "conn_Scanner", "扫码枪", "Scanner", "Escáner");
         }
 
         /// <summary>

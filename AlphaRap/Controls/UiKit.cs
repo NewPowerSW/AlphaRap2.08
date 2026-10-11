@@ -25,6 +25,8 @@ namespace AlphaRap
         public static readonly Color LineStrong = Color.FromArgb(203, 216, 230);
         public static readonly Color TextPrimary = Color.FromArgb(38, 50, 64);
         public static readonly Color TextMuted = Color.FromArgb(122, 138, 155);
+        /// <summary>次级文字：比 TextMuted 深一档，用于坐标轴刻度、图例等"必须看清"的次要信息。</summary>
+        public static readonly Color TextSecondary = Color.FromArgb(92, 108, 126);
         public static readonly Color TextOnBrand = Color.White;
         public static readonly Color Hover = Color.FromArgb(226, 236, 247);
         public static readonly Color FieldBg = Color.FromArgb(250, 252, 254);

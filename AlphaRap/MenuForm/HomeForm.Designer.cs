@@ -152,7 +152,7 @@
             // 
             this.lblKpiInputValue.AutoEllipsis = true;
             this.lblKpiInputValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblKpiInputValue.Font = new System.Drawing.Font("微软雅黑", 26F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiInputValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblKpiInputValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.lblKpiInputValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiInputValue.Margin = new System.Windows.Forms.Padding(0);
@@ -167,7 +167,7 @@
             this.lblKpiInputTitle.AutoEllipsis = true;
             this.lblKpiInputTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblKpiInputTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiInputTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblKpiInputTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblKpiInputTitle.Location = new System.Drawing.Point(18, 10);
             this.lblKpiInputTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiInputTitle.Name = "lblKpiInputTitle";
@@ -197,7 +197,7 @@
             // 
             this.lblKpiOkValue.AutoEllipsis = true;
             this.lblKpiOkValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblKpiOkValue.Font = new System.Drawing.Font("微软雅黑", 26F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiOkValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblKpiOkValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(150)))), ((int)(((byte)(67)))));
             this.lblKpiOkValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiOkValue.Margin = new System.Windows.Forms.Padding(0);
@@ -212,7 +212,7 @@
             this.lblKpiOkTitle.AutoEllipsis = true;
             this.lblKpiOkTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblKpiOkTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiOkTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblKpiOkTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblKpiOkTitle.Location = new System.Drawing.Point(18, 10);
             this.lblKpiOkTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiOkTitle.Name = "lblKpiOkTitle";
@@ -242,7 +242,7 @@
             // 
             this.lblKpiNgValue.AutoEllipsis = true;
             this.lblKpiNgValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblKpiNgValue.Font = new System.Drawing.Font("微软雅黑", 26F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiNgValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblKpiNgValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(206)))), ((int)(((byte)(62)))), ((int)(((byte)(62)))));
             this.lblKpiNgValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiNgValue.Margin = new System.Windows.Forms.Padding(0);
@@ -257,7 +257,7 @@
             this.lblKpiNgTitle.AutoEllipsis = true;
             this.lblKpiNgTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblKpiNgTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiNgTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblKpiNgTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblKpiNgTitle.Location = new System.Drawing.Point(18, 10);
             this.lblKpiNgTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiNgTitle.Name = "lblKpiNgTitle";
@@ -287,7 +287,7 @@
             // 
             this.lblKpiYieldValue.AutoEllipsis = true;
             this.lblKpiYieldValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblKpiYieldValue.Font = new System.Drawing.Font("微软雅黑", 26F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiYieldValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblKpiYieldValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
             this.lblKpiYieldValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiYieldValue.Margin = new System.Windows.Forms.Padding(0);
@@ -302,7 +302,7 @@
             this.lblKpiYieldTitle.AutoEllipsis = true;
             this.lblKpiYieldTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblKpiYieldTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiYieldTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblKpiYieldTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblKpiYieldTitle.Location = new System.Drawing.Point(18, 10);
             this.lblKpiYieldTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiYieldTitle.Name = "lblKpiYieldTitle";
@@ -332,7 +332,7 @@
             // 
             this.lblKpiCtValue.AutoEllipsis = true;
             this.lblKpiCtValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblKpiCtValue.Font = new System.Drawing.Font("微软雅黑", 26F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiCtValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblKpiCtValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.lblKpiCtValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiCtValue.Margin = new System.Windows.Forms.Padding(0);
@@ -347,7 +347,7 @@
             this.lblKpiCtTitle.AutoEllipsis = true;
             this.lblKpiCtTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblKpiCtTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiCtTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblKpiCtTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblKpiCtTitle.Location = new System.Drawing.Point(18, 10);
             this.lblKpiCtTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiCtTitle.Name = "lblKpiCtTitle";
@@ -394,7 +394,7 @@
             this.hourlyChart.BackColor = System.Drawing.Color.White;
             this.hourlyChart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.hourlyChart.EmptyText = "暂无数据";
-            this.hourlyChart.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.hourlyChart.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.hourlyChart.Location = new System.Drawing.Point(16, 42);
             this.hourlyChart.Name = "hourlyChart";
             this.hourlyChart.NgColor = System.Drawing.Color.FromArgb(((int)(((byte)(206)))), ((int)(((byte)(62)))), ((int)(((byte)(62)))));
@@ -438,7 +438,7 @@
             // 
             this.infoLayout.BackColor = System.Drawing.Color.White;
             this.infoLayout.ColumnCount = 2;
-            this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 72F));
+            this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.infoLayout.Controls.Add(this.lblInfoTitle, 0, 0);
             this.infoLayout.Controls.Add(this.lblBarcode1, 0, 1);
@@ -490,25 +490,25 @@
             this.lblBarcode1.AutoEllipsis = true;
             this.lblBarcode1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblBarcode1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblBarcode1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblBarcode1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblBarcode1.Location = new System.Drawing.Point(0, 32);
             this.lblBarcode1.Margin = new System.Windows.Forms.Padding(0);
             this.lblBarcode1.Name = "lblBarcode1";
-            this.lblBarcode1.Size = new System.Drawing.Size(72, 38);
+            this.lblBarcode1.Size = new System.Drawing.Size(100, 38);
             this.lblBarcode1.TabIndex = 1;
             this.lblBarcode1.Text = "条码 1";
             this.lblBarcode1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // txtBarcode
             // 
-            this.txtBarcode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
+            this.txtBarcode.BackColor = System.Drawing.Color.White;
             this.txtBarcode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBarcode.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.txtBarcode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.txtBarcode.Location = new System.Drawing.Point(72, 37);
+            this.txtBarcode.Location = new System.Drawing.Point(100, 37);
             this.txtBarcode.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
             this.txtBarcode.Name = "txtBarcode";
-            this.txtBarcode.Size = new System.Drawing.Size(641, 44);
+            this.txtBarcode.Size = new System.Drawing.Size(613, 44);
             this.txtBarcode.TabIndex = 2;
             // 
             // lblBarcode2
@@ -516,25 +516,25 @@
             this.lblBarcode2.AutoEllipsis = true;
             this.lblBarcode2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblBarcode2.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblBarcode2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblBarcode2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblBarcode2.Location = new System.Drawing.Point(0, 70);
             this.lblBarcode2.Margin = new System.Windows.Forms.Padding(0);
             this.lblBarcode2.Name = "lblBarcode2";
-            this.lblBarcode2.Size = new System.Drawing.Size(72, 38);
+            this.lblBarcode2.Size = new System.Drawing.Size(100, 38);
             this.lblBarcode2.TabIndex = 3;
             this.lblBarcode2.Text = "条码 2";
             this.lblBarcode2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // txtBarcode2
             // 
-            this.txtBarcode2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
+            this.txtBarcode2.BackColor = System.Drawing.Color.White;
             this.txtBarcode2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBarcode2.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.txtBarcode2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.txtBarcode2.Location = new System.Drawing.Point(72, 75);
+            this.txtBarcode2.Location = new System.Drawing.Point(100, 75);
             this.txtBarcode2.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
             this.txtBarcode2.Name = "txtBarcode2";
-            this.txtBarcode2.Size = new System.Drawing.Size(641, 44);
+            this.txtBarcode2.Size = new System.Drawing.Size(613, 44);
             this.txtBarcode2.TabIndex = 4;
             // 
             // lblBarcode3
@@ -542,25 +542,25 @@
             this.lblBarcode3.AutoEllipsis = true;
             this.lblBarcode3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblBarcode3.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblBarcode3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblBarcode3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblBarcode3.Location = new System.Drawing.Point(0, 108);
             this.lblBarcode3.Margin = new System.Windows.Forms.Padding(0);
             this.lblBarcode3.Name = "lblBarcode3";
-            this.lblBarcode3.Size = new System.Drawing.Size(72, 38);
+            this.lblBarcode3.Size = new System.Drawing.Size(100, 38);
             this.lblBarcode3.TabIndex = 5;
             this.lblBarcode3.Text = "条码 3";
             this.lblBarcode3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // txtBarcode3
             // 
-            this.txtBarcode3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
+            this.txtBarcode3.BackColor = System.Drawing.Color.White;
             this.txtBarcode3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBarcode3.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.txtBarcode3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.txtBarcode3.Location = new System.Drawing.Point(72, 113);
+            this.txtBarcode3.Location = new System.Drawing.Point(100, 113);
             this.txtBarcode3.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
             this.txtBarcode3.Name = "txtBarcode3";
-            this.txtBarcode3.Size = new System.Drawing.Size(641, 44);
+            this.txtBarcode3.Size = new System.Drawing.Size(613, 44);
             this.txtBarcode3.TabIndex = 6;
             // 
             // lblBarcode4
@@ -568,25 +568,25 @@
             this.lblBarcode4.AutoEllipsis = true;
             this.lblBarcode4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblBarcode4.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblBarcode4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblBarcode4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblBarcode4.Location = new System.Drawing.Point(0, 146);
             this.lblBarcode4.Margin = new System.Windows.Forms.Padding(0);
             this.lblBarcode4.Name = "lblBarcode4";
-            this.lblBarcode4.Size = new System.Drawing.Size(72, 38);
+            this.lblBarcode4.Size = new System.Drawing.Size(100, 38);
             this.lblBarcode4.TabIndex = 7;
             this.lblBarcode4.Text = "条码 4";
             this.lblBarcode4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // txtBarcode4
             // 
-            this.txtBarcode4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
+            this.txtBarcode4.BackColor = System.Drawing.Color.White;
             this.txtBarcode4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBarcode4.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.txtBarcode4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.txtBarcode4.Location = new System.Drawing.Point(72, 151);
+            this.txtBarcode4.Location = new System.Drawing.Point(100, 151);
             this.txtBarcode4.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
             this.txtBarcode4.Name = "txtBarcode4";
-            this.txtBarcode4.Size = new System.Drawing.Size(641, 44);
+            this.txtBarcode4.Size = new System.Drawing.Size(613, 44);
             this.txtBarcode4.TabIndex = 8;
             // 
             // lblHourTitle
@@ -634,8 +634,8 @@
             // 
             this.lblHourInput.AutoEllipsis = true;
             this.lblHourInput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblHourInput.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblHourInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblHourInput.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblHourInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblHourInput.Location = new System.Drawing.Point(0, 0);
             this.lblHourInput.Margin = new System.Windows.Forms.Padding(0);
             this.lblHourInput.Name = "lblHourInput";
@@ -649,7 +649,7 @@
             this.tHourlyInput.BackColor = System.Drawing.Color.White;
             this.tHourlyInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tHourlyInput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tHourlyInput.Font = new System.Drawing.Font("微软雅黑", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tHourlyInput.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tHourlyInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.tHourlyInput.Location = new System.Drawing.Point(0, 24);
             this.tHourlyInput.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
@@ -664,8 +664,8 @@
             // 
             this.lblHourOutput.AutoEllipsis = true;
             this.lblHourOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblHourOutput.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblHourOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblHourOutput.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblHourOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblHourOutput.Location = new System.Drawing.Point(178, 0);
             this.lblHourOutput.Margin = new System.Windows.Forms.Padding(0);
             this.lblHourOutput.Name = "lblHourOutput";
@@ -679,7 +679,7 @@
             this.tHourlyOutput.BackColor = System.Drawing.Color.White;
             this.tHourlyOutput.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tHourlyOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tHourlyOutput.Font = new System.Drawing.Font("微软雅黑", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tHourlyOutput.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tHourlyOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.tHourlyOutput.Location = new System.Drawing.Point(178, 24);
             this.tHourlyOutput.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
@@ -694,8 +694,8 @@
             // 
             this.lblHourReject.AutoEllipsis = true;
             this.lblHourReject.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblHourReject.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblHourReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblHourReject.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblHourReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblHourReject.Location = new System.Drawing.Point(356, 0);
             this.lblHourReject.Margin = new System.Windows.Forms.Padding(0);
             this.lblHourReject.Name = "lblHourReject";
@@ -709,7 +709,7 @@
             this.tHourlyReject.BackColor = System.Drawing.Color.White;
             this.tHourlyReject.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tHourlyReject.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tHourlyReject.Font = new System.Drawing.Font("微软雅黑", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tHourlyReject.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tHourlyReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.tHourlyReject.Location = new System.Drawing.Point(356, 24);
             this.tHourlyReject.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
@@ -724,8 +724,8 @@
             // 
             this.lblHourYield.AutoEllipsis = true;
             this.lblHourYield.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblHourYield.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblHourYield.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblHourYield.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblHourYield.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblHourYield.Location = new System.Drawing.Point(534, 0);
             this.lblHourYield.Margin = new System.Windows.Forms.Padding(0);
             this.lblHourYield.Name = "lblHourYield";
@@ -739,7 +739,7 @@
             this.tHourlyYield.BackColor = System.Drawing.Color.White;
             this.tHourlyYield.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tHourlyYield.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tHourlyYield.Font = new System.Drawing.Font("微软雅黑", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tHourlyYield.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tHourlyYield.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.tHourlyYield.Location = new System.Drawing.Point(534, 24);
             this.tHourlyYield.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
