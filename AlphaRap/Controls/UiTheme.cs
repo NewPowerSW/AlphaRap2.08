@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -101,13 +101,20 @@ namespace AlphaRap
         /// 生成"图标在上、文字在下"的按钮图（导航与工具栏共用），结果按参数缓存。
         /// </summary>
         /// <param name="accentBar">在左侧画一条品牌色竖条（导航选中态）。</param>
+        /// <param name="backColor">
+        /// 按钮实际底色（**必须与按钮的 BackColor / 其身后的实色一致**）。
+        /// 位图会先用它铺一层不透明底色再画字 —— 透明底上 GDI 用不了 ClearType，
+        /// 只能退回灰度抗锯齿、边缘还留半透明像素，叠出来就是"发虚"。
+        /// </param>
         public static Image IconLabel(AppIcon icon, string text, Size size, int iconSize,
-            Color iconColor, Color accent, Color textColor, Font font, bool accentBar)
+            Color iconColor, Color accent, Color textColor, Font font, bool accentBar, Color backColor)
         {
             if (size.Width <= 0 || size.Height <= 0) return null;
+
+            Color bg = Color.FromArgb(255, backColor);      // 强制不透明
             string key = (int)icon + "|" + text + "|" + size.Width + "x" + size.Height + "|" + iconSize + "|" +
                          iconColor.ToArgb() + "|" + accent.ToArgb() + "|" + textColor.ToArgb() + "|" +
-                         font.Size + "|" + font.Style + "|" + accentBar;
+                         font.Size + "|" + font.Style + "|" + accentBar + "|" + bg.ToArgb();
             Image cached;
             if (TileCache.TryGetValue(key, out cached)) return cached;
 
@@ -115,7 +122,11 @@ namespace AlphaRap
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+                // 先铺不透明底色：只有不透明表面上文字才用得上 ClearType（否则字会发虚发淡）
+                using (SolidBrush b = new SolidBrush(bg))
+                    g.FillRectangle(b, 0, 0, size.Width, size.Height);
 
                 int textH = string.IsNullOrEmpty(text) ? 0 : font.Height;
                 int top = Math.Max(2, (size.Height - iconSize - textH - 2) / 2);

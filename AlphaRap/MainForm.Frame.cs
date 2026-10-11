@@ -426,7 +426,9 @@ namespace AlphaRap
             bool sel = IsSelectedNav(b);
             Color c = !b.Enabled ? AppIconColor.Disabled : sel ? UiKit.Brand : AppIconColor.Nav;
             Color t = !b.Enabled ? UiKit.DisabledText : sel ? UiKit.Brand : UiKit.TextPrimary;
-            SetImage(b, UiTheme.IconLabel(icon, ButtonText(b), b.Size, NavIconSize, c, c, t, UiTheme.NavLabel, sel));
+            // 图的底色必须与按钮实际底色一致（选中是浅蓝，其余是导航白底），否则字会发虚、或把高亮盖住
+            Color back = sel ? UiTheme.Selected : UiTheme.NavBg;
+            SetImage(b, UiTheme.IconLabel(icon, ButtonText(b), b.Size, NavIconSize, c, c, t, UiTheme.NavLabel, sel, back));
         }
 
         /// <summary>
@@ -459,7 +461,9 @@ namespace AlphaRap
             Color main = on ? iconColor : AppIconColor.Disabled;
             Color accent = on ? accentColor : AppIconColor.Disabled;
             Color text = !on ? UiKit.DisabledText : (iconColor == AppIconColor.Nav ? UiKit.TextPrimary : iconColor);
-            SetImage(btn, UiTheme.IconLabel(icon, ButtonText(btn), btn.Size, ToolIconSize, main, accent, text, UiTheme.ToolLabel, false));
+            // 图的底色 = 按钮实际底色：悬停时是 ToolbarHover，否则按钮透明、身后是工具栏白底
+            Color imgBack = (back == Color.Transparent) ? UiKit.Surface : back;
+            SetImage(btn, UiTheme.IconLabel(icon, ButtonText(btn), btn.Size, ToolIconSize, main, accent, text, UiTheme.ToolLabel, false, imgBack));
         }
 
         /// <summary>给工具栏按钮挂接悬停事件（在 MainForm_Load 中调用一次）。</summary>
