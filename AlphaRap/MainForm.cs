@@ -381,7 +381,12 @@ int nheightEllipse
             try
             {
                 Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-                toolStripStatusLabel4.Text = "Version " + v.Major + "." + v.Minor + "." + v.Build;
+                string ver = "Version " + v.Major + "." + v.Minor + "." + v.Build;
+
+                // 高 DPI 诊断：一眼看出进程是否真按 DPI 渲染（DPI 100% = 没生效，界面会被 Windows 拉伸发虚）
+                Rectangle wa = Screen.FromControl(this).WorkingArea;
+                toolStripStatusLabel4.Text = ver + string.Format("   DPI {0:0}%   屏幕 {1}x{2}   窗口 {3}x{4}",
+                    UiTheme.Scale * 100f, wa.Width, wa.Height, Width, Height);
 
                 DateTime built = File.GetLastWriteTime(Application.ExecutablePath);
                 toolStripStatusLabel3.Text = " AlphaRap-SRM  Build " + built.ToString("yyyy/MM/dd HH:mm");
@@ -399,8 +404,9 @@ int nheightEllipse
         {
             Rectangle workArea = Screen.FromControl(this).WorkingArea;
 
-            int targetWidth = Math.Min(InitialWindowWidth, workArea.Width);
-            int targetHeight = Math.Min(InitialWindowHeight, workArea.Height);
+            // 1440x900 是 96 DPI 的设计尺寸，开了高 DPI 后必须按当前缩放换算，否则会把 ApplyDpi 的窗口尺寸又压回去
+            int targetWidth = Math.Min(UiTheme.Dpi(InitialWindowWidth), workArea.Width);
+            int targetHeight = Math.Min(UiTheme.Dpi(InitialWindowHeight), workArea.Height);
 
             StartPosition = FormStartPosition.Manual;
             Size = new Size(targetWidth, targetHeight);
@@ -451,7 +457,7 @@ int nheightEllipse
 
             int w = ClientSize.Width;
             int h = ClientSize.Height;
-            int grip = ResizeGrip;
+            int grip = UiTheme.Dpi(ResizeGrip);
 
             if (clientPoint.X < 0 || clientPoint.Y < 0 || clientPoint.X >= w || clientPoint.Y >= h)
                 return ResizeDirection.None;

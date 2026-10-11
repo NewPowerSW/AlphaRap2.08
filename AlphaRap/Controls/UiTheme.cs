@@ -33,11 +33,24 @@ namespace AlphaRap
         {
             try
             {
+                // 进程不是 DPI 感知时，Windows 会把整个窗口位图拉伸；这时自己绝不能再缩放（会双重放大）
+                if (!IsProcessDPIAware()) { Scale = 1f; return; }
+
                 using (Graphics g = Graphics.FromHwnd(IntPtr.Zero)) Scale = g.DpiX / 96f;
+                if (Scale <= 0f) Scale = GetDpiForSystem() / 96f;
             }
-            catch { }
+            catch
+            {
+                try { Scale = GetDpiForSystem() / 96f; } catch { Scale = 1f; }
+            }
             if (Scale < 1f || Scale > 4f) Scale = 1f;   // 异常值不缩放，免得小屏上界面反而变小
         }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool IsProcessDPIAware();
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern uint GetDpiForSystem();
 
         /// <summary>
         /// 把一个窗体的整棵控件树按 DPI 整体放大一次；之后往这棵树里新加的控件会自动跟着放大
