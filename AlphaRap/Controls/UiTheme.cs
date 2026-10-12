@@ -281,6 +281,7 @@ namespace AlphaRap
         // ---------------- 图标 + 文字按钮图 ----------------
 
         private static readonly Dictionary<string, Image> TileCache = new Dictionary<string, Image>();
+        private static readonly object TileCacheLock = new object();
 
         /// <summary>
         /// 生成"图标在上、文字在下"的按钮图（导航与工具栏共用），结果按参数缓存。
@@ -300,8 +301,11 @@ namespace AlphaRap
             string key = Scale + "|" + (int)icon + "|" + text + "|" + size.Width + "x" + size.Height + "|" + iconSize + "|" +
                          iconColor.ToArgb() + "|" + accent.ToArgb() + "|" + textColor.ToArgb() + "|" +
                          font.Size + "|" + font.Style + "|" + accentBar + "|" + bg.ToArgb();
-            Image cached;
-            if (TileCache.TryGetValue(key, out cached)) return cached;
+            lock (TileCacheLock)
+            {
+                Image cached;
+                if (TileCache.TryGetValue(key, out cached)) return cached;   // 静态复用：同一张图只合成一次
+            }
 
             Bitmap bmp = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
             // 位图按 96 DPI 建；字号与图标边长在这里手动按 DPI 换算，保证与已放大的位图尺寸匹配
@@ -337,7 +341,12 @@ namespace AlphaRap
                 }
             }
             if (!ReferenceEquals(f, font)) f.Dispose();
-            TileCache[key] = bmp;
+            lock (TileCacheLock)
+            {
+                Image cached;
+                if (TileCache.TryGetValue(key, out cached)) { bmp.Dispose(); return cached; }
+                TileCache[key] = bmp;
+            }
             return bmp;
         }
 

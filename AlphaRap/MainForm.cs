@@ -291,7 +291,7 @@ int nheightEllipse
             // 顶栏虚拟键盘开关：点击调出或收起软键盘
             InitVirtualKeyboardToggle();
 
-            // 绘制全部按钮的矢量图标（timer1_Tick 按 Enabled 状态持续刷新）
+            // 绘制全部按钮的矢量图标（图标静态缓存，只在这里和状态变化时绘制）
             RefreshButtonIcons();
 
             // 底部工具栏按钮的悬停效果
@@ -1276,7 +1276,8 @@ int nheightEllipse
                                      || SysPara.UserPermission == PermissionType.Maintenance);
             MENU_Reset.Enabled = SysPara.SystemMode == RunMode.IDLE;
 
-            RefreshButtonIcons();
+            // 只有可用状态真的变了才重画（图片静态复用，避免每秒 10 次的无谓重建）
+            RefreshButtonIconsIfChanged();
             #endregion
         }
 

@@ -78,6 +78,7 @@ namespace AlphaRap
             StyleStatusBar();
 
             LoadFrameTexts();
+            PrewarmFrameIcons();      // 先把矢量图标一次性画好，下面的按钮图片全部走缓存
             RefreshButtonIcons();
             RefreshMenuBackcolor();
         }
@@ -383,6 +384,7 @@ namespace AlphaRap
             try
             {
                 if (_buttonTexts.Count == 0) LoadFrameTexts();
+                _iconSignature = BuildIconSignature();   // 记下本次绘制时的状态，供 RefreshButtonIconsIfChanged 比对
 
                 SetNavImage(MENU_Home, AppIcon.Home);
                 SetNavImage(MENU_Save, AppIcon.Save);
@@ -411,6 +413,67 @@ namespace AlphaRap
         private static void SetImage(PictureBox b, Image img)
         {
             if (b != null && !ReferenceEquals(b.Image, img)) b.Image = img;
+        }
+
+        // ---------------- 静态加载：图标只生成一次，状态没变不重画 ----------------
+
+        /// <summary>上次绘制按钮图标时的状态签名（各按钮可用状态 / 当前页 / 语言 / 悬停按钮）。</summary>
+        private string _iconSignature;
+
+        /// <summary>把影响按钮图标外观的状态拼成一个字符串，用于判断"是否需要重画"。</summary>
+        private string BuildIconSignature()
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder(64);
+            PictureBox[] nav = NavButtons();
+            for (int i = 0; i < nav.Length; i++) sb.Append(nav[i].Enabled ? '1' : '0');
+            PictureBox[] tool = ToolbarButtons();
+            for (int i = 0; i < tool.Length; i++) sb.Append(tool[i].Enabled ? '1' : '0');
+            sb.Append('|').Append((int)MENU_SelectPage)
+              .Append('|').Append(SysPara.LanguageShow.ToString())
+              .Append('|').Append(_buttonTexts.Count)
+              .Append('|').Append(MENU_Product.Enabled ? '1' : '0')
+              .Append('|').Append(MENU_Login.Enabled ? '1' : '0')
+              .Append('|').Append(_hoverToolbarButton == null ? "-" : _hoverToolbarButton.Name);
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 定时器专用：状态真的变了才重画按钮图标。
+        /// 图片本身是静态缓存的，状态不变时这里只是拼一个短字符串、不做任何绘制。
+        /// </summary>
+        private void RefreshButtonIconsIfChanged()
+        {
+            if (BuildIconSignature() == _iconSignature) return;
+            RefreshButtonIcons();
+        }
+
+        /// <summary>
+        /// 静态预加载：启动时把导航 / 工具栏 / 顶栏用到的矢量图标一次性画好放入缓存，
+        /// 之后界面上所有按钮图片都只是缓存读取，运行期不再生成位图。
+        /// </summary>
+        private void PrewarmFrameIcons()
+        {
+            try
+            {
+                AppIcons.Prewarm(
+                    new[] { AppIcon.Home, AppIcon.Vision, AppIcon.Save, AppIcon.Rapid, AppIcon.Hard,
+                            AppIcon.Manual, AppIcon.Data, AppIcon.Log, AppIcon.Check, AppIcon.AddUser,
+                            AppIcon.Mes, AppIcon.LifeSpan },
+                    new[] { UiTheme.Dpi(NavIconSize) },
+                    new[] { AppIconColor.Nav, AppIconColor.Disabled, UiTheme.NavTextSelected });
+
+                AppIcons.Prewarm(
+                    new[] { AppIcon.Reset, AppIcon.Run, AppIcon.Pause, AppIcon.Stop,
+                            AppIcon.AlarmReset, AppIcon.Lock, AppIcon.System, AppIcon.Exit },
+                    new[] { UiTheme.Dpi(ToolIconSize) },
+                    new[] { AppIconColor.Nav, AppIconColor.Disabled });
+
+                AppIcons.Prewarm(
+                    new[] { AppIcon.Product, AppIcon.Login, AppIcon.Keyboard },
+                    new[] { UiTheme.Dpi(24) },
+                    new[] { AppIconColor.OnDarkBar, AppIconColor.DisabledOnDark });
+            }
+            catch { }
         }
 
         private bool IsSelectedNav(PictureBox b)

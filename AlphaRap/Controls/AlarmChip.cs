@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -205,7 +206,19 @@ namespace AlphaRap
             return path;
         }
 
-        // ================= 图标生成（运行期用 GDI+ 画，不引入图片资源） =================
+        // ================= 图标生成（启动时画一次后静态复用，不再重复生成） =================
+
+        /// <summary>图标静态缓存：同一 (形状, 尺寸, 颜色) 只生成一次，之后一直复用同一个实例。</summary>
+        private static readonly Dictionary<string, Image> IconCache = new Dictionary<string, Image>();
+
+        private static Image Cached(string key, Func<Image> build)
+        {
+            Image cached;
+            if (IconCache.TryGetValue(key, out cached)) return cached;
+            Image image = build();
+            if (image != null) IconCache[key] = image;
+            return image;
+        }
 
         /// <summary>警示三角（感叹号），用于"警告"与统计胶囊。</summary>
         public static Image CreateAlertTriangle(int size, Color color)
@@ -215,6 +228,12 @@ namespace AlphaRap
 
         /// <summary>指定三角形填充色与内部感叹号颜色（选中态用"白三角 + 主题色叹号"）。</summary>
         public static Image CreateAlertTriangle(int size, Color fill, Color glyph)
+        {
+            return Cached("T" + size + "|" + fill.ToArgb() + "|" + glyph.ToArgb(),
+                delegate { return BuildAlertTriangle(size, fill, glyph); });
+        }
+
+        private static Image BuildAlertTriangle(int size, Color fill, Color glyph)
         {
             try
             {
@@ -260,6 +279,12 @@ namespace AlphaRap
         /// <summary>指定圆盘填充色与叉的颜色（选中态用"白圆盘 + 主题色叉"）。</summary>
         public static Image CreateErrorCircle(int size, Color fill, Color glyph)
         {
+            return Cached("E" + size + "|" + fill.ToArgb() + "|" + glyph.ToArgb(),
+                delegate { return BuildErrorCircle(size, fill, glyph); });
+        }
+
+        private static Image BuildErrorCircle(int size, Color fill, Color glyph)
+        {
             try
             {
                 Bitmap bmp = new Bitmap(size, size);
@@ -286,6 +311,12 @@ namespace AlphaRap
 
         /// <summary>漏斗，用于"全部"（筛选的通用语义）。</summary>
         public static Image CreateFunnelIcon(int size, Color color)
+        {
+            return Cached("F" + size + "|" + color.ToArgb(),
+                delegate { return BuildFunnelIcon(size, color); });
+        }
+
+        private static Image BuildFunnelIcon(int size, Color color)
         {
             try
             {

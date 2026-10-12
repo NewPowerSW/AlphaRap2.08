@@ -21,13 +21,12 @@ namespace AlphaRap
 
         public void RefreshUI()
         {
-            Graphics g1 = picLogo.CreateGraphics();
+            // Logo 直接用 PictureBox 自己的静态图片资源（LoadingForm.Designer 的 picLogo.Image）显示，
+            // 不再在控件表面上重画位图：那种画法既会被后续重绘覆盖，每次还要重新拉伸一次图片。
             Graphics g2 = picText1.CreateGraphics();
             Graphics g3 = picText2.CreateGraphics();
             Font FontText1 = new System.Drawing.Font("Tahoma", 18, FontStyle.Bold);
             Font FontText2 = new System.Drawing.Font("Arial Black", 12, FontStyle.Regular);
-            g1.Clear(Color.White);
-            g1.DrawImage(picLogo.Image, 10, 10, picLogo.Width, picLogo.Height);
 
             int Count = 0;
             while (!StopRefresh)

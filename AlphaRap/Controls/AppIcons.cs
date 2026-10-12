@@ -58,6 +58,7 @@ namespace AlphaRap
         private const float StrokeWidth = 2f;           // 标准描边宽度（逻辑单位）
 
         private static readonly Dictionary<string, Image> Cache = new Dictionary<string, Image>();
+        private static readonly object CacheLock = new object();
 
         public static Image Get(AppIcon icon, int size, Color color)
         {
@@ -73,15 +74,31 @@ namespace AlphaRap
             string key = ((int)icon).ToString() + "|" + size + "|" +
                          color.ToArgb().ToString() + "|" + accent.ToArgb().ToString();
 
-            Image cached;
-            if (Cache.TryGetValue(key, out cached)) return cached;
+            lock (CacheLock)
+            {
+                Image cached;
+                if (Cache.TryGetValue(key, out cached)) return cached;   // 静态复用：同一个图只画一次
 
-            Image image = null;
-            try { image = Render(icon, size, color, accent); }
-            catch { image = null; }
+                Image image = null;
+                try { image = Render(icon, size, color, accent); }
+                catch { image = null; }
 
-            if (image != null) Cache[key] = image;      // 失败不缓存，下次还能重试
-            return image;
+                if (image != null) Cache[key] = image;      // 失败不缓存，下次还能重试
+                return image;
+            }
+        }
+
+        /// <summary>
+        /// 静态预加载：启动时把用到的一组 (图标, 尺寸, 颜色) 一次性画好放进缓存。
+        /// 之后界面上的取用全部命中缓存，运行期不再生成任何位图。
+        /// </summary>
+        public static void Prewarm(AppIcon[] icons, int[] sizes, Color[] colors)
+        {
+            if (icons == null || sizes == null || colors == null) return;
+            for (int i = 0; i < icons.Length; i++)
+                for (int s = 0; s < sizes.Length; s++)
+                    for (int c = 0; c < colors.Length; c++)
+                        Get(icons[i], sizes[s], colors[c], colors[c]);
         }
 
         private static Image Render(AppIcon icon, int size, Color color, Color accent)
