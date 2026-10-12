@@ -1299,6 +1299,7 @@ namespace AlphaRap
             Type picked = null;
             using (Form dlg = new Form())
             {
+                dlg.Name = "dlgPickDeviceType";
                 dlg.Text = LangMsg(langGroup, "AddDevice", "添加设备", "Add device", "Agregar dispositivo");
                 dlg.StartPosition = FormStartPosition.CenterParent;
                 dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -1308,7 +1309,8 @@ namespace AlphaRap
                 dlg.ClientSize = new Size(380, 124);
                 if (uiFont != null) dlg.Font = uiFont;
 
-                Label lb = new Label();
+                UiLabel lb = new UiLabel();          // UiLabel：不进语言白名单（但名字仍不能为空，见 XPathException 铁律）
+                lb.Name = "lblPickType";
                 lb.Text = LangMsg(langGroup, "DeviceType", "选择设备类：", "Device type:", "Tipo de dispositivo:");
                 lb.Location = new Point(16, 16);
                 lb.AutoSize = true;
@@ -1328,14 +1330,16 @@ namespace AlphaRap
                 }
                 dlg.Controls.Add(cbo);
 
-                Button ok = new Button();
+                UiButton ok = new UiButton();
+                ok.Name = "btnPickOk";
                 ok.Text = LangMsg(langGroup, "msg_OK", "确定", "OK", "Aceptar");
                 ok.DialogResult = DialogResult.OK;
                 ok.Location = new Point(208, 84);
                 ok.Size = new Size(76, 26);
                 dlg.Controls.Add(ok);
 
-                Button cancel = new Button();
+                UiButton cancel = new UiButton();
+                cancel.Name = "btnPickCancel";
                 cancel.Text = LangMsg(langGroup, "msg_Cancel", "取消", "Cancel", "Cancelar");
                 cancel.DialogResult = DialogResult.Cancel;
                 cancel.Location = new Point(288, 84);
