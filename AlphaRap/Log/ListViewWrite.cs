@@ -33,7 +33,6 @@ namespace AlphaRap
             }
             catch
             {
-                //MessageBox.Show(ex.Message);
             }
         }
         public static void WriteCSV(string filePathName, bool append, String strMessage)
@@ -62,7 +61,6 @@ namespace AlphaRap
             return ls;
         }
         
-        //public static string[] strArrange = new string[22];
         public static void WriteExcelData(string FileName, ListView listView1)
         {
             string[] strArrange = new string[22];
@@ -92,7 +90,6 @@ namespace AlphaRap
                     }
                     catch (Exception)
                     {
-                       // MessageBox.Show("路径不存在！");
                         if (FileName==SysPara.UserMessagePath)
                         {
                             MiddleLayer.LogF.SettingData.Tables["Path"].Rows[0]["UserPath"] = "C:\\Log";

@@ -306,10 +306,6 @@ namespace AlphaRap.Classes
                 WriteData(headIO, listAddrLngs[i], clearData, out _errorMsg);
             }
 
-            //foreach (RFIDAddrLng addrLng in listAddrLngs)
-            //{
-            //    WriteData(headIO, addrLng, clearData, out _errorMsg);
-            //}
             ResetOKFlagWorkPlace(headIO);
         }
         private void ResetOKFlagWorkPlace(string headIO)
@@ -332,7 +328,6 @@ namespace AlphaRap.Classes
 
             //address list
             List<RFIDAddrLng> listAddrLngs = new List<RFIDAddrLng>();
-            //RFIDFinal.GetFianlResetAddrList(ref listAddrLngs);
             //Wkplace reset "0"
             RFIDFinal.GetWkPlaceMkAddrList(ref listAddrLngs);
             foreach (RFIDAddrLng addrLng in listAddrLngs)
@@ -701,10 +696,8 @@ namespace AlphaRap.Classes
                            MiddleLayer.ParF.GetSettingValue("PSet", "txtRFIDIP3") + "." +
                            MiddleLayer.ParF.GetSettingValue("PSet", "txtRFIDIP4");
 
-            //string txtIP = "192.168.0.79";
             int port = 33000;
             port = (int)MiddleLayer.ParF.GetSettingValue("PSet", "RFIDPort");
-            //int.TryParse(MiddleLayer.ParF.GetSettingValue("PSet", "RFIDPort"),out port);
             if (!clientRFIDHead.Connected)
             {
                 try

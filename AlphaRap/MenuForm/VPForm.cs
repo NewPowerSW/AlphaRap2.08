@@ -18,7 +18,7 @@ namespace AlphaRap
             RemoveDesignPreviewPage();
 
             // 固定视觉工位（供 TaskProcess/Gantry.cs 调用，如 MiddleLayer.VPF.H1_VFiducial.RunTB()）。
-            // 画面不再送主界面：主界面"视觉"页只显示配置里的相机（见 BuildVpPages），老工位只出结果不出图。
+            // 画面只送主界面"视觉"页的相机格（见 BuildVpPages），老工位只出结果不出图。
 
             // 相机 / VPP 配置保存在独立的 VPForm.Cameras.xml（见 VpConfigStore），界面在 ModuleInitialize 后构建（见 BuildVpUi）
             // 语言切换时刷新含动态内容的文字（相机名 / 路径 / 点数 / 实时状态 / 工具条提示）

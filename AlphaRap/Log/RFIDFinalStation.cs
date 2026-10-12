@@ -46,31 +46,21 @@ namespace AlphaRap.Classes
         private const string PONEBarCode1 = "POneBarCode1";
         private const string PONEBarCode2 = "POneBarCode2";
         private const string PONEBarCode3 = "POneBarCode3";
-        //private const string PONEBarCode4 = "POneBarCode4";
 
         private const string PONETestData1 = "POneTest1";
         private const string PONETestData2 = "POneTest2";
-        //private const string PONETestData3 = "POneTest3";
         private const string PONETestData4 = "POneTest4";
         private const string PONETestData5 = "POneTest5";
-        //private const string PONETestData6 = "POneTest6";
-        //private const string PONETestData7 = "POneTest7";
-        //private const string PONETestData8 = "POneTest8";
 
         //Product TWO
         private const string PTWOBarCode1 = "PTwoBarCode1";
         private const string PTWOBarCode2 = "PTwoBarCode2";
         private const string PTWOBarCode3 = "PTWOBarCode3";
-        //private const string PTWOBarCode4 = "PTwoBarCode4";
 
         private const string PTWOTestData1 = "PTwoTest1";
         private const string PTWOTestData2 = "PTwoTest2";
-        //private const string PTWOTestData3 = "PTwoTest3";
         private const string PTWOTestData4 = "PTwoTest4";
         private const string PTWOTestData5 = "PTwoTest5";
-        //private const string PTWOTestData6 = "PTwoTest6";
-        //private const string PTWOTestData7 = "PTwoTest7";
-        //private const string PTWOTestData8 = "PTwoTest8";
 
         private const string PONECavityFlag = "POneCavityFlag";
         private const string PTWOCavityFlag = "PTwoCavityFlag";
@@ -95,28 +85,20 @@ namespace AlphaRap.Classes
         private const string ADDRPTwoBarcode1 = "00160";
         private const string ADDRPTwoBarcode2 = "00224";
         private const string ADDRPTwoBarcode3 = "00288";
-        //private const string ADDRPTwoBarcode4 = "00352";
 
         private const string LNGBarcode = "0028";
         private const string LNGBarcode2 = "0036";
 
         private const string ADDRPOneTestData1 = "00432";     //5个，每个地址递增+16
         private const string ADDRPOneTestData2 = "00448";
-        //private const string ADDRPOneTestData3 = "00464";
         private const string ADDRPOneTestData4 = "00480";
         private const string ADDRPOneTestData5 = "00496";
         //private const string ADDRPOneTestData6 = "00512";     //新增3个
-        //private const string ADDRPOneTestData7 = "00528";
-        //private const string ADDRPOneTestData8 = "00544";
 
         private const string ADDRPTwoTestData1 = "00440";
         private const string ADDRPTwoTestData2 = "00456";
-        //private const string ADDRPTwoTestData3 = "00472";
         private const string ADDRPTwoTestData4 = "00488";
         private const string ADDRPTwoTestData5 = "00504";
-        //private const string ADDRPTwoTestData6 = "00520";
-        //private const string ADDRPTwoTestData7 = "00536";
-        //private const string ADDRPTwoTestData8 = "00552";
 
         private const string LNGTestData = "0008";
 
@@ -157,31 +139,21 @@ namespace AlphaRap.Classes
             LTemp.Add(NewAddrLng(RFIDFinalData[3], ADDRPOneBarcode1, LNGBarcode));
             LTemp.Add(NewAddrLng(RFIDFinalData[4], ADDRPOneBarcode2, LNGBarcode));
             LTemp.Add(NewAddrLng(RFIDFinalData[5], ADDRPOneBarcode3, LNGBarcode2));
-            //LTemp.Add(NewAddrLng(RFIDFinalData[6], ADDRPOneBarcode4, LNGBarcode));
 
             LTemp.Add(NewAddrLng(RFIDFinalData[6], ADDRPOneTestData1, LNGTestData));
             LTemp.Add(NewAddrLng(RFIDFinalData[7], ADDRPOneTestData2, LNGTestData));
-            //LTemp.Add(NewAddrLng(RFIDFinalData[9], ADDRPOneTestData3, LNGTestData));
             LTemp.Add(NewAddrLng(RFIDFinalData[8], ADDRPOneTestData4, LNGTestData));
             LTemp.Add(NewAddrLng(RFIDFinalData[9], ADDRPOneTestData5, LNGTestData));
-            //LTemp.Add(NewAddrLng(RFIDFinalData[12], ADDRPOneTestData6, LNGTestData));
-            //LTemp.Add(NewAddrLng(RFIDFinalData[13], ADDRPOneTestData7, LNGTestData));
-            //LTemp.Add(NewAddrLng(RFIDFinalData[14], ADDRPOneTestData8, LNGTestData));
 
             // Product Two
             LTemp.Add(NewAddrLng(RFIDFinalData[10], ADDRPTwoBarcode1, LNGBarcode));
             LTemp.Add(NewAddrLng(RFIDFinalData[11], ADDRPTwoBarcode2, LNGBarcode));
             LTemp.Add(NewAddrLng(RFIDFinalData[12], ADDRPTwoBarcode3, LNGBarcode));
-            //LTemp.Add(NewAddrLng(RFIDFinalData[18], ADDRPTwoBarcode4, LNGBarcode));
 
             LTemp.Add(NewAddrLng(RFIDFinalData[13], ADDRPTwoTestData1, LNGTestData));
             LTemp.Add(NewAddrLng(RFIDFinalData[14], ADDRPTwoTestData2, LNGTestData));
-            //LTemp.Add(NewAddrLng(RFIDFinalData[21], ADDRPTwoTestData3, LNGTestData));
             LTemp.Add(NewAddrLng(RFIDFinalData[15], ADDRPTwoTestData4, LNGTestData));
             LTemp.Add(NewAddrLng(RFIDFinalData[16], ADDRPTwoTestData5, LNGTestData));
-            //LTemp.Add(NewAddrLng(RFIDFinalData[24], ADDRPTwoTestData6, LNGTestData));
-            //LTemp.Add(NewAddrLng(RFIDFinalData[25], ADDRPTwoTestData7, LNGTestData));
-            //LTemp.Add(NewAddrLng(RFIDFinalData[26], ADDRPTwoTestData8, LNGTestData));
 
             LTemp.Add(NewAddrLng(RFIDFinalData[17], ADDRPOneFlagAll, LNGNGFlagAll));
             LTemp.Add(NewAddrLng(RFIDFinalData[18], ADDRPTwoFlagAll, LNGNGFlagAll));

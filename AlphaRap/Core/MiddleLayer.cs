@@ -180,7 +180,6 @@ namespace AlphaRap
 			DataF = CreateForm(DataF, "DataForm");
 			LockForm1 = new LockForm1();
 			MesF = CreateForm(MesF, "LENS");
-			//===============================================================
 
 			LoadingF.SetCaption("Load InitialLanguageData");
 			InitialLanguageData();

@@ -12,9 +12,8 @@ namespace AlphaRap
     /// 产品名 / 版本号，下面是当前加载阶段与一条来回走的进度条。
     ///
     /// ⚠ **本页所有内容都必须由 <see cref="RefreshUI"/> 在后台线程里直接画到各个控件表面上。**
-    /// 原因：Program.Main 里 `Show()` 之后主线程立刻进 `MiddleLayer.InitialProject()` 干活，
-    /// 整个加载期间**没有消息泵**，窗体和控件都不会自己重绘 —— 谁不在这里画，谁就是一片空白
-    /// （所以这里既不靠 PictureBox 自动显示图片，也不靠控件的 BackColor）。
+    /// 加载期间没有消息泵（Program.Main 里 `Show()` 之后主线程立刻去 InitialProject()），
+    /// 窗体和控件都不会自己重绘 —— 既不能靠 PictureBox 自动显示图片，也不能靠控件的 BackColor。
     ///
     /// 各区域用现成的"表面"：`splitContainer1` = 分隔缝、`splitContainer1.Panel1` = 蓝色头带、
     /// `picLogo` = 白色 NP 标、`picText1` = 产品名 + 版本、`picText2` = 白区（阶段文字 + 进度条）。

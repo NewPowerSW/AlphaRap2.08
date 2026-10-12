@@ -26,7 +26,6 @@ namespace AlphaRap.Classes
 
         private bool bDisposed = false;
         private string _FilePath = string.Empty;
-        //-------------------------------------------------------------------------------------------
         public string FilePath
         {
             get
@@ -42,7 +41,6 @@ namespace AlphaRap.Classes
                     _FilePath = value;
             }
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 建構子
         /// </summary>
@@ -51,7 +49,6 @@ namespace AlphaRap.Classes
         {
             _FilePath = path;
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 解構子
         /// </summary>
@@ -59,7 +56,6 @@ namespace AlphaRap.Classes
         {
             Dispose(false);
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 釋放資源(程式設計師呼叫)
         /// </summary>
@@ -68,7 +64,6 @@ namespace AlphaRap.Classes
             Dispose(true);
             GC.SuppressFinalize(this); //要求系統不要呼叫指定物件的完成項
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 釋放資源(給系統呼叫的)
         /// </summary>        
@@ -92,7 +87,6 @@ namespace AlphaRap.Classes
             }
             bDisposed = true;
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 設定 KeyValue 以 String 型態寫入值
         /// </summary>
@@ -103,7 +97,6 @@ namespace AlphaRap.Classes
         {
             WritePrivateProfileString(IN_Section, IN_Key, IN_Value, this._FilePath);
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 設定 KeyValue 以 Integer 型態寫入值
         /// </summary>
@@ -114,7 +107,6 @@ namespace AlphaRap.Classes
         {
             WritePrivateProfileString(IN_Section, IN_Key, IN_Value.ToString(), this._FilePath);
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 設定 KeyValue 以 Boolen 型態寫入值
         /// </summary>
@@ -125,7 +117,6 @@ namespace AlphaRap.Classes
         {
             WritePrivateProfileString(IN_Section, IN_Key, IN_Value.ToString(), this._FilePath);
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 設定 KeyValue 以 Double 型態寫入值
         /// </summary>
@@ -136,7 +127,6 @@ namespace AlphaRap.Classes
         {
             WritePrivateProfileString(IN_Section, IN_Key, IN_Value.ToString(), this._FilePath);
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 取得 Key 相對的 Value 值，若沒有則使用預設值(DefaultValue)；以 String 型態傳回
         /// </summary>
@@ -157,7 +147,6 @@ namespace AlphaRap.Classes
                 return DefaultValue;
             }
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 取得 Key 相對的 Value 值，若沒有則使用預設值(DefaultValue)；以 Integer 型態傳回
         /// </summary>
@@ -178,7 +167,6 @@ namespace AlphaRap.Classes
                 return DefaultValue;
             }
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 取得 Key 相對的 Value 值，若沒有則使用預設值(DefaultValue)；以 Boolen 型態傳回
         /// </summary>
@@ -199,7 +187,6 @@ namespace AlphaRap.Classes
                 return DefaultValue;
             }
         }
-        //-------------------------------------------------------------------------------------------
         /// <summary>
         /// 取得 Key 相對的 Value 值，若沒有則使用預設值(DefaultValue)；以 Double 型態傳回
         /// </summary>

@@ -38,8 +38,6 @@ namespace AlphaRap.Classes
 
                         oneRFIDRecord.UID = arrayData[1];
                         oneRFIDRecord.PalletNo = arrayData[2];
-                        //oneRFIDRecord.ProcessFlowCount = arrayData[3];
-                        // oneRFIDRecord.POneNGFlag = arrayData[4];
                         oneRFIDRecord.WorkPlaceNo = arrayData[3];
                         oneRFIDRecord.ProcessType = arrayData[4];
                         oneRFIDRecord.POneInterInsulBarcode = arrayData[5];
@@ -91,13 +89,8 @@ namespace AlphaRap.Classes
                         oneRFIDFinalRecord.POneBarcode1 = arrayData[7];
                         oneRFIDFinalRecord.POneBarcode2 = arrayData[8];
                         oneRFIDFinalRecord.POneBarcode3 = arrayData[9];
-                        //oneRFIDFinalRecord.POneBarcode4 = arrayData[10];
-                        //oneRFIDFinalRecord.POneTestData7 = arrayData[11];
-                        // oneRFIDFinalRecord.POneTestData8= arrayData[12];
                         oneRFIDFinalRecord.POneTestData1 = arrayData[10];
                         oneRFIDFinalRecord.POneTestData2 = arrayData[11];
-                        //oneRFIDFinalRecord.POneTestData6 = arrayData[15];
-                        //oneRFIDFinalRecord.POneTestData3 = arrayData[16];
                         oneRFIDFinalRecord.POneTestData4 = arrayData[12];
                         oneRFIDFinalRecord.POneTestData5 = arrayData[13];
 
@@ -105,13 +98,8 @@ namespace AlphaRap.Classes
                         oneRFIDFinalRecord.PTwoBarcode1 = "";
                         oneRFIDFinalRecord.PTwoBarcode2 = "";
                         oneRFIDFinalRecord.PTwoBarcode3 = "";
-                        //oneRFIDFinalRecord.PTwoBarcode4 = "";
-                        //oneRFIDFinalRecord.PTwoTestData7 = "";
-                        //oneRFIDFinalRecord.PTwoTestData8 = "";
                         oneRFIDFinalRecord.PTwoTestData1 = "";
                         oneRFIDFinalRecord.PTwoTestData2 = "";
-                        //oneRFIDFinalRecord.PTwoTestData6 = "";
-                        //oneRFIDFinalRecord.PTwoTestData3 = "";
                         oneRFIDFinalRecord.PTwoTestData4 = "";
                         oneRFIDFinalRecord.PTwoTestData5 = "";
                     }
@@ -156,8 +144,6 @@ namespace AlphaRap.Classes
             StreamWriter streamWriter2 = new StreamWriter(filePath, append: true);//, System.Text.Encoding.Default);    //改调
             StringBuilder stringBuilder2 = new StringBuilder();
 
-    //        foreach(string item in strInfo)
-				//stringBuilder2.Append(item).Append(",");
 
 
 			stringBuilder2.Append(strInfo[0]).Append(",").Append(strInfo[1])

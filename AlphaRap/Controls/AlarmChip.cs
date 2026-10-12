@@ -206,7 +206,7 @@ namespace AlphaRap
             return path;
         }
 
-        // ================= 图标生成（启动时画一次后静态复用，不再重复生成） =================
+        // ================= 图标生成（启动时画一次后静态复用） =================
 
         /// <summary>图标静态缓存：同一 (形状, 尺寸, 颜色) 只生成一次，之后一直复用同一个实例。</summary>
         private static readonly Dictionary<string, Image> IconCache = new Dictionary<string, Image>();

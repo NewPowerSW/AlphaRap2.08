@@ -33,7 +33,6 @@ public class LogManagement
         }
         Task.Factory.StartNew(ExecuteWriteLogToFile);
     }
-    //==============================================================================
 
     public static LogManagement Instance = new LogManagement();
     private string SaveDirectory = System.IO.Directory.GetCurrentDirectory();

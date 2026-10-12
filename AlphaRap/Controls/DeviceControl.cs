@@ -350,8 +350,7 @@ namespace AlphaRap
 
         /// <summary>
         /// 反射列出本程序集里所有继承 <see cref="AbstractDevice"/> 的具体类（按名字排序）。
-        /// **刻意不限制构造函数签名**——原先要求必须有 (string) 构造，会把后来新增、
-        /// 只带无参构造或别的签名的通讯类悄悄漏掉；实例化时再按实际签名挑合适的构造函数。
+        /// 不限制构造函数签名：实例化时按实际签名挑合适的构造函数。
         /// </summary>
         public static List<Type> ScanDeviceTypes()
         {
@@ -380,7 +379,7 @@ namespace AlphaRap
             _types.Clear();
             _types.AddRange(ScanDeviceTypes());
 
-            // 顺手把已配置的设备类补进来：万一某个类改名/被删，历史配置也不会整条丢掉
+            // 补上已配置但已被改名 / 删除的设备类，避免它的历史配置整条丢失
             for (int i = 0; i < _devices.Count; i++)
             {
                 bool found = false;
@@ -1079,7 +1078,6 @@ namespace AlphaRap
 
         /// <summary>
         /// 按当前语言刷新本控件的固定文案（按钮 / 标签 / 状态行）。
-        /// 这些文案原来全写死在 Designer 里，切语言完全不跟着变 ⇒ 本页语言切换看起来“失效”。
         /// </summary>
         internal void ApplyLanguage()
         {

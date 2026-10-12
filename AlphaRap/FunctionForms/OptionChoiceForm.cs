@@ -10,7 +10,7 @@ namespace Alpha
     /// <summary>
     /// 弹窗选择框：一句消息 + 最多三个按钮，用于"确认 / 报警提示 / 二选一"这类必须让操作员表态的场合。
     ///
-    /// <para><b>结果口径（沿用旧版，调用方不用改）</b>：
+    /// <para><b>结果口径</b>：
     /// <see cref="dResult"/> = <c>Yes</c>(按钮1) / <c>Ignore</c>(按钮2) / <c>Abort</c>(按钮3) / <c>None</c>(还没选)。
     /// 用法：<c>new OptionChoiceForm()</c> → <c>fnChangeButtonsText(...)</c> → <c>fnSetMessageAndButtons(...)</c> →
     /// <c>ShowDialog()</c>，然后读 <c>dResult</c>。</para>
