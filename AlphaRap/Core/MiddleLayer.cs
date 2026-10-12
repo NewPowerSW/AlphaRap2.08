@@ -38,7 +38,6 @@ namespace AlphaRap
 		public static VPForm VPF;
 		public static ProductManagerForm ProductF;
 
-		public static Robot RobotF;
 		public static LockForm1 LockForm1;
 
 		public static LENS MesF;
@@ -63,7 +62,6 @@ namespace AlphaRap
 		public static bool bTaskFlowOK = false;
 		public static bool bTaskFlowOK2 = false;
 		public static bool bConveyorTaskOK = false;
-		public static bool RobotConnectStatus = false;
 		public static bool gEXIT = false;
 		public static AtlasLibrary.MTF6000 Atlas_MTF6000 = new AtlasLibrary.MTF6000();
 
@@ -179,7 +177,6 @@ namespace AlphaRap
 			VPF = CreateForm(VPF, "VPForm");
 			FlowF = new Flow();
 
-			RobotF = CreateForm(RobotF, "Robot");
 			DataF = CreateForm(DataF, "DataForm");
 			LockForm1 = new LockForm1();
 			MesF = CreateForm(MesF, "LENS");
@@ -964,9 +961,6 @@ namespace AlphaRap
 					break;
 				}
 			return dmic;
-		}
-		public static void RobotConnect()
-		{
 		}
 		public static void show()
 		{

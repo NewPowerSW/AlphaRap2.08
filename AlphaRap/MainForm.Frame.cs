@@ -34,8 +34,7 @@ namespace AlphaRap
             Stop,
             Exit,
             Run,
-            Mes,
-            Robot
+            Mes
         }
 
         /// <summary>当前选中的页面。</summary>

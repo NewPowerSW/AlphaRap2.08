@@ -58,7 +58,6 @@ int nheightEllipse
             Data,
             Vision,
             Exit,
-            Robot,
             LifeSpan,
             Log
         }
@@ -674,10 +673,6 @@ int nheightEllipse
                 case MENU_PageType.Data:
                     ShowhMainPage(MiddleLayer.DataF, ShowPanl);
                     break;
-                case MENU_PageType.Robot:
-                    MiddleLayer.StopRun();
-                    ShowhMainPage(MiddleLayer.RobotF, ShowPanl);
-                    break;
                 case MENU_PageType.Rapid:
                     ShowhMainPage(MiddleLayer.FlowF, ShowPanl);
                     break;
@@ -693,7 +688,7 @@ int nheightEllipse
             }
         }
         /// <summary>
-        /// 切页前的安全确认：Hard / Manual 页会暂停设备，Robot 页会停止设备。
+        /// 切页前的安全确认：Hard / Manual 页会暂停设备。
         /// 设备正在动作时弹框确认，返回 false 表示取消切页；设备空闲时直接返回 true。
         /// </summary>
         private bool ConfirmPageSwitchSideEffect(MENU_PageType pageType)
@@ -709,14 +704,6 @@ int nheightEllipse
                     "设备正在运行。\r\n进入此页面会暂停设备，是否继续？",
                     "The machine is running.\r\nOpening this page will PAUSE the machine. Continue?",
                     "La máquina está en marcha.\r\nAbrir esta página PAUSARÁ la máquina. ¿Continuar?");
-            }
-            else if (pageType == MENU_PageType.Robot)
-            {
-                if (SysPara.SystemMode == RunMode.IDLE) return true;
-                message = MiddleLayer.LangMsg("MainForm", "msg_ConfirmStopForPage",
-                    "进入机器人页面会停止设备，之后需要重新初始化。\r\n是否继续？",
-                    "Opening the Robot page will STOP the machine and it must be initialized again.\r\nContinue?",
-                    "Abrir la página del robot DETENDRÁ la máquina y deberá inicializarse de nuevo.\r\n¿Continuar?");
             }
             else
             {

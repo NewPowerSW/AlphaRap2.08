@@ -502,14 +502,6 @@
     <Reference Include="RestSharp, Version=100.0.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharpSigned.105.2.3\lib\net46\RestSharp.dll</HintPath>
     </Reference>
-    <Reference Include="RobotStudio.Services.RobApi, Version=6.8.8148.134, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\x64\Debug\RobotStudio.Services.RobApi.dll</HintPath>
-    </Reference>
-    <Reference Include="RobotStudio.Services.RobApi.Desktop, Version=6.8.8148.134, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\x64\Debug\RobotStudio.Services.RobApi.Desktop.dll</HintPath>
-    </Reference>
     <Reference Include="ScottPlot, Version=4.1.63.0, Culture=neutral, PublicKeyToken=86698dc10387c39e, processorArchitecture=MSIL">
       <HintPath>..\packages\ScottPlot.4.1.63\lib\net462\ScottPlot.dll</HintPath>
     </Reference>
@@ -794,12 +786,6 @@
     <Compile Include="MenuForm\ManualForm.Designer.cs">
       <DependentUpon>ManualForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MenuForm\Robot.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MenuForm\Robot.Designer.cs">
-      <DependentUpon>Robot.cs</DependentUpon>
-    </Compile>
     <Compile Include="MenuForm\SpanLife.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -1056,9 +1042,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MenuForm\ManualForm.resx">
       <DependentUpon>ManualForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MenuForm\Robot.resx">
-      <DependentUpon>Robot.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MenuForm\SpanLife.resx">
       <DependentUpon>SpanLife.cs</DependentUpon>
