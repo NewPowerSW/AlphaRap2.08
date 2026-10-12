@@ -114,8 +114,6 @@ namespace AlphaRap
 		public static bool GantryInitialOK = false;
 		public static bool IsTryRun = false;
 
-        public static bool ErrorWindowStatus = false;
-
         //Operation Time Record
         public static int ScanTime = 0;
         public static UInt64 OperationSecond = 0;
