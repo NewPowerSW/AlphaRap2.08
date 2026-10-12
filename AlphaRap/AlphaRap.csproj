@@ -1186,7 +1186,6 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AlphaRap128.ico" />
     <None Include="Resources\VZzuY3.png" />
     <None Include="Resources\Lamp.png" />
     <None Include="Connected Services\ExtMainServiceClient\ExtSystemService.disco" />

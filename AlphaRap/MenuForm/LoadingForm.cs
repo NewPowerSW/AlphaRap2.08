@@ -41,6 +41,11 @@ namespace AlphaRap
             InitializeComponent();
             UiTheme.ApplyDpi(this);
             ApplyRoundRegion();
+
+            // 任务栏图标：本窗体没在 Designer 里设 Icon，不设的话会落到 WinForms 的通用窗体图标；
+            // 这里直接取可执行文件自带的图标（= csproj 的 <ApplicationIcon>：NP.ico），与主界面保持一致。
+            try { Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); }
+            catch { }
         }
 
         public void SetCaption(string Caption)
