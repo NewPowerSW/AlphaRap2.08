@@ -385,8 +385,12 @@ int nheightEllipse
 
                 // 高 DPI 诊断：一眼看出进程是否真按 DPI 渲染（DPI 100% = 没生效，界面会被 Windows 拉伸发虚）
                 Rectangle wa = Screen.FromControl(this).WorkingArea;
-                toolStripStatusLabel4.Text = ver + string.Format("   DPI {0:0}%   屏幕 {1}x{2}   窗口 {3}x{4}",
-                    UiTheme.Scale * 100f, wa.Width, wa.Height, Width, Height);
+                toolStripStatusLabel4.Text = ver + string.Format(
+                    "   DPI {0:0}%   winDPI {1}   aware {2}/{3}   mon {4} sys {5}   {6}x{7} -> {8}x{9}",
+                    UiTheme.Scale * 100f, UiTheme.DpiOfWindow(this),
+                    UiTheme.AwareAtInit ? "Y" : "N", UiTheme.DpiPath,
+                    UiTheme.DpiMonitor, UiTheme.DpiSystem,
+                    wa.Width, wa.Height, Width, Height);
 
                 DateTime built = File.GetLastWriteTime(Application.ExecutablePath);
                 toolStripStatusLabel3.Text = " AlphaRap-SRM  Build " + built.ToString("yyyy/MM/dd HH:mm");
@@ -402,7 +406,11 @@ int nheightEllipse
         /// </summary>
         private void ApplyInitialWindowSize()
         {
-            Rectangle workArea = Screen.FromControl(this).WorkingArea;
+            // 必须和 UiTheme.InitDpi 选中的那块屏一致（缩放系数就是按它的 DPI 算出来的），
+            // 否则窗口会落到另一块不同 DPI 的屏上、内容和窗口尺寸对不上而被裁掉
+            Screen scr = UiTheme.StartupScreen;
+            if (scr == null) { try { scr = Screen.FromControl(this); } catch { } }
+            Rectangle workArea = (scr ?? Screen.PrimaryScreen).WorkingArea;
 
             // 1440x900 是 96 DPI 的设计尺寸，开了高 DPI 后必须按当前缩放换算，否则会把 ApplyDpi 的窗口尺寸又压回去
             int targetWidth = Math.Min(UiTheme.Dpi(InitialWindowWidth), workArea.Width);

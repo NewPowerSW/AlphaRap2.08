@@ -16,11 +16,12 @@ namespace AlphaRap
             System.Threading.Mutex mutex = new System.Threading.Mutex(true, "OnlyRunOneInstance", out ISRuned);
             if (ISRuned)
             {
+                // 高 DPI：必须最先执行——要在创建任何窗口之前声明 DPI 感知，
+                // 也要在创建任何窗体之前定好缩放系数（窗体构造函数里会按它把设计尺寸整体放大）
+                UiTheme.InitDpi();
+
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-
-                // 高 DPI：先确定缩放系数，再创建任何窗体（窗体构造函数里会把设计尺寸整体放大）
-                UiTheme.InitDpi();
 
 				#region LogShow
 				MiddleLayer.LoadingF = new LoadingForm();

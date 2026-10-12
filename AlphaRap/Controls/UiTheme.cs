@@ -28,36 +28,104 @@ namespace AlphaRap
         public static Point Dpi(Point v) { return Scale == 1f ? v : new Point(Dpi(v.X), Dpi(v.Y)); }
         public static Padding Dpi(Padding v) { return Scale == 1f ? v : new Padding(Dpi(v.Left), Dpi(v.Top), Dpi(v.Right), Dpi(v.Bottom)); }
 
-        /// <summary>按主屏 DPI 初始化缩放系数（必须在创建任何窗口之前调用）。</summary>
+        // ---------------- DPI 诊断（状态栏显示，用来确认缩放到底有没有生效） ----------------
+
+        /// <summary>初始化时进程是否为 DPI 感知。</summary>
+        public static bool AwareAtInit;
+        /// <summary>系统 DPI（主屏，GetDpiForSystem 读数）。</summary>
+        public static int DpiSystem;
+        /// <summary>窗口会被创建到的那块显示器（鼠标所在屏，StartPosition=CenterScreen 的实际落点）。</summary>
+        public static Screen StartupScreen;
+        /// <summary>窗口会被创建到的那块显示器的 DPI（= StartupScreen 的 DPI）。</summary>
+        public static int DpiMonitor;
+        /// <summary>DPI 感知的声明途径：already / pmv2 / system / shcore / legacy / gdiscaled / failed。</summary>
+        public static string DpiPath = "";
+
+        /// <summary>
+        /// 按**窗口所在显示器**的 DPI 初始化缩放系数（必须在创建任何窗口之前调用）。
+        /// ⚠ 不能用主屏 DPI：多显示器下窗口所在屏的 DPI 常常和主屏不同，
+        /// 而 System 级 DPI 感知在"窗口跨到不同 DPI 的屏"时仍会被 Windows 位图拉伸 ⇒ 照样发虚。
+        /// </summary>
         public static void InitDpi()
         {
-            EnsureDpiAware();
-            try
-            {
-                // 进程不是 DPI 感知时，Windows 会把整个窗口位图拉伸；这时自己绝不能再缩放（会双重放大）
-                if (!IsProcessDPIAware()) { Scale = 1f; return; }
+            DpiPath = EnsureDpiAware();
+            AwareAtInit = SafeIsAware();
 
-                using (Graphics g = Graphics.FromHwnd(IntPtr.Zero)) Scale = g.DpiX / 96f;
-                if (Scale <= 0f) Scale = GetDpiForSystem() / 96f;
-            }
-            catch
+            DpiSystem = SafeDpiSystem();
+
+            // 窗体 StartPosition = CenterScreen，会开在鼠标所在的那块屏上。
+            // ⚠ 缩放系数必须按"窗口实际落在哪块屏"来算，否则窗口在两块不同 DPI 的屏之间会算错。
+            Point cur = Point.Empty;
+            try { cur = System.Windows.Forms.Cursor.Position; } catch { }
+            try { StartupScreen = Screen.FromPoint(cur); } catch { }
+            if (StartupScreen == null) { try { StartupScreen = Screen.PrimaryScreen; } catch { } }
+            DpiMonitor = StartupScreen != null
+                ? DpiOfMonitorAt(new Point(StartupScreen.Bounds.Left + 5, StartupScreen.Bounds.Top + 5))
+                : 0;
+
+            if (!AwareAtInit)
             {
-                try { Scale = GetDpiForSystem() / 96f; } catch { Scale = 1f; }
+                // 进程不是 DPI 感知：Windows 会把整个窗口位图拉伸，此时自己绝不能再缩放（会双重放大）
+                Scale = 1f;
+                return;
             }
+
+            int dpi = DpiMonitor > 0 ? DpiMonitor : (DpiSystem > 0 ? DpiSystem : 96);
+            Scale = dpi / 96f;
             if (Scale < 1f || Scale > 4f) Scale = 1f;   // 异常值不缩放，免得小屏上界面反而变小
         }
 
+        private static bool SafeIsAware()
+        {
+            try { return IsProcessDPIAware(); } catch { return false; }
+        }
+
+        private static int SafeDpiSystem()
+        {
+            try { uint d = GetDpiForSystem(); if (d > 0) return (int)d; } catch { }
+            try { using (Graphics g = Graphics.FromHwnd(IntPtr.Zero)) return (int)g.DpiX; } catch { }
+            return 0;
+        }
+
+        /// <summary>取某点所在显示器的真实 DPI（与进程是否感知无关）；取不到返回 0。</summary>
+        public static int DpiOfMonitorAt(Point p)
+        {
+            try
+            {
+                NativePoint np = new NativePoint { X = p.X, Y = p.Y };
+                IntPtr mon = MonitorFromPoint(np, 2 /*MONITOR_DEFAULTTONEAREST*/);
+                uint dx = 0, dy = 0;
+                if (mon != IntPtr.Zero && GetDpiForMonitor(mon, 0 /*MDT_EFFECTIVE_DPI*/, out dx, out dy) == 0 && dx > 0)
+                    return (int)dx;
+            }
+            catch { }
+            return 0;
+        }
+
+        /// <summary>取某个窗口当前所在显示器的真实 DPI（诊断用）。</summary>
+        public static int DpiOfWindow(Control c)
+        {
+            try { if (c != null && c.Handle != IntPtr.Zero) { uint d = GetDpiForWindow(c.Handle); if (d > 0) return (int)d; } } catch { }
+            return 0;
+        }
+
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        private struct NativePoint { public int X; public int Y; }
+
         /// <summary>
-        /// 兜底声明 DPI 感知。manifest 正常时这些调用会直接返回（无害）；
-        /// 万一 manifest 没被采纳，这里补上——否则整个窗口会被 Windows 位图拉伸，全界面发虚。
+        /// 兜底声明 DPI 感知。manifest 正常时第一个判断即返回（无副作用）；万一 manifest 没被采纳，这里补上。
+        /// **优先 Per-Monitor V2** —— 只有它能让"窗口所在屏 DPI ≠ 主屏 DPI"时不被 Windows 位图拉伸。
         /// 必须在创建第一个窗口之前调用。
         /// </summary>
-        private static void EnsureDpiAware()
+        private static string EnsureDpiAware()
         {
-            try { if (IsProcessDPIAware()) return; } catch { }
-            try { SetProcessDpiAwarenessContext(new IntPtr(-2)); return; } catch { }   // SYSTEM_AWARE（Win10 1607+）
-            try { SetProcessDpiAwareness(1); return; } catch { }                       // PROCESS_SYSTEM_DPI_AWARE（Win8.1+）
-            try { SetProcessDPIAware(); } catch { }                                    // Vista+
+            if (SafeIsAware()) return "already";
+            try { if (SetProcessDpiAwarenessContext(new IntPtr(-4)) != IntPtr.Zero) return "pmv2"; } catch { }     // PER_MONITOR_AWARE_V2
+            try { if (SetProcessDpiAwarenessContext(new IntPtr(-2)) != IntPtr.Zero) return "system"; } catch { }   // SYSTEM_AWARE
+            try { if (SetProcessDpiAwareness(1) == 0) return "shcore"; } catch { }                                  // PROCESS_SYSTEM_DPI_AWARE
+            try { if (SetProcessDPIAware()) return "legacy"; } catch { }                                            // Vista+
+            try { if (SetProcessDpiAwarenessContext(new IntPtr(-5)) != IntPtr.Zero) return "gdiscaled"; } catch { } // 退路
+            return "failed";
         }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
@@ -74,6 +142,15 @@ namespace AlphaRap
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern uint GetDpiForSystem();
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern uint GetDpiForWindow(IntPtr hwnd);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromPoint(NativePoint pt, uint flags);
+
+        [System.Runtime.InteropServices.DllImport("shcore.dll")]
+        private static extern int GetDpiForMonitor(IntPtr hmon, int type, out uint x, out uint y);
 
         /// <summary>
         /// 把一个窗体的整棵控件树按 DPI 整体放大一次；之后往这棵树里新加的控件会自动跟着放大
