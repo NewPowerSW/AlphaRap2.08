@@ -1,16 +1,16 @@
-namespace Alpha
+﻿namespace Alpha
 {
     partial class OptionChoiceForm
     {
         /// <summary>
-        /// Required designer variable.
+        /// 必需的设计器变量。
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// Clean up any resources being used.
+        /// 清理所有正在使用的资源。
         /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,218 +20,150 @@ namespace Alpha
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
+        #region Windows 窗体设计器生成的代码
 
         /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
+        /// 设计器支持所需的方法 - 不要修改
+        /// 使用代码编辑器修改此方法的内容。
         /// </summary>
         private void InitializeComponent()
         {
-			this.Button1 = new System.Windows.Forms.Button();
-			this.Button3 = new System.Windows.Forms.Button();
-			this.lblMessage = new System.Windows.Forms.Label();
-			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-			this.panel2 = new System.Windows.Forms.Panel();
-			this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-			this.panel5 = new System.Windows.Forms.Panel();
-			this.Button2 = new System.Windows.Forms.Button();
-			this.panel3 = new System.Windows.Forms.Panel();
-			this.panel4 = new System.Windows.Forms.Panel();
-			this.panel1 = new System.Windows.Forms.Panel();
-			this.tableLayoutPanel1.SuspendLayout();
-			this.panel2.SuspendLayout();
-			this.tableLayoutPanel2.SuspendLayout();
-			this.panel5.SuspendLayout();
-			this.panel3.SuspendLayout();
-			this.panel4.SuspendLayout();
-			this.panel1.SuspendLayout();
-			this.SuspendLayout();
-			// 
-			// Button1
-			// 
-			this.Button1.BackColor = System.Drawing.Color.LimeGreen;
-			this.Button1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.Button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.Button1.Location = new System.Drawing.Point(0, 0);
-			this.Button1.Margin = new System.Windows.Forms.Padding(4);
-			this.Button1.Name = "Button1";
-			this.Button1.Size = new System.Drawing.Size(210, 137);
-			this.Button1.TabIndex = 0;
-			this.Button1.Text = "Reintentar";
-			this.Button1.UseVisualStyleBackColor = false;
-			this.Button1.Click += new System.EventHandler(this.btnReintentar_Click);
-			// 
-			// Button3
-			// 
-			this.Button3.BackColor = System.Drawing.Color.Red;
-			this.Button3.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.Button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.Button3.Location = new System.Drawing.Point(0, 0);
-			this.Button3.Margin = new System.Windows.Forms.Padding(0);
-			this.Button3.Name = "Button3";
-			this.Button3.Size = new System.Drawing.Size(210, 137);
-			this.Button3.TabIndex = 1;
-			this.Button3.Text = "Cancelar";
-			this.Button3.UseVisualStyleBackColor = false;
-			this.Button3.Click += new System.EventHandler(this.btnCancelar_Click);
-			// 
-			// lblMessage
-			// 
-			this.lblMessage.BackColor = System.Drawing.SystemColors.Info;
-			this.lblMessage.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.lblMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblMessage.ForeColor = System.Drawing.Color.Maroon;
-			this.lblMessage.Location = new System.Drawing.Point(0, 0);
-			this.lblMessage.Margin = new System.Windows.Forms.Padding(0);
-			this.lblMessage.Name = "lblMessage";
-			this.lblMessage.Size = new System.Drawing.Size(634, 136);
-			this.lblMessage.TabIndex = 2;
-			this.lblMessage.Text = "Texto";
-			this.lblMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			// 
-			// tableLayoutPanel1
-			// 
-			this.tableLayoutPanel1.ColumnCount = 1;
-			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
-			this.tableLayoutPanel1.Controls.Add(this.panel2, 0, 1);
-			this.tableLayoutPanel1.Controls.Add(this.panel1, 0, 0);
-			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
-			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-			this.tableLayoutPanel1.RowCount = 2;
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(636, 277);
-			this.tableLayoutPanel1.TabIndex = 3;
-			// 
-			// panel2
-			// 
-			this.panel2.Controls.Add(this.tableLayoutPanel2);
-			this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel2.Location = new System.Drawing.Point(0, 138);
-			this.panel2.Margin = new System.Windows.Forms.Padding(0);
-			this.panel2.Name = "panel2";
-			this.panel2.Size = new System.Drawing.Size(636, 139);
-			this.panel2.TabIndex = 1;
-			// 
-			// tableLayoutPanel2
-			// 
-			this.tableLayoutPanel2.ColumnCount = 3;
-			this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-			this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-			this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-			this.tableLayoutPanel2.Controls.Add(this.panel5, 0, 0);
-			this.tableLayoutPanel2.Controls.Add(this.panel3, 0, 0);
-			this.tableLayoutPanel2.Controls.Add(this.panel4, 2, 0);
-			this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
-			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
-			this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-			this.tableLayoutPanel2.RowCount = 1;
-			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel2.Size = new System.Drawing.Size(636, 139);
-			this.tableLayoutPanel2.TabIndex = 4;
-			// 
-			// panel5
-			// 
-			this.panel5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.panel5.Controls.Add(this.Button2);
-			this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel5.Location = new System.Drawing.Point(212, 0);
-			this.panel5.Margin = new System.Windows.Forms.Padding(0);
-			this.panel5.Name = "panel5";
-			this.panel5.Size = new System.Drawing.Size(212, 139);
-			this.panel5.TabIndex = 2;
-			// 
-			// Button2
-			// 
-			this.Button2.BackColor = System.Drawing.Color.DarkOrange;
-			this.Button2.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.Button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.Button2.Location = new System.Drawing.Point(0, 0);
-			this.Button2.Margin = new System.Windows.Forms.Padding(0);
-			this.Button2.Name = "Button2";
-			this.Button2.Size = new System.Drawing.Size(210, 137);
-			this.Button2.TabIndex = 1;
-			this.Button2.Text = "Saltar";
-			this.Button2.UseVisualStyleBackColor = false;
-			this.Button2.Click += new System.EventHandler(this.btnSaltar_Click);
-			// 
-			// panel3
-			// 
-			this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.panel3.Controls.Add(this.Button1);
-			this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel3.Location = new System.Drawing.Point(0, 0);
-			this.panel3.Margin = new System.Windows.Forms.Padding(0);
-			this.panel3.Name = "panel3";
-			this.panel3.Size = new System.Drawing.Size(212, 139);
-			this.panel3.TabIndex = 0;
-			// 
-			// panel4
-			// 
-			this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.panel4.Controls.Add(this.Button3);
-			this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel4.Location = new System.Drawing.Point(424, 0);
-			this.panel4.Margin = new System.Windows.Forms.Padding(0);
-			this.panel4.Name = "panel4";
-			this.panel4.Size = new System.Drawing.Size(212, 139);
-			this.panel4.TabIndex = 1;
-			// 
-			// panel1
-			// 
-			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.panel1.Controls.Add(this.lblMessage);
-			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel1.Location = new System.Drawing.Point(0, 0);
-			this.panel1.Margin = new System.Windows.Forms.Padding(0);
-			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(636, 138);
-			this.panel1.TabIndex = 0;
-			// 
-			// OptionChoiceForm
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.BackColor = System.Drawing.Color.White;
-			this.ClientSize = new System.Drawing.Size(636, 277);
-			this.ControlBox = false;
-			this.Controls.Add(this.tableLayoutPanel1);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-			this.Margin = new System.Windows.Forms.Padding(4);
-			this.MaximizeBox = false;
-			this.MinimizeBox = false;
-			this.Name = "OptionChoiceForm";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.Text = "Reintento";
-			this.TopMost = true;
-			this.tableLayoutPanel1.ResumeLayout(false);
-			this.panel2.ResumeLayout(false);
-			this.tableLayoutPanel2.ResumeLayout(false);
-			this.panel5.ResumeLayout(false);
-			this.panel3.ResumeLayout(false);
-			this.panel4.ResumeLayout(false);
-			this.panel1.ResumeLayout(false);
-			this.ResumeLayout(false);
+            this.panelHeader = new System.Windows.Forms.Panel();
+            this.panelButtons = new System.Windows.Forms.Panel();
+            this.Button1 = new AlphaRap.FlatButton();
+            this.Button2 = new AlphaRap.FlatButton();
+            this.Button3 = new AlphaRap.FlatButton();
+            this.panelMessage = new System.Windows.Forms.Panel();
+            this.lblMessage = new AlphaRap.UiLabel();
+            this.panelButtons.SuspendLayout();
+            this.panelMessage.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // panelHeader
+            // 顶部严重度色条：颜色由代码按"第一个可见按钮"的语义色自动设置
+            // 
+            this.panelHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
+            this.panelHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelHeader.Location = new System.Drawing.Point(1, 1);
+            this.panelHeader.Margin = new System.Windows.Forms.Padding(0);
+            this.panelHeader.Name = "panelHeader";
+            this.panelHeader.Size = new System.Drawing.Size(558, 6);
+            this.panelHeader.TabIndex = 0;
+            // 
+            // Button1
+            // 主操作（确认 / 重试）：绿色
+            // 
+            this.Button1.CornerRadius = 8;
+            this.Button1.Location = new System.Drawing.Point(93, 17);
+            this.Button1.Margin = new System.Windows.Forms.Padding(0);
+            this.Button1.Name = "Button1";
+            this.Button1.Size = new System.Drawing.Size(116, 42);
+            this.Button1.TabIndex = 0;
+            this.Button1.Text = "确定";
+            this.Button1.Variant = AlphaRap.FlatButtonVariant.Success;
+            this.Button1.Click += new System.EventHandler(this.btnChoice1_Click);
+            // 
+            // Button2
+            // 次要操作（跳过 / 知道了）：中性白底
+            // 
+            this.Button2.CornerRadius = 8;
+            this.Button2.Location = new System.Drawing.Point(221, 17);
+            this.Button2.Margin = new System.Windows.Forms.Padding(0);
+            this.Button2.Name = "Button2";
+            this.Button2.Size = new System.Drawing.Size(116, 42);
+            this.Button2.TabIndex = 1;
+            this.Button2.Text = "跳过";
+            this.Button2.Variant = AlphaRap.FlatButtonVariant.Surface;
+            this.Button2.Click += new System.EventHandler(this.btnChoice2_Click);
+            // 
+            // Button3
+            // 取消类：红色
+            // 
+            this.Button3.CornerRadius = 8;
+            this.Button3.Location = new System.Drawing.Point(349, 17);
+            this.Button3.Margin = new System.Windows.Forms.Padding(0);
+            this.Button3.Name = "Button3";
+            this.Button3.Size = new System.Drawing.Size(116, 42);
+            this.Button3.TabIndex = 2;
+            this.Button3.Text = "取消";
+            this.Button3.Variant = AlphaRap.FlatButtonVariant.Danger;
+            this.Button3.Click += new System.EventHandler(this.btnChoice3_Click);
+            // 
+            // panelButtons
+            // 按钮区：隐藏的按钮不占位，可见按钮由 RelayoutButtons() 居中排布
+            // 
+            this.panelButtons.BackColor = System.Drawing.Color.White;
+            this.panelButtons.Controls.Add(this.Button1);
+            this.panelButtons.Controls.Add(this.Button2);
+            this.panelButtons.Controls.Add(this.Button3);
+            this.panelButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panelButtons.Location = new System.Drawing.Point(1, 153);
+            this.panelButtons.Margin = new System.Windows.Forms.Padding(0);
+            this.panelButtons.Name = "panelButtons";
+            this.panelButtons.Size = new System.Drawing.Size(558, 76);
+            this.panelButtons.TabIndex = 2;
+            // 
+            // lblMessage
+            // 消息文字：运行时才填，用 UiLabel 避免被语言包接管
+            // 
+            this.lblMessage.AutoSize = false;
+            this.lblMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblMessage.Font = new System.Drawing.Font("微软雅黑", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblMessage.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.lblMessage.Location = new System.Drawing.Point(28, 16);
+            this.lblMessage.Margin = new System.Windows.Forms.Padding(0);
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Size = new System.Drawing.Size(502, 138);
+            this.lblMessage.TabIndex = 0;
+            this.lblMessage.Text = "请选择";
+            this.lblMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // panelMessage
+            // 
+            this.panelMessage.BackColor = System.Drawing.Color.White;
+            this.panelMessage.Controls.Add(this.lblMessage);
+            this.panelMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelMessage.Location = new System.Drawing.Point(1, 7);
+            this.panelMessage.Margin = new System.Windows.Forms.Padding(0);
+            this.panelMessage.Name = "panelMessage";
+            this.panelMessage.Padding = new System.Windows.Forms.Padding(28, 16, 28, 12);
+            this.panelMessage.Size = new System.Drawing.Size(558, 146);
+            this.panelMessage.TabIndex = 1;
+            // 
+            // OptionChoiceForm
+            // 
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
+            this.ClientSize = new System.Drawing.Size(560, 230);
+            this.ControlBox = false;
+            this.Controls.Add(this.panelMessage);
+            this.Controls.Add(this.panelButtons);
+            this.Controls.Add(this.panelHeader);
+            this.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "OptionChoiceForm";
+            this.Padding = new System.Windows.Forms.Padding(1);
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "OptionChoiceForm";
+            this.TopMost = true;
+            this.panelButtons.ResumeLayout(false);
+            this.panelMessage.ResumeLayout(false);
+            this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button Button1;
-        private System.Windows.Forms.Button Button3;
-        private System.Windows.Forms.Label lblMessage;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.Panel panel3;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Panel panel5;
-        private System.Windows.Forms.Button Button2;
+        private System.Windows.Forms.Panel panelHeader;
+        private System.Windows.Forms.Panel panelButtons;
+        private AlphaRap.FlatButton Button1;
+        private AlphaRap.FlatButton Button2;
+        private AlphaRap.FlatButton Button3;
+        private System.Windows.Forms.Panel panelMessage;
+        private AlphaRap.UiLabel lblMessage;
     }
 }
