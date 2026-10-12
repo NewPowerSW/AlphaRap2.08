@@ -42,12 +42,13 @@
 			// 
 			// picLogo
 			// 
+			this.picLogo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
 			this.picLogo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
 			this.picLogo.Image = ((System.Drawing.Image)(resources.GetObject("picLogo.Image")));
-			this.picLogo.Location = new System.Drawing.Point(66, 31);
+			this.picLogo.Location = new System.Drawing.Point(36, 31);
 			this.picLogo.Name = "picLogo";
-			this.picLogo.Size = new System.Drawing.Size(373, 89);
-			this.picLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+			this.picLogo.Size = new System.Drawing.Size(109, 56);
+			this.picLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.picLogo.TabIndex = 0;
 			this.picLogo.TabStop = false;
 			// 
@@ -61,7 +62,7 @@
 			// 
 			// splitContainer1.Panel1
 			// 
-			this.splitContainer1.Panel1.BackColor = System.Drawing.Color.White;
+			this.splitContainer1.Panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
 			this.splitContainer1.Panel1.Controls.Add(this.picText1);
 			this.splitContainer1.Panel1.Controls.Add(this.picLogo);
 			// 
@@ -69,16 +70,17 @@
 			// 
 			this.splitContainer1.Panel2.BackColor = System.Drawing.Color.White;
 			this.splitContainer1.Panel2.Controls.Add(this.picText2);
-			this.splitContainer1.Size = new System.Drawing.Size(485, 255);
-			this.splitContainer1.SplitterDistance = 223;
+			this.splitContainer1.Size = new System.Drawing.Size(520, 300);
+			this.splitContainer1.SplitterDistance = 118;
 			this.splitContainer1.SplitterWidth = 1;
 			this.splitContainer1.TabIndex = 1;
 			// 
 			// picText1
 			// 
-			this.picText1.Location = new System.Drawing.Point(66, 126);
+			this.picText1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
+			this.picText1.Location = new System.Drawing.Point(163, 22);
 			this.picText1.Name = "picText1";
-			this.picText1.Size = new System.Drawing.Size(373, 49);
+			this.picText1.Size = new System.Drawing.Size(330, 74);
 			this.picText1.TabIndex = 1;
 			// 
 			// picText2
@@ -86,13 +88,13 @@
 			this.picText2.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.picText2.Location = new System.Drawing.Point(0, 0);
 			this.picText2.Name = "picText2";
-			this.picText2.Size = new System.Drawing.Size(485, 31);
+			this.picText2.Size = new System.Drawing.Size(520, 181);
 			this.picText2.TabIndex = 2;
 			// 
 			// LoadingForm
 			// 
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-			this.ClientSize = new System.Drawing.Size(485, 255);
+			this.ClientSize = new System.Drawing.Size(520, 300);
 			this.ControlBox = false;
 			this.Controls.Add(this.splitContainer1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
