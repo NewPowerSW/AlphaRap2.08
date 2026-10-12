@@ -1110,6 +1110,9 @@
     <EmbeddedResource Include="Vision\TBEditForm.resx">
       <DependentUpon>TBEditForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Vision\VpCameraPage.resx">
+      <DependentUpon>VpCameraPage.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
     <None Include="Connected Services\ExtMainServiceClient\CExtSystemService.wsdl" />
     <None Include="Connected Services\ExtMainServiceClient\ExtSystemService.xsd">
