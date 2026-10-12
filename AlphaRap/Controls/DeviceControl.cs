@@ -65,6 +65,7 @@ namespace AlphaRap
         public DeviceControl()
         {
             InitializeComponent();
+            if (!InDesigner) ApplyLanguage();   // 按当前语言覆盖 Designer 里写死的文案（设计期保留预览）
 
             BuildTypeList();        // 反射扫描设备类，供【添加】时挑选
             ApplyMode();            // 按 SingleDevice 决定顶行显示"设备下拉/添加/删除"还是"设备类名 + 移除"
@@ -72,8 +73,15 @@ namespace AlphaRap
             // 设计期不碰真实端口、也不建实例；运行期的设备来自 XML（Load 事件）或【添加】按钮
             if (!InDesigner)
             {
-                LiveInstances.Add(this);                                    // 供 MainForm 的【保存】按钮统一保存
-                this.Disposed += delegate { LiveInstances.Remove(this); };
+                LiveInstances.Add(this);
+
+                _langHandler = delegate { ApplyLanguage(); };
+                MiddleLayer.LanguageChanged += _langHandler;                                    // 供 MainForm 的【保存】按钮统一保存
+                this.Disposed += delegate
+                {
+                    LiveInstances.Remove(this);
+                    MiddleLayer.LanguageChanged -= _langHandler;   // 静态事件必须解绑，否则面板会被一直留住
+                };
                 if (propGrid != null) propGrid.PropertyValueChanged += propGrid_PropertyValueChanged;
             }
         }
@@ -150,21 +158,22 @@ namespace AlphaRap
         /// </summary>
         public string BindDevice(string typeName, string deviceName)
         {
-            if (string.IsNullOrEmpty(typeName)) return "没有指定设备类。";
+            if (string.IsNullOrEmpty(typeName)) return L("err_NoType", "没有指定设备类。", "No device type specified.", "No se especificó el tipo de dispositivo.");
 
             if (_types.Count == 0) BuildTypeList();
 
             Type t = null;
             for (int i = 0; i < _types.Count; i++)
                 if (string.Equals(_types[i].Name, typeName, StringComparison.OrdinalIgnoreCase)) { t = _types[i]; break; }
-            if (t == null) return "找不到设备类 " + typeName + "（本程序集里没有这个 AbstractDevice 子类）。";
+            if (t == null) return L("err_TypeMissing1", "找不到设备类 ", "Device type not found: ", "Tipo no encontrado: ") + typeName
+                    + L("err_TypeMissing2", "（本程序集里没有这个 AbstractDevice 子类）。", " (no such AbstractDevice subclass in this assembly).", " (no existe esa subclase de AbstractDevice).");
 
             string name = string.IsNullOrEmpty(deviceName) ? AutoDeviceName() : deviceName;
             if (FindDevice(name) != null) name = AutoDeviceName();
 
             AbstractDevice inst;
             try { inst = NewDevice(t, name); }
-            catch (Exception ex) { return "创建 " + t.Name + " 失败：" + ex.Message; }
+            catch (Exception ex) { return L("msg_CreateFail", "创建 ", "Create ", "Crear ") + t.Name + L("msg_Failed", " 失败：", " failed: ", " falló: ") + ex.Message; }
 
             DeviceItem item = new DeviceItem();
             item.Name = name;
@@ -219,20 +228,22 @@ namespace AlphaRap
         {
             try
             {
-                if (_device == null) return "还没有添加设备，请先点【添加】。";
+                if (_device == null) return L("msg_NoDevice", "还没有添加设备，请先点【添加】。", "No device yet - click Add first.", "Sin dispositivo - pulse Agregar primero.");
 
                 _device.Open();
-                AppendLog("打开", _device.DeviceName + "（" + _device.GetType().Name + "）"
+                AppendLog(L("tag_Open", "打开", "Open", "Abrir"), _device.DeviceName + "（" + _device.GetType().Name + "）"
                     + (_device.IsConnected ? " 已连接" : " 未连接"));
                 RefreshState();
 
                 return _device.IsConnected ? string.Empty
-                    : "没有连上：设备报告未连接。请检查 IP / 端口 / 网线；另外代理软件（如 Clash 的 TUN 模式）会接管 TCP 连接，"
-                    + "让不存在的设备也显示连上，排查时请先关掉它。";
+                    : L("msg_OpenNotConnected", "没有连上：设备报告未连接。请检查 IP / 端口 / 网线；另外代理软件（如 Clash 的 TUN 模式）会接管 TCP 连接，"
+                    + "让不存在的设备也显示连上，排查时请先关掉它。",
+                        "Not connected: the device reports no link. Check IP / port / cable. Proxy software (e.g. Clash TUN mode) hijacks TCP and can make a non-existent device look connected - turn it off when diagnosing.",
+                        "Sin conexión: el dispositivo indica que no hay enlace. Revise IP / puerto / cable. El software proxy (p. ej. modo TUN de Clash) intercepta TCP y puede hacer que un dispositivo inexistente parezca conectado.");
             }
             catch (Exception ex)
             {
-                AppendLog("错误", "打开失败：" + ex.Message);
+                AppendLog(L("tag_Error", "错误", "Error", "Error"), L("msg_OpenFail", "打开失败：", "Open failed: ", "Error al abrir: ") + ex.Message);
                 RefreshState();
                 return ex.Message;
             }
@@ -245,11 +256,11 @@ namespace AlphaRap
             {
                 if (_device == null) return;
                 _device.Close();
-                AppendLog("关闭", _device.DeviceName + " 已关闭");
+                AppendLog(L("tag_Close", "关闭", "Close", "Cerrar"), _device.DeviceName + L("msg_Closed", " 已关闭", " closed", " cerrado"));
             }
             catch (Exception ex)
             {
-                AppendLog("错误", "关闭失败：" + ex.Message);
+                AppendLog(L("tag_Error", "错误", "Error", "Error"), L("msg_CloseFail", "关闭失败：", "Close failed: ", "Error al cerrar: ") + ex.Message);
             }
             RefreshState();
         }
@@ -257,24 +268,26 @@ namespace AlphaRap
         /// <summary>发送一段文本；返回空串表示成功，非空为失败原因。</summary>
         public string SendData(string text)
         {
-            if (string.IsNullOrEmpty(text)) return "发送内容为空。";
+            if (string.IsNullOrEmpty(text)) return L("msg_EmptySend", "发送内容为空。", "Nothing to send.", "No hay nada que enviar.");
 
             try
             {
-                if (_device == null) return "还没有添加设备，请先点【添加】。";
-                if (!_device.IsConnected) return "未连接设备，无法发送。请先点【打开连接】。";
+                if (_device == null) return L("msg_NoDevice", "还没有添加设备，请先点【添加】。", "No device yet - click Add first.", "Sin dispositivo - pulse Agregar primero.");
+                if (!_device.IsConnected) return L("msg_NotConnectedSend", "未连接设备，无法发送。请先点【打开连接】。", "Not connected - cannot send. Click Open first.", "Sin conexión - no se puede enviar. Pulse Abrir.");
 
                 string err = _device.SupportsRawIo ? _device.Send(text) : ReflectSend(_device, text);
                 err = err ?? string.Empty;
 
-                AppendLog(string.IsNullOrEmpty(err) ? "发送" : "发送失败",
+                AppendLog(string.IsNullOrEmpty(err)
+                        ? L("tag_Send", "发送", "Send", "Enviar")
+                        : L("tag_SendFail", "发送失败", "Send failed", "Envío fallido"),
                     Escape(text) + (string.IsNullOrEmpty(err) ? string.Empty : "  ← " + err));
                 RefreshState();
                 return err;
             }
             catch (Exception ex)
             {
-                AppendLog("错误", "发送失败：" + ex.Message);
+                AppendLog(L("tag_Error", "错误", "Error", "Error"), L("msg_SendFail", "发送失败：", "Send failed: ", "Error al enviar: ") + ex.Message);
                 return ex.Message;
             }
         }
@@ -286,12 +299,12 @@ namespace AlphaRap
             {
                 if (_device == null)
                 {
-                    AppendLog("提示", "还没有添加设备，请先点【添加】。");
+                    AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), L("msg_NoDevice", "还没有添加设备，请先点【添加】。", "No device yet - click Add first.", "Sin dispositivo - pulse Agregar primero."));
                     return string.Empty;
                 }
                 if (!_device.IsConnected)
                 {
-                    AppendLog("提示", "未连接设备，无法接收。请先点【打开连接】。");
+                    AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), L("msg_NotConnectedRecv", "未连接设备，无法接收。请先点【打开连接】。", "Not connected - cannot receive. Click Open first.", "Sin conexión - no se puede recibir. Pulse Abrir."));
                     return string.Empty;
                 }
 
@@ -300,13 +313,13 @@ namespace AlphaRap
 
                 if (text.Length > 0)
                 {
-                    AppendLog("接收", Escape(text));
+                    AppendLog(L("tag_Recv", "接收", "Recv", "Recibir"), Escape(text));
                     EventHandler<string> h = Received;
                     if (h != null) h(this, text);
                 }
                 else
                 {
-                    AppendLog("接收", "(无数据)");
+                    AppendLog(L("tag_Recv", "接收", "Recv", "Recibir"), L("msg_NoData", "(无数据)", "(no data)", "(sin datos)"));
                 }
 
                 RefreshState();
@@ -314,7 +327,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                AppendLog("错误", "接收失败：" + ex.Message);
+                AppendLog(L("tag_Error", "错误", "Error", "Error"), L("msg_RecvFail", "接收失败：", "Receive failed: ", "Error al recibir: ") + ex.Message);
                 return string.Empty;
             }
         }
@@ -435,7 +448,7 @@ namespace AlphaRap
             ApplyMode();                                                 // 单设备模式下把设备类名写进顶行
 
             if (_current != null && _current.DeviceType != null)
-                AppendLog("设备", _current.Name + "（" + _current.DeviceType.Name + "）：" + DescribeIo(_device));
+                AppendLog(L("tag_Device", "设备", "Device", "Dispositivo"), _current.Name + "（" + _current.DeviceType.Name + "）：" + DescribeIo(_device));
         }
 
         /// <summary>
@@ -452,7 +465,7 @@ namespace AlphaRap
 
             ConstructorInfo[] all = t.GetConstructors();
             if (all.Length == 0)
-                throw new MissingMethodException(t.Name + " 没有可用的公开构造函数。");
+                throw new MissingMethodException(t.Name + L("err_NoCtor", " 没有可用的公开构造函数。", " has no usable public constructor.", " no tiene constructor público utilizable."));
 
             ParameterInfo[] ps = all[0].GetParameters();
             object[] args = new object[ps.Length];
@@ -469,20 +482,23 @@ namespace AlphaRap
             if (d == null) return string.Empty;
 
             string tx;
-            if (d.SupportsRawIo) tx = "支持发送（已重写 Send）";
+            if (d.SupportsRawIo) tx = LangMsg("DeviceControl", "io_TxOverride", "支持发送（已重写 Send）", "Send OK (Send overridden)", "Envío OK (Send sobrescrito)");
             else
             {
                 MethodInfo mi = FindCandidateMethod(d, SendMethodNames, 1);
-                tx = (mi != null) ? ("支持发送（按方法名调到 " + mi.Name + "）")
-                                  : "不支持发送（未重写 SupportsRawIo/Send，也没找到可用方法）";
+                tx = (mi != null)
+                    ? (LangMsg("DeviceControl", "io_TxMethod1", "支持发送（按方法名调到 ", "Send OK (resolved by name: ", "Envío OK (método detectado: ") + mi.Name + "）")
+                    : LangMsg("DeviceControl", "io_TxNone", "不支持发送（未重写 SupportsRawIo/Send，也没找到可用方法）", "No send support", "Sin soporte de envío");
             }
 
             string rx;
-            if (d.SupportsRawIo) rx = "支持接收";
+            if (d.SupportsRawIo) rx = LangMsg("DeviceControl", "io_RxOverride", "支持接收", "Receive OK", "Recepción OK");
             else
             {
                 MethodInfo mi = FindCandidateMethod(d, RecvMethodNames, 0);
-                rx = (mi != null) ? ("支持接收（按方法名调到 " + mi.Name + "）") : "不支持接收";
+                rx = (mi != null)
+                    ? (LangMsg("DeviceControl", "io_RxMethod1", "支持接收（按方法名调到 ", "Receive OK (resolved by name: ", "Recepción OK (método detectado: ") + mi.Name + "）")
+                    : LangMsg("DeviceControl", "io_RxNone", "不支持接收", "No receive support", "Sin soporte de recepción");
             }
 
             return tx + "，" + rx;
@@ -502,11 +518,11 @@ namespace AlphaRap
         {
             MethodInfo mi = FindCandidateMethod(d, SendMethodNames, 1);
             if (mi == null)
-                return "该设备类没有发送能力：既未重写 SupportsRawIo/Send，也找不到 Send/Sent/Write/… 这类公开方法。";
+                return L("err_NoSendAbility", "该设备类没有发送能力：既未重写 SupportsRawIo/Send，也找不到 Send/Sent/Write/… 这类公开方法。", "This device type cannot send: SupportsRawIo/Send is not overridden and no Send/Sent/Write/... method exists.", "Este tipo no puede enviar: no sobrescribe SupportsRawIo/Send ni tiene Send/Sent/Write/...");
 
             object r = mi.Invoke(d, new object[] { text });
             if (r is string) return (string)r;
-            if (r is bool) return ((bool)r) ? string.Empty : "设备的发送方法返回失败。";
+            if (r is bool) return ((bool)r) ? string.Empty : L("err_SendReturnedFalse", "设备的发送方法返回失败。", "The device send method returned failure.", "El método de envío devolvió error.");
             return string.Empty;
         }
 
@@ -790,7 +806,10 @@ namespace AlphaRap
                 SwitchToDevice(FindDevice(want));
 
                 if (_devices.Count > 0)
-                    AppendLog("参数", "已从 " + Path.GetFileName(path) + " 载入 " + _devices.Count + " 台设备");
+                    AppendLog(L("tag_Param", "参数", "Param", "Parámetro"),
+                    L("msg_Loaded", "已从 ", "Loaded ", "Cargado ") + Path.GetFileName(path)
+                    + L("msg_LoadedN", " 载入 ", " - ", " - ") + _devices.Count
+                    + L("msg_LoadedEnd", " 台设备", " device(s)", " dispositivo(s)"));
             }
             catch (Exception) { }
         }
@@ -968,6 +987,42 @@ namespace AlphaRap
         /// · 多设备模式：设备[下拉] [添加][删除] … 设备名[框]
         /// · 单设备模式：**设备类名** … 设备名[框] … [移除]
         /// </summary>
+        /// <summary>语言切换回调；Dispose 时解绑。</summary>
+        private EventHandler _langHandler;
+
+        /// <summary>本控件固定文案所在的语言包分组。</summary>
+        private const string LangGroup = "DeviceControl";
+
+        /// <summary>取当前语言的文案（走语言包，取不到回落中文）。</summary>
+        private static string L(string key, string zh, string en, string es = null)
+        {
+            return LangMsg(LangGroup, key, zh, en, es);
+        }
+
+        /// <summary>
+        /// 按当前语言刷新本控件的固定文案（按钮 / 标签 / 状态行）。
+        /// 这些文案原来全写死在 Designer 里，切语言完全不跟着变 ⇒ 本页语言切换看起来“失效”。
+        /// </summary>
+        internal void ApplyLanguage()
+        {
+            if (lblName != null) lblName.Text = L("lblName", "设备名", "Device name", "Nombre");
+            if (lblParam != null) lblParam.Text = L("lblParam",
+                "连接参数（按所选设备类自动列出，可直接编辑）",
+                "Connection parameters (auto-listed by device type, editable)",
+                "Parámetros de conexión (según el tipo, editables)");
+            if (btnAddDev != null) btnAddDev.Text = L("btnAdd", "添加", "Add", "Agregar");
+            if (btnDelDev != null) btnDelDev.Text = L("btnDel", "删除", "Remove", "Eliminar");
+            if (btnRemovePanel != null) btnRemovePanel.Text = L("btnRemove", "移除", "Remove", "Quitar");
+            if (btnOpen != null) btnOpen.Text = L("btnOpen", "打开连接", "Open", "Abrir");
+            if (btnClose != null) btnClose.Text = L("btnClose", "关闭连接", "Close", "Cerrar");
+            if (btnRecv != null) btnRecv.Text = L("btnRecv", "接收一次", "Receive", "Recibir");
+            if (btnSend != null) btnSend.Text = L("btnSend", "发送", "Send", "Enviar");
+            if (btnClear != null) btnClear.Text = L("btnClear", "清空记录", "Clear log", "Borrar registro");
+
+            ApplyMode();      // 单设备模式下 lblType 写的是设备类名，这里重刷一次
+            RefreshState();   // 状态行文字也跟着语言
+        }
+
         private void ApplyMode()
         {
             if (cboType == null || lblType == null || btnAddDev == null ||
@@ -983,12 +1038,12 @@ namespace AlphaRap
             if (single)
             {
                 lblType.Width = 300;
-                lblType.Text = string.IsNullOrEmpty(BoundTypeName) ? "设备" : BoundTypeName;
+                lblType.Text = string.IsNullOrEmpty(BoundTypeName) ? L("lblType", "设备", "Device", "Dispositivo") : BoundTypeName;
             }
             else
             {
                 lblType.Width = 62;
-                lblType.Text = "设备";
+                lblType.Text = L("lblType", "设备", "Device", "Dispositivo");
             }
         }
 
@@ -1040,7 +1095,7 @@ namespace AlphaRap
             if (AutoOpen)
             {
                 string err = OpenDevice();
-                if (!string.IsNullOrEmpty(err)) AppendLog("提示", err);
+                if (!string.IsNullOrEmpty(err)) AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), err);
             }
         }
 
@@ -1067,7 +1122,7 @@ namespace AlphaRap
 
             if (FindDevice(want) != null)                                               // 不能重名
             {
-                AppendLog("提示", "已有同名设备 " + want + "，改回原名。");
+                AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), L("msg_DupName1", "已有同名设备 ", "Name already used: ", "Nombre ya usado: ") + want + L("msg_DupName2", "，改回原名。", " - reverted.", " - restaurado."));
                 txtName.Text = _current.Name;
                 return;
             }
@@ -1076,7 +1131,9 @@ namespace AlphaRap
             _current.Name = want;
             RebuildDeviceList(want);                        // 刷新下拉框显示
             RaiseNameChanged();                             // 让宿主同步页签标题
-            AppendLog("改名", "设备 " + old + " → " + want + "（点主界面【保存】后写入配置）");
+            AppendLog(L("tag_Rename", "改名", "Rename", "Renombrar"),
+                    L("msg_DeviceW", "设备 ", "Device ", "Dispositivo ") + old + " -> " + want
+                    + L("msg_SaveToConfig", "（点主界面【保存】后写入配置）", " (written to config on Save)", " (se guarda al pulsar Guardar)"));
         }
 
         /// <summary>添加一台设备：先选设备类，再自动起名（名字可在"设备名"框里改）。</summary>
@@ -1090,7 +1147,7 @@ namespace AlphaRap
             try { inst = NewDevice(t, name); }
             catch (Exception ex)
             {
-                AppendLog("错误", "创建 " + t.Name + " 失败：" + ex.Message);
+                AppendLog(L("tag_Error", "错误", "Error", "Error"), L("msg_CreateFail", "创建 ", "Create ", "Crear ") + t.Name + L("msg_Failed", " 失败：", " failed: ", " falló: ") + ex.Message);
                 return;
             }
 
@@ -1102,13 +1159,15 @@ namespace AlphaRap
 
             RebuildDeviceList(name);
             SwitchToDevice(item);
-            AppendLog("添加", "已添加设备 " + name + "（" + t.Name + "）—— 点主界面【保存】选\"是\"才会写入配置文件");
+            AppendLog(L("tag_Add", "添加", "Add", "Agregar"),
+                    L("msg_Added1", "已添加设备 ", "Added ", "Agregado ") + name + " (" + t.Name + ")"
+                    + L("msg_Added2", " —— 点主界面【保存】选\"是\"才会写入配置文件", " - click Save to persist it", " - pulse Guardar para guardarlo"));
         }
 
         /// <summary>删除当前设备（它的参数会在下次【保存】时从配置文件里移除）。</summary>
         private void btnDelDev_Click(object sender, EventArgs e)
         {
-            if (_current == null) { AppendLog("提示", "还没有可删除的设备。"); return; }
+            if (_current == null) { AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), L("msg_NoDeletable", "还没有可删除的设备。", "No device to remove.", "No hay dispositivo que eliminar.")); return; }
 
             string what = _current.Name + "（" + _current.DeviceType.Name + "）";
             DialogResult r = MessageBox.Show(
@@ -1125,7 +1184,9 @@ namespace AlphaRap
             RebuildDeviceList(next == null ? null : next.Name);
             SwitchToDevice(next);
 
-            AppendLog("删除", "已删除设备 " + what + " —— 点主界面【保存】后从配置文件移除");
+            AppendLog(L("tag_Del", "删除", "Remove", "Eliminar"),
+                    L("msg_Deleted1", "已删除设备 ", "Removed ", "Eliminado ") + what
+                    + L("msg_Deleted2", " —— 点主界面【保存】后从配置文件移除", " - click Save to remove it from config", " - pulse Guardar para quitarlo del archivo"));
         }
 
         /// <summary>弹一个小框挑选设备类（列出本程序集里全部 AbstractDevice 具体子类）；取消返回 null。</summary>
@@ -1134,7 +1195,7 @@ namespace AlphaRap
             if (_types.Count == 0) BuildTypeList();
             if (_types.Count == 0)
             {
-                AppendLog("提示", "没有找到继承 AbstractDevice 的设备类。");
+                AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), L("msg_NoDeviceClass", "没有找到继承 AbstractDevice 的设备类。", "No AbstractDevice subclass found.", "No se encontró ninguna subclase de AbstractDevice."));
                 return null;
             }
 
@@ -1228,7 +1289,7 @@ namespace AlphaRap
         private void btnOpen_Click(object sender, EventArgs e)
         {
             string err = OpenDevice();
-            if (!string.IsNullOrEmpty(err)) AppendLog("提示", err);
+            if (!string.IsNullOrEmpty(err)) AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), err);
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -1244,7 +1305,7 @@ namespace AlphaRap
         private void btnSend_Click(object sender, EventArgs e)
         {
             string err = SendData(txtSend.Text);
-            if (!string.IsNullOrEmpty(err)) AppendLog("提示", err);
+            if (!string.IsNullOrEmpty(err)) AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), err);
         }
 
         /// <summary>清空下面的记录框。</summary>
@@ -1272,8 +1333,10 @@ namespace AlphaRap
             string label = (e == null || e.ChangedItem == null) ? "?" : e.ChangedItem.Label;
             string val = (e == null || e.ChangedItem == null) ? string.Empty : Convert.ToString(e.ChangedItem.Value);
 
-            AppendLog("参数", "已修改 " + label + " = " + val + "（未保存）"
-                + " —— 点主界面【保存】选\"是\"才会写入 " + Path.GetFileName(XmlFilePath));
+            AppendLog(L("tag_Param", "参数", "Param", "Parámetro"),
+                    L("msg_Modified1", "已修改 ", "Changed ", "Modificado ") + label + " = " + val
+                    + L("msg_Modified2", "（未保存）", " (not saved)", " (sin guardar)")
+                + L("msg_SaveHint", " —— 点主界面【保存】选\"是\"才会写入 ", " - click Save (choose Yes) to write ", " - pulse Guardar (Sí) para escribir ") + Path.GetFileName(XmlFilePath));
         }
 
         /// <summary>刷新状态行（设备名 / 类名 / 连没连）。</summary>
@@ -1283,13 +1346,17 @@ namespace AlphaRap
 
             if (_current == null)
             {
-                lblState.Text = (_devices.Count == 0) ? "尚未添加设备，点【添加】" : "未选择设备";
+                lblState.Text = (_devices.Count == 0)
+                    ? L("state_NoDevice", "尚未添加设备，点【添加】", "No device yet - click Add", "Sin dispositivo - pulse Agregar")
+                    : L("state_NoSelect", "未选择设备", "No device selected", "Ningún dispositivo");
                 lblState.ForeColor = UiKit.TextMuted;
             }
             else
             {
                 lblState.Text = _current.Name + "（" + _current.DeviceType.Name + "）："
-                              + (connected ? "已连接" : "未连接");
+                              + (connected
+                                 ? L("state_Connected", "已连接", "Connected", "Conectado")
+                                 : L("state_Disconnected", "未连接", "Not connected", "Sin conexión"));
                 lblState.ForeColor = connected ? UiKit.Success : UiKit.Danger;
             }
 

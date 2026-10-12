@@ -23,7 +23,10 @@ namespace AlphaRap
 		private bool _loaded;
 
 		/// <summary>页签标题的兜底文字（设备名还没定下来时用）。</summary>
-		private const string DefaultTabTitle = "设备";
+		private static string DefaultTabTitle
+		{
+			get { return UiTheme.T("Parameter", "tab_Device", "设备", "Device", "Dispositivo"); }
+		}
 
 		/// <summary>
 		/// 构造函数：必须调用 InitializeComponent()，否则 Parameter.Designer.cs 里定义的控件
@@ -39,6 +42,7 @@ namespace AlphaRap
 
 			// 主界面【保存】选"否"时，DeviceControl.ReloadAll() 会先发这个通知 —— 页签集合本身也要回滚
 			DeviceControl.ReloadPanelsRequested += Parameter_ReloadPanelsRequested;
+			MiddleLayer.LanguageChanged += Parameter_LanguageChanged;
 		}
 
 		#region 生命周期
@@ -48,13 +52,29 @@ namespace AlphaRap
 			if (_loaded) return;
 			_loaded = true;
 
+			ApplyPageLanguage();         // 本页按钮文案（Designer 里写死的中文）
 			RebuildPanelsFromXml();      // 按 XML 决定"上次存了几台设备、各是什么类"
+		}
+
+		/// <summary>语言切换：刷新本页按钮文案与所有页签标题（面板自身的文案由 DeviceControl 自己刷）。</summary>
+		private void Parameter_LanguageChanged(object sender, EventArgs e)
+		{
+			ApplyPageLanguage();
+		}
+
+		/// <summary>本页固定文案（切语言时重刷）。</summary>
+		internal void ApplyPageLanguage()
+		{
+			if (btnAddDevice != null)
+				btnAddDevice.Text = UiTheme.T("Parameter", "btnAddDevice", "添加设备", "Add device", "Agregar dispositivo");
+			for (int i = 0; i < _panels.Count; i++) UpdateTabTitle(_panels[i]);
 		}
 
 		private void Parameter_Disposed(object sender, EventArgs e)
 		{
 			DeviceControl.UnregisterPanelHost(this.Name);
 			DeviceControl.ReloadPanelsRequested -= Parameter_ReloadPanelsRequested;
+			MiddleLayer.LanguageChanged -= Parameter_LanguageChanged;
 		}
 
 		private void Parameter_ReloadPanelsRequested(object sender, EventArgs e)
@@ -77,7 +97,8 @@ namespace AlphaRap
 			if (!string.IsNullOrEmpty(err))
 			{
 				RemovePanel(panel);
-				MessageBox.Show(err, "添加设备", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show(err, UiTheme.T("Parameter", "btnAddDevice", "添加设备", "Add device", "Agregar dispositivo"),
+				MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
 		}
 
@@ -87,11 +108,14 @@ namespace AlphaRap
 			DeviceControl panel = sender as DeviceControl;
 			if (panel == null) return;
 
-			string what = string.IsNullOrEmpty(panel.DeviceName) ? "该设备" : panel.DeviceName;
+			string what = string.IsNullOrEmpty(panel.DeviceName)
+				? UiTheme.T("Parameter", "msg_ThisDevice", "该设备", "this device", "este dispositivo") : panel.DeviceName;
 			DialogResult r = MessageBox.Show(
-				"确定移除设备 " + what + " 吗？" + Environment.NewLine
-				+ "它的参数会在下次保存时从配置文件里移除。",
-				"移除设备", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+				UiTheme.T("Parameter", "msg_RemoveAsk1", "确定移除设备 ", "Remove ", "¿Eliminar ") + what
+				+ UiTheme.T("Parameter", "msg_RemoveAsk2", " 吗？", "?", "?") + Environment.NewLine
+				+ UiTheme.T("Parameter", "msg_RemoveAsk3", "它的参数会在下次保存时从配置文件里移除。", "Its parameters will be removed from the config file on next save.", "Sus parámetros se quitarán del archivo al guardar."),
+				UiTheme.T("Parameter", "msg_RemoveTitle", "移除设备", "Remove device", "Eliminar dispositivo"),
+				MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 			if (r != DialogResult.Yes) return;
 
 			RemovePanel(panel);
