@@ -45,7 +45,7 @@ namespace AlphaRap
 
         // ---------------- 尺寸 ----------------
 
-        private static readonly Size NavButtonSize = new Size(74, 54);
+        private static readonly Size NavButtonSize = new Size(88, 54);
         private const int NavIconSize = 24;
         private static readonly Size ToolButtonSize = new Size(92, 58);
         private const int ToolIconSize = 26;
@@ -423,8 +423,8 @@ namespace AlphaRap
         {
             if (b == null) return;
             bool sel = IsSelectedNav(b);
-            Color c = !b.Enabled ? AppIconColor.Disabled : sel ? UiKit.Brand : AppIconColor.Nav;
-            Color t = !b.Enabled ? UiKit.DisabledText : sel ? UiKit.Brand : UiKit.TextPrimary;
+            Color c = !b.Enabled ? AppIconColor.Disabled : sel ? UiTheme.NavTextSelected : AppIconColor.Nav;
+            Color t = !b.Enabled ? UiKit.DisabledText : sel ? UiTheme.NavTextSelected : UiTheme.NavText;
             // 图的底色必须与按钮实际底色一致（选中是浅蓝，其余是导航白底），否则字会发虚、或把高亮盖住
             Color back = sel ? UiTheme.Selected : UiTheme.NavBg;
             SetImage(b, UiTheme.IconLabel(icon, ButtonText(b), b.Size, NavIconSize, c, c, t, UiTheme.NavLabel, sel, back));

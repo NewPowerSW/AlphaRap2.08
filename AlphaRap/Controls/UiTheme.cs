@@ -230,6 +230,15 @@ namespace AlphaRap
         public static readonly Color WarnSoft = Color.FromArgb(255, 245, 225);
         public static readonly Color WarnText = Color.FromArgb(138, 88, 0);
 
+        /// <summary>
+        /// 左侧导航标签文字色：近黑石板（实测原来已经是近黑，这里再明确一档，并让选中态用更深的品牌蓝，
+        /// 在浅蓝选中底上对比度约 8:1）。
+        /// </summary>
+        public static readonly Color NavText = Color.FromArgb(24, 34, 48);
+
+        /// <summary>导航选中项的文字色（深品牌蓝，配浅蓝底）。</summary>
+        public static readonly Color NavTextSelected = Color.FromArgb(2, 78, 133);
+
         /// <summary>输入点（传感器）的标识色，输出点使用品牌蓝。</summary>
         public static readonly Color InputMark = Color.FromArgb(96, 112, 130);
 
@@ -239,8 +248,10 @@ namespace AlphaRap
         public static readonly Font Body = UiKit.Regular(10.5f);
         public static readonly Font BodyBold = UiKit.Bold(10.5f);
         public static readonly Font Section = UiKit.Bold(12f);
-        public static readonly Font NavLabel = UiKit.Regular(9f);
-        public static readonly Font ToolLabel = UiKit.Bold(10f);
+        /// <summary>左侧导航标签：原为 9pt 常规，实测字形只有 9~10px 高，太小。改为 11pt 加粗。</summary>
+        public static readonly Font NavLabel = UiKit.Bold(11f);
+        /// <summary>底部工具栏标签：同步放大到 11pt。</summary>
+        public static readonly Font ToolLabel = UiKit.Bold(11f);
         public static readonly Font KpiValue = UiKit.Bold(26f);
 
         // ---------------- 多语言文字 ----------------
