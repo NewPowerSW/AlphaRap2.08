@@ -71,10 +71,6 @@
             this.lblHourYield = new AlphaRap.UiLabel();
             this.tHourlyYield = new System.Windows.Forms.TextBox();
             this.connLayout = new System.Windows.Forms.FlowLayoutPanel();
-            this.label_PLCStaus = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label_ScannStaus = new System.Windows.Forms.Label();
-            this.LAB_ScannStaus = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.rootLayout.SuspendLayout();
             this.kpiLayout.SuspendLayout();
@@ -753,10 +749,6 @@
             // connLayout
             // 
             this.infoLayout.SetColumnSpan(this.connLayout, 2);
-            this.connLayout.Controls.Add(this.label_PLCStaus);
-            this.connLayout.Controls.Add(this.label10);
-            this.connLayout.Controls.Add(this.label_ScannStaus);
-            this.connLayout.Controls.Add(this.LAB_ScannStaus);
             this.connLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.connLayout.Location = new System.Drawing.Point(0, 627);
             this.connLayout.Margin = new System.Windows.Forms.Padding(0);
@@ -764,48 +756,6 @@
             this.connLayout.Size = new System.Drawing.Size(713, 30);
             this.connLayout.TabIndex = 11;
             this.connLayout.WrapContents = false;
-            // 
-            // label_PLCStaus
-            // 
-            this.label_PLCStaus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(150)))), ((int)(((byte)(67)))));
-            this.label_PLCStaus.Location = new System.Drawing.Point(0, 9);
-            this.label_PLCStaus.Margin = new System.Windows.Forms.Padding(0, 9, 6, 0);
-            this.label_PLCStaus.Name = "label_PLCStaus";
-            this.label_PLCStaus.Size = new System.Drawing.Size(12, 12);
-            this.label_PLCStaus.TabIndex = 0;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label10.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.label10.Location = new System.Drawing.Point(18, 5);
-            this.label10.Margin = new System.Windows.Forms.Padding(0, 5, 22, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(65, 36);
-            this.label10.TabIndex = 1;
-            this.label10.Text = "PLC";
-            // 
-            // label_ScannStaus
-            // 
-            this.label_ScannStaus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(150)))), ((int)(((byte)(67)))));
-            this.label_ScannStaus.Location = new System.Drawing.Point(105, 9);
-            this.label_ScannStaus.Margin = new System.Windows.Forms.Padding(0, 9, 6, 0);
-            this.label_ScannStaus.Name = "label_ScannStaus";
-            this.label_ScannStaus.Size = new System.Drawing.Size(12, 12);
-            this.label_ScannStaus.TabIndex = 2;
-            // 
-            // LAB_ScannStaus
-            // 
-            this.LAB_ScannStaus.AutoSize = true;
-            this.LAB_ScannStaus.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.LAB_ScannStaus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.LAB_ScannStaus.Location = new System.Drawing.Point(123, 5);
-            this.LAB_ScannStaus.Margin = new System.Windows.Forms.Padding(0, 5, 22, 0);
-            this.LAB_ScannStaus.Name = "LAB_ScannStaus";
-            this.LAB_ScannStaus.Size = new System.Drawing.Size(99, 36);
-            this.LAB_ScannStaus.TabIndex = 3;
-            this.LAB_ScannStaus.Text = "扫码枪";
             // 
             // timer1
             // 
@@ -891,10 +841,6 @@
         private AlphaRap.UiLabel lblHourYield;
         private System.Windows.Forms.TextBox tHourlyYield;
         private System.Windows.Forms.FlowLayoutPanel connLayout;
-        private System.Windows.Forms.Label label_PLCStaus;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label_ScannStaus;
-        private System.Windows.Forms.Label LAB_ScannStaus;
         private System.Windows.Forms.Timer timer1;
     }
 }

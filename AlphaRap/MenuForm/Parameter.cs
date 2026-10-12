@@ -56,6 +56,17 @@ namespace AlphaRap
 			RebuildPanelsFromXml();      // 按 XML 决定"上次存了几台设备、各是什么类"
 		}
 
+		/// <summary>
+		/// 确保页签集合已按 XML 建好（不依赖用户是否打开过本页）。
+		/// 首页底部的设备状态条要在"没进过本页"的情况下也能读到设备清单，就靠它先建一次。
+		/// </summary>
+		public void EnsurePanelsBuilt()
+		{
+			if (_loaded) return;
+			try { Parameter_Load(this, EventArgs.Empty); }
+			catch (Exception) { }
+		}
+
 		/// <summary>语言切换：刷新本页按钮文案与所有页签标题（面板自身的文案由 DeviceControl 自己刷）。</summary>
 		private void Parameter_LanguageChanged(object sender, EventArgs e)
 		{
@@ -171,6 +182,7 @@ namespace AlphaRap
 			else panel.Dispose();
 
 			_panels.Remove(panel);
+			DeviceControl.RaiseDevicesChanged();      // 首页底部的设备状态条要跟着删掉一项
 		}
 
 		/// <summary>按 XML 重建页签集合（启动时、【保存】选"否"回滚时都走这里）。</summary>
@@ -181,15 +193,21 @@ namespace AlphaRap
 			// ⚠ 不能放在构造函数里：否则"开机后没进过本页就直接保存"会把旧参数误清空。
 			DeviceControl.RegisterPanelHost(this.Name);
 
-			for (int i = _panels.Count - 1; i >= 0; i--) RemovePanel(_panels[i]);
-
-			List<string> names = DeviceControl.ReadFormPanelNames(this.Name);
-			for (int i = 0; i < names.Count; i++)
+			// 重建期间攒着不广播，整套建完再统一通知一次（否则 N 台设备会刷 N 次界面）
+			DeviceControl.BeginBulkChange();
+			try
 			{
-				DeviceControl panel = NewPanel(names[i]);
-				panel.LoadFromXml();     // 按"窗体名_控件名"把自己那条读回来（顺带建出设备实例）
-				UpdateTabTitle(panel);   // 载入后设备名才定下来，这里补一次标题
+				for (int i = _panels.Count - 1; i >= 0; i--) RemovePanel(_panels[i]);
+
+				List<string> names = DeviceControl.ReadFormPanelNames(this.Name);
+				for (int i = 0; i < names.Count; i++)
+				{
+					DeviceControl panel = NewPanel(names[i]);
+					panel.LoadFromXml();     // 按"窗体名_控件名"把自己那条读回来（顺带建出设备实例）
+					UpdateTabTitle(panel);   // 载入后设备名才定下来，这里补一次标题
+				}
 			}
+			finally { DeviceControl.EndBulkChange(); }
 		}
 
 		/// <summary>

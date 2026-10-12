@@ -39,9 +39,9 @@ namespace AlphaRap
             lblHourReject.Text = UiTheme.T("HomeForm", "hour_Reject", "不良", "NG", "NG");
             lblHourYield.Text = UiTheme.T("HomeForm", "hour_Yield", "良率", "Yield", "Rendimiento");
 
-            // 底部设备连接状态（原来在 Designer 里写死中文，切英文/西语不会变）
-            label10.Text = UiTheme.T("HomeForm", "conn_Plc", "PLC", "PLC", "PLC");
-            LAB_ScannStaus.Text = UiTheme.T("HomeForm", "conn_Scanner", "扫码枪", "Scanner", "Escáner");
+            // 底部设备状态条的文字是**设备名**（数据、不接语言包），由 RebuildDeviceStatus() 动态生成；
+            // 这里只顺带重画一次（语言切换不影响设备名）。
+            RefreshDeviceStatusSafe();
         }
 
         /// <summary>

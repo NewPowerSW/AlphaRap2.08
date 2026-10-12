@@ -18,11 +18,11 @@ namespace AlphaRap
 			InitializeComponent();
             UiTheme.ApplyDpi(this);
 
-			// 状态块裁成圆角胶囊（工业 HMI 风格），并随尺寸变化重算
-			label_ScannStaus.Resize += (s, ev) => ApplyPillRegion(label_ScannStaus, 6);
-			label_PLCStaus.Resize += (s, ev) => ApplyPillRegion(label_PLCStaus, 6);
-			ApplyPillRegion(label_ScannStaus, 6);
-			ApplyPillRegion(label_PLCStaus, 6);
+			// 底部设备状态条：按 Parameter 里的设备清单动态生成（增 / 删 / 改名 / 连接状态都会跟着变）
+			_devicesChangedHandler = delegate { RefreshDeviceStatusSafe(); };
+			DeviceControl.DevicesChanged += _devicesChangedHandler;
+			this.Disposed += delegate { DeviceControl.DevicesChanged -= _devicesChangedHandler; };
+			RebuildDeviceStatus();
 
 			ApplyPageStyle();
 			MiddleLayer.LanguageChanged += (s, e) => RefreshPageTexts();
@@ -64,13 +64,8 @@ namespace AlphaRap
 			ShowValues(SysPara.iProductOK, SysPara.iProductNG, ct,
 					   SysPara.iProductHourlyOutput, SysPara.iProductHourlyReject, DateTime.Now.Hour);
 
-			#region 外部应用状态
-			// 只在状态变化时改色，避免每秒重绘
-			Color scanColor = B_Scan1connect ? DeviceOnline : DeviceOffline;
-			Color plcColor = B_PLCStaus ? DeviceOnline : DeviceOffline;
-			if (label_ScannStaus.BackColor != scanColor) label_ScannStaus.BackColor = scanColor;
-			if (label_PLCStaus.BackColor != plcColor) label_PLCStaus.BackColor = plcColor;
-			#endregion
+			// 设备状态圆点：只在颜色真的变了才改（名称与颜色都来自 Parameter 的设备清单）
+			RefreshDeviceStatusColors();
 		}
 
 		#region Alarm Data
@@ -145,37 +140,116 @@ namespace AlphaRap
 			}
 		}
 
-		#region 状态
+		#region 设备状态条（按 Parameter 的设备清单动态生成）
 
-		BackgroundWorker B_BgWork = new BackgroundWorker();
+		/// <summary>设备清单 / 连接状态变化时由 DeviceControl 广播过来。</summary>
+		private EventHandler _devicesChangedHandler;
+
+		/// <summary>状态条上的圆点（下标与设备顺序一一对应，用来只刷颜色不重建）。</summary>
+		private readonly List<Label> _deviceDots = new List<Label>();
+
+		/// <summary>防重入：EnsureParameterBuilt() 会同步广播一次，嵌套进来时直接返回，外面那层会建好。</summary>
+		private bool _rebuildingDevStatus;
+
+		/// <summary>可能在非 UI 线程被通知，统一转到 UI 线程再重建。</summary>
+		private void RefreshDeviceStatusSafe()
+		{
+			if (IsDisposed) return;
+			if (InvokeRequired)
+			{
+				try { BeginInvoke((MethodInvoker)RebuildDeviceStatus); } catch (Exception) { }
+				return;
+			}
+			RebuildDeviceStatus();
+		}
+
 		/// <summary>
-		/// 扫码枪连接状态
+		/// 重建底部设备状态条：**一台设备一组**「状态圆点 + 设备名」，顺序与 Parameter 的页签一致。
+		/// 内容全部来自 Parameter 的设备清单（DeviceControl.GetDeviceStatuses），
+		/// 所以设备**改名 / 删除 / 新增**后这里自动跟着变；圆点颜色 = 该设备的连接状态。
 		/// </summary>
-		public bool B_Scan1connect = false;
-		/// <summary>
-		/// PLC连接状态
-		/// </summary>
-		public bool B_PLCStaus = false;
-		#region //后台
+		private void RebuildDeviceStatus()
+		{
+			if (connLayout == null || IsDisposed || _rebuildingDevStatus) return;
+			_rebuildingDevStatus = true;
+			try
+			{
+				EnsureParameterBuilt();      // 没进过 Parameter 页时先把设备清单按 XML 读出来（否则这里是空的）
 
-		/// <summary>设备在线检测周期（毫秒）。</summary>
-		private const int DeviceCheckIntervalMs = 1500;
+				List<DeviceControl.DeviceStatus> list = DeviceControl.GetDeviceStatuses();
 
-		
+				connLayout.SuspendLayout();
+				connLayout.Controls.Clear();
+				_deviceDots.Clear();
+
+				for (int i = 0; i < list.Count; i++)
+				{
+					// 状态圆点（12x12 胶囊：已连接绿 / 未连接红）
+					UiLabel dot = new UiLabel();
+					dot.Name = "devDot" + (i + 1);
+					dot.AutoSize = false;
+					dot.Size = new Size(12, 12);            // 96 DPI 设计尺寸，添加时由 ApplyDpi 的钩子放大
+					dot.Margin = new Padding(0, 9, 6, 0);
+					dot.BackColor = list[i].IsConnected ? DeviceOnline : DeviceOffline;
+					dot.Resize += (s, ev) => ApplyPillRegion((Control)s, 6);
+					connLayout.Controls.Add(dot);
+					ApplyPillRegion(dot, 6);
+					_deviceDots.Add(dot);
+
+					// 设备名：直接显示 Parameter 里的"设备名"（数据、不接语言包，改名后这里跟着改）
+					UiLabel name = new UiLabel();
+					name.Name = "devName" + (i + 1);
+					name.AutoSize = true;
+					name.Font = UiTheme.Body;
+					name.ForeColor = UiKit.TextPrimary;
+					name.Margin = new Padding(0, 5, 22, 0);
+					name.Text = string.IsNullOrEmpty(list[i].Name) ? list[i].TypeName : list[i].Name;
+					connLayout.Controls.Add(name);
+				}
+			}
+			catch (Exception) { }
+			finally
+			{
+				try { connLayout.ResumeLayout(true); } catch (Exception) { }
+				_rebuildingDevStatus = false;
+			}
+		}
+
+		/// <summary>定时刷新圆点颜色（每秒一次；数量对不上说明清单变了，直接整体重建）。</summary>
+		private void RefreshDeviceStatusColors()
+		{
+			try
+			{
+				List<DeviceControl.DeviceStatus> list = DeviceControl.GetDeviceStatuses();
+				if (list.Count != _deviceDots.Count) { RebuildDeviceStatus(); return; }
+
+				for (int i = 0; i < list.Count; i++)
+				{
+					Color c = list[i].IsConnected ? DeviceOnline : DeviceOffline;
+					if (_deviceDots[i].BackColor != c) _deviceDots[i].BackColor = c;
+				}
+			}
+			catch (Exception) { }
+		}
+
+		/// <summary>确保 Parameter 的设备清单已经按 XML 建好（不依赖用户有没有打开过那一页）。</summary>
+		private static void EnsureParameterBuilt()
+		{
+			try { if (MiddleLayer.ParF != null) MiddleLayer.ParF.EnsurePanelsBuilt(); }
+			catch (Exception) { }
+		}
 
 		#endregion
+
 		#region 1.2 初始化加载点位事件
 		private void HomeForm_Load(object sender, EventArgs e)
 		{
 			timer1.Enabled = true;
 
 			
-			B_BgWork.RunWorkerAsync();
-
 			MiddleLayer.HardF.StopAllMotor();
 		}
 
-#endregion
 		#endregion
 
 		public void DataINITIAL(DataGridView Position, int RowIndex, int Columns)

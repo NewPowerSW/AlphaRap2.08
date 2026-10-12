@@ -74,6 +74,7 @@ namespace AlphaRap
             if (!InDesigner)
             {
                 LiveInstances.Add(this);
+                RaiseDevicesChanged();
 
                 _langHandler = delegate { ApplyLanguage(); };
                 MiddleLayer.LanguageChanged += _langHandler;                                    // 供 MainForm 的【保存】按钮统一保存
@@ -81,6 +82,7 @@ namespace AlphaRap
                 {
                     LiveInstances.Remove(this);
                     MiddleLayer.LanguageChanged -= _langHandler;   // 静态事件必须解绑，否则面板会被一直留住
+                    RaiseDevicesChanged();
                 };
                 if (propGrid != null) propGrid.PropertyValueChanged += propGrid_PropertyValueChanged;
             }
@@ -557,6 +559,76 @@ namespace AlphaRap
 
         #endregion
 
+        #region 设备清单 / 状态广播（其它界面按它显示，如首页底部的设备状态条）
+
+        /// <summary>一台设备的对外状态快照。设备名就是 Parameter 里"设备名"框里的那个，改名后跟着变。</summary>
+        public sealed class DeviceStatus
+        {
+            /// <summary>设备名（Parameter 里可改）。</summary>
+            public string Name;
+            /// <summary>设备类名（如 ScannerKeyenceTcp）。</summary>
+            public string TypeName;
+            /// <summary>是否已连接。</summary>
+            public bool IsConnected;
+        }
+
+        /// <summary>
+        /// 设备清单（增加 / 删除 / 改名）或连接状态变化时广播。
+        /// **静态事件 —— 订阅者在 Dispose 时必须解绑**，否则已释放的窗体/控件会被一直留住。
+        /// </summary>
+        public static event EventHandler DevicesChanged;
+
+        private static int _bulkDepth;      // > 0 时先攒着，等整批改完再广播一次
+
+        /// <summary>开始一批改动（期间不广播，避免"按 XML 重建 N 台设备"刷 N 次界面）。</summary>
+        public static void BeginBulkChange() { _bulkDepth++; }
+
+        /// <summary>结束一批改动：配对到最后一层时才广播一次。</summary>
+        public static void EndBulkChange()
+        {
+            if (_bulkDepth > 0) _bulkDepth--;
+            if (_bulkDepth == 0) RaiseDevicesChanged();
+        }
+
+        /// <summary>通知订阅者"设备清单 / 连接状态变了"。</summary>
+        public static void RaiseDevicesChanged()
+        {
+            if (_bulkDepth > 0) return;
+            EventHandler h = DevicesChanged;
+            if (h == null) return;
+            try { h(null, EventArgs.Empty); }
+            catch (Exception) { }
+        }
+
+        /// <summary>
+        /// 当前所有设备的快照，顺序 = DeviceControl 的登记顺序（也就是 Parameter 里的页签顺序）。
+        /// 单设备面板各算一台；多设备控件则列出它管的全部设备。
+        /// </summary>
+        public static List<DeviceStatus> GetDeviceStatuses()
+        {
+            List<DeviceStatus> list = new List<DeviceStatus>();
+            for (int i = 0; i < LiveInstances.Count; i++)
+            {
+                DeviceControl c = LiveInstances[i];
+                if (c == null || c.IsDisposed) continue;
+
+                for (int j = 0; j < c._devices.Count; j++)
+                {
+                    DeviceItem it = c._devices[j];
+                    if (it == null) continue;
+
+                    DeviceStatus s = new DeviceStatus();
+                    s.Name = it.Name;
+                    s.TypeName = (it.DeviceType == null) ? string.Empty : it.DeviceType.Name;
+                    s.IsConnected = it.Instance != null && it.Instance.IsConnected;
+                    list.Add(s);
+                }
+            }
+            return list;
+        }
+
+        #endregion
+
         #region 参数持久化（XML，跟随 MainForm 的【保存】按钮）
 
         /// <summary>所有存活的 DeviceControl（MainForm 的【保存】按钮会遍历它们写入 / 还原）。</summary>
@@ -851,6 +923,12 @@ namespace AlphaRap
                     string.IsNullOrEmpty(savedName) ? legacyType : savedName, node);
         }
 
+        /// <summary>读完 XML 后由调用方（或自身的 Load）通知一次"设备清单变了"。</summary>
+        public void NotifyLoaded()
+        {
+            RaiseDevicesChanged();
+        }
+
         /// <summary>按类型名找到设备类 → 建实例 → 套 XML 里的参数 → 加入设备列表。</summary>
         private void AddDeviceFromXml(string typeName, string name, XmlElement paramNode)
         {
@@ -1090,7 +1168,10 @@ namespace AlphaRap
             // 这里若自作主张 LoadFromXml，会按"窗体名_控件名"去 XML 找节点，
             // 而此刻宿主可能还没给面板命名/绑定设备类 —— 所以交给宿主决定何时载入。
             if (!_singleDevice)
+            {
                 LoadFromXml();      // 离线参数：按 XML 上次保存的值套到设备实例上（此时才取得到窗体名做键）
+                RaiseDevicesChanged();
+            }
 
             if (AutoOpen)
             {
@@ -1131,6 +1212,7 @@ namespace AlphaRap
             _current.Name = want;
             RebuildDeviceList(want);                        // 刷新下拉框显示
             RaiseNameChanged();                             // 让宿主同步页签标题
+            RaiseDevicesChanged();                          // 首页底部的设备名跟着改
             AppendLog(L("tag_Rename", "改名", "Rename", "Renombrar"),
                     L("msg_DeviceW", "设备 ", "Device ", "Dispositivo ") + old + " -> " + want
                     + L("msg_SaveToConfig", "（点主界面【保存】后写入配置）", " (written to config on Save)", " (se guarda al pulsar Guardar)"));
@@ -1159,6 +1241,7 @@ namespace AlphaRap
 
             RebuildDeviceList(name);
             SwitchToDevice(item);
+            RaiseDevicesChanged();
             AppendLog(L("tag_Add", "添加", "Add", "Agregar"),
                     L("msg_Added1", "已添加设备 ", "Added ", "Agregado ") + name + " (" + t.Name + ")"
                     + L("msg_Added2", " —— 点主界面【保存】选\"是\"才会写入配置文件", " - click Save to persist it", " - pulse Guardar para guardarlo"));
@@ -1366,6 +1449,8 @@ namespace AlphaRap
 
             EventHandler h = ConnectedChanged;
             if (h != null) h(this, EventArgs.Empty);
+
+            RaiseDevicesChanged();      // 连接状态变了 -> 通知首页等订阅者
         }
 
         /// <summary>往下面的记录框追加一行（带时间戳）。</summary>
