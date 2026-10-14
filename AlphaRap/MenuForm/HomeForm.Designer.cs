@@ -27,6 +27,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.rootLayout = new System.Windows.Forms.TableLayoutPanel();
             this.kpiLayout = new System.Windows.Forms.TableLayoutPanel();
             this.kpiInputCard = new AlphaRap.CardPanel();
@@ -64,7 +65,7 @@
             this.lblHourYield = new AlphaRap.UiLabel();
             this.tHourlyYield = new System.Windows.Forms.TextBox();
             this.connLayout = new System.Windows.Forms.FlowLayoutPanel();
-            this.timer1 = new System.Windows.Forms.Timer();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.rootLayout.SuspendLayout();
             this.kpiLayout.SuspendLayout();
             this.kpiInputCard.SuspendLayout();
