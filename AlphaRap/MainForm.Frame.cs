@@ -266,7 +266,7 @@ namespace AlphaRap
             uiTabControl1.TabBackColor = UiTheme.FrameBg;
             uiTabControl1.TabSelectedColor = UiKit.PageBg;
             uiTabControl1.TabSelectedForeColor = UiKit.Brand;
-            uiTabControl1.TabUnSelectedForeColor = UiKit.TextMuted;
+            uiTabControl1.TabUnSelectedForeColor = UiKit.TextSecondary;
             uiTabControl1.TabSelectedHighColor = UiKit.Brand;
             uiTabControl1.TabSelectedHighColorSize = 3;
         }

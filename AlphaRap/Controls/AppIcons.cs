@@ -38,11 +38,11 @@ namespace AlphaRap
         /// <summary>导航与功能图标：深石板灰（浅底上清晰，且比纯黑柔和）。</summary>
         public static readonly Color Nav = Color.FromArgb(44, 58, 74);
 
-        /// <summary>禁用态：中性浅灰蓝。</summary>
-        public static readonly Color Disabled = Color.FromArgb(180, 192, 204);
+        /// <summary>禁用态：中灰蓝，对白底 4.6:1。禁用只表示"点不动"，不表示"看不清"。</summary>
+        public static readonly Color Disabled = Color.FromArgb(104, 118, 134);
 
-        /// <summary>禁用态（深蓝顶栏上）。</summary>
-        public static readonly Color DisabledOnDark = Color.FromArgb(126, 168, 205);
+        /// <summary>禁用态（深蓝顶栏上）：对品牌蓝 3.4:1，仍明显暗于启用态的纯白。</summary>
+        public static readonly Color DisabledOnDark = Color.FromArgb(180, 205, 230);
 
         public static readonly Color Run = Color.FromArgb(46, 150, 67);
         public static readonly Color Pause = Color.FromArgb(214, 158, 32);

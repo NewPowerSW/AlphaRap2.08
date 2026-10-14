@@ -384,7 +384,7 @@ namespace AlphaRap
             using (Pen p = new Pen(UiKit.Line))
                 e.Graphics.DrawLine(p, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1);
             Rectangle tr = new Rectangle(e.Bounds.X + Dpi(10), e.Bounds.Y, e.Bounds.Width - Dpi(12), e.Bounds.Height);
-            TextRenderer.DrawText(e.Graphics, e.Header.Text, BodyBold, tr, UiKit.TextMuted,
+            TextRenderer.DrawText(e.Graphics, e.Header.Text, BodyBold, tr, UiKit.TextSecondary,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
 
@@ -467,7 +467,7 @@ namespace AlphaRap
             }
 
             TextRenderer.DrawText(g, tc.TabPages[e.Index].Text, tc.Font, card,
-                sel ? UiKit.Brand : UiKit.TextMuted,
+                sel ? UiKit.Brand : UiKit.TextSecondary,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
         }
 

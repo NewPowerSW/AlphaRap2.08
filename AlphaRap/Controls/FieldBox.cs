@@ -106,7 +106,7 @@ namespace AlphaRap
             _hint.AutoSize = false;
             _hint.Name = "fieldHint";                 // 空名的 Label 会让开机写语言 XML 时抛 XPathException
             _hint.BackColor = UiKit.FieldBg;          // 与内层 TextBox 同色，视觉上无缝
-            _hint.ForeColor = UiKit.TextMuted;
+            _hint.ForeColor = UiKit.TextSecondary;    // 占位文字往往是这一格唯一的说明，按正文门槛取色（5.4:1）
             _hint.TextAlign = ContentAlignment.MiddleLeft;
             _hint.Cursor = Cursors.IBeam;
             _hint.Visible = false;

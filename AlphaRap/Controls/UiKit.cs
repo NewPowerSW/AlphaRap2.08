@@ -31,7 +31,8 @@ namespace AlphaRap
         public static readonly Color Hover = Color.FromArgb(226, 236, 247);
         public static readonly Color FieldBg = Color.FromArgb(250, 252, 254);
         public static readonly Color DisabledBg = Color.FromArgb(232, 237, 243);
-        public static readonly Color DisabledText = Color.FromArgb(166, 177, 190);
+        /// <summary>禁用态文字：白底 5.6:1、浅灰禁用底 4.7:1。**必须仍然看得清** —— 少了权限的按钮，用户正是靠读它知道那是干什么的。</summary>
+        public static readonly Color DisabledText = Color.FromArgb(90, 106, 122);
 
         // ---------------- 语义色 ----------------
 
