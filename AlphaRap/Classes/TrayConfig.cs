@@ -415,7 +415,7 @@ namespace AlphaRap
 
             name = (name ?? "").Trim();
             if (name.Length == 0) return "请输入托盘名称";
-            if (!IsValidName(name)) return "名称只能是字母、数字、下划线，且以字母开头";
+            if (!IsValidName(name)) return "名称只能是英文字母开头，后接英文字母、数字或下划线（不能用中文）";
 
             try
             {
@@ -473,14 +473,30 @@ namespace AlphaRap
             t.Rows.Add(t.NewRow());
         }
 
-        private static bool IsValidName(string name)
+        /// <summary>
+        /// 托盘名是否可用。**只允许 ASCII 字母开头 + 字母/数字/下划线**，且不能以四个列后缀结尾。
+        /// ⚠ 不能用 <c>char.IsLetter</c> 判断：它对汉字返回 true（汉字算 Unicode 字母），
+        /// 那样"你好"也能通过，会生成中文列名写进配方 XML。
+        /// </summary>
+        public static bool IsValidName(string name)
         {
-            if (name.Length == 0 || !char.IsLetter(name[0])) return false;
+            if (string.IsNullOrEmpty(name)) return false;
+            name = name.Trim();
+            if (name.Length == 0 || !IsAsciiLetter(name[0])) return false;
+
             for (int i = 0; i < name.Length; i++)
-                if (!char.IsLetterOrDigit(name[i]) && name[i] != '_') return false;
+            {
+                char c = name[i];
+                if (!IsAsciiLetter(c) && !(c >= '0' && c <= '9') && c != '_') return false;
+            }
             for (int i = 0; i < Suffixes.Length; i++)
                 if (name.EndsWith(Suffixes[i], StringComparison.OrdinalIgnoreCase)) return false;
             return true;
+        }
+
+        private static bool IsAsciiLetter(char c)
+        {
+            return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
         }
 
         /// <summary>把列名拆成 (列名前缀, 序号, 后缀)；不符合托盘命名规则时返回 false。</summary>

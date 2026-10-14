@@ -275,6 +275,23 @@ namespace AlphaRap
         private void btnAddTray_Click(object sender, EventArgs e)
         {
             string name = boxNewName == null ? "" : (boxNewName.Value ?? "").Trim();
+
+            // 名字会变成配方列名，先本地化地挡掉非法输入（数据层也会再挡一次）
+            if (name.Length == 0)
+            {
+                UpdateStatus(T("needName", "请输入新托盘名称", "Enter a tray name", "Escriba un nombre"), true);
+                return;
+            }
+            if (!TrayConfig.IsValidName(name))
+            {
+                UpdateStatus(T("badName",
+                    "名称只能用英文字母开头 + 英文字母/数字/下划线（不能用中文）",
+                    "Name must start with an ASCII letter; only letters, digits and underscore",
+                    "El nombre debe empezar por letra ASCII: solo letras, digitos y guion bajo"), true);
+                try { boxNewName.FocusInput(); } catch { }
+                return;
+            }
+
             string err = TrayConfig.AddTray(name);
             if (err.Length != 0)
             {
@@ -371,6 +388,36 @@ namespace AlphaRap
         }
 
 
+
+        // ---------------------------------------------------------------- 读取接口（转发到 TrayConfig）
+
+        /// <summary>
+        /// **通过「托盘名 + 参数项」取一个具体数值**，例：
+        /// <c>MiddleLayer.PlatF.GetTrayValue("UnloadTray2", TrayField.Rows)</c> → 下料盘 B 的行数。
+        /// 名字就是表格 TrayName 列里的值；找不到返回 0。完整接口见 <see cref="TrayConfig"/>。
+        /// </summary>
+        public double GetTrayValue(string name, TrayField field)
+        {
+            return TrayConfig.Get(name, field);
+        }
+
+        /// <summary>同上，但能区分"没有这个托盘 / 没有这一项"。见 <see cref="TrayConfig.TryGet(string,TrayField,out double)"/>。</summary>
+        public bool TryGetTrayValue(string name, TrayField field, out double value)
+        {
+            return TrayConfig.TryGet(name, field, out value);
+        }
+
+        /// <summary>通过「托盘名 + 配方列后缀」取值（后缀同表头 RowNum/ColumnNum/Rowdis/ColumnDis）。</summary>
+        public double GetTrayValue(string name, string columnSuffix)
+        {
+            return TrayConfig.Get(name, columnSuffix);
+        }
+
+        /// <summary>一条语句读整张托盘表（含运行时添加的托盘）。见 <see cref="TrayConfig.GetTable"/>。</summary>
+        public List<TrayTableRow> GetTrayTable()
+        {
+            return TrayConfig.GetTable();
+        }
 
         // ---------------------------------------------------------------- 原有点击/保存逻辑
 
