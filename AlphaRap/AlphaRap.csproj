@@ -698,6 +698,7 @@
     <Compile Include="Classes\LogManagement.cs" />
     <Compile Include="Classes\OperationLog.cs" />
     <Compile Include="Classes\AlarmHistory.cs" />
+    <Compile Include="Classes\ProductionDataStore.cs" />
     <Compile Include="Classes\MTF6000_1.cs" />
     <Compile Include="Classes\MTF6000_2.cs" />
     <Compile Include="Classes\NPSerialPort.cs" />
@@ -747,6 +748,7 @@
     <Compile Include="MenuForm\AlarmSetting.Designer.cs">
       <DependentUpon>AlarmSetting.cs</DependentUpon>
     </Compile>
+    <Compile Include="MenuForm\ProductionQueryForm.cs" />
     <Compile Include="MenuForm\AlarmQueryForm.cs">
       <SubType>Form</SubType>
     </Compile>

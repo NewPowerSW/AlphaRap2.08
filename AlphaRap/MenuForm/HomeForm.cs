@@ -37,12 +37,14 @@ namespace AlphaRap
 
         // ---------------- 「生产信息」表格 ----------------
         // 自动设备：**表头（列）与数据行全部由代码添加**，界面不提供手工编辑（值只读）。
-        //   SetInfoHeaders(new[] { "Time", "PalletCode", "Result" });
-        //   AddInfoRow(new[] { "10:01:02", "PLT-0001", "OK" });
-        // 未自定义表头时用 DefaultInfoHeaders() 的默认列。
+        // 同时**本地落盘**：{ProducPath}\ProductionData\{yyyy}\{MM}\{yyyy-MM-dd}.csv（一天一个文件）
+        //
+        //   SetInfoHeaders(new[] { "Time", "PalletCode", "Result" });   // 设列（同时写列定义）
+        //   AddInfoRow("10:01:02", "PLT-0001", "OK");                   // 加一行（同时落盘，带时间戳）
+        //
         // 列名是数据（与设备名 / 配方名同理），**不走语言包**。
 
-        /// <summary>建表：套用扁平表格样式并装默认表头。</summary>
+        /// <summary>建表：套用扁平表格样式、载入列定义（没有就用默认列并落盘）。</summary>
         private void SetupInfoTable()
         {
             if (grdInfo == null) return;
@@ -56,48 +58,97 @@ namespace AlphaRap
                 grdInfo.AllowUserToDeleteRows = false;
                 grdInfo.AllowUserToResizeRows = false;
                 grdInfo.RowHeadersVisible = false;
-                // 卡片只有 36% 宽：表头内边距收窄，长列名（如 PressureMax）才放得下
+                // 表头内边距收窄，长列名才放得下
                 grdInfo.ColumnHeadersDefaultCellStyle.Padding = UiTheme.Dpi(new Padding(4, 0, 4, 0));
-                // 列宽等分卡片宽度：永远不会出横向滚动条；列多时表头靠 tooltip 看全
+                // 列宽等分卡片宽度：永远不出横向滚动条；列多时表头靠 tooltip 看全
                 grdInfo.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-                BuildInfoColumns(DefaultInfoHeaders());
+
+                if (btnInfoQuery != null)
+                {
+                    btnInfoQuery.Icon = AppIcons.Get(AppIcon.Search, UiTheme.Dpi(14), UiKit.TextPrimary);
+                    btnInfoQuery.Click += delegate { MainForm.OpenProductionQuery(); };
+                }
+
+                string[] cols = ProductionDataStore.GetColumns();
+                if (cols == null || cols.Length == 0)
+                {
+                    cols = DefaultInfoHeaders();
+                    ProductionDataStore.SetColumns(cols);
+                }
+                BuildInfoColumns(cols);
                 grdInfo.Rows.Clear();
             }
             catch { }
         }
 
-        /// <summary>默认表头。**换列只改这一处**。</summary>
+        /// <summary>默认表头（占位，实际列名由业务代码 SetInfoHeaders 覆盖）。</summary>
         private static string[] DefaultInfoHeaders()
         {
-            // 占位列（照用户给的参考表）——实际列名由业务代码用 SetInfoHeaders 覆盖。
-            // ⚠ 参考表里写的是 Drver / Preasure，这里按正确拼写 Driver / Pressure。
+            // ⚠ 用户给的参考表里写的是 Drver / Preasure，这里按正确拼写 Driver / Pressure
             return new string[] { "Time", "PalletCode", "Driver", "Pressure",
                                   "PressureMax", "PressureMin", "Result" };
         }
 
-        /// <summary>设置表头（列）与数据行 —— 表头与行全部由代码给出。</summary>
-        /// <param name="headers">列名；null 或空表示不改表头。</param>
-        /// <param name="rows">每行的值（按列序，缺的补空、多的忽略）；null 表示只清空数据行。</param>
-        public void SetInfoTable(IList<string> headers, IList<string[]> rows)
-        {
-            if (headers != null && headers.Count > 0) BuildInfoColumns(headers);
-            grdInfo.Rows.Clear();
-            if (rows == null) return;
-            for (int i = 0; i < rows.Count; i++) AddInfoRowCore(rows[i]);
-        }
-
-        /// <summary>只设表头（会清空数据行）。</summary>
+        /// <summary>设置表头（列）—— 同时写入本地列定义，之后 AddInfoRow 按这套列落盘。</summary>
         public void SetInfoHeaders(IList<string> headers)
         {
             if (headers == null || headers.Count == 0) return;
-            BuildInfoColumns(headers);
-            grdInfo.Rows.Clear();
+            try
+            {
+                string[] cols = new string[headers.Count];
+                for (int i = 0; i < cols.Length; i++) cols[i] = headers[i] ?? "";
+                ProductionDataStore.SetColumns(cols);
+                BuildInfoColumns(cols);
+                grdInfo.Rows.Clear();
+            }
+            catch { }
         }
 
-        /// <summary>追加一行数据（列数不足补空、超出忽略）。</summary>
-        public void AddInfoRow(params string[] values)
+        /// <summary>
+        /// 追加一行生产数据：**既显示在首页表格里，也写入本地文件**（时间戳取当前时间）。
+        /// 列数不足补空、超出忽略。返回错误信息，空串表示成功。
+        /// </summary>
+        public string AddInfoRow(params string[] values)
         {
-            AddInfoRowCore(values);
+            return AddInfoRowAt(DateTime.Now, values);
+        }
+
+        /// <summary>上一次落盘失败的提示（用来避免每次失败都写日志）。</summary>
+        private static string _infoLastError = "";
+
+        /// <summary>追加一行并指定时间（补录 / 导入用）。既显示也落盘。</summary>
+        public string AddInfoRowAt(DateTime time, string[] values)
+        {
+            string err = "";
+            try
+            {
+                AddInfoRowCore(values);
+                err = ProductionDataStore.Append(time, values);
+            }
+            catch (Exception ex) { err = ex.Message; }
+
+            // 落盘失败不能让车间静默丢数据：错误一变就记一条运行日志
+            if (!string.Equals(err, _infoLastError, StringComparison.Ordinal))
+            {
+                _infoLastError = err;
+                if (err.Length > 0)
+                    OperationLog.Write("HomeForm", "生产数据落盘失败：" + err);
+            }
+            return err;
+        }
+
+        /// <summary>只在界面上显示若干行（**不落盘**，用于回填 / 预览）。</summary>
+        public void ShowInfoRows(IList<string[]> rows)
+        {
+            if (grdInfo == null) return;
+            try
+            {
+                grdInfo.Rows.Clear();
+                if (rows == null) return;
+                for (int i = 0; i < rows.Count; i++) AddInfoRowCore(rows[i]);
+                grdInfo.ClearSelection();
+            }
+            catch { }
         }
 
         private void AddInfoRowCore(string[] values)
@@ -109,7 +160,7 @@ namespace AlphaRap
             grdInfo.Rows.Add(cells);
         }
 
-        /// <summary>清空数据行（保留表头）。</summary>
+        /// <summary>清空界面上的数据行（保留表头，**不动已落盘的文件**）。</summary>
         public void ClearInfoRows()
         {
             if (grdInfo == null) return;
@@ -124,10 +175,10 @@ namespace AlphaRap
         /// <summary>当前列数。</summary>
         public int InfoColumnCount { get { return grdInfo == null ? 0 : grdInfo.Columns.Count; } }
 
-        /// <summary>当前数据行数。</summary>
+        /// <summary>界面当前显示的数据行数（不是文件里的条数）。</summary>
         public int InfoRowCount { get { return grdInfo == null ? 0 : grdInfo.Rows.Count; } }
 
-        /// <summary>重建列（全部只读）。定宽 110，最后一列吃掉剩余宽度以免右侧留白。</summary>
+        /// <summary>重建列（全部只读）。</summary>
         private void BuildInfoColumns(IList<string> headers)
         {
             if (grdInfo == null || headers == null || headers.Count == 0) return;
@@ -139,7 +190,7 @@ namespace AlphaRap
                     DataGridViewTextBoxColumn c = new DataGridViewTextBoxColumn();
                     c.Name = "infoCol" + i;
                     c.HeaderText = headers[i] ?? "";
-                    c.HeaderCell.ToolTipText = c.HeaderText;   // 列特别多时表头可能仍被截断，悬停可看全
+                    c.HeaderCell.ToolTipText = c.HeaderText;   // 列多时表头可能被截断，悬停可看全
                     c.ReadOnly = true;
                     c.SortMode = DataGridViewColumnSortMode.NotSortable;
                     c.MinimumWidth = UiTheme.Dpi(52);

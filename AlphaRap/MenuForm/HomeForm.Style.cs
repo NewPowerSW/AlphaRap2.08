@@ -27,6 +27,8 @@ namespace AlphaRap
             hourlyChart.Invalidate();
 
             lblInfoTitle.Text = UiTheme.T("HomeForm", "info_Title", "生产信息", "Production info", "Información de producción");
+            if (btnInfoQuery != null)
+                btnInfoQuery.Text = UiTheme.T("HomeForm", "info_Query", "查询", "Query", "Consultar");
 
             lblHourTitle.Text = UiTheme.T("HomeForm", "hour_Title", "本小时", "This hour", "Esta hora");
             lblHourInput.Text = UiTheme.T("HomeForm", "hour_Input", "投入", "Input", "Entrada");

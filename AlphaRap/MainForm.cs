@@ -870,6 +870,27 @@ int nheightEllipse
             catch (Exception) { }
         }
 
+        /// <summary>生产数据（按时间段）查询窗口；只保留一个实例，再次打开时重新查询。</summary>
+        private static ProductionQueryForm _productionQueryForm;
+
+        /// <summary>打开生产数据查询窗口。数据来自 ProductionDataStore 落盘的每日 CSV。</summary>
+        public static void OpenProductionQuery()
+        {
+            try
+            {
+                if (_productionQueryForm == null || _productionQueryForm.IsDisposed)
+                    _productionQueryForm = new ProductionQueryForm();
+                // 挂在主窗体上：始终盖在主窗口之上，主窗口关闭时一起收掉
+                if (MiddleLayer.MainF != null) _productionQueryForm.Show(MiddleLayer.MainF);
+                else _productionQueryForm.Show();
+                if (_productionQueryForm.WindowState == FormWindowState.Minimized)
+                    _productionQueryForm.WindowState = FormWindowState.Normal;
+                _productionQueryForm.BringToFront();
+                _productionQueryForm.Reload();
+            }
+            catch (Exception) { }
+        }
+
         // ---------------- 语言切换 ----------------
 
         /// <summary>

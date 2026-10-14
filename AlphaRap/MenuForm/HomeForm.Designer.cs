@@ -51,8 +51,9 @@
             this.lblChartTitle = new AlphaRap.UiLabel();
             this.infoCard = new AlphaRap.CardPanel();
             this.infoLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.grdInfo = new System.Windows.Forms.DataGridView();
             this.lblInfoTitle = new AlphaRap.UiLabel();
+            this.grdInfo = new System.Windows.Forms.DataGridView();
+            this.btnInfoQuery = new AlphaRap.FlatButton();
             this.lblHourTitle = new AlphaRap.UiLabel();
             this.hourLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblHourInput = new AlphaRap.UiLabel();
@@ -76,9 +77,8 @@
             this.chartCard.SuspendLayout();
             this.infoCard.SuspendLayout();
             this.infoLayout.SuspendLayout();
-            this.hourLayout.SuspendLayout();
-            this.connLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdInfo)).BeginInit();
+            this.hourLayout.SuspendLayout();
             this.SuspendLayout();
             // 
             // rootLayout
@@ -96,7 +96,7 @@
             this.rootLayout.RowCount = 2;
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 112F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootLayout.Size = new System.Drawing.Size(2101, 825);
+            this.rootLayout.Size = new System.Drawing.Size(1924, 825);
             this.rootLayout.TabIndex = 0;
             // 
             // kpiLayout
@@ -118,7 +118,7 @@
             this.kpiLayout.Name = "kpiLayout";
             this.kpiLayout.RowCount = 1;
             this.kpiLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.kpiLayout.Size = new System.Drawing.Size(2069, 100);
+            this.kpiLayout.Size = new System.Drawing.Size(1892, 100);
             this.kpiLayout.TabIndex = 0;
             // 
             // kpiInputCard
@@ -134,8 +134,10 @@
             this.kpiInputCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.kpiInputCard.Name = "kpiInputCard";
             this.kpiInputCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
+            this.kpiInputCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.kpiInputCard.ShowBorder = true;
-            this.kpiInputCard.Size = new System.Drawing.Size(401, 100);
+            this.kpiInputCard.ShowShadow = true;
+            this.kpiInputCard.Size = new System.Drawing.Size(366, 100);
             this.kpiInputCard.TabIndex = 0;
             // 
             // lblKpiInputValue
@@ -147,7 +149,7 @@
             this.lblKpiInputValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiInputValue.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiInputValue.Name = "lblKpiInputValue";
-            this.lblKpiInputValue.Size = new System.Drawing.Size(367, 56);
+            this.lblKpiInputValue.Size = new System.Drawing.Size(332, 56);
             this.lblKpiInputValue.TabIndex = 0;
             this.lblKpiInputValue.Text = "0";
             this.lblKpiInputValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -161,7 +163,7 @@
             this.lblKpiInputTitle.Location = new System.Drawing.Point(18, 10);
             this.lblKpiInputTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiInputTitle.Name = "lblKpiInputTitle";
-            this.lblKpiInputTitle.Size = new System.Drawing.Size(367, 24);
+            this.lblKpiInputTitle.Size = new System.Drawing.Size(332, 24);
             this.lblKpiInputTitle.TabIndex = 1;
             this.lblKpiInputTitle.Text = "投入";
             this.lblKpiInputTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -175,12 +177,14 @@
             this.kpiOkCard.CornerRadius = 10;
             this.kpiOkCard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.kpiOkCard.FillColor = System.Drawing.Color.White;
-            this.kpiOkCard.Location = new System.Drawing.Point(413, 0);
+            this.kpiOkCard.Location = new System.Drawing.Point(378, 0);
             this.kpiOkCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.kpiOkCard.Name = "kpiOkCard";
             this.kpiOkCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
+            this.kpiOkCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.kpiOkCard.ShowBorder = true;
-            this.kpiOkCard.Size = new System.Drawing.Size(401, 100);
+            this.kpiOkCard.ShowShadow = true;
+            this.kpiOkCard.Size = new System.Drawing.Size(366, 100);
             this.kpiOkCard.TabIndex = 1;
             // 
             // lblKpiOkValue
@@ -192,7 +196,7 @@
             this.lblKpiOkValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiOkValue.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiOkValue.Name = "lblKpiOkValue";
-            this.lblKpiOkValue.Size = new System.Drawing.Size(367, 56);
+            this.lblKpiOkValue.Size = new System.Drawing.Size(332, 56);
             this.lblKpiOkValue.TabIndex = 0;
             this.lblKpiOkValue.Text = "0";
             this.lblKpiOkValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -206,7 +210,7 @@
             this.lblKpiOkTitle.Location = new System.Drawing.Point(18, 10);
             this.lblKpiOkTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiOkTitle.Name = "lblKpiOkTitle";
-            this.lblKpiOkTitle.Size = new System.Drawing.Size(367, 24);
+            this.lblKpiOkTitle.Size = new System.Drawing.Size(332, 24);
             this.lblKpiOkTitle.TabIndex = 1;
             this.lblKpiOkTitle.Text = "良品";
             this.lblKpiOkTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -220,12 +224,14 @@
             this.kpiNgCard.CornerRadius = 10;
             this.kpiNgCard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.kpiNgCard.FillColor = System.Drawing.Color.White;
-            this.kpiNgCard.Location = new System.Drawing.Point(826, 0);
+            this.kpiNgCard.Location = new System.Drawing.Point(756, 0);
             this.kpiNgCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.kpiNgCard.Name = "kpiNgCard";
             this.kpiNgCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
+            this.kpiNgCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.kpiNgCard.ShowBorder = true;
-            this.kpiNgCard.Size = new System.Drawing.Size(401, 100);
+            this.kpiNgCard.ShowShadow = true;
+            this.kpiNgCard.Size = new System.Drawing.Size(366, 100);
             this.kpiNgCard.TabIndex = 2;
             // 
             // lblKpiNgValue
@@ -237,7 +243,7 @@
             this.lblKpiNgValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiNgValue.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiNgValue.Name = "lblKpiNgValue";
-            this.lblKpiNgValue.Size = new System.Drawing.Size(367, 56);
+            this.lblKpiNgValue.Size = new System.Drawing.Size(332, 56);
             this.lblKpiNgValue.TabIndex = 0;
             this.lblKpiNgValue.Text = "0";
             this.lblKpiNgValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -251,7 +257,7 @@
             this.lblKpiNgTitle.Location = new System.Drawing.Point(18, 10);
             this.lblKpiNgTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiNgTitle.Name = "lblKpiNgTitle";
-            this.lblKpiNgTitle.Size = new System.Drawing.Size(367, 24);
+            this.lblKpiNgTitle.Size = new System.Drawing.Size(332, 24);
             this.lblKpiNgTitle.TabIndex = 1;
             this.lblKpiNgTitle.Text = "不良";
             this.lblKpiNgTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -265,12 +271,14 @@
             this.kpiYieldCard.CornerRadius = 10;
             this.kpiYieldCard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.kpiYieldCard.FillColor = System.Drawing.Color.White;
-            this.kpiYieldCard.Location = new System.Drawing.Point(1239, 0);
+            this.kpiYieldCard.Location = new System.Drawing.Point(1134, 0);
             this.kpiYieldCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.kpiYieldCard.Name = "kpiYieldCard";
             this.kpiYieldCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
+            this.kpiYieldCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.kpiYieldCard.ShowBorder = true;
-            this.kpiYieldCard.Size = new System.Drawing.Size(401, 100);
+            this.kpiYieldCard.ShowShadow = true;
+            this.kpiYieldCard.Size = new System.Drawing.Size(366, 100);
             this.kpiYieldCard.TabIndex = 3;
             // 
             // lblKpiYieldValue
@@ -282,7 +290,7 @@
             this.lblKpiYieldValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiYieldValue.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiYieldValue.Name = "lblKpiYieldValue";
-            this.lblKpiYieldValue.Size = new System.Drawing.Size(367, 56);
+            this.lblKpiYieldValue.Size = new System.Drawing.Size(332, 56);
             this.lblKpiYieldValue.TabIndex = 0;
             this.lblKpiYieldValue.Text = "0";
             this.lblKpiYieldValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -296,7 +304,7 @@
             this.lblKpiYieldTitle.Location = new System.Drawing.Point(18, 10);
             this.lblKpiYieldTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiYieldTitle.Name = "lblKpiYieldTitle";
-            this.lblKpiYieldTitle.Size = new System.Drawing.Size(367, 24);
+            this.lblKpiYieldTitle.Size = new System.Drawing.Size(332, 24);
             this.lblKpiYieldTitle.TabIndex = 1;
             this.lblKpiYieldTitle.Text = "良率";
             this.lblKpiYieldTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -310,12 +318,14 @@
             this.kpiCtCard.CornerRadius = 10;
             this.kpiCtCard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.kpiCtCard.FillColor = System.Drawing.Color.White;
-            this.kpiCtCard.Location = new System.Drawing.Point(1652, 0);
+            this.kpiCtCard.Location = new System.Drawing.Point(1512, 0);
             this.kpiCtCard.Margin = new System.Windows.Forms.Padding(0);
             this.kpiCtCard.Name = "kpiCtCard";
             this.kpiCtCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
+            this.kpiCtCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.kpiCtCard.ShowBorder = true;
-            this.kpiCtCard.Size = new System.Drawing.Size(417, 100);
+            this.kpiCtCard.ShowShadow = true;
+            this.kpiCtCard.Size = new System.Drawing.Size(380, 100);
             this.kpiCtCard.TabIndex = 4;
             // 
             // lblKpiCtValue
@@ -327,7 +337,7 @@
             this.lblKpiCtValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiCtValue.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiCtValue.Name = "lblKpiCtValue";
-            this.lblKpiCtValue.Size = new System.Drawing.Size(383, 56);
+            this.lblKpiCtValue.Size = new System.Drawing.Size(346, 56);
             this.lblKpiCtValue.TabIndex = 0;
             this.lblKpiCtValue.Text = "0";
             this.lblKpiCtValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -341,7 +351,7 @@
             this.lblKpiCtTitle.Location = new System.Drawing.Point(18, 10);
             this.lblKpiCtTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiCtTitle.Name = "lblKpiCtTitle";
-            this.lblKpiCtTitle.Size = new System.Drawing.Size(383, 24);
+            this.lblKpiCtTitle.Size = new System.Drawing.Size(346, 24);
             this.lblKpiCtTitle.TabIndex = 1;
             this.lblKpiCtTitle.Text = "节拍";
             this.lblKpiCtTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -349,7 +359,6 @@
             // bodyLayout
             // 
             this.bodyLayout.ColumnCount = 2;
-            // 左＝图表卡，右＝「生产信息」卡。右侧占 58%：表格要放 6~7 列，36% 时每列只有几十像素
             this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
             this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
             this.bodyLayout.Controls.Add(this.chartCard, 0, 0);
@@ -360,7 +369,7 @@
             this.bodyLayout.Name = "bodyLayout";
             this.bodyLayout.RowCount = 1;
             this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.bodyLayout.Size = new System.Drawing.Size(2069, 681);
+            this.bodyLayout.Size = new System.Drawing.Size(1892, 681);
             this.bodyLayout.TabIndex = 1;
             // 
             // chartCard
@@ -376,8 +385,10 @@
             this.chartCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.chartCard.Name = "chartCard";
             this.chartCard.Padding = new System.Windows.Forms.Padding(16, 12, 16, 12);
+            this.chartCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.chartCard.ShowBorder = true;
-            this.chartCard.Size = new System.Drawing.Size(1312, 681);
+            this.chartCard.ShowShadow = true;
+            this.chartCard.Size = new System.Drawing.Size(744, 681);
             this.chartCard.TabIndex = 0;
             // 
             // hourlyChart
@@ -392,7 +403,7 @@
             this.hourlyChart.NgLegend = "不良";
             this.hourlyChart.OkColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
             this.hourlyChart.OkLegend = "良品";
-            this.hourlyChart.Size = new System.Drawing.Size(1280, 627);
+            this.hourlyChart.Size = new System.Drawing.Size(712, 627);
             this.hourlyChart.TabIndex = 0;
             // 
             // lblChartTitle
@@ -404,7 +415,7 @@
             this.lblChartTitle.Location = new System.Drawing.Point(16, 12);
             this.lblChartTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblChartTitle.Name = "lblChartTitle";
-            this.lblChartTitle.Size = new System.Drawing.Size(1280, 30);
+            this.lblChartTitle.Size = new System.Drawing.Size(712, 30);
             this.lblChartTitle.TabIndex = 1;
             this.lblChartTitle.Text = "今日每小时产量";
             this.lblChartTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -417,12 +428,14 @@
             this.infoCard.CornerRadius = 10;
             this.infoCard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.infoCard.FillColor = System.Drawing.Color.White;
-            this.infoCard.Location = new System.Drawing.Point(1324, 0);
+            this.infoCard.Location = new System.Drawing.Point(756, 0);
             this.infoCard.Margin = new System.Windows.Forms.Padding(0);
             this.infoCard.Name = "infoCard";
             this.infoCard.Padding = new System.Windows.Forms.Padding(16, 12, 16, 12);
+            this.infoCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.infoCard.ShowBorder = true;
-            this.infoCard.Size = new System.Drawing.Size(745, 681);
+            this.infoCard.ShowShadow = true;
+            this.infoCard.Size = new System.Drawing.Size(1136, 681);
             this.infoCard.TabIndex = 1;
             // 
             // infoLayout
@@ -432,6 +445,7 @@
             this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.infoLayout.Controls.Add(this.lblInfoTitle, 0, 0);
+            this.infoLayout.Controls.Add(this.btnInfoQuery, 1, 0);
             this.infoLayout.Controls.Add(this.grdInfo, 0, 1);
             this.infoLayout.Controls.Add(this.lblHourTitle, 0, 3);
             this.infoLayout.Controls.Add(this.hourLayout, 0, 4);
@@ -447,7 +461,7 @@
             this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 56F));
             this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.infoLayout.Size = new System.Drawing.Size(713, 657);
+            this.infoLayout.Size = new System.Drawing.Size(1104, 657);
             this.infoLayout.TabIndex = 0;
             // 
             // lblInfoTitle
@@ -459,24 +473,36 @@
             this.lblInfoTitle.Location = new System.Drawing.Point(0, 0);
             this.lblInfoTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblInfoTitle.Name = "lblInfoTitle";
-            this.lblInfoTitle.Size = new System.Drawing.Size(713, 32);
+            this.lblInfoTitle.Size = new System.Drawing.Size(100, 32);
             this.lblInfoTitle.TabIndex = 0;
             this.lblInfoTitle.Text = "生产信息";
             this.lblInfoTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // btnInfoQuery
+            // 
+            this.btnInfoQuery.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnInfoQuery.CornerRadius = 8;
+            this.btnInfoQuery.IconGap = 6;
+            this.btnInfoQuery.IconSize = 14;
+            this.btnInfoQuery.Location = new System.Drawing.Point(606, 3);
+            this.btnInfoQuery.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+            this.btnInfoQuery.Name = "btnInfoQuery";
+            this.btnInfoQuery.Size = new System.Drawing.Size(96, 26);
+            this.btnInfoQuery.TabIndex = 1;
+            this.btnInfoQuery.Text = "查询";
+            this.btnInfoQuery.Variant = AlphaRap.FlatButtonVariant.Surface;
+            // 
             // grdInfo
             // 
             this.grdInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.infoLayout.SetColumnSpan(this.grdInfo, 2);
             this.grdInfo.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grdInfo.Location = new System.Drawing.Point(0, 32);
             this.grdInfo.Margin = new System.Windows.Forms.Padding(0);
             this.grdInfo.Name = "grdInfo";
-            this.infoLayout.SetColumnSpan(this.lblInfoTitle, 2);
-            this.infoLayout.SetColumnSpan(this.grdInfo, 2);
             this.grdInfo.RowHeadersVisible = false;
-            this.grdInfo.Size = new System.Drawing.Size(713, 523);
+            this.grdInfo.Size = new System.Drawing.Size(1104, 497);
             this.grdInfo.TabIndex = 2;
-
             // 
             // lblHourTitle
             // 
@@ -485,10 +511,10 @@
             this.lblHourTitle.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblHourTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblHourTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.lblHourTitle.Location = new System.Drawing.Point(0, 198);
+            this.lblHourTitle.Location = new System.Drawing.Point(0, 543);
             this.lblHourTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblHourTitle.Name = "lblHourTitle";
-            this.lblHourTitle.Size = new System.Drawing.Size(713, 28);
+            this.lblHourTitle.Size = new System.Drawing.Size(1104, 28);
             this.lblHourTitle.TabIndex = 9;
             this.lblHourTitle.Text = "本小时";
             this.lblHourTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -510,13 +536,13 @@
             this.hourLayout.Controls.Add(this.lblHourYield, 3, 0);
             this.hourLayout.Controls.Add(this.tHourlyYield, 3, 1);
             this.hourLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hourLayout.Location = new System.Drawing.Point(0, 226);
+            this.hourLayout.Location = new System.Drawing.Point(0, 571);
             this.hourLayout.Margin = new System.Windows.Forms.Padding(0);
             this.hourLayout.Name = "hourLayout";
             this.hourLayout.RowCount = 2;
             this.hourLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
             this.hourLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.hourLayout.Size = new System.Drawing.Size(713, 56);
+            this.hourLayout.Size = new System.Drawing.Size(1104, 56);
             this.hourLayout.TabIndex = 10;
             // 
             // lblHourInput
@@ -528,7 +554,7 @@
             this.lblHourInput.Location = new System.Drawing.Point(0, 0);
             this.lblHourInput.Margin = new System.Windows.Forms.Padding(0);
             this.lblHourInput.Name = "lblHourInput";
-            this.lblHourInput.Size = new System.Drawing.Size(178, 22);
+            this.lblHourInput.Size = new System.Drawing.Size(276, 22);
             this.lblHourInput.TabIndex = 0;
             this.lblHourInput.Text = "投入";
             this.lblHourInput.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -544,7 +570,7 @@
             this.tHourlyInput.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
             this.tHourlyInput.Name = "tHourlyInput";
             this.tHourlyInput.ReadOnly = true;
-            this.tHourlyInput.Size = new System.Drawing.Size(170, 50);
+            this.tHourlyInput.Size = new System.Drawing.Size(268, 29);
             this.tHourlyInput.TabIndex = 1;
             this.tHourlyInput.TabStop = false;
             this.tHourlyInput.Text = "0";
@@ -555,10 +581,10 @@
             this.lblHourOutput.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblHourOutput.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblHourOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblHourOutput.Location = new System.Drawing.Point(178, 0);
+            this.lblHourOutput.Location = new System.Drawing.Point(276, 0);
             this.lblHourOutput.Margin = new System.Windows.Forms.Padding(0);
             this.lblHourOutput.Name = "lblHourOutput";
-            this.lblHourOutput.Size = new System.Drawing.Size(178, 22);
+            this.lblHourOutput.Size = new System.Drawing.Size(276, 22);
             this.lblHourOutput.TabIndex = 2;
             this.lblHourOutput.Text = "产出";
             this.lblHourOutput.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -570,11 +596,11 @@
             this.tHourlyOutput.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tHourlyOutput.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tHourlyOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.tHourlyOutput.Location = new System.Drawing.Point(178, 24);
+            this.tHourlyOutput.Location = new System.Drawing.Point(276, 24);
             this.tHourlyOutput.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
             this.tHourlyOutput.Name = "tHourlyOutput";
             this.tHourlyOutput.ReadOnly = true;
-            this.tHourlyOutput.Size = new System.Drawing.Size(170, 50);
+            this.tHourlyOutput.Size = new System.Drawing.Size(268, 29);
             this.tHourlyOutput.TabIndex = 3;
             this.tHourlyOutput.TabStop = false;
             this.tHourlyOutput.Text = "0";
@@ -585,10 +611,10 @@
             this.lblHourReject.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblHourReject.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblHourReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblHourReject.Location = new System.Drawing.Point(356, 0);
+            this.lblHourReject.Location = new System.Drawing.Point(552, 0);
             this.lblHourReject.Margin = new System.Windows.Forms.Padding(0);
             this.lblHourReject.Name = "lblHourReject";
-            this.lblHourReject.Size = new System.Drawing.Size(178, 22);
+            this.lblHourReject.Size = new System.Drawing.Size(276, 22);
             this.lblHourReject.TabIndex = 4;
             this.lblHourReject.Text = "不良";
             this.lblHourReject.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -600,11 +626,11 @@
             this.tHourlyReject.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tHourlyReject.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tHourlyReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.tHourlyReject.Location = new System.Drawing.Point(356, 24);
+            this.tHourlyReject.Location = new System.Drawing.Point(552, 24);
             this.tHourlyReject.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
             this.tHourlyReject.Name = "tHourlyReject";
             this.tHourlyReject.ReadOnly = true;
-            this.tHourlyReject.Size = new System.Drawing.Size(170, 50);
+            this.tHourlyReject.Size = new System.Drawing.Size(268, 29);
             this.tHourlyReject.TabIndex = 5;
             this.tHourlyReject.TabStop = false;
             this.tHourlyReject.Text = "0";
@@ -615,10 +641,10 @@
             this.lblHourYield.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblHourYield.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblHourYield.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblHourYield.Location = new System.Drawing.Point(534, 0);
+            this.lblHourYield.Location = new System.Drawing.Point(828, 0);
             this.lblHourYield.Margin = new System.Windows.Forms.Padding(0);
             this.lblHourYield.Name = "lblHourYield";
-            this.lblHourYield.Size = new System.Drawing.Size(179, 22);
+            this.lblHourYield.Size = new System.Drawing.Size(276, 22);
             this.lblHourYield.TabIndex = 6;
             this.lblHourYield.Text = "良率";
             this.lblHourYield.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -630,11 +656,11 @@
             this.tHourlyYield.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tHourlyYield.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tHourlyYield.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.tHourlyYield.Location = new System.Drawing.Point(534, 24);
+            this.tHourlyYield.Location = new System.Drawing.Point(828, 24);
             this.tHourlyYield.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
             this.tHourlyYield.Name = "tHourlyYield";
             this.tHourlyYield.ReadOnly = true;
-            this.tHourlyYield.Size = new System.Drawing.Size(171, 50);
+            this.tHourlyYield.Size = new System.Drawing.Size(268, 29);
             this.tHourlyYield.TabIndex = 7;
             this.tHourlyYield.TabStop = false;
             this.tHourlyYield.Text = "0";
@@ -646,7 +672,7 @@
             this.connLayout.Location = new System.Drawing.Point(0, 627);
             this.connLayout.Margin = new System.Windows.Forms.Padding(0);
             this.connLayout.Name = "connLayout";
-            this.connLayout.Size = new System.Drawing.Size(713, 30);
+            this.connLayout.Size = new System.Drawing.Size(1104, 30);
             this.connLayout.TabIndex = 11;
             this.connLayout.WrapContents = false;
             // 
@@ -659,7 +685,7 @@
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(248)))));
-            this.ClientSize = new System.Drawing.Size(2101, 825);
+            this.ClientSize = new System.Drawing.Size(1924, 825);
             this.ControlBox = false;
             this.Controls.Add(this.rootLayout);
             this.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -680,12 +706,9 @@
             this.chartCard.ResumeLayout(false);
             this.infoCard.ResumeLayout(false);
             this.infoLayout.ResumeLayout(false);
-            this.infoLayout.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdInfo)).EndInit();
             this.hourLayout.ResumeLayout(false);
             this.hourLayout.PerformLayout();
-            this.connLayout.ResumeLayout(false);
-            this.connLayout.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.grdInfo)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -716,6 +739,7 @@
         private AlphaRap.CardPanel infoCard;
         private System.Windows.Forms.TableLayoutPanel infoLayout;
         private System.Windows.Forms.DataGridView grdInfo;
+        private AlphaRap.FlatButton btnInfoQuery;
         private AlphaRap.UiLabel lblInfoTitle;
         private AlphaRap.UiLabel lblHourTitle;
         private System.Windows.Forms.TableLayoutPanel hourLayout;
