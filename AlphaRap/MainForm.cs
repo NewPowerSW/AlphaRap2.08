@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
@@ -1167,23 +1168,27 @@ int nheightEllipse
             catch { }
         }
 
-        // ---------------- 机台状态徽章：深藏蓝底 + 左侧状态色竖条 + 白字（沿用现有蓝色主题；红只用于报警） ----------------
-        private static readonly Color StatusBadgeBg = Color.FromArgb(11, 46, 77);       // 深藏蓝底（比顶栏更深，压住蓝色背景）
-        private static readonly Color StatusBadgeAlarmBg = Color.FromArgb(96, 26, 26);  // 报警时整块转深红
+        // ---------------- 机台状态徽章 ----------------
+        // 整块填满状态色。原来是"深藏蓝底 + 左侧 6px 竖条"，而 IDLE 的灰蓝竖条压在深藏蓝上
+        // 几乎看不见 ⇒ 远处根本看不出机台在什么状态。整块上色后一眼可辨。
+        // 亮底配深字、红底配白字；对比度都按 WCAG 算过（括号里是实测值）。
+        private static readonly Color StatusIdleFill = Color.FromArgb(148, 163, 184);   // 灰蓝：待机（深字 5.5:1）
+        private static readonly Color StatusInitFill = Color.FromArgb(56, 158, 226);    // 亮蓝：初始化（深字 4.8:1）
+        private static readonly Color StatusRunFill = Color.FromArgb(52, 199, 89);      // 绿：运行（深字 7.3:1）
+        private static readonly Color StatusPauseFill = Color.FromArgb(250, 196, 21);   // 琥珀：暂停（深字 9.2:1）
+        private static readonly Color StatusAlarmFill = Color.FromArgb(206, 38, 38);    // 红：报警（白字 5.3:1）
 
-        // 竖条用的语义色：顶栏是蓝色，这几档都调亮过一档，纯色块在白字旁才够跳
-        private static readonly Color StatusRunAccent = Color.FromArgb(56, 176, 88);     // 绿：运行
-        private static readonly Color StatusPauseAccent = Color.FromArgb(247, 176, 47);  // 琥珀：暂停
-        private static readonly Color StatusIdleAccent = Color.FromArgb(140, 160, 182);  // 灰蓝：待机
-        private static readonly Color StatusInitAccent = Color.FromArgb(58, 158, 226);   // 亮蓝：初始化
-        private static readonly Color StatusAlarmAccent = Color.FromArgb(232, 76, 76);   // 红：报警
+        /// <summary>亮底上的深字。</summary>
+        private static readonly Color StatusDarkInk = Color.FromArgb(16, 30, 46);
+        /// <summary>红底上的白字。</summary>
+        private static readonly Color StatusWhiteInk = Color.White;
 
-        /// <summary>当前状态竖条颜色（MachineStatus_Paint 里用）。</summary>
-        private Color _statusAccent = StatusIdleAccent;
-
-        private const int StatusBarInset = 9;   // 竖条距徽章左边的距离
-        private const int StatusBarWidth = 6;   // 竖条宽度
-        private const int StatusBarPadY = 11;   // 竖条上下留白
+        /// <summary>徽章左右内边距（96 DPI 设计值）——决定胶囊比文字宽多少。</summary>
+        private const int StatusPadX = 30;
+        /// <summary>徽章最小宽度（96 DPI 设计值），短文案也别缩成一小块。</summary>
+        private const int StatusMinWidth = 150;
+        /// <summary>当前填充色（MachineStatus_Paint 画描边时用）。</summary>
+        private Color _statusFill = StatusIdleFill;
 
         // 状态文案缓存：语言或初始化状态变化时重建
         private Dictionary<RunMode, string> _statusTextMap;
@@ -1209,7 +1214,7 @@ int nheightEllipse
             string latestError;
             if (TryGetActiveErrors(out errorCount, out latestError))
             {
-                SetStatusLook(StatusBadgeAlarmBg, StatusAlarmAccent,
+                SetStatusLook(StatusAlarmFill, StatusWhiteInk,
                     errorCount > 1 ? _statusAlarmText + "  ×" + errorCount : _statusAlarmText);
                 if (latestError != _lastAlarmTip)
                 {
@@ -1228,44 +1233,61 @@ int nheightEllipse
             string statusText;
             if (!_statusTextMap.TryGetValue(SysPara.SystemMode, out statusText))
             {
-                SetStatusLook(StatusBadgeBg, StatusIdleAccent, "Unknown status");
+                SetStatusLook(StatusIdleFill, StatusDarkInk, "Unknown status");
                 return;
             }
             switch (SysPara.SystemMode)
             {
-                case RunMode.RUN: SetStatusLook(StatusBadgeBg, StatusRunAccent, statusText); break;
-                case RunMode.PAUSE: SetStatusLook(StatusBadgeBg, StatusPauseAccent, statusText); break;
+                case RunMode.RUN: SetStatusLook(StatusRunFill, StatusDarkInk, statusText); break;
+                case RunMode.PAUSE: SetStatusLook(StatusPauseFill, StatusDarkInk, statusText); break;
                 case RunMode.INITIAL:
-                    // 初始化中 / 初始化完成（就绪）都用蓝色竖条，文字区分两者
-                    SetStatusLook(StatusBadgeBg, StatusInitAccent, statusText); break;
-                default: SetStatusLook(StatusBadgeBg, StatusIdleAccent, statusText); break;
+                    // 初始化中 / 初始化完成（就绪）都是蓝色，文字区分两者
+                    SetStatusLook(StatusInitFill, StatusDarkInk, statusText); break;
+                default: SetStatusLook(StatusIdleFill, StatusDarkInk, statusText); break;
             }
         }
 
         /// <summary>
-        /// 设置徽章外观：深藏蓝底（报警时深红底）+ 左侧状态色竖条 + 白字。
+        /// 设置徽章外观：整块填状态色 + 深字（红底时白字）。
+        /// 宽度跟着文字走 —— 状态名在不同语言下长短差很多（西语「Estado inicialización」在 22pt 下
+        /// 300+px），原来固定 220px 加 AutoEllipsis 会把状态名截掉，等于白装一个状态灯。
         /// 只在值变化时赋值并重绘，避免每秒刷新造成闪烁。
         /// </summary>
-        private void SetStatusLook(Color fill, Color accent, string text)
+        private void SetStatusLook(Color fill, Color ink, string text)
         {
-            bool repaint = _statusAccent != accent;
             if (MachineStatus.BackColor != fill) MachineStatus.BackColor = fill;
-            if (MachineStatus.ForeColor != Color.White) MachineStatus.ForeColor = Color.White;
+            if (MachineStatus.ForeColor != ink) MachineStatus.ForeColor = ink;
             if (MachineStatus.Text != text) MachineStatus.Text = text;
-            if (repaint)
+
+            int w = UiTheme.Dpi(StatusMinWidth);
+            try
             {
-                _statusAccent = accent;
+                int need = TextRenderer.MeasureText(text ?? "", MachineStatus.Font).Width
+                           + UiTheme.Dpi(StatusPadX * 2);
+                if (need > w) w = need;
+            }
+            catch { }
+            if (MachineStatus.Width != w) MachineStatus.Width = w;
+
+            if (_statusFill != fill)
+            {
+                _statusFill = fill;
                 MachineStatus.Invalidate();
             }
         }
 
-        /// <summary>徽章左侧的状态色竖条（颜色随运行模式 / 报警变化）。</summary>
+        /// <summary>徽章描边：亮底压在品牌蓝顶栏上时给一条半透明深边，轮廓更清楚。</summary>
         private void MachineStatus_Paint(object sender, PaintEventArgs e)
         {
-            int h = MachineStatus.Height - StatusBarPadY * 2;
-            if (h <= 6) return;
-            using (SolidBrush b = new SolidBrush(_statusAccent))
-                e.Graphics.FillRectangle(b, StatusBarInset, StatusBarPadY, StatusBarWidth, h);
+            try
+            {
+                if (MachineStatus.Width <= 2 || MachineStatus.Height <= 2) return;
+                Rectangle r = new Rectangle(0, 0, MachineStatus.Width - 1, MachineStatus.Height - 1);
+                using (GraphicsPath path = UiKit.RoundRect(r, UiTheme.Dpi(12)))
+                using (Pen p = new Pen(Color.FromArgb(70, 8, 20, 36), 1f))
+                    e.Graphics.DrawPath(p, path);
+            }
+            catch { }
         }
 
         /// <summary>

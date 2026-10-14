@@ -433,7 +433,8 @@
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 48F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 276F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 220F));
+            // 状态徽章那列改为按内容宽度：状态名在不同语言下长短差很多（西语 300+px）
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 264F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 44F));
@@ -497,16 +498,15 @@
             // 
             // MachineStatus
             // 
-            this.MachineStatus.AutoEllipsis = true;
             this.MachineStatus.AutoSize = false;
-            this.MachineStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(11)))), ((int)(((byte)(46)))), ((int)(((byte)(77)))));
-            this.MachineStatus.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MachineStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
+            this.MachineStatus.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.MachineStatus.Font = new System.Drawing.Font("微软雅黑", 22F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.MachineStatus.ForeColor = System.Drawing.Color.White;
+            this.MachineStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(30)))), ((int)(((byte)(46)))));
             this.MachineStatus.Location = new System.Drawing.Point(1231, 2);
             this.MachineStatus.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
             this.MachineStatus.Name = "MachineStatus";
-            this.MachineStatus.Size = new System.Drawing.Size(215, 46);
+            this.MachineStatus.Size = new System.Drawing.Size(150, 46);
             this.MachineStatus.TabIndex = 211;
             this.MachineStatus.Text = "IDLE";
             this.MachineStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
