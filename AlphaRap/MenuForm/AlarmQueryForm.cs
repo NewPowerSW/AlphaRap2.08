@@ -1,0 +1,270 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace AlphaRap
+{
+    /// <summary>
+    /// 报警统计与历史查询：数据来自报警日志 {AlarmPath}\{年}\{月}\{日}.csv（见 <see cref="AlarmHistory"/>）。
+    /// 上半部分 = 查询条件 + 总览数字 + Top 报警号 / 每日趋势两张图，下半部分 = 结果表格。
+    /// 按需创建、复用同一个实例（见 MainForm.OpenAlarmQuery）；显示时重新查询一次。
+    /// </summary>
+    public partial class AlarmQueryForm : Form
+    {
+        /// <summary>明细表格最多显示的行数，避免一次查询几十万行把界面拖死。</summary>
+        private const int MaxRowsShown = 5000;
+
+        /// <summary>E 类报警行的底色（浅红）。</summary>
+        private static readonly Color RowAlarmBack = Color.FromArgb(255, 238, 238);
+        /// <summary>W 类警告行的底色（浅琥珀）。</summary>
+        private static readonly Color RowWarnBack = Color.FromArgb(255, 249, 235);
+
+        private List<AlarmRecord> _rows = new List<AlarmRecord>();
+        private bool _loading;
+
+        public AlarmQueryForm()
+        {
+            InitializeComponent();
+            UiTheme.ApplyDpi(this);
+            UiKit.StyleGrid(grdAlarm);
+
+            _loading = true;
+            dtpFrom.Value = DateTime.Today;
+            dtpTo.Value = DateTime.Today;
+            _loading = false;
+
+            btnQuery.Click += btnQuery_Click;
+            btnExport.Click += btnExport_Click;
+
+            ApplyLanguage();
+            Reload();
+
+            try { MiddleLayer.LanguageChanged += AlarmQueryForm_LanguageChanged; }
+            catch { }
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            // 静态事件必须解绑，否则已释放的窗体会被语言切换一直拉住
+            try { MiddleLayer.LanguageChanged -= AlarmQueryForm_LanguageChanged; }
+            catch { }
+            base.OnFormClosed(e);
+        }
+
+        private void AlarmQueryForm_LanguageChanged(object sender, EventArgs e)
+        {
+            ApplyLanguage();
+        }
+
+        // ---------------- 文案 ----------------
+
+        private void ApplyLanguage()
+        {
+            try
+            {
+                this.Text = UiTheme.T("AlarmQueryForm", "title",
+                    "报警统计与历史查询", "Alarm statistics and history", "Estadisticas e historial de alarmas");
+
+                lblFrom.Text = UiTheme.T("AlarmQueryForm", "from", "开始", "From", "Desde");
+                lblTo.Text = UiTheme.T("AlarmQueryForm", "to", "结束", "To", "Hasta");
+                lblType.Text = UiTheme.T("AlarmQueryForm", "type", "类型", "Type", "Tipo");
+                lblCode.Text = UiTheme.T("AlarmQueryForm", "code", "编号", "Code", "Codigo");
+                lblKeyword.Text = UiTheme.T("AlarmQueryForm", "keyword", "内容关键字", "Keyword", "Palabra clave");
+                btnQuery.Text = UiTheme.T("AlarmQueryForm", "query", "查询", "Query", "Consultar");
+                btnExport.Text = UiTheme.T("AlarmQueryForm", "export", "导出", "Export", "Exportar");
+
+                btnQuery.Icon = AppIcons.Get(AppIcon.Search, 16, Color.White);
+                btnExport.Icon = AppIcons.Get(AppIcon.Save, 16, UiKit.TextPrimary);
+
+                // 类型下拉：三项固定含义，切换语言时保留当前选择
+                int sel = cboType.SelectedIndex;
+                cboType.Items.Clear();
+                cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeAll", "全部", "All", "Todos"));
+                cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeWarn", "警告", "Warning", "Aviso"));
+                cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeAlarm", "报警", "Alarm", "Alarma"));
+                cboType.SelectedIndex = (sel < 0 || sel > 2) ? 0 : sel;
+
+                chartRank.Title = UiTheme.T("AlarmQueryForm", "rankTitle",
+                    "报警号出现次数 Top 10", "Top 10 alarm codes", "Top 10 codigos");
+                chartTrend.Title = UiTheme.T("AlarmQueryForm", "trendTitle",
+                    "每日报警次数", "Alarms per day", "Alarmas por dia");
+                chartRank.EmptyText = UiTheme.T("AlarmQueryForm", "empty", "无数据", "No data", "Sin datos");
+                chartTrend.EmptyText = chartRank.EmptyText;
+
+                colTime.HeaderText = UiTheme.T("AlarmQueryForm", "colTime", "时间", "Time", "Hora");
+                colType.HeaderText = UiTheme.T("AlarmQueryForm", "colType", "类型", "Type", "Tipo");
+                colCode.HeaderText = UiTheme.T("AlarmQueryForm", "colCode", "编号", "Code", "Codigo");
+                colContent.HeaderText = UiTheme.T("AlarmQueryForm", "colContent", "内容", "Content", "Contenido");
+                colRecipe.HeaderText = UiTheme.T("AlarmQueryForm", "colRecipe", "配方", "Recipe", "Receta");
+                colMode.HeaderText = UiTheme.T("AlarmQueryForm", "colMode", "模式", "Mode", "Modo");
+                colUser.HeaderText = UiTheme.T("AlarmQueryForm", "colUser", "工号", "User", "Usuario");
+
+            }
+            catch { }
+        }
+
+        /// <summary>重新查询并刷新界面（外部再次打开窗口时调用）。</summary>
+        public void Reload()
+        {
+            if (_loading) return;
+            _loading = true;
+            Cursor = Cursors.WaitCursor;
+            try
+            {
+                if (!AlarmHistory.RootReady())
+                {
+                    _rows = new List<AlarmRecord>();
+                    string hint = UiTheme.T("AlarmQueryForm", "noPath",
+                        "未配置报警日志目录：请在【日志】页设置 AlarmPath",
+                        "Alarm log path not configured (see the Logs page)",
+                        "Ruta de registro de alarmas no configurada");
+                    lblStatus.Text = hint;
+                    lblStatus.ForeColor = UiTheme.WarnText;
+                    FillStats();
+                    FillCharts();
+                    FillGrid();
+                    return;
+                }
+
+                int files;
+                _rows = AlarmHistory.Query(dtpFrom.Value, dtpTo.Value, CurrentTypeFilter(),
+                    txtCode.Text, txtKeyword.Text, out files);
+
+                lblStatus.ForeColor = UiKit.TextSecondary;
+                lblStatus.Text = string.Format(UiTheme.T("AlarmQueryForm", "status",
+                    "共 {0} 条（读取 {1} 个日志文件）{2}",
+                    "Total {0} rows ({1} files) {2}",
+                    "Total {0} filas ({1} archivos) {2}"),
+                    _rows.Count, files,
+                    _rows.Count > MaxRowsShown
+                        ? string.Format(UiTheme.T("AlarmQueryForm", "truncated",
+                            "，表格只显示前 {0} 条", ", table shows the first {0}", ", se muestran {0}"), MaxRowsShown)
+                        : "");
+
+                FillStats();
+                FillCharts();
+                FillGrid();
+            }
+            catch (Exception ex)
+            {
+                lblStatus.ForeColor = UiKit.Danger;
+                lblStatus.Text = ex.Message;
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+                _loading = false;
+            }
+        }
+
+        /// <summary>下拉框的"全部 / 警告 / 报警"映射成查询用的筛选值。</summary>
+        private string CurrentTypeFilter()
+        {
+            switch (cboType.SelectedIndex)
+            {
+                case 1: return AlarmHistory.FilterWarn;
+                case 2: return AlarmHistory.FilterAlarm;
+                default: return AlarmHistory.FilterAll;
+            }
+        }
+
+        // ---------------- 填充 ----------------
+
+        /// <summary>顶部四张统计卡：总条数 / 警告 / 报警 / 涉及报警号种类。</summary>
+        private void FillStats()
+        {
+            int total = _rows.Count;
+            int alarm = AlarmHistory.CountAlarm(_rows);
+            int warn = total - alarm;
+
+            List<StatItem> items = new List<StatItem>();
+            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statTotal", "总条数", "Total", "Total"),
+                total.ToString(), UiKit.Brand));
+            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statWarn", "警告", "Warning", "Aviso"),
+                warn.ToString(), UiKit.Warn));
+            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statAlarm", "报警", "Alarm", "Alarma"),
+                alarm.ToString(), UiKit.Danger));
+            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statKinds", "报警号种类", "Distinct codes", "Codigos distintos"),
+                AlarmHistory.CountCodeKinds(_rows).ToString(), UiKit.TextSecondary));
+            statStrip1.SetItems(items);
+        }
+
+        /// <summary>两张图：左 = 报警号 Top 10，右 = 每日次数（按查询区间补零）。</summary>
+        private void FillCharts()
+        {
+            chartRank.SetData(AlarmHistory.GroupByCode(_rows, 10));
+            chartTrend.SetData(AlarmHistory.GroupByDay(_rows, dtpFrom.Value, dtpTo.Value));
+        }
+
+        /// <summary>结果表格：E 类浅红底、W 类浅琥珀底，超过上限只显示前 N 条。</summary>
+        private void FillGrid()
+        {
+            grdAlarm.SuspendLayout();
+            try
+            {
+                grdAlarm.Rows.Clear();
+                int n = Math.Min(_rows.Count, MaxRowsShown);
+                for (int i = 0; i < n; i++)
+                {
+                    AlarmRecord r = _rows[i];
+                    int idx = grdAlarm.Rows.Add(
+                        r.Time.ToString("yyyy-MM-dd HH:mm:ss"),
+                        r.IsAlarm ? "E" : "W",
+                        r.Code,
+                        r.Content,
+                        r.RecipeName,
+                        r.Mode,
+                        r.User);
+                    grdAlarm.Rows[idx].DefaultCellStyle.BackColor = r.IsAlarm ? RowAlarmBack : RowWarnBack;
+                    grdAlarm.Rows[idx].DefaultCellStyle.ForeColor = r.IsAlarm ? UiKit.Danger : UiTheme.WarnText;
+                }
+                grdAlarm.ClearSelection();
+            }
+            catch { }
+            finally
+            {
+                grdAlarm.ResumeLayout();
+            }
+        }
+
+        // ---------------- 事件 ----------------
+
+        private void btnQuery_Click(object sender, EventArgs e)
+        {
+            Reload();
+            try
+            {
+                OperationLog.Write("AlarmQueryForm", string.Format("查询报警历史：{0:yyyy-MM-dd} ~ {1:yyyy-MM-dd}，{2} 条",
+                    dtpFrom.Value, dtpTo.Value, _rows.Count));
+            }
+            catch { }
+        }
+
+        /// <summary>把当前查询结果导出成 CSV（UTF-8 带 BOM，Excel 直接打开不乱码）。</summary>
+        private void btnExport_Click(object sender, EventArgs e)
+        {
+            if (_rows.Count == 0)
+            {
+                lblStatus.ForeColor = UiTheme.WarnText;
+                lblStatus.Text = UiTheme.T("AlarmQueryForm", "nothingToExport",
+                    "当前没有可导出的记录", "Nothing to export", "Nada que exportar");
+                return;
+            }
+
+            using (SaveFileDialog dlg = new SaveFileDialog())
+            {
+                dlg.Filter = "CSV (*.csv)|*.csv";
+                dlg.FileName = string.Format("Alarm_{0:yyyyMMdd}-{1:yyyyMMdd}.csv", dtpFrom.Value, dtpTo.Value);
+                if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+                string err = AlarmHistory.Export(_rows, dlg.FileName);
+                lblStatus.ForeColor = err.Length == 0 ? UiKit.Success : UiKit.Danger;
+                lblStatus.Text = err.Length == 0
+                    ? string.Format(UiTheme.T("AlarmQueryForm", "exportOk", "已导出 {0} 条 → {1}",
+                        "Exported {0} rows to {1}", "Exportadas {0} filas a {1}"), _rows.Count, dlg.FileName)
+                    : err;
+            }
+        }
+    }
+}

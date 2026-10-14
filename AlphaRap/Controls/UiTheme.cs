@@ -250,6 +250,8 @@ namespace AlphaRap
         /// <summary>底部工具栏标签字体。</summary>
         public static readonly Font ToolLabel = UiKit.Bold(11f);
         public static readonly Font KpiValue = UiKit.Bold(26f);
+        /// <summary>统计卡片数值字体。</summary>
+        public static readonly Font StatValue = UiKit.Bold(20f);
 
         // ---------------- 多语言文字 ----------------
 

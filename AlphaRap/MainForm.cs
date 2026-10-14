@@ -743,6 +743,8 @@ int nheightEllipse
         private static readonly Color AlarmChipBrand = Color.FromArgb(4, 108, 182);
         private static readonly Color AlarmChipWarn = Color.FromArgb(219, 149, 44);
         private static readonly Color AlarmChipError = Color.FromArgb(214, 69, 69);
+        /// <summary>报警条上「查询」按钮的图标色（中性灰蓝，与三个筛选标签区分开）。</summary>
+        private static readonly Color AlarmChipQuery = Color.FromArgb(92, 108, 126);
 
         /// <summary>判断某条报警在当前筛选下是否显示。</summary>
         public bool IsAlarmRowVisible(string type)
@@ -829,6 +831,13 @@ int nheightEllipse
                 if (btnAlarmFilterAll != null) btnAlarmFilterAll.Text = AlarmFilterTexts[lang][0] + " " + total;
                 if (btnAlarmFilterWarn != null) btnAlarmFilterWarn.Text = AlarmFilterTexts[lang][1] + " " + warn;
                 if (btnAlarmFilterAlarm != null) btnAlarmFilterAlarm.Text = AlarmFilterTexts[lang][2] + " " + error;
+
+                // 「查询」按钮不带条数，宽度随语言自适应
+                if (btnAlarmQuery != null)
+                {
+                    btnAlarmQuery.Text = UiTheme.T("MainForm", "alarm_Query", "查询", "Query", "Consulta");
+                    btnAlarmQuery.FitToContent();
+                }
             }
             catch { }
         }
@@ -838,6 +847,27 @@ int nheightEllipse
             if (btnAlarmFilterAll != null) btnAlarmFilterAll.Selected = (AlarmLogFilter == "ALL");
             if (btnAlarmFilterAlarm != null) btnAlarmFilterAlarm.Selected = (AlarmLogFilter == "E");
             if (btnAlarmFilterWarn != null) btnAlarmFilterWarn.Selected = (AlarmLogFilter == "OTHER");
+        }
+
+        /// <summary>报警统计 / 历史查询窗口；只保留一个实例，再次打开时重新查询。</summary>
+        private static AlarmQueryForm _alarmQueryForm;
+
+        /// <summary>打开报警统计 / 历史查询窗口。</summary>
+        public static void OpenAlarmQuery()
+        {
+            try
+            {
+                if (_alarmQueryForm == null || _alarmQueryForm.IsDisposed)
+                    _alarmQueryForm = new AlarmQueryForm();
+                // 挂在主窗体上：始终盖在主窗口之上，主窗口关闭时一起收掉
+                if (MiddleLayer.MainF != null) _alarmQueryForm.Show(MiddleLayer.MainF);
+                else _alarmQueryForm.Show();
+                if (_alarmQueryForm.WindowState == FormWindowState.Minimized)
+                    _alarmQueryForm.WindowState = FormWindowState.Normal;
+                _alarmQueryForm.BringToFront();
+                _alarmQueryForm.Reload();
+            }
+            catch (Exception) { }
         }
 
         // ---------------- 语言切换 ----------------
@@ -962,6 +992,12 @@ int nheightEllipse
                 btnAlarmFilterAll.Click += (s, e) => SetAlarmLogFilter("ALL");
                 btnAlarmFilterWarn.Click += (s, e) => SetAlarmLogFilter("OTHER");
                 btnAlarmFilterAlarm.Click += (s, e) => SetAlarmLogFilter("E");
+
+                if (btnAlarmQuery != null)
+                {
+                    btnAlarmQuery.Icon = AppIcons.Get(AppIcon.Search, 13, AlarmChipQuery);
+                    btnAlarmQuery.Click += (s, e) => OpenAlarmQuery();
+                }
 
                 RegisterAlarmFilterForLanguage();
                 UpdateAlarmFilterButtons();

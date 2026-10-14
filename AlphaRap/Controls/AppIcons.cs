@@ -21,6 +21,7 @@ namespace AlphaRap
         Trash,              // 删除
         Edit,               // 修改
         Keyboard,           // 虚拟键盘
+        Search,             // 查询（报警统计 / 历史查询）
         Logo                // 品牌标识（登录页用）
     }
 
@@ -186,6 +187,7 @@ namespace AlphaRap
                 case AppIcon.Trash: DrawTrash(g, c); break;
                 case AppIcon.Edit: DrawEdit(g, c); break;
                 case AppIcon.Keyboard: DrawKeyboard(g, c); break;
+                case AppIcon.Search: DrawSearch(g, c); break;
                 case AppIcon.Logo: DrawLogo(g, c); break;
             }
         }
@@ -300,6 +302,16 @@ namespace AlphaRap
                 g.DrawLine(p, 8.2f, 8.2f, 15.8f, 8.2f);
                 g.DrawLine(p, 8.2f, 12f, 15.8f, 12f);
                 g.DrawLine(p, 8.2f, 15.8f, 12.6f, 15.8f);
+            }
+        }
+
+        /// <summary>查询：放大镜</summary>
+        private static void DrawSearch(Graphics g, Color c)
+        {
+            using (Pen p = Stroke(c))
+            {
+                g.DrawEllipse(p, 4.4f, 4.4f, 11.4f, 11.4f);
+                g.DrawLine(p, 15.4f, 15.4f, 20.4f, 20.4f);
             }
         }
 

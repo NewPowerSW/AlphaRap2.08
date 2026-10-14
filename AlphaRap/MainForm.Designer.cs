@@ -97,6 +97,7 @@
             this.btnAlarmFilterAll = new AlphaRap.AlarmChip();
             this.btnAlarmFilterWarn = new AlphaRap.AlarmChip();
             this.btnAlarmFilterAlarm = new AlphaRap.AlarmChip();
+            this.btnAlarmQuery = new AlphaRap.AlarmChip();
             this.uiTabControl1 = new Sunny.UI.UITabControl();
             this.tabPage22 = new System.Windows.Forms.TabPage();
             this.plMainShow = new System.Windows.Forms.Panel();
@@ -997,6 +998,7 @@
             this.flowAlarmFilter.Controls.Add(this.btnAlarmFilterAll);
             this.flowAlarmFilter.Controls.Add(this.btnAlarmFilterWarn);
             this.flowAlarmFilter.Controls.Add(this.btnAlarmFilterAlarm);
+            this.flowAlarmFilter.Controls.Add(this.btnAlarmQuery);
             this.flowAlarmFilter.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowAlarmFilter.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.flowAlarmFilter.Location = new System.Drawing.Point(0, 0);
@@ -1039,6 +1041,17 @@
             this.btnAlarmFilterAlarm.Text = "报警";
             this.btnAlarmFilterAlarm.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
             // 
+            // btnAlarmQuery
+            // 
+            this.btnAlarmQuery.AccentColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
+            this.btnAlarmQuery.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
+            this.btnAlarmQuery.Name = "btnAlarmQuery";
+            this.btnAlarmQuery.Size = new System.Drawing.Size(68, 22);
+            this.btnAlarmQuery.Style = AlphaRap.AlarmChipStyle.Toggle;
+            this.btnAlarmQuery.TabIndex = 3;
+            this.btnAlarmQuery.Text = "查询";
+            this.btnAlarmQuery.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
+            // 
             // panel5
             // 
             this.panel5.Controls.Add(this.uiTabControl1);
@@ -1048,6 +1061,7 @@
             this.flowAlarmFilter.Controls.Add(this.btnAlarmFilterAll);
             this.flowAlarmFilter.Controls.Add(this.btnAlarmFilterWarn);
             this.flowAlarmFilter.Controls.Add(this.btnAlarmFilterAlarm);
+            this.flowAlarmFilter.Controls.Add(this.btnAlarmQuery);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel5.Location = new System.Drawing.Point(3, 3);
             this.panel5.Name = "panel5";
@@ -1263,6 +1277,7 @@
 		private AlphaRap.AlarmChip btnAlarmFilterAll;
 		private AlphaRap.AlarmChip btnAlarmFilterWarn;
 		private AlphaRap.AlarmChip btnAlarmFilterAlarm;
+		private AlphaRap.AlarmChip btnAlarmQuery;
 		public Sunny.UI.UITabControl uiTabControl1;
 		private System.Windows.Forms.TabPage tabPage22;
 		public System.Windows.Forms.Panel plMainShow;

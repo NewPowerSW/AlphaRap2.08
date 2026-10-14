@@ -697,6 +697,7 @@
     <Compile Include="Classes\FFUCom.cs" />
     <Compile Include="Classes\LogManagement.cs" />
     <Compile Include="Classes\OperationLog.cs" />
+    <Compile Include="Classes\AlarmHistory.cs" />
     <Compile Include="Classes\MTF6000_1.cs" />
     <Compile Include="Classes\MTF6000_2.cs" />
     <Compile Include="Classes\NPSerialPort.cs" />
@@ -745,6 +746,12 @@
     </Compile>
     <Compile Include="MenuForm\AlarmSetting.Designer.cs">
       <DependentUpon>AlarmSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MenuForm\AlarmQueryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MenuForm\AlarmQueryForm.Designer.cs">
+      <DependentUpon>AlarmQueryForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MenuForm\DataForm.cs">
       <SubType>Form</SubType>
@@ -888,6 +895,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\UiKit.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\StatStrip.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\BarChart.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\FieldBox.cs">
