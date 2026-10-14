@@ -27,7 +27,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.rootLayout = new System.Windows.Forms.TableLayoutPanel();
             this.kpiLayout = new System.Windows.Forms.TableLayoutPanel();
             this.kpiInputCard = new AlphaRap.CardPanel();
@@ -52,8 +51,8 @@
             this.infoCard = new AlphaRap.CardPanel();
             this.infoLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblInfoTitle = new AlphaRap.UiLabel();
-            this.grdInfo = new System.Windows.Forms.DataGridView();
             this.btnInfoQuery = new AlphaRap.FlatButton();
+            this.grdInfo = new System.Windows.Forms.DataGridView();
             this.lblHourTitle = new AlphaRap.UiLabel();
             this.hourLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblHourInput = new AlphaRap.UiLabel();
@@ -65,7 +64,7 @@
             this.lblHourYield = new AlphaRap.UiLabel();
             this.tHourlyYield = new System.Windows.Forms.TextBox();
             this.connLayout = new System.Windows.Forms.FlowLayoutPanel();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.timer1 = new System.Windows.Forms.Timer();
             this.rootLayout.SuspendLayout();
             this.kpiLayout.SuspendLayout();
             this.kpiInputCard.SuspendLayout();
@@ -481,15 +480,22 @@
             // btnInfoQuery
             // 
             this.btnInfoQuery.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnInfoQuery.BackColor = System.Drawing.Color.Transparent;
             this.btnInfoQuery.CornerRadius = 8;
+            this.btnInfoQuery.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnInfoQuery.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnInfoQuery.Icon = null;
             this.btnInfoQuery.IconGap = 6;
             this.btnInfoQuery.IconSize = 14;
-            this.btnInfoQuery.Location = new System.Drawing.Point(606, 3);
+            this.btnInfoQuery.Location = new System.Drawing.Point(1008, 3);
             this.btnInfoQuery.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
             this.btnInfoQuery.Name = "btnInfoQuery";
+            this.btnInfoQuery.Selectable = false;
             this.btnInfoQuery.Size = new System.Drawing.Size(96, 26);
             this.btnInfoQuery.TabIndex = 1;
+            this.btnInfoQuery.TabStop = false;
             this.btnInfoQuery.Text = "查询";
+            this.btnInfoQuery.TextColorOverride = null;
             this.btnInfoQuery.Variant = AlphaRap.FlatButtonVariant.Surface;
             // 
             // grdInfo

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -14,6 +15,31 @@ namespace AlphaRap
     /// </summary>
     public static class UiTheme
     {
+        // ---------------- 设计期判断 ----------------
+
+        private static bool _forceDesignTime;
+
+        /// <summary>
+        /// 是否运行在 VS 设计器里。
+        /// 设计期**绝不能碰 MiddleLayer / 硬件 / 文件** —— MiddleLayer 的静态初始化会构造硬件对象，
+        /// 在设计器进程里会抛异常，导致窗体在设计器里直接打不开。
+        /// </summary>
+        public static bool IsDesignTime
+        {
+            get
+            {
+                if (_forceDesignTime) return true;
+                try { return LicenseManager.UsageMode == LicenseUsageMode.Designtime; }
+                catch { return false; }
+            }
+        }
+
+        /// <summary>仅供渲染探针：强制走设计期分支，好把"设计器里看到的样子"渲染出来核对。</summary>
+        public static void ForceDesignTimeForTest(bool on)
+        {
+            _forceDesignTime = on;
+        }
+
         // ---------------- DPI 缩放 ----------------
 
         /// <summary>

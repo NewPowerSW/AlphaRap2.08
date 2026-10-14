@@ -61,10 +61,66 @@ namespace AlphaRap
             SetupWindowChrome();
 
             ApplyLanguage();
+
+            // VS 设计器：填几行样本，让设计器里看到的和运行起来的 EXE 一致
+            // （不读报警日志、也不订阅 MiddleLayer）
+            if (UiTheme.IsDesignTime)
+            {
+                LoadDesignSample();
+                return;
+            }
+
             Reload();
 
             try { MiddleLayer.LanguageChanged += AlarmQueryForm_LanguageChanged; }
             catch { }
+        }
+
+        /// <summary>设计期样本：只为让 VS 设计器里看到的和运行起来的 EXE 一致。</summary>
+        private void LoadDesignSample()
+        {
+            try
+            {
+                _loading = true;
+                dateFrom.Value = new DateTime(2026, 9, 29);
+                dateTo.Value = new DateTime(2026, 10, 14);
+                _loading = false;
+
+                _rows = new List<AlarmRecord>();
+                _rows.Add(Sample("2026-09-30 10:33:11", "21376092", "Manual", "ERROR", "4014", "扫码枪1连接失败,请检查硬件", true));
+                _rows.Add(Sample("2026-09-30 10:33:33", "admin", "Manual", "ERROR", "4014", "扫码枪1连接失败,请检查硬件", true));
+                _rows.Add(Sample("2026-09-30 10:55:35", "21376092", "Manual", "ERROR", "4014", "扫码枪1连接失败,请检查硬件", true));
+                _rows.Add(Sample("2026-09-30 11:02:40", "admin", "Manual", "ERROR", "4014", "扫码枪1连接失败,请检查硬件", true));
+                _rows.Add(Sample("2026-09-30 13:42:52", "admin", "Auto", "OTHER", "1001", "气压不足，请检查气源", true));
+                _rows.Add(Sample("2026-09-30 13:45:21", "21376092", "Manual", "OTHER", "3014", "安全门被打开", true));
+
+                FillStats();
+                FillCharts();
+                FillGrid();
+
+                if (lblStatus != null)
+                    lblStatus.Text = "共 16 条 · 停机 16 条 · 读取 12 个日志文件";
+                if (lblDetail != null)
+                    lblDetail.Text = UiTheme.T("AlarmQueryForm", "detailStop", "停机明细", "Stop records", "Paradas");
+            }
+            catch { }
+        }
+
+        /// <summary>造一条设计期样本记录。</summary>
+        private static AlarmRecord Sample(string time, string user, string mode,
+            string type, string code, string content, bool stop)
+        {
+            AlarmRecord r = new AlarmRecord();
+            r.Time = DateTime.Parse(time);
+            r.User = user;
+            r.RecipeName = "AllModel";
+            r.RecipeId = "1";
+            r.Mode = mode;
+            r.Type = type;
+            r.Code = code;
+            r.Content = content;
+            r.Stop = stop;
+            return r;
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)

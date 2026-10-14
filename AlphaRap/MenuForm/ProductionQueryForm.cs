@@ -59,9 +59,57 @@ namespace AlphaRap
             _loading = false;
 
             ApplyLanguage();
+
+            // VS 设计器：填几行示例，画出来的列/行/统计和运行期一致；
+            // 不读文件、也不订阅 MiddleLayer（它的静态初始化会构造硬件对象，设计器里会抛异常）
+            if (UiTheme.IsDesignTime)
+            {
+                LoadDesignSample();
+                return;
+            }
+
             Reload();
 
             try { MiddleLayer.LanguageChanged += ProductionQueryForm_LanguageChanged; }
+            catch { }
+        }
+
+        /// <summary>设计期样本：只为让 VS 设计器里看到的和运行起来的 EXE 一致。</summary>
+        private void LoadDesignSample()
+        {
+            try
+            {
+                _loading = true;
+                dateFrom.Value = DateTime.Today.AddDays(-2);
+                dateTo.Value = DateTime.Today;
+                _loading = false;
+
+                string[] cols = { "PalletCode", "Driver", "Pressure", "PressureMax", "PressureMin", "Result" };
+                string[][] values =
+                {
+                    new[] { "PLT-0001", "A01", "0.42", "0.55", "0.31", "OK" },
+                    new[] { "PLT-0002", "A01", "0.44", "0.56", "0.33", "OK" },
+                    new[] { "PLT-0003", "A02", "0.39", "0.51", "0.28", "NG" },
+                    new[] { "PLT-0004", "A02", "0.45", "0.57", "0.34", "OK" },
+                    new[] { "PLT-0005", "A01", "0.41", "0.53", "0.30", "OK" },
+                    new[] { "PLT-0006", "A01", "0.43", "0.54", "0.32", "OK" }
+                };
+
+                DateTime day = DateTime.Today.AddDays(-2);
+                _rows = new List<ProductionRecord>();
+                for (int i = 0; i < values.Length; i++)
+                {
+                    ProductionRecord r = new ProductionRecord();
+                    r.Time = day.AddDays(i % 3).AddHours(8 + i).AddMinutes(7 * i);
+                    r.Columns = cols;
+                    r.Values = values[i];
+                    _rows.Add(r);
+                }
+
+                FillGrid();
+                FillStats();
+                FillStatus(3, _rows.Count);
+            }
             catch { }
         }
 

@@ -18,8 +18,17 @@ namespace AlphaRap
 			InitializeComponent();
             UiTheme.ApplyDpi(this);
 
-			// 「生产信息」表格：字段名由操作员增删，值由外部代码写入（见 SetInfoValue）
+			// 「生产信息」表格：表头与数据行全部由代码添加（见 SetInfoHeaders / AddInfoRow）
 			SetupInfoTable();
+
+            // VS 设计器：只把界面画出来，**不连设备、不读配置、不订阅事件**。
+            // MiddleLayer 的静态初始化会构造硬件对象（Atlas_MTF6000），设计器进程里会抛异常，
+            // 而构造函数末尾还要用 MiddleLayer.MainF —— 不提前返回的话设计器根本打不开这个窗体。
+            if (UiTheme.IsDesignTime)
+            {
+                ApplyPageStyle();
+                return;
+            }
 
 			// 底部设备状态条：按 Parameter 里的设备清单动态生成（增 / 删 / 改名 / 连接状态都会跟着变）
 			_devicesChangedHandler = delegate { RefreshDeviceStatusSafe(); };
@@ -69,6 +78,14 @@ namespace AlphaRap
                     btnInfoQuery.Click += delegate { MainForm.OpenProductionQuery(); };
                 }
 
+                // VS 设计器：画得和运行期一样（默认列 + 示例行），但不读配置、不落盘
+                if (UiTheme.IsDesignTime)
+                {
+                    BuildInfoColumns(DefaultInfoHeaders());
+                    ShowInfoRows(DesignSampleRows());
+                    return;
+                }
+
                 string[] cols = ProductionDataStore.GetColumns();
                 if (cols == null || cols.Length == 0)
                 {
@@ -87,6 +104,22 @@ namespace AlphaRap
             // ⚠ 用户给的参考表里写的是 Drver / Preasure，这里按正确拼写 Driver / Pressure
             return new string[] { "Time", "PalletCode", "Driver", "Pressure",
                                   "PressureMax", "PressureMin", "Result" };
+        }
+
+        /// <summary>
+        /// 设计期示例行 —— **只为让 VS 设计器里看到的和运行起来的 EXE 一致**，
+        /// 运行期不会用到（设计器里没有真实数据）。
+        /// </summary>
+        private static IList<string[]> DesignSampleRows()
+        {
+            return new List<string[]>
+            {
+                new[] { "10:01:02", "PLT-0001", "A01", "0.42", "0.55", "0.31", "OK" },
+                new[] { "10:01:36", "PLT-0002", "A01", "0.44", "0.56", "0.33", "OK" },
+                new[] { "10:02:10", "PLT-0003", "A02", "0.39", "0.51", "0.28", "NG" },
+                new[] { "10:02:47", "PLT-0004", "A02", "0.45", "0.57", "0.34", "OK" },
+                new[] { "10:03:21", "PLT-0005", "A01", "0.41", "0.53", "0.30", "OK" }
+            };
         }
 
         /// <summary>设置表头（列）—— 同时写入本地列定义，之后 AddInfoRow 按这套列落盘。</summary>

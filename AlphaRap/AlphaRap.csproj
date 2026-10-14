@@ -748,7 +748,9 @@
     <Compile Include="MenuForm\AlarmSetting.Designer.cs">
       <DependentUpon>AlarmSetting.cs</DependentUpon>
     </Compile>
-    <Compile Include="MenuForm\ProductionQueryForm.cs" />
+    <Compile Include="MenuForm\ProductionQueryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="MenuForm\AlarmQueryForm.cs">
       <SubType>Form</SubType>
     </Compile>
