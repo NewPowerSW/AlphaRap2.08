@@ -102,8 +102,8 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_2_FlowChartRun()
 		{
-			
-			return NPSDK.Flow_Chart.ResultType.IDLE;
+            NPSDK.Alarm.Show("3021");
+            return NPSDK.Flow_Chart.ResultType.IDLE;
 		}
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_3_FlowChartRun()
