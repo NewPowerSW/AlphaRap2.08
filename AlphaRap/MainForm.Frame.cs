@@ -494,6 +494,8 @@ namespace AlphaRap
             public Color AccentColor = AppIconColor.Nav;
             public Color TextColor = UiTheme.NavText;
             public Font Font = UiTheme.NavLabel;
+            /// <summary>禁用时画一个小锁角标：把"没有权限"从颜色通道挪到形状通道。</summary>
+            public UiTheme.LockBadgeMode LockBadge = UiTheme.LockBadgeMode.None;
         }
 
         private readonly Dictionary<PictureBox, NavPaintState> _navPaint = new Dictionary<PictureBox, NavPaintState>();
@@ -530,7 +532,7 @@ namespace AlphaRap
                 Color back = (b.BackColor.A == 255) ? b.BackColor : Color.Transparent;
                 Image ic = AppIcons.Get(st.Icon, UiTheme.Dpi(st.IconSize), st.IconColor, st.AccentColor);
                 UiTheme.PaintIconButton(e.Graphics, b.Size, ic, ButtonText(b), st.Font, st.TextColor,
-                    st.IconSize, st.IsNav && IsSelectedNav(b), back);
+                    st.IconSize, st.IsNav && IsSelectedNav(b), back, b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge);
             }
             catch { }
         }
@@ -543,6 +545,7 @@ namespace AlphaRap
             st.IconColor = !b.Enabled ? AppIconColor.Disabled : sel ? UiTheme.NavTextSelected : AppIconColor.Nav;
             st.AccentColor = st.IconColor;
             st.TextColor = !b.Enabled ? UiKit.DisabledText : sel ? UiTheme.NavTextSelected : UiTheme.NavText;
+            st.LockBadge = NavLockBadge;
             b.Invalidate();
         }
 
@@ -577,8 +580,15 @@ namespace AlphaRap
             st.IconColor = on ? iconColor : AppIconColor.Disabled;
             st.AccentColor = on ? accentColor : AppIconColor.Disabled;
             st.TextColor = !on ? UiKit.DisabledText : (iconColor == AppIconColor.Nav ? UiKit.TextPrimary : iconColor);
+            st.LockBadge = NavLockBadge;
             btn.Invalidate();
         }
+
+        /// <summary>
+        /// 禁用按钮的角标画法。**"没有权限"靠这个形状表达，不靠把字调浅** ——
+        /// 字一旦浅到能和可用态分辨，就又变成"看不清"。
+        /// </summary>
+        private const UiTheme.LockBadgeMode NavLockBadge = UiTheme.LockBadgeMode.Corner;
 
         /// <summary>给工具栏按钮挂接悬停事件（在 MainForm_Load 中调用一次）。</summary>
         private void HookToolbarHover()

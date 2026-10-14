@@ -245,10 +245,10 @@ namespace AlphaRap
         public static readonly Font Body = UiKit.Regular(10.5f);
         public static readonly Font BodyBold = UiKit.Bold(10.5f);
         public static readonly Font Section = UiKit.Bold(12f);
-        /// <summary>左侧导航标签字体。**不加粗** —— 11pt 的雅黑加粗在 96 DPI 下笔画会糊在一起。</summary>
-        public static readonly Font NavLabel = UiKit.Regular(11f);
+        /// <summary>左侧导航标签字体。**不加粗** —— 11pt 的雅黑加粗在 96 DPI 下笔画会糊在一起；去粗后补半档字号。</summary>
+        public static readonly Font NavLabel = UiKit.Regular(11.5f);
         /// <summary>底部工具栏标签字体（理由同 <see cref="NavLabel"/>）。</summary>
-        public static readonly Font ToolLabel = UiKit.Regular(11f);
+        public static readonly Font ToolLabel = UiKit.Regular(11.5f);
         public static readonly Font KpiValue = UiKit.Bold(26f);
         /// <summary>统计卡片数值字体。</summary>
         public static readonly Font StatValue = UiKit.Bold(20f);
@@ -279,6 +279,17 @@ namespace AlphaRap
 
         // ---------------- 图标 + 文字按钮（导航 / 工具栏）----------------
 
+        /// <summary>禁用角标的画法。</summary>
+        public enum LockBadgeMode
+        {
+            /// <summary>不画。</summary>
+            None,
+            /// <summary>画在工位右上角。</summary>
+            Corner,
+            /// <summary>画在文字左侧、与文字排成一行。</summary>
+            Inline
+        }
+
         /// <summary>
         /// 在控件表面上画"图标在上、文字在下"的按钮。
         ///
@@ -290,8 +301,12 @@ namespace AlphaRap
         /// <param name="iconSize">图标边长（96 DPI 设计值）。</param>
         /// <param name="backColor">按钮实际底色；透明按钮传 <see cref="Color.Transparent"/> 表示不铺底。</param>
         /// <param name="accentBar">在左侧画一条品牌色竖条（导航选中态）。</param>
+        /// <param name="lockBadge">
+        /// 禁用角标：**"没有权限"靠形状表达，而不是把字调浅** ——
+        /// 颜色一旦浅到能与可用态分辨，就又回到"看不清"；两个诉求挤在同一个通道上必然矛盾。
+        /// </param>
         public static void PaintIconButton(Graphics g, Size size, Image icon, string text, Font font,
-            Color textColor, int iconSize, bool accentBar, Color backColor)
+            Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge)
         {
             if (g == null || size.Width <= 0 || size.Height <= 0) return;
 
@@ -308,10 +323,37 @@ namespace AlphaRap
 
             if (textH > 0)
             {
-                Rectangle tr = new Rectangle(Dpi(2), top + icSize + gap, size.Width - Dpi(4), textH + Dpi(2));
-                TextRenderer.DrawText(g, text, font, tr, textColor,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
-                    TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+                if (lockBadge == LockBadgeMode.Inline)
+                {
+                    int badge = Dpi(11);
+                    int bgap = Dpi(3);
+                    Size ts = TextRenderer.MeasureText(text, font, new Size(int.MaxValue, int.MaxValue),
+                        TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+                    int x0 = (size.Width - (badge + bgap + ts.Width)) / 2;
+                    if (x0 < Dpi(2)) x0 = Dpi(2);
+                    Image lk = AppIcons.Get(AppIcon.Lock, badge, textColor);
+                    if (lk != null)
+                        g.DrawImage(lk, x0, top + icSize + gap + (textH - badge) / 2 + Dpi(1), badge, badge);
+                    Rectangle tr2 = new Rectangle(x0 + badge + bgap, top + icSize + gap,
+                        Math.Max(1, size.Width - x0 - badge - bgap - Dpi(2)), textH + Dpi(2));
+                    TextRenderer.DrawText(g, text, font, tr2, textColor,
+                        TextFormatFlags.Left | TextFormatFlags.Top |
+                        TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+                }
+                else
+                {
+                    Rectangle tr = new Rectangle(Dpi(2), top + icSize + gap, size.Width - Dpi(4), textH + Dpi(2));
+                    TextRenderer.DrawText(g, text, font, tr, textColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
+                        TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+                }
+            }
+
+            if (lockBadge == LockBadgeMode.Corner)
+            {
+                int badge = Dpi(12);
+                Image lk = AppIcons.Get(AppIcon.Lock, badge, textColor);
+                if (lk != null) g.DrawImage(lk, size.Width - badge - Dpi(4), Dpi(3), badge, badge);
             }
 
             if (accentBar)
