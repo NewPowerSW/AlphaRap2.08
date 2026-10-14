@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -38,10 +39,24 @@ namespace AlphaRap
             // 选中项变化 → 重新计算"删除 / 使用"是否可点
             listView1.SelectedIndexChanged += listView1_SelectedIndexChanged;
 
-            ReadAllProductData();
-            RefreshCurrentModelText();   // 当前配方名
+            // 设计期不读配方目录：设计器里 SysPara 还没初始化（RecipeDataDirectory 为 null），读盘会抛异常
+            if (!InDesigner)
+            {
+                ReadAllProductData();
+                RefreshCurrentModelText();   // 当前配方名
+            }
 
             RefreshActionState();
+        }
+
+        /// <summary>是否运行在 VS 设计器中（设计期不读配方目录、不碰 SysPara）。</summary>
+        private static bool InDesigner
+        {
+            get
+            {
+                try { return LicenseManager.UsageMode == LicenseUsageMode.Designtime; }
+                catch { return false; }
+            }
         }
 
         // ==================== 外观 ====================

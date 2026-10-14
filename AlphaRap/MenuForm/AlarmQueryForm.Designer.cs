@@ -52,8 +52,6 @@
             this.flowQuery.SuspendLayout();
             this.tblCharts.SuspendLayout();
             this.panelResult.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dtpFrom)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dtpTo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.grdAlarm)).BeginInit();
             this.SuspendLayout();
             // 
@@ -392,8 +390,6 @@
             this.flowQuery.PerformLayout();
             this.tblCharts.ResumeLayout(false);
             this.panelResult.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dtpFrom)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dtpTo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.grdAlarm)).EndInit();
             this.ResumeLayout(false);
         }
