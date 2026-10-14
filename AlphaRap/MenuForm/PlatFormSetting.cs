@@ -18,7 +18,6 @@ namespace AlphaRap
     {
         private const int ToolRowHeight = 54;      // 96 DPI 设计值（运行期新增控件由 ApplyDpi 的钩子自动放大）
         private const int StatusRowHeight = 26;
-        private const int LimitCardHeight = 66;
 
         private DataGridView grdTray;
         private FieldBox boxNewName;
@@ -78,10 +77,7 @@ namespace AlphaRap
             try
             {
                 pnlBody.Controls.Clear();
-                pnlBody.Controls.Add(BuildTableCard());      // Dock=Fill，先加
-
-                Control limit = BuildLimitCard();            // Dock=Bottom，后加 ⇒ 先占底边
-                if (limit != null) pnlBody.Controls.Add(limit);
+                pnlBody.Controls.Add(BuildTableCard());
             }
             catch { }
             finally
@@ -172,38 +168,6 @@ namespace AlphaRap
             return card;
         }
 
-        /// <summary>3D 高度限制卡（配方里没有这两列时不显示）。</summary>
-        private Control BuildLimitCard()
-        {
-            double up, down;
-            if (!TrayConfig.Get3DLimit(out up, out down)) return null;
-
-            CardPanel card = new CardPanel();
-            card.Dock = DockStyle.Bottom;
-            card.Height = LimitCardHeight;
-            card.Margin = new Padding(0, 12, 0, 0);
-            card.Padding = new Padding(16, 0, 16, 0);
-
-            FlowLayoutPanel flow = new FlowLayoutPanel();
-            flow.Dock = DockStyle.Fill;
-            flow.BackColor = UiKit.Surface;
-            flow.FlowDirection = FlowDirection.LeftToRight;
-            flow.WrapContents = false;
-            flow.Padding = new Padding(0, 16, 0, 0);
-
-            UiLabel title = MakeLabel("lblLimit3D", T("limit3d", "3D 高度限制", "3D limit", "Limite 3D"), 120,
-                ContentAlignment.MiddleLeft);
-            title.Margin = new Padding(0, 6, 16, 0);
-            flow.Controls.Add(title);
-
-            flow.Controls.Add(MakeBoundLabel("lbl3DUp", T("limitUp", "上限", "Up limit", "Limite sup.")));
-            flow.Controls.Add(MakeBoundBox("box3DUp", TrayConfig.Col3DUp));
-            flow.Controls.Add(MakeBoundLabel("lbl3DDown", T("limitDown", "下限", "Down limit", "Limite inf.")));
-            flow.Controls.Add(MakeBoundBox("box3DDown", TrayConfig.Col3DDown));
-
-            card.Controls.Add(flow);
-            return card;
-        }
 
         // ---------------------------------------------------------------- 表格
 
@@ -409,27 +373,7 @@ namespace AlphaRap
             return c;
         }
 
-        private static UiLabel MakeBoundLabel(string name, string text)
-        {
-            UiLabel l = MakeLabel(name, text, 56, ContentAlignment.MiddleLeft);
-            l.Margin = new Padding(0, 0, 6, 0);
-            return l;
-        }
 
-        private FieldBox MakeBoundBox(string name, string column)
-        {
-            FieldBox box = new FieldBox();
-            box.Name = name;
-            box.Size = new Size(150, 34);
-            box.Margin = new Padding(0, 0, 20, 0);
-            try
-            {
-                box.DataBindings.Add(new Binding("Value", RecipeData,
-                    TrayConfig.TableName + "." + column, true));
-            }
-            catch { }
-            return box;
-        }
 
         // ---------------------------------------------------------------- 原有点击/保存逻辑
 
