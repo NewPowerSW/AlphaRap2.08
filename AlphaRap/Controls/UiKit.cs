@@ -19,7 +19,7 @@ namespace AlphaRap
 
         // ---------------- 面 / 线 / 字 ----------------
 
-        public static readonly Color PageBg = Color.FromArgb(244, 248, 249);
+        public static readonly Color PageBg = Color.FromArgb(238, 243, 248);
         public static readonly Color Surface = Color.White;
         public static readonly Color Line = Color.FromArgb(223, 231, 240);
         public static readonly Color LineStrong = Color.FromArgb(203, 216, 230);
@@ -218,13 +218,25 @@ namespace AlphaRap
         }
     }
 
-    /// <summary>圆角卡片面板：自绘白底 + 1px 浅描边 + 抗锯齿圆角。</summary>
+    /// <summary>圆角卡片面板：自绘白底 + 1px 浅描边 + 抗锯齿圆角 + 底部投影。</summary>
     public class CardPanel : Panel
     {
         public int CornerRadius { get; set; }
         public Color BorderColor { get; set; }
         public bool ShowBorder { get; set; }
         public Color FillColor { get; set; }
+
+        /// <summary>
+        /// 底部投影：卡片下沉 <see cref="ShadowDepth"/> 像素，露出下缘形成"浮起来"的层次。
+        /// 卡片因此比布局格子矮一点（视觉上仍是整格），换来的是卡片不再"贴"在页面底色上。
+        /// </summary>
+        public bool ShowShadow { get; set; }
+
+        /// <summary>投影颜色（半透明，叠在页面底色上）。</summary>
+        public Color ShadowColor { get; set; }
+
+        /// <summary>投影露出高度（96 DPI 设计值）。</summary>
+        public const int ShadowDepth = 3;
 
         public CardPanel()
         {
@@ -233,7 +245,9 @@ namespace AlphaRap
             CornerRadius = 10;
             BorderColor = UiKit.Line;
             ShowBorder = true;
+            ShowShadow = true;
             FillColor = UiKit.Surface;
+            ShadowColor = Color.FromArgb(58, 176, 196, 218);
             BackColor = UiKit.Surface;
         }
 
@@ -243,7 +257,18 @@ namespace AlphaRap
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.Clear(UiKit.ResolveParentBack(this));
 
-            Rectangle rect = new Rectangle(0, 0, Width - 1, Height - 1);
+            int depth = (ShowShadow && Height > UiTheme.Dpi(ShadowDepth * 4)) ? UiTheme.Dpi(ShadowDepth) : 0;
+            Rectangle rect = new Rectangle(0, 0, Width - 1, Height - 1 - depth);
+
+            if (depth > 0)
+            {
+                Rectangle sh = rect;
+                sh.Offset(0, depth);
+                using (GraphicsPath sp = UiKit.RoundRect(sh, UiTheme.Dpi(CornerRadius)))
+                using (SolidBrush sb = new SolidBrush(ShadowColor))
+                    g.FillPath(sb, sp);
+            }
+
             using (GraphicsPath path = UiKit.RoundRect(rect, UiTheme.Dpi(CornerRadius)))
             {
                 using (SolidBrush b = new SolidBrush(FillColor)) g.FillPath(b, path);

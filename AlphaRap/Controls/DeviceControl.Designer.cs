@@ -178,7 +178,7 @@
             // 
             // panelMid
             // 
-            this.panelMid.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
+            this.panelMid.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(248)))));
             this.panelMid.Controls.Add(this.lblState);
             this.panelMid.Controls.Add(this.btnRecv);
             this.panelMid.Controls.Add(this.btnClose);
@@ -371,7 +371,7 @@
             // DeviceControl
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(248)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.txtRecv);
             this.Controls.Add(this.panelParam);

@@ -105,7 +105,7 @@
             // 
             // rootTable
             // 
-            this.rootTable.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
+            this.rootTable.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(248)))));
             this.rootTable.ColumnCount = 1;
             this.rootTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.rootTable.Controls.Add(this.pnlHeader, 0, 0);
@@ -809,7 +809,7 @@
             // ProductManagerForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(248)))));
             this.ClientSize = new System.Drawing.Size(1360, 780);
             this.Controls.Add(this.rootTable);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;

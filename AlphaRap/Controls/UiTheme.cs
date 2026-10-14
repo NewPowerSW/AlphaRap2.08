@@ -207,8 +207,11 @@ namespace AlphaRap
 
         // ---------------- 颜色 ----------------
 
-        /// <summary>主框架内容区底色。</summary>
-        public static readonly Color FrameBg = Color.FromArgb(236, 241, 247);
+        /// <summary>
+        /// 主框架内容区底色（外框 / 页签条）。**必须比 <see cref="UiKit.PageBg"/> 深一档**，
+        /// 否则外框与内容区糊成一片；三级层次 = FrameBg &lt; PageBg &lt; Surface(卡片白)。
+        /// </summary>
+        public static readonly Color FrameBg = Color.FromArgb(231, 237, 244);
 
         /// <summary>左侧导航底色。</summary>
         public static readonly Color NavBg = Color.White;
