@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
@@ -47,8 +48,23 @@ namespace AlphaRap
             UiKit.StyleGrid(dgvUserList);
             UiKit.StyleGrid(dgvRightsConfig);
 
-            ReadAllUserData();
-            ReadPermission();
+            // 设计期不访问数据库：VS 设计器会执行构造函数，连着库失败会让设计面加载异常，
+            // 进而使 VS 回写 Designer 时丢掉控件的父子挂载（Controls.Add），表格变成孤儿控件。
+            if (!InDesigner)
+            {
+                ReadAllUserData();
+                ReadPermission();
+            }
+        }
+
+        /// <summary>是否运行在 VS 设计器中（设计期不访问数据库）。</summary>
+        private static bool InDesigner
+        {
+            get
+            {
+                try { return LicenseManager.UsageMode == LicenseUsageMode.Designtime; }
+                catch { return false; }
+            }
         }
 
         /// <summary>
@@ -129,10 +145,14 @@ namespace AlphaRap
                 if (Successful)
                 {
                     dgvUserList.DataSource = readData;
-                    dgvUserList.Columns[0].Width = 250;
-                    dgvUserList.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                    dgvUserList.Columns[2].Width = 0;
-                    dgvUserList.Columns[2].HeaderText = "";
+                    // 列由 DataSource 自动生成；没挂进窗体时不会生成列，先确认列数再按列设样式
+                    if (dgvUserList.Columns.Count >= 3)
+                    {
+                        dgvUserList.Columns[0].Width = 250;
+                        dgvUserList.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                        dgvUserList.Columns[2].Width = 0;
+                        dgvUserList.Columns[2].HeaderText = "";
+                    }
 
                     for (int i = 0; i < readData.Rows.Count; i++)
                     {
@@ -312,32 +332,33 @@ namespace AlphaRap
 
         // ==================== 权限设置 ====================
 
+        /// <summary>读取权限表并铺到表格上；没有数据、或表格没能生成列时返回 false。</summary>
         private bool ReadPermission()
         {
             string strSQL = "select * from PermissionSetup";
             bool Successful = false;
             DataTable readData = DataBase.ReadData_Adapter(SysPara.MdbPath, strSQL, ref Successful);
-            if (Successful)
-            {
-                if (readData.Rows.Count > 0)
-                {
-                    dgvRightsConfig.DataSource = readData;
-                    dgvRightsConfig.ClearSelection();
-                    dgvRightsConfig.Columns[0].ReadOnly = true;
-                    for (int i = 0; i < readData.Columns.Count; i++)
-                    {
-                        dgvRightsConfig.Columns[i].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                        dgvRightsConfig.Columns[i].Width = 90;
-                        if (i == 0)
-                        {
-                            dgvRightsConfig.Columns[i].Width = 160;
-                        }
-                    }
+            if (!Successful || readData == null || readData.Rows.Count == 0) return false;
 
-                    return true;
+            // 列由 DataSource 自动生成，以下一律按表格自己的列数遍历：
+            // 控件没挂进窗体（无 BindingContext）时不会生成列，拿 readData.Columns.Count 当下标上限就会越界。
+            dgvRightsConfig.AutoGenerateColumns = true;
+            dgvRightsConfig.DataSource = readData;
+            if (dgvRightsConfig.Columns.Count == 0) return false;
+
+            dgvRightsConfig.ClearSelection();
+            dgvRightsConfig.Columns[0].ReadOnly = true;
+            for (int i = 0; i < dgvRightsConfig.Columns.Count; i++)
+            {
+                dgvRightsConfig.Columns[i].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                dgvRightsConfig.Columns[i].Width = 90;
+                if (i == 0)
+                {
+                    dgvRightsConfig.Columns[i].Width = 160;
                 }
             }
-            return false;
+
+            return true;
         }
 
         public bool WritePermission()
