@@ -51,15 +51,8 @@
             this.lblChartTitle = new AlphaRap.UiLabel();
             this.infoCard = new AlphaRap.CardPanel();
             this.infoLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.grdInfo = new System.Windows.Forms.DataGridView();
             this.lblInfoTitle = new AlphaRap.UiLabel();
-            this.lblBarcode1 = new AlphaRap.UiLabel();
-            this.txtBarcode = new System.Windows.Forms.TextBox();
-            this.lblBarcode2 = new AlphaRap.UiLabel();
-            this.txtBarcode2 = new System.Windows.Forms.TextBox();
-            this.lblBarcode3 = new AlphaRap.UiLabel();
-            this.txtBarcode3 = new System.Windows.Forms.TextBox();
-            this.lblBarcode4 = new AlphaRap.UiLabel();
-            this.txtBarcode4 = new System.Windows.Forms.TextBox();
             this.lblHourTitle = new AlphaRap.UiLabel();
             this.hourLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblHourInput = new AlphaRap.UiLabel();
@@ -85,6 +78,7 @@
             this.infoLayout.SuspendLayout();
             this.hourLayout.SuspendLayout();
             this.connLayout.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdInfo)).BeginInit();
             this.SuspendLayout();
             // 
             // rootLayout
@@ -437,31 +431,20 @@
             this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.infoLayout.Controls.Add(this.lblInfoTitle, 0, 0);
-            this.infoLayout.Controls.Add(this.lblBarcode1, 0, 1);
-            this.infoLayout.Controls.Add(this.txtBarcode, 1, 1);
-            this.infoLayout.Controls.Add(this.lblBarcode2, 0, 2);
-            this.infoLayout.Controls.Add(this.txtBarcode2, 1, 2);
-            this.infoLayout.Controls.Add(this.lblBarcode3, 0, 3);
-            this.infoLayout.Controls.Add(this.txtBarcode3, 1, 3);
-            this.infoLayout.Controls.Add(this.lblBarcode4, 0, 4);
-            this.infoLayout.Controls.Add(this.txtBarcode4, 1, 4);
-            this.infoLayout.Controls.Add(this.lblHourTitle, 0, 6);
-            this.infoLayout.Controls.Add(this.hourLayout, 0, 7);
-            this.infoLayout.Controls.Add(this.connLayout, 0, 9);
+            this.infoLayout.Controls.Add(this.grdInfo, 0, 1);
+            this.infoLayout.Controls.Add(this.lblHourTitle, 0, 3);
+            this.infoLayout.Controls.Add(this.hourLayout, 0, 4);
+            this.infoLayout.Controls.Add(this.connLayout, 0, 5);
             this.infoLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.infoLayout.Location = new System.Drawing.Point(16, 12);
             this.infoLayout.Margin = new System.Windows.Forms.Padding(0);
             this.infoLayout.Name = "infoLayout";
-            this.infoLayout.RowCount = 10;
+            this.infoLayout.RowCount = 6;
             this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 14F));
             this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 56F));
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.infoLayout.Size = new System.Drawing.Size(713, 657);
             this.infoLayout.TabIndex = 0;
@@ -469,7 +452,6 @@
             // lblInfoTitle
             // 
             this.lblInfoTitle.AutoEllipsis = true;
-            this.infoLayout.SetColumnSpan(this.lblInfoTitle, 2);
             this.lblInfoTitle.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblInfoTitle.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblInfoTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
@@ -481,109 +463,19 @@
             this.lblInfoTitle.Text = "生产信息";
             this.lblInfoTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // lblBarcode1
+            // grdInfo
             // 
-            this.lblBarcode1.AutoEllipsis = true;
-            this.lblBarcode1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblBarcode1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblBarcode1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblBarcode1.Location = new System.Drawing.Point(0, 32);
-            this.lblBarcode1.Margin = new System.Windows.Forms.Padding(0);
-            this.lblBarcode1.Name = "lblBarcode1";
-            this.lblBarcode1.Size = new System.Drawing.Size(100, 38);
-            this.lblBarcode1.TabIndex = 1;
-            this.lblBarcode1.Text = "条码 1";
-            this.lblBarcode1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtBarcode
-            // 
-            this.txtBarcode.BackColor = System.Drawing.Color.White;
-            this.txtBarcode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtBarcode.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBarcode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.txtBarcode.Location = new System.Drawing.Point(100, 37);
-            this.txtBarcode.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
-            this.txtBarcode.Name = "txtBarcode";
-            this.txtBarcode.Size = new System.Drawing.Size(613, 44);
-            this.txtBarcode.TabIndex = 2;
-            // 
-            // lblBarcode2
-            // 
-            this.lblBarcode2.AutoEllipsis = true;
-            this.lblBarcode2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblBarcode2.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblBarcode2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblBarcode2.Location = new System.Drawing.Point(0, 70);
-            this.lblBarcode2.Margin = new System.Windows.Forms.Padding(0);
-            this.lblBarcode2.Name = "lblBarcode2";
-            this.lblBarcode2.Size = new System.Drawing.Size(100, 38);
-            this.lblBarcode2.TabIndex = 3;
-            this.lblBarcode2.Text = "条码 2";
-            this.lblBarcode2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtBarcode2
-            // 
-            this.txtBarcode2.BackColor = System.Drawing.Color.White;
-            this.txtBarcode2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtBarcode2.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBarcode2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.txtBarcode2.Location = new System.Drawing.Point(100, 75);
-            this.txtBarcode2.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
-            this.txtBarcode2.Name = "txtBarcode2";
-            this.txtBarcode2.Size = new System.Drawing.Size(613, 44);
-            this.txtBarcode2.TabIndex = 4;
-            // 
-            // lblBarcode3
-            // 
-            this.lblBarcode3.AutoEllipsis = true;
-            this.lblBarcode3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblBarcode3.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblBarcode3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblBarcode3.Location = new System.Drawing.Point(0, 108);
-            this.lblBarcode3.Margin = new System.Windows.Forms.Padding(0);
-            this.lblBarcode3.Name = "lblBarcode3";
-            this.lblBarcode3.Size = new System.Drawing.Size(100, 38);
-            this.lblBarcode3.TabIndex = 5;
-            this.lblBarcode3.Text = "条码 3";
-            this.lblBarcode3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtBarcode3
-            // 
-            this.txtBarcode3.BackColor = System.Drawing.Color.White;
-            this.txtBarcode3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtBarcode3.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBarcode3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.txtBarcode3.Location = new System.Drawing.Point(100, 113);
-            this.txtBarcode3.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
-            this.txtBarcode3.Name = "txtBarcode3";
-            this.txtBarcode3.Size = new System.Drawing.Size(613, 44);
-            this.txtBarcode3.TabIndex = 6;
-            // 
-            // lblBarcode4
-            // 
-            this.lblBarcode4.AutoEllipsis = true;
-            this.lblBarcode4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblBarcode4.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblBarcode4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblBarcode4.Location = new System.Drawing.Point(0, 146);
-            this.lblBarcode4.Margin = new System.Windows.Forms.Padding(0);
-            this.lblBarcode4.Name = "lblBarcode4";
-            this.lblBarcode4.Size = new System.Drawing.Size(100, 38);
-            this.lblBarcode4.TabIndex = 7;
-            this.lblBarcode4.Text = "条码 4";
-            this.lblBarcode4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtBarcode4
-            // 
-            this.txtBarcode4.BackColor = System.Drawing.Color.White;
-            this.txtBarcode4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtBarcode4.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBarcode4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.txtBarcode4.Location = new System.Drawing.Point(100, 151);
-            this.txtBarcode4.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
-            this.txtBarcode4.Name = "txtBarcode4";
-            this.txtBarcode4.Size = new System.Drawing.Size(613, 44);
-            this.txtBarcode4.TabIndex = 8;
+            this.grdInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.grdInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grdInfo.Location = new System.Drawing.Point(0, 32);
+            this.grdInfo.Margin = new System.Windows.Forms.Padding(0);
+            this.grdInfo.Name = "grdInfo";
+            this.infoLayout.SetColumnSpan(this.lblInfoTitle, 2);
+            this.infoLayout.SetColumnSpan(this.grdInfo, 2);
+            this.grdInfo.RowHeadersVisible = false;
+            this.grdInfo.Size = new System.Drawing.Size(713, 523);
+            this.grdInfo.TabIndex = 2;
+
             // 
             // lblHourTitle
             // 
@@ -792,6 +684,7 @@
             this.hourLayout.PerformLayout();
             this.connLayout.ResumeLayout(false);
             this.connLayout.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdInfo)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -821,15 +714,8 @@
         private AlphaRap.UiLabel lblChartTitle;
         private AlphaRap.CardPanel infoCard;
         private System.Windows.Forms.TableLayoutPanel infoLayout;
+        private System.Windows.Forms.DataGridView grdInfo;
         private AlphaRap.UiLabel lblInfoTitle;
-        private AlphaRap.UiLabel lblBarcode1;
-        public System.Windows.Forms.TextBox txtBarcode;
-        private AlphaRap.UiLabel lblBarcode2;
-        public System.Windows.Forms.TextBox txtBarcode2;
-        private AlphaRap.UiLabel lblBarcode3;
-        public System.Windows.Forms.TextBox txtBarcode3;
-        private AlphaRap.UiLabel lblBarcode4;
-        public System.Windows.Forms.TextBox txtBarcode4;
         private AlphaRap.UiLabel lblHourTitle;
         private System.Windows.Forms.TableLayoutPanel hourLayout;
         private AlphaRap.UiLabel lblHourInput;

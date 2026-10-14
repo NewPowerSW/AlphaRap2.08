@@ -18,6 +18,9 @@ namespace AlphaRap
 			InitializeComponent();
             UiTheme.ApplyDpi(this);
 
+			// 「生产信息」表格：字段名由操作员增删，值由外部代码写入（见 SetInfoValue）
+			SetupInfoTable();
+
 			// 底部设备状态条：按 Parameter 里的设备清单动态生成（增 / 删 / 改名 / 连接状态都会跟着变）
 			_devicesChangedHandler = delegate { RefreshDeviceStatusSafe(); };
 			DeviceControl.DevicesChanged += _devicesChangedHandler;
@@ -31,6 +34,119 @@ namespace AlphaRap
 
 			MiddleLayer.MainF.tabPage10.Parent = bPlat ? null : MiddleLayer.MainF.uiTabControl1;
 		}
+
+        // ---------------- 「生产信息」表格 ----------------
+        // 自动设备：**表头（列）与数据行全部由代码添加**，界面不提供手工编辑（值只读）。
+        //   SetInfoHeaders(new[] { "Time", "PalletCode", "Result" });
+        //   AddInfoRow(new[] { "10:01:02", "PLT-0001", "OK" });
+        // 未自定义表头时用 DefaultInfoHeaders() 的默认列。
+        // 列名是数据（与设备名 / 配方名同理），**不走语言包**。
+
+        /// <summary>建表：套用扁平表格样式并装默认表头。</summary>
+        private void SetupInfoTable()
+        {
+            if (grdInfo == null) return;
+            try
+            {
+                UiKit.StyleGrid(grdInfo);
+                grdInfo.ReadOnly = true;
+                grdInfo.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                grdInfo.MultiSelect = false;
+                grdInfo.AllowUserToAddRows = false;
+                grdInfo.AllowUserToDeleteRows = false;
+                grdInfo.AllowUserToResizeRows = false;
+                grdInfo.RowHeadersVisible = false;
+                // 卡片只有 36% 宽：表头内边距收窄，长列名（如 PressureMax）才放得下
+                grdInfo.ColumnHeadersDefaultCellStyle.Padding = UiTheme.Dpi(new Padding(4, 0, 4, 0));
+                // 列宽等分卡片宽度：永远不会出横向滚动条；列多时表头靠 tooltip 看全
+                grdInfo.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                BuildInfoColumns(DefaultInfoHeaders());
+                grdInfo.Rows.Clear();
+            }
+            catch { }
+        }
+
+        /// <summary>默认表头。**换列只改这一处**。</summary>
+        private static string[] DefaultInfoHeaders()
+        {
+            // 卡片只有 36% 宽（约 435px）：列多了每列只剩几十像素。列数由业务定，
+            // 这里只给一个开箱可用的占位；真要 6~7 列建议同时把 infoCard 加宽。
+            return new string[] { "Time", "PalletCode", "Result" };
+        }
+
+        /// <summary>设置表头（列）与数据行 —— 表头与行全部由代码给出。</summary>
+        /// <param name="headers">列名；null 或空表示不改表头。</param>
+        /// <param name="rows">每行的值（按列序，缺的补空、多的忽略）；null 表示只清空数据行。</param>
+        public void SetInfoTable(IList<string> headers, IList<string[]> rows)
+        {
+            if (headers != null && headers.Count > 0) BuildInfoColumns(headers);
+            grdInfo.Rows.Clear();
+            if (rows == null) return;
+            for (int i = 0; i < rows.Count; i++) AddInfoRowCore(rows[i]);
+        }
+
+        /// <summary>只设表头（会清空数据行）。</summary>
+        public void SetInfoHeaders(IList<string> headers)
+        {
+            if (headers == null || headers.Count == 0) return;
+            BuildInfoColumns(headers);
+            grdInfo.Rows.Clear();
+        }
+
+        /// <summary>追加一行数据（列数不足补空、超出忽略）。</summary>
+        public void AddInfoRow(params string[] values)
+        {
+            AddInfoRowCore(values);
+        }
+
+        private void AddInfoRowCore(string[] values)
+        {
+            if (grdInfo == null || grdInfo.Columns.Count == 0) return;
+            object[] cells = new object[grdInfo.Columns.Count];
+            for (int i = 0; i < cells.Length; i++)
+                cells[i] = (values != null && i < values.Length) ? (object)(values[i] ?? "") : "";
+            grdInfo.Rows.Add(cells);
+        }
+
+        /// <summary>清空数据行（保留表头）。</summary>
+        public void ClearInfoRows()
+        {
+            if (grdInfo == null) return;
+            try
+            {
+                grdInfo.Rows.Clear();
+                grdInfo.ClearSelection();
+            }
+            catch { }
+        }
+
+        /// <summary>当前列数。</summary>
+        public int InfoColumnCount { get { return grdInfo == null ? 0 : grdInfo.Columns.Count; } }
+
+        /// <summary>当前数据行数。</summary>
+        public int InfoRowCount { get { return grdInfo == null ? 0 : grdInfo.Rows.Count; } }
+
+        /// <summary>重建列（全部只读）。定宽 110，最后一列吃掉剩余宽度以免右侧留白。</summary>
+        private void BuildInfoColumns(IList<string> headers)
+        {
+            if (grdInfo == null || headers == null || headers.Count == 0) return;
+            try
+            {
+                grdInfo.Columns.Clear();
+                for (int i = 0; i < headers.Count; i++)
+                {
+                    DataGridViewTextBoxColumn c = new DataGridViewTextBoxColumn();
+                    c.Name = "infoCol" + i;
+                    c.HeaderText = headers[i] ?? "";
+                    c.HeaderCell.ToolTipText = c.HeaderText;   // 列特别多时表头可能仍被截断，悬停可看全
+                    c.ReadOnly = true;
+                    c.SortMode = DataGridViewColumnSortMode.NotSortable;
+                    c.MinimumWidth = UiTheme.Dpi(52);
+                    grdInfo.Columns.Add(c);
+                }
+            }
+            catch { }
+        }
 
 		/// <summary>把控件裁剪为圆角胶囊（状态指示块用）。</summary>
 		private static void ApplyPillRegion(Control c, int radius)

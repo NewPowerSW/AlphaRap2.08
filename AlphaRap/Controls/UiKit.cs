@@ -178,6 +178,7 @@ namespace AlphaRap
             catch { }
         }
 
+
         /// <summary>在指定 Graphics 上画一条水平分隔线。</summary>
         public static void HLine(Graphics g, int x1, int x2, int y, Color color)
         {

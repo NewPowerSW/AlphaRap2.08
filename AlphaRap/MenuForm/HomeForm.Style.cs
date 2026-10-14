@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 
 namespace AlphaRap
@@ -27,11 +27,6 @@ namespace AlphaRap
             hourlyChart.Invalidate();
 
             lblInfoTitle.Text = UiTheme.T("HomeForm", "info_Title", "生产信息", "Production info", "Información de producción");
-            string barcode = UiTheme.T("HomeForm", "info_Barcode", "条码", "Barcode", "Código");
-            lblBarcode1.Text = barcode + " 1";
-            lblBarcode2.Text = barcode + " 2";
-            lblBarcode3.Text = barcode + " 3";
-            lblBarcode4.Text = barcode + " 4";
 
             lblHourTitle.Text = UiTheme.T("HomeForm", "hour_Title", "本小时", "This hour", "Esta hora");
             lblHourInput.Text = UiTheme.T("HomeForm", "hour_Input", "投入", "Input", "Entrada");
