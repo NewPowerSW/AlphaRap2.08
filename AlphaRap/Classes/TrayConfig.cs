@@ -77,6 +77,18 @@ namespace AlphaRap
         }
     }
 
+    /// <summary>表格里的一行（已取值）：行标识 + 显示名 + 参数。</summary>
+    public sealed class TrayTableRow
+    {
+        /// <summary>行标识，与界面上那一行对应（Tray / UnloadTray2 / 动态添加的 FooTray）。</summary>
+        public string Key;
+        public string TitleZh;
+        public string TitleEn;
+        public string TitleEs;
+        /// <summary>行数 / 列数 / 行距 / 列距。</summary>
+        public TrayLayout Layout;
+    }
+
     /// <summary>
     /// 托盘参数的读取入口 + 表格行的发现 + "快速添加 / 删除托盘"。
     ///
@@ -140,6 +152,51 @@ namespace AlphaRap
                 case TrayKind.NG: return Get("NGTray", 1);
                 default: return new TrayLayout();
             }
+        }
+
+        /// <summary>
+        /// 一条语句读整张托盘表（含值）：界面上有几行就返回几行，**运行时新加的托盘也在里面**。
+        /// 只要某一组参数就用 <see cref="Get(string)"/>。
+        /// </summary>
+        public static List<TrayTableRow> GetTable()
+        {
+            List<TrayTableRow> list = new List<TrayTableRow>();
+            List<TrayRowSpec> specs = BuildRows();
+            for (int i = 0; i < specs.Count; i++)
+            {
+                TrayTableRow r = new TrayTableRow();
+                r.Key = specs[i].Key;
+                r.TitleZh = specs[i].TitleZh;
+                r.TitleEn = specs[i].TitleEn;
+                r.TitleEs = specs[i].TitleEs;
+                r.Layout = Get(specs[i].BaseKey, specs[i].Index);
+                list.Add(r);
+            }
+            return list;
+        }
+
+        /// <summary>按行标识读一组参数（"Tray" / "UnloadTray2" / 动态添加的 "FooTray"）；没有这一行返回空。</summary>
+        public static TrayLayout Get(string key)
+        {
+            TrayLayout l;
+            return TryGet(key, out l) ? l : new TrayLayout();
+        }
+
+        /// <summary>按行标识读一组参数；行不存在返回 false。</summary>
+        public static bool TryGet(string key, out TrayLayout layout)
+        {
+            layout = new TrayLayout();
+            if (string.IsNullOrEmpty(key)) return false;
+
+            key = key.Trim();
+            List<TrayRowSpec> specs = BuildRows();
+            for (int i = 0; i < specs.Count; i++)
+            {
+                if (!string.Equals(specs[i].Key, key, StringComparison.OrdinalIgnoreCase)) continue;
+                layout = Get(specs[i].BaseKey, specs[i].Index);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>3D 高度上/下限；列不存在时返回 false 并给 0。</summary>
