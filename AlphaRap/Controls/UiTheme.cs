@@ -245,10 +245,10 @@ namespace AlphaRap
         public static readonly Font Body = UiKit.Regular(10.5f);
         public static readonly Font BodyBold = UiKit.Bold(10.5f);
         public static readonly Font Section = UiKit.Bold(12f);
-        /// <summary>左侧导航标签字体。</summary>
-        public static readonly Font NavLabel = UiKit.Bold(11f);
-        /// <summary>底部工具栏标签字体。</summary>
-        public static readonly Font ToolLabel = UiKit.Bold(11f);
+        /// <summary>左侧导航标签字体。**不加粗** —— 11pt 的雅黑加粗在 96 DPI 下笔画会糊在一起。</summary>
+        public static readonly Font NavLabel = UiKit.Regular(11f);
+        /// <summary>底部工具栏标签字体（理由同 <see cref="NavLabel"/>）。</summary>
+        public static readonly Font ToolLabel = UiKit.Regular(11f);
         public static readonly Font KpiValue = UiKit.Bold(26f);
         /// <summary>统计卡片数值字体。</summary>
         public static readonly Font StatValue = UiKit.Bold(20f);
@@ -277,76 +277,46 @@ namespace AlphaRap
             return zh;
         }
 
-        // ---------------- 图标 + 文字按钮图 ----------------
-
-        private static readonly Dictionary<string, Image> TileCache = new Dictionary<string, Image>();
-        private static readonly object TileCacheLock = new object();
+        // ---------------- 图标 + 文字按钮（导航 / 工具栏）----------------
 
         /// <summary>
-        /// 生成"图标在上、文字在下"的按钮图（导航与工具栏共用），结果按参数缓存。
+        /// 在控件表面上画"图标在上、文字在下"的按钮。
+        ///
+        /// **图标与文字分开画、不合成位图**：文字走 <see cref="TextRenderer"/> 落在真实控件表面上，
+        /// 那里是 GDI 的 ClearType（亚像素）；而把字烤进内存位图只能用灰度抗锯齿，笔画边缘发灰、
+        /// 小字号加粗尤其糊。拆开之后字重也能独立设置。
         /// </summary>
+        /// <param name="icon">已按目标尺寸取好的矢量位图（见 <see cref="AppIcons.Get"/>）。</param>
+        /// <param name="iconSize">图标边长（96 DPI 设计值）。</param>
+        /// <param name="backColor">按钮实际底色；透明按钮传 <see cref="Color.Transparent"/> 表示不铺底。</param>
         /// <param name="accentBar">在左侧画一条品牌色竖条（导航选中态）。</param>
-        /// <param name="backColor">
-        /// 按钮实际底色（**必须与按钮的 BackColor / 其身后的实色一致**）。
-        /// 位图会先用它铺一层不透明底色再画字 —— 透明底上 GDI 用不了 ClearType，
-        /// 只能退回灰度抗锯齿、边缘还留半透明像素，叠出来就是"发虚"。
-        /// </param>
-        public static Image IconLabel(AppIcon icon, string text, Size size, int iconSize,
-            Color iconColor, Color accent, Color textColor, Font font, bool accentBar, Color backColor)
+        public static void PaintIconButton(Graphics g, Size size, Image icon, string text, Font font,
+            Color textColor, int iconSize, bool accentBar, Color backColor)
         {
-            if (size.Width <= 0 || size.Height <= 0) return null;
+            if (g == null || size.Width <= 0 || size.Height <= 0) return;
 
-            Color bg = Color.FromArgb(255, backColor);      // 强制不透明
-            string key = Scale + "|" + (int)icon + "|" + text + "|" + size.Width + "x" + size.Height + "|" + iconSize + "|" +
-                         iconColor.ToArgb() + "|" + accent.ToArgb() + "|" + textColor.ToArgb() + "|" +
-                         font.Size + "|" + font.Style + "|" + accentBar + "|" + bg.ToArgb();
-            lock (TileCacheLock)
-            {
-                Image cached;
-                if (TileCache.TryGetValue(key, out cached)) return cached;   // 静态复用：同一张图只合成一次
-            }
-
-            Bitmap bmp = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
-            // 位图按 96 DPI 建；字号与图标边长在这里手动按 DPI 换算，保证与已放大的位图尺寸匹配
-            int icSize = Dpi(iconSize);
-            Font f = (Scale == 1f) ? font
-                : new Font(font.FontFamily, font.Size * Scale, font.Style, GraphicsUnit.Point, ((byte)(134)));
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-
-                // 先铺不透明底色：只有不透明表面上文字才用得上 ClearType（否则字会发虚发淡）
-                using (SolidBrush b = new SolidBrush(bg))
+            if (backColor.A == 255)
+                using (SolidBrush b = new SolidBrush(backColor))
                     g.FillRectangle(b, 0, 0, size.Width, size.Height);
 
-                int textH = string.IsNullOrEmpty(text) ? 0 : f.Height;
-                int top = Math.Max(Dpi(2), (size.Height - icSize - textH - Dpi(2)) / 2);
-                Image ic = AppIcons.Get(icon, icSize, iconColor, accent);
-                if (ic != null) g.DrawImage(ic, (size.Width - icSize) / 2, top, icSize, icSize);
+            int textH = string.IsNullOrEmpty(text) ? 0 : font.Height;
+            int icSize = (icon != null) ? Dpi(iconSize) : 0;
+            int gap = (icon != null && textH > 0) ? Dpi(2) : 0;
+            int top = Math.Max(Dpi(2), (size.Height - icSize - textH - gap) / 2);
 
-                if (textH > 0)
-                {
-                    Rectangle tr = new Rectangle(Dpi(2), top + icSize + Dpi(2), size.Width - Dpi(4), textH + Dpi(2));
-                    TextRenderer.DrawText(g, text, f, tr, textColor,
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
-                        TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
-                }
+            if (icon != null) g.DrawImage(icon, (size.Width - icSize) / 2, top, icSize, icSize);
 
-                if (accentBar)
-                {
-                    using (SolidBrush b = new SolidBrush(UiKit.Brand))
-                        g.FillRectangle(b, 0, Dpi(8), Dpi(3), size.Height - Dpi(16));
-                }
-            }
-            if (!ReferenceEquals(f, font)) f.Dispose();
-            lock (TileCacheLock)
+            if (textH > 0)
             {
-                Image cached;
-                if (TileCache.TryGetValue(key, out cached)) { bmp.Dispose(); return cached; }
-                TileCache[key] = bmp;
+                Rectangle tr = new Rectangle(Dpi(2), top + icSize + gap, size.Width - Dpi(4), textH + Dpi(2));
+                TextRenderer.DrawText(g, text, font, tr, textColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
+                    TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
             }
-            return bmp;
+
+            if (accentBar)
+                using (SolidBrush b = new SolidBrush(UiKit.Brand))
+                    g.FillRectangle(b, 0, Dpi(8), Dpi(3), size.Height - Dpi(16));
         }
 
         // ---------------- 列表 ----------------

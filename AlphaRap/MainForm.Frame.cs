@@ -386,18 +386,18 @@ namespace AlphaRap
                 if (_buttonTexts.Count == 0) LoadFrameTexts();
                 _iconSignature = BuildIconSignature();   // 记下本次绘制时的状态，供 RefreshButtonIconsIfChanged 比对
 
-                SetNavImage(MENU_Home, AppIcon.Home);
-                SetNavImage(MENU_Save, AppIcon.Save);
-                SetNavImage(MENU_Rapid, AppIcon.Rapid);
-                SetNavImage(MENU_Vision, AppIcon.Vision);
-                SetNavImage(MENU_Hard, AppIcon.Hard);
-                SetNavImage(MENU_Manual, AppIcon.Manual);
-                SetNavImage(MENU_Data, AppIcon.Data);
-                SetNavImage(MENU_Log, AppIcon.Log);
-                SetNavImage(MENU_Check, AppIcon.Check);
-                SetNavImage(MENU_AddUser, AppIcon.AddUser);
-                SetNavImage(MENU_Mes, AppIcon.Mes);
-                SetNavImage(MENU_LifeSpan, AppIcon.LifeSpan);
+                StyleNavButton(MENU_Home, AppIcon.Home);
+                StyleNavButton(MENU_Save, AppIcon.Save);
+                StyleNavButton(MENU_Rapid, AppIcon.Rapid);
+                StyleNavButton(MENU_Vision, AppIcon.Vision);
+                StyleNavButton(MENU_Hard, AppIcon.Hard);
+                StyleNavButton(MENU_Manual, AppIcon.Manual);
+                StyleNavButton(MENU_Data, AppIcon.Data);
+                StyleNavButton(MENU_Log, AppIcon.Log);
+                StyleNavButton(MENU_Check, AppIcon.Check);
+                StyleNavButton(MENU_AddUser, AppIcon.AddUser);
+                StyleNavButton(MENU_Mes, AppIcon.Mes);
+                StyleNavButton(MENU_LifeSpan, AppIcon.LifeSpan);
 
                 ApplyToolbarButtonStyles();
 
@@ -482,15 +482,68 @@ namespace AlphaRap
             return MENU_Picture != null && i >= 0 && i < MENU_Picture.Length && MENU_Picture[i] == b;
         }
 
-        private void SetNavImage(PictureBox b, AppIcon icon)
+        // ---------------- 导航 / 工具栏按钮：自绘（图标与文字分开画） ----------------
+
+        /// <summary>一个按钮的绘制状态（图标、配色、字号）。</summary>
+        private sealed class NavPaintState
+        {
+            public AppIcon Icon;
+            public int IconSize;
+            public bool IsNav;
+            public Color IconColor = AppIconColor.Nav;
+            public Color AccentColor = AppIconColor.Nav;
+            public Color TextColor = UiTheme.NavText;
+            public Font Font = UiTheme.NavLabel;
+        }
+
+        private readonly Dictionary<PictureBox, NavPaintState> _navPaint = new Dictionary<PictureBox, NavPaintState>();
+
+        /// <summary>
+        /// 把按钮交给自绘：清掉"图标+文字"的合成位图，改由 Paint 里分别画图标与文字
+        /// （见 <see cref="UiTheme.PaintIconButton"/>）。只在首次调用时挂事件，之后只改状态。
+        /// </summary>
+        private NavPaintState AttachNavPaint(PictureBox b, AppIcon icon, int iconSize, bool isNav)
+        {
+            NavPaintState st;
+            if (!_navPaint.TryGetValue(b, out st))
+            {
+                st = new NavPaintState();
+                _navPaint[b] = st;
+                b.Image = null;                        // 关键：不再用烤好的合成位图
+                b.Paint += NavButton_Paint;
+            }
+            st.Icon = icon;
+            st.IconSize = iconSize;
+            st.IsNav = isNav;
+            st.Font = isNav ? UiTheme.NavLabel : UiTheme.ToolLabel;
+            return st;
+        }
+
+        private void NavButton_Paint(object sender, PaintEventArgs e)
+        {
+            PictureBox b = sender as PictureBox;
+            NavPaintState st;
+            if (b == null || !_navPaint.TryGetValue(b, out st)) return;
+            try
+            {
+                // 按钮底色不是不透明时（悬停/未选中是 Transparent）不铺底，直接画在身后的渐变/白底上
+                Color back = (b.BackColor.A == 255) ? b.BackColor : Color.Transparent;
+                Image ic = AppIcons.Get(st.Icon, UiTheme.Dpi(st.IconSize), st.IconColor, st.AccentColor);
+                UiTheme.PaintIconButton(e.Graphics, b.Size, ic, ButtonText(b), st.Font, st.TextColor,
+                    st.IconSize, st.IsNav && IsSelectedNav(b), back);
+            }
+            catch { }
+        }
+
+        private void StyleNavButton(PictureBox b, AppIcon icon)
         {
             if (b == null) return;
             bool sel = IsSelectedNav(b);
-            Color c = !b.Enabled ? AppIconColor.Disabled : sel ? UiTheme.NavTextSelected : AppIconColor.Nav;
-            Color t = !b.Enabled ? UiKit.DisabledText : sel ? UiTheme.NavTextSelected : UiTheme.NavText;
-            // 图的底色必须与按钮实际底色一致（选中是浅蓝，其余是导航白底），否则字会发虚、或把高亮盖住
-            Color back = sel ? UiTheme.Selected : UiTheme.NavBg;
-            SetImage(b, UiTheme.IconLabel(icon, ButtonText(b), b.Size, NavIconSize, c, c, t, UiTheme.NavLabel, sel, back));
+            NavPaintState st = AttachNavPaint(b, icon, NavIconSize, true);
+            st.IconColor = !b.Enabled ? AppIconColor.Disabled : sel ? UiTheme.NavTextSelected : AppIconColor.Nav;
+            st.AccentColor = st.IconColor;
+            st.TextColor = !b.Enabled ? UiKit.DisabledText : sel ? UiTheme.NavTextSelected : UiTheme.NavText;
+            b.Invalidate();
         }
 
         /// <summary>
@@ -520,12 +573,11 @@ namespace AlphaRap
             Color back = (on && btn == _hoverToolbarButton) ? ToolbarHover : Color.Transparent;
             if (btn.BackColor != back) btn.BackColor = back;
 
-            Color main = on ? iconColor : AppIconColor.Disabled;
-            Color accent = on ? accentColor : AppIconColor.Disabled;
-            Color text = !on ? UiKit.DisabledText : (iconColor == AppIconColor.Nav ? UiKit.TextPrimary : iconColor);
-            // 图的底色 = 按钮实际底色：悬停时是 ToolbarHover，否则按钮透明、身后是工具栏白底
-            Color imgBack = (back == Color.Transparent) ? UiKit.Surface : back;
-            SetImage(btn, UiTheme.IconLabel(icon, ButtonText(btn), btn.Size, ToolIconSize, main, accent, text, UiTheme.ToolLabel, false, imgBack));
+            NavPaintState st = AttachNavPaint(btn, icon, ToolIconSize, false);
+            st.IconColor = on ? iconColor : AppIconColor.Disabled;
+            st.AccentColor = on ? accentColor : AppIconColor.Disabled;
+            st.TextColor = !on ? UiKit.DisabledText : (iconColor == AppIconColor.Nav ? UiKit.TextPrimary : iconColor);
+            btn.Invalidate();
         }
 
         /// <summary>给工具栏按钮挂接悬停事件（在 MainForm_Load 中调用一次）。</summary>
