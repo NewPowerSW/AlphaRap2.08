@@ -349,8 +349,9 @@
             // bodyLayout
             // 
             this.bodyLayout.ColumnCount = 2;
-            this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 64F));
-            this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 36F));
+            // 左＝图表卡，右＝「生产信息」卡。右侧占 58%：表格要放 6~7 列，36% 时每列只有几十像素
+            this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
             this.bodyLayout.Controls.Add(this.chartCard, 0, 0);
             this.bodyLayout.Controls.Add(this.infoCard, 1, 0);
             this.bodyLayout.Dock = System.Windows.Forms.DockStyle.Fill;

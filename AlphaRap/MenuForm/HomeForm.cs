@@ -69,9 +69,10 @@ namespace AlphaRap
         /// <summary>默认表头。**换列只改这一处**。</summary>
         private static string[] DefaultInfoHeaders()
         {
-            // 卡片只有 36% 宽（约 435px）：列多了每列只剩几十像素。列数由业务定，
-            // 这里只给一个开箱可用的占位；真要 6~7 列建议同时把 infoCard 加宽。
-            return new string[] { "Time", "PalletCode", "Result" };
+            // 占位列（照用户给的参考表）——实际列名由业务代码用 SetInfoHeaders 覆盖。
+            // ⚠ 参考表里写的是 Drver / Preasure，这里按正确拼写 Driver / Pressure。
+            return new string[] { "Time", "PalletCode", "Driver", "Pressure",
+                                  "PressureMax", "PressureMin", "Result" };
         }
 
         /// <summary>设置表头（列）与数据行 —— 表头与行全部由代码给出。</summary>
