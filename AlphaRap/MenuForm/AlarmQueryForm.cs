@@ -10,7 +10,8 @@ namespace AlphaRap
 {
     /// <summary>
     /// 报警统计与历史查询：数据来自报警日志 {AlarmPath}\{年}\{月}\{日}.csv（见 <see cref="AlarmHistory"/>）。
-    /// 自上而下 = 查询条 / 停机统计数字条 / Top 报警号与每日趋势两张图 / 明细表，均为白色卡片。
+    /// 自上而下 = 品牌蓝标题栏 / 查询条（时间范围 + 快捷 + 类型分段 + 条件）/ 停机统计数字条 /
+    /// Top 报警号与每日趋势两张图 / 明细表，内容区均为白色圆角卡片。
     /// 默认只看会停机的报警；按需创建、复用同一个实例（见 MainForm.OpenAlarmQuery），显示时重新查询一次。
     /// </summary>
     public partial class AlarmQueryForm : Form
@@ -18,16 +19,22 @@ namespace AlphaRap
         /// <summary>明细表格最多显示的行数，避免一次查询几十万行把界面拖死。</summary>
         private const int MaxRowsShown = 5000;
 
-        /// <summary>类型下拉里「停机」的下标（默认选中项：统计只算停机报警）。</summary>
+        /// <summary>类型分段里「停机」的下标（默认选中项：统计只算停机报警）。</summary>
         private const int TypeStopIndex = 3;
+
+        /// <summary>明细行左缘状态色条的宽度（96 DPI 设计值）。</summary>
+        private const int RowAccentW = 4;
+
+        /// <summary>明细表的斑马纹底色（比 UiKit 默认再浅一档，和状态色条同处一行时不抢眼）。</summary>
+        private static readonly Color RowZebraBack = Color.FromArgb(249, 251, 253);
+
+        /// <summary>E 类「类型」胶囊的底色。</summary>
+        private static readonly Color PillAlarmBack = Color.FromArgb(253, 236, 236);
+        /// <summary>W 类「类型」胶囊的底色。</summary>
+        private static readonly Color PillWarnBack = Color.FromArgb(255, 245, 225);
 
         /// <summary>表格「停机」列的显示文字（随语言变化）。</summary>
         private string _stopText = "停机";
-
-        /// <summary>E 类报警行的底色（浅红）。</summary>
-        private static readonly Color RowAlarmBack = Color.FromArgb(255, 238, 238);
-        /// <summary>W 类警告行的底色（浅琥珀）。</summary>
-        private static readonly Color RowWarnBack = Color.FromArgb(255, 249, 235);
 
         private List<AlarmRecord> _rows = new List<AlarmRecord>();
         private bool _loading;
@@ -36,20 +43,19 @@ namespace AlphaRap
         {
             InitializeComponent();
             UiTheme.ApplyDpi(this);
-            UiKit.StyleGrid(grdAlarm);
+
+            StyleDetailGrid();
+            SetupCards();
+            SetupQueryBar();
+            SetupRowPainting();
 
             _loading = true;
-            dtpFrom.Value = DateTime.Today;
-            dtpTo.Value = DateTime.Today;
+            dateFrom.Value = DateTime.Today;
+            dateTo.Value = DateTime.Today;
             _loading = false;
 
             btnQuery.Click += btnQuery_Click;
             btnExport.Click += btnExport_Click;
-
-            RoundCard(pnlBarOuter);
-            RoundCard(pnlCardOuter);
-            pnlBarOuter.Resize += delegate { RoundCard(pnlBarOuter); };
-            pnlCardOuter.Resize += delegate { RoundCard(pnlCardOuter); };
 
             KeyPreview = true;
             SetupWindowChrome();
@@ -75,20 +81,117 @@ namespace AlphaRap
             UpdateDetailTitle();
         }
 
-        /// <summary>把卡片外框裁成圆角；描边靠「外层底色=线色 + Padding=1」留出，不自绘。</summary>
-        private static void RoundCard(Panel p)
+        // ---------------- 外观搭建 ----------------
+
+        /// <summary>明细表：在 UiKit 扁平样式之上，把左内边距留宽给状态色条，行高压到 30 以便多显示几行。</summary>
+        private void StyleDetailGrid()
         {
-            if (p == null || p.Width <= 1 || p.Height <= 1) return;
+            UiKit.StyleGrid(grdAlarm);
             try
             {
-                using (GraphicsPath path = UiKit.RoundRect(new Rectangle(0, 0, p.Width, p.Height), UiTheme.Dpi(10)))
+                grdAlarm.DefaultCellStyle.Padding = UiTheme.Dpi(new Padding(10, 0, 6, 0));
+                grdAlarm.ColumnHeadersDefaultCellStyle.Padding = UiTheme.Dpi(new Padding(10, 0, 6, 0));
+                grdAlarm.AlternatingRowsDefaultCellStyle.BackColor = RowZebraBack;
+                grdAlarm.RowTemplate.Height = UiTheme.Dpi(30);
+            }
+            catch { }
+        }
+
+        /// <summary>卡片与查询控件的圆角。描边靠「外层底色=线色 + Padding=1」留出，不自绘。</summary>
+        private void SetupCards()
+        {
+            RoundControl(pnlBarOuter, 12);
+            RoundControl(pnlCardOuter, 12);
+            pnlBarOuter.Resize += delegate { RoundControl(pnlBarOuter, 12); };
+            pnlCardOuter.Resize += delegate { RoundControl(pnlCardOuter, 12); };
+
+        }
+
+        /// <summary>把控件裁成圆角（半径按 96 DPI 设计值给）。</summary>
+        private static void RoundControl(Control c, int radius)
+        {
+            if (c == null || c.Width <= 1 || c.Height <= 1) return;
+            try
+            {
+                using (GraphicsPath path = UiKit.RoundRect(new Rectangle(0, 0, c.Width, c.Height), UiTheme.Dpi(radius)))
                 {
-                    Region old = p.Region;
-                    p.Region = new Region(path);
+                    Region old = c.Region;
+                    c.Region = new Region(path);
                     if (old != null) old.Dispose();
                 }
             }
             catch { }
+        }
+
+        private void SetupQueryBar()
+        {
+            segType.SelectedIndexChanged += delegate { UpdateDetailTitle(); };
+
+            btnToday.Click += delegate { SetQuickRange(0); };
+            btnWeek.Click += delegate { SetQuickRange(6); };
+            btnMonth.Click += delegate { SetQuickRange(29); };
+
+        }
+
+        /// <summary>行左缘画状态色条 + 「类型」列画胶囊：报警行不再整行铺色，长表才看得下去。</summary>
+        private void SetupRowPainting()
+        {
+            grdAlarm.RowPostPaint += GrdAlarm_RowPostPaint;
+            grdAlarm.CellPainting += GrdAlarm_CellPainting;
+        }
+
+        private void GrdAlarm_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            try
+            {
+                AlarmRecord r = RowRecord(e.RowIndex);
+                if (r == null) return;
+
+                int w = UiTheme.Dpi(RowAccentW);
+                Rectangle bar = new Rectangle(e.RowBounds.Left + UiTheme.Dpi(1),
+                    e.RowBounds.Top + UiTheme.Dpi(4), w, e.RowBounds.Height - UiTheme.Dpi(8));
+                if (bar.Height <= 0) return;
+
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                using (GraphicsPath p = UiKit.RoundRect(bar, w / 2))
+                using (SolidBrush b = new SolidBrush(r.IsAlarm ? UiKit.Danger : UiKit.Warn))
+                    e.Graphics.FillPath(b, p);
+            }
+            catch { }
+        }
+
+        private void GrdAlarm_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex != colType.Index) return;
+            AlarmRecord r = RowRecord(e.RowIndex);
+            if (r == null) return;
+
+            try
+            {
+                e.PaintBackground(e.CellBounds, true);
+
+                int h = UiTheme.Dpi(18);
+                int w = UiTheme.Dpi(30);
+                Rectangle pill = new Rectangle(e.CellBounds.Left + UiTheme.Dpi(10),
+                    e.CellBounds.Top + (e.CellBounds.Height - h) / 2, w, h);
+
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                using (GraphicsPath p = UiKit.RoundRect(pill, h / 2))
+                using (SolidBrush b = new SolidBrush(r.IsAlarm ? PillAlarmBack : PillWarnBack))
+                    e.Graphics.FillPath(b, p);
+
+                TextRenderer.DrawText(e.Graphics, r.IsAlarm ? "E" : "W", UiKit.Bold(9f), pill,
+                    r.IsAlarm ? UiKit.Danger : UiTheme.WarnText,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                e.Handled = true;
+            }
+            catch { e.Handled = false; }
+        }
+
+        private AlarmRecord RowRecord(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= grdAlarm.Rows.Count) return null;
+            return grdAlarm.Rows[rowIndex].Tag as AlarmRecord;
         }
 
         // ---------------- 无边框窗口（FormBorderStyle.None）----------------
@@ -117,24 +220,30 @@ namespace AlphaRap
         {
             try
             {
-                btnMin.TextColorOverride = UiKit.TextSecondary;
-                btnClose.TextColorOverride = UiKit.TextSecondary;
+                picTitleIcon.Image = AppIcons.Get(AppIcon.Chart, UiTheme.Dpi(20), Color.White);
+
+                // 标题栏按钮用矢量图标：字符「✕」在微软雅黑里没有字形，会渲染成方块
+                btnMin.Icon = AppIcons.Get(AppIcon.Minimize, UiTheme.Dpi(14), Color.White);
+                btnClose.Icon = AppIcons.Get(AppIcon.Close, UiTheme.Dpi(14), Color.White);
 
                 pnlTitle.MouseDown += TitleBar_MouseDown;
                 lblTitle.MouseDown += TitleBar_MouseDown;
                 pnlTitleLine.MouseDown += TitleBar_MouseDown;
+                picTitleIcon.MouseDown += TitleBar_MouseDown;
 
                 btnMin.Click += delegate { WindowState = FormWindowState.Minimized; };
-                btnClose.MouseEnter += delegate
+                // Ghost 变体的悬停底色是浅蓝，白图标会糊掉 ⇒ 悬停时图标同步转品牌色
+                btnMin.MouseEnter += delegate
                 {
-                    btnClose.Variant = FlatButtonVariant.Danger;      // 悬停变红，与系统关闭键一致
-                    btnClose.TextColorOverride = Color.White;
+                    btnMin.Icon = AppIcons.Get(AppIcon.Minimize, UiTheme.Dpi(14), UiKit.Brand);
                 };
-                btnClose.MouseLeave += delegate
+                btnMin.MouseLeave += delegate
                 {
-                    btnClose.Variant = FlatButtonVariant.Ghost;
-                    btnClose.TextColorOverride = UiKit.TextSecondary;
+                    btnMin.Icon = AppIcons.Get(AppIcon.Minimize, UiTheme.Dpi(14), Color.White);
                 };
+
+                btnClose.MouseEnter += delegate { btnClose.Variant = FlatButtonVariant.Danger; };
+                btnClose.MouseLeave += delegate { btnClose.Variant = FlatButtonVariant.Ghost; };
                 btnClose.Click += delegate { Close(); };
 
                 gripResize.BringToFront();                            // 缩放柄浮在内容之上（它的颜色与页面底色相同）
@@ -226,6 +335,13 @@ namespace AlphaRap
             base.OnKeyDown(e);
         }
 
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            // 打开时别把焦点落在第一个筛选框上：空框带焦点蓝环、占位文字又不显示，看着像坏了
+            ActiveControl = null;
+        }
+
         // ---------------- 文案 ----------------
 
         private void ApplyLanguage()
@@ -236,25 +352,29 @@ namespace AlphaRap
                     "报警统计与历史查询", "Alarm statistics and history", "Estadisticas e historial de alarmas");
                 lblTitle.Text = this.Text;      // 无边框窗口，标题要自己画
 
-                lblFrom.Text = UiTheme.T("AlarmQueryForm", "from", "开始", "From", "Desde");
-                lblTo.Text = UiTheme.T("AlarmQueryForm", "to", "结束", "To", "Hasta");
-                lblType.Text = UiTheme.T("AlarmQueryForm", "type", "类型", "Type", "Tipo");
-                lblCode.Text = UiTheme.T("AlarmQueryForm", "code", "编号", "Code", "Codigo");
-                lblKeyword.Text = UiTheme.T("AlarmQueryForm", "keyword", "内容关键字", "Keyword", "Palabra clave");
+                // 「编号 / 内容关键字」的说明文字改用输入框占位符，省掉一排裸露标签
+                boxCode.PlaceholderText = UiTheme.T("AlarmQueryForm", "code", "编号", "Code", "Codigo");
+                boxKeyword.PlaceholderText = UiTheme.T("AlarmQueryForm", "keyword", "内容关键字", "Keyword", "Palabra clave");
+
+                btnToday.Text = UiTheme.T("AlarmQueryForm", "rangeToday", "今天", "Today", "Hoy");
+                btnWeek.Text = UiTheme.T("AlarmQueryForm", "rangeWeek", "近 7 天", "Last 7 days", "7 dias");
+                btnMonth.Text = UiTheme.T("AlarmQueryForm", "rangeMonth", "近 30 天", "Last 30 days", "30 dias");
+
                 btnQuery.Text = UiTheme.T("AlarmQueryForm", "query", "查询", "Query", "Consultar");
                 btnExport.Text = UiTheme.T("AlarmQueryForm", "export", "导出", "Export", "Exportar");
 
                 btnQuery.Icon = AppIcons.Get(AppIcon.Search, 16, Color.White);
                 btnExport.Icon = AppIcons.Get(AppIcon.Save, 16, UiKit.TextPrimary);
 
-                // 类型下拉：四项固定含义，切换语言时保留当前选择；首次进入默认「停机」
-                int sel = cboType.SelectedIndex;
-                cboType.Items.Clear();
-                cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeAll", "全部", "All", "Todos"));
-                cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeWarn", "警告", "Warning", "Aviso"));
-                cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeAlarm", "报警", "Alarm", "Alarma"));
-                cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeStop", "停机", "Stop", "Parada"));
-                cboType.SelectedIndex = (sel < 0 || sel > TypeStopIndex) ? TypeStopIndex : sel;
+                // 类型分段：四项固定含义，切换语言时保留当前选择；首次进入默认「停机」
+                int sel = segType.SelectedIndex;
+                segType.SetItems(new string[]
+                {
+                    UiTheme.T("AlarmQueryForm", "typeAll", "全部", "All", "Todos"),
+                    UiTheme.T("AlarmQueryForm", "typeWarn", "警告", "Warning", "Aviso"),
+                    UiTheme.T("AlarmQueryForm", "typeAlarm", "报警", "Alarm", "Alarma"),
+                    UiTheme.T("AlarmQueryForm", "typeStop", "停机", "Stop", "Parada")
+                }, (sel < 0 || sel > TypeStopIndex) ? TypeStopIndex : sel);
 
                 chartRank.Title = UiTheme.T("AlarmQueryForm", "rankTitle",
                     "报警号发生次数 Top 10", "Top 10 alarm codes", "Top 10 codigos");
@@ -283,9 +403,24 @@ namespace AlphaRap
         {
             try
             {
-                lblDetail.Text = cboType.SelectedIndex == TypeStopIndex
+                lblDetail.Text = segType.SelectedIndex == TypeStopIndex
                     ? UiTheme.T("AlarmQueryForm", "detailStop", "停机明细", "Stop records", "Paradas")
                     : UiTheme.T("AlarmQueryForm", "detailAll", "报警明细", "Alarm records", "Registros");
+            }
+            catch { }
+        }
+
+        /// <summary>快捷时间范围：结束 = 今天，开始 = 今天往前 days 天，随即重查一次。</summary>
+        private void SetQuickRange(int days)
+        {
+            try
+            {
+                DateTime to = DateTime.Today;
+                dateFrom.Value = to.AddDays(-days);
+                dateTo.Value = to;
+                Reload();
+                OperationLog.Write("AlarmQueryForm", string.Format("查询报警历史（快捷 {0} 天）：{1:yyyy-MM-dd} ~ {2:yyyy-MM-dd}，{3} 条",
+                    days + 1, dateFrom.Value, dateTo.Value, _rows.Count));
             }
             catch { }
         }
@@ -315,8 +450,8 @@ namespace AlphaRap
                 }
 
                 int files;
-                _rows = AlarmHistory.Query(dtpFrom.Value, dtpTo.Value, CurrentTypeFilter(),
-                    txtCode.Text, txtKeyword.Text, out files);
+                _rows = AlarmHistory.Query(dateFrom.Value, dateTo.Value, CurrentTypeFilter(),
+                    boxCode.Value, boxKeyword.Value, out files);
 
                 lblStatus.ForeColor = UiKit.TextSecondary;
                 lblStatus.Text = string.Format(UiTheme.T("AlarmQueryForm", "status",
@@ -345,10 +480,10 @@ namespace AlphaRap
             }
         }
 
-        /// <summary>下拉框的「全部 / 警告 / 报警 / 停机」映射成查询用的筛选值。</summary>
+        /// <summary>分段控件的「全部 / 警告 / 报警 / 停机」映射成查询用的筛选值。</summary>
         private string CurrentTypeFilter()
         {
-            switch (cboType.SelectedIndex)
+            switch (segType.SelectedIndex)
             {
                 case 1: return AlarmHistory.FilterWarn;
                 case 2: return AlarmHistory.FilterAlarm;
@@ -380,10 +515,13 @@ namespace AlphaRap
         private void FillCharts()
         {
             chartRank.SetData(AlarmHistory.GroupByCode(_rows, 10));
-            chartTrend.SetData(AlarmHistory.GroupByDay(_rows, dtpFrom.Value, dtpTo.Value));
+            chartTrend.SetData(AlarmHistory.GroupByDay(_rows, dateFrom.Value, dateTo.Value));
         }
 
-        /// <summary>结果表格：E 类浅红底、W 类浅琥珀底，超过上限只显示前 N 条。</summary>
+        /// <summary>
+        /// 结果表格：行底色只用斑马纹，级别靠 RowPostPaint 的左侧状态色条与「类型」列的胶囊表达
+        /// （整行铺浅红/浅琥珀在几十行的表里会糊成一片色块）。记录存进行 Tag 供绘制时取级别。
+        /// </summary>
         private void FillGrid()
         {
             grdAlarm.SuspendLayout();
@@ -403,8 +541,7 @@ namespace AlphaRap
                         r.RecipeName,
                         r.Mode,
                         r.User);
-                    grdAlarm.Rows[idx].DefaultCellStyle.BackColor = r.IsAlarm ? RowAlarmBack : RowWarnBack;
-                    grdAlarm.Rows[idx].DefaultCellStyle.ForeColor = r.IsAlarm ? UiKit.Danger : UiTheme.WarnText;
+                    grdAlarm.Rows[idx].Tag = r;
                     if (r.Stop) grdAlarm.Rows[idx].Cells[colStop.Index].Style.ForeColor = UiKit.Danger;
                 }
                 grdAlarm.ClearSelection();
@@ -424,7 +561,7 @@ namespace AlphaRap
             try
             {
                 OperationLog.Write("AlarmQueryForm", string.Format("查询报警历史：{0:yyyy-MM-dd} ~ {1:yyyy-MM-dd}，{2} 条（停机 {3} 条）",
-                    dtpFrom.Value, dtpTo.Value, _rows.Count, AlarmHistory.CountStop(_rows)));
+                    dateFrom.Value, dateTo.Value, _rows.Count, AlarmHistory.CountStop(_rows)));
             }
             catch { }
         }
@@ -443,7 +580,7 @@ namespace AlphaRap
             using (SaveFileDialog dlg = new SaveFileDialog())
             {
                 dlg.Filter = "CSV (*.csv)|*.csv";
-                dlg.FileName = string.Format("Alarm_{0:yyyyMMdd}-{1:yyyyMMdd}.csv", dtpFrom.Value, dtpTo.Value);
+                dlg.FileName = string.Format("Alarm_{0:yyyyMMdd}-{1:yyyyMMdd}.csv", dateFrom.Value, dateTo.Value);
                 if (dlg.ShowDialog(this) != DialogResult.OK) return;
 
                 string err = AlarmHistory.Export(_rows, dlg.FileName);

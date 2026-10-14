@@ -903,6 +903,12 @@
     <Compile Include="Controls\BarChart.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\DateField.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\SegmentedControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\FieldBox.cs">
       <SubType>Component</SubType>
     </Compile>

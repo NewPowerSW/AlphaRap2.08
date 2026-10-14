@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -22,6 +23,12 @@ namespace AlphaRap
     public class BarChart : Control
     {
         private readonly List<KeyValuePair<string, int>> _data = new List<KeyValuePair<string, int>>();
+
+        /// <summary>横向条的底槽色：把"满格"的基准画出来，短条也能一眼读出比例。</summary>
+        private static readonly Color TrackColor = Color.FromArgb(240, 245, 250);
+
+        /// <summary>横向单行的最大高度，避免条数很少时段距被拉得过大。</summary>
+        private const int MaxRowH = 38;
 
         public BarChart()
         {
@@ -56,11 +63,35 @@ namespace AlphaRap
             Invalidate();
         }
 
+        /// <summary>设计期示例内容：VS 设计器里也照真实版式画一遍，否则这块永远只显示"无数据"。</summary>
+        private void LoadDesignSamples()
+        {
+            if (string.IsNullOrEmpty(Title))
+                Title = (Orientation == BarChartOrientation.Horizontal) ? "报警号 Top 10" : "每日次数";
+
+            if (Orientation == BarChartOrientation.Horizontal)
+            {
+                _data.Add(new KeyValuePair<string, int>("4014", 14));
+                _data.Add(new KeyValuePair<string, int>("3014", 6));
+                _data.Add(new KeyValuePair<string, int>("3021", 3));
+                _data.Add(new KeyValuePair<string, int>("1000", 1));
+            }
+            else
+            {
+                int[] v = { 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 5, 0, 0, 0, 2 };
+                for (int i = 0; i < v.Length; i++)
+                    _data.Add(new KeyValuePair<string, int>(string.Format("10-{0:00}", i + 1), v[i]));
+            }
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.Clear(BackColor);
+
+            if (_data.Count == 0 && LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+                LoadDesignSamples();
 
             Rectangle card = new Rectangle(0, 0, Width - 1, Height - 1);
             using (GraphicsPath path = UiKit.RoundRect(card, UiTheme.Dpi(10)))
@@ -95,36 +126,48 @@ namespace AlphaRap
             else DrawVertical(g, plot, max);
         }
 
-        /// <summary>横向：左侧项目名右对齐，条形按最大值等比，数值跟在条尾。</summary>
+        /// <summary>横向：左侧项目名右对齐，条形带底槽、按最大值等比，数值固定在槽尾之后。</summary>
         private void DrawHorizontal(Graphics g, Rectangle plot, int max)
         {
             int n = _data.Count;
-            int rowH = plot.Height / n;
+            int rowH = Math.Min(UiTheme.Dpi(MaxRowH), plot.Height / n);
+            if (rowH < UiTheme.Dpi(10)) return;
+
+            int total = rowH * n;
+            int oy = plot.Top + Math.Max(0, (plot.Height - total) / 2);   // 条数少时整组垂直居中
             int labelW = Math.Min(UiTheme.Dpi(84), plot.Width / 3);
             int valueW = UiTheme.Dpi(46);
             int barMax = plot.Width - labelW - valueW - UiTheme.Dpi(16);
             if (barMax < 20) return;
 
-            int barH = Math.Max(UiTheme.Dpi(8), Math.Min(UiTheme.Dpi(16), rowH - UiTheme.Dpi(6)));
+            int barH = Math.Max(UiTheme.Dpi(8), Math.Min(UiTheme.Dpi(18), rowH - UiTheme.Dpi(6)));
 
             for (int i = 0; i < n; i++)
             {
-                int y = plot.Top + rowH * i + (rowH - barH) / 2;
+                int ry = oy + rowH * i;
+                int by = ry + (rowH - barH) / 2;
                 KeyValuePair<string, int> it = _data[i];
 
                 TextRenderer.DrawText(g, it.Key, Font,
-                    new Rectangle(plot.Left, plot.Top + rowH * i, labelW - UiTheme.Dpi(6), rowH),
+                    new Rectangle(plot.Left, ry, labelW - UiTheme.Dpi(6), rowH),
                     UiKit.TextSecondary, TextFormatFlags.Right | TextFormatFlags.VerticalCenter
                         | TextFormatFlags.EndEllipsis);
 
+                Rectangle track = new Rectangle(plot.Left + labelW, by, barMax, barH);
+                using (GraphicsPath p = UiKit.RoundRect(track, barH / 2))
+                    using (SolidBrush b = new SolidBrush(TrackColor)) g.FillPath(b, p);
+
                 int w = (int)Math.Round(barMax * (double)it.Value / max);
                 if (w < 1 && it.Value > 0) w = 1;
-                Rectangle bar = new Rectangle(plot.Left + labelW, y, w, barH);
-                using (GraphicsPath p = UiKit.RoundRect(bar, barH / 2))
-                    using (SolidBrush b = new SolidBrush(BarColor)) g.FillPath(b, p);
+                if (w > 0)
+                {
+                    Rectangle bar = new Rectangle(plot.Left + labelW, by, w, barH);
+                    using (GraphicsPath p = UiKit.RoundRect(bar, barH / 2))
+                        using (SolidBrush b = new SolidBrush(BarColor)) g.FillPath(b, p);
+                }
 
                 TextRenderer.DrawText(g, it.Value.ToString(), Font,
-                    new Rectangle(bar.Right + UiTheme.Dpi(6), plot.Top + rowH * i, valueW, rowH),
+                    new Rectangle(plot.Left + labelW + barMax + UiTheme.Dpi(6), ry, valueW, rowH),
                     UiKit.TextSecondary, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
             }
         }
@@ -142,6 +185,14 @@ namespace AlphaRap
             int slot = plot.Width / n;
             int barW = Math.Max(UiTheme.Dpi(3), (int)(slot * 0.6));
             int step = Math.Max(1, (int)Math.Ceiling(n / 12.0));   // 标签抽稀，避免糊成一片
+
+            // 水平网格线：柱高没有参照物时读不出量级
+            using (Pen gp = new Pen(UiKit.Line, 1f))
+                for (int k = 1; k <= 3; k++)
+                {
+                    int gy = baseY - barMaxH * k / 4;
+                    g.DrawLine(gp, plot.Left, gy, plot.Right, gy);
+                }
 
             // 基准线
             using (Pen p = new Pen(UiKit.Line, 1f)) g.DrawLine(p, plot.Left, baseY, plot.Right, baseY);

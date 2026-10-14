@@ -22,7 +22,12 @@ namespace AlphaRap
         Edit,               // 修改
         Keyboard,           // 虚拟键盘
         Search,             // 查询（报警统计 / 历史查询）
-        Logo                // 品牌标识（登录页用）
+        Logo,               // 品牌标识（登录页用）
+
+        // 报警统计窗口用到的补充图标
+        Minimize,           // 窗口最小化
+        Chart,              // 统计（柱形）
+        Calendar            // 日期
     }
 
     /// <summary>
@@ -189,6 +194,9 @@ namespace AlphaRap
                 case AppIcon.Keyboard: DrawKeyboard(g, c); break;
                 case AppIcon.Search: DrawSearch(g, c); break;
                 case AppIcon.Logo: DrawLogo(g, c); break;
+                case AppIcon.Minimize: DrawMinimize(g, c); break;
+                case AppIcon.Chart: DrawChart(g, c); break;
+                case AppIcon.Calendar: DrawCalendar(g, c); break;
             }
         }
 
@@ -556,6 +564,36 @@ namespace AlphaRap
             {
                 g.DrawLine(p, 6.6f, 6.6f, 17.4f, 17.4f);
                 g.DrawLine(p, 17.4f, 6.6f, 6.6f, 17.4f);
+            }
+        }
+
+        /// <summary>最小化：一条横杠</summary>
+        private static void DrawMinimize(Graphics g, Color c)
+        {
+            using (Pen p = Stroke(c))
+                g.DrawLine(p, 5.8f, 14.4f, 18.2f, 14.4f);
+        }
+
+        /// <summary>统计：三根高低不同的柱</summary>
+        private static void DrawChart(Graphics g, Color c)
+        {
+            using (SolidBrush b = new SolidBrush(c))
+            {
+                using (GraphicsPath p1 = RR(4.2f, 12.4f, 4.0f, 7.4f, 2.0f)) g.FillPath(b, p1);
+                using (GraphicsPath p2 = RR(10.0f, 7.6f, 4.0f, 12.2f, 2.0f)) g.FillPath(b, p2);
+                using (GraphicsPath p3 = RR(15.8f, 4.4f, 4.0f, 15.4f, 2.0f)) g.FillPath(b, p3);
+            }
+        }
+
+        /// <summary>日期：日历框 + 顶部横线 + 两个挂耳</summary>
+        private static void DrawCalendar(Graphics g, Color c)
+        {
+            using (Pen p = Stroke(c, 1.8f))
+            {
+                g.DrawLine(p, 8.4f, 3.6f, 8.4f, 7.0f);
+                g.DrawLine(p, 15.6f, 3.6f, 15.6f, 7.0f);
+                using (GraphicsPath body = RR(4.4f, 5.4f, 15.2f, 14.4f, 2.6f)) g.DrawPath(p, body);
+                g.DrawLine(p, 4.4f, 10.2f, 19.6f, 10.2f);
             }
         }
 

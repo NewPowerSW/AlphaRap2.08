@@ -12,8 +12,10 @@ namespace AlphaRap
     public class FieldBox : Panel
     {
         private readonly TextBox _inner = new TextBox();
+        private readonly UiLabel _hint = new UiLabel();
         private bool _focused;
         private Image _icon;
+        private string _placeholder;
 
         /// <summary>内容（真正的输入值）。</summary>
         public string Value
@@ -34,6 +36,13 @@ namespace AlphaRap
         {
             get { return _inner.PasswordChar; }
             set { _inner.PasswordChar = value; }
+        }
+
+        /// <summary>空内容时的灰色提示文字（有焦点或已有内容时不显示），用于省掉输入框左侧的说明标签。</summary>
+        public string PlaceholderText
+        {
+            get { return _placeholder; }
+            set { _placeholder = value; UpdateHint(); Invalidate(); }
         }
 
         /// <summary>只读内容（用于"选中的用户名"这类展示位）。</summary>
@@ -85,15 +94,40 @@ namespace AlphaRap
             _inner.Font = UiKit.Regular(11f);
             _inner.TextChanged += delegate
             {
+                UpdateHint();
                 if (ValueChanged != null) ValueChanged(this, EventArgs.Empty);
             };
             _inner.FontChanged += delegate { LayoutInner(); };
-            _inner.GotFocus += delegate { _focused = true; Invalidate(); };
-            _inner.LostFocus += delegate { _focused = false; Invalidate(); };
+            _inner.GotFocus += delegate { _focused = true; Invalidate(); UpdateHint(); };
+            _inner.LostFocus += delegate { _focused = false; Invalidate(); UpdateHint(); };
+
+            // 提示文字必须是一个**盖在内层 TextBox 之上**的子控件：TextBox 是不透明控件，
+            // 画在父面板 OnPaint 里的提示会被它整个盖住（看不见）。
+            _hint.AutoSize = false;
+            _hint.Name = "fieldHint";                 // 空名的 Label 会让开机写语言 XML 时抛 XPathException
+            _hint.BackColor = UiKit.FieldBg;          // 与内层 TextBox 同色，视觉上无缝
+            _hint.ForeColor = UiKit.TextMuted;
+            _hint.TextAlign = ContentAlignment.MiddleLeft;
+            _hint.Cursor = Cursors.IBeam;
+            _hint.Visible = false;
+            _hint.MouseDown += delegate { if (Enabled) _inner.Focus(); };
 
             Controls.Add(_inner);
+            Controls.Add(_hint);                      // 后加入 ⇒ 在 _inner 之上
             Size = new Size(260, 46);
             BackColor = UiKit.FieldBg;
+        }
+
+        /// <summary>按「有提示 + 内容为空 + 未聚焦」决定提示文字是否显示。</summary>
+        private void UpdateHint()
+        {
+            try
+            {
+                _hint.Font = _inner.Font;
+                _hint.Text = _placeholder ?? string.Empty;
+                _hint.Visible = (!string.IsNullOrEmpty(_placeholder) && _inner.TextLength == 0 && !_focused);
+            }
+            catch { }
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -125,7 +159,9 @@ namespace AlphaRap
                 if (h < 18) h = 18;
                 int w = Width - left - 14;
                 if (w < 10) w = 10;
-                _inner.SetBounds(left, Math.Max(0, (Height - h) / 2), w, h);
+                int top = Math.Max(0, (Height - h) / 2);
+                _inner.SetBounds(left, top, w, h);
+                _hint.SetBounds(left + 1, top, Math.Max(1, w - 2), h);
             }
             catch { }
         }
