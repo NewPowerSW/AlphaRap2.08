@@ -175,7 +175,9 @@
             this.cardUsers.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.cardUsers.Name = "cardUsers";
             this.cardUsers.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
+            this.cardUsers.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.cardUsers.ShowBorder = true;
+            this.cardUsers.ShowShadow = true;
             this.cardUsers.Size = new System.Drawing.Size(436, 360);
             this.cardUsers.TabIndex = 0;
             // 
@@ -218,7 +220,9 @@
             this.cardModify.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.cardModify.Name = "cardModify";
             this.cardModify.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
+            this.cardModify.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.cardModify.ShowBorder = true;
+            this.cardModify.ShowShadow = true;
             this.cardModify.Size = new System.Drawing.Size(410, 360);
             this.cardModify.TabIndex = 1;
             // 
@@ -298,6 +302,7 @@
             this.textSelectedUserName.MaxLength = 32767;
             this.textSelectedUserName.Name = "textSelectedUserName";
             this.textSelectedUserName.PasswordChar = '\0';
+            this.textSelectedUserName.PlaceholderText = null;
             this.textSelectedUserName.Size = new System.Drawing.Size(382, 34);
             this.textSelectedUserName.TabIndex = 3;
             this.textSelectedUserName.Value = "";
@@ -321,6 +326,7 @@
             this.btnModifyPermission.TabIndex = 5;
             this.btnModifyPermission.TabStop = false;
             this.btnModifyPermission.Text = "修改权限";
+            this.btnModifyPermission.TextColorOverride = null;
             this.btnModifyPermission.Variant = AlphaRap.FlatButtonVariant.Surface;
             this.btnModifyPermission.Click += new System.EventHandler(this.btnModifyPermission_Click);
             // 
@@ -343,6 +349,7 @@
             this.btnDeleteUser.TabIndex = 6;
             this.btnDeleteUser.TabStop = false;
             this.btnDeleteUser.Text = "删除用户";
+            this.btnDeleteUser.TextColorOverride = null;
             this.btnDeleteUser.Variant = AlphaRap.FlatButtonVariant.Danger;
             this.btnDeleteUser.Click += new System.EventHandler(this.btnDeleteUser_Click);
             // 
@@ -371,7 +378,9 @@
             this.cardAdd.Margin = new System.Windows.Forms.Padding(0);
             this.cardAdd.Name = "cardAdd";
             this.cardAdd.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
+            this.cardAdd.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.cardAdd.ShowBorder = true;
+            this.cardAdd.ShowShadow = true;
             this.cardAdd.Size = new System.Drawing.Size(450, 360);
             this.cardAdd.TabIndex = 2;
             // 
@@ -457,6 +466,7 @@
             this.textAddUserName.MaxLength = 32767;
             this.textAddUserName.Name = "textAddUserName";
             this.textAddUserName.PasswordChar = '\0';
+            this.textAddUserName.PlaceholderText = null;
             this.textAddUserName.Size = new System.Drawing.Size(422, 32);
             this.textAddUserName.TabIndex = 3;
             this.textAddUserName.Value = "";
@@ -485,6 +495,7 @@
             this.textPassword.MaxLength = 32767;
             this.textPassword.Name = "textPassword";
             this.textPassword.PasswordChar = '*';
+            this.textPassword.PlaceholderText = null;
             this.textPassword.Size = new System.Drawing.Size(422, 32);
             this.textPassword.TabIndex = 5;
             this.textPassword.Value = "";
@@ -513,6 +524,7 @@
             this.textPasswordConfirm.MaxLength = 32767;
             this.textPasswordConfirm.Name = "textPasswordConfirm";
             this.textPasswordConfirm.PasswordChar = '*';
+            this.textPasswordConfirm.PlaceholderText = null;
             this.textPasswordConfirm.Size = new System.Drawing.Size(422, 32);
             this.textPasswordConfirm.TabIndex = 7;
             this.textPasswordConfirm.Value = "";
@@ -536,6 +548,7 @@
             this.btnAddUser.TabIndex = 9;
             this.btnAddUser.TabStop = false;
             this.btnAddUser.Text = "新增用户";
+            this.btnAddUser.TextColorOverride = null;
             this.btnAddUser.Variant = AlphaRap.FlatButtonVariant.Primary;
             this.btnAddUser.Click += new System.EventHandler(this.btnAddUser_Click);
             // 
@@ -565,7 +578,9 @@
             this.cardRights.Margin = new System.Windows.Forms.Padding(0);
             this.cardRights.Name = "cardRights";
             this.cardRights.Padding = new System.Windows.Forms.Padding(14, 10, 14, 12);
+            this.cardRights.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
             this.cardRights.ShowBorder = true;
+            this.cardRights.ShowShadow = true;
             this.cardRights.Size = new System.Drawing.Size(1320, 334);
             this.cardRights.TabIndex = 2;
             // 
@@ -624,6 +639,7 @@
             this.btnSaveRights.TabIndex = 1;
             this.btnSaveRights.TabStop = false;
             this.btnSaveRights.Text = "保存权限";
+            this.btnSaveRights.TextColorOverride = null;
             this.btnSaveRights.Variant = AlphaRap.FlatButtonVariant.Success;
             this.btnSaveRights.Click += new System.EventHandler(this.btnSaveRights_Click);
             // 
