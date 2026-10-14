@@ -1167,6 +1167,9 @@ namespace AlphaRap
 
 				HardF.ReadRecipeData(SysPara.FilePath);
 
+				// 配方换了：托盘卡是按 PSet 的列生成的，列可能多也可能少，重扫一遍
+				try { if (PlatF != null) PlatF.RebuildTrayTable(); } catch { }
+
 				bOpenSuccess = true;
 			}
 			catch (Exception ex)

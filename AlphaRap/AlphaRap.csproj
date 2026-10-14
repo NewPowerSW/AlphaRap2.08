@@ -698,7 +698,8 @@
     <Compile Include="Classes\LogManagement.cs" />
     <Compile Include="Classes\OperationLog.cs" />
     <Compile Include="Classes\AlarmHistory.cs" />
-    <Compile Include="Classes\ProductionDataStore.cs" />
+    <Compile Include="Classes\ProductionDataStore.cs" />
+    <Compile Include="Classes\TrayConfig.cs" />
     <Compile Include="Controls\WindowChrome.cs" />
     <Compile Include="Classes\MTF6000_1.cs" />
     <Compile Include="Classes\MTF6000_2.cs" />
