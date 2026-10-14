@@ -29,7 +29,7 @@
             this.pnlTitleLine = new System.Windows.Forms.Panel();
             this.gripResize = new System.Windows.Forms.Panel();
             this.rootTable = new System.Windows.Forms.TableLayoutPanel();
-            this.pnlBarOuter = new System.Windows.Forms.Panel();
+            this.pnlBarOuter = new AlphaRap.CardPanel();
             this.pnlBarInner = new System.Windows.Forms.Panel();
             this.dateFrom = new AlphaRap.DateField();
             this.lblRangeDash = new AlphaRap.UiLabel();
@@ -46,7 +46,7 @@
             this.tblCharts = new System.Windows.Forms.TableLayoutPanel();
             this.chartRank = new AlphaRap.BarChart();
             this.chartTrend = new AlphaRap.BarChart();
-            this.pnlCardOuter = new System.Windows.Forms.Panel();
+            this.pnlCardOuter = new AlphaRap.CardPanel();
             this.pnlCardInner = new System.Windows.Forms.Panel();
             this.grdAlarm = new System.Windows.Forms.DataGridView();
             this.colTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -196,7 +196,7 @@
             this.pnlBarOuter.Location = new System.Drawing.Point(16, 14);
             this.pnlBarOuter.Margin = new System.Windows.Forms.Padding(0, 0, 0, 14);
             this.pnlBarOuter.Name = "pnlBarOuter";
-            this.pnlBarOuter.Padding = new System.Windows.Forms.Padding(1);
+            this.pnlBarOuter.Padding = new System.Windows.Forms.Padding(1, 1, 1, 4);
             this.pnlBarOuter.Size = new System.Drawing.Size(1142, 106);
             this.pnlBarOuter.TabIndex = 0;
             // 
@@ -399,7 +399,7 @@
             this.pnlCardOuter.Location = new System.Drawing.Point(16, 440);
             this.pnlCardOuter.Margin = new System.Windows.Forms.Padding(0);
             this.pnlCardOuter.Name = "pnlCardOuter";
-            this.pnlCardOuter.Padding = new System.Windows.Forms.Padding(1);
+            this.pnlCardOuter.Padding = new System.Windows.Forms.Padding(1, 1, 1, 4);
             this.pnlCardOuter.Size = new System.Drawing.Size(1142, 300);
             this.pnlCardOuter.TabIndex = 3;
             // 
@@ -571,7 +571,7 @@
         private System.Windows.Forms.Panel pnlTitleLine;
         private System.Windows.Forms.Panel gripResize;
         private System.Windows.Forms.TableLayoutPanel rootTable;
-        private System.Windows.Forms.Panel pnlBarOuter;
+        private AlphaRap.CardPanel pnlBarOuter;
         private System.Windows.Forms.Panel pnlBarInner;
         private AlphaRap.DateField dateFrom;
         private AlphaRap.UiLabel lblRangeDash;
@@ -588,7 +588,7 @@
         private System.Windows.Forms.TableLayoutPanel tblCharts;
         private AlphaRap.BarChart chartRank;
         private AlphaRap.BarChart chartTrend;
-        private System.Windows.Forms.Panel pnlCardOuter;
+        private AlphaRap.CardPanel pnlCardOuter;
         private System.Windows.Forms.Panel pnlCardInner;
         private System.Windows.Forms.DataGridView grdAlarm;
         private System.Windows.Forms.DataGridViewTextBoxColumn colTime;

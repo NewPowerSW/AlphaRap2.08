@@ -100,27 +100,22 @@ namespace AlphaRap
         /// <summary>卡片与查询控件的圆角。描边靠「外层底色=线色 + Padding=1」留出，不自绘。</summary>
         private void SetupCards()
         {
-            RoundControl(pnlBarOuter, 12);
-            RoundControl(pnlCardOuter, 12);
-            pnlBarOuter.Resize += delegate { RoundControl(pnlBarOuter, 12); };
-            pnlCardOuter.Resize += delegate { RoundControl(pnlCardOuter, 12); };
+            StyleOuterCard(pnlBarOuter);
+            StyleOuterCard(pnlCardOuter);
 
         }
 
-        /// <summary>把控件裁成圆角（半径按 96 DPI 设计值给）。</summary>
-        private static void RoundControl(Control c, int radius)
+        /// <summary>
+        /// 卡片外框：底色取线色、不画自己的描边，圆角与投影由 <see cref="CardPanel"/> 画；
+        /// 内层白面板靠外层 Padding 内缩 1px，天然留出 1px 描边。
+        /// **不要再挂 Region 收圆角** —— Region 会把投影一起裁掉。
+        /// </summary>
+        private static void StyleOuterCard(CardPanel c)
         {
-            if (c == null || c.Width <= 1 || c.Height <= 1) return;
-            try
-            {
-                using (GraphicsPath path = UiKit.RoundRect(new Rectangle(0, 0, c.Width, c.Height), UiTheme.Dpi(radius)))
-                {
-                    Region old = c.Region;
-                    c.Region = new Region(path);
-                    if (old != null) old.Dispose();
-                }
-            }
-            catch { }
+            if (c == null) return;
+            c.FillColor = UiKit.Line;
+            c.ShowBorder = false;
+            c.CornerRadius = 12;
         }
 
         private void SetupQueryBar()
