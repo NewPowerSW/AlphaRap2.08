@@ -47,6 +47,9 @@ namespace AlphaRap
         public int IconSize { get; set; }
         public int IconGap { get; set; }
 
+        /// <summary>覆盖文字颜色；为 null 时按 Variant 自动取色（禁用态一律用灰色）。</summary>
+        public Color? TextColorOverride { get; set; }
+
         /// <summary>是否允许获取焦点（默认 false，避免留下焦点虚线框）。</summary>
         public bool Selectable
         {
@@ -105,6 +108,7 @@ namespace AlphaRap
         private Color TextColor()
         {
             if (!Enabled) return UiKit.DisabledText;
+            if (TextColorOverride.HasValue) return TextColorOverride.Value;
             switch (_variant)
             {
                 case FlatButtonVariant.Primary:

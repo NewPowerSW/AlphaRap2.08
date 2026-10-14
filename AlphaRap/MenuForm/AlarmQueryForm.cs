@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace AlphaRap
@@ -49,6 +51,9 @@ namespace AlphaRap
             pnlBarOuter.Resize += delegate { RoundCard(pnlBarOuter); };
             pnlCardOuter.Resize += delegate { RoundCard(pnlCardOuter); };
 
+            KeyPreview = true;
+            SetupWindowChrome();
+
             ApplyLanguage();
             Reload();
 
@@ -86,6 +91,141 @@ namespace AlphaRap
             catch { }
         }
 
+        // ---------------- 无边框窗口（FormBorderStyle.None）----------------
+
+        /// <summary>窗口圆角半径（96 DPI 设计值）。</summary>
+        private const int WindowCornerRadius = 12;
+
+        private const int WmNcLButtonDown = 0x00A1;
+        private const int HtCaption = 2;
+        private const int HtBottomRight = 17;
+
+        [DllImport("user32.dll")]
+        private static extern bool ReleaseCapture();
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("gdi32.dll")]
+        private static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int w, int h);
+
+        [DllImport("gdi32.dll")]
+        private static extern bool DeleteObject(IntPtr hObject);
+
+        /// <summary>无边框窗口的自定义外观：标题栏拖动、最小化/关闭按钮、右下角缩放柄、圆角窗口。</summary>
+        private void SetupWindowChrome()
+        {
+            try
+            {
+                btnMin.TextColorOverride = UiKit.TextSecondary;
+                btnClose.TextColorOverride = UiKit.TextSecondary;
+
+                pnlTitle.MouseDown += TitleBar_MouseDown;
+                lblTitle.MouseDown += TitleBar_MouseDown;
+                pnlTitleLine.MouseDown += TitleBar_MouseDown;
+
+                btnMin.Click += delegate { WindowState = FormWindowState.Minimized; };
+                btnClose.MouseEnter += delegate
+                {
+                    btnClose.Variant = FlatButtonVariant.Danger;      // 悬停变红，与系统关闭键一致
+                    btnClose.TextColorOverride = Color.White;
+                };
+                btnClose.MouseLeave += delegate
+                {
+                    btnClose.Variant = FlatButtonVariant.Ghost;
+                    btnClose.TextColorOverride = UiKit.TextSecondary;
+                };
+                btnClose.Click += delegate { Close(); };
+
+                gripResize.BringToFront();                            // 缩放柄浮在内容之上（它的颜色与页面底色相同）
+                gripResize.MouseDown += Grip_MouseDown;
+                gripResize.Paint += Grip_Paint;
+
+                UpdateWindowRegion();
+            }
+            catch { }
+        }
+
+        /// <summary>按住标题栏拖动窗口：无边框窗口没有系统标题栏，借系统的 WM_NCLBUTTONDOWN(HTCAPTION) 走原生拖动。</summary>
+        private void TitleBar_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+            try { ReleaseCapture(); SendMessage(Handle, WmNcLButtonDown, (IntPtr)HtCaption, IntPtr.Zero); }
+            catch { }
+        }
+
+        /// <summary>右下角缩放柄：同样是借系统的边框缩放（HTBOTTOMRIGHT）。</summary>
+        private void Grip_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left || WindowState != FormWindowState.Normal) return;
+            try { ReleaseCapture(); SendMessage(Handle, WmNcLButtonDown, (IntPtr)HtBottomRight, IntPtr.Zero); }
+            catch { }
+        }
+
+        /// <summary>右下角缩放柄上的三道斜线（系统缩放柄的经典样式）。</summary>
+        private void Grip_Paint(object sender, PaintEventArgs e)
+        {
+            try
+            {
+                e.Graphics.Clear(gripResize.BackColor);
+                int w = gripResize.Width - 1;
+                int h = gripResize.Height - 1;
+                using (Pen p = new Pen(UiKit.LineStrong, 1f))
+                {
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        int off = UiTheme.Dpi(i * 5);
+                        if (off >= w || off >= h) break;
+                        e.Graphics.DrawLine(p, w - off, h, w, h - off);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            UpdateWindowRegion();
+        }
+
+        /// <summary>按当前尺寸重建窗口圆角；最大化时不裁角，否则四角会把全屏内容切掉。</summary>
+        private void UpdateWindowRegion()
+        {
+            if (IsDisposed || Width <= 0 || Height <= 0) return;
+            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
+            if (WindowState == FormWindowState.Minimized) return;
+            if (WindowState == FormWindowState.Maximized)
+            {
+                Region = null;
+                return;
+            }
+
+            try
+            {
+                int corner = UiTheme.Dpi(WindowCornerRadius);
+                IntPtr hRgn = CreateRoundRectRgn(0, 0, Width + 1, Height + 1, corner, corner);
+                if (hRgn == IntPtr.Zero) return;
+
+                System.Drawing.Region oldRegion = Region;
+                Region = System.Drawing.Region.FromHrgn(hRgn);
+                DeleteObject(hRgn);
+                if (oldRegion != null) oldRegion.Dispose();
+            }
+            catch { }
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)      // 没有标题栏，Esc 就是"关掉"
+            {
+                Close();
+                e.Handled = true;
+                return;
+            }
+            base.OnKeyDown(e);
+        }
+
         // ---------------- 文案 ----------------
 
         private void ApplyLanguage()
@@ -94,6 +234,7 @@ namespace AlphaRap
             {
                 this.Text = UiTheme.T("AlarmQueryForm", "title",
                     "报警统计与历史查询", "Alarm statistics and history", "Estadisticas e historial de alarmas");
+                lblTitle.Text = this.Text;      // 无边框窗口，标题要自己画
 
                 lblFrom.Text = UiTheme.T("AlarmQueryForm", "from", "开始", "From", "Desde");
                 lblTo.Text = UiTheme.T("AlarmQueryForm", "to", "结束", "To", "Hasta");

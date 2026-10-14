@@ -20,6 +20,13 @@
 
         private void InitializeComponent()
         {
+            this.pnlTitle = new System.Windows.Forms.Panel();
+            this.lblTitle = new AlphaRap.UiLabel();
+            this.flowCap = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnMin = new AlphaRap.FlatButton();
+            this.btnClose = new AlphaRap.FlatButton();
+            this.pnlTitleLine = new System.Windows.Forms.Panel();
+            this.gripResize = new System.Windows.Forms.Panel();
             this.rootTable = new System.Windows.Forms.TableLayoutPanel();
             this.pnlBarOuter = new System.Windows.Forms.Panel();
             this.pnlBarInner = new System.Windows.Forms.Panel();
@@ -55,6 +62,8 @@
             this.pnlCardHead = new System.Windows.Forms.Panel();
             this.lblDetail = new AlphaRap.UiLabel();
             this.lblStatus = new AlphaRap.UiLabel();
+            this.pnlTitle.SuspendLayout();
+            this.flowCap.SuspendLayout();
             this.rootTable.SuspendLayout();
             this.pnlBarOuter.SuspendLayout();
             this.pnlBarInner.SuspendLayout();
@@ -66,6 +75,90 @@
             this.pnlCardHead.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdAlarm)).BeginInit();
             this.SuspendLayout();
+            // 
+            // pnlTitle
+            // 
+            this.pnlTitle.BackColor = System.Drawing.Color.White;
+            this.pnlTitle.Controls.Add(this.lblTitle);
+            this.pnlTitle.Controls.Add(this.flowCap);
+            this.pnlTitle.Controls.Add(this.pnlTitleLine);
+            this.pnlTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlTitle.Location = new System.Drawing.Point(0, 0);
+            this.pnlTitle.Name = "pnlTitle";
+            this.pnlTitle.Size = new System.Drawing.Size(1180, 46);
+            this.pnlTitle.TabIndex = 0;
+            // 
+            // lblTitle
+            // 
+            this.lblTitle.AutoSize = false;
+            this.lblTitle.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblTitle.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
+            this.lblTitle.Location = new System.Drawing.Point(0, 0);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Padding = new System.Windows.Forms.Padding(18, 0, 0, 0);
+            this.lblTitle.Size = new System.Drawing.Size(460, 45);
+            this.lblTitle.TabIndex = 0;
+            this.lblTitle.Text = "报警统计与历史查询";
+            this.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // flowCap
+            // 
+            this.flowCap.BackColor = System.Drawing.Color.White;
+            this.flowCap.Controls.Add(this.btnMin);
+            this.flowCap.Controls.Add(this.btnClose);
+            this.flowCap.Dock = System.Windows.Forms.DockStyle.Right;
+            this.flowCap.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.flowCap.Location = new System.Drawing.Point(1088, 0);
+            this.flowCap.Margin = new System.Windows.Forms.Padding(0);
+            this.flowCap.Name = "flowCap";
+            this.flowCap.Padding = new System.Windows.Forms.Padding(0, 8, 12, 0);
+            this.flowCap.Size = new System.Drawing.Size(92, 45);
+            this.flowCap.TabIndex = 1;
+            this.flowCap.WrapContents = false;
+            // 
+            // btnMin
+            // 
+            this.btnMin.CornerRadius = 6;
+            this.btnMin.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnMin.Location = new System.Drawing.Point(0, 8);
+            this.btnMin.Margin = new System.Windows.Forms.Padding(0, 0, 4, 0);
+            this.btnMin.Name = "btnMin";
+            this.btnMin.Size = new System.Drawing.Size(38, 30);
+            this.btnMin.TabIndex = 0;
+            this.btnMin.Text = "—";
+            this.btnMin.Variant = AlphaRap.FlatButtonVariant.Ghost;
+            // 
+            // btnClose
+            // 
+            this.btnClose.CornerRadius = 6;
+            this.btnClose.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnClose.Location = new System.Drawing.Point(42, 8);
+            this.btnClose.Margin = new System.Windows.Forms.Padding(0);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(38, 30);
+            this.btnClose.TabIndex = 1;
+            this.btnClose.Text = "✕";
+            this.btnClose.Variant = AlphaRap.FlatButtonVariant.Ghost;
+            // 
+            // pnlTitleLine
+            // 
+            this.pnlTitleLine.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
+            this.pnlTitleLine.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlTitleLine.Location = new System.Drawing.Point(0, 45);
+            this.pnlTitleLine.Name = "pnlTitleLine";
+            this.pnlTitleLine.Size = new System.Drawing.Size(1180, 1);
+            this.pnlTitleLine.TabIndex = 2;
+            // 
+            // gripResize
+            // 
+            this.gripResize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.gripResize.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
+            this.gripResize.Cursor = System.Windows.Forms.Cursors.SizeNWSE;
+            this.gripResize.Location = new System.Drawing.Point(1158, 786);
+            this.gripResize.Name = "gripResize";
+            this.gripResize.Size = new System.Drawing.Size(22, 20);
+            this.gripResize.TabIndex = 4;
             // 
             // rootTable
             // 
@@ -79,7 +172,7 @@
             this.rootTable.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rootTable.Location = new System.Drawing.Point(0, 0);
             this.rootTable.Name = "rootTable";
-            this.rootTable.Padding = new System.Windows.Forms.Padding(16, 14, 16, 14);
+            this.rootTable.Padding = new System.Windows.Forms.Padding(16, 14, 22, 20);
             this.rootTable.RowCount = 4;
             this.rootTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 72F));
             this.rootTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 118F));
@@ -474,12 +567,17 @@
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(248)))), ((int)(((byte)(249)))));
-            this.ClientSize = new System.Drawing.Size(1180, 760);
+            this.ClientSize = new System.Drawing.Size(1180, 806);
+            this.Controls.Add(this.gripResize);
             this.Controls.Add(this.rootTable);
-            this.MinimumSize = new System.Drawing.Size(1000, 640);
+            this.Controls.Add(this.pnlTitle);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.MinimumSize = new System.Drawing.Size(1020, 700);
             this.Name = "AlarmQueryForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "报警统计与历史查询";
+            this.pnlTitle.ResumeLayout(false);
+            this.flowCap.ResumeLayout(false);
             this.rootTable.ResumeLayout(false);
             this.pnlBarOuter.ResumeLayout(false);
             this.pnlBarInner.ResumeLayout(false);
@@ -496,6 +594,13 @@
 
         #endregion
 
+        private System.Windows.Forms.Panel pnlTitle;
+        private AlphaRap.UiLabel lblTitle;
+        private System.Windows.Forms.FlowLayoutPanel flowCap;
+        private AlphaRap.FlatButton btnMin;
+        private AlphaRap.FlatButton btnClose;
+        private System.Windows.Forms.Panel pnlTitleLine;
+        private System.Windows.Forms.Panel gripResize;
         private System.Windows.Forms.TableLayoutPanel rootTable;
         private System.Windows.Forms.Panel pnlBarOuter;
         private System.Windows.Forms.Panel pnlBarInner;
