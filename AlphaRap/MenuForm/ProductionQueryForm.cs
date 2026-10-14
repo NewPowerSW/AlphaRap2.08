@@ -23,7 +23,6 @@ namespace AlphaRap
 
         private CardPanel cardQuery;
         private CardPanel cardDetail;
-        private FlowLayoutPanel barTop;
         private Panel detailHost;
 
         private UiLabel lblRange;
@@ -42,6 +41,7 @@ namespace AlphaRap
 
         private StatStrip statStrip;
         private DataGridView grd;
+        private WindowChrome _chrome;
 
         private List<ProductionRecord> _rows = new List<ProductionRecord>();
         private bool _loading;
@@ -51,6 +51,8 @@ namespace AlphaRap
             UiTheme.ApplyDpi(this);
 
             BuildUi();
+            // 框架风格的无边框标题栏（与报警查询窗口一致）
+            _chrome = WindowChrome.Attach(this, AppIcon.Data, Text);
             WireEvents();
 
             _loading = true;
@@ -125,6 +127,7 @@ namespace AlphaRap
             // 静态事件必须解绑，否则已释放的窗体会被语言切换一直拉住
             try { MiddleLayer.LanguageChanged -= ProductionQueryForm_LanguageChanged; }
             catch { }
+            if (_chrome != null) _chrome.Detach();
             base.OnFormClosed(e);
         }
 
@@ -143,19 +146,15 @@ namespace AlphaRap
 
             Text = "生产数据查询";
             StartPosition = FormStartPosition.CenterParent;
-            FormBorderStyle = FormBorderStyle.Sizable;
-            MinimizeBox = true;
-            MaximizeBox = true;
-            ShowIcon = false;
             Font = UiKit.Regular(10.5f);
             BackColor = UiKit.PageBg;
-            ClientSize = new Size(940, 660);
-            MinimumSize = new Size(780, 520);
+            ClientSize = new Size(1180, 720);
+            MinimumSize = new Size(880, 560);
 
             TableLayoutPanel root = new TableLayoutPanel();
             root.Dock = DockStyle.Fill;
             root.BackColor = UiKit.PageBg;
-            root.Padding = new Padding(D(16), D(14), D(16), D(14));
+            root.Padding = new Padding(D(16), D(14), D(22), D(20));
             root.ColumnCount = 1;
             root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
             root.RowCount = 5;
@@ -167,79 +166,68 @@ namespace AlphaRap
             root.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
             Controls.Add(root);
 
-            // ---- 查询条 ----
+            // ---- 查询条：第一行＝时间范围 +「查询/导出」；第二行＝快捷 + 关键字
+            //      （与报警统计窗口同一版式）
             cardQuery = new CardPanel();
             cardQuery.Dock = DockStyle.Fill;
             cardQuery.Margin = new Padding(0);
             cardQuery.Padding = new Padding(D(18), D(14), D(18), D(14));
             root.Controls.Add(cardQuery, 0, 0);
 
-            barTop = new FlowLayoutPanel();
+            TableLayoutPanel barTop = new TableLayoutPanel();
             barTop.Dock = DockStyle.Top;
-            barTop.Height = D(42);
+            barTop.Height = D(44);
             barTop.BackColor = UiKit.Surface;
-            barTop.WrapContents = false;
-            barTop.FlowDirection = FlowDirection.LeftToRight;
+            barTop.Margin = new Padding(0);
+            barTop.ColumnCount = 2;
+            barTop.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            barTop.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, D(214)));
+            barTop.RowCount = 1;
+            barTop.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
             cardQuery.Controls.Add(barTop);
 
+            FlowLayoutPanel rowRange = NewRow();
+            barTop.Controls.Add(rowRange, 0, 0);
+
             lblRange = NewLabel("时间范围", UiKit.TextSecondary, 10f);
-            barTop.Controls.Add(lblRange);
+            rowRange.Controls.Add(lblRange);
 
             dateFrom = NewDateField();
-            barTop.Controls.Add(dateFrom);
+            rowRange.Controls.Add(dateFrom);
 
             lblTo = NewLabel("至", UiKit.TextSecondary, 10f);
-            barTop.Controls.Add(lblTo);
+            rowRange.Controls.Add(lblTo);
 
             dateTo = NewDateField();
-            barTop.Controls.Add(dateTo);
+            rowRange.Controls.Add(dateTo);
 
-            btnToday = NewButton(D(76));
-            btnWeek = NewButton(D(88));
-            btnMonth = NewButton(D(88));
-            barTop.Controls.Add(btnToday);
-            barTop.Controls.Add(btnWeek);
-            barTop.Controls.Add(btnMonth);
-
-            TableLayoutPanel barBottom = new TableLayoutPanel();
-            barBottom.Dock = DockStyle.Bottom;
-            barBottom.Height = D(42);
-            barBottom.BackColor = UiKit.Surface;
-            barBottom.ColumnCount = 3;
-            barBottom.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, D(312)));
-            barBottom.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-            barBottom.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, D(212)));
-            barBottom.RowCount = 1;
-            barBottom.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
-            cardQuery.Controls.Add(barBottom);
-
-            boxKeyword = new FieldBox();
-            boxKeyword.Dock = DockStyle.Fill;
-            boxKeyword.Margin = new Padding(0, D(4), D(10), D(4));
-            boxKeyword.BackColor = UiKit.Surface;
-            barBottom.Controls.Add(boxKeyword, 0, 0);
-
-            lblStatus = NewLabel("", UiKit.TextSecondary, 9.5f);
-            lblStatus.AutoSize = false;
-            lblStatus.Dock = DockStyle.Fill;
-            lblStatus.Margin = new Padding(0);
-            lblStatus.TextAlign = ContentAlignment.MiddleLeft;
-            barBottom.Controls.Add(lblStatus, 1, 0);
-
-            FlowLayoutPanel rightBar = new FlowLayoutPanel();
-            rightBar.Dock = DockStyle.Fill;
-            rightBar.Margin = new Padding(0);
-            rightBar.BackColor = UiKit.Surface;
-            rightBar.WrapContents = false;
-            rightBar.FlowDirection = FlowDirection.LeftToRight;
-            rightBar.Padding = new Padding(0, D(4), 0, D(4));
-            barBottom.Controls.Add(rightBar, 2, 0);
+            FlowLayoutPanel rowActions = NewRow();
+            rowActions.Padding = new Padding(0, D(4), 0, D(4));
+            barTop.Controls.Add(rowActions, 1, 0);
 
             btnQuery = NewButton(D(98));
+            rowActions.Controls.Add(btnQuery);
             btnExport = NewButton(D(98));
-            btnExport.Margin = new Padding(0, D(3), 0, 0);
-            rightBar.Controls.Add(btnQuery);
-            rightBar.Controls.Add(btnExport);
+            rowActions.Controls.Add(btnExport);
+
+            FlowLayoutPanel barBottom = NewRow();
+            barBottom.Dock = DockStyle.Bottom;
+            barBottom.Height = D(44);
+            barBottom.Padding = new Padding(0, D(4), 0, 0);
+            cardQuery.Controls.Add(barBottom);
+
+            btnToday = NewButton(D(76));
+            barBottom.Controls.Add(btnToday);
+            btnWeek = NewButton(D(88));
+            barBottom.Controls.Add(btnWeek);
+            btnMonth = NewButton(D(88));
+            barBottom.Controls.Add(btnMonth);
+
+            boxKeyword = new FieldBox();
+            boxKeyword.Size = new Size(D(320), D(34));
+            boxKeyword.Margin = new Padding(D(12), D(4), 0, 0);
+            boxKeyword.BackColor = UiKit.Surface;
+            barBottom.Controls.Add(boxKeyword);
 
             // ---- 统计数字条 ----
             statStrip = new StatStrip();
@@ -247,19 +235,13 @@ namespace AlphaRap
             statStrip.Margin = new Padding(0);
             root.Controls.Add(statStrip, 0, 2);
 
-            // ---- 明细 ----
+            // ---- 明细卡：先放内容（Fill）、再放表头（Top）——
+            //      Dock 顺序上后加的先占边；反过来表头会被内容挤没
             cardDetail = new CardPanel();
             cardDetail.Dock = DockStyle.Fill;
             cardDetail.Margin = new Padding(0);
             cardDetail.Padding = new Padding(D(18), D(12), D(18), D(14));
             root.Controls.Add(cardDetail, 0, 4);
-
-            lblDetail = NewLabel("生产数据明细", UiKit.TextPrimary, 12f, true);
-            lblDetail.AutoSize = false;
-            lblDetail.Dock = DockStyle.Top;
-            lblDetail.Height = D(32);
-            lblDetail.Margin = new Padding(0);
-            cardDetail.Controls.Add(lblDetail);
 
             detailHost = new Panel();
             detailHost.Dock = DockStyle.Fill;
@@ -277,11 +259,44 @@ namespace AlphaRap
             grd.RowHeadersVisible = false;
             grd.MultiSelect = false;
             grd.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            grd.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            grd.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             grd.ColumnHeadersDefaultCellStyle.Padding = D4();
             detailHost.Controls.Add(grd);
 
+            // 明细卡表头：左「生产数据明细」、右状态行（与报警统计窗口同一版式）
+            Panel detailHead = new Panel();
+            detailHead.Dock = DockStyle.Top;
+            detailHead.Height = D(34);
+            detailHead.BackColor = UiKit.Surface;
+            cardDetail.Controls.Add(detailHead);
+
+            lblDetail = NewLabel("生产数据明细", UiKit.TextPrimary, 12f, true);
+            lblDetail.AutoSize = false;
+            lblDetail.Dock = DockStyle.Fill;
+            lblDetail.Margin = new Padding(0);
+            lblDetail.TextAlign = ContentAlignment.MiddleLeft;
+            detailHead.Controls.Add(lblDetail);
+
+            lblStatus = NewLabel("", UiKit.TextSecondary, 9.5f);
+            lblStatus.AutoSize = true;
+            lblStatus.Dock = DockStyle.Right;
+            lblStatus.Margin = new Padding(0);
+            lblStatus.TextAlign = ContentAlignment.MiddleRight;
+            detailHead.Controls.Add(lblStatus);
+
             ResumeLayout(false);
+        }
+
+        /// <summary>查询条里的一行：不换行的横向流式容器。</summary>
+        private static FlowLayoutPanel NewRow()
+        {
+            FlowLayoutPanel p = new FlowLayoutPanel();
+            p.Dock = DockStyle.Fill;
+            p.Margin = new Padding(0);
+            p.BackColor = UiKit.Surface;
+            p.WrapContents = false;
+            p.FlowDirection = FlowDirection.LeftToRight;
+            return p;
         }
 
         private static int D(int v) { return UiTheme.Dpi(v); }
@@ -368,6 +383,7 @@ namespace AlphaRap
                 lblRange.Text = UiTheme.T("ProductionQuery", "range", "时间范围", "Date range", "Rango");
                 lblTo.Text = UiTheme.T("ProductionQuery", "to", "至", "to", "a");
                 lblDetail.Text = UiTheme.T("ProductionQuery", "detail", "生产数据明细", "Records", "Registros");
+                if (_chrome != null) _chrome.Title = Text;
 
                 btnToday.Text = UiTheme.T("ProductionQuery", "today", "今天", "Today", "Hoy");
                 btnWeek.Text = UiTheme.T("ProductionQuery", "week", "近 7 天", "Last 7 days", "7 dias");
@@ -453,6 +469,10 @@ namespace AlphaRap
                     c.Width = ColWidth(cols[i], UiKit.Bold(9.5f), D(80), D(220));
                     grd.Columns.Add(c);
                 }
+
+                // 最后一列吃掉剩余宽度：否则尾部留一大片空白（Time 列宽是算好的，不会被挤）
+                if (grd.Columns.Count > 0)
+                    grd.Columns[grd.Columns.Count - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
                 int shown = Math.Min(_rows.Count, MaxRowsShown);
                 for (int i = 0; i < shown; i++)
