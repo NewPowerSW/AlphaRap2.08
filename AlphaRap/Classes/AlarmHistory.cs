@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
+using System.Xml;
 
 namespace AlphaRap
 {
@@ -17,6 +19,9 @@ namespace AlphaRap
         public string Type = "";
         public string Code = "";
         public string Content = "";
+
+        /// <summary>是否停机报警：报警表 AlarmTable\*.xml 里该编号的 DoStop。</summary>
+        public bool Stop;
 
         /// <summary>是否 E 类报警（日志文件里的 ERROR）。</summary>
         public bool IsAlarm
@@ -37,6 +42,8 @@ namespace AlphaRap
         public const string FilterAll = "ALL";
         public const string FilterWarn = "WARN";
         public const string FilterAlarm = "ALARM";
+        /// <summary>只看会导致停机的报警（报警表里 DoStop=true）。</summary>
+        public const string FilterStop = "STOP";
 
         /// <summary>报警日志根目录（取自日志页配置的 AlarmPath）；取不到时返回空串。</summary>
         public static string RootPath()
@@ -84,7 +91,7 @@ namespace AlphaRap
                 if (!File.Exists(file)) continue;
 
                 string[] lines;
-                try { lines = File.ReadAllLines(file); }
+                try { lines = DecodeLines(File.ReadAllBytes(file)); }
                 catch (Exception) { continue; }
                 fileCount++;
 
@@ -92,11 +99,35 @@ namespace AlphaRap
                 {
                     AlarmRecord r = ParseLine(lines[i]);
                     if (r == null) continue;
+                    r.Stop = IsStopCode(r.Code);
                     if (!Match(r, typeFilter, code, keyword)) continue;
                     list.Add(r);
                 }
             }
             return list;
+        }
+
+        /// <summary>
+        /// 按字节读日志并拆成行。文件可能是带 BOM 的 UTF-8，也可能是旧版按 ANSI(GBK) 写出来的；
+        /// 先按严格 UTF-8 解，解不开再退回系统 ANSI 代码页，否则中文报警内容会读成乱码。
+        /// </summary>
+        private static string[] DecodeLines(byte[] raw)
+        {
+            string text;
+            if (raw.Length >= 3 && raw[0] == 0xEF && raw[1] == 0xBB && raw[2] == 0xBF)
+            {
+                text = Encoding.UTF8.GetString(raw, 3, raw.Length - 3);
+            }
+            else
+            {
+                try { text = new UTF8Encoding(false, true).GetString(raw); }
+                catch (DecoderFallbackException)
+                {
+                    try { text = Encoding.GetEncoding(936).GetString(raw); }
+                    catch { text = Encoding.Default.GetString(raw); }
+                }
+            }
+            return text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
         }
 
         /// <summary>
@@ -147,6 +178,7 @@ namespace AlphaRap
         {
             if (typeFilter == FilterAlarm && !r.IsAlarm) return false;
             if (typeFilter == FilterWarn && r.IsAlarm) return false;
+            if (typeFilter == FilterStop && !r.Stop) return false;
             if (code.Length > 0 && r.Code.IndexOf(code, StringComparison.OrdinalIgnoreCase) < 0) return false;
             if (keyword.Length > 0
                 && r.Content.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) < 0
@@ -154,12 +186,38 @@ namespace AlphaRap
             return true;
         }
 
-        /// <summary>E 类报警条数。</summary>
-        public static int CountAlarm(List<AlarmRecord> rows)
+        /// <summary>停机报警条数。</summary>
+        public static int CountStop(List<AlarmRecord> rows)
         {
             int n = 0;
-            for (int i = 0; i < rows.Count; i++) if (rows[i].IsAlarm) n++;
+            for (int i = 0; i < rows.Count; i++) if (rows[i].Stop) n++;
             return n;
+        }
+
+        /// <summary>出现过的天数（按日期去重）。</summary>
+        public static int CountDays(List<AlarmRecord> rows)
+        {
+            HashSet<string> set = new HashSet<string>();
+            for (int i = 0; i < rows.Count; i++) set.Add(rows[i].Time.ToString("yyyy-MM-dd"));
+            return set.Count;
+        }
+
+        /// <summary>出现过的配方种类数（配方名为空的不计）。</summary>
+        public static int CountRecipeKinds(List<AlarmRecord> rows)
+        {
+            HashSet<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < rows.Count; i++)
+                if (!string.IsNullOrEmpty(rows[i].RecipeName)) set.Add(rows[i].RecipeName);
+            return set.Count;
+        }
+
+        /// <summary>出现过的工号数（工号为空的不计）。</summary>
+        public static int CountUserKinds(List<AlarmRecord> rows)
+        {
+            HashSet<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < rows.Count; i++)
+                if (!string.IsNullOrEmpty(rows[i].User)) set.Add(rows[i].User);
+            return set.Count;
         }
 
         /// <summary>出现过的报警号种类数。</summary>
@@ -215,6 +273,104 @@ namespace AlphaRap
             return list;
         }
 
+        // ---------------- 停机判定（读报警表的 DoStop 属性） ----------------
+
+        /// <summary>报警表目录，与运行时加载报警表用的是同一个。</summary>
+        private static string AlarmTableDir()
+        {
+            string dir = SysPara.AlarmTableDirectory;
+            return string.IsNullOrEmpty(dir) ? ".\\AlarmTable" : dir;
+        }
+
+        /// <summary>按当前语言取报警表文件，映射规则与 MiddleLayer.LoadAlarmTable 一致。</summary>
+        private static string LangTableFile(string dir)
+        {
+            string langName;
+            switch (SysPara.LanguageShow)
+            {
+                case LanguageType.Chinese: langName = "Chinese"; break;
+                case LanguageType.English: langName = "English"; break;
+                case LanguageType.Español: langName = "Spanish"; break;   // 枚举名 Español，文件名是 Spanish
+                default: langName = SysPara.LanguageShow.ToString(); break;
+            }
+
+            string file = Path.Combine(dir, langName + ".xml");
+            if (File.Exists(file)) return file;
+            file = Path.Combine(dir, SysPara.LanguageShow.ToString() + ".xml");
+            if (File.Exists(file)) return file;
+            return Path.Combine(dir, "English.xml");
+        }
+
+        private static Dictionary<string, bool> _stopMap;
+        private static string _stopMapDir = "\0";
+
+        /// <summary>
+        /// 编号 → 是否停机。当前语言的报警表优先，该表里没有的编号用其它语言表补齐；
+        /// 报警表目录变了才重建。
+        /// </summary>
+        private static Dictionary<string, bool> StopMap()
+        {
+            string dir = AlarmTableDir();
+            if (_stopMap != null && string.Equals(_stopMapDir, dir, StringComparison.OrdinalIgnoreCase))
+                return _stopMap;
+
+            Dictionary<string, bool> map = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+            ReadStopFile(map, LangTableFile(dir));
+
+            string[] others = { "Chinese.xml", "English.xml", "Spanish.xml", "Español.xml" };
+            for (int i = 0; i < others.Length; i++)
+                ReadStopFile(map, Path.Combine(dir, others[i]));
+
+            _stopMap = map;
+            _stopMapDir = dir;
+            return map;
+        }
+
+        /// <summary>把一份报警表里「编号 → DoStop」并进 map；已存在的编号不覆盖。</summary>
+        private static void ReadStopFile(Dictionary<string, bool> map, string file)
+        {
+            try
+            {
+                if (!File.Exists(file)) return;
+
+                XmlDocument doc = new XmlDocument();
+                doc.Load(file);
+                XmlNode root = doc.DocumentElement;
+                if (root == null) return;
+
+                foreach (XmlNode n in root.ChildNodes)
+                {
+                    if (n.NodeType != XmlNodeType.Element) continue;
+
+                    string code = n.Name;                                  // 形如 A1000
+                    if (code.Length > 1 && (code[0] == 'A' || code[0] == 'a')) code = code.Substring(1);
+                    if (code.Length == 0 || map.ContainsKey(code)) continue;
+
+                    bool stop = false;
+                    if (n.Attributes != null)
+                    {
+                        for (int i = 0; i < n.Attributes.Count; i++)
+                        {
+                            XmlAttribute a = n.Attributes[i];
+                            if (!string.Equals(a.Name, "DoStop", StringComparison.OrdinalIgnoreCase)) continue;
+                            stop = string.Equals(a.Value.Trim(), "true", StringComparison.OrdinalIgnoreCase);
+                            break;
+                        }
+                    }
+                    map[code] = stop;
+                }
+            }
+            catch { }   // 单份报警表读不了不影响其它表，也不让整次查询失败
+        }
+
+        /// <summary>该报警号是否会停机；报警表里没有这个编号时按"不停机"处理。</summary>
+        public static bool IsStopCode(string code)
+        {
+            if (string.IsNullOrEmpty(code)) return false;
+            bool v;
+            return StopMap().TryGetValue(code.Trim(), out v) && v;
+        }
+
         /// <summary>把记录写成 CSV（导出用）；成功返回空串，失败返回原因。</summary>
         public static string Export(List<AlarmRecord> rows, string file)
         {
@@ -222,13 +378,14 @@ namespace AlphaRap
             {
                 using (StreamWriter w = new StreamWriter(file, false, new System.Text.UTF8Encoding(true)))
                 {
-                    w.WriteLine("Time,Type,Code,Content,RecipeName,Mode,User");
+                    w.WriteLine("Time,Type,Stop,Code,Content,RecipeName,Mode,User");
                     for (int i = 0; i < rows.Count; i++)
                     {
                         AlarmRecord r = rows[i];
                         w.WriteLine(string.Join(",", new string[] {
                             r.Time.ToString("yyyy-MM-dd HH:mm:ss"),
                             r.IsAlarm ? "E" : "W",
+                            r.Stop ? "Y" : "N",
                             Csv(r.Code), Csv(r.Content), Csv(r.RecipeName), Csv(r.Mode), Csv(r.User) }));
                     }
                 }

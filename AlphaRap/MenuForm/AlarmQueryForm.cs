@@ -1,19 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace AlphaRap
 {
     /// <summary>
     /// 报警统计与历史查询：数据来自报警日志 {AlarmPath}\{年}\{月}\{日}.csv（见 <see cref="AlarmHistory"/>）。
-    /// 上半部分 = 查询条件 + 总览数字 + Top 报警号 / 每日趋势两张图，下半部分 = 结果表格。
-    /// 按需创建、复用同一个实例（见 MainForm.OpenAlarmQuery）；显示时重新查询一次。
+    /// 自上而下 = 查询条 / 停机统计数字条 / Top 报警号与每日趋势两张图 / 明细表，均为白色卡片。
+    /// 默认只看会停机的报警；按需创建、复用同一个实例（见 MainForm.OpenAlarmQuery），显示时重新查询一次。
     /// </summary>
     public partial class AlarmQueryForm : Form
     {
         /// <summary>明细表格最多显示的行数，避免一次查询几十万行把界面拖死。</summary>
         private const int MaxRowsShown = 5000;
+
+        /// <summary>类型下拉里「停机」的下标（默认选中项：统计只算停机报警）。</summary>
+        private const int TypeStopIndex = 3;
+
+        /// <summary>表格「停机」列的显示文字（随语言变化）。</summary>
+        private string _stopText = "停机";
 
         /// <summary>E 类报警行的底色（浅红）。</summary>
         private static readonly Color RowAlarmBack = Color.FromArgb(255, 238, 238);
@@ -37,6 +44,11 @@ namespace AlphaRap
             btnQuery.Click += btnQuery_Click;
             btnExport.Click += btnExport_Click;
 
+            RoundCard(pnlBarOuter);
+            RoundCard(pnlCardOuter);
+            pnlBarOuter.Resize += delegate { RoundCard(pnlBarOuter); };
+            pnlCardOuter.Resize += delegate { RoundCard(pnlCardOuter); };
+
             ApplyLanguage();
             Reload();
 
@@ -55,6 +67,23 @@ namespace AlphaRap
         private void AlarmQueryForm_LanguageChanged(object sender, EventArgs e)
         {
             ApplyLanguage();
+            UpdateDetailTitle();
+        }
+
+        /// <summary>把卡片外框裁成圆角；描边靠「外层底色=线色 + Padding=1」留出，不自绘。</summary>
+        private static void RoundCard(Panel p)
+        {
+            if (p == null || p.Width <= 1 || p.Height <= 1) return;
+            try
+            {
+                using (GraphicsPath path = UiKit.RoundRect(new Rectangle(0, 0, p.Width, p.Height), UiTheme.Dpi(10)))
+                {
+                    Region old = p.Region;
+                    p.Region = new Region(path);
+                    if (old != null) old.Dispose();
+                }
+            }
+            catch { }
         }
 
         // ---------------- 文案 ----------------
@@ -77,29 +106,45 @@ namespace AlphaRap
                 btnQuery.Icon = AppIcons.Get(AppIcon.Search, 16, Color.White);
                 btnExport.Icon = AppIcons.Get(AppIcon.Save, 16, UiKit.TextPrimary);
 
-                // 类型下拉：三项固定含义，切换语言时保留当前选择
+                // 类型下拉：四项固定含义，切换语言时保留当前选择；首次进入默认「停机」
                 int sel = cboType.SelectedIndex;
                 cboType.Items.Clear();
                 cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeAll", "全部", "All", "Todos"));
                 cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeWarn", "警告", "Warning", "Aviso"));
                 cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeAlarm", "报警", "Alarm", "Alarma"));
-                cboType.SelectedIndex = (sel < 0 || sel > 2) ? 0 : sel;
+                cboType.Items.Add(UiTheme.T("AlarmQueryForm", "typeStop", "停机", "Stop", "Parada"));
+                cboType.SelectedIndex = (sel < 0 || sel > TypeStopIndex) ? TypeStopIndex : sel;
 
                 chartRank.Title = UiTheme.T("AlarmQueryForm", "rankTitle",
-                    "报警号出现次数 Top 10", "Top 10 alarm codes", "Top 10 codigos");
+                    "报警号发生次数 Top 10", "Top 10 alarm codes", "Top 10 codigos");
                 chartTrend.Title = UiTheme.T("AlarmQueryForm", "trendTitle",
-                    "每日报警次数", "Alarms per day", "Alarmas por dia");
+                    "每日次数", "Count per day", "Por dia");
                 chartRank.EmptyText = UiTheme.T("AlarmQueryForm", "empty", "无数据", "No data", "Sin datos");
                 chartTrend.EmptyText = chartRank.EmptyText;
 
                 colTime.HeaderText = UiTheme.T("AlarmQueryForm", "colTime", "时间", "Time", "Hora");
                 colType.HeaderText = UiTheme.T("AlarmQueryForm", "colType", "类型", "Type", "Tipo");
+                colStop.HeaderText = UiTheme.T("AlarmQueryForm", "colStop", "停机", "Stop", "Parada");
                 colCode.HeaderText = UiTheme.T("AlarmQueryForm", "colCode", "编号", "Code", "Codigo");
                 colContent.HeaderText = UiTheme.T("AlarmQueryForm", "colContent", "内容", "Content", "Contenido");
                 colRecipe.HeaderText = UiTheme.T("AlarmQueryForm", "colRecipe", "配方", "Recipe", "Receta");
                 colMode.HeaderText = UiTheme.T("AlarmQueryForm", "colMode", "模式", "Mode", "Modo");
                 colUser.HeaderText = UiTheme.T("AlarmQueryForm", "colUser", "工号", "User", "Usuario");
+                _stopText = colStop.HeaderText;
 
+                UpdateDetailTitle();
+            }
+            catch { }
+        }
+
+        /// <summary>明细卡标题：按当前类型筛选切换「停机明细 / 报警明细」。</summary>
+        private void UpdateDetailTitle()
+        {
+            try
+            {
+                lblDetail.Text = cboType.SelectedIndex == TypeStopIndex
+                    ? UiTheme.T("AlarmQueryForm", "detailStop", "停机明细", "Stop records", "Paradas")
+                    : UiTheme.T("AlarmQueryForm", "detailAll", "报警明细", "Alarm records", "Registros");
             }
             catch { }
         }
@@ -112,15 +157,16 @@ namespace AlphaRap
             Cursor = Cursors.WaitCursor;
             try
             {
+                UpdateDetailTitle();
+
                 if (!AlarmHistory.RootReady())
                 {
                     _rows = new List<AlarmRecord>();
-                    string hint = UiTheme.T("AlarmQueryForm", "noPath",
+                    lblStatus.ForeColor = UiTheme.WarnText;
+                    lblStatus.Text = UiTheme.T("AlarmQueryForm", "noPath",
                         "未配置报警日志目录：请在【日志】页设置 AlarmPath",
                         "Alarm log path not configured (see the Logs page)",
                         "Ruta de registro de alarmas no configurada");
-                    lblStatus.Text = hint;
-                    lblStatus.ForeColor = UiTheme.WarnText;
                     FillStats();
                     FillCharts();
                     FillGrid();
@@ -133,13 +179,13 @@ namespace AlphaRap
 
                 lblStatus.ForeColor = UiKit.TextSecondary;
                 lblStatus.Text = string.Format(UiTheme.T("AlarmQueryForm", "status",
-                    "共 {0} 条（读取 {1} 个日志文件）{2}",
-                    "Total {0} rows ({1} files) {2}",
-                    "Total {0} filas ({1} archivos) {2}"),
-                    _rows.Count, files,
+                    "共 {0} 条 · 停机 {1} 条 · 读取 {2} 个日志文件{3}",
+                    "Total {0} · stop {1} · {2} files{3}",
+                    "Total {0} · paradas {1} · {2} archivos{3}"),
+                    _rows.Count, AlarmHistory.CountStop(_rows), files,
                     _rows.Count > MaxRowsShown
                         ? string.Format(UiTheme.T("AlarmQueryForm", "truncated",
-                            "，表格只显示前 {0} 条", ", table shows the first {0}", ", se muestran {0}"), MaxRowsShown)
+                            " · 表格只显示前 {0} 条", " · table shows the first {0}", " · se muestran {0}"), MaxRowsShown)
                         : "");
 
                 FillStats();
@@ -158,35 +204,34 @@ namespace AlphaRap
             }
         }
 
-        /// <summary>下拉框的"全部 / 警告 / 报警"映射成查询用的筛选值。</summary>
+        /// <summary>下拉框的「全部 / 警告 / 报警 / 停机」映射成查询用的筛选值。</summary>
         private string CurrentTypeFilter()
         {
             switch (cboType.SelectedIndex)
             {
                 case 1: return AlarmHistory.FilterWarn;
                 case 2: return AlarmHistory.FilterAlarm;
+                case 3: return AlarmHistory.FilterStop;
                 default: return AlarmHistory.FilterAll;
             }
         }
 
         // ---------------- 填充 ----------------
 
-        /// <summary>顶部四张统计卡：总条数 / 警告 / 报警 / 涉及报警号种类。</summary>
+        /// <summary>统计数字条：停机次数 / 报警号种类 / 涉及天数 / 涉及配方 / 涉及工号。</summary>
         private void FillStats()
         {
-            int total = _rows.Count;
-            int alarm = AlarmHistory.CountAlarm(_rows);
-            int warn = total - alarm;
-
             List<StatItem> items = new List<StatItem>();
-            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statTotal", "总条数", "Total", "Total"),
-                total.ToString(), UiKit.Brand));
-            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statWarn", "警告", "Warning", "Aviso"),
-                warn.ToString(), UiKit.Warn));
-            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statAlarm", "报警", "Alarm", "Alarma"),
-                alarm.ToString(), UiKit.Danger));
-            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statKinds", "报警号种类", "Distinct codes", "Codigos distintos"),
-                AlarmHistory.CountCodeKinds(_rows).ToString(), UiKit.TextSecondary));
+            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statStop", "停机次数", "Stops", "Paradas"),
+                AlarmHistory.CountStop(_rows).ToString(), UiKit.Danger));
+            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statKinds", "报警号种类", "Distinct codes", "Codigos"),
+                AlarmHistory.CountCodeKinds(_rows).ToString(), UiKit.Brand));
+            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statDays", "涉及天数", "Days", "Dias"),
+                AlarmHistory.CountDays(_rows).ToString(), UiKit.BrandDark));
+            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statRecipes", "涉及配方", "Recipes", "Recetas"),
+                AlarmHistory.CountRecipeKinds(_rows).ToString(), UiKit.TextPrimary));
+            items.Add(new StatItem(UiTheme.T("AlarmQueryForm", "statUsers", "涉及工号", "Users", "Usuarios"),
+                AlarmHistory.CountUserKinds(_rows).ToString(), UiKit.TextSecondary));
             statStrip1.SetItems(items);
         }
 
@@ -211,6 +256,7 @@ namespace AlphaRap
                     int idx = grdAlarm.Rows.Add(
                         r.Time.ToString("yyyy-MM-dd HH:mm:ss"),
                         r.IsAlarm ? "E" : "W",
+                        r.Stop ? _stopText : "",
                         r.Code,
                         r.Content,
                         r.RecipeName,
@@ -218,6 +264,7 @@ namespace AlphaRap
                         r.User);
                     grdAlarm.Rows[idx].DefaultCellStyle.BackColor = r.IsAlarm ? RowAlarmBack : RowWarnBack;
                     grdAlarm.Rows[idx].DefaultCellStyle.ForeColor = r.IsAlarm ? UiKit.Danger : UiTheme.WarnText;
+                    if (r.Stop) grdAlarm.Rows[idx].Cells[colStop.Index].Style.ForeColor = UiKit.Danger;
                 }
                 grdAlarm.ClearSelection();
             }
@@ -235,8 +282,8 @@ namespace AlphaRap
             Reload();
             try
             {
-                OperationLog.Write("AlarmQueryForm", string.Format("查询报警历史：{0:yyyy-MM-dd} ~ {1:yyyy-MM-dd}，{2} 条",
-                    dtpFrom.Value, dtpTo.Value, _rows.Count));
+                OperationLog.Write("AlarmQueryForm", string.Format("查询报警历史：{0:yyyy-MM-dd} ~ {1:yyyy-MM-dd}，{2} 条（停机 {3} 条）",
+                    dtpFrom.Value, dtpTo.Value, _rows.Count, AlarmHistory.CountStop(_rows)));
             }
             catch { }
         }

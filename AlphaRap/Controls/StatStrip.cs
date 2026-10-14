@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace AlphaRap
 {
-    /// <summary>一张统计卡的内容：标题 + 数值 + 左侧竖条颜色。</summary>
+    /// <summary>一张统计格的内容：标题 + 数值 + 数值颜色。</summary>
     public sealed class StatItem
     {
         public string Title;
@@ -22,25 +22,21 @@ namespace AlphaRap
     }
 
     /// <summary>
-    /// 统计数字条：一行等宽白色圆角卡片，每张显示「标题 + 大号数值 + 左侧色条」。
-    /// 全部自绘，卡片数量由 SetItems 决定（不动态创建控件，避免与设计器/Dpi 缩放互相干扰）。
+    /// 统计数字条：一张白色圆角卡片内等分若干格，格与格之间一条细分隔线，
+    /// 每格「灰色小标题 + 彩色大数字」。全部自绘，不创建子控件（避免与设计器和 Dpi 缩放互相干扰）。
     /// </summary>
     public class StatStrip : Control
     {
         private readonly List<StatItem> _items = new List<StatItem>();
-
-        /// <summary>卡片间距（96 DPI 设计值）。</summary>
-        public int Gap { get; set; }
 
         public StatStrip()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
                      ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
             BackColor = UiKit.PageBg;
-            Gap = 12;
         }
 
-        /// <summary>设置要显示的卡片（会重绘）。</summary>
+        /// <summary>设置要显示的统计格（会重绘）。</summary>
         public void SetItems(IList<StatItem> items)
         {
             _items.Clear();
@@ -53,39 +49,38 @@ namespace AlphaRap
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.Clear(BackColor);
-            if (_items.Count == 0) return;
 
-            int gap = UiTheme.Dpi(Gap);
-            int cw = (Width - gap * (_items.Count - 1)) / _items.Count;
-            int h = Height;
+            using (GraphicsPath path = UiKit.RoundRect(new Rectangle(0, 0, Width - 1, Height - 1), UiTheme.Dpi(10)))
+            {
+                using (SolidBrush b = new SolidBrush(UiKit.Surface)) g.FillPath(b, path);
+                using (Pen p = new Pen(UiKit.Line, 1f)) g.DrawPath(p, path);
+            }
+
+            if (_items.Count == 0 || Width < 120 || Height < 44) return;
+
+            int padX = UiTheme.Dpi(20);
+            int cellW = (Width - padX * 2) / _items.Count;
+            if (cellW < UiTheme.Dpi(60)) return;
 
             for (int i = 0; i < _items.Count; i++)
             {
                 StatItem it = _items[i];
-                Rectangle rect = new Rectangle(i * (cw + gap), 0, cw, h - 1);
+                int x = padX + cellW * i;
 
-                using (GraphicsPath path = UiKit.RoundRect(rect, UiTheme.Dpi(10)))
+                if (i > 0)
                 {
-                    using (SolidBrush b = new SolidBrush(UiKit.Surface)) g.FillPath(b, path);
-                    using (Pen p = new Pen(UiKit.Line, 1f)) g.DrawPath(p, path);
+                    int xd = x - UiTheme.Dpi(10);
+                    using (Pen p = new Pen(UiKit.Line, 1f))
+                        g.DrawLine(p, xd, UiTheme.Dpi(18), xd, Height - UiTheme.Dpi(19));
                 }
 
-                // 左侧色条：与圆角同高、贴在卡片左内侧
-                Rectangle bar = new Rectangle(rect.Left + UiTheme.Dpi(1), rect.Top + UiTheme.Dpi(12),
-                                              UiTheme.Dpi(4), rect.Height - UiTheme.Dpi(24));
-                using (SolidBrush b = new SolidBrush(it.Accent)) g.FillRectangle(b, bar);
-
-                int textLeft = bar.Right + UiTheme.Dpi(12);
-                int textW = rect.Right - textLeft - UiTheme.Dpi(10);
-                if (textW <= 0) continue;
-
                 TextRenderer.DrawText(g, it.Title, UiTheme.Body,
-                    new Rectangle(textLeft, rect.Top + UiTheme.Dpi(10), textW, UiTheme.Dpi(20)),
+                    new Rectangle(x, UiTheme.Dpi(13), cellW - UiTheme.Dpi(16), UiTheme.Dpi(20)),
                     UiKit.TextSecondary, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
 
-                TextRenderer.DrawText(g, it.Value, UiTheme.StatValue,
-                    new Rectangle(textLeft, rect.Top + UiTheme.Dpi(30), textW, rect.Height - UiTheme.Dpi(38)),
-                    UiKit.TextPrimary, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                TextRenderer.DrawText(g, it.Value, UiTheme.KpiValue,
+                    new Rectangle(x, UiTheme.Dpi(33), cellW - UiTheme.Dpi(16), Height - UiTheme.Dpi(44)),
+                    it.Accent, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
             }
         }
     }
