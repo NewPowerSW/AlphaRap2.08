@@ -77,6 +77,19 @@ namespace AlphaRap
         }
     }
 
+    /// <summary>托盘参数里的某一项（与配方列后缀一一对应，也和界面表头同名）。</summary>
+    public enum TrayField
+    {
+        /// <summary>行数 RowNum</summary>
+        Rows = 0,
+        /// <summary>列数 ColumnNum</summary>
+        Columns,
+        /// <summary>行距 Rowdis</summary>
+        RowPitch,
+        /// <summary>列距 ColumnDis</summary>
+        ColumnPitch
+    }
+
     /// <summary>表格里的一行（已取值）：行标识 + 显示名 + 参数。</summary>
     public sealed class TrayTableRow
     {
@@ -186,17 +199,80 @@ namespace AlphaRap
         public static bool TryGet(string key, out TrayLayout layout)
         {
             layout = new TrayLayout();
-            if (string.IsNullOrEmpty(key)) return false;
+            TrayRowSpec spec = Find(key);
+            if (spec == null) return false;
+            layout = Get(spec.BaseKey, spec.Index);
+            return true;
+        }
 
-            key = key.Trim();
+        /// <summary>参数项 → 配方列后缀（与界面表头、配方列名同字面）。</summary>
+        public static string SuffixOf(TrayField field)
+        {
+            switch (field)
+            {
+                case TrayField.Rows: return SufRowNum;
+                case TrayField.Columns: return SufColNum;
+                case TrayField.RowPitch: return SufRowDis;
+                default: return SufColDis;
+            }
+        }
+
+        /// <summary>
+        /// **通过「托盘名 + 其中一项」直接取值**，例如：
+        /// <c>TrayConfig.Get("UnloadTray2", TrayField.Rows)</c> → 下料盘 B 的行数。
+        /// 名字就是界面上 TrayName 那一列的值（Tray / UnloadTray / UnloadTray2 / RejectTray / NGTray / 动态加的托盘）；
+        /// 没有这个托盘或这一项时返回 0。要区分"没有"请用 <see cref="TryGet(string,TrayField,out double)"/>。
+        /// </summary>
+        public static double Get(string name, TrayField field)
+        {
+            double v;
+            return TryGet(name, field, out v) ? v : 0;
+        }
+
+        /// <summary>同 <see cref="Get(string,TrayField)"/>，但能区分"没有这个托盘 / 没有这一项"。</summary>
+        public static bool TryGet(string name, TrayField field, out double value)
+        {
+            value = 0;
+            TrayRowSpec spec = Find(name);
+            if (spec == null) return false;
+
+            string column;
+            switch (field)
+            {
+                case TrayField.Rows: column = spec.RowNumCol; break;
+                case TrayField.Columns: column = spec.ColumnNumCol; break;
+                case TrayField.RowPitch: column = spec.RowPitchCol; break;
+                default: column = spec.ColumnPitchCol; break;
+            }
+            if (string.IsNullOrEmpty(column)) return false;
+
+            value = Num(column);
+            return true;
+        }
+
+        /// <summary>
+        /// 通过「托盘名 + 列名后缀」取值，后缀同界面表头：<c>RowNum / ColumnNum / Rowdis / ColumnDis</c>。
+        /// 例：<c>TrayConfig.Get("Tray", TrayConfig.SufColDis)</c>。
+        /// </summary>
+        public static double Get(string name, string columnSuffix)
+        {
+            TrayRowSpec spec = Find(name);
+            if (spec == null || string.IsNullOrEmpty(columnSuffix)) return 0;
+
+            string column = spec.BaseKey + columnSuffix.Trim() + (spec.Index > 1 ? spec.Index.ToString() : "");
+            return Num(column);
+        }
+
+        /// <summary>按行标识（= 界面 TrayName 列的值）找一行定义；不区分大小写。</summary>
+        private static TrayRowSpec Find(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return null;
+            name = name.Trim();
+
             List<TrayRowSpec> specs = BuildRows();
             for (int i = 0; i < specs.Count; i++)
-            {
-                if (!string.Equals(specs[i].Key, key, StringComparison.OrdinalIgnoreCase)) continue;
-                layout = Get(specs[i].BaseKey, specs[i].Index);
-                return true;
-            }
-            return false;
+                if (string.Equals(specs[i].Key, name, StringComparison.OrdinalIgnoreCase)) return specs[i];
+            return null;
         }
 
         /// <summary>3D 高度上/下限；列不存在时返回 false 并给 0。</summary>

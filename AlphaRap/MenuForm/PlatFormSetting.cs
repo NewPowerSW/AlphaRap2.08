@@ -146,11 +146,13 @@ namespace AlphaRap
             grdTray.AllowUserToOrderColumns = false;
             grdTray.MultiSelect = false;
             grdTray.EditMode = DataGridViewEditMode.EditOnKeystrokeOrF2;
-            grdTray.Columns.Add(MakeColumn("colTrayName", T("hdrName", "托盘", "Tray", "Bandeja"), 220, true));
-            grdTray.Columns.Add(MakeColumn("colTrayRowNum", T("hdrRows", "行数", "Rows", "Filas"), 110, false));
-            grdTray.Columns.Add(MakeColumn("colTrayColNum", T("hdrCols", "列数", "Columns", "Columnas"), 110, false));
-            grdTray.Columns.Add(MakeColumn("colTrayRowPitch", T("hdrRowPitch", "行距", "Row pitch", "Paso fila"), 130, false));
-            grdTray.Columns.Add(MakeColumn("colTrayColPitch", T("hdrColPitch", "列距", "Col pitch", "Paso col."), 130, false));
+            // 表头一律用代码里的名字（= 配方列后缀），**不参与中英文切换**：
+            // 表里的行列是参数名/数据，不是界面文案，跟着语言变会让人对不上代码。
+            grdTray.Columns.Add(MakeColumn("colTrayName", "TrayName", 220, true));
+            grdTray.Columns.Add(MakeColumn("colTrayRowNum", TrayConfig.SufRowNum, 110, false));
+            grdTray.Columns.Add(MakeColumn("colTrayColNum", TrayConfig.SufColNum, 110, false));
+            grdTray.Columns.Add(MakeColumn("colTrayRowPitch", TrayConfig.SufRowDis, 130, false));
+            grdTray.Columns.Add(MakeColumn("colTrayColPitch", TrayConfig.SufColDis, 130, false));
             UiKit.StyleGrid(grdTray);
             grdTray.CellValueChanged += grdTray_CellValueChanged;
             grdTray.DataError += grdTray_DataError;
@@ -186,7 +188,7 @@ namespace AlphaRap
                 {
                     TrayRowSpec s = _rowSpecs[i];
                     int idx = grdTray.Rows.Add(
-                        RowTitle(s),
+                        s.Key,      // 稳定的行标识，与 TrayConfig 的 name 一致，不本地化
                         CellText(s.RowNumCol), CellText(s.ColumnNumCol),
                         CellText(s.RowPitchCol), CellText(s.ColumnPitchCol));
                     grdTray.Rows[idx].Tag = s;
@@ -298,7 +300,7 @@ namespace AlphaRap
             TrayRowSpec spec = grdTray.CurrentRow.Tag as TrayRowSpec;
             if (spec == null) return;
 
-            string title = RowTitle(spec);
+            string title = spec.Key;
             string ask = string.Format(T("delConfirm",
                 "确定删除「{0}」吗？\r\n会从配方里删掉它的 4 个参数列，无法撤销。",
                 "Delete \"{0}\"? Its 4 recipe columns will be removed. This cannot be undone.",
@@ -334,11 +336,6 @@ namespace AlphaRap
         private static string T(string key, string zh, string en, string es)
         {
             return UiTheme.T("PlatFormSetting", key, zh, en, es);
-        }
-
-        private string RowTitle(TrayRowSpec s)
-        {
-            return UiTheme.T("PlatFormSetting", "row_" + s.Key, s.TitleZh, s.TitleEn, s.TitleEs);
         }
 
         private void UpdateStatus(string text, bool warn = false)
