@@ -4,6 +4,7 @@ using AlphaRapLibrary;
 using System.Drawing;
 using System.Data;
 using System.Collections.Generic;
+using System.IO;
 
 namespace AlphaRap
 {
@@ -667,22 +668,21 @@ namespace AlphaRap
 
 			if (MessageBox.Show(T("vpMsg_DeleteCameraA", "确认删除相机「") + cam.Name
 					+ T("vpMsg_DeleteCameraB", "」及其下 ") + cam.Vpps.Count + T("vpMsg_DeleteCameraC", " 个 VPP 页？\r\n")
-					+ T("vpMsg_KeepFiles", "（只删界面与配置，磁盘上的 vpp 文件保留）"),
+					+ T("vpMsg_DeleteDiskToo", "（将同时删除 VisionData 下该相机目录及其中的 vpp / 图片）"),
 				T("vpMsg_DeleteCameraTitle", "删除相机"), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK) return;
 
-			// 移除每个 VPP 的视觉站与显示控件
-			for (int i = cam.Vpps.Count - 1; i >= 0; i--)
-				RemoveVpp(cam, cam.Vpps[i], null);
+			string cameraDiskFolder = GetCameraDiskFolder(cam);
 
-			// 同时移除相机级标定及其视觉站
+			// 移除每个 VPP 的视觉站与显示控件（磁盘目录稍后整夹删除）
+			for (int i = cam.Vpps.Count - 1; i >= 0; i--)
+				RemoveVpp(cam, cam.Vpps[i], null, false);
+
+			// 同时移除相机级标定及其视觉站（不再 SaveTB，避免删前又写回磁盘）
 			VpCalibration calib = _config.GetCalibration(cam.Name);
 			if (calib != null)
 			{
 				if (calib.Station != null)
-				{
-					try { calib.Station.SaveTB(); } catch (Exception) { }
 					VisionproInterface.VList.Remove(calib.Station);
-				}
 				_config.Calibrations.Remove(cam.Name);
 			}
 
@@ -701,7 +701,9 @@ namespace AlphaRap
 			// 主界面"视觉"页去掉这台相机的显示格子
 			SyncMainDisplays();
 
-			OperationLog.Write("VPForm", "删除相机：" + cam.Name);
+			TryDeleteDirectory(cameraDiskFolder);
+
+			OperationLog.Write("VPForm", "删除相机：" + cam.Name + "，已清理 " + cameraDiskFolder);
 			SaveVpConfig();
 		}
 
@@ -1132,7 +1134,7 @@ namespace AlphaRap
 		{
 			return MessageBox.Show(
 				T("vpMsg_DeleteVppA", "确认删除 VPP「") + vpp.Name
-				+ T("vpMsg_DeleteVppB", "」？\r\n（只删界面与配置，磁盘上的 vpp 文件保留）"),
+				+ T("vpMsg_DeleteVppB", "」？\r\n（将同时删除 VisionData 下该 VPP 目录及其中的 vpp / 图片）"),
 				T("vpMsg_DeleteVppTitle", "删除 VPP"),
 				MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK;
 		}
@@ -1158,16 +1160,54 @@ namespace AlphaRap
 			if (!ConfirmDeleteVpp(vpp)) return;
 
 			OperationLog.Write("VPForm", "删除 VPP：" + LogTag(vpp));
-			RemoveVpp(cam, vpp, vppTabs);
+			RemoveVpp(cam, vpp, vppTabs, true);
 			SaveVpConfig();
 		}
 
-		/// <summary>删除一个 VPP：停止实时显示、注销视觉站、移除界面页与配置。</summary>
+		/// <summary>VisionData\{相机名}</summary>
+		private static string GetCameraDiskFolder(VpCameraConfig cam)
+		{
+			if (cam == null || string.IsNullOrEmpty(cam.Name)) return "";
+			return Path.Combine(SysPara.VisionFileDirectory, cam.Name);
+		}
+
+		/// <summary>VisionData\{相机名}\{VPP名}</summary>
+		private static string GetVppDiskFolder(VpCameraConfig cam, VpVppConfig vpp)
+		{
+			if (cam == null || vpp == null) return "";
+			if (string.IsNullOrEmpty(cam.Name) || string.IsNullOrEmpty(vpp.Name)) return "";
+			return Path.Combine(SysPara.VisionFileDirectory, cam.Name, vpp.Name);
+		}
+
+		/// <summary>尽力递归删除目录；失败只记日志，不打断界面删除。</summary>
+		private static void TryDeleteDirectory(string dir)
+		{
+			if (string.IsNullOrEmpty(dir)) return;
+			try
+			{
+				if (!Directory.Exists(dir)) return;
+				Directory.Delete(dir, true);
+				OperationLog.Write("VPForm", "已删除 VisionData 目录：" + dir);
+			}
+			catch (Exception ex)
+			{
+				OperationLog.Write("VPForm", "删除 VisionData 目录失败：" + dir + " — " + ex.Message);
+			}
+		}
+
+		/// <summary>删除一个 VPP：停止实时显示、注销视觉站、移除界面页与配置；可选同步删磁盘目录。</summary>
 		private void RemoveVpp(VpCameraConfig cam, VpVppConfig vpp, TabControl vppTabs)
+		{
+			RemoveVpp(cam, vpp, vppTabs, true);
+		}
+
+		/// <param name="deleteDiskFolder">true=删 VisionData\{相机}\{VPP}；删整台相机时传 false，由外层整夹删除。</param>
+		private void RemoveVpp(VpCameraConfig cam, VpVppConfig vpp, TabControl vppTabs, bool deleteDiskFolder)
 		{
 			if (cam == null || vpp == null) return;
 
 			string vppName = vpp.Name;
+			string diskFolder = deleteDiskFolder ? GetVppDiskFolder(cam, vpp) : "";
 
 			// 从标定的应用对象中移除
 			CameraEntry entry = FindEntry(cam.Name);
@@ -1205,6 +1245,9 @@ namespace AlphaRap
 				}
 
 			cam.Vpps.Remove(vpp);
+
+			if (deleteDiskFolder)
+				TryDeleteDirectory(diskFolder);
 		}
 
 		// ---------------- 小工具 ----------------
