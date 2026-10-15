@@ -113,11 +113,13 @@ namespace AlphaRap
             LoginText.Cursor = Cursors.Hand;
             LoginText.AutoEllipsis = true;
 
-            // 设备状态徽章：顶栏正中央；整块填状态色 + 22pt 粗字（宽度由 SetStatusLook 按文字算）
-            MachineStatus.Font = UiKit.Bold(22f);
+            // 设备状态徽章：顶栏正中央；整块填状态色 + 紧凑字号（宽度由 SetStatusLook 按文字算）
+            // 22pt 大胶囊信息密度低；改为 13.5pt，文案用「主状态 · 次要信息」
+            MachineStatus.Font = UiKit.Bold(13.5f);
             MachineStatus.TextAlign = ContentAlignment.MiddleCenter;
-            MachineStatus.AutoSize = false;      // 宽度在运行期按文字量算，见 SetStatusLook
-            MachineStatus.AutoEllipsis = false;  // 宽度够，不截断
+            MachineStatus.AutoSize = false;
+            MachineStatus.AutoEllipsis = false;
+            MachineStatus.Height = UiTheme.Dpi(34);
             // 缺省按"待机"上色：设计视图里也就和运行时一致（运行期每 tick 由 UpdateMachineStatus 覆盖）
             MachineStatus.BackColor = StatusIdleFill;
             MachineStatus.ForeColor = StatusDarkInk;
@@ -554,10 +556,15 @@ namespace AlphaRap
         {
             if (b == null) return;
             bool sel = IsSelectedNav(b);
+            bool on = b.Enabled;
+            // 无权限：浅灰底 + 小锁；选中：品牌浅蓝底 + 左侧竖条（在 PaintIconButton 里）
+            Color back = !on ? UiKit.DisabledBg : sel ? UiTheme.Selected : Color.Transparent;
+            if (b.BackColor != back) b.BackColor = back;
+
             NavPaintState st = AttachNavPaint(b, icon, NavIconSize, true);
-            st.IconColor = !b.Enabled ? AppIconColor.Disabled : sel ? UiTheme.NavTextSelected : AppIconColor.Nav;
+            st.IconColor = !on ? AppIconColor.Disabled : sel ? UiTheme.NavTextSelected : AppIconColor.Nav;
             st.AccentColor = st.IconColor;
-            st.TextColor = !b.Enabled ? UiKit.DisabledText : sel ? UiTheme.NavTextSelected : UiTheme.NavText;
+            st.TextColor = !on ? UiKit.DisabledText : sel ? UiTheme.NavTextSelected : UiTheme.NavText;
             st.LockBadge = NavLockBadge;
             // 设计器不保证触发 Paint：把预览烤进 Image，运行时仍走自绘
             if (UiTheme.IsDesignTime) BakeButtonPreview(b, st);
@@ -588,7 +595,10 @@ namespace AlphaRap
         {
             if (btn == null) return;
             bool on = btn.Enabled;
-            Color back = (on && btn == _hoverToolbarButton) ? ToolbarHover : Color.Transparent;
+            // 锁态：浅灰底（一眼区分「不能点」）；可用悬停才铺 ToolbarHover
+            Color back = !on ? UiKit.DisabledBg
+                : (btn == _hoverToolbarButton) ? ToolbarHover
+                : Color.Transparent;
             if (btn.BackColor != back) btn.BackColor = back;
 
             NavPaintState st = AttachNavPaint(btn, icon, ToolIconSize, false);
@@ -657,7 +667,7 @@ namespace AlphaRap
 
         /// <summary>
         /// 更新菜单按钮的选中底色：左侧导航选中为浅蓝底（配合图标中的品牌色竖条），
-        /// 顶栏按钮选中为深蓝底；底部工具栏由 ApplyToolbarButtonStyles 设置。
+        /// 无权限为浅灰底；顶栏按钮选中为深蓝底；底部工具栏由 ApplyToolbarButtonStyles 设置。
         /// </summary>
         public void RefreshMenuBackcolor()
         {
@@ -671,10 +681,119 @@ namespace AlphaRap
                 bool sel = i == (int)MENU_SelectPage;
                 if (btn == MENU_Product || btn == MENU_Login)
                     btn.BackColor = sel ? UiKit.BrandDark : Color.Transparent;
+                else if (!btn.Enabled)
+                    btn.BackColor = UiKit.DisabledBg;
                 else
                     btn.BackColor = sel ? UiTheme.Selected : Color.Transparent;
             }
             RefreshButtonIcons();
+        }
+
+        // ---------------- 锁态点击反馈（Enabled=false 时子控件收不到 Click，由父面板承接） ----------------
+
+        private readonly ToolTip _lockedTip = new ToolTip { ShowAlways = true, AutomaticDelay = 0, AutoPopDelay = 3200, InitialDelay = 0, ReshowDelay = 0 };
+        private bool _lockedClickHooked;
+
+        /// <summary>在导航 / 工具栏父面板上挂 MouseDown：点到禁用按钮时弹出原因说明。</summary>
+        private void HookLockedClickFeedback()
+        {
+            if (_lockedClickHooked) return;
+            _lockedClickHooked = true;
+            FlowLayoutPanel[] panels = { Panl_PictureShowTop, Panl_PictureShowDown, panel_PictureShowLeft, panel_PictureShowRight };
+            for (int i = 0; i < panels.Length; i++)
+            {
+                FlowLayoutPanel p = panels[i];
+                if (p == null) continue;
+                p.MouseDown += LockedPanel_MouseDown;
+            }
+        }
+
+        private void LockedPanel_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+            Control panel = sender as Control;
+            if (panel == null) return;
+
+            PictureBox hit = FindDisabledButtonAt(panel, e.Location);
+            if (hit == null) return;
+
+            string reason = ExplainLockedButton(hit);
+            if (string.IsNullOrEmpty(reason)) return;
+
+            try
+            {
+                Point tipAt = new Point(hit.Left + hit.Width / 2, hit.Top - UiTheme.Dpi(4));
+                _lockedTip.Hide(panel);
+                _lockedTip.Show(reason, panel, tipAt, 3000);
+            }
+            catch { }
+        }
+
+        private static PictureBox FindDisabledButtonAt(Control panel, Point clientPt)
+        {
+            foreach (Control c in panel.Controls)
+            {
+                PictureBox b = c as PictureBox;
+                if (b == null || b.Enabled || !b.Visible) continue;
+                if (b.Bounds.Contains(clientPt)) return b;
+            }
+            return null;
+        }
+
+        /// <summary>按按钮区分：工具栏多为运行态限制，侧栏多为权限不足。</summary>
+        private string ExplainLockedButton(PictureBox b)
+        {
+            if (b == null) return "";
+            string name = ButtonText(b);
+            if (string.IsNullOrEmpty(name)) name = b.Name;
+
+            if (b == MENU_Run)
+            {
+                if (!SysPara.UpConveyorInitialOk)
+                    return UiTheme.T("MainForm", "msg_LockNeedInit",
+                        "无法启动：请先完成初始化。",
+                        "Cannot start: initialize first.",
+                        "No se puede iniciar: inicialice primero.");
+                if (SysPara.SystemMode == RunMode.RUN)
+                    return UiTheme.T("MainForm", "msg_LockAlreadyRun",
+                        "设备已在运行中。",
+                        "Already running.",
+                        "Ya está en marcha.");
+                if (SysPara.SystemMode == RunMode.IDLE)
+                    return UiTheme.T("MainForm", "msg_LockIdleNeedInit",
+                        "待机中不能直接启动，请先点「初始化」。",
+                        "Idle: initialize before start.",
+                        "En espera: inicialice antes de iniciar.");
+                return UiTheme.T("MainForm", "msg_LockRunGeneric",
+                    "当前状态不可启动。",
+                    "Start is not available now.",
+                    "Inicio no disponible ahora.");
+            }
+            if (b == MENU_Pause)
+                return UiTheme.T("MainForm", "msg_LockPause",
+                    "仅运行中可暂停。",
+                    "Pause is only available while running.",
+                    "Pausa solo disponible en marcha.");
+            if (b == MENU_Reset)
+                return UiTheme.T("MainForm", "msg_LockReset",
+                    "仅待机时可初始化。",
+                    "Initialize is only available while idle.",
+                    "Inicializar solo en espera.");
+            if (b == MENU_LifeSpan)
+                return UiTheme.T("MainForm", "msg_LockLifeSpan",
+                    "寿命页需要维护员或管理员权限。",
+                    "Lifespan requires Maintenance or Admin.",
+                    "Vida útil requiere Mantenimiento o Admin.");
+
+            return UiTheme.T("MainForm", "msg_LockNoPermissionA",
+                    "当前用户无权限打开「",
+                    "No permission for «",
+                    "Sin permiso para «")
+                + name
+                + UiTheme.T("MainForm", "msg_LockNoPermissionB",
+                    "」。请切换到更高权限账号。",
+                    "». Switch to a higher-privilege account.",
+                    "». Cambie a una cuenta con más privilegios.");
         }
 
         /// <summary>把按钮裁成圆角：左侧导航 8px，底部工具栏 12px（直径）。</summary>

@@ -273,8 +273,11 @@ int nheightEllipse
             ApplyRoundedMenuRegions();
 
             // 顶栏机器状态徽章：圆角胶囊，尺寸变化时重算
-            MachineStatus.Resize += (s, ev) => ApplyPillRegion(MachineStatus, 12);
-            ApplyPillRegion(MachineStatus, 12);
+            MachineStatus.Resize += (s, ev) => ApplyPillRegion(MachineStatus, 10);
+            ApplyPillRegion(MachineStatus, 10);
+
+            // 点禁用导航/工具栏按钮时，由父面板弹出原因（Enabled=false 收不到 Click）
+            HookLockedClickFeedback();
 
             // 列表控件使用 Explorer 视觉主题（扁平表头、无 3D 边框）
             try
@@ -1139,17 +1142,23 @@ int nheightEllipse
         #endregion
 
         #region Machine Status 
-        /// <summary>各运行模式的状态文案（取自语言包，按 SysPara.LanguageShow）。</summary>
+        /// <summary>
+        /// 各运行模式的状态文案（短主状态；待机再拼「· 次要信息」提高信息密度）。
+        /// </summary>
         private static Dictionary<RunMode, string> GetStatusTextMap(LanguageType language)
         {
+            string idleMain = MiddleLayer.LangMsg("MainForm", "msg_StatusIdle", "待机", "IDLE", "Espera");
+            string idleSub = SysPara.UpConveyorInitialOk
+                ? MiddleLayer.LangMsg("MainForm", "msg_StatusReady", "已就绪", "Ready", "Listo")
+                : MiddleLayer.LangMsg("MainForm", "msg_StatusNotInit", "未初始化", "Not initialized", "Sin init");
             return new Dictionary<RunMode, string>
             {
-                { RunMode.IDLE, MiddleLayer.LangMsg("MainForm", "msg_StatusIdle", "待机状态", "IDLE", "modo espera") },
+                { RunMode.IDLE, idleMain + " · " + idleSub },
                 { RunMode.INITIAL, SysPara.UpConveyorInitialOk
-                        ? MiddleLayer.LangMsg("MainForm", "msg_StatusInitOk", "初始化完成", "INITIAL Completed", "cargando terminado")
-                        : MiddleLayer.LangMsg("MainForm", "msg_StatusInitializing", "正在初始化状态", "INITIAL", "Estado inicialización") },
-                { RunMode.RUN, MiddleLayer.LangMsg("MainForm", "msg_StatusRun", "运行状态", "RUNNING", "CORRER") },
-                { RunMode.PAUSE, MiddleLayer.LangMsg("MainForm", "msg_StatusPause", "暂停状态", "PAUSE", "Estado suspendido") },
+                        ? MiddleLayer.LangMsg("MainForm", "msg_StatusInitOk", "初始化完成", "Init done", "Init OK")
+                        : MiddleLayer.LangMsg("MainForm", "msg_StatusInitializing", "初始化中", "Initializing", "Inicializando") },
+                { RunMode.RUN, MiddleLayer.LangMsg("MainForm", "msg_StatusRun", "运行", "RUNNING", "EN MARCHA") },
+                { RunMode.PAUSE, MiddleLayer.LangMsg("MainForm", "msg_StatusPause", "暂停", "PAUSE", "PAUSA") },
             };
         }
         // 机台状态条前缀文案（按语言缓存，避免定时器反复查 XML）
@@ -1183,10 +1192,10 @@ int nheightEllipse
         /// <summary>红底上的白字。</summary>
         private static readonly Color StatusWhiteInk = Color.White;
 
-        /// <summary>徽章左右内边距（96 DPI 设计值）——决定胶囊比文字宽多少。</summary>
-        private const int StatusPadX = 30;
-        /// <summary>徽章最小宽度（96 DPI 设计值），短文案也别缩成一小块。</summary>
-        private const int StatusMinWidth = 150;
+        /// <summary>徽章左右内边距（96 DPI 设计值）——紧凑胶囊，避免大块空洞。</summary>
+        private const int StatusPadX = 16;
+        /// <summary>徽章最小宽度（96 DPI 设计值）。</summary>
+        private const int StatusMinWidth = 108;
         /// <summary>当前填充色（MachineStatus_Paint 画描边时用）。</summary>
         private Color _statusFill = StatusIdleFill;
 
@@ -1283,7 +1292,7 @@ int nheightEllipse
             {
                 if (MachineStatus.Width <= 2 || MachineStatus.Height <= 2) return;
                 Rectangle r = new Rectangle(0, 0, MachineStatus.Width - 1, MachineStatus.Height - 1);
-                using (GraphicsPath path = UiKit.RoundRect(r, UiTheme.Dpi(12)))
+                using (GraphicsPath path = UiKit.RoundRect(r, UiTheme.Dpi(10)))
                 using (Pen p = new Pen(Color.FromArgb(70, 8, 20, 36), 1f))
                     e.Graphics.DrawPath(p, path);
             }

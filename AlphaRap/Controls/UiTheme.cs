@@ -254,8 +254,8 @@ namespace AlphaRap
         /// <summary>左侧导航底色。</summary>
         public static readonly Color NavBg = Color.White;
 
-        /// <summary>导航 / 选项卡的选中底色。</summary>
-        public static readonly Color Selected = Color.FromArgb(225, 238, 250);
+        /// <summary>导航 / 选项卡的选中底色（略深一档，侧栏远看也能辨认当前页）。</summary>
+        public static readonly Color Selected = Color.FromArgb(198, 224, 246);
 
         /// <summary>列表表头底色。</summary>
         public static readonly Color HeaderBg = Color.FromArgb(242, 246, 250);
@@ -410,14 +410,15 @@ namespace AlphaRap
 
             if (lockBadge == LockBadgeMode.Corner)
             {
-                int badge = Dpi(12);
-                Image lk = AppIcons.Get(AppIcon.Lock, badge, textColor);
-                if (lk != null) g.DrawImage(lk, size.Width - badge - Dpi(4), Dpi(3), badge, badge);
+                // 锁标缩小并用次级色：表达「无权限」但不抢导航文字
+                int badge = Dpi(10);
+                Image lk = AppIcons.Get(AppIcon.Lock, badge, UiKit.TextMuted);
+                if (lk != null) g.DrawImage(lk, size.Width - badge - Dpi(3), Dpi(2), badge, badge);
             }
 
             if (accentBar)
                 using (SolidBrush b = new SolidBrush(UiKit.Brand))
-                    g.FillRectangle(b, 0, Dpi(8), Dpi(3), size.Height - Dpi(16));
+                    g.FillRectangle(b, 0, Dpi(4), Dpi(4), size.Height - Dpi(8));
         }
 
         // ---------------- 列表 ----------------
