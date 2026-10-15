@@ -682,9 +682,9 @@
             this.panel4.Controls.Add(this.Panl_PictureShowTop, 0, 0);
             this.panel4.Controls.Add(this.Panl_PictureShowDown, 0, 1);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            // 试版蓝底侧栏（与运行时 NavRailBg / NavRailBgBottom 一致）
+            // 侧栏与顶栏同色 Brand（4,108,182）纯色蓝底
             this.panel4.GradientBottom = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.panel4.GradientTop = System.Drawing.Color.FromArgb(((int)(((byte)(2)))), ((int)(((byte)(78)))), ((int)(((byte)(133)))));
+            this.panel4.GradientTop = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
             this.panel4.Location = new System.Drawing.Point(0, 0);
             this.panel4.Margin = new System.Windows.Forms.Padding(0, 0, 4, 0);
             this.panel4.Name = "panel4";

@@ -52,13 +52,12 @@ namespace AlphaRap
         private const int NavRailWidthCollapsed = 36;
         private const int NavCollapsedIconSize = 18;
 
-        // ---- 试版：蓝底白图标侧栏（回退点 tag: backup-before-nav-blue-rail）----
-        private static readonly Color NavRailBg = UiKit.BrandDark;
-        private static readonly Color NavRailBgBottom = UiKit.Brand;
+        // ---- 侧栏蓝底白字：与顶栏同色 UiKit.Brand（回退 tag: backup-before-nav-blue-rail）----
+        private static readonly Color NavRailBg = UiKit.Brand;
         private static readonly Color NavRailSelectedBg = Color.FromArgb(12, 126, 202);
-        private static readonly Color NavRailDisabledBg = Color.FromArgb(2, 60, 100);
-        private static readonly Color NavRailEdge = Color.FromArgb(2, 60, 100);
-        private static readonly Color NavOnBlue = AppIconColor.OnDarkBar;
+        private static readonly Color NavRailDisabledBg = UiKit.BrandDark;
+        private static readonly Color NavRailEdge = UiKit.BrandDark;
+        private static readonly Color NavOnBlue = UiKit.TextOnBrand;
         private static readonly Color NavOnBlueDisabled = AppIconColor.DisabledOnDark;
         private static readonly Size ToolButtonSize = new Size(92, 58);
         private const int ToolIconSize = 26;
@@ -211,9 +210,9 @@ namespace AlphaRap
 
         private void StyleNavigation()
         {
-            // 试版蓝底侧栏（与顶栏同系 BrandDark）
+            // 与顶栏同一 Brand 纯色蓝底
             panel4.GradientTop = NavRailBg;
-            panel4.GradientBottom = NavRailBgBottom;
+            panel4.GradientBottom = NavRailBg;
             panel4.Paint -= Nav_Paint;
             panel4.Paint += Nav_Paint;
 
