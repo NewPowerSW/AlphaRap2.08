@@ -102,8 +102,7 @@
             this.tabPage22 = new System.Windows.Forms.TabPage();
             this.plMainShow = new System.Windows.Forms.Panel();
             this.tabPage10 = new System.Windows.Forms.TabPage();
-            ((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).BeginInit();
+            // SettingData / RecipeData 由基类 ModuleBaseForm 创建；勿在此 BeginInit，否则设计器无法解析继承字段
             this.tableLayoutPanel_Main.SuspendLayout();
             this.statusStrip2.SuspendLayout();
             this.panel_PictureShowDown.SuspendLayout();
@@ -1151,8 +1150,6 @@
             this.Text = "Alpha";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.SettingData)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).EndInit();
             this.tableLayoutPanel_Main.ResumeLayout(false);
             this.tableLayoutPanel_Main.PerformLayout();
             this.statusStrip2.ResumeLayout(false);
