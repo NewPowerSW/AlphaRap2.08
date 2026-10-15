@@ -21,7 +21,14 @@ alwaysApply: true
 2. 运行时 Style / Theme 代码（保证每次启动一致）
 3. 设计器布局（便于后续维护，尽量贴近 1）
 
+## TabControl 特例
+
+- 扁平 Tab 的品牌色下划线靠 **OwnerDraw**；VS 设计器里 `DrawItem` 经常不触发 → 标签会空白
+- 因此约定：设计器 `DrawMode=Normal`，但 **Font / ItemSize / Padding / 页 BackColor / 占位 TabPage 文案** 必须与 `UiTheme.StyleTabControl` 一致；运行时再挂 OwnerDraw
+- 运行时才动态添加的页（如流程站位）→ 设计器里放同名占位页；`Load` 时 `Clear` 再按真实模块重建
+
 ## 反例
 
 - 设计器里控件挤在一起或颜色不对，却依赖运行时大量 `Location`/`Size`/`BackColor` 重排——应尽量把稳定布局落回设计器
 - 只为「设计器好看」改一版属性，与 EXE 实际主题（品牌蓝、卡片边距、DPI）不一致
+- 流程页设计器空 Tab，全靠 `AddFlowChart` 才出现站位名——设计器与 EXE 必然对不上

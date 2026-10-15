@@ -483,6 +483,8 @@ namespace AlphaRap
 
         /// <summary>
         /// 标准 TabControl 的扁平样式：自绘标签头（选中项白底 + 品牌色下划线），标签宽度随文字。
+        /// 设计期与运行期共用同一套 Font / ItemSize / Padding / 页底色（写进 Designer 也应贴近这些值）；
+        /// 仅 OwnerDraw 在设计器里不可靠，故设计期 DrawMode=Normal，运行期再挂自绘。
         /// </summary>
         /// <param name="primary">一级选项卡用较大字号，嵌套的二、三级选项卡用正文字号。</param>
         public static void StyleTabControl(TabControl tc, bool primary)
@@ -500,7 +502,7 @@ namespace AlphaRap
             }
 
             // VS 设计面里 OwnerDraw 经常不触发 DrawItem，标签头会变成空白框；
-            // 设计期改用系统绘制，保证能看见文字（与 EXE 文案一致）。
+            // 设计期改用系统绘制，保证能看见文字（与 EXE 文案/尺寸一致）。
             if (IsDesignTime)
             {
                 tc.DrawMode = TabDrawMode.Normal;
@@ -511,6 +513,28 @@ namespace AlphaRap
             tc.DrawMode = TabDrawMode.OwnerDrawFixed;
             tc.DrawItem -= TabControl_DrawItem;
             tc.DrawItem += TabControl_DrawItem;
+        }
+
+        /// <summary>
+        /// 递归给 root 下所有 TabControl 刷扁平样式。
+        /// <paramref name="primary"/> 非空时该实例按一级，其余按二级。
+        /// </summary>
+        public static void StyleDescendantTabControls(Control root, TabControl primary)
+        {
+            if (root == null) return;
+            StyleDescendantTabControlsCore(root, primary);
+        }
+
+        private static void StyleDescendantTabControlsCore(Control parent, TabControl primary)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                TabControl tc = c as TabControl;
+                if (tc != null)
+                    StyleTabControl(tc, primary != null && ReferenceEquals(tc, primary));
+                if (c.HasChildren)
+                    StyleDescendantTabControlsCore(c, primary);
+            }
         }
 
         /// <summary>按最长的标签文字计算统一的标签宽度（TabSizeMode.Fixed 下所有标签等宽）。</summary>

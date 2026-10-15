@@ -72,11 +72,14 @@
             this.InitialPage.Controls.Add(this.DownConveyInit_Flow1_4);
             this.InitialPage.Controls.Add(this.DownConveyInit_Flow1_3);
             this.InitialPage.Controls.Add(this.DownConveyInit_Flow1_2);
-            this.InitialPage.Location = new System.Drawing.Point(4, 36);
-            this.InitialPage.Size = new System.Drawing.Size(1274, 691);
+            this.InitialPage.BackColor = System.Drawing.Color.White;
+            this.InitialPage.Location = new System.Drawing.Point(4, 34);
+            this.InitialPage.Size = new System.Drawing.Size(1274, 693);
+            this.InitialPage.UseVisualStyleBackColor = false;
             // 
             // AutoPage
             // 
+            this.AutoPage.BackColor = System.Drawing.Color.White;
             this.AutoPage.Controls.Add(this.DownConveyorAuto_Flow3_0);
             this.AutoPage.Controls.Add(this.DownConveyorAuto_Flow2_9);
             this.AutoPage.Controls.Add(this.DownConveyorAuto_Flow1_9);
@@ -102,12 +105,19 @@
             this.AutoPage.Controls.Add(this.DownConveyorAuto_Flow1_2);
             this.AutoPage.Controls.Add(this.DownConveyorAuto_Flow1_5);
             this.AutoPage.Controls.Add(this.DownConveyorAuto_Flow1_1);
-            this.AutoPage.Location = new System.Drawing.Point(4, 36);
-            this.AutoPage.Size = new System.Drawing.Size(1274, 691);
+            this.AutoPage.Location = new System.Drawing.Point(4, 34);
+            this.AutoPage.Size = new System.Drawing.Size(1274, 693);
+            this.AutoPage.UseVisualStyleBackColor = false;
             // 
             // FlowChartTable
+            // 与 UiTheme 二级 Tab 对齐（设计器 Normal；运行时 StyleTabControl 再挂 OwnerDraw）
             // 
+            this.FlowChartTable.DrawMode = System.Windows.Forms.TabDrawMode.Normal;
+            this.FlowChartTable.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.FlowChartTable.ItemSize = new System.Drawing.Size(120, 34);
+            this.FlowChartTable.Padding = new System.Drawing.Point(16, 6);
             this.FlowChartTable.Size = new System.Drawing.Size(1282, 731);
+            this.FlowChartTable.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             // 
             // DownConveyInit_Flow1_3
             // 

@@ -8,7 +8,8 @@ namespace AlphaRap.TaskProcess
 		{
 			CheckForIllegalCrossThreadCalls = false;
 			InitializeComponent();
-            UiTheme.ApplyDpi(this);
+			UiTheme.ApplyDpi(this);
+			FlowStationUi.Apply(this);
 		}
 		public override void Initial()
 		{

@@ -70,24 +70,34 @@
             // 
             // InitialPage
             // 
+            this.InitialPage.BackColor = System.Drawing.Color.White;
             this.InitialPage.Controls.Add(this.GantryInit_Flow1_5);
             this.InitialPage.Controls.Add(this.GantryInit_Flow1_4);
             this.InitialPage.Controls.Add(this.GantryInit_Flow1_3);
             this.InitialPage.Controls.Add(this.GantryInit_Flow1_2);
             this.InitialPage.Controls.Add(this.GantryInit_Flow1_6);
             this.InitialPage.Controls.Add(this.GantryInit_Flow1_1);
-            this.InitialPage.Location = new System.Drawing.Point(4, 36);
-            this.InitialPage.Size = new System.Drawing.Size(1231, 646);
+            this.InitialPage.Location = new System.Drawing.Point(4, 34);
+            this.InitialPage.Size = new System.Drawing.Size(1231, 648);
+            this.InitialPage.UseVisualStyleBackColor = false;
             // 
             // AutoPage
             // 
+            this.AutoPage.BackColor = System.Drawing.Color.White;
             this.AutoPage.Controls.Add(this.tabControl1);
-            this.AutoPage.Location = new System.Drawing.Point(4, 36);
-            this.AutoPage.Size = new System.Drawing.Size(1231, 646);
+            this.AutoPage.Location = new System.Drawing.Point(4, 34);
+            this.AutoPage.Size = new System.Drawing.Size(1231, 648);
+            this.AutoPage.UseVisualStyleBackColor = false;
             // 
             // FlowChartTable
+            // 与 UiTheme 二级 Tab 对齐（设计器 Normal；运行时 StyleTabControl 再挂 OwnerDraw）
             // 
+            this.FlowChartTable.DrawMode = System.Windows.Forms.TabDrawMode.Normal;
+            this.FlowChartTable.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.FlowChartTable.ItemSize = new System.Drawing.Size(120, 34);
+            this.FlowChartTable.Padding = new System.Drawing.Point(16, 6);
             this.FlowChartTable.Size = new System.Drawing.Size(1239, 686);
+            this.FlowChartTable.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             // 
             // GantryInit_Flow1_1
             // 
@@ -216,10 +226,15 @@
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.DrawMode = System.Windows.Forms.TabDrawMode.Normal;
+            this.tabControl1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tabControl1.ItemSize = new System.Drawing.Size(120, 34);
             this.tabControl1.Location = new System.Drawing.Point(4, 4);
             this.tabControl1.Name = "tabControl1";
+            this.tabControl1.Padding = new System.Drawing.Point(16, 6);
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(1223, 638);
+            this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1

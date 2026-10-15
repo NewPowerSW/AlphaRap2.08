@@ -11,10 +11,15 @@ namespace AlphaRap
 
             InitializeComponent();
             UiTheme.ApplyDpi(this);
+            ApplyPageStyle();
+            MiddleLayer.LanguageChanged += OnLanguageChanged;
         }
 
         public void AddFlowChart()
         {
+            // 清掉设计器占位页，再按真实模块重建（避免与设计期页叠两套）
+            tabControl1.TabPages.Clear();
+
             for (int i = 0; i < NPSDK.Flow_Module.FlowChart_ModuleList.Count; i++)
             {
                 TabPage p = new TabPage();
@@ -23,6 +28,8 @@ namespace AlphaRap
                 p.Name = "flowChartTab_" + i;
                 p.Text = Flow_Module.FlowChart_ModuleList[i].Name;
                 p.AutoScroll = true;
+                p.BackColor = UiKit.PageBg;
+                p.UseVisualStyleBackColor = false;
                 tabControl1.TabPages.Add(p);
 
                 Flow_Module.FlowChart_ModuleList[i].TopLevel = false;
@@ -31,6 +38,7 @@ namespace AlphaRap
                 Panel _pane = new Panel();
 
                 _pane.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+                _pane.BackColor = UiKit.PageBg;
                 _pane.Controls.Add(Flow_Module.FlowChart_ModuleList[i]);
                 _pane.Show();
                 _pane.Dock = DockStyle.Fill;
@@ -44,6 +52,12 @@ namespace AlphaRap
         private void Flow_Load(object sender, EventArgs e)
         {
             AddFlowChart();
+            ApplyPageStyle();
+        }
+
+        private void OnLanguageChanged(object sender, EventArgs e)
+        {
+            RefreshPageStyle();
         }
     }
 }

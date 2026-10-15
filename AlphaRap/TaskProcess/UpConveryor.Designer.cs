@@ -123,19 +123,27 @@
             this.InitialPage.Controls.Add(this.UPConveyInit_Flow1_3);
             this.InitialPage.Controls.Add(this.UPConveyInit_Flow1_4);
             this.InitialPage.Controls.Add(this.UPConveyInit_Flow1_1);
-            this.InitialPage.Location = new System.Drawing.Point(4, 36);
-            this.InitialPage.Size = new System.Drawing.Size(1060, 763);
+            this.InitialPage.Location = new System.Drawing.Point(4, 34);
+            this.InitialPage.Size = new System.Drawing.Size(1060, 765);
             this.InitialPage.UseVisualStyleBackColor = false;
             // 
             // AutoPage
             // 
+            this.AutoPage.BackColor = System.Drawing.Color.White;
             this.AutoPage.Controls.Add(this.tabControl2);
-            this.AutoPage.Location = new System.Drawing.Point(4, 36);
-            this.AutoPage.Size = new System.Drawing.Size(1060, 763);
+            this.AutoPage.Location = new System.Drawing.Point(4, 34);
+            this.AutoPage.Size = new System.Drawing.Size(1060, 765);
+            this.AutoPage.UseVisualStyleBackColor = false;
             // 
             // FlowChartTable
+            // 与 UiTheme 二级 Tab 对齐（设计器 Normal；运行时 StyleTabControl 再挂 OwnerDraw）
             // 
+            this.FlowChartTable.DrawMode = System.Windows.Forms.TabDrawMode.Normal;
+            this.FlowChartTable.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.FlowChartTable.ItemSize = new System.Drawing.Size(120, 34);
+            this.FlowChartTable.Padding = new System.Drawing.Point(16, 6);
             this.FlowChartTable.Size = new System.Drawing.Size(1068, 803);
+            this.FlowChartTable.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             // 
             // UPConveyInit_Flow1_1
             // 
@@ -421,10 +429,15 @@
             this.tabControl2.Controls.Add(this.tabPage3);
             this.tabControl2.Controls.Add(this.tabPage4);
             this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl2.DrawMode = System.Windows.Forms.TabDrawMode.Normal;
+            this.tabControl2.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tabControl2.ItemSize = new System.Drawing.Size(120, 34);
             this.tabControl2.Location = new System.Drawing.Point(4, 4);
             this.tabControl2.Name = "tabControl2";
+            this.tabControl2.Padding = new System.Drawing.Point(16, 6);
             this.tabControl2.SelectedIndex = 0;
             this.tabControl2.Size = new System.Drawing.Size(1052, 755);
+            this.tabControl2.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControl2.TabIndex = 2;
             // 
             // tabPage3
