@@ -45,12 +45,17 @@ namespace AlphaRap
 
         // ---------------- 尺寸 ----------------
 
-        private static readonly Size NavButtonSize = new Size(84, 52);
-        private const int NavIconSize = 24;
-        /// <summary>侧栏展开宽度（含纵向滚动条余量）；折叠为窄轨。</summary>
-        private const int NavRailWidth = 104;
+        /// <summary>导航按钮默认尺寸；实际由 <see cref="FitNavRailNoScroll"/> 按高度均分，保证无滚动条。</summary>
+        private static readonly Size NavButtonSize = new Size(80, 46);
+        private const int NavIconSize = 20;
+        /// <summary>侧栏展开宽度；折叠为窄轨。</summary>
+        private const int NavRailWidth = 96;
         private const int NavRailWidthCollapsed = 36;
         private const int NavCollapsedIconSize = 18;
+        /// <summary>当前均分后的图标边长 / 字号（Fit 时写入）。</summary>
+        private int _navRailIconSize = NavIconSize;
+        private float _navRailFontPt = 9.5f;
+        private bool _fittingNavRail;
 
         // ---- 侧栏蓝底白字：与顶栏同色 UiKit.Brand（回退 tag: backup-before-nav-blue-rail）----
         private static readonly Color NavRailBg = UiKit.Brand;
@@ -64,8 +69,8 @@ namespace AlphaRap
         private static readonly Color NavRailAccentBar = Color.White;
         /// <summary>汉堡弱化：略淡的白，不与正式入口抢戏。</summary>
         private static readonly Color NavToggleMuted = Color.FromArgb(190, 215, 235);
-        private static readonly Size NavToggleSize = new Size(72, 36);
-        private const int NavToggleIconSize = 18;
+        private static readonly Size NavToggleSize = new Size(64, 28);
+        private const int NavToggleIconSize = 16;
         private static readonly Size ToolButtonSize = new Size(92, 58);
         private const int ToolIconSize = 26;
 
@@ -260,10 +265,13 @@ namespace AlphaRap
                 Panl_PictureShowTop.Dock = DockStyle.Fill;
                 Panl_PictureShowTop.FlowDirection = FlowDirection.TopDown;
                 Panl_PictureShowTop.WrapContents = false;
-                Panl_PictureShowTop.AutoScroll = true;
-                Panl_PictureShowTop.Padding = UiTheme.Dpi(new Padding(0, 4, 0, 4));
+                // 不要滚动条：按钮高度按可用高度均分（见 FitNavRailNoScroll）
+                Panl_PictureShowTop.AutoScroll = false;
+                Panl_PictureShowTop.Padding = UiTheme.Dpi(new Padding(0, 2, 0, 2));
                 Panl_PictureShowTop.BackColor = Color.Transparent;
                 Panl_PictureShowTop.Visible = true;
+                Panl_PictureShowTop.Resize -= NavRailFlow_Resize;
+                Panl_PictureShowTop.Resize += NavRailFlow_Resize;
 
                 if (Panl_PictureShowDown != null)
                 {
@@ -449,11 +457,83 @@ namespace AlphaRap
                 _navAutoHideHover = false;
                 if (panelNavAutoHideTab != null) panelNavAutoHideTab.Visible = false;
                 if (Panl_PictureShowTop != null) Panl_PictureShowTop.Visible = true;
+                FitNavRailNoScroll();
+            }
+            UpdateNavRailTooltips();
+        }
 
-                Size btnSize = UiTheme.Dpi(NavButtonSize);
-                // 略加大纵向间距，圆角禁用块不再挤在一起
-                Padding margin = UiTheme.Dpi(new Padding(2, 3, 2, 3));
-                foreach (PictureBox b in NavButtons())
+        private void NavRailFlow_Resize(object sender, EventArgs e)
+        {
+            if (_navRailCollapsed || _fittingNavRail) return;
+            FitNavRailNoScroll();
+            RefreshButtonIcons();
+        }
+
+        /// <summary>
+        /// 按侧栏可用高度均分入口尺寸，关掉横/竖滚动条；字号随高度略缩小。
+        /// </summary>
+        private void FitNavRailNoScroll()
+        {
+            if (Panl_PictureShowTop == null || _fittingNavRail) return;
+            _fittingNavRail = true;
+            try
+            {
+                Panl_PictureShowTop.AutoScroll = false;
+                Panl_PictureShowTop.HorizontalScroll.Maximum = 0;
+                Panl_PictureShowTop.VerticalScroll.Maximum = 0;
+
+                int availH = Panl_PictureShowTop.ClientSize.Height;
+                int availW = Panl_PictureShowTop.ClientSize.Width;
+                if (availH < UiTheme.Dpi(80) || availW < UiTheme.Dpi(40)) return;
+
+                PictureBox[] nav = NavButtons();
+                int btnCount = 0;
+                for (int i = 0; i < nav.Length; i++)
+                    if (nav[i] != null) btnCount++;
+                if (btnCount <= 0) return;
+
+                int toggleBlock = 0;
+                if (MENU_NavToggle != null)
+                {
+                    Size ts = UiTheme.Dpi(NavToggleSize);
+                    int tMargin = UiTheme.Dpi(8);
+                    MENU_NavToggle.Size = ts;
+                    MENU_NavToggle.Margin = new Padding((availW - ts.Width) / 2, UiTheme.Dpi(4), (availW - ts.Width) / 2, UiTheme.Dpi(2));
+                    MENU_NavToggle.Visible = true;
+                    toggleBlock = ts.Height + MENU_NavToggle.Margin.Vertical;
+                }
+
+                int rest = availH - Panl_PictureShowTop.Padding.Vertical - toggleBlock;
+                int slot = rest / btnCount;
+                int marginV = Math.Max(0, UiTheme.Dpi(1));
+                int btnH = slot - marginV * 2;
+                if (btnH < UiTheme.Dpi(36)) btnH = UiTheme.Dpi(36);
+                if (btnH > UiTheme.Dpi(50)) btnH = UiTheme.Dpi(50);
+
+                int btnW = availW - UiTheme.Dpi(4);
+                if (btnW > UiTheme.Dpi(88)) btnW = UiTheme.Dpi(88);
+                if (btnW < UiTheme.Dpi(56)) btnW = UiTheme.Dpi(56);
+
+                if (btnH >= UiTheme.Dpi(48))
+                {
+                    _navRailIconSize = 22;
+                    _navRailFontPt = 10f;
+                }
+                else if (btnH >= UiTheme.Dpi(42))
+                {
+                    _navRailIconSize = 20;
+                    _navRailFontPt = 9.5f;
+                }
+                else
+                {
+                    _navRailIconSize = 18;
+                    _navRailFontPt = 8.5f;
+                }
+
+                Size btnSize = new Size(btnW, btnH);
+                int side = Math.Max(0, (availW - btnW) / 2);
+                Padding margin = new Padding(side, marginV, side, marginV);
+                foreach (PictureBox b in nav)
                 {
                     if (b == null) continue;
                     b.Size = btnSize;
@@ -461,16 +541,10 @@ namespace AlphaRap
                     b.SizeMode = PictureBoxSizeMode.CenterImage;
                     b.Cursor = Cursors.Hand;
                 }
-                if (MENU_NavToggle != null)
-                {
-                    // 汉堡比正式入口更小、更淡，避免像第 13 个菜单
-                    MENU_NavToggle.Size = UiTheme.Dpi(NavToggleSize);
-                    MENU_NavToggle.Margin = UiTheme.Dpi(new Padding(8, 6, 8, 4));
-                    MENU_NavToggle.Visible = true;
-                }
                 ApplyRoundedMenuRegions();
             }
-            UpdateNavRailTooltips();
+            catch { }
+            finally { _fittingNavRail = false; }
         }
 
         private void UpdateNavRailTooltips()
@@ -809,7 +883,7 @@ namespace AlphaRap
                     new[] { AppIcon.Home, AppIcon.Vision, AppIcon.Save, AppIcon.Rapid, AppIcon.Hard,
                             AppIcon.Manual, AppIcon.Data, AppIcon.Log, AppIcon.Check, AppIcon.AddUser,
                             AppIcon.Mes, AppIcon.LifeSpan, AppIcon.Menu },
-                    new[] { UiTheme.Dpi(NavIconSize), UiTheme.Dpi(NavCollapsedIconSize) },
+                    new[] { UiTheme.Dpi(18), UiTheme.Dpi(20), UiTheme.Dpi(22), UiTheme.Dpi(NavCollapsedIconSize) },
                     new[] { NavOnBlue, NavOnBlueDisabled, NavToggleMuted, AppIconColor.OnDarkBar });
 
                 AppIcons.Prewarm(
@@ -870,7 +944,7 @@ namespace AlphaRap
             st.Icon = icon;
             st.IconSize = iconSize;
             st.IsNav = isNav;
-            st.Font = isNav ? UiTheme.NavLabel : UiTheme.ToolLabel;
+            st.Font = isNav ? UiKit.Regular(_navRailFontPt) : UiTheme.ToolLabel;
             return st;
         }
 
@@ -903,7 +977,7 @@ namespace AlphaRap
             Color back = !on ? NavRailDisabledBg : sel ? NavRailSelectedBg : Color.Transparent;
             if (b.BackColor != back) b.BackColor = back;
 
-            NavPaintState st = AttachNavPaint(b, icon, NavIconSize, true);
+            NavPaintState st = AttachNavPaint(b, icon, _navRailIconSize, true);
             st.IconColor = on ? NavOnBlue : NavOnBlueDisabled;
             st.AccentColor = st.IconColor;
             st.TextColor = on ? NavOnBlue : NavOnBlueDisabled;
