@@ -290,15 +290,19 @@ namespace AlphaRap
             panelAlarmFilter.BackColor = UiKit.Surface;
             flowAlarmFilter.Padding = UiTheme.Dpi(new Padding(8, 5, 0, 0));
             flowAlarmFilter.BackColor = UiKit.Surface;
-            foreach (Control chip in new Control[] { btnAlarmFilterAll, btnAlarmFilterWarn, btnAlarmFilterAlarm })
+            EnsureAlarmToggleChip();
+            foreach (Control chip in new Control[] { btnAlarmFilterAll, btnAlarmFilterWarn, btnAlarmFilterAlarm, btnAlarmQuery, btnAlarmToggle })
             {
-                AlarmChip c = (AlarmChip)chip;
+                AlarmChip c = chip as AlarmChip;
+                if (c == null) continue;
                 c.Height = UiTheme.Dpi(28);
                 c.Margin = UiTheme.Dpi(new Padding(0, 0, 8, 0));
                 c.CornerRadius = UiTheme.Dpi(14);
                 c.BorderColor = Color.FromArgb(200, 210, 222);
                 c.TextColor = UiKit.TextPrimary;
             }
+            if (btnAlarmToggle != null)
+                btnAlarmToggle.Margin = UiTheme.Dpi(new Padding(12, 0, 8, 0));
 
             UiTheme.StyleListView(WarnningMessage, 30);
             if (WarnningMessage.Columns.Count >= 4)
