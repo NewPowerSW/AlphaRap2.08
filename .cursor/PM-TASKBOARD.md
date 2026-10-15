@@ -78,3 +78,66 @@ PM **没有**把这些 WIP 一起提交 —— 那是员工的进行中工作。
 | `.cursor/rules/pm-cursor-workflow.mdc` | 分工与验收流程（规则文件） |
 | `.cursor/PM-TASKBOARD.md` | 本任务板 |
 
+---
+
+# F. 已派发任务（执行：Cursor；PM 只验收）
+
+## T-001 修「VPForm 的参数在程序启动时没有被加载」 ★最高优先
+
+**状态：`TODO`（已派发，等 Cursor 交证据）**
+
+### 目标
+程序启动完成后，**不点任何东西**，VPForm（视觉参数窗口）的参数就应处于已加载状态。
+现在必须**点一下该窗口**才加载上来。
+
+### 现象
+- 原话：「该 form 存在 bug：为什么程序加载的时候默认参数没有加载上来？点击一下该 form 再上传下来。」
+- 点开之后界面是正常的：相机名 / CameraIndex / 默认曝光、标定页（已录点数、vpp 路径）、
+  VPP 页（相机名 / VPP 名 / vpp 路径 / 补偿限制表 X、Y、R = -1~1、-1~1、-5~5 / 曝光 / 存图勾选 / 存图路径）都在。
+  ⇒ 缺的是**启动那一刻**没加载。
+
+### PM 已核实的线索（可直接用，不必重查）
+
+| 事实 | 证据 |
+|---|---|
+| 启动流程：`Program.Main` → `MiddleLayer.InitialProject()` | `Program.cs:31`，在 `Application.Run(MainF)` **之前**，加载期间显示 LoadingForm |
+| 窗体在此时被创建：`VPF = CreateForm(VPF, "VPForm")` | `MiddleLayer.cs:177`；`CreateForm` 会**立刻**调 `ModuleInitialize`（`MiddleLayer.cs:958-959`） |
+| `VPForm : ModuleBaseForm`，其 `ModuleInitialize` 里调 `BuildVpUi()` | `VPForm.cs:133-147`；`BuildVpUi` 在 `VPForm.cs:177-186`<br>⇒ **不是**等用户打开页面才建 |
+| `SysPara.RecipeName` 在建 VPF **之前**已赋值 | `MiddleLayer.cs:130` < `177` ⇒ vpp 路径里的配方名理论上是对的 |
+| `VPForm.OnVisibleChanged` → `OnRecipeChanged()` | `VPForm.cs:1221-1228` |
+
+### ⚠ PM 未核实的三个怀疑点（**必须由你证实或推翻，不许猜**）
+
+1. **`_vpUiBuilt` 在干活之前就置 true**（`VPForm.cs:179-180`）：
+   若 `CreateVpToolBar()` / `LoadConfigFromDisk()` / `BuildVpPages()` / `ApplyPageStyle()` 任一抛异常，
+   `ModuleInitialize` 的 catch 只记 `_vpBuildError` 就吞掉了，而 `_vpUiBuilt` 已是 `true`
+   ⇒ **永不重建**，界面停在半成品。这能解释"点一下之后才对"（点开时另一条路径刷新了）。
+2. **`OnRecipeChanged()` 做的事可能比 `BuildVpUi()` 多**（例如按当前配方 `LoadTB` / 刷新 vpp 路径）
+   ⇒ 启动路径漏了那一步，而"点开一次"正好补上。
+3. **`SysPara.LanguageShow` 在 L186-191 才赋值**（`SwitchLanguage` 在 L193），
+   而 VPF 在 L177 就建好了 ⇒ 建窗时语言还是初值。
+   （PM 判断它只影响文案、不该影响参数 —— 但**请以实测为准**。）
+
+### 要求
+
+1. **先定位，再动手**。用临时日志把 `BuildVpUi()` 每一步的进入/完成/异常打出来（原样保留，别只写结论）。
+   对照 `OnRecipeChanged()` 与 `BuildVpUi()` 的差异，找出「启动路径漏掉/失败的那一步」。
+2. **修根因**：让启动路径加载到的参数与"点开一次之后"完全一致。
+   若确认是"异常被吞" ⇒ 别吞；`_vpUiBuilt` 只在**成功**后置 true（或失败可重试）。
+3. **禁止**用「打开页面时再加载一次」糊过去 —— 那只是把 bug 挪个地方。
+4. 遵守本项目红线：UTF-8 BOM + CRLF（改完 `.cs` 跑 `.workbuddy\tools\_norm_sources.py`）、
+   方法不套方法、设计器与运行期一致。
+
+### 验收标准（PM 会逐条独立复核）
+
+1. 启动后**不点任何东西**，上述所有参数与**点开一次之后**逐项一致。
+2. 附**启动期日志**（`BuildVpUi()` 每步 + 任何异常原文）。
+3. 附**对照证据**：启动后未点击时的截图 + 点击后的截图（或探针渲染），参数区一致。
+4. 编译 **0 错误 / 0 警告**；`check_orphan_controls.py` / `check_control_names.py` / `check_cs_edits.py` / `_scan_dup.py` 全绿。
+5. 提交并推送 `NewPowerSW/AlphaRap2.08`；提交信息写清**根因**（哪一行、为什么）；更新 `.workbuddy/memory/` 当日日志。
+
+### 边界
+- 本任务由 **Cursor 实现并自证**；**PM 只做独立复核，不代写修复代码**。
+- 若定位后发现根因与上面三个怀疑点都不同 —— 以你的实测为准，但要在交付里写清证据链。
+
+
