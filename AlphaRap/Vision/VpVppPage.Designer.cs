@@ -19,43 +19,41 @@
         {
             this.head = new System.Windows.Forms.Panel();
             this.lblInfo = new AlphaRap.UiLabel();
+            this.path = new AlphaRap.UiLabel();
             this.compRow = new System.Windows.Forms.Panel();
             this.gridComp = new System.Windows.Forms.DataGridView();
             this.cItem = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cMin = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cMax = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.path = new AlphaRap.UiLabel();
             this.pathRow = new System.Windows.Forms.FlowLayoutPanel();
-            this.cbSaveImg = new AlphaRap.UiCheckBox();
-            this.lblSavePath = new AlphaRap.UiLabel();
-            this.tbSavePath = new System.Windows.Forms.TextBox();
-            this.btnBrowsePath = new AlphaRap.FlatButton();
-            this.optionsRow = new System.Windows.Forms.FlowLayoutPanel();
             this.cbOrig = new AlphaRap.UiCheckBox();
             this.cbSnap = new AlphaRap.UiCheckBox();
             this.cbAutoDel = new AlphaRap.UiCheckBox();
             this.keepGroup = new System.Windows.Forms.Panel();
             this.lblSaveDays = new AlphaRap.UiLabel();
             this.tbSaveDays = new System.Windows.Forms.TextBox();
+            this.cbSaveImg = new AlphaRap.UiCheckBox();
+            this.lblSavePath = new AlphaRap.UiLabel();
+            this.tbSavePath = new System.Windows.Forms.TextBox();
+            this.btnBrowsePath = new AlphaRap.FlatButton();
+            this.optionsRow = new System.Windows.Forms.FlowLayoutPanel();
             this.paramRow = new System.Windows.Forms.FlowLayoutPanel();
             this.lblExp = new AlphaRap.UiLabel();
             this.tbExp = new System.Windows.Forms.TextBox();
             this.lblVppName = new AlphaRap.UiLabel();
             this.tbRename = new System.Windows.Forms.TextBox();
-            this.foot = new System.Windows.Forms.FlowLayoutPanel();
             this.btnEditTb = new AlphaRap.FlatButton();
             this.btnCapture = new AlphaRap.FlatButton();
             this.btnSaveVpp = new AlphaRap.FlatButton();
             this.btnAddCompRow = new AlphaRap.FlatButton();
             this.btnDelCompRow = new AlphaRap.FlatButton();
+            this.foot = new System.Windows.Forms.FlowLayoutPanel();
             this.head.SuspendLayout();
             this.compRow.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridComp)).BeginInit();
             this.pathRow.SuspendLayout();
-            this.optionsRow.SuspendLayout();
             this.keepGroup.SuspendLayout();
             this.paramRow.SuspendLayout();
-            this.foot.SuspendLayout();
             this.SuspendLayout();
             // 
             // head
@@ -67,7 +65,7 @@
             this.head.Location = new System.Drawing.Point(0, 0);
             this.head.Name = "head";
             this.head.Padding = new System.Windows.Forms.Padding(12, 0, 12, 0);
-            this.head.Size = new System.Drawing.Size(720, 36);
+            this.head.Size = new System.Drawing.Size(818, 36);
             this.head.TabIndex = 0;
             // 
             // lblInfo
@@ -76,77 +74,24 @@
             this.lblInfo.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Bold);
             this.lblInfo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.lblInfo.Location = new System.Drawing.Point(12, 0);
-            this.lblInfo.Name = "vpVppInfo_dyn";
-            this.lblInfo.Size = new System.Drawing.Size(696, 36);
+            this.lblInfo.Name = "lblInfo";
+            this.lblInfo.Size = new System.Drawing.Size(386, 36);
             this.lblInfo.TabIndex = 0;
             this.lblInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // foot：按钮已并入 paramRow，不再单独占行
-            // 
-            this.foot.Name = "foot";
-            this.foot.Visible = false;
-            this.foot.Size = new System.Drawing.Size(0, 0);
-            // 
-            // paramRow（曝光 + VPP名称 + 操作按钮：一行，放在存图上方）
-            // 
-            this.paramRow.BackColor = System.Drawing.Color.White;
-            this.paramRow.Controls.Add(this.lblExp);
-            this.paramRow.Controls.Add(this.tbExp);
-            this.paramRow.Controls.Add(this.lblVppName);
-            this.paramRow.Controls.Add(this.tbRename);
-            this.paramRow.Controls.Add(this.btnEditTb);
-            this.paramRow.Controls.Add(this.btnCapture);
-            this.paramRow.Controls.Add(this.btnSaveVpp);
-            this.paramRow.Controls.Add(this.btnAddCompRow);
-            this.paramRow.Controls.Add(this.btnDelCompRow);
-            this.paramRow.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.paramRow.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            this.paramRow.Location = new System.Drawing.Point(0, 332);
-            this.paramRow.Name = "paramRow";
-            this.paramRow.Padding = new System.Windows.Forms.Padding(12, 4, 12, 4);
-            this.paramRow.Size = new System.Drawing.Size(720, 44);
-            this.paramRow.TabIndex = 5;
-            this.paramRow.WrapContents = false;
-            // 
-            // optionsRow：已并入 pathRow，不再单独占行
-            // 
-            this.optionsRow.Name = "optionsRow";
-            this.optionsRow.Visible = false;
-            this.optionsRow.Size = new System.Drawing.Size(0, 0);
-            // 
-            // pathRow（原图/截图/自动删除/保留天数 + 存图/路径：同一行）
-            // 
-            this.pathRow.BackColor = System.Drawing.Color.White;
-            this.pathRow.Controls.Add(this.cbOrig);
-            this.pathRow.Controls.Add(this.cbSnap);
-            this.pathRow.Controls.Add(this.cbAutoDel);
-            this.pathRow.Controls.Add(this.keepGroup);
-            this.pathRow.Controls.Add(this.cbSaveImg);
-            this.pathRow.Controls.Add(this.lblSavePath);
-            this.pathRow.Controls.Add(this.tbSavePath);
-            this.pathRow.Controls.Add(this.btnBrowsePath);
-            this.pathRow.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pathRow.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            this.pathRow.Location = new System.Drawing.Point(0, 332);
-            this.pathRow.Name = "pathRow";
-            this.pathRow.Padding = new System.Windows.Forms.Padding(12, 4, 12, 4);
-            this.pathRow.Size = new System.Drawing.Size(720, 40);
-            this.pathRow.TabIndex = 4;
-            this.pathRow.WrapContents = false;
-            // 
-            // path（vpp 路径：贴标题行右侧）
+            // path
             // 
             this.path.Dock = System.Windows.Forms.DockStyle.Right;
             this.path.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.path.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
-            this.path.Location = new System.Drawing.Point(300, 0);
-            this.path.Name = "vpVppPath_dyn";
+            this.path.Location = new System.Drawing.Point(398, 0);
+            this.path.Name = "path";
             this.path.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
             this.path.Size = new System.Drawing.Size(408, 36);
             this.path.TabIndex = 1;
             this.path.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // compRow（补偿表：占满中间剩余空间）
+            // compRow
             // 
             this.compRow.BackColor = System.Drawing.Color.White;
             this.compRow.Controls.Add(this.gridComp);
@@ -154,7 +99,7 @@
             this.compRow.Location = new System.Drawing.Point(0, 36);
             this.compRow.Name = "compRow";
             this.compRow.Padding = new System.Windows.Forms.Padding(12, 4, 12, 4);
-            this.compRow.Size = new System.Drawing.Size(720, 230);
+            this.compRow.Size = new System.Drawing.Size(818, 375);
             this.compRow.TabIndex = 1;
             // 
             // gridComp
@@ -169,9 +114,9 @@
             this.cMax});
             this.gridComp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gridComp.Location = new System.Drawing.Point(12, 4);
-            this.gridComp.Name = "vpCompGrid";
+            this.gridComp.Name = "gridComp";
             this.gridComp.RowHeadersVisible = false;
-            this.gridComp.Size = new System.Drawing.Size(696, 222);
+            this.gridComp.Size = new System.Drawing.Size(794, 367);
             this.gridComp.TabIndex = 0;
             // 
             // cItem
@@ -189,68 +134,35 @@
             this.cMax.HeaderText = "补偿上限";
             this.cMax.Name = "cMax";
             // 
-            // cbSaveImg
+            // pathRow
             // 
-            this.cbSaveImg.AutoSize = true;
-            this.cbSaveImg.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.cbSaveImg.Font = new System.Drawing.Font("微软雅黑", 10F);
-            this.cbSaveImg.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.cbSaveImg.Location = new System.Drawing.Point(12, 10);
-            this.cbSaveImg.Margin = new System.Windows.Forms.Padding(0, 4, 10, 0);
-            this.cbSaveImg.Name = "vpRow_SaveImage";
-            this.cbSaveImg.Size = new System.Drawing.Size(55, 24);
-            this.cbSaveImg.TabIndex = 0;
-            this.cbSaveImg.Text = "存图";
-            // 
-            // lblSavePath
-            // 
-            this.lblSavePath.AutoSize = true;
-            this.lblSavePath.Font = new System.Drawing.Font("微软雅黑", 10F);
-            this.lblSavePath.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblSavePath.Location = new System.Drawing.Point(77, 8);
-            this.lblSavePath.Margin = new System.Windows.Forms.Padding(0, 6, 6, 0);
-            this.lblSavePath.Name = "vpRow_SavePath";
-            this.lblSavePath.Size = new System.Drawing.Size(65, 20);
-            this.lblSavePath.TabIndex = 1;
-            this.lblSavePath.Text = "存图路径";
-            this.lblSavePath.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // tbSavePath
-            // 
-            this.tbSavePath.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
-            this.tbSavePath.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tbSavePath.Font = new System.Drawing.Font("微软雅黑", 10F);
-            this.tbSavePath.Location = new System.Drawing.Point(148, 8);
-            this.tbSavePath.Margin = new System.Windows.Forms.Padding(0, 2, 6, 0);
-            this.tbSavePath.Name = "vpSavePathBox";
-            this.tbSavePath.Size = new System.Drawing.Size(140, 25);
-            this.tbSavePath.TabIndex = 2;
-            // 
-            // btnBrowsePath
-            // 
-            this.btnBrowsePath.BackColor = System.Drawing.Color.Transparent;
-            this.btnBrowsePath.CornerRadius = 8;
-            this.btnBrowsePath.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnBrowsePath.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
-            this.btnBrowsePath.Location = new System.Drawing.Point(374, 6);
-            this.btnBrowsePath.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
-            this.btnBrowsePath.Name = "vpBtn_BrowsePath";
-            this.btnBrowsePath.Size = new System.Drawing.Size(40, 28);
-            this.btnBrowsePath.TabIndex = 3;
-            this.btnBrowsePath.Text = "...";
-            this.btnBrowsePath.Variant = AlphaRap.FlatButtonVariant.Surface;
+            this.pathRow.BackColor = System.Drawing.Color.White;
+            this.pathRow.Controls.Add(this.cbOrig);
+            this.pathRow.Controls.Add(this.cbSnap);
+            this.pathRow.Controls.Add(this.cbAutoDel);
+            this.pathRow.Controls.Add(this.keepGroup);
+            this.pathRow.Controls.Add(this.cbSaveImg);
+            this.pathRow.Controls.Add(this.lblSavePath);
+            this.pathRow.Controls.Add(this.tbSavePath);
+            this.pathRow.Controls.Add(this.btnBrowsePath);
+            this.pathRow.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pathRow.Location = new System.Drawing.Point(0, 455);
+            this.pathRow.Name = "pathRow";
+            this.pathRow.Padding = new System.Windows.Forms.Padding(12, 4, 12, 4);
+            this.pathRow.Size = new System.Drawing.Size(818, 40);
+            this.pathRow.TabIndex = 4;
+            this.pathRow.WrapContents = false;
             // 
             // cbOrig
             // 
             this.cbOrig.AutoSize = true;
             this.cbOrig.Cursor = System.Windows.Forms.Cursors.Hand;
             this.cbOrig.Font = new System.Drawing.Font("微软雅黑", 10F);
-            this.cbOrig.Margin = new System.Windows.Forms.Padding(0, 6, 4, 0);
             this.cbOrig.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.cbOrig.Location = new System.Drawing.Point(12, 8);
             this.cbOrig.Margin = new System.Windows.Forms.Padding(0, 4, 12, 0);
-            this.cbOrig.Name = "vpRow_SaveOriginal";
-            this.cbOrig.Size = new System.Drawing.Size(55, 24);
+            this.cbOrig.Name = "cbOrig";
+            this.cbOrig.Size = new System.Drawing.Size(56, 24);
             this.cbOrig.TabIndex = 0;
             this.cbOrig.Text = "原图";
             // 
@@ -260,10 +172,10 @@
             this.cbSnap.Cursor = System.Windows.Forms.Cursors.Hand;
             this.cbSnap.Font = new System.Drawing.Font("微软雅黑", 10F);
             this.cbSnap.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.cbSnap.Location = new System.Drawing.Point(79, 8);
+            this.cbSnap.Location = new System.Drawing.Point(80, 8);
             this.cbSnap.Margin = new System.Windows.Forms.Padding(0, 4, 12, 0);
-            this.cbSnap.Name = "vpRow_SaveSnapshot";
-            this.cbSnap.Size = new System.Drawing.Size(55, 24);
+            this.cbSnap.Name = "cbSnap";
+            this.cbSnap.Size = new System.Drawing.Size(56, 24);
             this.cbSnap.TabIndex = 1;
             this.cbSnap.Text = "截图";
             // 
@@ -273,19 +185,19 @@
             this.cbAutoDel.Cursor = System.Windows.Forms.Cursors.Hand;
             this.cbAutoDel.Font = new System.Drawing.Font("微软雅黑", 10F);
             this.cbAutoDel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.cbAutoDel.Location = new System.Drawing.Point(146, 8);
+            this.cbAutoDel.Location = new System.Drawing.Point(148, 8);
             this.cbAutoDel.Margin = new System.Windows.Forms.Padding(0, 4, 16, 0);
-            this.cbAutoDel.Name = "vpRow_SaveAutoDel";
-            this.cbAutoDel.Size = new System.Drawing.Size(87, 24);
+            this.cbAutoDel.Name = "cbAutoDel";
+            this.cbAutoDel.Size = new System.Drawing.Size(84, 24);
             this.cbAutoDel.TabIndex = 2;
             this.cbAutoDel.Text = "自动删除";
             // 
-            // keepGroup（标签+输入框绑定，避免换行拆散）
+            // keepGroup
             // 
             this.keepGroup.Controls.Add(this.lblSaveDays);
             this.keepGroup.Controls.Add(this.tbSaveDays);
-            this.keepGroup.Location = new System.Drawing.Point(249, 4);
-            this.keepGroup.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
+            this.keepGroup.Location = new System.Drawing.Point(248, 4);
+            this.keepGroup.Margin = new System.Windows.Forms.Padding(0);
             this.keepGroup.Name = "keepGroup";
             this.keepGroup.Size = new System.Drawing.Size(168, 30);
             this.keepGroup.TabIndex = 3;
@@ -296,7 +208,7 @@
             this.lblSaveDays.Font = new System.Drawing.Font("微软雅黑", 10F);
             this.lblSaveDays.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblSaveDays.Location = new System.Drawing.Point(0, 5);
-            this.lblSaveDays.Name = "vpRow_SaveDays";
+            this.lblSaveDays.Name = "lblSaveDays";
             this.lblSaveDays.Size = new System.Drawing.Size(65, 20);
             this.lblSaveDays.TabIndex = 0;
             this.lblSaveDays.Text = "保留天数";
@@ -308,19 +220,104 @@
             this.tbSaveDays.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbSaveDays.Font = new System.Drawing.Font("微软雅黑", 10F);
             this.tbSaveDays.Location = new System.Drawing.Point(108, 2);
-            this.tbSaveDays.Name = "vpSaveDaysBox";
+            this.tbSaveDays.Name = "tbSaveDays";
             this.tbSaveDays.Size = new System.Drawing.Size(56, 25);
             this.tbSaveDays.TabIndex = 1;
             this.tbSaveDays.Text = "0";
+            // 
+            // cbSaveImg
+            // 
+            this.cbSaveImg.AutoSize = true;
+            this.cbSaveImg.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cbSaveImg.Font = new System.Drawing.Font("微软雅黑", 10F);
+            this.cbSaveImg.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
+            this.cbSaveImg.Location = new System.Drawing.Point(416, 8);
+            this.cbSaveImg.Margin = new System.Windows.Forms.Padding(0, 4, 10, 0);
+            this.cbSaveImg.Name = "cbSaveImg";
+            this.cbSaveImg.Size = new System.Drawing.Size(56, 24);
+            this.cbSaveImg.TabIndex = 0;
+            this.cbSaveImg.Text = "存图";
+            // 
+            // lblSavePath
+            // 
+            this.lblSavePath.AutoSize = true;
+            this.lblSavePath.Font = new System.Drawing.Font("微软雅黑", 10F);
+            this.lblSavePath.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
+            this.lblSavePath.Location = new System.Drawing.Point(482, 10);
+            this.lblSavePath.Margin = new System.Windows.Forms.Padding(0, 6, 6, 0);
+            this.lblSavePath.Name = "lblSavePath";
+            this.lblSavePath.Size = new System.Drawing.Size(65, 20);
+            this.lblSavePath.TabIndex = 1;
+            this.lblSavePath.Text = "存图路径";
+            this.lblSavePath.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // tbSavePath
+            // 
+            this.tbSavePath.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
+            this.tbSavePath.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tbSavePath.Font = new System.Drawing.Font("微软雅黑", 10F);
+            this.tbSavePath.Location = new System.Drawing.Point(553, 6);
+            this.tbSavePath.Margin = new System.Windows.Forms.Padding(0, 2, 6, 0);
+            this.tbSavePath.Name = "tbSavePath";
+            this.tbSavePath.Size = new System.Drawing.Size(140, 25);
+            this.tbSavePath.TabIndex = 2;
+            // 
+            // btnBrowsePath
+            // 
+            this.btnBrowsePath.BackColor = System.Drawing.Color.Transparent;
+            this.btnBrowsePath.CornerRadius = 8;
+            this.btnBrowsePath.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnBrowsePath.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
+            this.btnBrowsePath.Icon = null;
+            this.btnBrowsePath.IconGap = 8;
+            this.btnBrowsePath.IconSize = 18;
+            this.btnBrowsePath.Location = new System.Drawing.Point(699, 4);
+            this.btnBrowsePath.Margin = new System.Windows.Forms.Padding(0);
+            this.btnBrowsePath.Name = "btnBrowsePath";
+            this.btnBrowsePath.Selectable = false;
+            this.btnBrowsePath.Size = new System.Drawing.Size(40, 28);
+            this.btnBrowsePath.TabIndex = 3;
+            this.btnBrowsePath.TabStop = false;
+            this.btnBrowsePath.Text = "...";
+            this.btnBrowsePath.TextColorOverride = null;
+            this.btnBrowsePath.Variant = AlphaRap.FlatButtonVariant.Surface;
+            // 
+            // optionsRow
+            // 
+            this.optionsRow.Location = new System.Drawing.Point(0, 0);
+            this.optionsRow.Name = "optionsRow";
+            this.optionsRow.Size = new System.Drawing.Size(0, 0);
+            this.optionsRow.TabIndex = 0;
+            this.optionsRow.Visible = false;
+            // 
+            // paramRow
+            // 
+            this.paramRow.BackColor = System.Drawing.Color.White;
+            this.paramRow.Controls.Add(this.lblExp);
+            this.paramRow.Controls.Add(this.tbExp);
+            this.paramRow.Controls.Add(this.lblVppName);
+            this.paramRow.Controls.Add(this.tbRename);
+            this.paramRow.Controls.Add(this.btnEditTb);
+            this.paramRow.Controls.Add(this.btnCapture);
+            this.paramRow.Controls.Add(this.btnSaveVpp);
+            this.paramRow.Controls.Add(this.btnAddCompRow);
+            this.paramRow.Controls.Add(this.btnDelCompRow);
+            this.paramRow.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.paramRow.Location = new System.Drawing.Point(0, 411);
+            this.paramRow.Name = "paramRow";
+            this.paramRow.Padding = new System.Windows.Forms.Padding(12, 4, 12, 4);
+            this.paramRow.Size = new System.Drawing.Size(818, 44);
+            this.paramRow.TabIndex = 5;
+            this.paramRow.WrapContents = false;
             // 
             // lblExp
             // 
             this.lblExp.AutoSize = true;
             this.lblExp.Font = new System.Drawing.Font("微软雅黑", 10F);
             this.lblExp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblExp.Location = new System.Drawing.Point(12, 10);
+            this.lblExp.Location = new System.Drawing.Point(12, 8);
             this.lblExp.Margin = new System.Windows.Forms.Padding(0, 4, 6, 0);
-            this.lblExp.Name = "vpRow_Exposure";
+            this.lblExp.Name = "lblExp";
             this.lblExp.Size = new System.Drawing.Size(37, 20);
             this.lblExp.TabIndex = 0;
             this.lblExp.Text = "曝光";
@@ -330,9 +327,9 @@
             this.tbExp.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
             this.tbExp.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbExp.Font = new System.Drawing.Font("微软雅黑", 10F);
-            this.tbExp.Location = new System.Drawing.Point(55, 8);
+            this.tbExp.Location = new System.Drawing.Point(55, 6);
             this.tbExp.Margin = new System.Windows.Forms.Padding(0, 2, 16, 0);
-            this.tbExp.Name = "vpVppExpBox";
+            this.tbExp.Name = "tbExp";
             this.tbExp.Size = new System.Drawing.Size(64, 25);
             this.tbExp.TabIndex = 1;
             // 
@@ -341,10 +338,10 @@
             this.lblVppName.AutoSize = true;
             this.lblVppName.Font = new System.Drawing.Font("微软雅黑", 10F);
             this.lblVppName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblVppName.Location = new System.Drawing.Point(151, 10);
+            this.lblVppName.Location = new System.Drawing.Point(135, 8);
             this.lblVppName.Margin = new System.Windows.Forms.Padding(0, 4, 6, 0);
-            this.lblVppName.Name = "vpRow_VppName";
-            this.lblVppName.Size = new System.Drawing.Size(65, 20);
+            this.lblVppName.Name = "lblVppName";
+            this.lblVppName.Size = new System.Drawing.Size(68, 20);
             this.lblVppName.TabIndex = 2;
             this.lblVppName.Text = "VPP 名称";
             // 
@@ -353,9 +350,9 @@
             this.tbRename.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
             this.tbRename.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbRename.Font = new System.Drawing.Font("微软雅黑", 10F);
-            this.tbRename.Location = new System.Drawing.Point(222, 8);
+            this.tbRename.Location = new System.Drawing.Point(209, 6);
             this.tbRename.Margin = new System.Windows.Forms.Padding(0, 2, 0, 0);
-            this.tbRename.Name = "vpRenameBox";
+            this.tbRename.Name = "tbRename";
             this.tbRename.Size = new System.Drawing.Size(100, 25);
             this.tbRename.TabIndex = 3;
             // 
@@ -365,13 +362,18 @@
             this.btnEditTb.CornerRadius = 8;
             this.btnEditTb.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnEditTb.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
-            this.btnEditTb.Location = new System.Drawing.Point(12, 8);
+            this.btnEditTb.Icon = null;
+            this.btnEditTb.IconGap = 8;
+            this.btnEditTb.IconSize = 18;
+            this.btnEditTb.Location = new System.Drawing.Point(309, 4);
             this.btnEditTb.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
-            this.btnEditTb.Name = "vpBtn_EditTb";
-            // 设计时尺寸贴近运行时 LayoutParamRow（英文 Delete row 需更宽）
+            this.btnEditTb.Name = "btnEditTb";
+            this.btnEditTb.Selectable = false;
             this.btnEditTb.Size = new System.Drawing.Size(88, 30);
             this.btnEditTb.TabIndex = 0;
+            this.btnEditTb.TabStop = false;
             this.btnEditTb.Text = "编辑 TB";
+            this.btnEditTb.TextColorOverride = null;
             this.btnEditTb.Variant = AlphaRap.FlatButtonVariant.Surface;
             // 
             // btnCapture
@@ -380,12 +382,18 @@
             this.btnCapture.CornerRadius = 8;
             this.btnCapture.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCapture.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
-            this.btnCapture.Location = new System.Drawing.Point(128, 8);
+            this.btnCapture.Icon = null;
+            this.btnCapture.IconGap = 8;
+            this.btnCapture.IconSize = 18;
+            this.btnCapture.Location = new System.Drawing.Point(405, 4);
             this.btnCapture.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
-            this.btnCapture.Name = "vpBtn_Capture";
+            this.btnCapture.Name = "btnCapture";
+            this.btnCapture.Selectable = false;
             this.btnCapture.Size = new System.Drawing.Size(72, 30);
             this.btnCapture.TabIndex = 1;
+            this.btnCapture.TabStop = false;
             this.btnCapture.Text = "拍照";
+            this.btnCapture.TextColorOverride = null;
             this.btnCapture.Variant = AlphaRap.FlatButtonVariant.Primary;
             // 
             // btnSaveVpp
@@ -394,12 +402,18 @@
             this.btnSaveVpp.CornerRadius = 8;
             this.btnSaveVpp.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnSaveVpp.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
-            this.btnSaveVpp.Location = new System.Drawing.Point(236, 8);
+            this.btnSaveVpp.Icon = null;
+            this.btnSaveVpp.IconGap = 8;
+            this.btnSaveVpp.IconSize = 18;
+            this.btnSaveVpp.Location = new System.Drawing.Point(485, 4);
             this.btnSaveVpp.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
-            this.btnSaveVpp.Name = "vpBtn_SaveVpp";
+            this.btnSaveVpp.Name = "btnSaveVpp";
+            this.btnSaveVpp.Selectable = false;
             this.btnSaveVpp.Size = new System.Drawing.Size(96, 30);
             this.btnSaveVpp.TabIndex = 2;
+            this.btnSaveVpp.TabStop = false;
             this.btnSaveVpp.Text = "保存 VPP";
+            this.btnSaveVpp.TextColorOverride = null;
             this.btnSaveVpp.Variant = AlphaRap.FlatButtonVariant.Primary;
             // 
             // btnAddCompRow
@@ -408,12 +422,18 @@
             this.btnAddCompRow.CornerRadius = 8;
             this.btnAddCompRow.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnAddCompRow.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
-            this.btnAddCompRow.Location = new System.Drawing.Point(352, 8);
+            this.btnAddCompRow.Icon = null;
+            this.btnAddCompRow.IconGap = 8;
+            this.btnAddCompRow.IconSize = 18;
+            this.btnAddCompRow.Location = new System.Drawing.Point(589, 4);
             this.btnAddCompRow.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
-            this.btnAddCompRow.Name = "vpBtn_AddCompRow";
+            this.btnAddCompRow.Name = "btnAddCompRow";
+            this.btnAddCompRow.Selectable = false;
             this.btnAddCompRow.Size = new System.Drawing.Size(96, 30);
             this.btnAddCompRow.TabIndex = 3;
+            this.btnAddCompRow.TabStop = false;
             this.btnAddCompRow.Text = "添加行";
+            this.btnAddCompRow.TextColorOverride = null;
             this.btnAddCompRow.Variant = AlphaRap.FlatButtonVariant.Surface;
             // 
             // btnDelCompRow
@@ -422,13 +442,27 @@
             this.btnDelCompRow.CornerRadius = 8;
             this.btnDelCompRow.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnDelCompRow.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
-            this.btnDelCompRow.Location = new System.Drawing.Point(460, 8);
-            this.btnDelCompRow.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
-            this.btnDelCompRow.Name = "vpBtn_DelCompRow";
+            this.btnDelCompRow.Icon = null;
+            this.btnDelCompRow.IconGap = 8;
+            this.btnDelCompRow.IconSize = 18;
+            this.btnDelCompRow.Location = new System.Drawing.Point(693, 4);
+            this.btnDelCompRow.Margin = new System.Windows.Forms.Padding(0);
+            this.btnDelCompRow.Name = "btnDelCompRow";
+            this.btnDelCompRow.Selectable = false;
             this.btnDelCompRow.Size = new System.Drawing.Size(108, 30);
             this.btnDelCompRow.TabIndex = 4;
+            this.btnDelCompRow.TabStop = false;
             this.btnDelCompRow.Text = "删除行";
+            this.btnDelCompRow.TextColorOverride = null;
             this.btnDelCompRow.Variant = AlphaRap.FlatButtonVariant.Danger;
+            // 
+            // foot
+            // 
+            this.foot.Location = new System.Drawing.Point(0, 0);
+            this.foot.Name = "foot";
+            this.foot.Size = new System.Drawing.Size(0, 0);
+            this.foot.TabIndex = 0;
+            this.foot.Visible = false;
             // 
             // VpVppPage
             // 
@@ -439,21 +473,18 @@
             this.Controls.Add(this.pathRow);
             this.Controls.Add(this.head);
             this.Name = "VpVppPage";
-            this.Padding = new System.Windows.Forms.Padding(0);
-            this.Size = new System.Drawing.Size(720, 464);
+            this.Size = new System.Drawing.Size(818, 495);
             this.head.ResumeLayout(false);
             this.compRow.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gridComp)).EndInit();
             this.pathRow.ResumeLayout(false);
             this.pathRow.PerformLayout();
-            this.optionsRow.ResumeLayout(false);
-            this.optionsRow.PerformLayout();
             this.keepGroup.ResumeLayout(false);
             this.keepGroup.PerformLayout();
             this.paramRow.ResumeLayout(false);
             this.paramRow.PerformLayout();
-            this.foot.ResumeLayout(false);
             this.ResumeLayout(false);
+
         }
 
         #endregion
