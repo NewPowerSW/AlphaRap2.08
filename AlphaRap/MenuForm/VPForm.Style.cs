@@ -1,4 +1,4 @@
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace AlphaRap
@@ -9,6 +9,13 @@ namespace AlphaRap
         private void ApplyPageStyle()
         {
             BackColor = UiKit.PageBg;
+            if (_vpBody != null) _vpBody.BackColor = UiKit.PageBg;
+            if (_vpDispHost != null)
+            {
+                _vpDispHost.BackColor = UiKit.Surface;
+                _vpDispHost.Padding = new Padding(UiTheme.Dpi(8));
+                _vpDispHost.Width = UiTheme.Dpi(400);
+            }
             if (tabControl1 != null)
                 UiTheme.StyleTabControl(tabControl1, true);
             StyleVpToolBar();

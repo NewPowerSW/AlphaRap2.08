@@ -75,7 +75,8 @@ namespace AlphaRap
 		#region 动态相机 / VPP
 
 		// 页面结构：
-		//   tabControl1 的一页 = 一台相机，相机页里的子 TabControl 一页 = 该相机下的一个 VPP
+		//   顶部工具条 + 左侧 tabControl1（一页一台相机）+ 右侧表单级共用 CogRecordDisplay
+		//   相机页内子 Tab = 该相机下的一个 VPP；显示窗不跟相机页走
 		//   VpStation 按"相机名\VPP名"存放 vpp，算法由 vpp 中的 ToolBlock 决定
 		// 配置文件：ModuleData\SettingData\VPForm.Cameras.xml（机器级，不随配方变）
 		// vpp 文件：VisionData\{相机名}\{VPP名}\{配方名}.vpp
@@ -87,6 +88,13 @@ namespace AlphaRap
 		private const string PreviewPageName = "tabPageDesignPreview";
 
 		private Panel _vpBar;
+		/// <summary>工具条下方主体：左侧相机 Tab + 右侧共用显示窗（不跟相机页走）。</summary>
+		private Panel _vpBody;
+		private Panel _vpDispHost;
+		/// <summary>整页唯一 CogRecordDisplay；所有相机 / VPP / 标定共用。</summary>
+		private Cognex.VisionPro.CogRecordDisplay _sharedDisp;
+		/// <summary>当前占用共用显示窗做实时的相机键；空 = 未实时。</summary>
+		private string _liveOwnerKey;
 		private bool _vpUiBuilt;
 		/// <summary>建页失败的原因（非空时显示在工具条上）。</summary>
 		private string _vpBuildError;
@@ -110,7 +118,7 @@ namespace AlphaRap
 			public List<VpStation> Targets = new List<VpStation>();
 			/// <summary>标定卡片落在哪个容器里。</summary>
 			public Control CalibHost;
-			/// <summary>整台相机共用的显示控件：标定和本相机下每个 VPP 的结果都显示在这里。</summary>
+			/// <summary>指向表单级共用显示窗（与 <see cref="_sharedDisp"/> 同一实例）。</summary>
 			public Cognex.VisionPro.CogRecordDisplay Display;
 			/// <summary>标定卡片是否铺满宿主（动态相机的 calibHost 是专用容器，铺满）。</summary>
 			public bool HostFill;
@@ -180,9 +188,65 @@ namespace AlphaRap
 			_vpUiBuilt = true;
 
 			CreateVpToolBar();
+			EnsureSharedDisplayShell();
 			LoadConfigFromDisk();
 			BuildVpPages();
 			ApplyPageStyle();
+		}
+
+		/// <summary>
+		/// 把蓝色显示窗提到 VPForm 级：左侧仍是相机 Tab，右侧固定一个 CogRecordDisplay。
+		/// 切换相机只换参数页，显示窗位置不变。
+		/// </summary>
+		private void EnsureSharedDisplayShell()
+		{
+			if (_vpBody != null || tabControl1 == null) return;
+
+			_vpBody = new Panel();
+			_vpBody.Name = "panelVpBody";
+			_vpBody.Dock = DockStyle.Fill;
+			_vpBody.BackColor = UiKit.PageBg;
+
+			_vpDispHost = new Panel();
+			_vpDispHost.Name = "panelVpDispHost";
+			_vpDispHost.Dock = DockStyle.Right;
+			_vpDispHost.Width = UiTheme.Dpi(400);
+			_vpDispHost.Padding = new Padding(UiTheme.Dpi(8));
+			_vpDispHost.BackColor = UiKit.Surface;
+
+			_sharedDisp = CreateSharedCogDisplay();
+			_vpDispHost.Controls.Add(_sharedDisp);
+
+			Controls.Remove(tabControl1);
+			tabControl1.Dock = DockStyle.Fill;
+			// Dock：先加 Fill，再加 Right，右侧条拿到固定宽，左侧 Tab 占满剩余
+			_vpBody.Controls.Add(tabControl1);
+			_vpBody.Controls.Add(_vpDispHost);
+
+			Controls.Add(_vpBody);
+			if (_vpBar != null) _vpBar.BringToFront();
+		}
+
+		/// <summary>创建唯一的 Cognex 显示控件（须先设 OcxState）。</summary>
+		private Cognex.VisionPro.CogRecordDisplay CreateSharedCogDisplay()
+		{
+			Cognex.VisionPro.CogRecordDisplay disp = new Cognex.VisionPro.CogRecordDisplay();
+			disp.Name = "vpSharedDisp";
+			try
+			{
+				object ocx = new System.ComponentModel.ComponentResourceManager(typeof(VPForm))
+					.GetObject("vpDynDisp.OcxState");
+				if (ocx is AxHost.State) disp.OcxState = (AxHost.State)ocx;
+			}
+			catch (Exception) { }
+
+			disp.Dock = DockStyle.Fill;
+			disp.ColorMapPredefined = Cognex.VisionPro.Display.CogDisplayColorMapPredefinedConstants.None;
+			disp.ColorMapLowerClipColor = Color.Black;
+			disp.ColorMapLowerRoiLimit = 0D;
+			disp.ColorMapUpperClipColor = Color.Black;
+			disp.ColorMapUpperRoiLimit = 1D;
+			return disp;
 		}
 
 		/// <summary>把 VPForm.Cameras.xml 读进 <see cref="_config"/>。</summary>
@@ -356,37 +420,19 @@ namespace AlphaRap
 			ctl.Owner = this;
 			ctl.Cam = cam;
 			ctl.Dock = DockStyle.Fill;
+			ctl.HidePageDisplayHost();
 			ctl.RefreshTexts();
 			ctl.ApplyPageStyle();
 			page.Controls.Add(ctl);
 
-			// 整台相机共用的显示控件：标定和本相机下每个 VPP 的结果都显示在这里。
-			// CogRecordDisplay 是 ActiveX 控件，代码创建时必须先设置 OcxState 再设置其它属性，否则实例不会创建。
-			Cognex.VisionPro.CogRecordDisplay sharedDisp = new Cognex.VisionPro.CogRecordDisplay();
-			sharedDisp.Name = "vpCamDisp_" + cam.Name;
-			try
-			{
-				object ocx = new System.ComponentModel.ComponentResourceManager(typeof(VPForm))
-					.GetObject("vpDynDisp.OcxState");
-				if (ocx is AxHost.State) sharedDisp.OcxState = (AxHost.State)ocx;
-			}
-			catch (Exception) { }
+			EnsureSharedDisplayShell();
 
-			// 在 OcxState 之后设置，避免被状态中的值覆盖
-			sharedDisp.Dock = DockStyle.Fill;
-			sharedDisp.ColorMapPredefined = Cognex.VisionPro.Display.CogDisplayColorMapPredefinedConstants.None;
-			sharedDisp.ColorMapLowerClipColor = Color.Black;
-			sharedDisp.ColorMapLowerRoiLimit = 0D;
-			sharedDisp.ColorMapUpperClipColor = Color.Black;
-			sharedDisp.ColorMapUpperRoiLimit = 1D;
-			ctl.DispHost.Controls.Add(sharedDisp);
-
-			// 先登记 entry：下面构建 VPP 页时要用到 entry.Display
+			// 先登记 entry：下面构建 VPP 页时要用到 entry.Display（表单级共用窗）
 			CameraEntry entry = new CameraEntry();
 			entry.Key = cam.Name;
 			entry.Page = page;
 			entry.Config = cam;
-			entry.Display = sharedDisp;
+			entry.Display = _sharedDisp;
 			_entries.Add(entry);
 
 			// 属性条按钮。「实时显示」为相机级：取流使用本相机 CameraIndex + 当前选中 VPP 的曝光；
@@ -686,6 +732,8 @@ namespace AlphaRap
 				_config.Calibrations.Remove(cam.Name);
 			}
 
+			if (string.Equals(_liveOwnerKey, cam.Name, StringComparison.Ordinal))
+				_liveOwnerKey = null;
 			_entries.RemoveAll(delegate (CameraEntry e) { return e.Key == cam.Name; });
 
 			_cameras.Remove(cam);
@@ -960,6 +1008,7 @@ namespace AlphaRap
 
 		/// <summary>
 		/// 相机级实时显示的开关：通道号用相机的 CameraIndex，曝光用当前选中 VPP 的 Exposure。
+		/// 显示窗为表单级共用：换相机开实时前先停掉上一台。
 		/// </summary>
 		private void LiveCamera(CameraEntry entry)
 		{
@@ -974,9 +1023,36 @@ namespace AlphaRap
 				return;
 			}
 
+			bool displayLive = IsDisplayLive(entry.Display);
+			bool isOwner = string.Equals(_liveOwnerKey, entry.Key, StringComparison.Ordinal);
+
+			// 本相机正在实时 → 交给 RunLive 切换为停止
+			if (displayLive && isOwner)
+			{
+				driver.RunLiveCCDIndex = (entry.Config != null) ? entry.Config.CameraIndex : driver.RunLiveCCDIndex;
+				driver.RunExposure = vpp.Exposure;
+				driver.RunLive(entry.Display);
+				_liveOwnerKey = null;
+				return;
+			}
+
+			// 其它相机占着共用窗 → 先停掉再开本相机
+			if (displayLive && !isOwner)
+			{
+				try
+				{
+					entry.Display.StopLiveDisplay();
+					entry.Display.StaticGraphics.Clear();
+					entry.Display.InteractiveGraphics.Clear();
+				}
+				catch (Exception) { }
+				_liveOwnerKey = null;
+			}
+
 			driver.RunLiveCCDIndex = (entry.Config != null) ? entry.Config.CameraIndex : driver.RunLiveCCDIndex;
 			driver.RunExposure = vpp.Exposure;
 			driver.RunLive(entry.Display);
+			_liveOwnerKey = IsDisplayLive(entry.Display) ? entry.Key : null;
 		}
 
 		private void OnCameraLiveClick(object sender, EventArgs e)
@@ -985,7 +1061,14 @@ namespace AlphaRap
 			CameraEntry entry = (btn != null) ? btn.Tag as CameraEntry : null;
 			if (entry == null) return;
 			LiveCamera(entry);
-			RefreshLiveButton(btn, entry);
+			RefreshAllLiveButtons();
+		}
+
+		/// <summary>共用显示窗后，实时状态变化要刷新所有相机的实时按钮。</summary>
+		private void RefreshAllLiveButtons()
+		{
+			for (int i = 0; i < _entries.Count; i++)
+				RefreshLiveButton(_entries[i].LiveButton, _entries[i]);
 		}
 
 		private void OnDeleteCameraClick(object sender, EventArgs e)
@@ -996,7 +1079,7 @@ namespace AlphaRap
 		}
 
 		/// <summary>按实时状态（<see cref="IsLiveRunning"/>）刷新实时按钮的文字和样式。</summary>
-		private static void RefreshLiveButton(FlatButton btn, CameraEntry entry)
+		private void RefreshLiveButton(FlatButton btn, CameraEntry entry)
 		{
 			if (btn == null) return;
 			bool live = IsLiveRunning(entry);
@@ -1006,7 +1089,7 @@ namespace AlphaRap
 		}
 
 		/// <summary>实时按钮的文字（随语言和实时状态变化）。</summary>
-		private static string LiveButtonText(CameraEntry entry)
+		private string LiveButtonText(CameraEntry entry)
 		{
 			return IsLiveRunning(entry)
 				? T("vpBtn_StopLive", "停止实时")
@@ -1014,14 +1097,19 @@ namespace AlphaRap
 		}
 
 		/// <summary>
-		/// 相机显示控件是否处于实时显示。CogRecordDisplay 是 ActiveX 控件，句柄或 COM 对象未就绪时读取
-		/// LiveDisplayRunning 会抛异常，此时按"未实时"处理。
+		/// 本相机是否正在占用共用显示窗做实时。
 		/// </summary>
-		private static bool IsLiveRunning(CameraEntry entry)
+		private bool IsLiveRunning(CameraEntry entry)
+		{
+			if (entry == null || string.IsNullOrEmpty(_liveOwnerKey)) return false;
+			if (!string.Equals(_liveOwnerKey, entry.Key, StringComparison.Ordinal)) return false;
+			return IsDisplayLive(entry.Display);
+		}
+
+		private static bool IsDisplayLive(Cognex.VisionPro.CogRecordDisplay disp)
 		{
 			try
 			{
-				Cognex.VisionPro.CogRecordDisplay disp = (entry != null) ? entry.Display : null;
 				if (disp == null || disp.IsDisposed || !disp.IsHandleCreated) return false;
 				return disp.LiveDisplayRunning;
 			}
@@ -1259,6 +1347,7 @@ namespace AlphaRap
 
 				try { if (IsLiveRunning(e)) e.Display.StopLiveDisplay(); }
 				catch (Exception) { }
+				_liveOwnerKey = null;
 
 				if (e.Config != null)
 					for (int j = e.Config.Vpps.Count - 1; j >= 0; j--)
