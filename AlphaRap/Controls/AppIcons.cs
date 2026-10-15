@@ -29,7 +29,7 @@ namespace AlphaRap
         Chart,              // 统计（柱形）
         Calendar,           // 日期
 
-        More                // 侧栏「更多」：三点
+        Menu                // 侧栏折叠：汉堡菜单
     }
 
     /// <summary>
@@ -199,7 +199,7 @@ namespace AlphaRap
                 case AppIcon.Minimize: DrawMinimize(g, c); break;
                 case AppIcon.Chart: DrawChart(g, c); break;
                 case AppIcon.Calendar: DrawCalendar(g, c); break;
-                case AppIcon.More: DrawMore(g, c); break;
+                case AppIcon.Menu: DrawMenu(g, c); break;
             }
         }
 
@@ -696,14 +696,16 @@ namespace AlphaRap
                 g.FillEllipse(b, 10.6f, 10.6f, 2.8f, 2.8f);
         }
 
-        /// <summary>更多：三点（侧栏折叠入口）。</summary>
-        private static void DrawMore(Graphics g, Color c)
+        /// <summary>汉堡菜单：三横线（整栏折叠开关）。</summary>
+        private static void DrawMenu(Graphics g, Color c)
         {
-            using (SolidBrush b = new SolidBrush(c))
+            using (Pen p = Stroke(c, 2.2f))
             {
-                g.FillEllipse(b, 5.2f, 10.2f, 3.6f, 3.6f);
-                g.FillEllipse(b, 10.2f, 10.2f, 3.6f, 3.6f);
-                g.FillEllipse(b, 15.2f, 10.2f, 3.6f, 3.6f);
+                p.StartCap = LineCap.Round;
+                p.EndCap = LineCap.Round;
+                g.DrawLine(p, 5.5f, 7.5f, 18.5f, 7.5f);
+                g.DrawLine(p, 5.5f, 12.0f, 18.5f, 12.0f);
+                g.DrawLine(p, 5.5f, 16.5f, 18.5f, 16.5f);
             }
         }
     }
