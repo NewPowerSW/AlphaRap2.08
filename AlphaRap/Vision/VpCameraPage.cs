@@ -4,11 +4,11 @@ using System.Windows.Forms;
 namespace AlphaRap
 {
     /// <summary>
-    /// 一台相机的页面（每台相机一份）：相机属性条 / 标定卡区 / VPP 子页容器。
-    /// 蓝色照片窗在 VPForm 级共用，不跟相机页走；本页 <c>dispHost</c> 仅设计器预览用，运行时隐藏。
-    /// 运行时由 VPForm 填入：<see cref="CalibHostPanel"/> 放 VpCalibCard，
+    /// 一台相机的页面（每台相机一份）：相机属性条 / 标定卡区 / VPP 子页容器 / 右侧共用显示区。
+    /// 运行时由 VPForm 填入：<see cref="CalibHostPanel"/> 放 VpCalibCard，<see cref="DispHost"/> 放 CogRecordDisplay，
     /// <see cref="VppTabs"/> 按配置加入各 VpVppPage。
-    /// Designer 停靠顺序：vppTabs → calibHost → head（dispHost 运行时隐藏）。
+    /// Designer 中的停靠顺序须保持 vppTabs → calibHost → dispHost → head
+    /// （head 52 / 标定卡 268 / vppTabs 填充，右侧显示区 380）。
     /// </summary>
     public partial class VpCameraPage : UserControl
     {
@@ -24,17 +24,8 @@ namespace AlphaRap
         public Panel CalibHostPanel { get { return calibHost; } }
         /// <summary>本相机的 VPP 子页容器（VPForm 往里面加 TabPage）。</summary>
         public TabControl VppTabs { get { return vppTabs; } }
-        /// <summary>设计器预览用；运行时由 <see cref="HidePageDisplayHost"/> 隐藏。</summary>
+        /// <summary>右侧显示区（VPForm 往里面塞 CogRecordDisplay）。</summary>
         public Panel DispHost { get { return dispHost; } }
-
-        /// <summary>隐藏页内显示区，把宽度还给标定 / VPP（照片窗已提到 VPForm）。</summary>
-        public void HidePageDisplayHost()
-        {
-            if (dispHost == null) return;
-            dispHost.Visible = false;
-            dispHost.Width = 0;
-            dispHost.Dock = DockStyle.None;
-        }
 
         public TextBox NameBox { get { return tbName; } }
         public TextBox IndexBox { get { return tbIndex; } }

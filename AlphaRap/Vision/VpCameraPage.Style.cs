@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace AlphaRap
@@ -20,8 +20,7 @@ namespace AlphaRap
                 calibHost.Padding = new Padding(UiTheme.Dpi(10), UiTheme.Dpi(6), UiTheme.Dpi(10), UiTheme.Dpi(8));
                 calibHost.Height = UiTheme.Dpi(212);
             }
-            // 运行时照片窗在 VPForm 右侧共用；页内 dispHost 保持隐藏
-            if (dispHost != null && dispHost.Visible)
+            if (dispHost != null)
             {
                 dispHost.BackColor = UiKit.Surface;
                 dispHost.Padding = new Padding(UiTheme.Dpi(8));
