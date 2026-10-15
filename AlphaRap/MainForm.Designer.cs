@@ -686,9 +686,10 @@
             this.panel4.Location = new System.Drawing.Point(0, 0);
             this.panel4.Margin = new System.Windows.Forms.Padding(0, 0, 4, 0);
             this.panel4.Name = "panel4";
+            // 与运行时默认一致：上半常用导航 100%，下半「更多」收起（Absolute 0）；点「更多」后恢复 50/50
             this.panel4.RowCount = 2;
-            this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
             this.panel4.Size = new System.Drawing.Size(96, 740);
             this.panel4.TabIndex = 22;
             // 
@@ -815,6 +816,7 @@
             this.Panl_PictureShowDown.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.Panl_PictureShowDown.Size = new System.Drawing.Size(76, 364);
             this.Panl_PictureShowDown.TabIndex = 14;
+            this.Panl_PictureShowDown.Visible = false;
             this.Panl_PictureShowDown.WrapContents = false;
             // 
             // MENU_LifeSpan

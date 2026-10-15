@@ -208,6 +208,7 @@ namespace AlphaRap
                 flow.Padding = UiTheme.Dpi(new Padding(0, 6, 0, 0));
                 flow.BackColor = Color.Transparent;
             }
+            EnsureNavMoreButton();
             foreach (PictureBox b in NavButtons())
             {
                 b.Size = UiTheme.Dpi(NavButtonSize);
@@ -215,6 +216,15 @@ namespace AlphaRap
                 b.SizeMode = PictureBoxSizeMode.CenterImage;
                 b.Cursor = Cursors.Hand;
             }
+            if (MENU_NavMore != null)
+            {
+                MENU_NavMore.Size = UiTheme.Dpi(NavButtonSize);
+                MENU_NavMore.Margin = UiTheme.Dpi(new Padding(1, 6, 1, 2));
+                MENU_NavMore.SizeMode = PictureBoxSizeMode.CenterImage;
+                MENU_NavMore.Cursor = Cursors.Hand;
+            }
+            // 默认收起低频入口，设计器也按收起态布局（panel4 下行 Absolute 0）
+            ApplyNavMoreLayout(_navMoreExpanded);
         }
 
         /// <summary>导航栏右侧分隔线。</summary>
@@ -232,6 +242,105 @@ namespace AlphaRap
                 MENU_Home, MENU_Vision, MENU_Save, MENU_Rapid, MENU_Hard, MENU_Manual,
                 MENU_LifeSpan, MENU_Mes, MENU_AddUser, MENU_Data, MENU_Check, MENU_Log
             };
+        }
+
+        // ---------------- 侧栏「更多」折叠 ----------------
+        // 常用（始终可见）：主页 / 视觉 / 保存 / 流程 / 硬件 / 手动
+        // 低频（默认收起）：寿命 / MES / 用户 / 数据 / 信号 / 日志
+
+        /// <summary>低频导航区是否展开。</summary>
+        private bool _navMoreExpanded;
+        /// <summary>侧栏「更多 / 收起」按钮（运行时创建，挂在上半区末尾）。</summary>
+        private PictureBox MENU_NavMore;
+
+        private void EnsureNavMoreButton()
+        {
+            if (MENU_NavMore != null || Panl_PictureShowTop == null) return;
+            MENU_NavMore = new PictureBox();
+            MENU_NavMore.Name = "MENU_NavMore";
+            MENU_NavMore.BackColor = Color.Transparent;
+            MENU_NavMore.Size = UiTheme.Dpi(NavButtonSize);
+            MENU_NavMore.Margin = UiTheme.Dpi(new Padding(1, 6, 1, 2));
+            MENU_NavMore.SizeMode = PictureBoxSizeMode.CenterImage;
+            MENU_NavMore.Cursor = Cursors.Hand;
+            MENU_NavMore.TabStop = false;
+            MENU_NavMore.Click += NavMore_Click;
+            Panl_PictureShowTop.Controls.Add(MENU_NavMore);
+            ApplyRoundRegion(new PictureBox[] { MENU_NavMore }, UiTheme.Dpi(12));
+        }
+
+        private void NavMore_Click(object sender, EventArgs e)
+        {
+            SetNavMoreExpanded(!_navMoreExpanded);
+        }
+
+        /// <summary>展开或收起低频导航（寿命 / MES / 用户 / 数据 / 信号 / 日志）。</summary>
+        public void SetNavMoreExpanded(bool expanded)
+        {
+            bool changed = _navMoreExpanded != expanded;
+            _navMoreExpanded = expanded;
+            ApplyNavMoreLayout(expanded);
+            if (changed) RefreshButtonIconsIfChanged();
+            StyleNavMoreButton();
+        }
+
+        private void ApplyNavMoreLayout(bool expanded)
+        {
+            if (panel4 == null || Panl_PictureShowDown == null) return;
+            try
+            {
+                panel4.SuspendLayout();
+                if (expanded)
+                {
+                    panel4.RowStyles[0] = new RowStyle(SizeType.Percent, 50f);
+                    panel4.RowStyles[1] = new RowStyle(SizeType.Percent, 50f);
+                    Panl_PictureShowDown.Visible = true;
+                }
+                else
+                {
+                    panel4.RowStyles[0] = new RowStyle(SizeType.Percent, 100f);
+                    panel4.RowStyles[1] = new RowStyle(SizeType.Absolute, 0f);
+                    Panl_PictureShowDown.Visible = false;
+                }
+                panel4.ResumeLayout(true);
+            }
+            catch { }
+        }
+
+        /// <summary>当前页是否落在「更多」分组（切过去时自动展开）。</summary>
+        private static bool IsNavMorePage(MENU_PageType page)
+        {
+            switch (page)
+            {
+                case MENU_PageType.LifeSpan:
+                case MENU_PageType.Mes:
+                case MENU_PageType.AddUser:
+                case MENU_PageType.Data:
+                case MENU_PageType.Check:
+                case MENU_PageType.Log:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void StyleNavMoreButton()
+        {
+            if (MENU_NavMore == null) return;
+            bool hot = _navMoreExpanded || IsNavMorePage(MENU_SelectPage);
+            Color back = hot ? UiTheme.Selected : Color.Transparent;
+            if (MENU_NavMore.BackColor != back) MENU_NavMore.BackColor = back;
+
+            NavPaintState st = AttachNavPaint(MENU_NavMore, AppIcon.More, NavIconSize, true);
+            st.IconColor = hot ? UiTheme.NavTextSelected : AppIconColor.Nav;
+            st.AccentColor = st.IconColor;
+            st.TextColor = hot ? UiTheme.NavTextSelected : UiTheme.NavText;
+            st.LockBadge = UiTheme.LockBadgeMode.None;
+            // 「更多」按钮的选中竖条：展开或当前页在更多组时显示
+            // Paint 里用 IsSelectedNav；此处临时把 Tag 记一下供绘制判断
+            MENU_NavMore.Tag = hot ? "navMore:on" : "navMore:off";
+            if (UiTheme.IsDesignTime) BakeButtonPreview(MENU_NavMore, st);
+            else MENU_NavMore.Invalidate();
         }
 
         // ---------------- 底部工具栏 ----------------
@@ -372,6 +481,11 @@ namespace AlphaRap
             add(MENU_Data, "nav_Data", "数据", "Data", "Datos");
             add(MENU_Check, "nav_Check", "信号", "Signals", "Señales");
             add(MENU_Log, "nav_Log", "日志", "Logs", "Registros");
+            EnsureNavMoreButton();
+            if (MENU_NavMore != null)
+                _buttonTexts[MENU_NavMore] = _navMoreExpanded
+                    ? UiTheme.T("MainForm", "nav_Less", "收起", "Less", "Menos")
+                    : UiTheme.T("MainForm", "nav_More", "更多", "More", "Más");
 
             add(MENU_Reset, "tool_Reset", "初始化", "Initialize", "Inicializar");
             add(MENU_Run, "tool_Run", "启动", "Start", "Iniciar");
@@ -413,6 +527,14 @@ namespace AlphaRap
                 StyleNavButton(MENU_AddUser, AppIcon.AddUser);
                 StyleNavButton(MENU_Mes, AppIcon.Mes);
                 StyleNavButton(MENU_LifeSpan, AppIcon.LifeSpan);
+                // 「更多」文字随展开态变化，先刷新文案再绘制
+                if (MENU_NavMore != null)
+                {
+                    _buttonTexts[MENU_NavMore] = _navMoreExpanded
+                        ? UiTheme.T("MainForm", "nav_Less", "收起", "Less", "Menos")
+                        : UiTheme.T("MainForm", "nav_More", "更多", "More", "Más");
+                    StyleNavMoreButton();
+                }
 
                 ApplyToolbarButtonStyles();
 
@@ -451,7 +573,8 @@ namespace AlphaRap
               .Append('|').Append(_buttonTexts.Count)
               .Append('|').Append(MENU_Product != null && MENU_Product.Enabled ? '1' : '0')
               .Append('|').Append(MENU_Login != null && MENU_Login.Enabled ? '1' : '0')
-              .Append('|').Append(_hoverToolbarButton == null ? "-" : _hoverToolbarButton.Name);
+              .Append('|').Append(_hoverToolbarButton == null ? "-" : _hoverToolbarButton.Name)
+              .Append('|').Append(_navMoreExpanded ? '1' : '0');
             return sb.ToString();
         }
 
@@ -476,7 +599,7 @@ namespace AlphaRap
                 AppIcons.Prewarm(
                     new[] { AppIcon.Home, AppIcon.Vision, AppIcon.Save, AppIcon.Rapid, AppIcon.Hard,
                             AppIcon.Manual, AppIcon.Data, AppIcon.Log, AppIcon.Check, AppIcon.AddUser,
-                            AppIcon.Mes, AppIcon.LifeSpan },
+                            AppIcon.Mes, AppIcon.LifeSpan, AppIcon.More },
                     new[] { UiTheme.Dpi(NavIconSize) },
                     new[] { AppIconColor.Nav, AppIconColor.Disabled, UiTheme.NavTextSelected });
 
@@ -498,6 +621,12 @@ namespace AlphaRap
         {
             int i = (int)MENU_SelectPage;
             return MENU_Picture != null && i >= 0 && i < MENU_Picture.Length && MENU_Picture[i] == b;
+        }
+
+        /// <summary>「更多」按钮是否显示选中竖条（展开中，或当前页在更多组）。</summary>
+        private bool IsNavMoreAccent(PictureBox b)
+        {
+            return b != null && b == MENU_NavMore && (b.Tag as string) == "navMore:on";
         }
 
         // ---------------- 导航 / 工具栏按钮：自绘（图标与文字分开画） ----------------
@@ -550,8 +679,9 @@ namespace AlphaRap
                 // 按钮底色不是不透明时（悬停/未选中是 Transparent）不铺底，直接画在身后的渐变/白底上
                 Color back = (b.BackColor.A == 255) ? b.BackColor : Color.Transparent;
                 Image ic = AppIcons.Get(st.Icon, UiTheme.Dpi(st.IconSize), st.IconColor, st.AccentColor);
+                bool accent = st.IsNav && (IsSelectedNav(b) || IsNavMoreAccent(b));
                 UiTheme.PaintIconButton(e.Graphics, b.Size, ic, ButtonText(b), st.Font, st.TextColor,
-                    st.IconSize, st.IsNav && IsSelectedNav(b), back, b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge);
+                    st.IconSize, accent, back, b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge);
             }
             catch { }
         }
@@ -622,8 +752,9 @@ namespace AlphaRap
             {
                 Color back = (b.BackColor.A == 255) ? b.BackColor : Color.FromArgb(238, 243, 248);
                 Image ic = AppIcons.Get(st.Icon, UiTheme.Dpi(st.IconSize), st.IconColor, st.AccentColor);
+                bool accent = st.IsNav && (IsSelectedNav(b) || IsNavMoreAccent(b));
                 Bitmap bmp = UiTheme.RenderIconButton(b.Size, ic, ButtonText(b), st.Font, st.TextColor,
-                    st.IconSize, st.IsNav && IsSelectedNav(b), back,
+                    st.IconSize, accent, back,
                     b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge);
                 if (bmp == null) return;
                 Image old = b.Image;

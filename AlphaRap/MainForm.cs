@@ -624,6 +624,10 @@ int nheightEllipse
 
             MENU_SelectPage = PageType;
 
+            // 切到「更多」分组里的页时自动展开侧栏下半区，避免当前页入口被藏住
+            if (IsNavMorePage(PageType))
+                SetNavMoreExpanded(true);
+
             // 关键操作单独记一条，比"点击了某个按钮"更清楚
             switch (PageType)
             {

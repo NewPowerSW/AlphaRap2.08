@@ -27,7 +27,9 @@ namespace AlphaRap
         // 报警统计窗口用到的补充图标
         Minimize,           // 窗口最小化
         Chart,              // 统计（柱形）
-        Calendar            // 日期
+        Calendar,           // 日期
+
+        More                // 侧栏「更多」：三点
     }
 
     /// <summary>
@@ -197,6 +199,7 @@ namespace AlphaRap
                 case AppIcon.Minimize: DrawMinimize(g, c); break;
                 case AppIcon.Chart: DrawChart(g, c); break;
                 case AppIcon.Calendar: DrawCalendar(g, c); break;
+                case AppIcon.More: DrawMore(g, c); break;
             }
         }
 
@@ -691,6 +694,17 @@ namespace AlphaRap
             }
             using (SolidBrush b = new SolidBrush(c))
                 g.FillEllipse(b, 10.6f, 10.6f, 2.8f, 2.8f);
+        }
+
+        /// <summary>更多：三点（侧栏折叠入口）。</summary>
+        private static void DrawMore(Graphics g, Color c)
+        {
+            using (SolidBrush b = new SolidBrush(c))
+            {
+                g.FillEllipse(b, 5.2f, 10.2f, 3.6f, 3.6f);
+                g.FillEllipse(b, 10.2f, 10.2f, 3.6f, 3.6f);
+                g.FillEllipse(b, 15.2f, 10.2f, 3.6f, 3.6f);
+            }
         }
     }
 }
