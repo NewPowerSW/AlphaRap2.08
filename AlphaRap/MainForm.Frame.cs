@@ -46,13 +46,10 @@ namespace AlphaRap
         // ---------------- 尺寸 ----------------
 
         private static readonly Size NavButtonSize = new Size(88, 54);
-        /// <summary>整栏折叠后：仅图标，窄按钮。</summary>
-        private static readonly Size NavButtonSizeCollapsed = new Size(44, 44);
         private const int NavIconSize = 24;
-        private const int NavIconSizeCollapsed = 22;
-        /// <summary>侧栏展开 / 折叠宽度（96 DPI 设计值）。</summary>
+        /// <summary>侧栏展开宽度；折叠为 VS 式细竖条宽度（96 DPI 设计值）。</summary>
         private const int NavRailWidth = 96;
-        private const int NavRailWidthCollapsed = 52;
+        private const int NavRailWidthCollapsed = 26;
         private static readonly Size ToolButtonSize = new Size(92, 58);
         private const int ToolIconSize = 26;
 
@@ -212,14 +209,14 @@ namespace AlphaRap
             // 清掉旧版「更多」半区折叠残留
             RemoveLegacyNavFoldControls();
             EnsureNavRailToggle();
+            EnsureNavAutoHideTab();
 
             foreach (FlowLayoutPanel flow in new[] { Panl_PictureShowTop, Panl_PictureShowDown })
             {
                 flow.Padding = UiTheme.Dpi(new Padding(0, 6, 0, 0));
                 flow.BackColor = Color.Transparent;
-                flow.Visible = true;
             }
-            // 恢复上下双区 50/50（不再插下拉条）
+            // 上下双区 50/50
             try
             {
                 if (panel4.RowCount != 2)
@@ -256,12 +253,14 @@ namespace AlphaRap
             };
         }
 
-        // ---------------- 整栏折叠（仅图标窄轨，参考常见工业软件侧栏） ----------------
+        // ---------------- 整栏自动隐藏（VS「工具箱」式细竖条） ----------------
 
-        /// <summary>侧栏是否收成仅图标。</summary>
+        /// <summary>侧栏是否收成左侧细竖条（点击再展开）。</summary>
         private bool _navRailCollapsed;
-        /// <summary>顶部汉堡开关。</summary>
+        /// <summary>展开态顶部汉堡：点一下收成细竖条。</summary>
         private PictureBox MENU_NavToggle;
+        /// <summary>折叠态细竖条：竖排「导航」文字，点击展开。</summary>
+        private Panel panelNavAutoHideTab;
         private readonly ToolTip _navRailTip = new ToolTip { ShowAlways = true, AutomaticDelay = 400 };
 
         private void EnsureNavRailToggle()
@@ -270,19 +269,38 @@ namespace AlphaRap
             MENU_NavToggle = new PictureBox();
             MENU_NavToggle.Name = "MENU_NavToggle";
             MENU_NavToggle.BackColor = Color.Transparent;
+            MENU_NavToggle.Size = UiTheme.Dpi(NavButtonSize);
+            MENU_NavToggle.Margin = UiTheme.Dpi(new Padding(1, 4, 1, 6));
             MENU_NavToggle.SizeMode = PictureBoxSizeMode.CenterImage;
             MENU_NavToggle.Cursor = Cursors.Hand;
             MENU_NavToggle.TabStop = false;
             MENU_NavToggle.Click += NavRailToggle_Click;
-            // 插到上半区最前（汉堡在最上）
             Panl_PictureShowTop.Controls.Add(MENU_NavToggle);
             Panl_PictureShowTop.Controls.SetChildIndex(MENU_NavToggle, 0);
             ApplyRoundRegion(new PictureBox[] { MENU_NavToggle }, UiTheme.Dpi(12));
         }
 
+        private void EnsureNavAutoHideTab()
+        {
+            if (panelNavAutoHideTab != null || panel4 == null) return;
+            panelNavAutoHideTab = new Panel();
+            panelNavAutoHideTab.Name = "panelNavAutoHideTab";
+            panelNavAutoHideTab.Dock = DockStyle.Fill;
+            panelNavAutoHideTab.Margin = Padding.Empty;
+            panelNavAutoHideTab.Cursor = Cursors.Hand;
+            panelNavAutoHideTab.BackColor = UiTheme.Selected;
+            panelNavAutoHideTab.Visible = false;
+            panelNavAutoHideTab.Paint += NavAutoHideTab_Paint;
+            panelNavAutoHideTab.Click += NavRailToggle_Click;
+            panelNavAutoHideTab.Resize += NavAutoHideTab_Resize;
+            // TableLayoutPanel：跨两行铺满整列，才能盖住上下导航区
+            panel4.Controls.Add(panelNavAutoHideTab, 0, 0);
+            try { panel4.SetRowSpan(panelNavAutoHideTab, 2); } catch { }
+            panelNavAutoHideTab.BringToFront();
+        }
+
         private void RemoveLegacyNavFoldControls()
         {
-            // 旧「更多」导航按钮
             if (Panl_PictureShowTop != null)
             {
                 Control[] copy = new Control[Panl_PictureShowTop.Controls.Count];
@@ -296,7 +314,6 @@ namespace AlphaRap
                     try { c.Dispose(); } catch { }
                 }
             }
-            // 旧中间下拉条（若挂在 panel4）
             if (panel4 != null)
             {
                 Control[] copy = new Control[panel4.Controls.Count];
@@ -316,7 +333,12 @@ namespace AlphaRap
             SetNavRailCollapsed(!_navRailCollapsed);
         }
 
-        /// <summary>整栏折叠 / 展开：折叠后侧栏变窄、导航只显示图标。</summary>
+        private void NavAutoHideTab_Resize(object sender, EventArgs e)
+        {
+            if (panelNavAutoHideTab != null) panelNavAutoHideTab.Invalidate();
+        }
+
+        /// <summary>整栏折叠 / 展开：折叠后变成 VS 式左侧细竖条，点击竖条展开。</summary>
         public void SetNavRailCollapsed(bool collapsed)
         {
             _navRailCollapsed = collapsed;
@@ -327,6 +349,7 @@ namespace AlphaRap
         private void ApplyNavRailLayout()
         {
             if (tableLayoutPanel1 == null) return;
+            EnsureNavAutoHideTab();
             try
             {
                 int railW = UiTheme.Dpi(_navRailCollapsed ? NavRailWidthCollapsed : NavRailWidth);
@@ -337,26 +360,42 @@ namespace AlphaRap
             }
             catch { }
 
-            Size btnSize = UiTheme.Dpi(_navRailCollapsed ? NavButtonSizeCollapsed : NavButtonSize);
-            Padding margin = UiTheme.Dpi(_navRailCollapsed
-                ? new Padding(2, 2, 2, 2)
-                : new Padding(1, 2, 1, 2));
-            foreach (PictureBox b in NavButtons())
+            if (_navRailCollapsed)
             {
-                if (b == null) continue;
-                b.Size = btnSize;
-                b.Margin = margin;
-                b.SizeMode = PictureBoxSizeMode.CenterImage;
-                b.Cursor = Cursors.Hand;
+                // 隐藏全部导航按钮，只留细竖条（类似 VS 自动隐藏的「工具箱」）
+                if (Panl_PictureShowTop != null) Panl_PictureShowTop.Visible = false;
+                if (Panl_PictureShowDown != null) Panl_PictureShowDown.Visible = false;
+                if (panelNavAutoHideTab != null)
+                {
+                    panelNavAutoHideTab.Visible = true;
+                    panelNavAutoHideTab.BringToFront();
+                    panelNavAutoHideTab.Invalidate();
+                }
             }
-            if (MENU_NavToggle != null)
+            else
             {
-                MENU_NavToggle.Size = btnSize;
-                MENU_NavToggle.Margin = UiTheme.Dpi(new Padding(2, 4, 2, 6));
-                MENU_NavToggle.SizeMode = PictureBoxSizeMode.CenterImage;
-                MENU_NavToggle.Cursor = Cursors.Hand;
+                if (panelNavAutoHideTab != null) panelNavAutoHideTab.Visible = false;
+                if (Panl_PictureShowTop != null) Panl_PictureShowTop.Visible = true;
+                if (Panl_PictureShowDown != null) Panl_PictureShowDown.Visible = true;
+
+                Size btnSize = UiTheme.Dpi(NavButtonSize);
+                Padding margin = UiTheme.Dpi(new Padding(1, 2, 1, 2));
+                foreach (PictureBox b in NavButtons())
+                {
+                    if (b == null) continue;
+                    b.Size = btnSize;
+                    b.Margin = margin;
+                    b.SizeMode = PictureBoxSizeMode.CenterImage;
+                    b.Cursor = Cursors.Hand;
+                }
+                if (MENU_NavToggle != null)
+                {
+                    MENU_NavToggle.Size = btnSize;
+                    MENU_NavToggle.Margin = UiTheme.Dpi(new Padding(1, 4, 1, 6));
+                    MENU_NavToggle.Visible = true;
+                }
+                ApplyRoundedMenuRegions();
             }
-            ApplyRoundedMenuRegions();
             UpdateNavRailTooltips();
         }
 
@@ -364,17 +403,43 @@ namespace AlphaRap
         {
             try
             {
-                string toggleTip = _navRailCollapsed
-                    ? UiTheme.T("MainForm", "nav_ExpandRail", "展开侧栏", "Expand sidebar", "Expandir barra")
-                    : UiTheme.T("MainForm", "nav_CollapseRail", "折叠侧栏", "Collapse sidebar", "Contraer barra");
-                if (MENU_NavToggle != null) _navRailTip.SetToolTip(MENU_NavToggle, toggleTip);
+                string expandTip = UiTheme.T("MainForm", "nav_ExpandRail", "展开导航", "Expand navigation", "Expandir navegación");
+                string collapseTip = UiTheme.T("MainForm", "nav_CollapseRail", "折叠导航", "Collapse navigation", "Contraer navegación");
+                if (MENU_NavToggle != null) _navRailTip.SetToolTip(MENU_NavToggle, collapseTip);
+                if (panelNavAutoHideTab != null) _navRailTip.SetToolTip(panelNavAutoHideTab, expandTip);
 
                 foreach (PictureBox b in NavButtons())
                 {
                     if (b == null) continue;
-                    string label = ButtonLabel(b);
-                    // 折叠时靠悬停看名字；展开时不挡视线，清空 tip
-                    _navRailTip.SetToolTip(b, _navRailCollapsed ? label : "");
+                    _navRailTip.SetToolTip(b, "");
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>细竖条：竖排「导航」文字 + 底部分隔，仿 VS 停靠标签。</summary>
+        private void NavAutoHideTab_Paint(object sender, PaintEventArgs e)
+        {
+            Panel p = sender as Panel;
+            if (p == null || p.Width <= 1 || p.Height <= 1) return;
+            try
+            {
+                Graphics g = e.Graphics;
+                g.Clear(UiTheme.Selected);
+                using (Pen edge = new Pen(UiKit.Line))
+                    g.DrawLine(edge, p.Width - 1, 0, p.Width - 1, p.Height);
+
+                string text = UiTheme.T("MainForm", "nav_AutoHideTab", "导航", "Nav", "Nav");
+                using (Font f = UiKit.Bold(10f))
+                {
+                    Size ts = TextRenderer.MeasureText(text, f);
+                    // 自下而上竖排（与 VS 工具箱标签同向）
+                    g.TranslateTransform(p.Width / 2f, p.Height / 2f + ts.Width / 2f);
+                    g.RotateTransform(-90f);
+                    TextRenderer.DrawText(g, text, f, new Point(-ts.Width / 2, -ts.Height / 2),
+                        UiTheme.NavTextSelected,
+                        TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+                    g.ResetTransform();
                 }
             }
             catch { }
@@ -383,15 +448,12 @@ namespace AlphaRap
         private void StyleNavToggleButton()
         {
             if (MENU_NavToggle == null) return;
-            int ic = _navRailCollapsed ? NavIconSizeCollapsed : NavIconSize;
-            NavPaintState st = AttachNavPaint(MENU_NavToggle, AppIcon.Menu, ic, true);
-            st.IconColor = _navRailCollapsed ? UiTheme.NavTextSelected : AppIconColor.Nav;
+            NavPaintState st = AttachNavPaint(MENU_NavToggle, AppIcon.Menu, NavIconSize, true);
+            st.IconColor = AppIconColor.Nav;
             st.AccentColor = st.IconColor;
-            st.TextColor = _navRailCollapsed ? UiTheme.NavTextSelected : UiTheme.NavText;
+            st.TextColor = UiTheme.NavText;
             st.LockBadge = UiTheme.LockBadgeMode.None;
-            // 折叠态汉堡高亮一点，提示「可点开」
-            Color back = _navRailCollapsed ? UiTheme.Selected : Color.Transparent;
-            if (MENU_NavToggle.BackColor != back) MENU_NavToggle.BackColor = back;
+            if (MENU_NavToggle.BackColor != Color.Transparent) MENU_NavToggle.BackColor = Color.Transparent;
             if (UiTheme.IsDesignTime) BakeButtonPreview(MENU_NavToggle, st);
             else MENU_NavToggle.Invalidate();
         }
@@ -552,21 +614,11 @@ namespace AlphaRap
             return (b != null && _buttonTexts.TryGetValue(b, out s)) ? s : "";
         }
 
-        /// <summary>绘制用文字：折叠侧栏时为空（仅图标）。</summary>
+        /// <summary>绘制用文字（汉堡开关不画字）。</summary>
         private string ButtonText(PictureBox b)
         {
             if (b == MENU_NavToggle) return "";
-            if (_navRailCollapsed && IsNavRailButton(b)) return "";
             return ButtonLabel(b);
-        }
-
-        private bool IsNavRailButton(PictureBox b)
-        {
-            if (b == null) return false;
-            PictureBox[] nav = NavButtons();
-            for (int i = 0; i < nav.Length; i++)
-                if (nav[i] == b) return true;
-            return false;
         }
 
         /// <summary>
@@ -660,7 +712,7 @@ namespace AlphaRap
                     new[] { AppIcon.Home, AppIcon.Vision, AppIcon.Save, AppIcon.Rapid, AppIcon.Hard,
                             AppIcon.Manual, AppIcon.Data, AppIcon.Log, AppIcon.Check, AppIcon.AddUser,
                             AppIcon.Mes, AppIcon.LifeSpan, AppIcon.Menu },
-                    new[] { UiTheme.Dpi(NavIconSize), UiTheme.Dpi(NavIconSizeCollapsed) },
+                    new[] { UiTheme.Dpi(NavIconSize) },
                     new[] { AppIconColor.Nav, AppIconColor.Disabled, UiTheme.NavTextSelected });
 
                 AppIcons.Prewarm(
@@ -748,8 +800,7 @@ namespace AlphaRap
             Color back = !on ? UiKit.DisabledBg : sel ? UiTheme.Selected : Color.Transparent;
             if (b.BackColor != back) b.BackColor = back;
 
-            int ic = _navRailCollapsed ? NavIconSizeCollapsed : NavIconSize;
-            NavPaintState st = AttachNavPaint(b, icon, ic, true);
+            NavPaintState st = AttachNavPaint(b, icon, NavIconSize, true);
             st.IconColor = !on ? AppIconColor.Disabled : sel ? UiTheme.NavTextSelected : AppIconColor.Nav;
             st.AccentColor = st.IconColor;
             st.TextColor = !on ? UiKit.DisabledText : sel ? UiTheme.NavTextSelected : UiTheme.NavText;
