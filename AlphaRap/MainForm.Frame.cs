@@ -51,6 +51,15 @@ namespace AlphaRap
         private const int NavRailWidth = 96;
         private const int NavRailWidthCollapsed = 36;
         private const int NavCollapsedIconSize = 18;
+
+        // ---- 试版：蓝底白图标侧栏（回退点 tag: backup-before-nav-blue-rail）----
+        private static readonly Color NavRailBg = UiKit.BrandDark;
+        private static readonly Color NavRailBgBottom = UiKit.Brand;
+        private static readonly Color NavRailSelectedBg = Color.FromArgb(12, 126, 202);
+        private static readonly Color NavRailDisabledBg = Color.FromArgb(2, 60, 100);
+        private static readonly Color NavRailEdge = Color.FromArgb(2, 60, 100);
+        private static readonly Color NavOnBlue = AppIconColor.OnDarkBar;
+        private static readonly Color NavOnBlueDisabled = AppIconColor.DisabledOnDark;
         private static readonly Size ToolButtonSize = new Size(92, 58);
         private const int ToolIconSize = 26;
 
@@ -202,8 +211,9 @@ namespace AlphaRap
 
         private void StyleNavigation()
         {
-            panel4.GradientTop = UiTheme.NavBg;
-            panel4.GradientBottom = UiTheme.NavBg;
+            // 试版蓝底侧栏（与顶栏同系 BrandDark）
+            panel4.GradientTop = NavRailBg;
+            panel4.GradientBottom = NavRailBgBottom;
             panel4.Paint -= Nav_Paint;
             panel4.Paint += Nav_Paint;
 
@@ -237,11 +247,11 @@ namespace AlphaRap
             ApplyNavRailLayout();
         }
 
-        /// <summary>导航栏右侧分隔线。</summary>
+        /// <summary>导航栏右侧分隔线（蓝底上用深色边）。</summary>
         private void Nav_Paint(object sender, PaintEventArgs e)
         {
             Control c = (Control)sender;
-            using (Pen p = new Pen(UiKit.Line))
+            using (Pen p = new Pen(NavRailEdge))
                 e.Graphics.DrawLine(p, c.Width - 1, 0, c.Width - 1, c.Height);
         }
 
@@ -290,7 +300,7 @@ namespace AlphaRap
             panelNavAutoHideTab.Dock = DockStyle.Fill;
             panelNavAutoHideTab.Margin = Padding.Empty;
             panelNavAutoHideTab.Cursor = Cursors.Hand;
-            panelNavAutoHideTab.BackColor = UiTheme.NavBg;
+            panelNavAutoHideTab.BackColor = NavRailBg;
             panelNavAutoHideTab.Visible = false;
             panelNavAutoHideTab.Paint += NavAutoHideTab_Paint;
             panelNavAutoHideTab.Click += NavRailToggle_Click;
@@ -449,17 +459,17 @@ namespace AlphaRap
             try
             {
                 Graphics g = e.Graphics;
-                Color back = _navAutoHideHover ? UiKit.BrandSoft : UiTheme.NavBg;
+                Color back = _navAutoHideHover ? NavRailSelectedBg : NavRailBg;
                 g.Clear(back);
 
                 int accentW = UiTheme.Dpi(3);
-                using (SolidBrush accent = new SolidBrush(UiKit.Brand))
+                using (SolidBrush accent = new SolidBrush(NavOnBlue))
                     g.FillRectangle(accent, 0, 0, accentW, p.Height);
-                using (Pen edge = new Pen(UiKit.Line))
+                using (Pen edge = new Pen(NavRailEdge))
                     g.DrawLine(edge, p.Width - 1, 0, p.Width - 1, p.Height);
 
                 int ic = UiTheme.Dpi(NavCollapsedIconSize);
-                Image menu = AppIcons.Get(AppIcon.Menu, ic, UiTheme.NavTextSelected);
+                Image menu = AppIcons.Get(AppIcon.Menu, ic, NavOnBlue);
                 if (menu != null)
                 {
                     int ix = (p.Width - menu.Width) / 2;
@@ -478,7 +488,7 @@ namespace AlphaRap
                         string ch = text.Substring(i, 1);
                         Size cs = TextRenderer.MeasureText(g, ch, f, Size.Empty, TextFormatFlags.NoPadding);
                         int cx = (p.Width - cs.Width) / 2;
-                        TextRenderer.DrawText(g, ch, f, new Point(cx, y), UiTheme.NavTextSelected,
+                        TextRenderer.DrawText(g, ch, f, new Point(cx, y), NavOnBlue,
                             TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
                         y += lineH;
                     }
@@ -491,9 +501,9 @@ namespace AlphaRap
         {
             if (MENU_NavToggle == null) return;
             NavPaintState st = AttachNavPaint(MENU_NavToggle, AppIcon.Menu, NavIconSize, true);
-            st.IconColor = AppIconColor.Nav;
+            st.IconColor = NavOnBlue;
             st.AccentColor = st.IconColor;
-            st.TextColor = UiTheme.NavText;
+            st.TextColor = NavOnBlue;
             st.LockBadge = UiTheme.LockBadgeMode.None;
             if (MENU_NavToggle.BackColor != Color.Transparent) MENU_NavToggle.BackColor = Color.Transparent;
             if (UiTheme.IsDesignTime) BakeButtonPreview(MENU_NavToggle, st);
@@ -755,8 +765,8 @@ namespace AlphaRap
                     new[] { AppIcon.Home, AppIcon.Vision, AppIcon.Save, AppIcon.Rapid, AppIcon.Hard,
                             AppIcon.Manual, AppIcon.Data, AppIcon.Log, AppIcon.Check, AppIcon.AddUser,
                             AppIcon.Mes, AppIcon.LifeSpan, AppIcon.Menu },
-                    new[] { UiTheme.Dpi(NavIconSize) },
-                    new[] { AppIconColor.Nav, AppIconColor.Disabled, UiTheme.NavTextSelected });
+                    new[] { UiTheme.Dpi(NavIconSize), UiTheme.Dpi(NavCollapsedIconSize) },
+                    new[] { NavOnBlue, NavOnBlueDisabled, AppIconColor.OnDarkBar });
 
                 AppIcons.Prewarm(
                     new[] { AppIcon.Reset, AppIcon.Run, AppIcon.Pause, AppIcon.Stop,
@@ -839,14 +849,14 @@ namespace AlphaRap
             if (b == null) return;
             bool sel = IsSelectedNav(b);
             bool on = b.Enabled;
-            // 无权限：浅灰底 + 小锁；选中：品牌浅蓝底 + 左侧竖条（在 PaintIconButton 里）
-            Color back = !on ? UiKit.DisabledBg : sel ? UiTheme.Selected : Color.Transparent;
+            // 试版蓝底：未选透明、选中亮蓝块、禁用更深蓝；图标/文字一律白（禁用略淡）
+            Color back = !on ? NavRailDisabledBg : sel ? NavRailSelectedBg : Color.Transparent;
             if (b.BackColor != back) b.BackColor = back;
 
             NavPaintState st = AttachNavPaint(b, icon, NavIconSize, true);
-            st.IconColor = !on ? AppIconColor.Disabled : sel ? UiTheme.NavTextSelected : AppIconColor.Nav;
+            st.IconColor = on ? NavOnBlue : NavOnBlueDisabled;
             st.AccentColor = st.IconColor;
-            st.TextColor = !on ? UiKit.DisabledText : sel ? UiTheme.NavTextSelected : UiTheme.NavText;
+            st.TextColor = on ? NavOnBlue : NavOnBlueDisabled;
             st.LockBadge = NavLockBadge;
             // 设计器不保证触发 Paint：把预览烤进 Image，运行时仍走自绘
             if (UiTheme.IsDesignTime) BakeButtonPreview(b, st);
