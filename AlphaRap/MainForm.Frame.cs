@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Windows.Forms;
 
 namespace AlphaRap
@@ -59,12 +60,12 @@ namespace AlphaRap
 
         // ---- 侧栏蓝底白字：与顶栏同色 UiKit.Brand（回退 tag: backup-before-nav-blue-rail）----
         private static readonly Color NavRailBg = UiKit.Brand;
-        /// <summary>选中块：比 Brand 更亮一档，衬白竖条。</summary>
-        private static readonly Color NavRailSelectedBg = Color.FromArgb(48, 148, 210);
-        private static readonly Color NavRailDisabledBg = UiKit.BrandDark;
         private static readonly Color NavRailEdge = UiKit.BrandDark;
         private static readonly Color NavOnBlue = UiKit.TextOnBrand;
-        private static readonly Color NavOnBlueDisabled = AppIconColor.DisabledOnDark;
+        /// <summary>选中：图标略更亮（仍白系）。</summary>
+        private static readonly Color NavOnBlueSelected = Color.White;
+        /// <summary>禁用：半透明白，不铺深蓝底。</summary>
+        private static readonly Color NavOnBlueDisabled = Color.FromArgb(150, 200, 220);
         /// <summary>选中左侧竖条：白，蓝底上最醒目。</summary>
         private static readonly Color NavRailAccentBar = Color.White;
         /// <summary>汉堡弱化：略淡的白，不与正式入口抢戏。</summary>
@@ -234,6 +235,7 @@ namespace AlphaRap
             EnsureNavAutoHideTab();
             // 上下 50/50 时上半区装不下会画到下半区上（蓝底禁用块看起来像重叠）→ 改单列可滚
             MergeNavIntoSingleColumn();
+            LoadNavRailPrefs();
 
             ApplyNavRailLayout();
         }
@@ -272,6 +274,11 @@ namespace AlphaRap
                 Panl_PictureShowTop.Visible = true;
                 Panl_PictureShowTop.Resize -= NavRailFlow_Resize;
                 Panl_PictureShowTop.Resize += NavRailFlow_Resize;
+                if (panel4 != null)
+                {
+                    panel4.Resize -= NavRailHost_Resize;
+                    panel4.Resize += NavRailHost_Resize;
+                }
 
                 if (Panl_PictureShowDown != null)
                 {
@@ -319,6 +326,10 @@ namespace AlphaRap
 
         /// <summary>侧栏是否收成左侧窄轨（点击再展开）。</summary>
         private bool _navRailCollapsed;
+        /// <summary>用户手动折叠偏好（写入 UiPrefs）。</summary>
+        private bool _navRailUserCollapsed;
+        /// <summary>因高度不够自动收成窄轨。</summary>
+        private bool _navRailAutoCollapsed;
         private bool _navAutoHideHover;
         /// <summary>展开态顶部汉堡：点一下收成窄轨。</summary>
         private PictureBox MENU_NavToggle;
@@ -395,7 +406,7 @@ namespace AlphaRap
 
         private void NavRailToggle_Click(object sender, EventArgs e)
         {
-            SetNavRailCollapsed(!_navRailCollapsed);
+            SetNavRailCollapsed(!_navRailCollapsed, true);
         }
 
         private void NavAutoHideTab_Resize(object sender, EventArgs e)
@@ -418,9 +429,65 @@ namespace AlphaRap
         /// <summary>整栏折叠 / 展开：折叠后变成左侧窄轨，点击展开。</summary>
         public void SetNavRailCollapsed(bool collapsed)
         {
+            SetNavRailCollapsed(collapsed, true);
+        }
+
+        /// <param name="fromUser">true = 用户操作（记偏好）；false = 高度不够自动收起。</param>
+        private void SetNavRailCollapsed(bool collapsed, bool fromUser)
+        {
+            if (fromUser)
+            {
+                _navRailUserCollapsed = collapsed;
+                _navRailAutoCollapsed = false;
+                SaveNavRailPrefs();
+            }
+            if (_navRailCollapsed == collapsed)
+            {
+                ApplyNavRailLayout();
+                RefreshButtonIcons();
+                return;
+            }
             _navRailCollapsed = collapsed;
             ApplyNavRailLayout();
             RefreshButtonIcons();
+        }
+
+        private static string NavRailPrefsPath()
+        {
+            return Path.Combine(Application.StartupPath, "ModuleData", "SettingData", "UiPrefs.txt");
+        }
+
+        private void LoadNavRailPrefs()
+        {
+            try
+            {
+                string path = NavRailPrefsPath();
+                if (!File.Exists(path)) return;
+                string[] lines = File.ReadAllLines(path);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string line = lines[i] != null ? lines[i].Trim() : "";
+                    if (line.StartsWith("NavRailCollapsed=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _navRailUserCollapsed = line.EndsWith("1");
+                        _navRailCollapsed = _navRailUserCollapsed;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void SaveNavRailPrefs()
+        {
+            try
+            {
+                string path = NavRailPrefsPath();
+                string dir = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+                File.WriteAllText(path, "NavRailCollapsed=" + (_navRailUserCollapsed ? "1" : "0") + Environment.NewLine);
+            }
+            catch { }
         }
 
         private void ApplyNavRailLayout()
@@ -469,6 +536,24 @@ namespace AlphaRap
             RefreshButtonIcons();
         }
 
+        /// <summary>侧栏宿主高度变化：自动窄轨时，够高再展开。</summary>
+        private void NavRailHost_Resize(object sender, EventArgs e)
+        {
+            if (_fittingNavRail) return;
+            if (_navRailAutoCollapsed && !_navRailUserCollapsed && _navRailCollapsed)
+            {
+                int h = panel4 != null ? panel4.ClientSize.Height : 0;
+                // 经验阈值：12 入口 × 40 + 汉堡 ≈ 520
+                if (h >= UiTheme.Dpi(520))
+                {
+                    _navRailAutoCollapsed = false;
+                    SetNavRailCollapsed(false, false);
+                }
+                return;
+            }
+            if (!_navRailCollapsed) NavRailFlow_Resize(sender, e);
+        }
+
         /// <summary>
         /// 按侧栏可用高度均分入口尺寸，关掉横/竖滚动条；字号随高度略缩小。
         /// </summary>
@@ -505,6 +590,22 @@ namespace AlphaRap
 
                 int rest = availH - Panl_PictureShowTop.Padding.Vertical - toggleBlock;
                 int slot = rest / btnCount;
+                // 均分后仍矮于下限 → 自动收成窄轨（用户手动展开偏好仍保留）
+                if (slot < UiTheme.Dpi(36) && !_navRailUserCollapsed)
+                {
+                    _fittingNavRail = false;
+                    _navRailAutoCollapsed = true;
+                    SetNavRailCollapsed(true, false);
+                    return;
+                }
+                if (_navRailAutoCollapsed && !_navRailUserCollapsed && slot >= UiTheme.Dpi(40))
+                {
+                    _fittingNavRail = false;
+                    _navRailAutoCollapsed = false;
+                    SetNavRailCollapsed(false, false);
+                    return;
+                }
+
                 int marginV = Math.Max(0, UiTheme.Dpi(1));
                 int btnH = slot - marginV * 2;
                 if (btnH < UiTheme.Dpi(36)) btnH = UiTheme.Dpi(36);
@@ -576,7 +677,7 @@ namespace AlphaRap
             try
             {
                 Graphics g = e.Graphics;
-                Color back = _navAutoHideHover ? NavRailSelectedBg : NavRailBg;
+                Color back = _navAutoHideHover ? Color.FromArgb(12, 126, 202) : NavRailBg;
                 g.Clear(back);
 
                 int accentW = UiTheme.Dpi(3);
@@ -736,7 +837,8 @@ namespace AlphaRap
 
         private void StyleStatusBar()
         {
-            statusStrip2.BackColor = UiTheme.StatusBar;
+            // 与侧栏/顶栏同系：BrandDark 底 + 浅字
+            statusStrip2.BackColor = UiKit.BrandDark;
             statusStrip2.Font = UiTheme.Caption;
             foreach (ToolStripItem it in statusStrip2.Items)
             {
@@ -973,14 +1075,14 @@ namespace AlphaRap
             if (b == null) return;
             bool sel = IsSelectedNav(b);
             bool on = b.Enabled;
-            // 蓝底：未选透明、选中亮蓝块 + 白竖条、禁用更深蓝；图标/文字白
-            Color back = !on ? NavRailDisabledBg : sel ? NavRailSelectedBg : Color.Transparent;
+            // 蓝底：未选/禁用透明；选中只靠左侧白竖条（不铺色块）；禁用半透明白 + 小锁
+            Color back = Color.Transparent;
             if (b.BackColor != back) b.BackColor = back;
 
             NavPaintState st = AttachNavPaint(b, icon, _navRailIconSize, true);
-            st.IconColor = on ? NavOnBlue : NavOnBlueDisabled;
+            st.IconColor = !on ? NavOnBlueDisabled : sel ? NavOnBlueSelected : NavOnBlue;
             st.AccentColor = st.IconColor;
-            st.TextColor = on ? NavOnBlue : NavOnBlueDisabled;
+            st.TextColor = st.IconColor;
             st.AccentBarColor = NavRailAccentBar;
             st.LockBadge = NavLockBadge;
             // 设计器不保证触发 Paint：把预览烤进 Image，运行时仍走自绘
@@ -1000,9 +1102,10 @@ namespace AlphaRap
                 StyleToolbarButton(MENU_Run, AppIcon.Run, AppIconColor.Run, AppIconColor.Run);
                 StyleToolbarButton(MENU_Pause, AppIcon.Pause, AppIconColor.Pause, AppIconColor.Pause);
                 StyleToolbarButton(MENU_Stop, AppIcon.Stop, AppIconColor.Stop, AppIconColor.Stop);
-                StyleToolbarButton(AlarmReset, AppIcon.AlarmReset, AppIconColor.Nav, AppIconColor.Danger);
-                StyleToolbarButton(MENU_Lock, AppIcon.Lock, AppIconColor.Nav, AppIconColor.Nav);
-                StyleToolbarButton(MENU_System, AppIcon.System, AppIconColor.Nav, AppIconColor.Nav);
+                // 常态键与侧栏同系 Brand；危险键保留红
+                StyleToolbarButton(AlarmReset, AppIcon.AlarmReset, UiKit.BrandDark, AppIconColor.Danger);
+                StyleToolbarButton(MENU_Lock, AppIcon.Lock, UiKit.BrandDark, UiKit.BrandDark);
+                StyleToolbarButton(MENU_System, AppIcon.System, UiKit.BrandDark, UiKit.BrandDark);
                 StyleToolbarButton(MENU_Exit, AppIcon.Exit, AppIconColor.Danger, AppIconColor.Danger);
             }
             catch { }
@@ -1021,7 +1124,9 @@ namespace AlphaRap
             NavPaintState st = AttachNavPaint(btn, icon, ToolIconSize, false);
             st.IconColor = on ? iconColor : AppIconColor.Disabled;
             st.AccentColor = on ? accentColor : AppIconColor.Disabled;
-            st.TextColor = !on ? UiKit.DisabledText : (iconColor == AppIconColor.Nav ? UiKit.TextPrimary : iconColor);
+            // 常态 Brand 系图标配同色字；语义色（绿/红等）图标也配同色字
+            bool brandTone = on && (iconColor == AppIconColor.Nav || iconColor == UiKit.BrandDark || iconColor == UiKit.Brand);
+            st.TextColor = !on ? UiKit.DisabledText : brandTone ? UiKit.BrandDark : iconColor;
             st.AccentBarColor = Color.Empty;
             st.LockBadge = NavLockBadge;
             if (UiTheme.IsDesignTime) BakeButtonPreview(btn, st);

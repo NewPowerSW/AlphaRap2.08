@@ -77,16 +77,21 @@ namespace AlphaRap
             LayoutParamRow();
         }
 
-        /// <summary>vpp 路径贴标题右侧，最长约占标题栏一半，超出省略。</summary>
+        private readonly ToolTip _vppPathTip = new ToolTip { ShowAlways = true, AutomaticDelay = 400 };
+
+        /// <summary>vpp 路径贴标题右侧，最长约占标题栏一半，超出省略；完整路径靠 Tooltip。</summary>
         internal void LayoutTitlePath()
         {
             if (head == null || path == null) return;
             int pad = UiTheme.Dpi(12);
             int usable = head.ClientSize.Width - head.Padding.Horizontal;
             int maxW = Math.Max(UiTheme.Dpi(140), usable / 2);
-            int prefer = TextRenderer.MeasureText(path.Text ?? "", path.Font).Width + pad;
+            string full = path.Text ?? "";
+            int prefer = TextRenderer.MeasureText(full, path.Font).Width + pad;
             path.Width = Math.Min(Math.Max(prefer, UiTheme.Dpi(80)), maxW);
             path.Height = head.ClientSize.Height;
+            path.AutoEllipsis = true;
+            try { _vppPathTip.SetToolTip(path, full); } catch { }
         }
 
         /// <summary>

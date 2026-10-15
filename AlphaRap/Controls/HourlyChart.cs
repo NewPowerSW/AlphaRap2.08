@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -100,8 +100,12 @@ namespace AlphaRap
             }
 
             if (max <= 0)
-                TextRenderer.DrawText(g, EmptyText, UiTheme.Body, plot, UiKit.TextMuted,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            {
+                // 淡坐标框已画好；空态只居中一行灰字，不盖死网格
+                using (Font emptyFont = UiKit.Regular(10f))
+                    TextRenderer.DrawText(g, EmptyText, emptyFont, plot, UiKit.TextMuted,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            }
         }
 
         private void DrawLegend(Graphics g, Rectangle r)

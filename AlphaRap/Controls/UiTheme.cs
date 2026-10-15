@@ -261,6 +261,7 @@ namespace AlphaRap
         public static readonly Color HeaderBg = Color.FromArgb(242, 246, 250);
 
         /// <summary>状态栏底色。</summary>
+        /// <summary>底状态条：与 <see cref="UiKit.BrandDark"/> 同色，和顶栏/侧栏一条色带。</summary>
         public static readonly Color StatusBar = Color.FromArgb(2, 78, 133);
 
         /// <summary>报警行（E 错误）底色与文字色。</summary>

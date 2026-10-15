@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -57,14 +57,19 @@ namespace AlphaRap
             LayoutTitlePath();
         }
 
-        /// <summary>路径贴标题右侧，最长约占标题栏一半，超出省略。</summary>
+        private readonly ToolTip _calibPathTip = new ToolTip { ShowAlways = true, AutomaticDelay = 400 };
+
+        /// <summary>路径贴标题右侧，最长约占标题栏一半，超出省略；完整路径靠 Tooltip。</summary>
         internal void LayoutTitlePath()
         {
             if (titleBar == null || lblTip == null) return;
             int pad = UiTheme.Dpi(12);
             int maxW = Math.Max(UiTheme.Dpi(140), titleBar.ClientSize.Width / 2);
-            int prefer = TextRenderer.MeasureText(lblTip.Text ?? "", lblTip.Font).Width + pad;
+            string full = lblTip.Text ?? "";
+            int prefer = TextRenderer.MeasureText(full, lblTip.Font).Width + pad;
             lblTip.Width = Math.Min(Math.Max(prefer, UiTheme.Dpi(80)), maxW);
+            lblTip.AutoEllipsis = true;
+            try { _calibPathTip.SetToolTip(lblTip, full); } catch { }
         }
 
         private void SizeActionButtons()

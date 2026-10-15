@@ -822,6 +822,7 @@ int nheightEllipse
         /// <summary>收起态底边细条：摘要 + 点击展开。</summary>
         private Panel panelAlarmCollapsedBar;
         private string _alarmCollapsedSummary = "";
+        private bool _alarmCollapsedHover;
 
         private void EnsureAlarmToggleChip()
         {
@@ -853,9 +854,23 @@ int nheightEllipse
             panelAlarmCollapsedBar.Paint += AlarmCollapsedBar_Paint;
             panelAlarmCollapsedBar.Click += AlarmToggle_Click;
             panelAlarmCollapsedBar.Resize += AlarmCollapsedBar_Resize;
+            panelAlarmCollapsedBar.MouseEnter += AlarmCollapsedBar_MouseEnter;
+            panelAlarmCollapsedBar.MouseLeave += AlarmCollapsedBar_MouseLeave;
             // 与 ListView 同格：收起时换显细条，展开时显列表
             tableLayoutPanel4.Controls.Add(panelAlarmCollapsedBar, 0, 1);
             panelAlarmCollapsedBar.BringToFront();
+        }
+
+        private void AlarmCollapsedBar_MouseEnter(object sender, EventArgs e)
+        {
+            _alarmCollapsedHover = true;
+            if (panelAlarmCollapsedBar != null) panelAlarmCollapsedBar.Invalidate();
+        }
+
+        private void AlarmCollapsedBar_MouseLeave(object sender, EventArgs e)
+        {
+            _alarmCollapsedHover = false;
+            if (panelAlarmCollapsedBar != null) panelAlarmCollapsedBar.Invalidate();
         }
 
         private void AlarmToggle_Click(object sender, EventArgs e)
@@ -950,22 +965,35 @@ int nheightEllipse
             try
             {
                 Graphics g = e.Graphics;
-                g.Clear(UiKit.Surface);
+                Color back = _alarmCollapsedHover ? UiKit.BrandSoft : UiKit.Surface;
+                g.Clear(back);
                 using (Pen top = new Pen(UiKit.Line))
                     g.DrawLine(top, 0, 0, p.Width, 0);
-                // 左侧品牌色竖条，标出「这是停靠标签」
                 using (SolidBrush accent = new SolidBrush(UiKit.Brand))
                     g.FillRectangle(accent, 0, 0, UiTheme.Dpi(3), p.Height);
 
                 string text = string.IsNullOrEmpty(_alarmCollapsedSummary) ? "…" : _alarmCollapsedSummary;
+                int chevronW = UiTheme.Dpi(18);
                 using (Font f = UiKit.Regular(9f))
                 {
                     Rectangle bounds = new Rectangle(
                         UiTheme.Dpi(12), 0,
-                        Math.Max(0, p.Width - UiTheme.Dpi(20)), p.Height);
+                        Math.Max(0, p.Width - UiTheme.Dpi(16) - chevronW), p.Height);
                     TextRenderer.DrawText(g, text, f, bounds, UiKit.TextPrimary,
                         TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
                 }
+                // 右侧小三角：提示可点开
+                int cx = p.Width - UiTheme.Dpi(14);
+                int cy = p.Height / 2;
+                int s = UiTheme.Dpi(4);
+                Point[] tri = new Point[]
+                {
+                    new Point(cx - s, cy + s / 2),
+                    new Point(cx + s, cy + s / 2),
+                    new Point(cx, cy - s)
+                };
+                using (SolidBrush tb = new SolidBrush(_alarmCollapsedHover ? UiKit.Brand : UiKit.TextMuted))
+                    g.FillPolygon(tb, tri);
             }
             catch { }
         }
