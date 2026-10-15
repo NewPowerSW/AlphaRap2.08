@@ -806,16 +806,22 @@ int nheightEllipse
                 SetAlarmListExpanded(true);
             _lastErrorCountForExpand = error;
             RefreshAlarmChipTexts();
+            RefreshAlarmCollapsedSummary();
         }
 
-        // ---------------- 报警列表收起 / 展开 ----------------
+        // ---------------- 报警列表收起 / 展开（收起 = 底边细条，仿 VS Output） ----------------
 
-        /// <summary>报警明细列表是否展开（筛选条始终可见，收起只藏 ListView）。</summary>
+        private const int AlarmCollapsedBarHeight = 28;
+
+        /// <summary>报警明细是否展开。</summary>
         private bool _alarmListExpanded = true;
         /// <summary>上次用于自动展开判断的 E 类条数。</summary>
         private int _lastErrorCountForExpand;
-        /// <summary>筛选条右侧的「收起/展开列表」按钮（运行时创建，避免设计器空引用）。</summary>
+        /// <summary>展开态筛选条右侧「收起」按钮。</summary>
         private AlarmChip btnAlarmToggle;
+        /// <summary>收起态底边细条：摘要 + 点击展开。</summary>
+        private Panel panelAlarmCollapsedBar;
+        private string _alarmCollapsedSummary = "";
 
         private void EnsureAlarmToggleChip()
         {
@@ -834,20 +840,45 @@ int nheightEllipse
             RefreshAlarmToggleText();
         }
 
+        private void EnsureAlarmCollapsedBar()
+        {
+            if (panelAlarmCollapsedBar != null || tableLayoutPanel4 == null) return;
+            panelAlarmCollapsedBar = new Panel();
+            panelAlarmCollapsedBar.Name = "panelAlarmCollapsedBar";
+            panelAlarmCollapsedBar.Dock = DockStyle.Fill;
+            panelAlarmCollapsedBar.Margin = Padding.Empty;
+            panelAlarmCollapsedBar.Cursor = Cursors.Hand;
+            panelAlarmCollapsedBar.BackColor = UiKit.Surface;
+            panelAlarmCollapsedBar.Visible = false;
+            panelAlarmCollapsedBar.Paint += AlarmCollapsedBar_Paint;
+            panelAlarmCollapsedBar.Click += AlarmToggle_Click;
+            panelAlarmCollapsedBar.Resize += AlarmCollapsedBar_Resize;
+            // 与 ListView 同格：收起时换显细条，展开时显列表
+            tableLayoutPanel4.Controls.Add(panelAlarmCollapsedBar, 0, 1);
+            panelAlarmCollapsedBar.BringToFront();
+        }
+
         private void AlarmToggle_Click(object sender, EventArgs e)
         {
             SetAlarmListExpanded(!_alarmListExpanded);
         }
 
+        private void AlarmCollapsedBar_Resize(object sender, EventArgs e)
+        {
+            if (panelAlarmCollapsedBar != null) panelAlarmCollapsedBar.Invalidate();
+        }
+
         /// <summary>
-        /// 展开或收起报警明细列表。收起后主内容区占满；筛选条仍在内容区底部显示条数摘要。
+        /// 展开或收起报警区。收起后筛选项与列表一并藏起，底边只留一条摘要细条（点一下展开）。
         /// </summary>
         public void SetAlarmListExpanded(bool expanded)
         {
             if (tableLayoutPanel4 == null || WarnningMessage == null) return;
-            if (_alarmListExpanded == expanded && btnAlarmToggle != null)
+            EnsureAlarmCollapsedBar();
+            if (_alarmListExpanded == expanded && btnAlarmToggle != null && panelAlarmCollapsedBar != null)
             {
                 RefreshAlarmToggleText();
+                RefreshAlarmCollapsedSummary();
                 return;
             }
             _alarmListExpanded = expanded;
@@ -859,17 +890,29 @@ int nheightEllipse
                     tableLayoutPanel4.RowStyles[0] = new RowStyle(SizeType.Percent, 82.5f);
                     tableLayoutPanel4.RowStyles[1] = new RowStyle(SizeType.Percent, 17.5f);
                     WarnningMessage.Visible = true;
+                    if (panelAlarmFilter != null) panelAlarmFilter.Visible = true;
+                    if (panelAlarmCollapsedBar != null) panelAlarmCollapsedBar.Visible = false;
                 }
                 else
                 {
+                    // 主内容几乎占满，底边留一条 VS 式摘要条
+                    int barH = UiTheme.Dpi(AlarmCollapsedBarHeight);
                     tableLayoutPanel4.RowStyles[0] = new RowStyle(SizeType.Percent, 100f);
-                    tableLayoutPanel4.RowStyles[1] = new RowStyle(SizeType.Absolute, 0f);
+                    tableLayoutPanel4.RowStyles[1] = new RowStyle(SizeType.Absolute, barH);
                     WarnningMessage.Visible = false;
+                    if (panelAlarmFilter != null) panelAlarmFilter.Visible = false;
+                    if (panelAlarmCollapsedBar != null)
+                    {
+                        panelAlarmCollapsedBar.Visible = true;
+                        panelAlarmCollapsedBar.BringToFront();
+                        panelAlarmCollapsedBar.Invalidate();
+                    }
                 }
                 tableLayoutPanel4.ResumeLayout(true);
             }
             catch { }
             RefreshAlarmToggleText();
+            RefreshAlarmCollapsedSummary();
         }
 
         private void RefreshAlarmToggleText()
@@ -877,12 +920,52 @@ int nheightEllipse
             if (btnAlarmToggle == null) return;
             try
             {
-                btnAlarmToggle.Text = _alarmListExpanded
-                    ? UiTheme.T("MainForm", "alarm_Collapse", "收起列表", "Collapse", "Contraer")
-                    : UiTheme.T("MainForm", "alarm_Expand", "展开列表", "Expand", "Expandir");
-                // 收起态高亮「展开」按钮，提示还可点开
-                btnAlarmToggle.Selected = !_alarmListExpanded;
+                btnAlarmToggle.Text = UiTheme.T("MainForm", "alarm_Collapse", "收起", "Collapse", "Contraer");
+                btnAlarmToggle.Selected = false;
                 btnAlarmToggle.FitToContent();
+            }
+            catch { }
+        }
+
+        /// <summary>刷新收起细条上的条数摘要（与筛选芯片同步）。</summary>
+        private void RefreshAlarmCollapsedSummary()
+        {
+            try
+            {
+                int total, warn, error;
+                GetAlarmCounts(out total, out warn, out error);
+                string title = UiTheme.T("MainForm", "alarm_CollapsedTitle", "报警", "Alarms", "Alarmas");
+                string hint = UiTheme.T("MainForm", "alarm_ExpandHint", "点击展开", "Click to expand", "Clic para expandir");
+                _alarmCollapsedSummary = title + "  ·  " + total + "  ·  W " + warn + "  ·  E " + error + "    " + hint;
+                if (panelAlarmCollapsedBar != null && panelAlarmCollapsedBar.Visible)
+                    panelAlarmCollapsedBar.Invalidate();
+            }
+            catch { }
+        }
+
+        private void AlarmCollapsedBar_Paint(object sender, PaintEventArgs e)
+        {
+            Panel p = sender as Panel;
+            if (p == null || p.Width <= 1 || p.Height <= 1) return;
+            try
+            {
+                Graphics g = e.Graphics;
+                g.Clear(UiKit.Surface);
+                using (Pen top = new Pen(UiKit.Line))
+                    g.DrawLine(top, 0, 0, p.Width, 0);
+                // 左侧品牌色竖条，标出「这是停靠标签」
+                using (SolidBrush accent = new SolidBrush(UiKit.Brand))
+                    g.FillRectangle(accent, 0, 0, UiTheme.Dpi(3), p.Height);
+
+                string text = string.IsNullOrEmpty(_alarmCollapsedSummary) ? "…" : _alarmCollapsedSummary;
+                using (Font f = UiKit.Regular(9f))
+                {
+                    Rectangle bounds = new Rectangle(
+                        UiTheme.Dpi(12), 0,
+                        Math.Max(0, p.Width - UiTheme.Dpi(20)), p.Height);
+                    TextRenderer.DrawText(g, text, f, bounds, UiKit.TextPrimary,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+                }
             }
             catch { }
         }

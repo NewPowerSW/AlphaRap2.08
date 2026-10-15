@@ -515,6 +515,7 @@ namespace AlphaRap
             flowAlarmFilter.Padding = UiTheme.Dpi(new Padding(8, 5, 0, 0));
             flowAlarmFilter.BackColor = UiKit.Surface;
             EnsureAlarmToggleChip();
+            EnsureAlarmCollapsedBar();
             foreach (Control chip in new Control[] { btnAlarmFilterAll, btnAlarmFilterWarn, btnAlarmFilterAlarm, btnAlarmQuery, btnAlarmToggle })
             {
                 AlarmChip c = chip as AlarmChip;
