@@ -23,6 +23,11 @@ AlphaRapLibrary/
 Vucontrol/
 !AlphaRap/bin/x64/Debug/VisionData/
 !AlphaRap/bin/x64/Debug/*.dll
+# Cognex VisionPro：走本机安装目录 / GAC，不拷贝、不入库
+AlphaRap/bin/x64/Debug/Cognex*.dll
+AlphaRap/bin/x64/Debug/Cognex*.xml
+AlphaRap/bin/Debug/Cognex*.dll
+AlphaRap/bin/Debug/Cognex*.xml
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
