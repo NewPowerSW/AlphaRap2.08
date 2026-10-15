@@ -1,0 +1,55 @@
+---
+description: 上下属分工与验收流程：产品经理派活并凭证据验收，Cursor 执行并自证
+alwaysApply: true
+---
+
+# 分工：老板 → 产品经理（PM） → 执行（Cursor）
+
+| 角色 | 是谁 | 职责 |
+|---|---|---|
+| **老板** | 人 | 定目标与优先级；处理**账号 / 额度**这类环境事务 |
+| **产品经理 PM** | DeepSeek Harness 会话 | 拆任务、写验收标准、**凭证据验收**、不通过就出返工单 |
+| **执行** | Cursor（本仓库） | 改代码、**自证**、把证据交回任务单 |
+
+**PM 看不到你的屏幕，也点不了别的程序。** 它验收的唯一依据是**仓库里可复现的证据**。
+所以「我改好了」不算交付，**能复现的证据**才算。
+
+## 任务单
+
+所有任务走 `.cursor/PM-TASKBOARD.md`：
+PM 写「目标 / 范围 / 验收标准 / 需要的证据」→ Cursor 实现并把**实际命令与实际输出**贴回同一条目
+→ PM 独立复核（重跑编译、跑检查脚本、真实渲染、精算数值）→ 标 `DONE` 或写**返工单**
+（写清：哪条验收没过、证据是什么、期望改成什么）。
+
+## 交付前必过（本仓库硬性）
+
+1. 编译 **0 错误 / 0 警告**
+   `dotnet build AlphaRap\AlphaRap.csproj -c Debug -p:Platform=x64 -t:Rebuild -v:minimal`
+2. 静态检查全绿（都在 `.workbuddy\tools\`）：
+   `check_orphan_controls.py`、`check_control_names.py`、`check_cs_edits.py`、`_scan_dup.py`
+3. 改过 `.cs` 一律跑 `.workbuddy\tools\_norm_sources.py`（**UTF-8 BOM + CRLF**）；
+   无 BOM 会被 csc 按 GBK 读 ⇒ **中文静默乱码且不报错**，FILES 清单要含你改的文件
+4. 视觉改动必须给**真实渲染**证据（`renderprobe` / `galleryprobe`），**不接受「应该没问题」**
+5. 提交并推送 `NewPowerSW/AlphaRap2.08`；提交信息写清**为什么**改，不只写改了什么
+6. 更新 `.workbuddy/memory/` 下的当日日志
+
+## 红线（每一条都真的踩过）
+
+- **提交前先 `git status`**：Visual Studio 会回写 `*.Designer.cs` / `*.csproj`，
+  那是老板的改动 —— **一起提交，绝不当噪声回退**
+- `MainForm` / `HomeForm` 在探针里构造不出来（`InitializeComponent` 会创建设备控件）
+  ⇒ 别浪费时间试整屏渲染，改用 part-level 渲染 + 单独精算
+- 给控件挂 `Region` 又想保留投影 ⇒ 投影会被一起裁掉
+- **`Anchor` 的基准是「控件当前的边距」**：新加的控件**必须显式设 `Location`**，
+  否则停在 (0,0)（`WindowChrome` 的缩放柄就这么坏过）
+- **`Controls.Add` 是追加到 z 序末端**（索引 0 才在最前）：后加的边栏要 `BringToFront()`，
+  否则被 `Dock=Fill` 的内容面板完全盖住，看不见也点不到
+- Dock 顺序：**先加 `Fill` 内容，后加 `Top`/`Bottom` 边**（反过来边栏拿到 0 高度）
+- 渲染探针是 **GUI 子系统程序**，PowerShell 的 `&` 不等它 ⇒ 必须轮询产物，
+  并且每次跑之前先 `Get-Process RenderProbe | Stop-Process`
+
+## 关于额度
+
+账号与额度由**老板**处理；换号之类的操作不在本仓库流程内，**PM 看不到也点不了别的程序**。
+因此任何任务**必须把状态落在磁盘上**（任务单 + 记忆）—— 换号后新会话读任务单即可无缝接续，
+这也正是「无感」能成立的前提。

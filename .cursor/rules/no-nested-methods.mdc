@@ -1,0 +1,52 @@
+---
+description: 禁止方法套方法；优先可读性与可改性
+alwaysApply: true
+---
+
+# 代码结构：禁止方法套方法
+
+写或改任何代码时，**不要**使用方法套方法（嵌套本地函数 / 深层匿名回调堆叠成“方法里再定义方法”）的形式。目标是**可读性强、可改性强**。
+
+## 要求
+
+- 一个方法只做一件事，控制流一眼能看完
+- 需要复用或拆分的逻辑，抽成**同级私有/内部方法**，用清晰命名表达意图
+- 避免在方法体内再定义 `local function`、多层嵌套 `delegate`/`lambda` 把业务逻辑埋进去
+- 事件绑定可保留短 lambda，但**业务主体**必须在具名方法中
+- 修改现有代码时，遇到难读的嵌套写法，顺手拆平，不要继续往里加层
+
+## 示例（C#）
+
+```csharp
+// ❌ BAD：方法套方法 / 业务埋在匿名里
+void Bind()
+{
+    void SaveAll() { /* ... */ }
+    btn.Click += (s, e) =>
+    {
+        void Validate() { /* ... */ }
+        Validate();
+        SaveAll();
+    };
+}
+
+// ✅ GOOD：同级具名方法，调用链清晰
+void Bind()
+{
+    btn.Click += OnSaveClick;
+}
+
+void OnSaveClick(object sender, EventArgs e)
+{
+    if (!Validate()) return;
+    SaveAll();
+}
+
+bool Validate() { /* ... */ return true; }
+void SaveAll() { /* ... */ }
+```
+
+## 例外
+
+- 极短的一行 UI 绑定（如仅调用一个已有方法）可以保留
+- 语言/框架强制的简短回调（排序键、LINQ 投影等）可以保留，但不要在回调里写大段流程

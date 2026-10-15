@@ -185,6 +185,17 @@ namespace AlphaRap
                 form.SuspendLayout();
                 form.Controls.Add(chrome._titleBar);   // 最后加入：Dock 顺序上先占顶部
                 form.Controls.Add(chrome._grip);
+
+                // 缩放柄必须显式定位到右下角：Anchor 的基准是"控件当前的边距"，
+                // Location 留在 (0,0) 时它记下的是"距右边缘 W-22"，之后只会跟着尺寸变化量漂移，
+                // 永远到不了右下角（实测初始 {0,0}、期望 {W-22,H-20}）。
+                int gripW = chrome._grip.Width;
+                int gripH = chrome._grip.Height;
+                chrome._grip.Location = new Point(
+                    Math.Max(0, form.ClientSize.Width - gripW),
+                    Math.Max(0, form.ClientSize.Height - gripH));
+                // 否则它排在 Controls 末尾 = 最底层，被 Dock=Fill 的内容面板完全盖住
+                chrome._grip.BringToFront();
                 form.ResumeLayout(true);
 
                 chrome._iconImage = AppIcons.Get(icon, D(20), Color.White);
