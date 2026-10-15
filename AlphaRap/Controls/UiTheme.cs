@@ -353,19 +353,31 @@ namespace AlphaRap
         public static Bitmap RenderIconButton(Size size, Image icon, string text, Font font,
             Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge)
         {
+            return RenderIconButton(size, icon, text, font, textColor, iconSize, accentBar, backColor, lockBadge, UiKit.Brand);
+        }
+
+        public static Bitmap RenderIconButton(Size size, Image icon, string text, Font font,
+            Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge, Color accentBarColor)
+        {
             if (size.Width <= 0 || size.Height <= 0) return null;
             Bitmap bmp = new Bitmap(size.Width, size.Height);
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.Clear(backColor.A == 255 ? backColor : Color.FromArgb(238, 243, 248));
                 PaintIconButton(g, size, icon, text, font, textColor, iconSize, accentBar,
-                    backColor.A == 255 ? backColor : Color.Transparent, lockBadge);
+                    backColor.A == 255 ? backColor : Color.Transparent, lockBadge, accentBarColor);
             }
             return bmp;
         }
 
         public static void PaintIconButton(Graphics g, Size size, Image icon, string text, Font font,
             Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge)
+        {
+            PaintIconButton(g, size, icon, text, font, textColor, iconSize, accentBar, backColor, lockBadge, UiKit.Brand);
+        }
+
+        public static void PaintIconButton(Graphics g, Size size, Image icon, string text, Font font,
+            Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge, Color accentBarColor)
         {
             if (g == null || size.Width <= 0 || size.Height <= 0) return;
 
@@ -417,8 +429,11 @@ namespace AlphaRap
             }
 
             if (accentBar)
-                using (SolidBrush b = new SolidBrush(UiKit.Brand))
+            {
+                Color bar = accentBarColor.IsEmpty ? UiKit.Brand : accentBarColor;
+                using (SolidBrush b = new SolidBrush(bar))
                     g.FillRectangle(b, 0, Dpi(4), Dpi(4), size.Height - Dpi(8));
+            }
         }
 
         // ---------------- 列表 ----------------

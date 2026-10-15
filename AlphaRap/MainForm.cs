@@ -813,8 +813,8 @@ int nheightEllipse
 
         private const int AlarmCollapsedBarHeight = 28;
 
-        /// <summary>报警明细是否展开。</summary>
-        private bool _alarmListExpanded = true;
+        /// <summary>报警明细是否展开；默认收起，给主看板空间，新 E 报警仍会自动展开。</summary>
+        private bool _alarmListExpanded = false;
         /// <summary>上次用于自动展开判断的 E 类条数。</summary>
         private int _lastErrorCountForExpand;
         /// <summary>展开态筛选条右侧「收起」按钮。</summary>
@@ -1196,7 +1196,8 @@ int nheightEllipse
                 RegisterAlarmFilterForLanguage();
                 UpdateAlarmFilterButtons();
                 EnsureAlarmToggleChip();
-                SetAlarmListExpanded(true);
+                // 默认收起列表，只留底边摘要条；有新 E 时 UpdateAlarmFilterCount 会展开
+                SetAlarmListExpanded(false);
                 // 按当前语言刷新标签文字
                 SyncLanguageTexts();
             }

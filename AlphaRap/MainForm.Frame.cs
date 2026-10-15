@@ -54,11 +54,18 @@ namespace AlphaRap
 
         // ---- 侧栏蓝底白字：与顶栏同色 UiKit.Brand（回退 tag: backup-before-nav-blue-rail）----
         private static readonly Color NavRailBg = UiKit.Brand;
-        private static readonly Color NavRailSelectedBg = Color.FromArgb(12, 126, 202);
+        /// <summary>选中块：比 Brand 更亮一档，衬白竖条。</summary>
+        private static readonly Color NavRailSelectedBg = Color.FromArgb(48, 148, 210);
         private static readonly Color NavRailDisabledBg = UiKit.BrandDark;
         private static readonly Color NavRailEdge = UiKit.BrandDark;
         private static readonly Color NavOnBlue = UiKit.TextOnBrand;
         private static readonly Color NavOnBlueDisabled = AppIconColor.DisabledOnDark;
+        /// <summary>选中左侧竖条：白，蓝底上最醒目。</summary>
+        private static readonly Color NavRailAccentBar = Color.White;
+        /// <summary>汉堡弱化：略淡的白，不与正式入口抢戏。</summary>
+        private static readonly Color NavToggleMuted = Color.FromArgb(190, 215, 235);
+        private static readonly Size NavToggleSize = new Size(72, 36);
+        private const int NavToggleIconSize = 18;
         private static readonly Size ToolButtonSize = new Size(92, 58);
         private const int ToolIconSize = 26;
 
@@ -246,12 +253,13 @@ namespace AlphaRap
             ApplyNavRailLayout();
         }
 
-        /// <summary>导航栏右侧分隔线（蓝底上用深色边）。</summary>
+        /// <summary>导航栏右侧接缝：2px 深蓝，和灰白内容区分开。</summary>
         private void Nav_Paint(object sender, PaintEventArgs e)
         {
             Control c = (Control)sender;
-            using (Pen p = new Pen(NavRailEdge))
-                e.Graphics.DrawLine(p, c.Width - 1, 0, c.Width - 1, c.Height);
+            int w = UiTheme.Dpi(2);
+            using (SolidBrush b = new SolidBrush(NavRailEdge))
+                e.Graphics.FillRectangle(b, c.Width - w, 0, w, c.Height);
         }
 
         private PictureBox[] NavButtons()
@@ -280,8 +288,8 @@ namespace AlphaRap
             MENU_NavToggle = new PictureBox();
             MENU_NavToggle.Name = "MENU_NavToggle";
             MENU_NavToggle.BackColor = Color.Transparent;
-            MENU_NavToggle.Size = UiTheme.Dpi(NavButtonSize);
-            MENU_NavToggle.Margin = UiTheme.Dpi(new Padding(1, 4, 1, 6));
+            MENU_NavToggle.Size = UiTheme.Dpi(NavToggleSize);
+            MENU_NavToggle.Margin = UiTheme.Dpi(new Padding(8, 6, 8, 4));
             MENU_NavToggle.SizeMode = PictureBoxSizeMode.CenterImage;
             MENU_NavToggle.Cursor = Cursors.Hand;
             MENU_NavToggle.TabStop = false;
@@ -420,8 +428,9 @@ namespace AlphaRap
                 }
                 if (MENU_NavToggle != null)
                 {
-                    MENU_NavToggle.Size = btnSize;
-                    MENU_NavToggle.Margin = UiTheme.Dpi(new Padding(1, 4, 1, 6));
+                    // 汉堡比正式入口更小、更淡，避免像第 13 个菜单
+                    MENU_NavToggle.Size = UiTheme.Dpi(NavToggleSize);
+                    MENU_NavToggle.Margin = UiTheme.Dpi(new Padding(8, 6, 8, 4));
                     MENU_NavToggle.Visible = true;
                 }
                 ApplyRoundedMenuRegions();
@@ -499,10 +508,11 @@ namespace AlphaRap
         private void StyleNavToggleButton()
         {
             if (MENU_NavToggle == null) return;
-            NavPaintState st = AttachNavPaint(MENU_NavToggle, AppIcon.Menu, NavIconSize, true);
-            st.IconColor = NavOnBlue;
+            NavPaintState st = AttachNavPaint(MENU_NavToggle, AppIcon.Menu, NavToggleIconSize, true);
+            st.IconColor = NavToggleMuted;
             st.AccentColor = st.IconColor;
-            st.TextColor = NavOnBlue;
+            st.TextColor = NavToggleMuted;
+            st.AccentBarColor = Color.Empty;
             st.LockBadge = UiTheme.LockBadgeMode.None;
             if (MENU_NavToggle.BackColor != Color.Transparent) MENU_NavToggle.BackColor = Color.Transparent;
             if (UiTheme.IsDesignTime) BakeButtonPreview(MENU_NavToggle, st);
@@ -765,7 +775,7 @@ namespace AlphaRap
                             AppIcon.Manual, AppIcon.Data, AppIcon.Log, AppIcon.Check, AppIcon.AddUser,
                             AppIcon.Mes, AppIcon.LifeSpan, AppIcon.Menu },
                     new[] { UiTheme.Dpi(NavIconSize), UiTheme.Dpi(NavCollapsedIconSize) },
-                    new[] { NavOnBlue, NavOnBlueDisabled, AppIconColor.OnDarkBar });
+                    new[] { NavOnBlue, NavOnBlueDisabled, NavToggleMuted, AppIconColor.OnDarkBar });
 
                 AppIcons.Prewarm(
                     new[] { AppIcon.Reset, AppIcon.Run, AppIcon.Pause, AppIcon.Stop,
@@ -799,6 +809,8 @@ namespace AlphaRap
             public Color AccentColor = AppIconColor.Nav;
             public Color TextColor = UiTheme.NavText;
             public Font Font = UiTheme.NavLabel;
+            /// <summary>选中左侧竖条颜色；Empty = 用默认 Brand（工具栏）或画白条（蓝底导航）。</summary>
+            public Color AccentBarColor = Color.Empty;
             /// <summary>禁用时画一个小锁角标：把"没有权限"从颜色通道挪到形状通道。</summary>
             public UiTheme.LockBadgeMode LockBadge = UiTheme.LockBadgeMode.None;
         }
@@ -836,9 +848,13 @@ namespace AlphaRap
             {
                 // 按钮底色不是不透明时（悬停/未选中是 Transparent）不铺底，直接画在身后的渐变/白底上
                 Color back = (b.BackColor.A == 255) ? b.BackColor : Color.Transparent;
+                bool sel = st.IsNav && IsSelectedNav(b);
+                // 汉堡开关不算选中入口，不画竖条
+                bool bar = sel && b != MENU_NavToggle;
+                Color barColor = st.AccentBarColor.IsEmpty ? UiKit.Brand : st.AccentBarColor;
                 Image ic = AppIcons.Get(st.Icon, UiTheme.Dpi(st.IconSize), st.IconColor, st.AccentColor);
                 UiTheme.PaintIconButton(e.Graphics, b.Size, ic, ButtonText(b), st.Font, st.TextColor,
-                    st.IconSize, st.IsNav && IsSelectedNav(b), back, b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge);
+                    st.IconSize, bar, back, b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge, barColor);
             }
             catch { }
         }
@@ -848,7 +864,7 @@ namespace AlphaRap
             if (b == null) return;
             bool sel = IsSelectedNav(b);
             bool on = b.Enabled;
-            // 试版蓝底：未选透明、选中亮蓝块、禁用更深蓝；图标/文字一律白（禁用略淡）
+            // 蓝底：未选透明、选中亮蓝块 + 白竖条、禁用更深蓝；图标/文字白
             Color back = !on ? NavRailDisabledBg : sel ? NavRailSelectedBg : Color.Transparent;
             if (b.BackColor != back) b.BackColor = back;
 
@@ -856,6 +872,7 @@ namespace AlphaRap
             st.IconColor = on ? NavOnBlue : NavOnBlueDisabled;
             st.AccentColor = st.IconColor;
             st.TextColor = on ? NavOnBlue : NavOnBlueDisabled;
+            st.AccentBarColor = NavRailAccentBar;
             st.LockBadge = NavLockBadge;
             // 设计器不保证触发 Paint：把预览烤进 Image，运行时仍走自绘
             if (UiTheme.IsDesignTime) BakeButtonPreview(b, st);
@@ -896,6 +913,7 @@ namespace AlphaRap
             st.IconColor = on ? iconColor : AppIconColor.Disabled;
             st.AccentColor = on ? accentColor : AppIconColor.Disabled;
             st.TextColor = !on ? UiKit.DisabledText : (iconColor == AppIconColor.Nav ? UiKit.TextPrimary : iconColor);
+            st.AccentBarColor = Color.Empty;
             st.LockBadge = NavLockBadge;
             if (UiTheme.IsDesignTime) BakeButtonPreview(btn, st);
             else btn.Invalidate();
@@ -908,10 +926,12 @@ namespace AlphaRap
             try
             {
                 Color back = (b.BackColor.A == 255) ? b.BackColor : Color.FromArgb(238, 243, 248);
+                bool sel = st.IsNav && IsSelectedNav(b) && b != MENU_NavToggle;
+                Color barColor = st.AccentBarColor.IsEmpty ? UiKit.Brand : st.AccentBarColor;
                 Image ic = AppIcons.Get(st.Icon, UiTheme.Dpi(st.IconSize), st.IconColor, st.AccentColor);
                 Bitmap bmp = UiTheme.RenderIconButton(b.Size, ic, ButtonText(b), st.Font, st.TextColor,
-                    st.IconSize, st.IsNav && IsSelectedNav(b), back,
-                    b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge);
+                    st.IconSize, sel, back,
+                    b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge, barColor);
                 if (bmp == null) return;
                 Image old = b.Image;
                 b.Image = bmp;
