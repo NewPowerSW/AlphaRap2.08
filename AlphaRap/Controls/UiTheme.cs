@@ -29,8 +29,20 @@ namespace AlphaRap
             get
             {
                 if (_forceDesignTime) return true;
-                try { return LicenseManager.UsageMode == LicenseUsageMode.Designtime; }
-                catch { return false; }
+                try
+                {
+                    if (LicenseManager.UsageMode == LicenseUsageMode.Designtime) return true;
+                }
+                catch { }
+                // VS2022+ 外进程设计器偶发 UsageMode=Runtime，靠进程名兜底，避免设计面空白
+                try
+                {
+                    string n = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+                    if (string.Equals(n, "devenv", StringComparison.OrdinalIgnoreCase)) return true;
+                    if (string.Equals(n, "DesignToolsServer", StringComparison.OrdinalIgnoreCase)) return true;
+                }
+                catch { }
+                return false;
             }
         }
 
@@ -334,6 +346,24 @@ namespace AlphaRap
         /// 禁用角标：**"没有权限"靠形状表达，而不是把字调浅** ——
         /// 颜色一旦浅到能与可用态分辨，就又回到"看不清"；两个诉求挤在同一个通道上必然矛盾。
         /// </param>
+        /// <summary>
+        /// 把图标按钮画成位图（设计器预览用：VS 设计面经常不触发 PictureBox.Paint，
+        /// 需要把结果写到 <see cref="PictureBox.Image"/> 才能看见）。
+        /// </summary>
+        public static Bitmap RenderIconButton(Size size, Image icon, string text, Font font,
+            Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge)
+        {
+            if (size.Width <= 0 || size.Height <= 0) return null;
+            Bitmap bmp = new Bitmap(size.Width, size.Height);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(backColor.A == 255 ? backColor : Color.FromArgb(238, 243, 248));
+                PaintIconButton(g, size, icon, text, font, textColor, iconSize, accentBar,
+                    backColor.A == 255 ? backColor : Color.Transparent, lockBadge);
+            }
+            return bmp;
+        }
+
         public static void PaintIconButton(Graphics g, Size size, Image icon, string text, Font font,
             Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge)
         {
@@ -458,19 +488,29 @@ namespace AlphaRap
         public static void StyleTabControl(TabControl tc, bool primary)
         {
             if (tc == null) return;
-            tc.DrawMode = TabDrawMode.OwnerDrawFixed;
             tc.SizeMode = TabSizeMode.Fixed;
             tc.Padding = new Point(Dpi(16), Dpi(6));
             tc.Font = primary ? Section : BodyBold;
             tc.ItemSize = new Size(MeasureTabWidth(tc), primary ? TabHeight : TabHeight - Dpi(6));
             tc.Tag = primary ? "tab:1" : "tab:2";
-            tc.DrawItem -= TabControl_DrawItem;
-            tc.DrawItem += TabControl_DrawItem;
             foreach (TabPage p in tc.TabPages)
             {
                 p.BackColor = primary ? UiKit.PageBg : UiKit.Surface;
                 p.UseVisualStyleBackColor = false;
             }
+
+            // VS 设计面里 OwnerDraw 经常不触发 DrawItem，标签头会变成空白框；
+            // 设计期改用系统绘制，保证能看见文字（与 EXE 文案一致）。
+            if (IsDesignTime)
+            {
+                tc.DrawMode = TabDrawMode.Normal;
+                tc.DrawItem -= TabControl_DrawItem;
+                return;
+            }
+
+            tc.DrawMode = TabDrawMode.OwnerDrawFixed;
+            tc.DrawItem -= TabControl_DrawItem;
+            tc.DrawItem += TabControl_DrawItem;
         }
 
         /// <summary>按最长的标签文字计算统一的标签宽度（TabSizeMode.Fixed 下所有标签等宽）。</summary>
@@ -529,6 +569,25 @@ namespace AlphaRap
             b.Font = BodyBold;
             b.Cursor = Cursors.Hand;
             b.UseVisualStyleBackColor = false;
+        }
+
+        /// <summary>输入框：浅蓝灰底 + 主题字色（与 FieldBox 内层一致）。</summary>
+        public static void StyleTextBox(TextBox t)
+        {
+            if (t == null) return;
+            t.BorderStyle = BorderStyle.FixedSingle;
+            t.BackColor = UiKit.FieldBg;
+            t.ForeColor = UiKit.TextPrimary;
+            t.Font = Body;
+        }
+
+        /// <summary>说明/字段标签：次级字色。</summary>
+        public static void StyleCaption(Label l, bool bold)
+        {
+            if (l == null) return;
+            l.Font = bold ? BodyBold : Body;
+            l.ForeColor = bold ? UiKit.TextPrimary : UiKit.TextSecondary;
+            l.BackColor = Color.Transparent;
         }
 
         // ---------------- 设计预览 ----------------

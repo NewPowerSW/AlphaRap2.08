@@ -98,7 +98,7 @@
             this.btnAlarmFilterWarn = new AlphaRap.AlarmChip();
             this.btnAlarmFilterAlarm = new AlphaRap.AlarmChip();
             this.btnAlarmQuery = new AlphaRap.AlarmChip();
-            this.uiTabControl1 = new Sunny.UI.UITabControl();
+            this.uiTabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage22 = new System.Windows.Forms.TabPage();
             this.plMainShow = new System.Windows.Forms.Panel();
             this.tabPage10 = new System.Windows.Forms.TabPage();
@@ -292,7 +292,7 @@
             this.MENU_Exit.Location = new System.Drawing.Point(188, 6);
             this.MENU_Exit.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.MENU_Exit.Name = "MENU_Exit";
-            this.MENU_Exit.Size = new System.Drawing.Size(84, 56);
+            this.MENU_Exit.Size = new System.Drawing.Size(92, 58);
             this.MENU_Exit.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Exit.TabIndex = 4;
             this.MENU_Exit.TabStop = false;
@@ -307,7 +307,7 @@
             this.MENU_System.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.MENU_System.Name = "MENU_System";
             this.MENU_System.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_System.Size = new System.Drawing.Size(84, 56);
+            this.MENU_System.Size = new System.Drawing.Size(92, 58);
             this.MENU_System.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_System.TabIndex = 3;
             this.MENU_System.TabStop = false;
@@ -321,7 +321,7 @@
             this.MENU_Lock.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.MENU_Lock.Name = "MENU_Lock";
             this.MENU_Lock.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Lock.Size = new System.Drawing.Size(84, 56);
+            this.MENU_Lock.Size = new System.Drawing.Size(92, 58);
             this.MENU_Lock.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Lock.TabIndex = 10;
             this.MENU_Lock.TabStop = false;
@@ -351,7 +351,7 @@
             this.MENU_Reset.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.MENU_Reset.Name = "MENU_Reset";
             this.MENU_Reset.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Reset.Size = new System.Drawing.Size(84, 56);
+            this.MENU_Reset.Size = new System.Drawing.Size(92, 58);
             this.MENU_Reset.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Reset.TabIndex = 6;
             this.MENU_Reset.TabStop = false;
@@ -365,7 +365,7 @@
             this.MENU_Run.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.MENU_Run.Name = "MENU_Run";
             this.MENU_Run.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Run.Size = new System.Drawing.Size(84, 56);
+            this.MENU_Run.Size = new System.Drawing.Size(92, 58);
             this.MENU_Run.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Run.TabIndex = 5;
             this.MENU_Run.TabStop = false;
@@ -379,7 +379,7 @@
             this.MENU_Pause.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.MENU_Pause.Name = "MENU_Pause";
             this.MENU_Pause.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Pause.Size = new System.Drawing.Size(84, 56);
+            this.MENU_Pause.Size = new System.Drawing.Size(92, 58);
             this.MENU_Pause.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Pause.TabIndex = 4;
             this.MENU_Pause.TabStop = false;
@@ -392,7 +392,7 @@
             this.MENU_Stop.Location = new System.Drawing.Point(292, 6);
             this.MENU_Stop.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.MENU_Stop.Name = "MENU_Stop";
-            this.MENU_Stop.Size = new System.Drawing.Size(84, 56);
+            this.MENU_Stop.Size = new System.Drawing.Size(92, 58);
             this.MENU_Stop.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Stop.TabIndex = 3;
             this.MENU_Stop.TabStop = false;
@@ -405,7 +405,7 @@
             this.AlarmReset.Location = new System.Drawing.Point(384, 6);
             this.AlarmReset.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.AlarmReset.Name = "AlarmReset";
-            this.AlarmReset.Size = new System.Drawing.Size(84, 56);
+            this.AlarmReset.Size = new System.Drawing.Size(92, 58);
             this.AlarmReset.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.AlarmReset.TabIndex = 25;
             this.AlarmReset.TabStop = false;
@@ -704,19 +704,19 @@
             this.Panl_PictureShowTop.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.Panl_PictureShowTop.Location = new System.Drawing.Point(3, 3);
             this.Panl_PictureShowTop.Name = "Panl_PictureShowTop";
-            this.Panl_PictureShowTop.Padding = new System.Windows.Forms.Padding(8);
+            this.Panl_PictureShowTop.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.Panl_PictureShowTop.Size = new System.Drawing.Size(76, 364);
             this.Panl_PictureShowTop.TabIndex = 13;
             this.Panl_PictureShowTop.WrapContents = false;
             // 
             // MENU_Home
             // 
-            this.MENU_Home.BackColor = System.Drawing.Color.Transparent;
+            this.MENU_Home.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(238)))), ((int)(((byte)(250)))));
             this.MENU_Home.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.MENU_Home.Location = new System.Drawing.Point(10, 12);
-            this.MENU_Home.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_Home.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_Home.Name = "MENU_Home";
-            this.MENU_Home.Size = new System.Drawing.Size(64, 48);
+            this.MENU_Home.Size = new System.Drawing.Size(88, 54);
             this.MENU_Home.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Home.TabIndex = 3;
             this.MENU_Home.TabStop = false;
@@ -728,10 +728,10 @@
             // 
             this.MENU_Vision.BackColor = System.Drawing.Color.Transparent;
             this.MENU_Vision.Location = new System.Drawing.Point(10, 68);
-            this.MENU_Vision.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_Vision.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_Vision.Name = "MENU_Vision";
             this.MENU_Vision.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Vision.Size = new System.Drawing.Size(64, 48);
+            this.MENU_Vision.Size = new System.Drawing.Size(88, 54);
             this.MENU_Vision.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Vision.TabIndex = 3;
             this.MENU_Vision.TabStop = false;
@@ -744,9 +744,9 @@
             this.MENU_Save.BackColor = System.Drawing.Color.Transparent;
             this.MENU_Save.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.MENU_Save.Location = new System.Drawing.Point(10, 124);
-            this.MENU_Save.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_Save.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_Save.Name = "MENU_Save";
-            this.MENU_Save.Size = new System.Drawing.Size(64, 48);
+            this.MENU_Save.Size = new System.Drawing.Size(88, 54);
             this.MENU_Save.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Save.TabIndex = 3;
             this.MENU_Save.TabStop = false;
@@ -758,10 +758,10 @@
             // 
             this.MENU_Rapid.BackColor = System.Drawing.Color.Transparent;
             this.MENU_Rapid.Location = new System.Drawing.Point(10, 180);
-            this.MENU_Rapid.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_Rapid.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_Rapid.Name = "MENU_Rapid";
             this.MENU_Rapid.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Rapid.Size = new System.Drawing.Size(64, 48);
+            this.MENU_Rapid.Size = new System.Drawing.Size(88, 54);
             this.MENU_Rapid.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Rapid.TabIndex = 3;
             this.MENU_Rapid.TabStop = false;
@@ -773,9 +773,9 @@
             // 
             this.MENU_Hard.BackColor = System.Drawing.Color.Transparent;
             this.MENU_Hard.Location = new System.Drawing.Point(10, 236);
-            this.MENU_Hard.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_Hard.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_Hard.Name = "MENU_Hard";
-            this.MENU_Hard.Size = new System.Drawing.Size(64, 48);
+            this.MENU_Hard.Size = new System.Drawing.Size(88, 54);
             this.MENU_Hard.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Hard.TabIndex = 12;
             this.MENU_Hard.TabStop = false;
@@ -787,10 +787,10 @@
             // 
             this.MENU_Manual.BackColor = System.Drawing.Color.Transparent;
             this.MENU_Manual.Location = new System.Drawing.Point(10, 292);
-            this.MENU_Manual.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_Manual.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_Manual.Name = "MENU_Manual";
             this.MENU_Manual.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Manual.Size = new System.Drawing.Size(64, 48);
+            this.MENU_Manual.Size = new System.Drawing.Size(88, 54);
             this.MENU_Manual.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Manual.TabIndex = 3;
             this.MENU_Manual.TabStop = false;
@@ -811,7 +811,7 @@
             this.Panl_PictureShowDown.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.Panl_PictureShowDown.Location = new System.Drawing.Point(3, 373);
             this.Panl_PictureShowDown.Name = "Panl_PictureShowDown";
-            this.Panl_PictureShowDown.Padding = new System.Windows.Forms.Padding(8);
+            this.Panl_PictureShowDown.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.Panl_PictureShowDown.Size = new System.Drawing.Size(76, 364);
             this.Panl_PictureShowDown.TabIndex = 14;
             this.Panl_PictureShowDown.WrapContents = false;
@@ -820,10 +820,10 @@
             // 
             this.MENU_LifeSpan.BackColor = System.Drawing.Color.Transparent;
             this.MENU_LifeSpan.Location = new System.Drawing.Point(10, 12);
-            this.MENU_LifeSpan.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_LifeSpan.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_LifeSpan.Name = "MENU_LifeSpan";
             this.MENU_LifeSpan.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_LifeSpan.Size = new System.Drawing.Size(64, 48);
+            this.MENU_LifeSpan.Size = new System.Drawing.Size(88, 54);
             this.MENU_LifeSpan.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_LifeSpan.TabIndex = 7;
             this.MENU_LifeSpan.TabStop = false;
@@ -835,10 +835,10 @@
             // 
             this.MENU_Mes.BackColor = System.Drawing.Color.Transparent;
             this.MENU_Mes.Location = new System.Drawing.Point(10, 68);
-            this.MENU_Mes.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_Mes.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_Mes.Name = "MENU_Mes";
             this.MENU_Mes.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Mes.Size = new System.Drawing.Size(64, 48);
+            this.MENU_Mes.Size = new System.Drawing.Size(88, 54);
             this.MENU_Mes.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Mes.TabIndex = 3;
             this.MENU_Mes.TabStop = false;
@@ -850,10 +850,10 @@
             // 
             this.MENU_AddUser.BackColor = System.Drawing.Color.Transparent;
             this.MENU_AddUser.Location = new System.Drawing.Point(10, 124);
-            this.MENU_AddUser.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_AddUser.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_AddUser.Name = "MENU_AddUser";
             this.MENU_AddUser.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_AddUser.Size = new System.Drawing.Size(64, 48);
+            this.MENU_AddUser.Size = new System.Drawing.Size(88, 54);
             this.MENU_AddUser.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_AddUser.TabIndex = 3;
             this.MENU_AddUser.TabStop = false;
@@ -865,10 +865,10 @@
             // 
             this.MENU_Data.BackColor = System.Drawing.Color.Transparent;
             this.MENU_Data.Location = new System.Drawing.Point(10, 180);
-            this.MENU_Data.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_Data.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_Data.Name = "MENU_Data";
             this.MENU_Data.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Data.Size = new System.Drawing.Size(64, 48);
+            this.MENU_Data.Size = new System.Drawing.Size(88, 54);
             this.MENU_Data.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Data.TabIndex = 3;
             this.MENU_Data.TabStop = false;
@@ -880,10 +880,10 @@
             // 
             this.MENU_Check.BackColor = System.Drawing.Color.Transparent;
             this.MENU_Check.Location = new System.Drawing.Point(10, 236);
-            this.MENU_Check.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_Check.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_Check.Name = "MENU_Check";
             this.MENU_Check.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Check.Size = new System.Drawing.Size(64, 48);
+            this.MENU_Check.Size = new System.Drawing.Size(88, 54);
             this.MENU_Check.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Check.TabIndex = 3;
             this.MENU_Check.TabStop = false;
@@ -895,10 +895,10 @@
             // 
             this.MENU_Log.BackColor = System.Drawing.Color.Transparent;
             this.MENU_Log.Location = new System.Drawing.Point(10, 292);
-            this.MENU_Log.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+            this.MENU_Log.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.MENU_Log.Name = "MENU_Log";
             this.MENU_Log.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Log.Size = new System.Drawing.Size(64, 48);
+            this.MENU_Log.Size = new System.Drawing.Size(88, 54);
             this.MENU_Log.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.MENU_Log.TabIndex = 11;
             this.MENU_Log.TabStop = false;
@@ -1072,26 +1072,18 @@
             // 
             this.uiTabControl1.Controls.Add(this.tabPage22);
             this.uiTabControl1.Controls.Add(this.tabPage10);
-            this.uiTabControl1.Cursor = System.Windows.Forms.Cursors.No;
+            this.uiTabControl1.Cursor = System.Windows.Forms.Cursors.Default;
             this.uiTabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.uiTabControl1.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
+            this.uiTabControl1.DrawMode = System.Windows.Forms.TabDrawMode.Normal;
             this.uiTabControl1.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.uiTabControl1.ItemSize = new System.Drawing.Size(160, 38);
+            this.uiTabControl1.ItemSize = new System.Drawing.Size(132, 40);
             this.uiTabControl1.Location = new System.Drawing.Point(0, 0);
-            this.uiTabControl1.MainPage = "主页";
             this.uiTabControl1.Margin = new System.Windows.Forms.Padding(0);
-            this.uiTabControl1.MenuStyle = Sunny.UI.UIMenuStyle.Custom;
             this.uiTabControl1.Name = "uiTabControl1";
             this.uiTabControl1.SelectedIndex = 0;
             this.uiTabControl1.Size = new System.Drawing.Size(1342, 604);
             this.uiTabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
-            this.uiTabControl1.Style = Sunny.UI.UIStyle.Custom;
-            this.uiTabControl1.TabBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(3)))), ((int)(((byte)(92)))), ((int)(((byte)(156)))));
             this.uiTabControl1.TabIndex = 206;
-            this.uiTabControl1.TabSelectedColor = System.Drawing.Color.White;
-            this.uiTabControl1.TabSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.uiTabControl1.TabUnSelectedForeColor = System.Drawing.Color.White;
-            this.uiTabControl1.TipsFont = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             // 
             // tabPage22
             // 
@@ -1278,7 +1270,7 @@
 		private AlphaRap.AlarmChip btnAlarmFilterWarn;
 		private AlphaRap.AlarmChip btnAlarmFilterAlarm;
 		private AlphaRap.AlarmChip btnAlarmQuery;
-		public Sunny.UI.UITabControl uiTabControl1;
+		public System.Windows.Forms.TabControl uiTabControl1;
 		private System.Windows.Forms.TabPage tabPage22;
 		public System.Windows.Forms.Panel plMainShow;
 		public System.Windows.Forms.TabPage tabPage10;

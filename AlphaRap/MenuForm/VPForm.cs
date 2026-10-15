@@ -13,6 +13,7 @@ namespace AlphaRap
         {
             InitializeComponent();
             UiTheme.ApplyDpi(this);
+            BackColor = UiKit.PageBg;
 
             // 移除设计器中的预览页；真实相机页按 VPForm.Cameras.xml 生成（见 BuildVpPages）
             RemoveDesignPreviewPage();
@@ -114,7 +115,7 @@ namespace AlphaRap
 			/// <summary>标定卡片是否铺满宿主（动态相机的 calibHost 是专用容器，铺满）。</summary>
 			public bool HostFill;
 			/// <summary>相机属性条上的"实时显示"按钮（文字随语言和实时状态变化）。</summary>
-			public Button LiveButton;
+			public FlatButton LiveButton;
 		}
 
 		private readonly List<CameraEntry> _entries = new List<CameraEntry>();
@@ -181,6 +182,7 @@ namespace AlphaRap
 			CreateVpToolBar();
 			LoadConfigFromDisk();
 			BuildVpPages();
+			ApplyPageStyle();
 		}
 
 		/// <summary>把 VPForm.Cameras.xml 读进 <see cref="_config"/>。</summary>
@@ -269,8 +271,8 @@ namespace AlphaRap
 			_vpBar = bar;
 			bar.Name = "panelVpBar";
 			bar.Dock = DockStyle.Top;
-			bar.Height = 46;
-			bar.BackColor = Color.FromArgb(238, 243, 249);
+			bar.Height = UiTheme.Dpi(48);
+			bar.BackColor = UiKit.Surface;
 
 			FlowLayoutPanel btns = new FlowLayoutPanel();
 			btns.Name = "vpBarButtons";
@@ -278,14 +280,14 @@ namespace AlphaRap
 			btns.FlowDirection = FlowDirection.LeftToRight;
 			btns.WrapContents = false;
 			btns.AutoSize = false;
-			btns.Width = 720;
-			btns.Padding = new Padding(8, 7, 8, 7);
-			btns.BackColor = bar.BackColor;
+			btns.Width = UiTheme.Dpi(760);
+			btns.Padding = new Padding(UiTheme.Dpi(10), UiTheme.Dpi(8), UiTheme.Dpi(8), UiTheme.Dpi(8));
+			btns.BackColor = UiKit.Surface;
 
-			AddBarButton(btns,  "vpBar_AddCamera", "添加相机", delegate { AddCamera(); });
-			AddBarButton(btns,  "vpBar_RemoveCamera", "删除当前相机", delegate { DeleteCurrentCameraPage(); });
-			AddBarButton(btns,  "vpBar_AddVpp", "添加 VPP", delegate { AddVppToCurrentCamera(); });
-			AddBarButton(btns,  "vpBar_RemoveVpp", "删除当前 VPP", delegate { DeleteCurrentVpp(); });
+			AddBarButton(btns, "vpBar_AddCamera", "添加相机", delegate { AddCamera(); });
+			AddBarButton(btns, "vpBar_RemoveCamera", "删除当前相机", delegate { DeleteCurrentCameraPage(); });
+			AddBarButton(btns, "vpBar_AddVpp", "添加 VPP", delegate { AddVppToCurrentCamera(); });
+			AddBarButton(btns, "vpBar_RemoveVpp", "删除当前 VPP", delegate { DeleteCurrentVpp(); });
 
 			// 建页出错时显示原因（见 UpdateVpHint）；文字动态生成，不进语言表（_dyn）
 			UiLabel hint = new UiLabel();
@@ -293,9 +295,9 @@ namespace AlphaRap
 			hint.Dock = DockStyle.Fill;
 			hint.AutoSize = false;
 			hint.TextAlign = ContentAlignment.MiddleRight;
-			hint.Font = new Font("宋体", 10.5F);
-			hint.ForeColor = Color.FromArgb(110, 120, 132);
-			hint.Padding = new Padding(0, 0, 12, 0);
+			hint.Font = UiTheme.Caption;
+			hint.ForeColor = UiKit.TextMuted;
+			hint.Padding = new Padding(0, 0, UiTheme.Dpi(12), 0);
 
 			// 停靠顺序：后加的先生效，先 Left（按钮条）再 Fill（提示）
 			bar.Controls.Add(hint);
@@ -331,6 +333,7 @@ namespace AlphaRap
 			TabPage page = BuildCameraPage(cam);
 			tabControl1.TabPages.Add(page);
 			tabControl1.SelectedTab = page;
+			UiTheme.StyleTabControl(tabControl1, true);
 
 			OperationLog.Write("VPForm", "添加相机：" + cam.Name);
 			SaveVpConfig();
@@ -345,14 +348,16 @@ namespace AlphaRap
 			TabPage page = new TabPage();
 			page.Name = DynCameraPrefix + cam.Name;
 			page.Text = cam.Name;
-			page.Padding = new Padding(4);
-			page.UseVisualStyleBackColor = true;
+			page.Padding = new Padding(UiTheme.Dpi(8));
+			page.BackColor = UiKit.PageBg;
+			page.UseVisualStyleBackColor = false;
 
 			VpCameraPage ctl = new VpCameraPage();
 			ctl.Owner = this;
 			ctl.Cam = cam;
 			ctl.Dock = DockStyle.Fill;
-			ctl.RefreshTexts();          // 属性条文案按当前语言显示
+			ctl.RefreshTexts();
+			ctl.ApplyPageStyle();
 			page.Controls.Add(ctl);
 
 			// 整台相机共用的显示控件：标定和本相机下每个 VPP 的结果都显示在这里。
@@ -386,14 +391,13 @@ namespace AlphaRap
 
 			// 属性条按钮。「实时显示」为相机级：取流使用本相机 CameraIndex + 当前选中 VPP 的曝光；
 			// 文字随语言和实时状态变化，不进语言表（名字带 _dyn）。
-			ctl.LiveButton.Click += delegate
-			{
-				LiveCamera(entry);
-				RefreshLiveButton(ctl.LiveButton, entry);
-			};
+			ctl.LiveButton.Name = DynTextName("vpBtn_Live");
+			ctl.LiveButton.Tag = entry;
+			ctl.LiveButton.Click += OnCameraLiveClick;
 			entry.LiveButton = ctl.LiveButton;
 			RefreshLiveButton(ctl.LiveButton, entry);
-			ctl.DeleteCameraButton.Click += delegate { DeleteCamera(cam); };
+			ctl.DeleteCameraButton.Tag = cam;
+			ctl.DeleteCameraButton.Click += OnDeleteCameraClick;
 
 			// 参数编辑：数字修改即生效，名称在失焦或回车时生效（会更换 vpp 目录）
 			AttachCameraEditors(cam, page, ctl.NameBox, ctl.IndexBox, ctl.ExposureBox);
@@ -403,6 +407,7 @@ namespace AlphaRap
 			vppTabs.Tag = cam;
 			for (int i = 0; i < cam.Vpps.Count; i++)
 				vppTabs.TabPages.Add(BuildVppPage(cam, cam.Vpps[i], vppTabs));
+			UiTheme.StyleTabControl(vppTabs, false);
 
 			for (int i = 0; i < cam.Vpps.Count; i++)
 				if (cam.Vpps[i].Station != null) entry.Targets.Add(cam.Vpps[i].Station);
@@ -440,6 +445,9 @@ namespace AlphaRap
 		{
 			if (cam == null) return;
 
+			// 先写入配置值，再挂事件（否则只在失焦 Normalize 时才出现，打开页面时框是空的）
+			FillCameraEditorBoxes(cam, tbName, tbIndex, tbExposure);
+
 			tbIndex.TextChanged += delegate { ApplyCameraNumbers(cam, tbIndex, tbExposure); };
 			tbExposure.TextChanged += delegate { ApplyCameraNumbers(cam, tbIndex, tbExposure); };
 			// 失焦时把无法解析的输入还原为当前值
@@ -453,6 +461,15 @@ namespace AlphaRap
 				e.SuppressKeyPress = true;
 				ApplyCameraRename(cam, tbName, page);
 			};
+		}
+
+		/// <summary>把相机配置填进属性条输入框（打开页面即可见，不必先点一下失焦）。</summary>
+		private static void FillCameraEditorBoxes(VpCameraConfig cam, TextBox tbName, TextBox tbIndex, TextBox tbExposure)
+		{
+			if (cam == null) return;
+			if (tbName != null) tbName.Text = cam.Name ?? "";
+			if (tbIndex != null) tbIndex.Text = cam.CameraIndex.ToString();
+			if (tbExposure != null) tbExposure.Text = cam.Exposure.ToString("F1");
 		}
 
 		/// <summary>应用 CameraIndex 和默认曝光的修改。</summary>
@@ -737,6 +754,7 @@ namespace AlphaRap
 			TabPage page = BuildVppPage(cam, vpp, vppTabs);
 			vppTabs.TabPages.Add(page);
 			vppTabs.SelectedTab = page;
+			UiTheme.StyleTabControl(vppTabs, false);
 
 			// 新 VPP 加入本相机标定的应用对象
 			CameraEntry entry = FindEntry(cam.Name);
@@ -755,8 +773,9 @@ namespace AlphaRap
 			TabPage page = new TabPage();
 			page.Name = DynVppPrefix + cam.Name + "_" + vpp.Name;
 			page.Text = vpp.Name;
-			page.Padding = new Padding(3);
-			page.UseVisualStyleBackColor = true;
+			page.Padding = new Padding(UiTheme.Dpi(4));
+			page.BackColor = UiKit.Surface;
+			page.UseVisualStyleBackColor = false;
 			// 相机级「实时显示」通过它取当前 VPP 的曝光（见 LiveCamera / CurrentVpp）
 			page.Tag = vpp;
 
@@ -960,13 +979,30 @@ namespace AlphaRap
 			driver.RunLive(entry.Display);
 		}
 
-		/// <summary>按实时状态（<see cref="IsLiveRunning"/>）刷新实时按钮的文字和底色。</summary>
-		private static void RefreshLiveButton(Button btn, CameraEntry entry)
+		private void OnCameraLiveClick(object sender, EventArgs e)
+		{
+			FlatButton btn = sender as FlatButton;
+			CameraEntry entry = (btn != null) ? btn.Tag as CameraEntry : null;
+			if (entry == null) return;
+			LiveCamera(entry);
+			RefreshLiveButton(btn, entry);
+		}
+
+		private void OnDeleteCameraClick(object sender, EventArgs e)
+		{
+			Control btn = sender as Control;
+			VpCameraConfig cam = (btn != null) ? btn.Tag as VpCameraConfig : null;
+			if (cam != null) DeleteCamera(cam);
+		}
+
+		/// <summary>按实时状态（<see cref="IsLiveRunning"/>）刷新实时按钮的文字和样式。</summary>
+		private static void RefreshLiveButton(FlatButton btn, CameraEntry entry)
 		{
 			if (btn == null) return;
 			bool live = IsLiveRunning(entry);
 			btn.Text = LiveButtonText(entry);
-			btn.BackColor = live ? Color.FromArgb(255, 232, 204) : Color.FromArgb(232, 244, 255);
+			btn.Variant = live ? FlatButtonVariant.Danger : FlatButtonVariant.Primary;
+			btn.Invalidate();
 		}
 
 		/// <summary>实时按钮的文字（随语言和实时状态变化）。</summary>
@@ -1006,6 +1042,9 @@ namespace AlphaRap
 		{
 			if (cam == null || vpp == null) return;
 
+			// 先写入配置值，再挂事件（否则只在失焦时才出现）
+			FillVppEditorBoxes(vpp, tbExp, tbRename);
+
 			tbExp.TextChanged += delegate
 			{
 				double exp;
@@ -1029,6 +1068,14 @@ namespace AlphaRap
 				e.SuppressKeyPress = true;
 				ApplyVppRename(cam, vpp, tbRename, page, info);
 			};
+		}
+
+		/// <summary>把 VPP 配置填进曝光 / 名称框。</summary>
+		private static void FillVppEditorBoxes(VpVppConfig vpp, TextBox tbExp, TextBox tbRename)
+		{
+			if (vpp == null) return;
+			if (tbExp != null) tbExp.Text = vpp.Exposure.ToString("F1");
+			if (tbRename != null) tbRename.Text = vpp.Name ?? "";
 		}
 
 		internal void SaveStation(VpVppConfig vpp)
@@ -1364,17 +1411,9 @@ namespace AlphaRap
 		/// <summary>创建工具条按钮（控件名 = 语言键）。</summary>
 		private void AddBarButton(Control parent, string key, string baseText, EventHandler onClick)
 		{
-			UiButton b = new UiButton();
-			b.Name = key;
-			b.Text = T(key, baseText);
-			b.Font = new Font("宋体", 11.25F);
-			b.FlatStyle = FlatStyle.Flat;
-			b.BackColor = Color.White;
-			b.ForeColor = Color.FromArgb(38, 50, 64);
-			b.FlatAppearance.BorderColor = Color.FromArgb(203, 216, 230);
-			b.Size = new Size(126, 32);
-			b.Margin = new Padding(2, 0, 6, 0);
-			b.Cursor = Cursors.Hand;
+			FlatButton b = CreateBarFlatButton(key, T(key, baseText));
+			if (key == "vpBar_RemoveCamera" || key == "vpBar_RemoveVpp")
+				b.Variant = FlatButtonVariant.Danger;
 			if (onClick != null) b.Click += onClick;
 			parent.Controls.Add(b);
 		}
@@ -1403,6 +1442,7 @@ namespace AlphaRap
 			VpCalibCard card = BuildCalibrationCard(entry);
 			entry.CalibHost.Controls.Add(card);
 			card.BringToFront();
+			card.ApplyPageStyle();
 
 			MiddleLayer.RegisterLanguage(card, LangForm);   // 重建的标定卡登记进语言表
 		}

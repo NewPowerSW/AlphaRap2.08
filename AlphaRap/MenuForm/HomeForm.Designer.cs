@@ -441,8 +441,8 @@
             // 
             this.infoLayout.BackColor = System.Drawing.Color.White;
             this.infoLayout.ColumnCount = 2;
-            this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.infoLayout.Controls.Add(this.lblInfoTitle, 0, 0);
             this.infoLayout.Controls.Add(this.btnInfoQuery, 1, 0);
             this.infoLayout.Controls.Add(this.grdInfo, 0, 1);
@@ -470,28 +470,28 @@
             this.lblInfoTitle.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblInfoTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.lblInfoTitle.Location = new System.Drawing.Point(0, 0);
-            this.lblInfoTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblInfoTitle.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.lblInfoTitle.Name = "lblInfoTitle";
-            this.lblInfoTitle.Size = new System.Drawing.Size(100, 32);
+            this.lblInfoTitle.Size = new System.Drawing.Size(976, 32);
             this.lblInfoTitle.TabIndex = 0;
             this.lblInfoTitle.Text = "生产信息";
             this.lblInfoTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btnInfoQuery
             // 
-            this.btnInfoQuery.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnInfoQuery.BackColor = System.Drawing.Color.Transparent;
             this.btnInfoQuery.CornerRadius = 8;
             this.btnInfoQuery.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnInfoQuery.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnInfoQuery.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.btnInfoQuery.Icon = null;
             this.btnInfoQuery.IconGap = 6;
             this.btnInfoQuery.IconSize = 14;
-            this.btnInfoQuery.Location = new System.Drawing.Point(1008, 3);
+            this.btnInfoQuery.Location = new System.Drawing.Point(984, 3);
             this.btnInfoQuery.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
             this.btnInfoQuery.Name = "btnInfoQuery";
             this.btnInfoQuery.Selectable = false;
-            this.btnInfoQuery.Size = new System.Drawing.Size(96, 26);
+            this.btnInfoQuery.Size = new System.Drawing.Size(120, 26);
             this.btnInfoQuery.TabIndex = 1;
             this.btnInfoQuery.TabStop = false;
             this.btnInfoQuery.Text = "查询";

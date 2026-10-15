@@ -31,12 +31,13 @@ namespace AlphaRap
         public TextBox IndexBox { get { return tbIndex; } }
         public TextBox ExposureBox { get { return tbExposure; } }
         /// <summary>实时显示按钮（文字跟语言 + 实时状态走，由 VPForm.RefreshLiveButton 现算）。</summary>
-        public UiButton LiveButton { get { return btnLive; } }
-        public UiButton DeleteCameraButton { get { return btnDeleteCamera; } }
+        public FlatButton LiveButton { get { return btnLive; } }
+        public FlatButton DeleteCameraButton { get { return btnDeleteCamera; } }
 
         public VpCameraPage()
         {
             InitializeComponent();
+            ApplyPageStyle();
         }
 
         /// <summary>

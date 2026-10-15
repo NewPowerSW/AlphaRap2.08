@@ -1,5 +1,4 @@
-﻿using Sunny.UI;
-using System;
+﻿using System;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -89,12 +88,12 @@ namespace AlphaRap
 
 			#region Log
 			string Runlog = NPSDK.Flow_Module.Module_GetRunLog();
-			if (!Runlog.IsNullOrEmpty())
+			if (!string.IsNullOrEmpty(Runlog))
 			{
-			MiddleLayer.DataF.AddRunLog(Runlog);
+				MiddleLayer.DataF.AddRunLog(Runlog);
 			}
 			string Alarmlog = NPSDK.Flow_Module.Module_GetAlarmLog();
-			if (!Alarmlog.IsNullOrEmpty())
+			if (!string.IsNullOrEmpty(Alarmlog))
 			{
 				MiddleLayer.DataF.AddLogError(Alarmlog);
 			}

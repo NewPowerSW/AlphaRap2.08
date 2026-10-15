@@ -7,7 +7,8 @@ namespace AlphaRap
     /// VPP 页（每个 VPP 一份，放在相机的 VPP 子 TabControl 中）：归属行（相机 / Index / VPP 名）、
     /// vpp 路径、补偿限制表、存图设置、参数和操作按钮。
     /// 本类负责布局、填充数据并把控件事件转给 <see cref="Owner"/>（VPForm），业务在 VPForm 中处理。
-    /// Designer 中 band 内的停靠顺序须保持 path → compRow → saveRow → paramRow → foot。
+    /// 停靠：head Top（内含 lblInfo Fill + path Right）；pathRow / paramRow 自下而上 Bottom
+    ///（paramRow=曝光+VPP名称+操作按钮一行，在存图上方）；compRow Fill。
     /// </summary>
     public partial class VpVppPage : UserControl
     {
@@ -38,62 +39,143 @@ namespace AlphaRap
         {
             try
             {
-                UiKit.StyleGrid(gridComp);
-                if (Vpp != null) Vpp.EnsureCompLimits();      // 老配置没有限制行时补默认三行
+                ApplyPageStyle();
+                if (Vpp != null && Vpp.EnsureCompLimits() && Owner != null)
+                    Owner.SaveVpConfig();
 
                 RefreshTexts();
-
-                // 补偿限制表：编辑落到配置里（解析失败还原、Min&gt;Max 拉回），改完立刻落盘
-                gridComp.CellEndEdit += delegate(object s, DataGridViewCellEventArgs e)
-                {
-                    if (Owner != null) Owner.SyncCompLimitFromGrid(gridComp, Vpp, e.RowIndex);
-                };
-
-                // 存图设置：四个勾 = 四个独立开关，改动即时落盘（不跟主页【保存】）
-                WireCheck(cbSaveImg, delegate { return Vpp.SaveImageEnabled; },
-                                     delegate(bool v) { Vpp.SaveImageEnabled = v; LogSaveImage("存图", v ? "开" : "关"); });
-                WireCheck(cbOrig, delegate { return Vpp.SaveImageOriginal; },
-                                  delegate(bool v) { Vpp.SaveImageOriginal = v; LogSaveImage("原图", v ? "开" : "关"); });
-                WireCheck(cbSnap, delegate { return Vpp.SaveImageSnapshot; },
-                                  delegate(bool v) { Vpp.SaveImageSnapshot = v; LogSaveImage("截图", v ? "开" : "关"); });
-                WireCheck(cbAutoDel, delegate { return Vpp.SaveImageAutoDelete; },
-                                     delegate(bool v) { Vpp.SaveImageAutoDelete = v; LogSaveImage("自动删除", v ? "开" : "关"); });
-
-                tbSavePath.Text = (Vpp != null && Vpp.SaveImagePath != null) ? Vpp.SaveImagePath : "";
-                tbSavePath.TextChanged += delegate
-                {
-                    if (Vpp != null) Vpp.SaveImagePath = tbSavePath.Text.Trim();
-                };
-                // 路径在失焦时保存
-                tbSavePath.Leave += delegate
-                {
-                    if (Owner != null) Owner.SaveVpConfig();
-                    LogSaveImage("路径", tbSavePath.Text.Trim());
-                };
-
-                tbSaveDays.Text = (Vpp != null) ? Vpp.SaveImageKeepDays.ToString() : "0";
-                tbSaveDays.Leave += delegate
-                {
-                    int days;
-                    if (!int.TryParse((tbSaveDays.Text ?? "").Trim(), out days) || days < 0)
-                    {
-                        tbSaveDays.Text = (Vpp != null) ? Vpp.SaveImageKeepDays.ToString() : "0";
-                        return;
-                    }
-                    if (Vpp == null || days == Vpp.SaveImageKeepDays) return;
-                    Vpp.SaveImageKeepDays = days;
-                    if (Owner != null) Owner.SaveVpConfig();
-                    LogSaveImage("保留天数", days.ToString());
-                };
-
-                // 操作按钮（「实时显示」为相机级，按钮在相机属性条上）
-                btnEditTb.Click += delegate { if (Owner != null) Owner.EditStation(Vpp); };
-                btnCapture.Click += delegate { if (Owner != null) Owner.RunStation(Vpp); };
-                btnSaveVpp.Click += delegate { if (Owner != null) Owner.SaveStation(Vpp); };
-                btnAddCompRow.Click += delegate { if (Owner != null) Owner.AddCompLimitRow(gridComp, Vpp); };
-                btnDelCompRow.Click += delegate { if (Owner != null) Owner.RemoveCompLimitRow(gridComp, Vpp); };
+                WireEvents();
             }
             catch (Exception) { }
+        }
+
+        private void WireEvents()
+        {
+            gridComp.CellEndEdit += OnCompGridCellEndEdit;
+
+            WireCheck(cbSaveImg, GetSaveImageEnabled, SetSaveImageEnabled);
+            WireCheck(cbOrig, GetSaveOriginal, SetSaveOriginal);
+            WireCheck(cbSnap, GetSaveSnapshot, SetSaveSnapshot);
+            WireCheck(cbAutoDel, GetSaveAutoDelete, SetSaveAutoDelete);
+
+            tbSavePath.Text = (Vpp != null && Vpp.SaveImagePath != null) ? Vpp.SaveImagePath : "";
+            tbSavePath.TextChanged += OnSavePathTextChanged;
+            tbSavePath.Leave += OnSavePathLeave;
+            btnBrowsePath.Click += OnBrowsePathClick;
+
+            tbSaveDays.Text = (Vpp != null) ? Vpp.SaveImageKeepDays.ToString() : "0";
+            tbSaveDays.Leave += OnSaveDaysLeave;
+
+            btnEditTb.Click += OnEditTbClick;
+            btnCapture.Click += OnCaptureClick;
+            btnSaveVpp.Click += OnSaveVppClick;
+            btnAddCompRow.Click += OnAddCompRowClick;
+            btnDelCompRow.Click += OnDelCompRowClick;
+        }
+
+        private void OnCompGridCellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (Owner != null) Owner.SyncCompLimitFromGrid(gridComp, Vpp, e.RowIndex);
+        }
+
+        private bool GetSaveImageEnabled() { return Vpp != null && Vpp.SaveImageEnabled; }
+        private void SetSaveImageEnabled(bool v)
+        {
+            if (Vpp == null) return;
+            Vpp.SaveImageEnabled = v;
+            LogSaveImage("存图", v ? "开" : "关");
+        }
+
+        private bool GetSaveOriginal() { return Vpp != null && Vpp.SaveImageOriginal; }
+        private void SetSaveOriginal(bool v)
+        {
+            if (Vpp == null) return;
+            Vpp.SaveImageOriginal = v;
+            LogSaveImage("原图", v ? "开" : "关");
+        }
+
+        private bool GetSaveSnapshot() { return Vpp != null && Vpp.SaveImageSnapshot; }
+        private void SetSaveSnapshot(bool v)
+        {
+            if (Vpp == null) return;
+            Vpp.SaveImageSnapshot = v;
+            LogSaveImage("截图", v ? "开" : "关");
+        }
+
+        private bool GetSaveAutoDelete() { return Vpp != null && Vpp.SaveImageAutoDelete; }
+        private void SetSaveAutoDelete(bool v)
+        {
+            if (Vpp == null) return;
+            Vpp.SaveImageAutoDelete = v;
+            LogSaveImage("自动删除", v ? "开" : "关");
+        }
+
+        private void OnSavePathTextChanged(object sender, EventArgs e)
+        {
+            if (Vpp != null) Vpp.SaveImagePath = tbSavePath.Text.Trim();
+        }
+
+        private void OnSavePathLeave(object sender, EventArgs e)
+        {
+            if (Owner != null) Owner.SaveVpConfig();
+            LogSaveImage("路径", tbSavePath.Text.Trim());
+        }
+
+        private void OnBrowsePathClick(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog dlg = new FolderBrowserDialog())
+            {
+                dlg.Description = LangText("vpMsg_BrowseSavePath", "选择存图保存目录");
+                string cur = (tbSavePath.Text ?? "").Trim();
+                if (cur != "" && System.IO.Directory.Exists(cur))
+                    dlg.SelectedPath = cur;
+
+                if (dlg.ShowDialog(FindForm()) != DialogResult.OK) return;
+
+                tbSavePath.Text = dlg.SelectedPath;
+                if (Vpp != null) Vpp.SaveImagePath = dlg.SelectedPath;
+                if (Owner != null) Owner.SaveVpConfig();
+                LogSaveImage("路径", dlg.SelectedPath);
+            }
+        }
+
+        private void OnSaveDaysLeave(object sender, EventArgs e)
+        {
+            int days;
+            if (!int.TryParse((tbSaveDays.Text ?? "").Trim(), out days) || days < 0)
+            {
+                tbSaveDays.Text = (Vpp != null) ? Vpp.SaveImageKeepDays.ToString() : "0";
+                return;
+            }
+            if (Vpp == null || days == Vpp.SaveImageKeepDays) return;
+            Vpp.SaveImageKeepDays = days;
+            if (Owner != null) Owner.SaveVpConfig();
+            LogSaveImage("保留天数", days.ToString());
+        }
+
+        private void OnEditTbClick(object sender, EventArgs e)
+        {
+            if (Owner != null) Owner.EditStation(Vpp);
+        }
+
+        private void OnCaptureClick(object sender, EventArgs e)
+        {
+            if (Owner != null) Owner.RunStation(Vpp);
+        }
+
+        private void OnSaveVppClick(object sender, EventArgs e)
+        {
+            if (Owner != null) Owner.SaveStation(Vpp);
+        }
+
+        private void OnAddCompRowClick(object sender, EventArgs e)
+        {
+            if (Owner != null) Owner.AddCompLimitRow(gridComp, Vpp);
+        }
+
+        private void OnDelCompRowClick(object sender, EventArgs e)
+        {
+            if (Owner != null) Owner.RemoveCompLimitRow(gridComp, Vpp);
         }
 
         /// <summary>
@@ -108,7 +190,7 @@ namespace AlphaRap
                 {
                     lblInfo.Text = Owner.BuildVppInfoText(Cam, Vpp);
                     path.Text = VPForm.BuildVppPathText(Vpp);
-                    Owner.FillCompLimitGrid(gridComp, Vpp);      // 表头是语言键（vpCompCol_*）
+                    Owner.FillCompLimitGrid(gridComp, Vpp);
                 }
 
                 lblSavePath.Text = LangText("vpRow_SavePath", "存图路径");
@@ -119,29 +201,49 @@ namespace AlphaRap
                 lblSaveDays.Text = LangText("vpRow_SaveDays", "保留天数");
                 lblExp.Text = LangText("vpRow_Exposure", "曝光");
                 lblVppName.Text = LangText("vpRow_VppName", "VPP 名称");
+                btnBrowsePath.Text = LangText("vpBtn_BrowsePath", "...");
                 btnEditTb.Text = LangText("vpBtn_EditTb", "编辑 TB");
                 btnCapture.Text = LangText("vpBtn_Capture", "拍照");
                 btnSaveVpp.Text = LangText("vpBtn_SaveVpp", "保存 VPP");
                 btnAddCompRow.Text = LangText("vpBtn_AddCompRow", "添加行");
                 btnDelCompRow.Text = LangText("vpBtn_DelCompRow", "删除行");
+
+                LayoutKeepGroup();
+                LayoutTitlePath();
             }
             catch (Exception) { }
         }
 
-        /// <summary>把勾选框接到 VPP 的某个布尔配置上：勾选变化即写回 + 落盘（与补偿限制表同一口径）。</summary>
+        /// <summary>把勾选框接到 VPP 的某个布尔配置上：勾选变化即写回 + 落盘。</summary>
         private void WireCheck(UiCheckBox box, Func<bool> getter, Action<bool> setter)
         {
             if (box == null) return;
             box.Checked = getter();
-            box.CheckedChanged += delegate
-            {
-                if (getter() == box.Checked) return;
-                setter(box.Checked);
-                if (Owner != null) Owner.SaveVpConfig();
-            };
+            box.Tag = new CheckWire(getter, setter);
+            box.CheckedChanged += OnSaveCheckChanged;
         }
 
-        /// <summary>存图设置改动时记一条操作日志（归到 VPForm 目录）。</summary>
+        private void OnSaveCheckChanged(object sender, EventArgs e)
+        {
+            UiCheckBox box = sender as UiCheckBox;
+            CheckWire wire = (box != null) ? box.Tag as CheckWire : null;
+            if (box == null || wire == null) return;
+            if (wire.Getter() == box.Checked) return;
+            wire.Setter(box.Checked);
+            if (Owner != null) Owner.SaveVpConfig();
+        }
+
+        private sealed class CheckWire
+        {
+            public readonly Func<bool> Getter;
+            public readonly Action<bool> Setter;
+            public CheckWire(Func<bool> getter, Action<bool> setter)
+            {
+                Getter = getter;
+                Setter = setter;
+            }
+        }
+
         private void LogSaveImage(string what, string value)
         {
             string cam = (Cam != null) ? Cam.Name : "";
@@ -149,7 +251,6 @@ namespace AlphaRap
             OperationLog.Write("VPForm", "存图设置：" + cam + " / " + vpp + " " + what + " = " + value);
         }
 
-        /// <summary>取当前语言的文案（LanguageData\{语言}.xml），没有该键时使用底稿。</summary>
         private static string LangText(string key, string baseText)
         {
             return MiddleLayer.LangText(LangForm, key, baseText);

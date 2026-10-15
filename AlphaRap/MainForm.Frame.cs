@@ -59,7 +59,7 @@ namespace AlphaRap
         /// <summary>导航与工具栏按钮文字（按当前语言缓存，切换语言时由 LoadFrameTexts 重取）。</summary>
         private readonly Dictionary<PictureBox, string> _buttonTexts = new Dictionary<PictureBox, string>();
 
-        /// <summary>主框架样式，构造函数中在 InitializeComponent 之后调用。</summary>
+        /// <summary>主框架样式，构造函数中在 InitializeComponent 之后调用（设计期也执行，使设计视图贴近 EXE）。</summary>
         private void ApplyFrameStyle()
         {
             MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_AddUser, MENU_Rapid, MENU_Log, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Pause, MENU_Stop, MENU_Exit, MENU_Run, MENU_Mes };
@@ -70,17 +70,24 @@ namespace AlphaRap
             panel2.BackColor = UiTheme.FrameBg;
             plMainShow.BackColor = UiKit.PageBg;
 
-            StyleTopBar();
-            StyleNavigation();
-            StyleToolbar();
-            StyleContentTabs();
-            StyleAlarmPanel();
-            StyleStatusBar();
+            // 分段 try：某一段失败不阻断图标/文字刷新（设计器里尤其重要）
+            TryFrameStep(StyleTopBar);
+            TryFrameStep(StyleNavigation);
+            TryFrameStep(StyleToolbar);
+            TryFrameStep(StyleContentTabs);
+            TryFrameStep(StyleAlarmPanel);
+            TryFrameStep(StyleStatusBar);
+            TryFrameStep(LoadFrameTexts);
+            TryFrameStep(PrewarmFrameIcons);
+            TryFrameStep(RefreshButtonIcons);
+            TryFrameStep(RefreshMenuBackcolor);
+        }
 
-            LoadFrameTexts();
-            PrewarmFrameIcons();      // 先把矢量图标一次性画好，下面的按钮图片全部走缓存
-            RefreshButtonIcons();
-            RefreshMenuBackcolor();
+        private static void TryFrameStep(Action step)
+        {
+            if (step == null) return;
+            try { step(); }
+            catch { }
         }
 
         // ---------------- 顶栏 ----------------
@@ -124,19 +131,25 @@ namespace AlphaRap
         /// 登录芯片的点击与悬停。面板和它的两个子控件都要接：
         /// 只挂面板会在指针移到图标/文字上时收到 MouseLeave，悬停态一闪一闪。
         /// </summary>
+        private bool _loginChipHooked;
+
         private void InitLoginChip()
         {
-            panelLogin.Click += UserLogin_Click;
-            LoginText.Click += UserLogin_Click;
+            if (!_loginChipHooked)
+            {
+                _loginChipHooked = true;
+                panelLogin.Click += UserLogin_Click;
+                LoginText.Click += UserLogin_Click;
+                panelLogin.MouseEnter += LoginChip_MouseEnter;
+                panelLogin.MouseLeave += LoginChip_MouseLeave;
+                LoginText.MouseEnter += LoginChip_MouseEnter;
+                LoginText.MouseLeave += LoginChip_MouseLeave;
+                MENU_Login.MouseEnter += LoginChip_MouseEnter;
+                MENU_Login.MouseLeave += LoginChip_MouseLeave;
+            }
 
-            panelLogin.MouseEnter += LoginChip_MouseEnter;
-            panelLogin.MouseLeave += LoginChip_MouseLeave;
-            LoginText.MouseEnter += LoginChip_MouseEnter;
-            LoginText.MouseLeave += LoginChip_MouseLeave;
-            MENU_Login.MouseEnter += LoginChip_MouseEnter;
-            MENU_Login.MouseLeave += LoginChip_MouseLeave;
-
-            UpdateLoginChipTip();
+            // 设计器里不要碰 MiddleLayer（静态初始化会拖硬件）
+            if (!UiTheme.IsDesignTime) UpdateLoginChipTip();
         }
 
         private void LoginChip_MouseEnter(object sender, EventArgs e)
@@ -261,16 +274,10 @@ namespace AlphaRap
 
         private void StyleContentTabs()
         {
+            // 用 Controls/UiTheme 自绘扁平选项卡，替代原 Sunny.UI.UITabControl
+            UiTheme.StyleTabControl(uiTabControl1, true);
             uiTabControl1.Cursor = Cursors.Default;
-            uiTabControl1.Font = UiKit.Bold(11f);
             uiTabControl1.ItemSize = new Size(UiTheme.Dpi(132), UiTheme.TabHeight);
-            uiTabControl1.FillColor = UiTheme.FrameBg;
-            uiTabControl1.TabBackColor = UiTheme.FrameBg;
-            uiTabControl1.TabSelectedColor = UiKit.PageBg;
-            uiTabControl1.TabSelectedForeColor = UiKit.Brand;
-            uiTabControl1.TabUnSelectedForeColor = UiKit.TextSecondary;
-            uiTabControl1.TabSelectedHighColor = UiKit.Brand;
-            uiTabControl1.TabSelectedHighColorSize = 3;
         }
 
         // ---------------- 报警栏 ----------------
@@ -427,14 +434,17 @@ namespace AlphaRap
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder(64);
             PictureBox[] nav = NavButtons();
-            for (int i = 0; i < nav.Length; i++) sb.Append(nav[i].Enabled ? '1' : '0');
+            for (int i = 0; i < nav.Length; i++) sb.Append(nav[i] != null && nav[i].Enabled ? '1' : '0');
             PictureBox[] tool = ToolbarButtons();
-            for (int i = 0; i < tool.Length; i++) sb.Append(tool[i].Enabled ? '1' : '0');
+            for (int i = 0; i < tool.Length; i++) sb.Append(tool[i] != null && tool[i].Enabled ? '1' : '0');
+            string lang = "zh";
+            try { lang = SysPara.LanguageShow.ToString(); }
+            catch { }
             sb.Append('|').Append((int)MENU_SelectPage)
-              .Append('|').Append(SysPara.LanguageShow.ToString())
+              .Append('|').Append(lang)
               .Append('|').Append(_buttonTexts.Count)
-              .Append('|').Append(MENU_Product.Enabled ? '1' : '0')
-              .Append('|').Append(MENU_Login.Enabled ? '1' : '0')
+              .Append('|').Append(MENU_Product != null && MENU_Product.Enabled ? '1' : '0')
+              .Append('|').Append(MENU_Login != null && MENU_Login.Enabled ? '1' : '0')
               .Append('|').Append(_hoverToolbarButton == null ? "-" : _hoverToolbarButton.Name);
             return sb.ToString();
         }
@@ -513,7 +523,8 @@ namespace AlphaRap
             {
                 st = new NavPaintState();
                 _navPaint[b] = st;
-                b.Image = null;                        // 关键：不再用烤好的合成位图
+                // 运行时清掉 Image 改自绘；设计期保留 Image 槽给 BakeButtonPreview
+                if (!UiTheme.IsDesignTime) b.Image = null;
                 b.Paint += NavButton_Paint;
             }
             st.Icon = icon;
@@ -548,7 +559,9 @@ namespace AlphaRap
             st.AccentColor = st.IconColor;
             st.TextColor = !b.Enabled ? UiKit.DisabledText : sel ? UiTheme.NavTextSelected : UiTheme.NavText;
             st.LockBadge = NavLockBadge;
-            b.Invalidate();
+            // 设计器不保证触发 Paint：把预览烤进 Image，运行时仍走自绘
+            if (UiTheme.IsDesignTime) BakeButtonPreview(b, st);
+            else b.Invalidate();
         }
 
         /// <summary>
@@ -583,7 +596,30 @@ namespace AlphaRap
             st.AccentColor = on ? accentColor : AppIconColor.Disabled;
             st.TextColor = !on ? UiKit.DisabledText : (iconColor == AppIconColor.Nav ? UiKit.TextPrimary : iconColor);
             st.LockBadge = NavLockBadge;
-            btn.Invalidate();
+            if (UiTheme.IsDesignTime) BakeButtonPreview(btn, st);
+            else btn.Invalidate();
+        }
+
+        /// <summary>设计期：把图标+文字画进 PictureBox.Image，避免设计面空白。</summary>
+        private void BakeButtonPreview(PictureBox b, NavPaintState st)
+        {
+            if (b == null || st == null || b.Width <= 0 || b.Height <= 0) return;
+            try
+            {
+                Color back = (b.BackColor.A == 255) ? b.BackColor : Color.FromArgb(238, 243, 248);
+                Image ic = AppIcons.Get(st.Icon, UiTheme.Dpi(st.IconSize), st.IconColor, st.AccentColor);
+                Bitmap bmp = UiTheme.RenderIconButton(b.Size, ic, ButtonText(b), st.Font, st.TextColor,
+                    st.IconSize, st.IsNav && IsSelectedNav(b), back,
+                    b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge);
+                if (bmp == null) return;
+                Image old = b.Image;
+                b.Image = bmp;
+                if (old != null && !ReferenceEquals(old, bmp))
+                {
+                    try { old.Dispose(); } catch { }
+                }
+            }
+            catch { }
         }
 
         /// <summary>

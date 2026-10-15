@@ -7,7 +7,7 @@ namespace AlphaRap
     /// 标定卡（一台相机一张）：标题 / 标定点表格 / 路径提示 / 标定曝光 / 操作按钮。
     /// 本类负责布局、填充数据并把控件事件转给 <see cref="Owner"/>（VPForm），标定业务在 VPForm 中处理；
     /// 相机入口存放在 Tag 中，由 VPForm 读写。
-    /// Designer 中的停靠顺序须保持 grid → tip → expRow → btns → title（Dock 后加入的先停靠）。
+    /// Designer 中的停靠顺序须保持 grid → actionRow → titleBar（Dock 后加入的先停靠）；路径在 titleBar 右侧。
     /// </summary>
     public partial class VpCalibCard : UserControl
     {
@@ -38,9 +38,12 @@ namespace AlphaRap
         {
             try
             {
-                UiKit.StyleGrid(gridPoints);      // 扁平化外观（表头/边框）
+                ApplyPageStyle();
                 RefreshTexts();
                 if (Owner != null) Owner.FillCalibrationGrid(this);
+
+                // 打开页面即显示标定曝光（原先只在失焦 Normalize 时才写入，看起来像没加载）
+                tbExposure.Text = DefaultExposure().ToString("F1");
 
                 // 单元格编辑完成后立即写回标定点并保存
                 gridPoints.CellEndEdit += delegate(object s, DataGridViewCellEventArgs e)
@@ -100,6 +103,7 @@ namespace AlphaRap
                 btnAddPoint.Text = LangText("vpBtn_AddPoint", "添加标定点");
                 btnDeletePoint.Text = LangText("vpBtn_DeletePoint", "删除选中点");
                 btnApplyToCamera.Text = LangText("vpBtn_ApplyToCamera", "应用到本相机");
+                LayoutTitlePath();
             }
             catch (Exception) { }
         }

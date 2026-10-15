@@ -2,16 +2,8 @@
 {
     partial class VpCalibCard
     {
-        /// <summary> 
-        /// 设计器支持所需的方法 - 不要修改
-        /// 使用代码编辑器修改此方法的内容。
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary> 
-        /// 清理所有正在使用的资源。
-        /// </summary>
-        /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -23,10 +15,6 @@
 
         #region 组件设计器生成的代码
 
-        /// <summary> 
-        /// 设计器支持所需的方法 - 不要修改
-        /// 使用代码编辑器修改此方法的内容。
-        /// </summary>
         private void InitializeComponent()
         {
             this.card = new AlphaRap.CardPanel();
@@ -35,37 +23,35 @@
             this.cPy = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cMx = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cMy = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.lblTip = new AlphaRap.UiLabel();
-            this.expRow = new System.Windows.Forms.Panel();
+            this.actionRow = new System.Windows.Forms.FlowLayoutPanel();
             this.lblExpCaption = new AlphaRap.UiLabel();
             this.tbExposure = new System.Windows.Forms.TextBox();
-            this.btns = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnAddCalibration = new AlphaRap.UiButton();
-            this.btnEditTb = new AlphaRap.UiButton();
-            this.btnCapture = new AlphaRap.UiButton();
-            this.btnAddPoint = new AlphaRap.UiButton();
-            this.btnDeletePoint = new AlphaRap.UiButton();
-            this.btnApplyToCamera = new AlphaRap.UiButton();
+            this.btnAddCalibration = new AlphaRap.FlatButton();
+            this.btnEditTb = new AlphaRap.FlatButton();
+            this.btnCapture = new AlphaRap.FlatButton();
+            this.btnAddPoint = new AlphaRap.FlatButton();
+            this.btnDeletePoint = new AlphaRap.FlatButton();
+            this.btnApplyToCamera = new AlphaRap.FlatButton();
+            this.titleBar = new System.Windows.Forms.Panel();
             this.lblTitle = new AlphaRap.UiLabel();
+            this.lblTip = new AlphaRap.UiLabel();
             this.card.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridPoints)).BeginInit();
-            this.expRow.SuspendLayout();
-            this.btns.SuspendLayout();
+            this.actionRow.SuspendLayout();
+            this.titleBar.SuspendLayout();
             this.SuspendLayout();
             // 
             // card
             // 
             this.card.CornerRadius = 10;
             this.card.Controls.Add(this.gridPoints);
-            this.card.Controls.Add(this.lblTip);
-            this.card.Controls.Add(this.expRow);
-            this.card.Controls.Add(this.btns);
-            this.card.Controls.Add(this.lblTitle);
+            this.card.Controls.Add(this.actionRow);
+            this.card.Controls.Add(this.titleBar);
             this.card.Dock = System.Windows.Forms.DockStyle.Fill;
             this.card.Location = new System.Drawing.Point(0, 0);
             this.card.Name = "card";
-            this.card.Padding = new System.Windows.Forms.Padding(14, 8, 14, 8);
-            this.card.Size = new System.Drawing.Size(900, 296);
+            this.card.Padding = new System.Windows.Forms.Padding(14, 10, 14, 10);
+            this.card.Size = new System.Drawing.Size(620, 196);
             this.card.TabIndex = 0;
             // 
             // gridPoints
@@ -73,17 +59,17 @@
             this.gridPoints.AllowUserToAddRows = false;
             this.gridPoints.AllowUserToDeleteRows = false;
             this.gridPoints.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.gridPoints.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridPoints.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.gridPoints.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.cPx,
             this.cPy,
             this.cMx,
             this.cMy});
             this.gridPoints.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridPoints.Location = new System.Drawing.Point(14, 38);
+            this.gridPoints.Location = new System.Drawing.Point(14, 40);
             this.gridPoints.Name = "vpCalibGrid";
             this.gridPoints.RowHeadersVisible = false;
-            this.gridPoints.Size = new System.Drawing.Size(872, 158);
+            this.gridPoints.Size = new System.Drawing.Size(592, 94);
             this.gridPoints.TabIndex = 0;
             // 
             // cPx
@@ -108,182 +94,179 @@
             this.cMy.HeaderText = "MotorPosY";
             this.cMy.Name = "cMy";
             // 
-            // lblTip
+            // actionRow（曝光 + 操作按钮同一行，窄时自动换行）
             // 
-            this.lblTip.AutoSize = false;
-            this.lblTip.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.lblTip.Font = new System.Drawing.Font("宋体", 10.5F);
-            this.lblTip.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(110)))), ((int)(((byte)(120)))), ((int)(((byte)(132)))));
-            this.lblTip.Location = new System.Drawing.Point(14, 196);
-            this.lblTip.Name = "vpCalibTip_dyn";
-            this.lblTip.Size = new System.Drawing.Size(872, 26);
-            this.lblTip.TabIndex = 1;
-            this.lblTip.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // expRow
-            // 
-            this.expRow.BackColor = System.Drawing.Color.Transparent;
-            this.expRow.Controls.Add(this.lblExpCaption);
-            this.expRow.Controls.Add(this.tbExposure);
-            this.expRow.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.expRow.Location = new System.Drawing.Point(14, 222);
-            this.expRow.Name = "vpCalibExpRow";
-            this.expRow.Size = new System.Drawing.Size(872, 34);
-            this.expRow.TabIndex = 2;
+            this.actionRow.BackColor = System.Drawing.Color.Transparent;
+            this.actionRow.Controls.Add(this.lblExpCaption);
+            this.actionRow.Controls.Add(this.tbExposure);
+            this.actionRow.Controls.Add(this.btnAddCalibration);
+            this.actionRow.Controls.Add(this.btnEditTb);
+            this.actionRow.Controls.Add(this.btnCapture);
+            this.actionRow.Controls.Add(this.btnAddPoint);
+            this.actionRow.Controls.Add(this.btnDeletePoint);
+            this.actionRow.Controls.Add(this.btnApplyToCamera);
+            this.actionRow.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.actionRow.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.actionRow.Location = new System.Drawing.Point(14, 134);
+            this.actionRow.Name = "vpCalibActionRow";
+            this.actionRow.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
+            this.actionRow.Size = new System.Drawing.Size(592, 52);
+            this.actionRow.TabIndex = 2;
+            this.actionRow.WrapContents = true;
             // 
             // lblExpCaption
             // 
-            this.lblExpCaption.AutoSize = false;
-            this.lblExpCaption.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.lblExpCaption.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(92)))), ((int)(((byte)(106)))));
-            this.lblExpCaption.Location = new System.Drawing.Point(0, 3);
+            this.lblExpCaption.AutoSize = true;
+            this.lblExpCaption.Font = new System.Drawing.Font("微软雅黑", 10F);
+            this.lblExpCaption.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
+            this.lblExpCaption.Location = new System.Drawing.Point(0, 10);
+            this.lblExpCaption.Margin = new System.Windows.Forms.Padding(0, 6, 6, 0);
             this.lblExpCaption.Name = "vpRow_CalibExposure";
-            this.lblExpCaption.Size = new System.Drawing.Size(76, 28);
+            this.lblExpCaption.Size = new System.Drawing.Size(65, 20);
             this.lblExpCaption.TabIndex = 0;
             this.lblExpCaption.Text = "标定曝光";
-            this.lblExpCaption.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // tbExposure
             // 
-            this.tbExposure.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.tbExposure.Location = new System.Drawing.Point(80, 4);
+            this.tbExposure.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
+            this.tbExposure.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tbExposure.Font = new System.Drawing.Font("微软雅黑", 10F);
+            this.tbExposure.Location = new System.Drawing.Point(71, 8);
+            this.tbExposure.Margin = new System.Windows.Forms.Padding(0, 4, 12, 0);
             this.tbExposure.Name = "vpCalibExpBox";
-            this.tbExposure.Size = new System.Drawing.Size(86, 25);
+            this.tbExposure.Size = new System.Drawing.Size(72, 25);
             this.tbExposure.TabIndex = 1;
-            // 
-            // btns
-            // 
-            this.btns.AutoSize = false;
-            this.btns.BackColor = System.Drawing.Color.Transparent;
-            this.btns.Controls.Add(this.btnAddCalibration);
-            this.btns.Controls.Add(this.btnEditTb);
-            this.btns.Controls.Add(this.btnCapture);
-            this.btns.Controls.Add(this.btnAddPoint);
-            this.btns.Controls.Add(this.btnDeletePoint);
-            this.btns.Controls.Add(this.btnApplyToCamera);
-            this.btns.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btns.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            this.btns.Location = new System.Drawing.Point(14, 256);
-            this.btns.Name = "vpCalibBtns";
-            this.btns.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            this.btns.Size = new System.Drawing.Size(872, 40);
-            this.btns.TabIndex = 3;
-            this.btns.WrapContents = false;
             // 
             // btnAddCalibration
             // 
-            this.btnAddCalibration.BackColor = System.Drawing.Color.White;
+            this.btnAddCalibration.BackColor = System.Drawing.Color.Transparent;
+            this.btnAddCalibration.CornerRadius = 8;
             this.btnAddCalibration.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAddCalibration.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
-            this.btnAddCalibration.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAddCalibration.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.btnAddCalibration.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.btnAddCalibration.Location = new System.Drawing.Point(0, 5);
+            this.btnAddCalibration.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
+            this.btnAddCalibration.Location = new System.Drawing.Point(155, 4);
             this.btnAddCalibration.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnAddCalibration.Name = "vpBtn_AddCalibration";
-            this.btnAddCalibration.Size = new System.Drawing.Size(112, 30);
-            this.btnAddCalibration.TabIndex = 0;
+            this.btnAddCalibration.Size = new System.Drawing.Size(132, 32);
+            this.btnAddCalibration.TabIndex = 2;
             this.btnAddCalibration.Text = "添加标定";
+            this.btnAddCalibration.Variant = AlphaRap.FlatButtonVariant.Primary;
             // 
             // btnEditTb
             // 
-            this.btnEditTb.BackColor = System.Drawing.Color.White;
+            this.btnEditTb.BackColor = System.Drawing.Color.Transparent;
+            this.btnEditTb.CornerRadius = 8;
             this.btnEditTb.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnEditTb.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
-            this.btnEditTb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnEditTb.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.btnEditTb.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.btnEditTb.Location = new System.Drawing.Point(120, 5);
+            this.btnEditTb.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
+            this.btnEditTb.Location = new System.Drawing.Point(295, 4);
             this.btnEditTb.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnEditTb.Name = "vpBtn_EditTb";
-            this.btnEditTb.Size = new System.Drawing.Size(112, 30);
-            this.btnEditTb.TabIndex = 1;
+            this.btnEditTb.Size = new System.Drawing.Size(100, 32);
+            this.btnEditTb.TabIndex = 3;
             this.btnEditTb.Text = "编辑 TB";
+            this.btnEditTb.Variant = AlphaRap.FlatButtonVariant.Surface;
             // 
             // btnCapture
             // 
-            this.btnCapture.BackColor = System.Drawing.Color.White;
+            this.btnCapture.BackColor = System.Drawing.Color.Transparent;
+            this.btnCapture.CornerRadius = 8;
             this.btnCapture.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnCapture.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
-            this.btnCapture.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCapture.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.btnCapture.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.btnCapture.Location = new System.Drawing.Point(240, 5);
+            this.btnCapture.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
+            this.btnCapture.Location = new System.Drawing.Point(403, 4);
             this.btnCapture.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnCapture.Name = "vpBtn_Capture";
-            this.btnCapture.Size = new System.Drawing.Size(112, 30);
-            this.btnCapture.TabIndex = 2;
+            this.btnCapture.Size = new System.Drawing.Size(96, 32);
+            this.btnCapture.TabIndex = 4;
             this.btnCapture.Text = "拍照";
+            this.btnCapture.Variant = AlphaRap.FlatButtonVariant.Primary;
             // 
             // btnAddPoint
             // 
-            this.btnAddPoint.BackColor = System.Drawing.Color.White;
+            this.btnAddPoint.BackColor = System.Drawing.Color.Transparent;
+            this.btnAddPoint.CornerRadius = 8;
             this.btnAddPoint.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAddPoint.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
-            this.btnAddPoint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAddPoint.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.btnAddPoint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.btnAddPoint.Location = new System.Drawing.Point(360, 5);
+            this.btnAddPoint.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
+            this.btnAddPoint.Location = new System.Drawing.Point(0, 40);
             this.btnAddPoint.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnAddPoint.Name = "vpBtn_AddPoint";
-            this.btnAddPoint.Size = new System.Drawing.Size(112, 30);
-            this.btnAddPoint.TabIndex = 3;
+            this.btnAddPoint.Size = new System.Drawing.Size(120, 32);
+            this.btnAddPoint.TabIndex = 5;
             this.btnAddPoint.Text = "添加标定点";
+            this.btnAddPoint.Variant = AlphaRap.FlatButtonVariant.Surface;
             // 
             // btnDeletePoint
             // 
-            this.btnDeletePoint.BackColor = System.Drawing.Color.White;
+            this.btnDeletePoint.BackColor = System.Drawing.Color.Transparent;
+            this.btnDeletePoint.CornerRadius = 8;
             this.btnDeletePoint.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnDeletePoint.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
-            this.btnDeletePoint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDeletePoint.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.btnDeletePoint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.btnDeletePoint.Location = new System.Drawing.Point(480, 5);
+            this.btnDeletePoint.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
+            this.btnDeletePoint.Location = new System.Drawing.Point(128, 40);
             this.btnDeletePoint.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnDeletePoint.Name = "vpBtn_DeletePoint";
-            this.btnDeletePoint.Size = new System.Drawing.Size(112, 30);
-            this.btnDeletePoint.TabIndex = 4;
+            this.btnDeletePoint.Size = new System.Drawing.Size(120, 32);
+            this.btnDeletePoint.TabIndex = 6;
             this.btnDeletePoint.Text = "删除选中点";
+            this.btnDeletePoint.Variant = AlphaRap.FlatButtonVariant.Danger;
             // 
             // btnApplyToCamera
             // 
-            this.btnApplyToCamera.BackColor = System.Drawing.Color.White;
+            this.btnApplyToCamera.BackColor = System.Drawing.Color.Transparent;
+            this.btnApplyToCamera.CornerRadius = 8;
             this.btnApplyToCamera.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnApplyToCamera.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
-            this.btnApplyToCamera.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnApplyToCamera.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.btnApplyToCamera.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.btnApplyToCamera.Location = new System.Drawing.Point(600, 5);
-            this.btnApplyToCamera.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
+            this.btnApplyToCamera.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
+            this.btnApplyToCamera.Location = new System.Drawing.Point(256, 40);
+            this.btnApplyToCamera.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
             this.btnApplyToCamera.Name = "vpBtn_ApplyToCamera";
-            this.btnApplyToCamera.Size = new System.Drawing.Size(112, 30);
-            this.btnApplyToCamera.TabIndex = 5;
+            this.btnApplyToCamera.Size = new System.Drawing.Size(132, 32);
+            this.btnApplyToCamera.TabIndex = 7;
             this.btnApplyToCamera.Text = "应用到本相机";
+            this.btnApplyToCamera.Variant = AlphaRap.FlatButtonVariant.Primary;
+            // 
+            // titleBar（左侧标题 + 右侧 vpp 路径）
+            // 
+            this.titleBar.BackColor = System.Drawing.Color.Transparent;
+            this.titleBar.Controls.Add(this.lblTitle);
+            this.titleBar.Controls.Add(this.lblTip);
+            this.titleBar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.titleBar.Location = new System.Drawing.Point(14, 10);
+            this.titleBar.Name = "titleBar";
+            this.titleBar.Size = new System.Drawing.Size(592, 30);
+            this.titleBar.TabIndex = 3;
+            // 
+            // lblTip（路径：贴标题行右侧）
+            // 
+            this.lblTip.Dock = System.Windows.Forms.DockStyle.Right;
+            this.lblTip.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.lblTip.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
+            this.lblTip.Location = new System.Drawing.Point(232, 0);
+            this.lblTip.Name = "vpCalibTip_dyn";
+            this.lblTip.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
+            this.lblTip.Size = new System.Drawing.Size(360, 30);
+            this.lblTip.TabIndex = 1;
+            this.lblTip.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // lblTitle
             // 
-            this.lblTitle.AutoSize = false;
-            this.lblTitle.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblTitle.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblTitle.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Bold);
             this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.lblTitle.Location = new System.Drawing.Point(14, 8);
+            this.lblTitle.Location = new System.Drawing.Point(0, 0);
             this.lblTitle.Name = "vpCalibTitle_dyn";
-            this.lblTitle.Size = new System.Drawing.Size(872, 30);
-            this.lblTitle.TabIndex = 4;
+            this.lblTitle.Size = new System.Drawing.Size(232, 30);
+            this.lblTitle.TabIndex = 0;
             this.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // VpCalibCard
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(248)))));
             this.Controls.Add(this.card);
             this.Name = "VpCalibCard";
-            this.Size = new System.Drawing.Size(900, 296);
+            this.Size = new System.Drawing.Size(620, 196);
             this.card.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gridPoints)).EndInit();
-            this.expRow.ResumeLayout(false);
-            this.expRow.PerformLayout();
-            this.btns.ResumeLayout(false);
+            this.actionRow.ResumeLayout(false);
+            this.actionRow.PerformLayout();
+            this.titleBar.ResumeLayout(false);
             this.ResumeLayout(false);
         }
 
@@ -295,17 +278,17 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn cPy;
         private System.Windows.Forms.DataGridViewTextBoxColumn cMx;
         private System.Windows.Forms.DataGridViewTextBoxColumn cMy;
-        private UiLabel lblTip;
-        private System.Windows.Forms.Panel expRow;
+        private System.Windows.Forms.FlowLayoutPanel actionRow;
         private UiLabel lblExpCaption;
         private System.Windows.Forms.TextBox tbExposure;
-        private System.Windows.Forms.FlowLayoutPanel btns;
-        private UiButton btnAddCalibration;
-        private UiButton btnEditTb;
-        private UiButton btnCapture;
-        private UiButton btnAddPoint;
-        private UiButton btnDeletePoint;
-        private UiButton btnApplyToCamera;
+        private FlatButton btnAddCalibration;
+        private FlatButton btnEditTb;
+        private FlatButton btnCapture;
+        private FlatButton btnAddPoint;
+        private FlatButton btnDeletePoint;
+        private FlatButton btnApplyToCamera;
+        private System.Windows.Forms.Panel titleBar;
         private UiLabel lblTitle;
+        private UiLabel lblTip;
     }
 }

@@ -77,14 +77,32 @@ namespace AlphaRap
         public int SaveImageKeepDays = 0;
 
         /// <summary>
-        /// 补偿限制表为空时补三行默认值（X / Y / 角度）。仅在读取无 Comp 节点的配置和首次建页时调用。
+        /// 补偿限制表为空时补三行默认值（X / Y / R）；已有「角度」行时迁移为「R」。
+        /// 仅在读取配置和首次建页时调用。返回 true 表示表内容有改动（调用方可落盘）。
         /// </summary>
-        public void EnsureCompLimits()
+        public bool EnsureCompLimits()
         {
-            if (CompLimits.Count > 0) return;
-            CompLimits.Add(new VpCompLimitItem("X", -1, 1));
-            CompLimits.Add(new VpCompLimitItem("Y", -1, 1));
-            CompLimits.Add(new VpCompLimitItem("角度", -5, 5));
+            if (CompLimits.Count == 0)
+            {
+                CompLimits.Add(new VpCompLimitItem("X", -1, 1));
+                CompLimits.Add(new VpCompLimitItem("Y", -1, 1));
+                CompLimits.Add(new VpCompLimitItem("R", -5, 5));
+                return true;
+            }
+
+            // 旧配置默认第三项名为「角度」，统一改为「R」（已有同名 R 则跳过，避免重名）
+            if (GetCompLimit("R") == null)
+            {
+                for (int i = 0; i < CompLimits.Count; i++)
+                {
+                    if (CompLimits[i] != null && CompLimits[i].Item == "角度")
+                    {
+                        CompLimits[i].Item = "R";
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         /// <summary>按行名取限制；没有返回 null（同名取第一行）。</summary>
@@ -97,7 +115,7 @@ namespace AlphaRap
         }
     }
 
-    /// <summary>补偿限制表的一行：名称 + 上下限，单位与视觉输出一致（X/Y 一般为 mm，角度为度）。</summary>
+    /// <summary>补偿限制表的一行：名称 + 上下限，单位与视觉输出一致（X/Y 一般为 mm，R 为角度度）。</summary>
     public class VpCompLimitItem
     {
         public string Item = "";
@@ -147,7 +165,7 @@ namespace AlphaRap
         // 用法：
         //     VpStation st = MiddleLayer.VPF.GetVppStation("Camera1", "VPP1");
         //     if (st.RunAndWait(3000)) { /* st.Fiducial / st.GetOutput("输出名") / st.CompLimits ... */ }
-        // 行名为 VPP 页补偿限制表"项目"列的内容（默认 X / Y / 角度）。
+        // 行名为 VPP 页补偿限制表"项目"列的内容（默认 X / Y / R）。
 
         /// <summary>本 VPP 的补偿限制表；未关联配置时为 null。</summary>
         public List<VpCompLimitItem> CompLimits
@@ -392,7 +410,7 @@ namespace AlphaRap
                     Fiducial.u = (double)GetOutput("A");
                 }
 
-                // 按 VPP 页的补偿限制表（X / Y / 角度）夹取结果，超限的值设为边界；没有对应行或未关联配置时不限制。
+                // 按 VPP 页的补偿限制表（X / Y / R）夹取结果，超限的值设为边界；没有对应行或未关联配置时不限制。
                 string r;
                 if (Kind == VpStationKind.Calibration)
                 {
@@ -403,7 +421,12 @@ namespace AlphaRap
                 {
                     ClampComp("X", ref Fiducial.x, out r);
                     ClampComp("Y", ref Fiducial.y, out r);
-                    ClampComp("角度", ref Fiducial.u, out r);
+                    // 默认项为 R；兼容尚未迁移的旧配置「角度」
+                    double _min, _max;
+                    if (TryGetCompLimit("R", out _min, out _max))
+                        ClampComp("R", ref Fiducial.u, out r);
+                    else
+                        ClampComp("角度", ref Fiducial.u, out r);
                 }
 
                 IsAccept = true;
