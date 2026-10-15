@@ -47,9 +47,10 @@ namespace AlphaRap
 
         private static readonly Size NavButtonSize = new Size(88, 54);
         private const int NavIconSize = 24;
-        /// <summary>侧栏展开宽度；折叠为 VS 式细竖条宽度（96 DPI 设计值）。</summary>
+        /// <summary>侧栏展开宽度；折叠为窄轨宽度（与报警底边细条同一套视觉语言）。</summary>
         private const int NavRailWidth = 96;
-        private const int NavRailWidthCollapsed = 26;
+        private const int NavRailWidthCollapsed = 36;
+        private const int NavCollapsedIconSize = 18;
         private static readonly Size ToolButtonSize = new Size(92, 58);
         private const int ToolIconSize = 26;
 
@@ -253,13 +254,14 @@ namespace AlphaRap
             };
         }
 
-        // ---------------- 整栏自动隐藏（VS「工具箱」式细竖条） ----------------
+        // ---------------- 整栏收起（窄轨：白底 + 品牌竖线，与报警底边细条同语言） ----------------
 
-        /// <summary>侧栏是否收成左侧细竖条（点击再展开）。</summary>
+        /// <summary>侧栏是否收成左侧窄轨（点击再展开）。</summary>
         private bool _navRailCollapsed;
-        /// <summary>展开态顶部汉堡：点一下收成细竖条。</summary>
+        private bool _navAutoHideHover;
+        /// <summary>展开态顶部汉堡：点一下收成窄轨。</summary>
         private PictureBox MENU_NavToggle;
-        /// <summary>折叠态细竖条：竖排「导航」文字，点击展开。</summary>
+        /// <summary>折叠态窄轨：汉堡图标 + 竖排「导航」，点击展开。</summary>
         private Panel panelNavAutoHideTab;
         private readonly ToolTip _navRailTip = new ToolTip { ShowAlways = true, AutomaticDelay = 400 };
 
@@ -288,11 +290,13 @@ namespace AlphaRap
             panelNavAutoHideTab.Dock = DockStyle.Fill;
             panelNavAutoHideTab.Margin = Padding.Empty;
             panelNavAutoHideTab.Cursor = Cursors.Hand;
-            panelNavAutoHideTab.BackColor = UiTheme.Selected;
+            panelNavAutoHideTab.BackColor = UiTheme.NavBg;
             panelNavAutoHideTab.Visible = false;
             panelNavAutoHideTab.Paint += NavAutoHideTab_Paint;
             panelNavAutoHideTab.Click += NavRailToggle_Click;
             panelNavAutoHideTab.Resize += NavAutoHideTab_Resize;
+            panelNavAutoHideTab.MouseEnter += NavAutoHideTab_MouseEnter;
+            panelNavAutoHideTab.MouseLeave += NavAutoHideTab_MouseLeave;
             // TableLayoutPanel：跨两行铺满整列，才能盖住上下导航区
             panel4.Controls.Add(panelNavAutoHideTab, 0, 0);
             try { panel4.SetRowSpan(panelNavAutoHideTab, 2); } catch { }
@@ -338,7 +342,19 @@ namespace AlphaRap
             if (panelNavAutoHideTab != null) panelNavAutoHideTab.Invalidate();
         }
 
-        /// <summary>整栏折叠 / 展开：折叠后变成 VS 式左侧细竖条，点击竖条展开。</summary>
+        private void NavAutoHideTab_MouseEnter(object sender, EventArgs e)
+        {
+            _navAutoHideHover = true;
+            if (panelNavAutoHideTab != null) panelNavAutoHideTab.Invalidate();
+        }
+
+        private void NavAutoHideTab_MouseLeave(object sender, EventArgs e)
+        {
+            _navAutoHideHover = false;
+            if (panelNavAutoHideTab != null) panelNavAutoHideTab.Invalidate();
+        }
+
+        /// <summary>整栏折叠 / 展开：折叠后变成左侧窄轨，点击展开。</summary>
         public void SetNavRailCollapsed(bool collapsed)
         {
             _navRailCollapsed = collapsed;
@@ -356,13 +372,17 @@ namespace AlphaRap
                 tableLayoutPanel1.SuspendLayout();
                 tableLayoutPanel1.ColumnStyles[0] = new ColumnStyle(SizeType.Absolute, railW);
                 tableLayoutPanel1.ColumnStyles[1] = new ColumnStyle(SizeType.Percent, 100f);
+                // 折叠时去掉侧栏右侧 4px 空隙，窄轨与内容贴齐；展开时恢复设计器间距
+                if (panel4 != null)
+                    panel4.Margin = _navRailCollapsed
+                        ? Padding.Empty
+                        : UiTheme.Dpi(new Padding(0, 0, 4, 0));
                 tableLayoutPanel1.ResumeLayout(true);
             }
             catch { }
 
             if (_navRailCollapsed)
             {
-                // 隐藏全部导航按钮，只留细竖条（类似 VS 自动隐藏的「工具箱」）
                 if (Panl_PictureShowTop != null) Panl_PictureShowTop.Visible = false;
                 if (Panl_PictureShowDown != null) Panl_PictureShowDown.Visible = false;
                 if (panelNavAutoHideTab != null)
@@ -374,6 +394,7 @@ namespace AlphaRap
             }
             else
             {
+                _navAutoHideHover = false;
                 if (panelNavAutoHideTab != null) panelNavAutoHideTab.Visible = false;
                 if (Panl_PictureShowTop != null) Panl_PictureShowTop.Visible = true;
                 if (Panl_PictureShowDown != null) Panl_PictureShowDown.Visible = true;
@@ -417,7 +438,10 @@ namespace AlphaRap
             catch { }
         }
 
-        /// <summary>细竖条：竖排「导航」文字 + 底部分隔，仿 VS 停靠标签。</summary>
+        /// <summary>
+        /// 窄轨绘制：白底 + 左侧品牌竖条 + 顶栏汉堡 + 逐字竖排「导航」
+        /// （不用旋转字，避免和主界面水平中文打架）。
+        /// </summary>
         private void NavAutoHideTab_Paint(object sender, PaintEventArgs e)
         {
             Panel p = sender as Panel;
@@ -425,21 +449,39 @@ namespace AlphaRap
             try
             {
                 Graphics g = e.Graphics;
-                g.Clear(UiTheme.Selected);
+                Color back = _navAutoHideHover ? UiKit.BrandSoft : UiTheme.NavBg;
+                g.Clear(back);
+
+                int accentW = UiTheme.Dpi(3);
+                using (SolidBrush accent = new SolidBrush(UiKit.Brand))
+                    g.FillRectangle(accent, 0, 0, accentW, p.Height);
                 using (Pen edge = new Pen(UiKit.Line))
                     g.DrawLine(edge, p.Width - 1, 0, p.Width - 1, p.Height);
 
+                int ic = UiTheme.Dpi(NavCollapsedIconSize);
+                Image menu = AppIcons.Get(AppIcon.Menu, ic, UiTheme.NavTextSelected);
+                if (menu != null)
+                {
+                    int ix = (p.Width - menu.Width) / 2;
+                    int iy = UiTheme.Dpi(10);
+                    g.DrawImage(menu, ix, iy, menu.Width, menu.Height);
+                }
+
                 string text = UiTheme.T("MainForm", "nav_AutoHideTab", "导航", "Nav", "Nav");
+                if (string.IsNullOrEmpty(text)) return;
                 using (Font f = UiKit.Bold(10f))
                 {
-                    Size ts = TextRenderer.MeasureText(text, f);
-                    // 自下而上竖排（与 VS 工具箱标签同向）
-                    g.TranslateTransform(p.Width / 2f, p.Height / 2f + ts.Width / 2f);
-                    g.RotateTransform(-90f);
-                    TextRenderer.DrawText(g, text, f, new Point(-ts.Width / 2, -ts.Height / 2),
-                        UiTheme.NavTextSelected,
-                        TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
-                    g.ResetTransform();
+                    int y = UiTheme.Dpi(10) + ic + UiTheme.Dpi(12);
+                    int lineH = UiTheme.Dpi(18);
+                    for (int i = 0; i < text.Length; i++)
+                    {
+                        string ch = text.Substring(i, 1);
+                        Size cs = TextRenderer.MeasureText(g, ch, f, Size.Empty, TextFormatFlags.NoPadding);
+                        int cx = (p.Width - cs.Width) / 2;
+                        TextRenderer.DrawText(g, ch, f, new Point(cx, y), UiTheme.NavTextSelected,
+                            TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+                        y += lineH;
+                    }
                 }
             }
             catch { }
