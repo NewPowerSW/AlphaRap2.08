@@ -208,6 +208,7 @@ namespace AlphaRap
                 btnAddCompRow.Text = LangText("vpBtn_AddCompRow", "添加行");
                 btnDelCompRow.Text = LangText("vpBtn_DelCompRow", "删除行");
 
+                LayoutParamRow();
                 LayoutKeepGroup();
                 LayoutTitlePath();
             }

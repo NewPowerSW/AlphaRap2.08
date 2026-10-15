@@ -368,7 +368,8 @@
             this.btnEditTb.Location = new System.Drawing.Point(12, 8);
             this.btnEditTb.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnEditTb.Name = "vpBtn_EditTb";
-            this.btnEditTb.Size = new System.Drawing.Size(108, 32);
+            // 设计时尺寸贴近运行时 LayoutParamRow（英文 Delete row 需更宽）
+            this.btnEditTb.Size = new System.Drawing.Size(88, 30);
             this.btnEditTb.TabIndex = 0;
             this.btnEditTb.Text = "编辑 TB";
             this.btnEditTb.Variant = AlphaRap.FlatButtonVariant.Surface;
@@ -382,7 +383,7 @@
             this.btnCapture.Location = new System.Drawing.Point(128, 8);
             this.btnCapture.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnCapture.Name = "vpBtn_Capture";
-            this.btnCapture.Size = new System.Drawing.Size(100, 32);
+            this.btnCapture.Size = new System.Drawing.Size(72, 30);
             this.btnCapture.TabIndex = 1;
             this.btnCapture.Text = "拍照";
             this.btnCapture.Variant = AlphaRap.FlatButtonVariant.Primary;
@@ -396,7 +397,7 @@
             this.btnSaveVpp.Location = new System.Drawing.Point(236, 8);
             this.btnSaveVpp.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnSaveVpp.Name = "vpBtn_SaveVpp";
-            this.btnSaveVpp.Size = new System.Drawing.Size(108, 32);
+            this.btnSaveVpp.Size = new System.Drawing.Size(96, 30);
             this.btnSaveVpp.TabIndex = 2;
             this.btnSaveVpp.Text = "保存 VPP";
             this.btnSaveVpp.Variant = AlphaRap.FlatButtonVariant.Primary;
@@ -410,7 +411,7 @@
             this.btnAddCompRow.Location = new System.Drawing.Point(352, 8);
             this.btnAddCompRow.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnAddCompRow.Name = "vpBtn_AddCompRow";
-            this.btnAddCompRow.Size = new System.Drawing.Size(100, 32);
+            this.btnAddCompRow.Size = new System.Drawing.Size(96, 30);
             this.btnAddCompRow.TabIndex = 3;
             this.btnAddCompRow.Text = "添加行";
             this.btnAddCompRow.Variant = AlphaRap.FlatButtonVariant.Surface;
@@ -424,7 +425,7 @@
             this.btnDelCompRow.Location = new System.Drawing.Point(460, 8);
             this.btnDelCompRow.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
             this.btnDelCompRow.Name = "vpBtn_DelCompRow";
-            this.btnDelCompRow.Size = new System.Drawing.Size(100, 32);
+            this.btnDelCompRow.Size = new System.Drawing.Size(108, 30);
             this.btnDelCompRow.TabIndex = 4;
             this.btnDelCompRow.Text = "删除行";
             this.btnDelCompRow.Variant = AlphaRap.FlatButtonVariant.Danger;

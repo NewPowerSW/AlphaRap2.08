@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -20,6 +20,11 @@ namespace AlphaRap
             {
                 head.Resize -= OnHeadResize;
                 head.Resize += OnHeadResize;
+            }
+            if (paramRow != null)
+            {
+                paramRow.Resize -= OnParamRowResize;
+                paramRow.Resize += OnParamRowResize;
             }
 
             UiTheme.StyleCaption(lblInfo, true);
@@ -57,7 +62,7 @@ namespace AlphaRap
             VPForm.StyleActionButton(btnSaveVpp, FlatButtonVariant.Primary);
             VPForm.StyleActionButton(btnAddCompRow, FlatButtonVariant.Surface);
             VPForm.StyleActionButton(btnDelCompRow, FlatButtonVariant.Danger);
-            SizeActionButtons();
+            LayoutParamRow();
             LayoutKeepGroup();
             LayoutTitlePath();
         }
@@ -65,6 +70,11 @@ namespace AlphaRap
         private void OnHeadResize(object sender, EventArgs e)
         {
             LayoutTitlePath();
+        }
+
+        private void OnParamRowResize(object sender, EventArgs e)
+        {
+            LayoutParamRow();
         }
 
         /// <summary>vpp 路径贴标题右侧，最长约占标题栏一半，超出省略。</summary>
@@ -79,15 +89,58 @@ namespace AlphaRap
             path.Height = head.ClientSize.Height;
         }
 
-        private void SizeActionButtons()
+        /// <summary>
+        /// 曝光 / VPP 名 / 五个操作按钮同一行：等高、垂直居中、按钮按文案量宽（避免 Delete row 截成 Delete r...）。
+        /// </summary>
+        internal void LayoutParamRow()
         {
-            // 与曝光/VPP 名称同一行，略缩小以免挤出可视区
+            if (paramRow == null) return;
             int h = UiTheme.Dpi(30);
-            if (btnEditTb != null) btnEditTb.Size = new Size(UiTheme.Dpi(88), h);
-            if (btnCapture != null) btnCapture.Size = new Size(UiTheme.Dpi(72), h);
-            if (btnSaveVpp != null) btnSaveVpp.Size = new Size(UiTheme.Dpi(96), h);
-            if (btnAddCompRow != null) btnAddCompRow.Size = new Size(UiTheme.Dpi(80), h);
-            if (btnDelCompRow != null) btnDelCompRow.Size = new Size(UiTheme.Dpi(80), h);
+            int gap = UiTheme.Dpi(8);
+            int fieldGap = UiTheme.Dpi(16);
+
+            FitActionButton(btnEditTb, h, 72);
+            FitActionButton(btnCapture, h, 64);
+            FitActionButton(btnSaveVpp, h, 80);
+            FitActionButton(btnAddCompRow, h, 72);
+            FitActionButton(btnDelCompRow, h, 72);
+
+            if (tbExp != null) tbExp.Size = new Size(UiTheme.Dpi(64), h);
+            if (tbRename != null) tbRename.Size = new Size(UiTheme.Dpi(100), h);
+
+            // FlowLayoutPanel：用统一 Top margin 把标签/输入/按钮垂直对齐
+            int rowInner = paramRow.ClientSize.Height > 0
+                ? paramRow.ClientSize.Height - paramRow.Padding.Vertical
+                : UiTheme.Dpi(36);
+            AlignParamChild(lblExp, rowInner, 0, UiTheme.Dpi(6));
+            AlignParamChild(tbExp, rowInner, 0, fieldGap);
+            AlignParamChild(lblVppName, rowInner, 0, UiTheme.Dpi(6));
+            AlignParamChild(tbRename, rowInner, 0, gap);
+            AlignParamChild(btnEditTb, rowInner, gap, gap);
+            AlignParamChild(btnCapture, rowInner, 0, gap);
+            AlignParamChild(btnSaveVpp, rowInner, 0, gap);
+            AlignParamChild(btnAddCompRow, rowInner, 0, gap);
+            AlignParamChild(btnDelCompRow, rowInner, 0, 0);
+        }
+
+        private static void FitActionButton(FlatButton b, int h, int minWDesign)
+        {
+            if (b == null) return;
+            int minW = UiTheme.Dpi(minWDesign);
+            int pad = UiTheme.Dpi(22);
+            Font font = b.Font ?? UiKit.Bold(10.5f);
+            int tw = TextRenderer.MeasureText(b.Text ?? "", font,
+                new Size(int.MaxValue, h),
+                TextFormatFlags.NoPadding | TextFormatFlags.SingleLine).Width + pad;
+            if (tw < minW) tw = minW;
+            b.Size = new Size(tw, h);
+        }
+
+        private static void AlignParamChild(Control c, int rowInner, int leftExtra, int right)
+        {
+            if (c == null) return;
+            int top = Math.Max(0, (rowInner - c.Height) / 2);
+            c.Margin = new Padding(leftExtra, top, right, 0);
         }
 
         /// <summary>按标签宽度排布「保留天数」组，保证标签与输入框始终同一行。</summary>
