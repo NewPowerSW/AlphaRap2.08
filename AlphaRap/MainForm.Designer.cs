@@ -662,8 +662,8 @@
             // 
             this.tableLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(234)))), ((int)(((byte)(243)))));
             this.tableLayoutPanel1.ColumnCount = 2;
-            // 侧栏绝对宽度：展开 96、折叠 36（运行时 SetNavRailCollapsed 切换）
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 96F));
+            // 侧栏绝对宽度：展开 104、折叠 36（运行时 SetNavRailCollapsed 切换；104 给单列滚动条留空）
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 104F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.panel4, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.panel2, 1, 0);

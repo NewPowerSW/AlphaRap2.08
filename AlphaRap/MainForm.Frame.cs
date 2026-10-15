@@ -45,10 +45,10 @@ namespace AlphaRap
 
         // ---------------- 尺寸 ----------------
 
-        private static readonly Size NavButtonSize = new Size(88, 54);
+        private static readonly Size NavButtonSize = new Size(84, 52);
         private const int NavIconSize = 24;
-        /// <summary>侧栏展开宽度；折叠为窄轨宽度（与报警底边细条同一套视觉语言）。</summary>
-        private const int NavRailWidth = 96;
+        /// <summary>侧栏展开宽度（含纵向滚动条余量）；折叠为窄轨。</summary>
+        private const int NavRailWidth = 104;
         private const int NavRailWidthCollapsed = 36;
         private const int NavCollapsedIconSize = 18;
 
@@ -227,30 +227,66 @@ namespace AlphaRap
             RemoveLegacyNavFoldControls();
             EnsureNavRailToggle();
             EnsureNavAutoHideTab();
-
-            foreach (FlowLayoutPanel flow in new[] { Panl_PictureShowTop, Panl_PictureShowDown })
-            {
-                flow.Padding = UiTheme.Dpi(new Padding(0, 6, 0, 0));
-                flow.BackColor = Color.Transparent;
-            }
-            // 上下双区 50/50
-            try
-            {
-                if (panel4.RowCount != 2)
-                {
-                    panel4.SuspendLayout();
-                    if (panel4.Controls.Contains(Panl_PictureShowDown))
-                        panel4.SetRow(Panl_PictureShowDown, 1);
-                    panel4.RowCount = 2;
-                    panel4.RowStyles.Clear();
-                    panel4.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-                    panel4.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-                    panel4.ResumeLayout(true);
-                }
-            }
-            catch { }
+            // 上下 50/50 时上半区装不下会画到下半区上（蓝底禁用块看起来像重叠）→ 改单列可滚
+            MergeNavIntoSingleColumn();
 
             ApplyNavRailLayout();
+        }
+
+        /// <summary>
+        /// 把下半区入口并入上半区，整栏一列 + AutoScroll，避免两区交界处按钮重叠。
+        /// </summary>
+        private void MergeNavIntoSingleColumn()
+        {
+            if (panel4 == null || Panl_PictureShowTop == null) return;
+            try
+            {
+                panel4.SuspendLayout();
+                Panl_PictureShowTop.SuspendLayout();
+
+                if (Panl_PictureShowDown != null && Panl_PictureShowDown.Controls.Count > 0)
+                {
+                    Control[] down = new Control[Panl_PictureShowDown.Controls.Count];
+                    Panl_PictureShowDown.Controls.CopyTo(down, 0);
+                    for (int i = 0; i < down.Length; i++)
+                    {
+                        Control c = down[i];
+                        if (c == null) continue;
+                        Panl_PictureShowDown.Controls.Remove(c);
+                        Panl_PictureShowTop.Controls.Add(c);
+                    }
+                }
+
+                Panl_PictureShowTop.Dock = DockStyle.Fill;
+                Panl_PictureShowTop.FlowDirection = FlowDirection.TopDown;
+                Panl_PictureShowTop.WrapContents = false;
+                Panl_PictureShowTop.AutoScroll = true;
+                Panl_PictureShowTop.Padding = UiTheme.Dpi(new Padding(0, 4, 0, 4));
+                Panl_PictureShowTop.BackColor = Color.Transparent;
+                Panl_PictureShowTop.Visible = true;
+
+                if (Panl_PictureShowDown != null)
+                {
+                    Panl_PictureShowDown.Visible = false;
+                    try { panel4.Controls.Remove(Panl_PictureShowDown); } catch { }
+                }
+
+                panel4.RowCount = 1;
+                panel4.RowStyles.Clear();
+                panel4.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+                if (!panel4.Controls.Contains(Panl_PictureShowTop))
+                    panel4.Controls.Add(Panl_PictureShowTop, 0, 0);
+                else
+                    panel4.SetRow(Panl_PictureShowTop, 0);
+
+                Panl_PictureShowTop.ResumeLayout(true);
+                panel4.ResumeLayout(true);
+            }
+            catch
+            {
+                try { Panl_PictureShowTop.ResumeLayout(true); } catch { }
+                try { panel4.ResumeLayout(true); } catch { }
+            }
         }
 
         /// <summary>导航栏右侧接缝：2px 深蓝，和灰白内容区分开。</summary>
@@ -401,7 +437,6 @@ namespace AlphaRap
             if (_navRailCollapsed)
             {
                 if (Panl_PictureShowTop != null) Panl_PictureShowTop.Visible = false;
-                if (Panl_PictureShowDown != null) Panl_PictureShowDown.Visible = false;
                 if (panelNavAutoHideTab != null)
                 {
                     panelNavAutoHideTab.Visible = true;
@@ -414,10 +449,10 @@ namespace AlphaRap
                 _navAutoHideHover = false;
                 if (panelNavAutoHideTab != null) panelNavAutoHideTab.Visible = false;
                 if (Panl_PictureShowTop != null) Panl_PictureShowTop.Visible = true;
-                if (Panl_PictureShowDown != null) Panl_PictureShowDown.Visible = true;
 
                 Size btnSize = UiTheme.Dpi(NavButtonSize);
-                Padding margin = UiTheme.Dpi(new Padding(1, 2, 1, 2));
+                // 略加大纵向间距，圆角禁用块不再挤在一起
+                Padding margin = UiTheme.Dpi(new Padding(2, 3, 2, 3));
                 foreach (PictureBox b in NavButtons())
                 {
                     if (b == null) continue;
