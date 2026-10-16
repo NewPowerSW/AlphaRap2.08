@@ -273,8 +273,8 @@ int nheightEllipse
             ApplyRoundedMenuRegions();
 
             // 顶栏机器状态徽章：圆角胶囊，尺寸变化时重算
-            MachineStatus.Resize += (s, ev) => ApplyPillRegion(MachineStatus, 10);
-            ApplyPillRegion(MachineStatus, 10);
+            MachineStatus.Resize += (s, ev) => ApplyPillRegion(MachineStatus, 12);
+            ApplyPillRegion(MachineStatus, 12);
 
             // 点禁用导航/工具栏按钮时，由父面板弹出原因（Enabled=false 收不到 Click）
             HookLockedClickFeedback();
@@ -1393,7 +1393,7 @@ int nheightEllipse
         private static readonly Color StatusWhiteInk = Color.White;
 
         /// <summary>徽章左右内边距（96 DPI 设计值）——紧凑胶囊，避免大块空洞。</summary>
-        private const int StatusPadX = 16;
+        private const int StatusPadX = 20;
         /// <summary>徽章最小宽度（96 DPI 设计值）。</summary>
         private const int StatusMinWidth = 108;
         /// <summary>当前填充色（MachineStatus_Paint 画描边时用）。</summary>
@@ -1492,7 +1492,7 @@ int nheightEllipse
             {
                 if (MachineStatus.Width <= 2 || MachineStatus.Height <= 2) return;
                 Rectangle r = new Rectangle(0, 0, MachineStatus.Width - 1, MachineStatus.Height - 1);
-                using (GraphicsPath path = UiKit.RoundRect(r, UiTheme.Dpi(10)))
+                using (GraphicsPath path = UiKit.RoundRect(r, UiTheme.Dpi(12)))
                 using (Pen p = new Pen(Color.FromArgb(70, 8, 20, 36), 1f))
                     e.Graphics.DrawPath(p, path);
             }

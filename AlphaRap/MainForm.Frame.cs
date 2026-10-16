@@ -158,13 +158,13 @@ namespace AlphaRap
             LoginText.Cursor = Cursors.Hand;
             LoginText.AutoEllipsis = true;
 
-            // 设备状态徽章：顶栏正中央；整块填状态色 + 紧凑字号（宽度由 SetStatusLook 按文字算）
-            // 22pt 大胶囊信息密度低；改为 13.5pt，文案用「主状态 · 次要信息」
-            MachineStatus.Font = UiKit.Bold(13.5f);
+            // 设备状态徽章：顶栏正中央；整块填状态色（宽度由 SetStatusLook 按文字算）
+            // 放大一档便于扫视辨认；文案「主状态 · 次要信息」
+            MachineStatus.Font = UiKit.Bold(17f);
             MachineStatus.TextAlign = ContentAlignment.MiddleCenter;
             MachineStatus.AutoSize = false;
             MachineStatus.AutoEllipsis = false;
-            MachineStatus.Height = UiTheme.Dpi(34);
+            MachineStatus.Height = UiTheme.Dpi(42);
             // 缺省按"待机"上色：设计视图里也就和运行时一致（运行期每 tick 由 UpdateMachineStatus 覆盖）
             MachineStatus.BackColor = StatusIdleFill;
             MachineStatus.ForeColor = StatusDarkInk;
