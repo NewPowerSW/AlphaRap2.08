@@ -1,6 +1,7 @@
 ﻿namespace AlphaRap
 {
-    partial class MainForm
+    // 设计器会读此文件的基类声明；若只写 partial class MainForm，会认不出 SuspendLayout/Text 等 Form 成员
+    partial class MainForm : AlphaRapLibrary.ModuleBaseForm
     {
         /// <summary>
         /// Required designer variable.

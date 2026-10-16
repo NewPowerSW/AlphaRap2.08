@@ -560,11 +560,6 @@
       <HintPath>bin\x64\Debug\LogSv.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="NewPowerLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\AlphaRapLibrary\bin\Debug\NewPowerLibrary.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -1250,4 +1245,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\AlphaRapLibrary\AlphaRapLibrary.csproj">
+      <Project>{46B43E85-8B46-4186-956A-DCD82FC781B7}</Project>
+      <Name>AlphaRapLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
