@@ -91,7 +91,6 @@
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel5 = new System.Windows.Forms.Panel();
-            // 报警筛选条（全部 / 警告 / 报警）
             this.panelAlarmFilter = new System.Windows.Forms.Panel();
             this.flowAlarmFilter = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAlarmFilterAll = new AlphaRap.AlarmChip();
@@ -102,7 +101,6 @@
             this.tabPage22 = new System.Windows.Forms.TabPage();
             this.plMainShow = new System.Windows.Forms.Panel();
             this.tabPage10 = new System.Windows.Forms.TabPage();
-            // SettingData / RecipeData 由基类 ModuleBaseForm 创建；勿在此 BeginInit，否则设计器无法解析继承字段
             this.tableLayoutPanel_Main.SuspendLayout();
             this.statusStrip2.SuspendLayout();
             this.panel_PictureShowDown.SuspendLayout();
