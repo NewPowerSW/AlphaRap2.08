@@ -96,6 +96,7 @@ namespace AlphaRap
             plMainShow.BackColor = UiKit.PageBg;
 
             // 分段 try：某一段失败不阻断图标/文字刷新（设计器里尤其重要）
+            TryFrameStep(StyleFonts);
             TryFrameStep(StyleTopBar);
             TryFrameStep(StyleNavigation);
             TryFrameStep(StyleToolbar);
@@ -115,6 +116,24 @@ namespace AlphaRap
             catch { }
         }
 
+        // ---------------- 字体（与顶栏「配方」一致：微软雅黑） ----------------
+
+        /// <summary>窗体与内容区默认字体；顶栏芯片/配方等仍用 Bold。</summary>
+        private void StyleFonts()
+        {
+            Font body = UiKit.Regular(10.5f);
+            this.Font = body;
+            if (plMainShow != null) plMainShow.Font = body;
+            if (tabPage22 != null) tabPage22.Font = body;
+            if (tabPage10 != null) tabPage10.Font = body;
+            if (uiTabControl1 != null) uiTabControl1.Font = UiKit.Bold(11f);
+            if (WarnningMessage != null) WarnningMessage.Font = UiKit.Regular(9f);
+            if (miniToolStrip != null) miniToolStrip.Font = UiKit.Bold(10.5f);
+            if (menuStrip1 != null) menuStrip1.Font = UiKit.Bold(10.5f);
+            if (languageSwitch != null) languageSwitch.Font = UiKit.Bold(10.5f);
+            if (txtCyCT != null) txtCyCT.Font = UiKit.Bold(13.8f);
+        }
+
         // ---------------- 顶栏 ----------------
 
         /// <summary>登录芯片常态底色（比顶栏品牌蓝略亮，形成"可点"的层次）。</summary>
@@ -125,7 +144,8 @@ namespace AlphaRap
 
         private void StyleTopBar()
         {
-            lbRecipeName.Font = UiKit.Bold(11f);
+            // 与截图一致：微软雅黑 Bold + 白字
+            lbRecipeName.Font = UiKit.Bold(10.5f);
             lbRecipeName.ForeColor = Color.White;
 
             // 右上角登录芯片：圆角胶囊（登录图标 + 用户名·权限·登录时间），整块可点开登录页

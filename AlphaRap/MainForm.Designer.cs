@@ -182,7 +182,7 @@
             this.miniToolStrip.BackColor = System.Drawing.Color.White;
             this.miniToolStrip.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.miniToolStrip.Dock = System.Windows.Forms.DockStyle.None;
-            this.miniToolStrip.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
+            this.miniToolStrip.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.miniToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.miniToolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Table;
             this.miniToolStrip.Location = new System.Drawing.Point(0, 36);
@@ -1094,7 +1094,7 @@
             this.tabPage22.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.tabPage22.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.tabPage22.Controls.Add(this.plMainShow);
-            this.tabPage22.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabPage22.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tabPage22.Location = new System.Drawing.Point(0, 38);
             this.tabPage22.Name = "tabPage22";
             this.tabPage22.Size = new System.Drawing.Size(1342, 566);
@@ -1108,7 +1108,7 @@
             this.plMainShow.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.plMainShow.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(248)))));
             this.plMainShow.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.plMainShow.Font = new System.Drawing.Font("Century Gothic", 25.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.plMainShow.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.plMainShow.ForeColor = System.Drawing.Color.Black;
             this.plMainShow.Location = new System.Drawing.Point(0, 0);
             this.plMainShow.Margin = new System.Windows.Forms.Padding(0);
@@ -1135,7 +1135,7 @@
             this.ClientSize = new System.Drawing.Size(1440, 900);
             this.ControlBox = false;
             this.Controls.Add(this.tableLayoutPanel_Main);
-            this.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.ForeColor = System.Drawing.Color.White;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.HelpButton = true;
