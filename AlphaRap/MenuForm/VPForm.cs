@@ -397,8 +397,6 @@ namespace AlphaRap
 			ctl.LiveButton.Click += OnCameraLiveClick;
 			entry.LiveButton = ctl.LiveButton;
 			RefreshLiveButton(ctl.LiveButton, entry);
-			ctl.DeleteCameraButton.Tag = cam;
-			ctl.DeleteCameraButton.Click += OnDeleteCameraClick;
 
 			// 参数编辑：数字修改即生效，名称在失焦或回车时生效（会更换 vpp 目录）
 			AttachCameraEditors(cam, page, ctl.NameBox, ctl.IndexBox, ctl.ExposureBox);
@@ -988,13 +986,6 @@ namespace AlphaRap
 			if (entry == null) return;
 			LiveCamera(entry);
 			RefreshLiveButton(btn, entry);
-		}
-
-		private void OnDeleteCameraClick(object sender, EventArgs e)
-		{
-			Control btn = sender as Control;
-			VpCameraConfig cam = (btn != null) ? btn.Tag as VpCameraConfig : null;
-			if (cam != null) DeleteCamera(cam);
 		}
 
 		/// <summary>按实时状态（<see cref="IsLiveRunning"/>）刷新实时按钮的文字和样式。</summary>

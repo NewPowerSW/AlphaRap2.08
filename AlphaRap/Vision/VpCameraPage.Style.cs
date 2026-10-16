@@ -1,4 +1,4 @@
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace AlphaRap
@@ -39,9 +39,7 @@ namespace AlphaRap
             UiTheme.StyleTextBox(tbExposure);
 
             VPForm.StyleActionButton(btnLive, FlatButtonVariant.Primary);
-            VPForm.StyleActionButton(btnDeleteCamera, FlatButtonVariant.Danger);
             if (btnLive != null) btnLive.Size = new Size(UiTheme.Dpi(120), UiTheme.Dpi(32));
-            if (btnDeleteCamera != null) btnDeleteCamera.Size = new Size(UiTheme.Dpi(130), UiTheme.Dpi(32));
 
             if (vppTabs != null)
                 UiTheme.StyleTabControl(vppTabs, false);

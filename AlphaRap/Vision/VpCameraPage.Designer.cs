@@ -28,7 +28,6 @@
             this.lblCapDefaultExposure = new AlphaRap.UiLabel();
             this.tbExposure = new System.Windows.Forms.TextBox();
             this.btnLive = new AlphaRap.FlatButton();
-            this.btnDeleteCamera = new AlphaRap.FlatButton();
             this.head.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -73,7 +72,6 @@
             this.head.Controls.Add(this.lblCapDefaultExposure);
             this.head.Controls.Add(this.tbExposure);
             this.head.Controls.Add(this.btnLive);
-            this.head.Controls.Add(this.btnDeleteCamera);
             this.head.Dock = System.Windows.Forms.DockStyle.Top;
             this.head.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.head.Location = new System.Drawing.Point(0, 0);
@@ -169,20 +167,6 @@
             this.btnLive.Text = "实时显示";
             this.btnLive.Variant = AlphaRap.FlatButtonVariant.Primary;
             // 
-            // btnDeleteCamera
-            // 
-            this.btnDeleteCamera.BackColor = System.Drawing.Color.Transparent;
-            this.btnDeleteCamera.CornerRadius = 8;
-            this.btnDeleteCamera.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnDeleteCamera.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
-            this.btnDeleteCamera.Location = new System.Drawing.Point(666, 10);
-            this.btnDeleteCamera.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
-            this.btnDeleteCamera.Name = "btnDeleteCamera";
-            this.btnDeleteCamera.Size = new System.Drawing.Size(130, 32);
-            this.btnDeleteCamera.TabIndex = 7;
-            this.btnDeleteCamera.Text = "删除本相机";
-            this.btnDeleteCamera.Variant = AlphaRap.FlatButtonVariant.Danger;
-            // 
             // VpCameraPage
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -211,6 +195,5 @@
         private UiLabel lblCapDefaultExposure;
         private System.Windows.Forms.TextBox tbExposure;
         private FlatButton btnLive;
-        private FlatButton btnDeleteCamera;
     }
 }

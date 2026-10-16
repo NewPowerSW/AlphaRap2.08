@@ -32,7 +32,6 @@ namespace AlphaRap
         public TextBox ExposureBox { get { return tbExposure; } }
         /// <summary>实时显示按钮（文字跟语言 + 实时状态走，由 VPForm.RefreshLiveButton 现算）。</summary>
         public FlatButton LiveButton { get { return btnLive; } }
-        public FlatButton DeleteCameraButton { get { return btnDeleteCamera; } }
 
         public VpCameraPage()
         {
@@ -50,7 +49,6 @@ namespace AlphaRap
                 lblCapCameraName.Text = LangText("vpCap_CameraName", "相机名称");
                 lblCapCameraIndex.Text = LangText("vpCap_CameraIndex", "CameraIndex");
                 lblCapDefaultExposure.Text = LangText("vpCap_DefaultExposure", "默认曝光");
-                btnDeleteCamera.Text = LangText("vpBtn_DeleteCamera", "删除本相机");
             }
             catch (Exception) { }
         }
