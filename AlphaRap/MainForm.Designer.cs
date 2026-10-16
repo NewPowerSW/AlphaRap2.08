@@ -206,7 +206,7 @@
             this.tableLayoutPanel_Main.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel_Main.Name = "tableLayoutPanel_Main";
             this.tableLayoutPanel_Main.RowCount = 4;
-            this.tableLayoutPanel_Main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 56F));
+            this.tableLayoutPanel_Main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
             this.tableLayoutPanel_Main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 88F));
             this.tableLayoutPanel_Main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 68F));
             this.tableLayoutPanel_Main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
@@ -495,17 +495,17 @@
             this.picVirtualKeyboard.TabStop = false;
             // 
             // MachineStatus
-            // 与运行时一致：17pt 胶囊；文案形如「待机 · 未初始化」（运行期 UpdateMachineStatus 覆盖）
+            // 与运行时一致：20pt 大胶囊；文案形如「待机 · 未初始化」（运行期 UpdateMachineStatus 覆盖）
             // 
             this.MachineStatus.AutoSize = false;
             this.MachineStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
             this.MachineStatus.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.MachineStatus.Font = new System.Drawing.Font("微软雅黑", 17F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.MachineStatus.Font = new System.Drawing.Font("微软雅黑", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.MachineStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(30)))), ((int)(((byte)(46)))));
-            this.MachineStatus.Location = new System.Drawing.Point(1231, 8);
-            this.MachineStatus.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
+            this.MachineStatus.Location = new System.Drawing.Point(1231, 6);
+            this.MachineStatus.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
             this.MachineStatus.Name = "MachineStatus";
-            this.MachineStatus.Size = new System.Drawing.Size(180, 42);
+            this.MachineStatus.Size = new System.Drawing.Size(220, 48);
             this.MachineStatus.TabIndex = 211;
             this.MachineStatus.Text = "待机 · 未初始化";
             this.MachineStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;

@@ -1393,9 +1393,9 @@ int nheightEllipse
         private static readonly Color StatusWhiteInk = Color.White;
 
         /// <summary>徽章左右内边距（96 DPI 设计值）——紧凑胶囊，避免大块空洞。</summary>
-        private const int StatusPadX = 20;
+        private const int StatusPadX = 24;
         /// <summary>徽章最小宽度（96 DPI 设计值）。</summary>
-        private const int StatusMinWidth = 108;
+        private const int StatusMinWidth = 140;
         /// <summary>当前填充色（MachineStatus_Paint 画描边时用）。</summary>
         private Color _statusFill = StatusIdleFill;
 
