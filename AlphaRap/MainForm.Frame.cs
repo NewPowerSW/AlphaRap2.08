@@ -1024,6 +1024,8 @@ namespace AlphaRap
             public Color AccentBarColor = Color.Empty;
             /// <summary>禁用时画一个小锁角标：把"没有权限"从颜色通道挪到形状通道。</summary>
             public UiTheme.LockBadgeMode LockBadge = UiTheme.LockBadgeMode.None;
+            /// <summary>图标/文字不透明度；底栏禁用淡化用约 0.4，不改按钮底色以保持条底统一。</summary>
+            public float ContentOpacity = 1f;
         }
 
         private readonly Dictionary<PictureBox, NavPaintState> _navPaint = new Dictionary<PictureBox, NavPaintState>();
@@ -1065,7 +1067,8 @@ namespace AlphaRap
                 Color barColor = st.AccentBarColor.IsEmpty ? UiKit.Brand : st.AccentBarColor;
                 Image ic = AppIcons.Get(st.Icon, UiTheme.Dpi(st.IconSize), st.IconColor, st.AccentColor);
                 UiTheme.PaintIconButton(e.Graphics, b.Size, ic, ButtonText(b), st.Font, st.TextColor,
-                    st.IconSize, bar, back, b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge, barColor);
+                    st.IconSize, bar, back, b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge,
+                    barColor, st.ContentOpacity);
             }
             catch { }
         }
@@ -1085,6 +1088,7 @@ namespace AlphaRap
             st.TextColor = st.IconColor;
             st.AccentBarColor = NavRailAccentBar;
             st.LockBadge = NavLockBadge;
+            st.ContentOpacity = 1f;
             // 设计器不保证触发 Paint：把预览烤进 Image，运行时仍走自绘
             if (UiTheme.IsDesignTime) BakeButtonPreview(b, st);
             else b.Invalidate();
@@ -1115,23 +1119,25 @@ namespace AlphaRap
         {
             if (btn == null) return;
             bool on = btn.Enabled;
-            // 锁态：浅灰底（一眼区分「不能点」）；可用悬停才铺 ToolbarHover
-            Color back = !on ? UiKit.DisabledBg
-                : (btn == _hoverToolbarButton) ? ToolbarHover
-                : Color.Transparent;
+            // 底栏统一：禁用也不再铺灰底块，只靠内容淡化 + 小锁；可用态悬停才铺 ToolbarHover
+            Color back = (on && btn == _hoverToolbarButton) ? ToolbarHover : Color.Transparent;
             if (btn.BackColor != back) btn.BackColor = back;
 
             NavPaintState st = AttachNavPaint(btn, icon, ToolIconSize, false);
-            st.IconColor = on ? iconColor : AppIconColor.Disabled;
-            st.AccentColor = on ? accentColor : AppIconColor.Disabled;
-            // 常态 Brand 系图标配同色字；语义色（绿/红等）图标也配同色字
-            bool brandTone = on && (iconColor == AppIconColor.Nav || iconColor == UiKit.BrandDark || iconColor == UiKit.Brand);
-            st.TextColor = !on ? UiKit.DisabledText : brandTone ? UiKit.BrandDark : iconColor;
+            // 禁用仍保留语义色相，整体降透明度淡化（见 ContentOpacity）
+            st.IconColor = iconColor;
+            st.AccentColor = accentColor;
+            bool brandTone = iconColor == AppIconColor.Nav || iconColor == UiKit.BrandDark || iconColor == UiKit.Brand;
+            st.TextColor = brandTone ? UiKit.BrandDark : iconColor;
             st.AccentBarColor = Color.Empty;
             st.LockBadge = NavLockBadge;
+            st.ContentOpacity = on ? 1f : ToolbarDisabledOpacity;
             if (UiTheme.IsDesignTime) BakeButtonPreview(btn, st);
             else btn.Invalidate();
         }
+
+        /// <summary>底栏禁用键内容透明度（不改底色，避免灰块破坏条底统一）。</summary>
+        private const float ToolbarDisabledOpacity = 0.38f;
 
         /// <summary>设计期：把图标+文字画进 PictureBox.Image，避免设计面空白。</summary>
         private void BakeButtonPreview(PictureBox b, NavPaintState st)
@@ -1145,7 +1151,7 @@ namespace AlphaRap
                 Image ic = AppIcons.Get(st.Icon, UiTheme.Dpi(st.IconSize), st.IconColor, st.AccentColor);
                 Bitmap bmp = UiTheme.RenderIconButton(b.Size, ic, ButtonText(b), st.Font, st.TextColor,
                     st.IconSize, sel, back,
-                    b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge, barColor);
+                    b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge, barColor, st.ContentOpacity);
                 if (bmp == null) return;
                 Image old = b.Image;
                 b.Image = bmp;

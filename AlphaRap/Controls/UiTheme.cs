@@ -354,11 +354,18 @@ namespace AlphaRap
         public static Bitmap RenderIconButton(Size size, Image icon, string text, Font font,
             Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge)
         {
-            return RenderIconButton(size, icon, text, font, textColor, iconSize, accentBar, backColor, lockBadge, UiKit.Brand);
+            return RenderIconButton(size, icon, text, font, textColor, iconSize, accentBar, backColor, lockBadge, UiKit.Brand, 1f);
         }
 
         public static Bitmap RenderIconButton(Size size, Image icon, string text, Font font,
             Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge, Color accentBarColor)
+        {
+            return RenderIconButton(size, icon, text, font, textColor, iconSize, accentBar, backColor, lockBadge, accentBarColor, 1f);
+        }
+
+        public static Bitmap RenderIconButton(Size size, Image icon, string text, Font font,
+            Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge,
+            Color accentBarColor, float contentOpacity)
         {
             if (size.Width <= 0 || size.Height <= 0) return null;
             Bitmap bmp = new Bitmap(size.Width, size.Height);
@@ -366,7 +373,7 @@ namespace AlphaRap
             {
                 g.Clear(backColor.A == 255 ? backColor : Color.FromArgb(238, 243, 248));
                 PaintIconButton(g, size, icon, text, font, textColor, iconSize, accentBar,
-                    backColor.A == 255 ? backColor : Color.Transparent, lockBadge, accentBarColor);
+                    backColor.A == 255 ? backColor : Color.Transparent, lockBadge, accentBarColor, contentOpacity);
             }
             return bmp;
         }
@@ -374,13 +381,23 @@ namespace AlphaRap
         public static void PaintIconButton(Graphics g, Size size, Image icon, string text, Font font,
             Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge)
         {
-            PaintIconButton(g, size, icon, text, font, textColor, iconSize, accentBar, backColor, lockBadge, UiKit.Brand);
+            PaintIconButton(g, size, icon, text, font, textColor, iconSize, accentBar, backColor, lockBadge, UiKit.Brand, 1f);
         }
 
         public static void PaintIconButton(Graphics g, Size size, Image icon, string text, Font font,
             Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge, Color accentBarColor)
         {
+            PaintIconButton(g, size, icon, text, font, textColor, iconSize, accentBar, backColor, lockBadge, accentBarColor, 1f);
+        }
+
+        /// <param name="contentOpacity">图标与文字透明度 0~1；禁用淡化时传约 0.38，底色仍由 backColor 决定（可透明以统一条底）。</param>
+        public static void PaintIconButton(Graphics g, Size size, Image icon, string text, Font font,
+            Color textColor, int iconSize, bool accentBar, Color backColor, LockBadgeMode lockBadge,
+            Color accentBarColor, float contentOpacity)
+        {
             if (g == null || size.Width <= 0 || size.Height <= 0) return;
+            if (contentOpacity < 0f) contentOpacity = 0f;
+            if (contentOpacity > 1f) contentOpacity = 1f;
 
             if (backColor.A == 255)
                 using (SolidBrush b = new SolidBrush(backColor))
@@ -390,8 +407,12 @@ namespace AlphaRap
             int icSize = (icon != null) ? Dpi(iconSize) : 0;
             int gap = (icon != null && textH > 0) ? Dpi(2) : 0;
             int top = Math.Max(Dpi(2), (size.Height - icSize - textH - gap) / 2);
+            // TextRenderer 忽略 Color.A，禁用淡化改为与底色插值
+            Color fadeBg = backColor.A == 255 ? backColor : UiKit.Surface;
+            Color fadeText = BlendToward(textColor, fadeBg, contentOpacity);
 
-            if (icon != null) g.DrawImage(icon, (size.Width - icSize) / 2, top, icSize, icSize);
+            if (icon != null)
+                DrawImageOpacity(g, icon, (size.Width - icSize) / 2, top, icSize, icSize, contentOpacity);
 
             if (textH > 0)
             {
@@ -403,19 +424,19 @@ namespace AlphaRap
                         TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
                     int x0 = (size.Width - (badge + bgap + ts.Width)) / 2;
                     if (x0 < Dpi(2)) x0 = Dpi(2);
-                    Image lk = AppIcons.Get(AppIcon.Lock, badge, textColor);
+                    Image lk = AppIcons.Get(AppIcon.Lock, badge, fadeText);
                     if (lk != null)
-                        g.DrawImage(lk, x0, top + icSize + gap + (textH - badge) / 2 + Dpi(1), badge, badge);
+                        DrawImageOpacity(g, lk, x0, top + icSize + gap + (textH - badge) / 2 + Dpi(1), badge, badge, contentOpacity);
                     Rectangle tr2 = new Rectangle(x0 + badge + bgap, top + icSize + gap,
                         Math.Max(1, size.Width - x0 - badge - bgap - Dpi(2)), textH + Dpi(2));
-                    TextRenderer.DrawText(g, text, font, tr2, textColor,
+                    TextRenderer.DrawText(g, text, font, tr2, fadeText,
                         TextFormatFlags.Left | TextFormatFlags.Top |
                         TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
                 }
                 else
                 {
                     Rectangle tr = new Rectangle(Dpi(2), top + icSize + gap, size.Width - Dpi(4), textH + Dpi(2));
-                    TextRenderer.DrawText(g, text, font, tr, textColor,
+                    TextRenderer.DrawText(g, text, font, tr, fadeText,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
                         TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
                 }
@@ -432,8 +453,47 @@ namespace AlphaRap
             if (accentBar)
             {
                 Color bar = accentBarColor.IsEmpty ? UiKit.Brand : accentBarColor;
-                using (SolidBrush b = new SolidBrush(bar))
+                using (SolidBrush b = new SolidBrush(FadeColor(bar, contentOpacity)))
                     g.FillRectangle(b, 0, Dpi(4), Dpi(4), size.Height - Dpi(8));
+            }
+        }
+
+        private static Color FadeColor(Color c, float opacity)
+        {
+            if (opacity >= 0.999f) return c;
+            int a = (int)(c.A * opacity + 0.5f);
+            if (a < 0) a = 0;
+            if (a > 255) a = 255;
+            return Color.FromArgb(a, c);
+        }
+
+        /// <summary>把前景按 opacity 与背景插值（GDI 文字用，因 TextRenderer 不吃 Alpha）。</summary>
+        private static Color BlendToward(Color fg, Color bg, float opacity)
+        {
+            if (opacity >= 0.999f) return fg;
+            if (opacity <= 0f) return bg;
+            float k = opacity;
+            float ik = 1f - k;
+            return Color.FromArgb(
+                (int)(fg.R * k + bg.R * ik + 0.5f),
+                (int)(fg.G * k + bg.G * ik + 0.5f),
+                (int)(fg.B * k + bg.B * ik + 0.5f));
+        }
+
+        private static void DrawImageOpacity(Graphics g, Image img, int x, int y, int w, int h, float opacity)
+        {
+            if (img == null || g == null) return;
+            if (opacity >= 0.999f)
+            {
+                g.DrawImage(img, x, y, w, h);
+                return;
+            }
+            ColorMatrix cm = new ColorMatrix();
+            cm.Matrix33 = opacity;
+            using (ImageAttributes ia = new ImageAttributes())
+            {
+                ia.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                g.DrawImage(img, new Rectangle(x, y, w, h), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, ia);
             }
         }
 
