@@ -128,6 +128,14 @@ internal static partial class Tests
         Run("language settings render in Chinese English and Spanish", LanguageSettingsRenders);
         Run("saving same-language translations refreshes the main frame cache", MainFrameLanguageReload);
         Run("partial site catalogs use bundled translations without overwriting overrides", PartialSiteCatalog);
+        Run("form factory reuses instances without duplicate registration", FormFactoryReuse);
+        Run("machine initialization resets stale state and signals each flow once", MachineInitialTransition);
+        Run("machine stop signals flows once and cancels manual tasks", MachineStopTransition);
+        Run("machine pause retains resume state and cancels manual tasks", MachinePauseTransition);
+        Run("periodic callback failure is isolated from the next module", ModulePeriodicIsolation);
+        Run("reset failure stops production and retains module isolation", ModuleResetFailureStops);
+        Run("indexed language lookup matches every bundled translation", LanguageIndexLookup);
+        Run("scan shutdown waits for completion and avoids joining itself", ScanThreadShutdown);
         Console.WriteLine("RESULT: " + _passed + "/" + (_passed + _failed) + " passed");
         return _failed == 0 ? 0 : 1;
     }

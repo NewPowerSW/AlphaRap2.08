@@ -22,6 +22,7 @@ $vpCompilerArgs = @('/nologo', '/platform:x64', '/target:exe', "/out:$vpExecutab
 foreach ($vpReference in $vpReferences) { $vpCompilerArgs += "/r:$vpReference" }
 $vpCompilerArgs += Join-Path $PSScriptRoot 'Regression.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'Localization.cs'
+$vpCompilerArgs += Join-Path $PSScriptRoot 'MiddleLayer.cs'
 & $vpCompiler @vpCompilerArgs
 if ($LASTEXITCODE -ne 0) { throw 'Regression compilation failed.' }
 & $vpExecutable $vpBuildDirectory $vpLibraryDirectory $vpCognexDirectory

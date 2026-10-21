@@ -958,7 +958,30 @@
       <DependentUpon>SystemSetting.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\MiddleLayer.cs" />
-    <Compile Include="Core\MiddleLayer.Language.cs" />
+    <Compile Include="Core\MiddleLayer.Startup.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.RunControl.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.Modules.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.Motion.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.Recipe.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.Alarms.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.LanguageText.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.Language.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Classes\LanguageCatalog.cs" />
     <Compile Include="Classes\AlarmCatalog.cs" />
     <Compile Include="Program.cs" />
