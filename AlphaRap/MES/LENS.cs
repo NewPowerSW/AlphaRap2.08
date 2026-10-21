@@ -1261,6 +1261,7 @@ namespace AlphaRap.MES
         public LENS()
         {
             InitializeComponent();
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
         }
         readonly Object OBJ = new object();

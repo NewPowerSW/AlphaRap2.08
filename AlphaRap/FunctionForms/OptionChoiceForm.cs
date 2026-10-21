@@ -43,7 +43,7 @@ namespace Alpha
             UiTheme.ApplyDpi(this);
 
             // 按需创建的窗体：登记进语言表并按当前语言设置文字（按钮文字随后由 fnChangeButtonsText 覆盖）
-            MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
             ControlBox = false;
 
             ApplyRoundRegion();

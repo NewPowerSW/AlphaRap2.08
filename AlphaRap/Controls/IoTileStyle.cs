@@ -5,11 +5,12 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using NPSDK;
+using NPSDK.Motion;
 
 namespace AlphaRap
 {
     /// <summary>
-    /// IO 点（Adlink_Input / Adlink_Output）与气缸（Adlink_Cylinder）的统一外观与自动排布。
+    /// IO 点（NP_Input / NP_Output）与气缸（NP_Cylinder）的统一外观与自动排布。
     /// 自动排布按"输入 / 输出"分区、按可用宽度分列，设计器中的坐标只用来决定先后顺序，
     /// 因此新增 IO 点时只需放进容器，不必手工摆位。
     /// </summary>
@@ -36,7 +37,7 @@ namespace AlphaRap
 
         public static bool IsIo(Control c)
         {
-            return c is Adlink_Input || c is Adlink_Output || c is Adlink_Cylinder;
+            return c is NP_Input || c is NP_Output || c is NP_Cylinder;
         }
 
         /// <summary>对控件树中所有直接包含 IO 点的容器做样式与排布。</summary>
@@ -71,8 +72,8 @@ namespace AlphaRap
                     .OrderBy(c => c.Top / 20).ThenBy(c => c.Left).ToList();
                 foreach (Control c in io)
                 {
-                    if (c is Adlink_Input) s.Inputs.Add(c);
-                    else if (c is Adlink_Cylinder) s.Cylinders.Add(c);
+                    if (c is NP_Input) s.Inputs.Add(c);
+                    else if (c is NP_Cylinder) s.Cylinders.Add(c);
                     else s.Outputs.Add(c);
                     IoTileStyle.Style(c);
                 }
@@ -106,6 +107,7 @@ namespace AlphaRap
             s.InputHeader.Text = UiTheme.T("Common", "io_InputSection", "输入", "Inputs", "Entradas") + "  ·  " + s.Inputs.Count;
             s.OutputHeader.Text = UiTheme.T("Common", "io_OutputSection", "输出", "Outputs", "Salidas") + "  ·  " + s.Outputs.Count;
             s.CylinderHeader.Text = UiTheme.T("Common", "io_CylinderSection", "气缸", "Cylinders", "Cilindros") + "  ·  " + s.Cylinders.Count;
+            foreach (Control cylinder in s.Cylinders) IoTileStyle.RefreshCylinderTexts(cylinder);
         }
 
         /// <summary>对所有已排布的容器刷新分区标题。</summary>
@@ -185,7 +187,7 @@ namespace AlphaRap
             if (c == null || Styled.Contains(c)) return;
             Styled.Add(c);
 
-            if (c is Adlink_Cylinder)
+            if (c is NP_Cylinder)
             {
                 StyleCylinder(c);
                 return;
@@ -211,7 +213,7 @@ namespace AlphaRap
         /// <summary>把状态指示图（开关 / 指示灯）放到卡片右侧并垂直居中。</summary>
         public static void PlaceIndicator(Control tile)
         {
-            if (tile is Adlink_Cylinder) return;
+            if (tile is NP_Cylinder) return;
             PictureBox pic = tile.Controls.OfType<PictureBox>().FirstOrDefault();
             if (pic == null) return;
             if (pic.Dock != DockStyle.None) pic.Dock = DockStyle.None;
@@ -231,8 +233,8 @@ namespace AlphaRap
         private static string PortText(Control tile)
         {
             string port = null;
-            if (tile is Adlink_Input) port = ((Adlink_Input)tile).Port;
-            else if (tile is Adlink_Output) port = ((Adlink_Output)tile).Port;
+            if (tile is NP_Input) port = ((NP_Input)tile).Port;
+            else if (tile is NP_Output) port = ((NP_Output)tile).Port;
             return string.IsNullOrEmpty(port) ? "" : port.Trim();
         }
 
@@ -269,8 +271,8 @@ namespace AlphaRap
             }
 
             // 左侧色条：输入灰、输出品牌蓝
-            Color mark = tile is Adlink_Input ? UiTheme.InputMark
-                       : tile is Adlink_Cylinder ? UiKit.Warn : UiKit.Brand;
+            Color mark = tile is NP_Input ? UiTheme.InputMark
+                       : tile is NP_Cylinder ? UiKit.Warn : UiKit.Brand;
             using (SolidBrush b = new SolidBrush(mark))
                 g.FillRectangle(b, UiTheme.Dpi(1), UiTheme.Dpi(8), UiTheme.Dpi(3), tile.Height - UiTheme.Dpi(16));
 
@@ -335,12 +337,27 @@ namespace AlphaRap
             name.BringToFront();
 
             cyl.Paint += Tile_Paint;
+            RefreshCylinderTexts(cyl);
+        }
+
+        /// <summary>刷新气缸卡片的标题和动作按钮，端口和动作方向保持不变。</summary>
+        internal static void RefreshCylinderTexts(Control cylinder)
+        {
+            foreach (Control label in cylinder.Controls.Find(MiddleLayerNames.Dyn(cylinder.Name + "_title"), true))
+                label.Text = CylinderTitle(cylinder);
+            foreach (Button button in Descendants(cylinder).OfType<Button>())
+            {
+                if (button.Name == "btnOn") button.Text = UiTheme.T("Common", "io_CylinderOn", "置位", "On", "Activar");
+                if (button.Name == "btnOff") button.Text = UiTheme.T("Common", "io_CylinderOff", "复位", "Off", "Desactivar");
+            }
         }
 
         /// <summary>气缸名称：控件 Text 不为空时用 Text，否则取控件名最后两段（如 Stop_Cylinder → Stop Cylinder）。</summary>
         private static string CylinderTitle(Control cyl)
         {
             if (!string.IsNullOrWhiteSpace(cyl.Text)) return cyl.Text.Trim();
+            if (cyl.Name.EndsWith("_Stop_Cylinder")) return UiTheme.T("Common", "io_StopperCylinder", "阻挡气缸", "Stopper cylinder", "Cilindro de tope");
+            if (cyl.Name.EndsWith("_Jacking_Cylinder")) return UiTheme.T("Common", "io_LifterCylinder", "顶升气缸", "Lifter cylinder", "Cilindro elevador");
             string[] parts = (cyl.Name ?? "").Split('_');
             int n = parts.Length;
             if (n >= 2) return parts[n - 2] + " " + parts[n - 1];

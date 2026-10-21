@@ -1,0 +1,56 @@
+================ 64-bit process ================
+Time             : 2026-10-20 21:15:17
+OS               : Microsoft Windows NT 10.0.26200.0
+ProcessIs64Bit   : True
+
+VisionPro Core    : v71.2.0.0   C:\Windows\Microsoft.Net\assembly\GAC_64\Cognex.VisionPro.Core\v4.0_71.2.0.0__ef0f902af9dee505\Cognex.VisionPro.Core.dll
+
+--- CogFrameGrabbers (same API AlphaRap uses) ---
+Count             : 0
+
+--- AlphaRap ---
+app folder        : E:\测试程序\AlphaRap\AlphaRap2.08-10-27-Vision\AlphaRap2.08-10-27\AlphaRap2.08\AlphaRap\bin\x64\Debug
+config cameras    : 1   (E:\测试程序\AlphaRap\AlphaRap2.08-10-27-Vision\AlphaRap2.08-10-27\AlphaRap2.08\AlphaRap\bin\x64\Debug\ModuleData\SettingData\VPForm.Cameras.xml)
+  camera Name='TakePCBA'  SN=''  Exposure='10.000'
+app enumerate     : 0 device(s)
+app LastError     : (none)
+
+--- network ---
+  adapter 4 : 169.254.248.38/16  WLAN 5
+  adapter 5 : 169.254.134.55/16  WLAN 3
+  adapter 18 : 169.254.212.9/16  蓝牙网络连接
+  adapter 7 : 10.10.157.48/22  WLAN
+  adapter 3 : 198.18.0.1/30  Meta
+  adapter 21 : 192.168.0.89/24  以太网
+--- firewall rules mentioning AlphaRap ---
+  none found (an inbound rule is normally NOT required, but a blocked app can hide GigE cameras)
+
+done
+
+================ 32-bit process ================
+Time             : 2026-10-20 21:15:24
+OS               : Microsoft Windows NT 10.0.26200.0
+ProcessIs64Bit   : False
+
+VisionPro Core    : v71.2.0.0   C:\Windows\Microsoft.Net\assembly\GAC_32\Cognex.VisionPro.Core\v4.0_71.2.0.0__ef0f902af9dee505\Cognex.VisionPro.Core.dll
+
+--- CogFrameGrabbers (same API AlphaRap uses) ---
+Count             : 0
+
+--- AlphaRap ---
+app folder        : E:\测试程序\AlphaRap\AlphaRap2.08-10-27-Vision\AlphaRap2.08-10-27\AlphaRap2.08\AlphaRap\bin\x64\Debug
+config cameras    : 1   (E:\测试程序\AlphaRap\AlphaRap2.08-10-27-Vision\AlphaRap2.08-10-27\AlphaRap2.08\AlphaRap\bin\x64\Debug\ModuleData\SettingData\VPForm.Cameras.xml)
+  camera Name='TakePCBA'  SN=''  Exposure='10.000'
+app enumerate     : ERROR -> Could not load file or assembly 'file:///E:\测试程序\AlphaRap\AlphaRap2.08-10-27-Vision\AlphaRap2.08-10-27\AlphaRap2.08\AlphaRap\bin\x64\Debug\Cognex.VisionPro.Display.Controls.dll' or one of its dependencies. An attempt was made to load a program with an incorrect format.
+
+--- network ---
+  adapter 4 : 169.254.248.38/16  WLAN 5
+  adapter 5 : 169.254.134.55/16  WLAN 3
+  adapter 18 : 169.254.212.9/16  蓝牙网络连接
+  adapter 7 : 10.10.157.48/22  WLAN
+  adapter 3 : 198.18.0.1/30  Meta
+  adapter 21 : 192.168.0.89/24  以太网
+--- firewall rules mentioning AlphaRap ---
+  none found (an inbound rule is normally NOT required, but a blocked app can hide GigE cameras)
+
+done

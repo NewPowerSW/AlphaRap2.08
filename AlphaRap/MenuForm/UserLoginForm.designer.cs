@@ -504,7 +504,7 @@
             this.lblFingerStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(206)))), ((int)(((byte)(62)))), ((int)(((byte)(62)))));
             this.lblFingerStatus.Location = new System.Drawing.Point(0, 158);
             this.lblFingerStatus.Margin = new System.Windows.Forms.Padding(0);
-            this.lblFingerStatus.Name = "lblFingerStatus";
+            this.lblFingerStatus.Name = "lblFingerStatus_dyn";
             this.lblFingerStatus.Size = new System.Drawing.Size(564, 24);
             this.lblFingerStatus.TabIndex = 2;
             this.lblFingerStatus.Text = "";

@@ -10,6 +10,7 @@ namespace AlphaRap
         public LogForm()
         {
             InitializeComponent();
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
         }
 
@@ -50,7 +51,7 @@ namespace AlphaRap
 		private void btPath_Click(object sender, EventArgs e)
 		{
 			FolderBrowserDialog dilog = new FolderBrowserDialog();
-			dilog.Description = "Please select the Panel Save folder";
+			dilog.Description = MiddleLayer.LangMsg("LogForm", "msg_SelectFolder", "请选择日志保存目录", "Select the log folder", "Seleccione la carpeta de registros");
 			if (dilog.ShowDialog() == DialogResult.OK || dilog.ShowDialog() == DialogResult.Yes)
 			{
 				Button tb = sender as Button;

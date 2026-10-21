@@ -1,284 +1,85 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace AlphaRap.MenuForm
 {
     public partial class LanguageSetting : Form
     {
-        DataTable dtTable = new DataTable();
+        private DataTable dtTable;
+
+        /// <summary>初始化语言编辑页，控件和表头使用框架语言登记。</summary>
         public LanguageSetting()
         {
             InitializeComponent();
             UiTheme.ApplyDpi(this);
-            // 按需创建的窗体：登记进语言表并按当前语言设置文字
-            MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
-            if (dtTable.Columns.Count == 0)
-            {
-                dtTable.Columns.Add("ID");
-                dtTable.Columns.Add("Form");
-                dtTable.Columns.Add("Object");
-                dtTable.Columns.Add("English");
-                dtTable.Columns.Add("Spanish");
-                dtTable.Columns.Add("Chinese");
-            }
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
         }
 
+        /// <summary>从配置的语言目录读取三语条目；读取失败时保留当前编辑内容。</summary>
         public void LoadTables()
         {
-                dtTable.Rows.Clear();
-
-            XElement rootElementEnglish = XElement.Load(Application.StartupPath + "\\LanguageData\\English.xml");
-            XElement rootElementSpanish = XElement.Load(Application.StartupPath + "\\LanguageData\\Español.xml");
-            XElement rootElementChinese = XElement.Load(Application.StartupPath + "\\LanguageData\\Chinese.xml");
-
-            rootElementEnglish.Nodes();
-            rootElementSpanish.Nodes();
-            rootElementChinese.Nodes();
-
-            IEnumerable<XNode> nodes =
-                from nd in rootElementEnglish.Nodes()
-                select nd;
-
-            foreach (XElement item in nodes)
+            try
             {
-                IEnumerable<XElement> elementsEnglish
-               = from elemento in rootElementEnglish.Element(item.Name)
-                   .Elements()
-                 select elemento;
-
-                foreach (XElement element in elementsEnglish)
-                {
-                    string Form = item.Name.ToString();
-                    string English = (string)element.Attribute("ComponentText");
-                    string Object = element.Name.ToString();
-
-                    DataRow dtNewRow = this.dtTable.NewRow();
-                    dtNewRow["ID"] = this.dtTable.Rows.Count + 1;
-                    dtNewRow["Form"] = Form;
-                    dtNewRow["Object"] = Object;
-                    dtNewRow["English"] = English;
-                    dtNewRow["Spanish"] = "";
-                    dtNewRow["Chinese"] = "";
-                    dtTable.Rows.Add(dtNewRow);
-                }
+                DataTable loaded = LanguageCatalog.Load();
+                dtTable = loaded;
+                bindingSource1.DataSource = dtTable;
+                dataGridView1.DataSource = bindingSource1;
+                MiddleLayer.RegisterAndApplyLanguage(dataGridView1, Name);
+                SetEditing(false);
             }
-
-            IEnumerable<XNode> nodesSpanish =
-                from nd in rootElementSpanish.Nodes()
-                select nd;
-
-            foreach (XElement item in nodesSpanish)
-            {
-                IEnumerable<XElement> elementsSpanish
-               = from elemento in rootElementSpanish.Element(item.Name)
-                   .Elements()
-                 select elemento;
-
-                foreach (XElement element in elementsSpanish)
-                {
-                    string Form = item.Name.ToString();
-                    string Spanish = (string)element.Attribute("ComponentText");
-                    string Object = element.Name.ToString();
-
-                    DataRow[] dtSelect = (from d in this.dtTable.AsEnumerable() where d.Field<string>("Object") == Object.Trim() && d.Field<string>("Form") == Form.Trim() select d).ToArray();
-                    if (dtSelect.Length > 0)
-                    {
-                        dtSelect[0]["Spanish"] = Spanish;
-                        dtSelect[0].AcceptChanges();
-                    }
-                    else
-                    {
-                        DataRow dtNewRow = this.dtTable.NewRow();
-                        dtNewRow["ID"] = this.dtTable.Rows.Count + 1;
-                        dtNewRow["Form"] = Form;
-                        dtNewRow["Object"] = Object;
-                        dtNewRow["English"] = "";
-                        dtNewRow["Spanish"] = Spanish;
-                        dtNewRow["Chinese"] = "";
-                        dtTable.Rows.Add(dtNewRow);
-                    }
-                }
-            }
-
-            IEnumerable<XNode> nodesChinese =
-                from nd in rootElementChinese.Nodes()
-                select nd;
-
-            foreach (XElement item in nodesChinese)
-            {
-                IEnumerable<XElement> elementsChinese
-               = from elemento in rootElementChinese.Element(item.Name)
-                   .Elements()
-                 select elemento;
-
-                foreach (XElement element in elementsChinese)
-                {
-                    string Form = item.Name.ToString();
-                    string Chinese = (string)element.Attribute("ComponentText");
-                    string Object = element.Name.ToString();
-
-                    DataRow[] dtSelect = (from d in this.dtTable.AsEnumerable() where d.Field<string>("Object") == Object.Trim() && d.Field<string>("Form") == Form.Trim() select d).ToArray();
-                    if (dtSelect.Length > 0)
-                    {
-                        dtSelect[0]["Chinese"] = Chinese;
-                        dtSelect[0].AcceptChanges();
-                    }
-                    else
-                    {
-                        DataRow dtNewRow = this.dtTable.NewRow();
-                        dtNewRow["ID"] = this.dtTable.Rows.Count + 1;
-                        dtNewRow["Form"] = Form;
-                        dtNewRow["Object"] = Object;
-                        dtNewRow["English"] = "";
-                        dtNewRow["Spanish"] = "";
-                        dtNewRow["Chinese"] = Chinese;
-                        dtTable.Rows.Add(dtNewRow);
-                    }
-                }
-            }
-
-            this.bindingSource1.DataSource = this.dtTable;
-            this.dataGridView1.DataSource = this.bindingSource1;
-            foreach (DataGridViewRow forRow in this.dataGridView1.Rows)
-                foreach (DataGridViewCell forCell in forRow.Cells)
-                    forCell.ReadOnly = true;
+            catch (Exception ex) { ShowError(ex); }
         }
 
-        private void LanguageSetting_Load(object sender, EventArgs e)
-        {
-            LoadTables();
-        }
+        /// <summary>打开页面时加载语言条目。</summary>
+        private void LanguageSetting_Load(object sender, EventArgs e) { LoadTables(); }
 
-        private void btnUpdate_Click(object sender, EventArgs e)
-        {
-            #region MyRegion
-            foreach (DataGridViewRow forRow in this.dataGridView1.Rows)
-                foreach (DataGridViewCell forCell in forRow.Cells)
-                    if (forCell.ColumnIndex != 0 && forCell.ColumnIndex != 1 && forCell.ColumnIndex != 2)
-                        forCell.ReadOnly = false;
-            this.btnUpdate.Enabled = false;
-            this.btnSave.Enabled = true;
-            this.btnCancel.Enabled = true;
-            this.btnRefresh.Enabled = false;
-            #endregion
-        }
+        /// <summary>允许编辑译文，锁定窗体名和条目键。</summary>
+        private void btnUpdate_Click(object sender, EventArgs e) { SetEditing(true); }
 
+        /// <summary>提交单元格并按稳定键保存三语译文，立即刷新所有页面。</summary>
         private void btnSave_Click(object sender, EventArgs e)
         {
-            string message1 = MiddleLayer.LangMsg("LanguageSetting", "msg_SaveConfirm", "是否要保存？", "Are you sure to save it?", "Seguro que quieres guardar?");
-            string message2 = MiddleLayer.LangMsg("LanguageSetting", "msg_SaveTitle", "温馨提示", "Save", "Guardar");
-            if (MessageBox.Show(message1, message2, MessageBoxButtons.YesNo) == DialogResult.No)
-                return;
-
-            int index = 0;
-            dataGridView1.EndEdit();
-            XElement rootElementEnglish = XElement.Load(Application.StartupPath + "\\LanguageData\\English.xml");
-            XElement rootElementSpanish = XElement.Load(Application.StartupPath + "\\LanguageData\\Español.xml");
-            XElement rootElementChinese = XElement.Load(Application.StartupPath + "\\LanguageData\\Chinese.xml");
-
-            rootElementEnglish.Nodes();
-            rootElementSpanish.Nodes();
-            rootElementChinese.Nodes();
-
-            IEnumerable<XNode> nodesEn =
-                from nd in rootElementEnglish.Nodes()
-                select nd;
-
-            foreach (XElement item in nodesEn)
+            string message = MiddleLayer.LangMsg(Name, "msg_SaveConfirm", "是否保存语言表？", "Save the translations?", "¿Guardar las traducciones?");
+            string title = MiddleLayer.LangMsg(Name, "msg_SaveTitle", "保存语言表", "Save translations", "Guardar traducciones");
+            if (MessageBox.Show(message, title, MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            if (!dataGridView1.EndEdit()) return;
+            bindingSource1.EndEdit();
+            try
             {
-                IEnumerable<XElement> elementsEnglish
-               = from elemento in rootElementEnglish.Element(item.Name)
-                   .Elements()
-                 select elemento;
-
-                foreach (XElement element in elementsEnglish)
-                {
-                    string dgvalue = (string)dataGridView1.Rows[index].Cells[2].Value;
-                    string dgvalue2 = (string)dataGridView1.Rows[index].Cells[1].Value;
-                    if (dgvalue == element.Name.LocalName && dgvalue2 == item.Name)
-                    {
-                        element.ReplaceAttributes(new XAttribute("ComponentText", dataGridView1.Rows[index].Cells[3].Value.ToString()));
-                        index++;
-                    }   
-                }
+                LanguageCatalog.Save(dtTable);
+                SetEditing(false);
             }
-            rootElementEnglish.Save(Application.StartupPath + "\\LanguageData\\English.xml");
-
-            index = 0;
-            IEnumerable<XNode> nodesES =
-                from nd in rootElementSpanish.Nodes()
-                select nd;
-
-            foreach (XElement item in nodesES)
-            {
-                IEnumerable<XElement> elementsSpanish
-               = from elemento in rootElementSpanish.Element(item.Name)
-                   .Elements()
-                 select elemento;
-
-                foreach (XElement element in elementsSpanish)
-                {
-                    string dgvalue = (string)dataGridView1.Rows[index].Cells[2].Value;
-                    string dgvalue2 = (string)dataGridView1.Rows[index].Cells[1].Value;
-                    if (dgvalue == element.Name.LocalName && dgvalue2==item.Name)
-                    {
-                        element.ReplaceAttributes(new XAttribute("ComponentText", dataGridView1.Rows[index].Cells[4].Value.ToString()));
-                        index++;
-                    }
-                }
-            }
-            rootElementSpanish.Save(Application.StartupPath + "\\LanguageData\\Español.xml");
-
-            index = 0;
-            IEnumerable<XNode> nodesCH =
-                from nd in rootElementChinese.Nodes()
-                select nd;
-
-            foreach (XElement item in nodesCH)
-            {
-                IEnumerable<XElement> elementsChinese
-               = from elemento in rootElementChinese.Element(item.Name)
-                   .Elements()
-                 select elemento;
-
-                foreach (XElement element in elementsChinese)
-                {
-                    string dgvalue = (string)dataGridView1.Rows[index].Cells[2].Value;
-                    string dgvalue2 = (string)dataGridView1.Rows[index].Cells[1].Value;
-                    if (dgvalue == element.Name.LocalName && dgvalue2 == item.Name)
-                    {
-                        element.ReplaceAttributes(new XAttribute("ComponentText", dataGridView1.Rows[index].Cells[5].Value.ToString()));
-                        index++;
-                    }
-                }
-            }
-            rootElementChinese.Save(Application.StartupPath + "\\LanguageData\\Chinese.xml");
-
-            this.btnUpdate.Enabled = true;
-            this.btnSave.Enabled = false;
-            this.btnCancel.Enabled = false;
-            this.btnRefresh.Enabled = true;
-            foreach (DataGridViewRow forRow in this.dataGridView1.Rows)
-                foreach (DataGridViewCell forCell in forRow.Cells)
-                    forCell.ReadOnly = true;
+            catch (Exception ex) { ShowError(ex); }
         }
 
-        private void btnRefresh_Click(object sender, EventArgs e)
-        {
-            LoadTables();
-        }
+        /// <summary>重新读取语言包。</summary>
+        private void btnRefresh_Click(object sender, EventArgs e) { LoadTables(); }
 
+        /// <summary>放弃未保存译文并重新加载。</summary>
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.btnUpdate.Enabled = true;
-            this.btnSave.Enabled = false;
-            this.btnCancel.Enabled = false;
-            this.btnRefresh.Enabled = true;
+            dataGridView1.CancelEdit();
+            bindingSource1.CancelEdit();
             LoadTables();
+        }
+
+        /// <summary>按列控制译文编辑权限，不逐层修改每个单元格。</summary>
+        private void SetEditing(bool editing)
+        {
+            foreach (DataGridViewColumn column in dataGridView1.Columns)
+                column.ReadOnly = !editing || column.Index < 3;
+            btnUpdate.Enabled = !editing;
+            btnSave.Enabled = editing;
+            btnCancel.Enabled = editing;
+            btnRefresh.Enabled = !editing;
+        }
+
+        /// <summary>显示语言文件读取或保存失败的原因。</summary>
+        private void ShowError(Exception error)
+        {
+            MessageBox.Show(error.Message, MiddleLayer.LangMsg(Name, "msg_FileError", "语言表操作失败", "Language file operation failed", "Error al gestionar los archivos de idioma"),
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

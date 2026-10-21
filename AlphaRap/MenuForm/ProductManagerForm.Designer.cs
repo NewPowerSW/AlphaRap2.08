@@ -172,7 +172,7 @@
             this.CurrentModel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(2)))), ((int)(((byte)(78)))), ((int)(((byte)(133)))));
             this.CurrentModel.Location = new System.Drawing.Point(98, 8);
             this.CurrentModel.Margin = new System.Windows.Forms.Padding(0);
-            this.CurrentModel.Name = "CurrentModel";
+            this.CurrentModel.Name = "CurrentModel_dyn";
             this.CurrentModel.Size = new System.Drawing.Size(206, 24);
             this.CurrentModel.TabIndex = 1;
             this.CurrentModel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -279,7 +279,7 @@
             this.lblModelCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
             this.lblModelCount.Location = new System.Drawing.Point(14, 656);
             this.lblModelCount.Margin = new System.Windows.Forms.Padding(0);
-            this.lblModelCount.Name = "lblModelCount";
+            this.lblModelCount.Name = "lblModelCount_dyn";
             this.lblModelCount.Size = new System.Drawing.Size(435, 24);
             this.lblModelCount.TabIndex = 2;
             this.lblModelCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;

@@ -119,7 +119,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                ShowException("电阻计连接串口失败!", ex);
+                ShowException(MiddleLayer.LangMsg("Device", "error_ResistanceSerial", "电阻计连接串口失败!", "Failed to connect to the resistance meter serial port.", "No se pudo conectar con el puerto serie del medidor de resistencia."), ex);
             }
         }
 

@@ -42,6 +42,10 @@ namespace AlphaRap
                 RefreshTexts();
                 if (Owner != null) Owner.FillCalibrationGrid(this);
 
+                // 标定曝光回填：已建标定用标定的曝光，没有标定时用相机的默认曝光
+                // （不先回填的话输入框是空的，看起来像"参数没加载"）
+                tbExposure.Text = DefaultExposure().ToString("F1");
+
                 // 单元格编辑完成后立即写回标定点并保存
                 gridPoints.CellEndEdit += delegate(object s, DataGridViewCellEventArgs e)
                 {

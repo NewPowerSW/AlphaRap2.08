@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlarmTable>
+  <A1000 Type="W" Content="Input component initialization failed" DoStop="False" />
+  <A1001 Type="W" Content="Output component initialization failed" DoStop="False" />
+  <A1002 Type="W" Content="Motor component initialization failed" DoStop="False" />
+  <A1003 Type="K" Content="Flowchart NEXT is not configured" DoStop="False" />
+  <A1004 Type="K" Content="Flowchart CASE1 is not configured" DoStop="False" />
+  <A1005 Type="K" Content="Flowchart CASE2 is not configured" DoStop="False" />
+  <A1006 Type="K" Content="Flowchart CASE3 is not configured" DoStop="False" />
+  <A2000 Type="W" Content="Executing initialization" DoStop="False" />
+  <A2001 Type="I" Content="Stopping initialization" DoStop="False" />
+  <A2002 Type="I" Content="Initialization cancelled" DoStop="False" />
+  <A2003 Type="I" Content="Initialization completed" DoStop="False" />
+  <A2004 Type="I" Content="Starting automatic operation" DoStop="False" />
+  <A2005 Type="I" Content="Stopping automatic operation" DoStop="False" />
+  <A2006 Type="I" Content="Ending automatic operation" DoStop="False" />
+  <A2007 Type="I" Content="Automatic operation ended" DoStop="False" />
+  <A2009 Type="E" Content="Unexpected error in VisionRun()" DoStop="True" />
+  <A2010 Type="E" Content="Unexpected error in AlwaysRun()" DoStop="True" />
+  <A2011 Type="E" Content="Unexpected error in ServoOn()" DoStop="True" />
+  <A2012 Type="E" Content="Unexpected error in ServoOff()" DoStop="True" />
+  <A2013 Type="E" Content="Unexpected error in ExecuteReset()" DoStop="True" />
+  <A2014 Type="E" Content="Unexpected error in InitialReset()" DoStop="True" />
+  <A2015 Type="E" Content="Unexpected error in Initial()" DoStop="True" />
+  <A2016 Type="E" Content="Unexpected error in RunReset()" DoStop="True" />
+  <A2017 Type="E" Content="Unexpected error in Run()" DoStop="True" />
+  <A2018 Type="E" Content="Unexpected error in RefreshIO()" DoStop="True" />
+  <A2019 Type="E" Content="Unexpected error in AlwaysRun()" DoStop="True" />
+  <A2020 Type="E" Content="Unexpected error in CheckMotorProtected()" DoStop="True" />
+  <A2021 Type="E" Content="Unexpected error in RunAuto()" DoStop="True" />
+  <A2022 Type="E" Content="Unexpected error in RunHome()" DoStop="True" />
+  <A2023 Type="W" Content="Setting column not found" DoStop="False" />
+  <A2024 Type="W" Content="Recipe column not found" DoStop="False" />
+  <A2025 Type="W" Content="Setting value is not configured" DoStop="False" />
+  <A2026 Type="W" Content="Recipe value is not configured" DoStop="False" />
+  <A2030 Type="E" Content="Axis alarm" DoStop="True" />
+  <A2031 Type="E" Content="Axis hardware limit" DoStop="False" />
+  <A2032 Type="E" Content="Axis software limit" DoStop="False" />
+  <A3014 Type="I" Content="Abnormal air supply; check the air source" DoStop="True" />
+  <A3018 Type="I" Content="Error code not found" DoStop="True" />
+  <A3021 Type="E" Content="Front emergency stop pressed" DoStop="true" />
+  <A3022 Type="E" Content="Rear emergency stop pressed" DoStop="true" />
+  <A3024 Type="E" Content="Press Reset to power on" DoStop="true" />
+  <A5020 Type="E" Content="Robot connection failed" DoStop="true" />
+  <A10000 Type="W" Content="" DoStop="True" />
+  <A10001 Type="W" Content="" DoStop="True" />
+  <A10002 Type="W" Content="" DoStop="True" />
+  <A10003 Type="W" Content="" DoStop="True" />
+  <A10004 Type="W" Content="" DoStop="True" />
+  <A10005 Type="W" Content="" DoStop="True" />
+  <A10006 Type="W" Content="" DoStop="True" />
+  <A10007 Type="W" Content="" DoStop="True" />
+  <A10008 Type="W" Content="" DoStop="True" />
+  <A10009 Type="W" Content="" DoStop="True" />
+  <A10010 Type="W" Content="" DoStop="True" />
+  <A10011 Type="W" Content="" DoStop="True" />
+  <A10012 Type="W" Content="" DoStop="True" />
+  <A10013 Type="W" Content="" DoStop="True" />
+  <A4001 Type="E" Content="Upstream buffer stopper cylinder raise timeout" DoStop="True" />
+  <A4002 Type="E" Content="Upstream work lifter cylinder lower timeout" DoStop="True" />
+  <A4003 Type="E" Content="Upstream work stopper cylinder raise timeout" DoStop="True" />
+  <A4004 Type="E" Content="Downstream stopper cylinder raise timeout" DoStop="False" />
+  <A4005 Type="E" Content="Upstream buffer stopper cylinder lower timeout" DoStop="True" />
+  <A4006 Type="E" Content="Upstream buffer outfeed timeout" DoStop="True" />
+  <A4007 Type="E" Content="Upstream buffer infeed timeout" DoStop="True" />
+  <A4008 Type="E" Content="Upstream work lifter cylinder raise timeout" DoStop="True" />
+  <A4009 Type="E" Content="Upstream work stopper cylinder lower timeout" DoStop="True" />
+  <A4010 Type="E" Content="Upstream work area outfeed timeout" DoStop="False" />
+  <A4011 Type="E" Content="Downstream stopper cylinder lower timeout" DoStop="True" />
+  <A4012 Type="E" Content="Downstream outfeed timeout" DoStop="False" />
+  <A4013 Type="E" Content="PLC read failed; check the hardware" DoStop="True" />
+  <A4014 Type="E" Content="Barcode scanner 1 connection failed; check the hardware" DoStop="True" />
+  <A4014 Type="E" Content="PLC write failed" DoStop="True" />
+</AlarmTable>

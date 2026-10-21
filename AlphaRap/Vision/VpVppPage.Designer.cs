@@ -1,4 +1,4 @@
-﻿namespace AlphaRap
+namespace AlphaRap
 {
     partial class VpVppPage
     {
@@ -36,6 +36,7 @@
             this.compRow = new System.Windows.Forms.Panel();
             this.gridComp = new System.Windows.Forms.DataGridView();
             this.cItem = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cCompensation = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cMin = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cMax = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.saveRow = new System.Windows.Forms.Panel();
@@ -58,6 +59,7 @@
             this.btnSaveVpp = new AlphaRap.UiButton();
             this.btnAddCompRow = new AlphaRap.UiButton();
             this.btnDelCompRow = new AlphaRap.UiButton();
+            this._productionCheck = new AlphaRap.UiCheckBox();
             this.head.SuspendLayout();
             this.band.SuspendLayout();
             this.compRow.SuspendLayout();
@@ -67,7 +69,7 @@
             this.foot.SuspendLayout();
             this.SuspendLayout();
             // 
-            // head（归属信息行：相机 / CameraIndex / VPP 名）
+            // head（归属信息行：相机 / SN / VPP 名）
             // 
             this.head.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
             this.head.Controls.Add(this.lblInfo);
@@ -117,7 +119,7 @@
             this.path.TabIndex = 4;
             this.path.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // compRow（补偿限制表：项目 / 补偿下限 / 补偿上限，行由用户增删）
+            // compRow（补偿配置表：项目 / 补偿值 / 补偿下限 / 补偿上限，行由用户增删）
             // 
             this.compRow.BackColor = System.Drawing.Color.Transparent;
             this.compRow.Controls.Add(this.gridComp);
@@ -136,6 +138,7 @@
             this.gridComp.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gridComp.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.cItem,
+            this.cCompensation,
             this.cMin,
             this.cMax});
             this.gridComp.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -144,19 +147,30 @@
             this.gridComp.RowHeadersVisible = false;
             this.gridComp.Size = new System.Drawing.Size(880, 128);
             this.gridComp.TabIndex = 0;
+            this.gridComp.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.CompGrid_CellBeginEdit);
+            this.gridComp.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.CompGrid_CellFormatting);
+            this.gridComp.CellParsing += new System.Windows.Forms.DataGridViewCellParsingEventHandler(this.CompGrid_CellParsing);
             // 
             // cItem
             // 
             this.cItem.HeaderText = "项目";
             this.cItem.Name = "cItem";
+            //
+            // cCompensation
+            //
+            this.cCompensation.DefaultCellStyle.Format = "F3";
+            this.cCompensation.HeaderText = "补偿值";
+            this.cCompensation.Name = "cCompensation";
             // 
             // cMin
             // 
+            this.cMin.DefaultCellStyle.Format = "F3";
             this.cMin.HeaderText = "补偿下限";
             this.cMin.Name = "cMin";
             // 
             // cMax
             // 
+            this.cMax.DefaultCellStyle.Format = "F3";
             this.cMax.HeaderText = "补偿上限";
             this.cMax.Name = "cMax";
             // 
@@ -317,12 +331,14 @@
             // foot（操作按钮：编辑 TB / 拍照 / 保存 VPP / 添加行 / 删除行）
             // 
             this.foot.AutoSize = false;
+            this.foot.AutoScroll = true;
             this.foot.BackColor = System.Drawing.Color.Transparent;
             this.foot.Controls.Add(this.btnEditTb);
             this.foot.Controls.Add(this.btnCapture);
             this.foot.Controls.Add(this.btnSaveVpp);
             this.foot.Controls.Add(this.btnAddCompRow);
             this.foot.Controls.Add(this.btnDelCompRow);
+            this.foot.Controls.Add(this._productionCheck);
             this.foot.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.foot.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.foot.Location = new System.Drawing.Point(0, 226);
@@ -407,6 +423,17 @@
             this.btnDelCompRow.TabIndex = 4;
             this.btnDelCompRow.Text = "删除行";
             // 
+            // _productionCheck
+            //
+            this._productionCheck.AutoSize = true;
+            this._productionCheck.Location = new System.Drawing.Point(618, 10);
+            this._productionCheck.Margin = new System.Windows.Forms.Padding(8, 5, 0, 0);
+            this._productionCheck.Name = "vpRow_Production";
+            this._productionCheck.Size = new System.Drawing.Size(96, 25);
+            this._productionCheck.TabIndex = 5;
+            this._productionCheck.Text = "生产定位";
+            this._productionCheck.UseVisualStyleBackColor = true;
+            //
             // VpVppPage
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -436,6 +463,7 @@
         private System.Windows.Forms.Panel compRow;
         private System.Windows.Forms.DataGridView gridComp;
         private System.Windows.Forms.DataGridViewTextBoxColumn cItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn cCompensation;
         private System.Windows.Forms.DataGridViewTextBoxColumn cMin;
         private System.Windows.Forms.DataGridViewTextBoxColumn cMax;
         private System.Windows.Forms.Panel saveRow;
@@ -458,5 +486,6 @@
         private UiButton btnSaveVpp;
         private UiButton btnAddCompRow;
         private UiButton btnDelCompRow;
+        private UiCheckBox _productionCheck;
     }
 }

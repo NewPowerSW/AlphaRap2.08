@@ -20,6 +20,14 @@ namespace AlphaRap
         {
             InitializeComponent();
             UiTheme.ApplyDpi(this);
+            cbSelectedPermission.FormattingEnabled = true;
+            cbAddUserPermission.FormattingEnabled = true;
+            cbSelectedPermission.Format += delegate(object sender, ListControlConvertEventArgs e) { e.Value = MiddleLayer.PermissionText(e.ListItem); };
+            cbAddUserPermission.Format += delegate(object sender, ListControlConvertEventArgs e) { e.Value = MiddleLayer.PermissionText(e.ListItem); };
+            dgvUserList.CellFormatting += PermissionCellFormatting;
+            dgvRightsConfig.CellFormatting += PermissionCellFormatting;
+            dgvUserList.DataBindingComplete += delegate { ApplyLanguage(); };
+            dgvRightsConfig.DataBindingComplete += delegate { ApplyLanguage(); };
 
             foreach (var item in Enum.GetValues(typeof(PermissionType)))
             {
@@ -38,6 +46,7 @@ namespace AlphaRap
             // 切语言时重新套一次本页文案（理由同 ProductManagerForm：
             // 页面正显示着时切语言不会触发 VisibleChanged）。
             MiddleLayer.LanguageChanged += AddUserForm_LanguageChanged;
+            Disposed += delegate { MiddleLayer.LanguageChanged -= AddUserForm_LanguageChanged; };
 
             // 三个输入框和权限下拉框任意一个变化时，重新判断"新增用户"按钮是否可用
             textAddUserName.ValueChanged += AddUser_TextChanged;
@@ -114,8 +123,22 @@ namespace AlphaRap
                 _rightsHintText = MiddleLayer.LangMsg("AddUserForm", "msg_RightsHint",
                     "勾选各权限允许的功能后点保存", "Tick the allowed functions, then save", "Marque las funciones permitidas y guarde");
                 ResetRightsHint();
+                MiddleLayer.RefreshUserHeaders(dgvUserList);
+                MiddleLayer.RefreshUserHeaders(dgvRightsConfig);
+                cbSelectedPermission.FormatInfo = System.Globalization.CultureInfo.GetCultureInfo(
+                    SysPara.LanguageShow == LanguageType.Chinese ? "zh-CN" : SysPara.LanguageShow == LanguageType.English ? "en-US" : "es-ES");
+                cbAddUserPermission.FormatInfo = cbSelectedPermission.FormatInfo;
             }
             catch { }
+        }
+
+        /// <summary>仅翻译权限代码的显示值，保留数据库记录供增删改查使用。</summary>
+        private void PermissionCellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            DataGridView grid = (DataGridView)sender;
+            if (e.ColumnIndex < 0 || grid.Columns[e.ColumnIndex].DataPropertyName != "Permission") return;
+            e.Value = MiddleLayer.PermissionText(e.Value);
+            e.FormattingApplied = true;
         }
 
         private void ResetRightsHint()
@@ -167,7 +190,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "System Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, MiddleLayer.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             return gUser;

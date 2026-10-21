@@ -38,6 +38,9 @@ namespace AlphaRap
 
         private List<AlarmRecord> _rows = new List<AlarmRecord>();
         private bool _loading;
+        private int _statusFiles;
+        private bool _statusNoPath;
+        private string _statusError;
 
         public AlarmQueryForm()
         {
@@ -135,6 +138,16 @@ namespace AlphaRap
         {
             ApplyLanguage();
             UpdateDetailTitle();
+            RefreshQueryStatus();
+            FillStats();
+            foreach (DataGridViewRow row in grdAlarm.Rows)
+            {
+                AlarmRecord record = row.Tag as AlarmRecord;
+                if (record == null) continue;
+                row.Cells[colStop.Index].Value = record.Stop ? _stopText : "";
+                if (MiddleLayer.HomeF != null)
+                    row.Cells[colContent.Index].Value = MiddleLayer.HomeF.ResolveAlarmContent(record.Code, record.Content);
+            }
         }
 
         // ---------------- 外观搭建 ----------------
@@ -484,16 +497,15 @@ namespace AlphaRap
             Cursor = Cursors.WaitCursor;
             try
             {
+                _statusNoPath = false;
+                _statusError = null;
                 UpdateDetailTitle();
 
                 if (!AlarmHistory.RootReady())
                 {
                     _rows = new List<AlarmRecord>();
-                    lblStatus.ForeColor = UiTheme.WarnText;
-                    lblStatus.Text = UiTheme.T("AlarmQueryForm", "noPath",
-                        "未配置报警日志目录：请在【日志】页设置 AlarmPath",
-                        "Alarm log path not configured (see the Logs page)",
-                        "Ruta de registro de alarmas no configurada");
+                    _statusNoPath = true;
+                    RefreshQueryStatus();
                     FillStats();
                     FillCharts();
                     FillGrid();
@@ -504,16 +516,8 @@ namespace AlphaRap
                 _rows = AlarmHistory.Query(dateFrom.Value, dateTo.Value, CurrentTypeFilter(),
                     boxCode.Value, boxKeyword.Value, out files);
 
-                lblStatus.ForeColor = UiKit.TextSecondary;
-                lblStatus.Text = string.Format(UiTheme.T("AlarmQueryForm", "status",
-                    "共 {0} 条 · 停机 {1} 条 · 读取 {2} 个日志文件{3}",
-                    "Total {0} · stop {1} · {2} files{3}",
-                    "Total {0} · paradas {1} · {2} archivos{3}"),
-                    _rows.Count, AlarmHistory.CountStop(_rows), files,
-                    _rows.Count > MaxRowsShown
-                        ? string.Format(UiTheme.T("AlarmQueryForm", "truncated",
-                            " · 表格只显示前 {0} 条", " · table shows the first {0}", " · se muestran {0}"), MaxRowsShown)
-                        : "");
+                _statusFiles = files;
+                RefreshQueryStatus();
 
                 FillStats();
                 FillCharts();
@@ -521,14 +525,32 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                lblStatus.ForeColor = UiKit.Danger;
-                lblStatus.Text = ex.Message;
+                _statusError = ex.Message;
+                RefreshQueryStatus();
             }
             finally
             {
                 Cursor = Cursors.Default;
                 _loading = false;
             }
+        }
+
+        /// <summary>用已查询的统计值刷新状态文字，切换语言时不重新查询或重建数据行。</summary>
+        private void RefreshQueryStatus()
+        {
+            lblStatus.ForeColor = _statusError != null ? UiKit.Danger : _statusNoPath ? UiTheme.WarnText : UiKit.TextSecondary;
+            if (_statusError != null) { lblStatus.Text = _statusError; return; }
+            if (_statusNoPath)
+            {
+                lblStatus.Text = UiTheme.T("AlarmQueryForm", "noPath", "未配置报警日志目录：请在【日志】页设置 AlarmPath",
+                    "Alarm log path not configured (see the Logs page)", "Ruta de registro de alarmas no configurada");
+                return;
+            }
+            string truncated = _rows.Count > MaxRowsShown ? string.Format(UiTheme.T("AlarmQueryForm", "truncated",
+                " · 表格只显示前 {0} 条", " · table shows the first {0}", " · se muestran {0}"), MaxRowsShown) : "";
+            lblStatus.Text = string.Format(UiTheme.T("AlarmQueryForm", "status", "共 {0} 条 · 停机 {1} 条 · 读取 {2} 个日志文件{3}",
+                "Total {0} · stop {1} · {2} files{3}", "Total {0} · paradas {1} · {2} archivos{3}"),
+                _rows.Count, AlarmHistory.CountStop(_rows), _statusFiles, truncated);
         }
 
         /// <summary>分段控件的「全部 / 警告 / 报警 / 停机」映射成查询用的筛选值。</summary>

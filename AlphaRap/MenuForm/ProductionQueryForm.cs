@@ -134,8 +134,10 @@ namespace AlphaRap
         private void ProductionQueryForm_LanguageChanged(object sender, EventArgs e)
         {
             ApplyLanguage();
-            FillGrid();
+            if (grd.Columns.Contains("colTime"))
+                grd.Columns["colTime"].HeaderText = UiTheme.T("ProductionQuery", "colTime", "时间", "Time", "Hora");
             FillStats();
+            FillStatus(_statusFiles, _statusTotal);
         }
 
         // ---------------- 界面 ----------------
@@ -450,7 +452,7 @@ namespace AlphaRap
 
                 DataGridViewTextBoxColumn cTime = new DataGridViewTextBoxColumn();
                 cTime.Name = "colTime";
-                cTime.HeaderText = ProductionDataStore.TimeColumn;
+                cTime.HeaderText = UiTheme.T("ProductionQuery", "colTime", "时间", "Time", "Hora");
                 cTime.ReadOnly = true;
                 cTime.SortMode = DataGridViewColumnSortMode.NotSortable;
                 cTime.MinimumWidth = D(52);
@@ -509,8 +511,14 @@ namespace AlphaRap
             catch { }
         }
 
+        private int _statusFiles;
+        private int _statusTotal;
+
+        /// <summary>刷新已查询数据的统计文字，不重新读取生产记录。</summary>
         private void FillStatus(int fileCount, int total)
         {
+            _statusFiles = fileCount;
+            _statusTotal = total;
             if (lblStatus == null) return;
             try
             {

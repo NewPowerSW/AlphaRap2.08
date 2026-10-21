@@ -19,12 +19,15 @@ namespace AlphaRap
         public VpVppConfig Vpp;
 
         private const string LangForm = "VPForm";
+        private bool _refreshingProduction;
+        private string _editingItemCaption;
 
         public UiLabel InfoLabel { get { return lblInfo; } }
         public DataGridView CompGrid { get { return gridComp; } }
         public TextBox ExposureBox { get { return tbExp; } }
         public TextBox RenameBox { get { return tbRename; } }
 
+        /// <summary>创建可在设计器预览的 VPP 配置页面。</summary>
         public VpVppPage()
         {
             InitializeComponent();
@@ -40,13 +43,15 @@ namespace AlphaRap
             {
                 UiKit.StyleGrid(gridComp);
                 if (Vpp != null) Vpp.EnsureCompLimits();      // 老配置没有限制行时补默认三行
+                if (Owner != null) Owner.FillCompLimitGrid(gridComp, Vpp);
 
                 RefreshTexts();
 
                 // 补偿限制表：编辑落到配置里（解析失败还原、Min&gt;Max 拉回），改完立刻落盘
                 gridComp.CellEndEdit += delegate(object s, DataGridViewCellEventArgs e)
                 {
-                    if (Owner != null) Owner.SyncCompLimitFromGrid(gridComp, Vpp, e.RowIndex);
+                    if (Owner != null) Owner.SyncCompLimitFromGrid(gridComp, Vpp, e.RowIndex, e.ColumnIndex);
+                    _editingItemCaption = null;
                 };
 
                 // 存图设置：四个勾 = 四个独立开关，改动即时落盘（不跟主页【保存】）
@@ -92,6 +97,12 @@ namespace AlphaRap
                 btnSaveVpp.Click += delegate { if (Owner != null) Owner.SaveStation(Vpp); };
                 btnAddCompRow.Click += delegate { if (Owner != null) Owner.AddCompLimitRow(gridComp, Vpp); };
                 btnDelCompRow.Click += delegate { if (Owner != null) Owner.RemoveCompLimitRow(gridComp, Vpp); };
+                _productionCheck.CheckedChanged += delegate
+                {
+                    if (_refreshingProduction || Owner == null) return;
+                    Owner.SetProductionVpp(Vpp, _productionCheck.Checked);
+                    RefreshProductionBinding();
+                };
             }
             catch (Exception) { }
         }
@@ -108,24 +119,63 @@ namespace AlphaRap
                 {
                     lblInfo.Text = Owner.BuildVppInfoText(Cam, Vpp);
                     path.Text = VPForm.BuildVppPathText(Vpp);
-                    Owner.FillCompLimitGrid(gridComp, Vpp);      // 表头是语言键（vpCompCol_*）
+                    Owner.RefreshCompLimitHeaders(gridComp);
                 }
 
-                lblSavePath.Text = LangText("vpRow_SavePath", "存图路径");
-                cbSaveImg.Text = LangText("vpRow_SaveImage", "存图");
-                cbOrig.Text = LangText("vpRow_SaveOriginal", "原图");
-                cbSnap.Text = LangText("vpRow_SaveSnapshot", "截图");
-                cbAutoDel.Text = LangText("vpRow_SaveAutoDel", "自动删除");
-                lblSaveDays.Text = LangText("vpRow_SaveDays", "保留天数");
-                lblExp.Text = LangText("vpRow_Exposure", "曝光");
-                lblVppName.Text = LangText("vpRow_VppName", "VPP 名称");
-                btnEditTb.Text = LangText("vpBtn_EditTb", "编辑 TB");
-                btnCapture.Text = LangText("vpBtn_Capture", "拍照");
-                btnSaveVpp.Text = LangText("vpBtn_SaveVpp", "保存 VPP");
-                btnAddCompRow.Text = LangText("vpBtn_AddCompRow", "添加行");
-                btnDelCompRow.Text = LangText("vpBtn_DelCompRow", "删除行");
+                lblSavePath.Text = LangText("vpRow_SavePath", "存图路径", "Image path", "Ruta de imágenes");
+                cbSaveImg.Text = LangText("vpRow_SaveImage", "存图", "Save images", "Guardar imágenes");
+                cbOrig.Text = LangText("vpRow_SaveOriginal", "原图", "Original", "Original");
+                cbSnap.Text = LangText("vpRow_SaveSnapshot", "截图", "Snapshot", "Captura");
+                cbAutoDel.Text = LangText("vpRow_SaveAutoDel", "自动删除", "Auto delete", "Eliminar antiguas");
+                lblSaveDays.Text = LangText("vpRow_SaveDays", "保留天数", "Keep days", "Días de retención");
+                lblExp.Text = LangText("vpRow_Exposure", "曝光", "Exposure", "Exposición");
+                lblVppName.Text = LangText("vpRow_VppName", "VPP 名称", "VPP name", "Nombre VPP");
+                btnEditTb.Text = LangText("vpBtn_EditTb", "编辑 TB", "Edit TB", "Editar TB");
+                btnCapture.Text = LangText("vpBtn_Capture", "拍照", "Capture", "Capturar");
+                btnSaveVpp.Text = LangText("vpBtn_SaveVpp", "保存 VPP", "Save VPP", "Guardar VPP");
+                RefreshProductionBinding();
+                btnAddCompRow.Text = LangText("vpBtn_AddCompRow", "添加行", "Add row", "Añadir fila");
+                btnDelCompRow.Text = LangText("vpBtn_DelCompRow", "删除行", "Delete row", "Eliminar fila");
             }
             catch (Exception) { }
+        }
+
+        /// <summary>记录项目开始编辑时的显示文字，切换语言后提交仍能保留原始业务键。</summary>
+        private void CompGrid_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            _editingItemCaption = e.ColumnIndex == cItem.Index
+                ? Convert.ToString(gridComp.Rows[e.RowIndex].Cells[e.ColumnIndex].FormattedValue) : null;
+        }
+
+        /// <summary>只翻译内置角度项目的显示文字，单元格值和配置仍使用原始业务键。</summary>
+        private void CompGrid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex != cItem.Index || Convert.ToString(e.Value) != "角度") return;
+            e.Value = LangText("vpCompItem_Angle", "角度", "Angle", "Ángulo");
+            e.FormattingApplied = true;
+        }
+
+        /// <summary>项目显示文字未被修改时，将编辑器提交的译文还原为原始角度键。</summary>
+        private void CompGrid_CellParsing(object sender, DataGridViewCellParsingEventArgs e)
+        {
+            if (e.ColumnIndex != cItem.Index || e.RowIndex < 0) return;
+            VpCompLimitItem item = gridComp.Rows[e.RowIndex].Tag as VpCompLimitItem;
+            if (item == null || item.Item != "角度" || Convert.ToString(e.Value) != _editingItemCaption) return;
+            e.Value = item.Item;
+            e.ParsingApplied = true;
+        }
+
+        /// <summary>回填生产定位勾选状态，回填期间不触发保存。</summary>
+        private void RefreshProductionBinding()
+        {
+            _refreshingProduction = true;
+            try
+            {
+                _productionCheck.Text = MiddleLayer.LangMsg(LangForm, "vpRow_Production",
+                    "生产定位", "Production positioning", "Posicionamiento de producción");
+                _productionCheck.Checked = Owner != null && Owner.IsProductionVpp(Vpp);
+            }
+            finally { _refreshingProduction = false; }
         }
 
         /// <summary>把勾选框接到 VPP 的某个布尔配置上：勾选变化即写回 + 落盘（与补偿限制表同一口径）。</summary>
@@ -150,9 +200,9 @@ namespace AlphaRap
         }
 
         /// <summary>取当前语言的文案（LanguageData\{语言}.xml），没有该键时使用底稿。</summary>
-        private static string LangText(string key, string baseText)
+        private static string LangText(string key, string zh, string en, string es)
         {
-            return MiddleLayer.LangText(LangForm, key, baseText);
+            return MiddleLayer.LangMsg(LangForm, key, zh, en, es);
         }
     }
 }

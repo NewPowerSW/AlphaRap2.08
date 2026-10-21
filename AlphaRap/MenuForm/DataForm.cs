@@ -16,6 +16,7 @@ namespace AlphaRap
 		public DataForm()
 		{
 			InitializeComponent();
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
 		}
 		public void AddLogError(string data)

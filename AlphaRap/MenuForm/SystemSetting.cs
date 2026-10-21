@@ -10,6 +10,7 @@ namespace AlphaRap
 		public SystemSetting()
 		{
 			InitializeComponent();
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
 			SysPara.items = 1;
 		}

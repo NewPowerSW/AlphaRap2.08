@@ -16,6 +16,7 @@ namespace AlphaRap
 		public Warning()
 		{
 			InitializeComponent();
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
 			this.ControlBox = false;
 

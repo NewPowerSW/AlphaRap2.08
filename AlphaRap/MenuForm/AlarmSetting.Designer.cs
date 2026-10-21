@@ -57,6 +57,7 @@
             // dgvData
             // 
             this.dgvData.AllowUserToAddRows = false;
+            this.dgvData.AutoGenerateColumns = false;
             this.dgvData.BackgroundColor = System.Drawing.Color.White;
             this.dgvData.ColumnHeadersHeight = 30;
             this.dgvData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {

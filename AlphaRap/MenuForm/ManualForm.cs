@@ -1,5 +1,5 @@
 ﻿using AlphaRapLibrary;
-using NPSDK;
+using NPSDK.Motion;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -7,11 +7,12 @@ namespace AlphaRap
 {
 	public partial class ManualForm : ModuleBaseForm
 	{
-		public List<Adlink_Output> Conveyor_List = new List<Adlink_Output>();
+		public List<NP_Output> Conveyor_List = new List<NP_Output>();
 		public ManualForm()
 		{
 			CheckForIllegalCrossThreadCalls = false;
 			InitializeComponent();
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
 			Conveyor_List.Add(OB_UpConveyor_Work_ConveyorForward);
 			Conveyor_List.Add(OB_UpConveyor_Work_ConveyorReverse);
@@ -19,8 +20,11 @@ namespace AlphaRap
 			Conveyor_List.Add(OB_UpConveyor_LocalMachineAvailable_SMEMA);
 
 			ApplyPageStyle();
+			if (UiTheme.IsDesignTime) return;
 			WireIoLog();          // 输出点 / 气缸手动动作写操作日志
-			MiddleLayer.LanguageChanged += (s, e) => RefreshPageTexts();
+			System.EventHandler languageHandler = delegate { RefreshPageTexts(); };
+			MiddleLayer.LanguageChanged += languageHandler;
+			Disposed += delegate { MiddleLayer.LanguageChanged -= languageHandler; };
 		}
 
 		/// <summary>给整页的输出点 / 气缸挂"动作即记录"（输入点只监视，不记）。</summary>
@@ -33,20 +37,20 @@ namespace AlphaRap
 		{
 			foreach (Control c in parent.Controls)
 			{
-				Adlink_Output ob = c as Adlink_Output;
+				NP_Output ob = c as NP_Output;
 				if (ob != null)
 				{
-					Adlink_Output target = ob;
+					NP_Output target = ob;
 					bool[] before = new bool[1];
-					target.MouseDown += delegate { before[0] = target.OutputStaus; };
+					target.MouseDown += delegate { before[0] = target.IsOn(); };
 					target.Click += delegate
 					{
-						bool now = target.OutputStaus;
+						bool now = target.IsOn();
 						if (now == before[0]) return;      // 状态没变（例如不在手动模式）就不记
 						OperationLog.Write("ManualForm", "手动输出：" + IoName(target) + " → " + (now ? "开" : "关"));
 					};
 				}
-				else if (c is Adlink_Cylinder)
+				else if (c is NP_Cylinder)
 				{
 					Control target = c;
 					target.Click += delegate

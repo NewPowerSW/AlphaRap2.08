@@ -32,7 +32,7 @@ namespace AlphaRap
         {
             InitializeComponent();
             UiTheme.ApplyDpi(this);
-            ReadSettingData();
+            if (!UiTheme.IsDesignTime) ReadSettingData();
             ApplyPageLanguage();
         }
 
@@ -63,7 +63,12 @@ namespace AlphaRap
         private void PlatFormSetting_LanguageChanged(object sender, EventArgs e)
         {
             ApplyPageLanguage();
-            RebuildTrayTable();          // 表头、按钮、行标题都要跟着换语言
+            if (boxNewName == null) return;
+            Control[] labels = pnlBody.Controls.Find("lblNewTrayName", true);
+            if (labels.Length > 0) labels[0].Text = T("newName", "新托盘名称", "New tray", "Nueva bandeja");
+            boxNewName.PlaceholderText = T("newNameHint", "例如 RejectTray2", "e.g. RejectTray2", "p. ej. RejectTray2");
+            btnAddTray.Text = T("addTray", "+ 添加托盘", "+ Add tray", "+ Añadir");
+            btnDelTray.Text = T("delTray", "删除选中", "Delete", "Eliminar");
         }
 
         // ---------------------------------------------------------------- 建页
@@ -109,7 +114,7 @@ namespace AlphaRap
             tools.Controls.Add(lblNew);
 
             boxNewName = new FieldBox();
-            boxNewName.Name = "boxNewTrayName";
+            boxNewName.Name = "boxNewTrayName_dyn";
             boxNewName.Size = new Size(190, 34);
             boxNewName.Margin = new Padding(0, 0, 10, 0);
             boxNewName.PlaceholderText = T("newNameHint", "例如 RejectTray2", "e.g. RejectTray2", "p.ej. RejectTray2");
@@ -241,7 +246,7 @@ namespace AlphaRap
             {
                 SysPara.items++;                     // 标记配方有改动，离开页面时统一保存
                 cell.Value = TrayConfig.ToText(v);   // 统一显示格式（12.50 → 12.5）
-                UpdateStatus(T("saved", "已修改 " + column, "Updated " + column, "Actualizado " + column));
+                UpdateStatus(string.Format(T("saved", "已修改 {0}", "Updated {0}", "Actualizado {0}"), column));
             }
         }
 
@@ -301,7 +306,7 @@ namespace AlphaRap
 
             SysPara.items++;
             RebuildTrayTable();
-            UpdateStatus(T("added", "已添加托盘 " + name, "Added tray " + name, "Bandeja anadida " + name));
+            UpdateStatus(string.Format(T("added", "已添加托盘 {0}", "Added tray {0}", "Bandeja añadida {0}"), name));
             try { OperationLog.Write("PlatFormSetting", "添加托盘：" + name); } catch { }
         }
 
@@ -334,7 +339,7 @@ namespace AlphaRap
 
             SysPara.items++;
             RebuildTrayTable();
-            UpdateStatus(T("removed", "已删除 " + title, "Deleted " + title, "Eliminado " + title));
+            UpdateStatus(string.Format(T("removed", "已删除 {0}", "Deleted {0}", "Eliminado {0}"), title));
             try { OperationLog.Write("PlatFormSetting", "删除托盘：" + title); } catch { }
         }
 

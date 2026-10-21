@@ -293,6 +293,7 @@ namespace AlphaRap
         /// <summary>取当前语言的文案。</summary>
         public static string T(string group, string key, string zh, string en, string es)
         {
+            if (IsDesignTime) return zh;
             Func<string, string, string, string, string, string> p = TextProvider;
             if (p != null)
             {
@@ -303,7 +304,7 @@ namespace AlphaRap
                 }
                 catch { }
             }
-            return zh;
+            return MiddleLayer.LangMsg(group, key, zh, en, es);
         }
 
         // ---------------- 图标 + 文字按钮（导航 / 工具栏）----------------

@@ -84,7 +84,7 @@ namespace AlphaRap
             _label.Location = new Point(D(50), 0);
             _label.Size = new Size(D(700), D(45));
             _label.TextAlign = ContentAlignment.MiddleLeft;
-            _label.Name = "chromeTitleLabel";
+            _label.Name = "chromeTitleLabel_dyn";
             _titleBar.Controls.Add(_label);
 
             // 右侧的标题栏按钮：Dock=Right 的流式容器，从右往左排「最小化 / 关闭」

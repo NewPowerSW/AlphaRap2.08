@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlarmTable>
+  <A1000 Type="W" Content="Error al inicializar el componente de entrada" DoStop="False" />
+  <A1001 Type="W" Content="Error al inicializar el componente de salida" DoStop="False" />
+  <A1002 Type="W" Content="Error al inicializar el componente de motor" DoStop="False" />
+  <A1003 Type="K" Content="No se ha configurado NEXT en el diagrama de flujo" DoStop="False" />
+  <A1004 Type="K" Content="No se ha configurado CASE1 en el diagrama de flujo" DoStop="False" />
+  <A1005 Type="K" Content="No se ha configurado CASE2 en el diagrama de flujo" DoStop="False" />
+  <A1006 Type="K" Content="No se ha configurado CASE3 en el diagrama de flujo" DoStop="False" />
+  <A2000 Type="W" Content="Ejecutando inicialización" DoStop="False" />
+  <A2001 Type="I" Content="Deteniendo inicialización" DoStop="False" />
+  <A2002 Type="I" Content="Inicialización cancelada" DoStop="False" />
+  <A2003 Type="I" Content="Inicialización completada" DoStop="False" />
+  <A2004 Type="I" Content="Iniciando operación automática" DoStop="False" />
+  <A2005 Type="I" Content="Deteniendo operación automática" DoStop="False" />
+  <A2006 Type="I" Content="Finalizando operación automática" DoStop="False" />
+  <A2007 Type="I" Content="Operación automática finalizada" DoStop="False" />
+  <A2009 Type="E" Content="Error inesperado en VisionRun()" DoStop="True" />
+  <A2010 Type="E" Content="Error inesperado en AlwaysRun()" DoStop="True" />
+  <A2011 Type="E" Content="Error inesperado en ServoOn()" DoStop="True" />
+  <A2012 Type="E" Content="Error inesperado en ServoOff()" DoStop="True" />
+  <A2013 Type="E" Content="Error inesperado en ExecuteReset()" DoStop="True" />
+  <A2014 Type="E" Content="Error inesperado en InitialReset()" DoStop="True" />
+  <A2015 Type="E" Content="Error inesperado en Initial()" DoStop="True" />
+  <A2016 Type="E" Content="Error inesperado en RunReset()" DoStop="True" />
+  <A2017 Type="E" Content="Error inesperado en Run()" DoStop="True" />
+  <A2018 Type="E" Content="Error inesperado en RefreshIO()" DoStop="True" />
+  <A2019 Type="E" Content="Error inesperado en AlwaysRun()" DoStop="True" />
+  <A2020 Type="E" Content="Error inesperado en CheckMotorProtected()" DoStop="True" />
+  <A2021 Type="E" Content="Error inesperado en RunAuto()" DoStop="True" />
+  <A2022 Type="E" Content="Error inesperado en RunHome()" DoStop="True" />
+  <A2023 Type="W" Content="No se encontró la columna de configuración" DoStop="False" />
+  <A2024 Type="W" Content="No se encontró la columna de receta" DoStop="False" />
+  <A2025 Type="W" Content="No se ha definido el valor de configuración" DoStop="False" />
+  <A2026 Type="W" Content="No se ha definido el valor de receta" DoStop="False" />
+  <A2030 Type="E" Content="Alarma de eje" DoStop="True" />
+  <A2031 Type="E" Content="Límite de hardware del eje" DoStop="False" />
+  <A2032 Type="E" Content="Límite de software del eje" DoStop="False" />
+  <A3014 Type="I" Content="Suministro de aire anómalo; compruebe la fuente de aire" DoStop="True" />
+  <A3018 Type="I" Content="No se encontró el código de error" DoStop="True" />
+  <A3021 Type="E" Content="Parada de emergencia delantera pulsada" DoStop="true" />
+  <A3022 Type="E" Content="Parada de emergencia trasera pulsada" DoStop="true" />
+  <A3024 Type="E" Content="Pulse Reinicio para activar la alimentación" DoStop="true" />
+  <A5020 Type="E" Content="Error de conexión del robot" DoStop="true" />
+  <A10000 Type="W" Content="" DoStop="True" />
+  <A10001 Type="W" Content="" DoStop="True" />
+  <A10002 Type="W" Content="" DoStop="True" />
+  <A10003 Type="W" Content="" DoStop="True" />
+  <A10004 Type="W" Content="" DoStop="True" />
+  <A10005 Type="W" Content="" DoStop="True" />
+  <A10006 Type="W" Content="" DoStop="True" />
+  <A10007 Type="W" Content="" DoStop="True" />
+  <A10008 Type="W" Content="" DoStop="True" />
+  <A10009 Type="W" Content="" DoStop="True" />
+  <A10010 Type="W" Content="" DoStop="True" />
+  <A10011 Type="W" Content="" DoStop="True" />
+  <A10012 Type="W" Content="" DoStop="True" />
+  <A10013 Type="W" Content="" DoStop="True" />
+  <A4001 Type="E" Content="Tiempo de espera agotado al subir el cilindro de tope del búfer de entrada" DoStop="True" />
+  <A4002 Type="E" Content="Tiempo de espera agotado al bajar el cilindro elevador de trabajo de entrada" DoStop="True" />
+  <A4003 Type="E" Content="Tiempo de espera agotado al subir el cilindro de tope de trabajo de entrada" DoStop="True" />
+  <A4004 Type="E" Content="Tiempo de espera agotado al subir el cilindro de tope de salida" DoStop="False" />
+  <A4005 Type="E" Content="Tiempo de espera agotado al bajar el cilindro de tope del búfer de entrada" DoStop="True" />
+  <A4006 Type="E" Content="Tiempo de espera agotado en la salida del búfer de entrada" DoStop="True" />
+  <A4007 Type="E" Content="Tiempo de espera agotado en la entrada del búfer de entrada" DoStop="True" />
+  <A4008 Type="E" Content="Tiempo de espera agotado al subir el cilindro elevador de trabajo de entrada" DoStop="True" />
+  <A4009 Type="E" Content="Tiempo de espera agotado al bajar el cilindro de tope de trabajo de entrada" DoStop="True" />
+  <A4010 Type="E" Content="Tiempo de espera agotado en la salida del área de trabajo de entrada" DoStop="False" />
+  <A4011 Type="E" Content="Tiempo de espera agotado al bajar el cilindro de tope de salida" DoStop="True" />
+  <A4012 Type="E" Content="Tiempo de espera agotado en la salida del transportador de salida" DoStop="False" />
+  <A4013 Type="E" Content="Error de lectura del PLC; compruebe el hardware" DoStop="True" />
+  <A4014 Type="E" Content="Error de conexión del lector de códigos 1; compruebe el hardware" DoStop="True" />
+  <A4014 Type="E" Content="Error de escritura del PLC" DoStop="True" />
+  <A3041 Type="E" Content="Español" DoStop="true" />
+</AlarmTable>

@@ -45,11 +45,20 @@ namespace AlphaRap
             // 本窗体的文案交给语言表：按需 new 出来的窗体，构造里"登记 + 立刻按当前语言套一遍"
             // （键 = 控件名，翻译在 LanguageData\UserLoginForm 段里改；切语言统一走 SwitchLanguageTo）。
             // 只 Register 不套字的话，英文/西语环境下打开登录框会显示设计器里的中文。
-            MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
 
             // 图标只依赖 AppIcons，运行期与设计期都安全 → 放在这里，VS 设计视图也能看到真实图标
             ApplyIcons();
             ApplyLanguage();
+            dgvUserList.DataBindingComplete += delegate { MiddleLayer.RefreshUserHeaders(dgvUserList); };
+            dgvUserList.CellFormatting += delegate(object sender, DataGridViewCellFormattingEventArgs e)
+            {
+                if (e.ColumnIndex < 0 || dgvUserList.Columns[e.ColumnIndex].DataPropertyName != "Permission") return;
+                e.Value = MiddleLayer.PermissionText(e.Value);
+                e.FormattingApplied = true;
+            };
+            MiddleLayer.LanguageChanged += UserLoginForm_LanguageChanged;
+            Disposed += delegate { MiddleLayer.LanguageChanged -= UserLoginForm_LanguageChanged; };
 
             // 密码框回车提交（事件挂在 FieldBox 内部的 TextBox 上）
             textPassword.Inner.KeyPress += textPassword_KeyPress;
@@ -104,10 +113,17 @@ namespace AlphaRap
         {
             try
             {
-                lblBrandSub.Text = "Vision Inspection System";
+                lblBrandSub.Text = MiddleLayer.LangMsg("UserLoginForm", "lblBrandSub", "视觉检测系统", "Vision Inspection System", "Sistema de inspección visual");
                 lblVersion.Text = "AlphaRap  v2.08";
+                MiddleLayer.RefreshUserHeaders(dgvUserList);
             }
             catch { }
+        }
+
+        /// <summary>刷新登录页动态文案，保留账号输入和所选登录方式。</summary>
+        private void UserLoginForm_LanguageChanged(object sender, EventArgs e)
+        {
+            ApplyLanguage();
         }
 
         /// <summary>切换"账号登录 / 指纹登录"。两个面板都 Dock=Fill，只切可见性即可（不可见的控件不参与停靠布局）。</summary>
@@ -317,7 +333,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "System Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, MiddleLayer.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             return gUser;

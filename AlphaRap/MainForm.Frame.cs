@@ -170,8 +170,8 @@ namespace AlphaRap
             {
                 if (panelLogin == null) return;
                 string tip = MiddleLayer.LangMsg("MainForm", "msg_LoginChipUser", "用户名:  ", "UserName :  ", "Usuario :  ") + SysPara.UserName
-                           + "\n" + MiddleLayer.LangMsg("MainForm", "msg_LoginChipPerm", "权限:  ", "Permission :  ", "Permiso :  ") + SysPara.UserPermission
-                           + "\n" + MiddleLayer.LangMsg("MainForm", "msg_LoginChipTime", "登录时间:  ", "LoginTime :  ", "LoginTime :  ") + SysPara.UserLoginTime
+                           + "\n" + MiddleLayer.LangMsg("MainForm", "msg_LoginChipPerm", "权限:  ", "Permission :  ", "Permiso :  ") + MiddleLayer.PermissionText(SysPara.UserPermission)
+                           + "\n" + MiddleLayer.LangMsg("MainForm", "msg_LoginChipTime", "登录时间:  ", "Login time:  ", "Hora de inicio de sesión:  ") + SysPara.UserLoginTime
                            + "\n\n" + MiddleLayer.LangMsg("MainForm", "msg_LoginChipClick", "点击打开登录页", "Click to sign in", "Haga clic para iniciar sesión");
                 _loginTip.SetToolTip(panelLogin, tip);
                 _loginTip.SetToolTip(LoginText, tip);

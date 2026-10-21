@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -8,406 +8,142 @@ namespace AlphaRap.MenuForm
 {
     public partial class AlarmSetting : Form
     {
-        DataTable dtTable = new DataTable();
-		public List<string> mlist;
+        private DataTable dtTable;
 
-		public AlarmSetting()
+        /// <summary>初始化报警编辑页，保留三语内容列及稳定绑定字段。</summary>
+        public AlarmSetting()
         {
             InitializeComponent();
             UiTheme.ApplyDpi(this);
-            // 按需创建的窗体：登记进语言表并按当前语言设置文字
-            MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
-            if (dtTable.Columns.Count == 0)
-            {
-                dtTable.Columns.Add("Index");
-                dtTable.Columns.Add("AlarID");
-                dtTable.Columns.Add("DoStop");
-                dtTable.Columns.Add("Type");
-                dtTable.Columns.Add("Content");
-                dtTable.Columns.Add("EContent");
-                dtTable.Columns.Add("SPContent");
-            }
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
         }
-        private void AlarmSetting_Load(object sender, EventArgs e)
-        {
-            #region MyRegion
-            this.btnAdd.Enabled = true;
-            this.btnUpdate.Enabled = true;
-            this.btnRemove.Enabled = true;
-            this.btnSave.Enabled = false;
-            this.btnCancel.Enabled = false;
-            #endregion
-        }
+
+        /// <summary>设置页面初始编辑状态。</summary>
+        private void AlarmSetting_Load(object sender, EventArgs e) { SetEditing(false); }
+
+        /// <summary>读取配置目录下的三语报警表。</summary>
         private void AlarmSetting_Shown(object sender, EventArgs e)
         {
-            #region MyRegion
-            this.dtTable.Rows.Clear();
-            AlphaRap.srvConfigReadWriteXML srv = new AlphaRap.srvConfigReadWriteXML();
-            System.Xml.XmlDocument _xmlDoc = srv.XmlDocumentLoad(System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\Chinese.xml");
-            string strInnerXml = _xmlDoc.FirstChild.InnerXml;
-            if (strInnerXml.Trim().Length > 0)
+            try
             {
-                List<string> mlist = strInnerXml.Trim().Replace("/><", "/>\n<").Split('\n').ToList();
-                foreach (string forRor in mlist)
-                {
-                    string strValue = forRor.Substring(1, forRor.IndexOf(' '));
-                    if (strValue.Trim().Length > 0)
-                    {
-                        string strIndexOf = "DoStop=\"";
-                        int iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
-                        string strDoStop = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
-                        strDoStop = strDoStop.Substring(0, strDoStop.IndexOf('\"'));
-
-                        strIndexOf = "Content=\"";
-                        iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
-                        string strContent = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
-                        strContent = strContent.Substring(0, strContent.IndexOf('\"'));
-
-                        strIndexOf = "Type=\"";
-                        iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
-                        string strType = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
-                        strType = strType.Substring(0, strType.IndexOf('\"'));
-
-                        DataRow dtNewRow = this.dtTable.NewRow();
-                        dtNewRow["Index"] = this.dtTable.Rows.Count + 1;
-                        dtNewRow["AlarID"] = strValue.Trim();
-                        dtNewRow["DoStop"] = strDoStop;
-                        dtNewRow["Type"] = strType;
-                        dtNewRow["Content"] = strContent;
-                        dtNewRow["EContent"] = "";
-                        dtNewRow["SPContent"] = "";
-                        dtTable.Rows.Add(dtNewRow);
-                    }
-                }
+                dtTable = AlarmCatalog.Load();
+                bindingSource1.DataSource = dtTable;
+                dgvData.DataSource = bindingSource1;
+                MiddleLayer.RegisterAndApplyLanguage(dgvData, Name);
+                SetEditing(false);
             }
-            _xmlDoc = srv.XmlDocumentLoad(System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\English.xml");
-            strInnerXml = _xmlDoc.FirstChild.InnerXml;
-            if (strInnerXml.Trim().Length > 0)
-            {
-               mlist = strInnerXml.Trim().Replace("/><", "/>\n<").Split('\n').ToList();
-                foreach (string forRor in mlist)
-                {
-                    string strValue = forRor.Substring(1, forRor.IndexOf(' '));
-                    if (strValue.Trim().Length > 0)
-                    {
-                        string strIndexOf = "DoStop=\"";
-                        int iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
-                        string strDoStop = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
-                        strDoStop = strDoStop.Substring(0, strDoStop.IndexOf('\"'));
-
-                        strIndexOf = "Content=\"";
-                        iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
-                        string strContent = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
-                        strContent = strContent.Substring(0, strContent.IndexOf('\"'));
-
-                        strIndexOf = "Type=\"";
-                        iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
-                        string strType = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
-                        strType = strType.Substring(0, strType.IndexOf('\"'));
-
-                        DataRow[] dtSelect = (from d in this.dtTable.AsEnumerable() where d.Field<string>("AlarID") == strValue.Trim() select d).ToArray();
-                        if (dtSelect.Length > 0)
-                        {
-                            dtSelect[0]["EContent"] = strContent;
-                            dtSelect[0].AcceptChanges();
-                        }
-                        else
-                        {
-                            DataRow dtNewRow = this.dtTable.NewRow();
-                            dtNewRow["Index"] = this.dtTable.Rows.Count + 1;
-                            dtNewRow["AlarID"] = strValue.Trim();
-                            dtNewRow["DoStop"] = strDoStop;
-                            dtNewRow["Type"] = strType;
-                            dtNewRow["Content"] = "";
-                            dtNewRow["EContent"] = strContent;
-                            dtNewRow["SPContent"] = "";
-                            dtTable.Rows.Add(dtNewRow);
-                        }
-                    }
-                }
-            }
-
-            _xmlDoc = srv.XmlDocumentLoad(System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\Spanish.xml");
-            strInnerXml = _xmlDoc.FirstChild.InnerXml;
-            if (strInnerXml.Trim().Length > 0)
-            {
-                mlist = strInnerXml.Trim().Replace("/><", "/>\n<").Split('\n').ToList();
-                foreach (string forRor in mlist)
-                {
-                    string strValue = forRor.Substring(1, forRor.IndexOf(' '));
-                    if (strValue.Trim().Length > 0)
-                    {
-                        string strIndexOf = "DoStop=\"";
-                        int iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
-                        string strDoStop = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
-                        strDoStop = strDoStop.Substring(0, strDoStop.IndexOf('\"'));
-
-                        strIndexOf = "Content=\"";
-                        iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
-                        string strContent = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
-                        strContent = strContent.Substring(0, strContent.IndexOf('\"'));
-
-                        strIndexOf = "Type=\"";
-                        iIndex = forRor.IndexOf(strIndexOf) + strIndexOf.Trim().Length;
-                        string strType = forRor.Substring(iIndex, forRor.Trim().Length - iIndex);
-                        strType = strType.Substring(0, strType.IndexOf('\"'));
-
-                        DataRow[] dtSelect = (from d in this.dtTable.AsEnumerable() where d.Field<string>("AlarID") == strValue.Trim() select d).ToArray();
-                        if (dtSelect.Length > 0)
-                        {
-                            dtSelect[0]["SPContent"] = strContent;
-                            dtSelect[0].AcceptChanges();
-                        }
-                        else
-                        {
-                            DataRow dtNewRow = this.dtTable.NewRow();
-                            dtNewRow["Index"] = this.dtTable.Rows.Count + 1;
-                            dtNewRow["AlarID"] = strValue.Trim();
-                            dtNewRow["DoStop"] = strDoStop;
-                            dtNewRow["Type"] = strType;
-                            dtNewRow["Content"] = "";
-                            dtNewRow["EContent"] = "";
-                            dtNewRow["SPContent"] = strContent;
-                            dtTable.Rows.Add(dtNewRow);
-                        }
-                    }
-                }
-            }
-
-            this.bindingSource1.DataSource = this.dtTable;
-            this.dgvData.DataSource = this.bindingSource1;
-            foreach (DataGridViewRow forRow in this.dgvData.Rows)
-                foreach (DataGridViewCell forCell in forRow.Cells)
-                    forCell.ReadOnly = true;
-            #endregion
+            catch (Exception ex) { ShowError(ex.Message); }
         }
+
+        /// <summary>添加空白报警行并允许编辑。</summary>
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            #region MyRegion
-            DataRow dtNewRow = this.dtTable.NewRow();
-            foreach (DataColumn forColumn in this.dtTable.Columns)
-            {
-                if (forColumn.ColumnName.Trim() == "Index")
-                    dtNewRow[forColumn.ColumnName.Trim()] = this.dtTable.Rows.Count + 1;
-                else
-                    dtNewRow[forColumn.ColumnName.Trim()] = "";
-            }
-            this.dtTable.Rows.Add(dtNewRow);
-            this.dgvData.FirstDisplayedScrollingRowIndex = this.dgvData.Rows.Count - 1;
+            if (dtTable == null) return;
+            dtTable.Rows.Add(dtTable.Rows.Count + 1, "", "True", "E", "", "", "");
+            SetEditing(true);
+            if (dgvData.Rows.Count > 0) dgvData.FirstDisplayedScrollingRowIndex = dgvData.Rows.Count - 1;
+        }
 
-            this.dgvData.Rows[this.dgvData.Rows.Count - 1].ReadOnly = false;
-            this.btnAdd.Enabled = true;
-            this.btnUpdate.Enabled = false;
-            this.btnRemove.Enabled = false;
-            this.btnSave.Enabled = true;
-            this.btnCancel.Enabled = true;
-            this.btnRefresh.Enabled = false;
-            #endregion
-        }
-        private void btnUpdate_Click(object sender, EventArgs e)
-        {
-            #region MyRegion
-            foreach (DataGridViewRow forRow in this.dgvData.Rows)
-                foreach (DataGridViewCell forCell in forRow.Cells)
-                    if (forCell.ColumnIndex != 0)
-                        forCell.ReadOnly = false;
-            this.btnAdd.Enabled = false;
-            this.btnUpdate.Enabled = false;
-            this.btnRemove.Enabled = false;
-            this.btnSave.Enabled = true;
-            this.btnCancel.Enabled = true;
-            this.btnRefresh.Enabled = false;
-            #endregion
-        }
+        /// <summary>允许编辑报警属性和三语内容。</summary>
+        private void btnUpdate_Click(object sender, EventArgs e) { SetEditing(true); }
+
+        /// <summary>确认后删除当前报警行。</summary>
         private void btnRemove_Click(object sender, EventArgs e)
         {
-            #region MyRegion
-            string message1 = MiddleLayer.LangMsg("AlarmSetting", "msg_DeleteConfirm", "您確認要移除當前選中的行嗎？", "Are you sure to delete?", "Estas seguro que desea eliminar?");
-            string message2 = MiddleLayer.LangMsg("AlarmSetting", "msg_DeleteTitle", "溫馨提示", "Delete", "Eliminar");
-
-            if (this.dgvData.Rows.Count > 0 && this.dgvData.Columns.Count > 0)
-            {
-                if (this.dgvData.CurrentRow.Index >= 0)
-                {
-                    if (MessageBox.Show(message1, message2, MessageBoxButtons.YesNo) == DialogResult.Yes)
-                    {
-                        OperationLog.Write("AlarmSetting", "删除报警行：第 "
-                            + (this.dgvData.CurrentRow.Index + 1) + " 行");
-                        this.dgvData.Rows.RemoveAt(this.dgvData.CurrentRow.Index);
-                        this.dtTable.AcceptChanges();
-
-                        this.btnAdd.Enabled = false;
-                        this.btnUpdate.Enabled = false;
-                        this.btnRemove.Enabled = true;
-                        this.btnSave.Enabled = true;
-                        this.btnCancel.Enabled = true;
-                        this.btnRefresh.Enabled = false;
-                    }
-                }
-            }
-            #endregion
+            if (dgvData.CurrentRow == null || dgvData.CurrentRow.IsNewRow) return;
+            string message = MiddleLayer.LangMsg(Name, "msg_DeleteConfirm", "确认删除当前报警行吗？", "Delete the selected alarm?", "¿Eliminar la alarma seleccionada?");
+            if (MessageBox.Show(message, Text, MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            dgvData.Rows.Remove(dgvData.CurrentRow);
+            dtTable.AcceptChanges();
+            SetEditing(true);
         }
+
+        /// <summary>验证稳定字段和编号唯一性后保存全部报警译文。</summary>
         private void btnSave_Click(object sender, EventArgs e)
         {
-            #region MyRegion
-            this.dgvData.EndEdit();
-            string message1 = MiddleLayer.LangMsg("AlarmSetting", "msg_SaveConfirm", "是否要保存？", "Are you sure to save it?", "Seguro que quieres guardar?");
-            string message2 = MiddleLayer.LangMsg("AlarmSetting", "msg_SaveTitle", "温馨提示", "Save", "Guardar");
-            if (MessageBox.Show(message1, message2, MessageBoxButtons.YesNo) == DialogResult.No)
-                return;
-            foreach (DataRow forRow in this.dtTable.Rows)
+            if (dtTable == null || !dgvData.EndEdit()) return;
+            bindingSource1.EndEdit();
+            string error = ValidateRows();
+            if (error != null) { ShowError(error); return; }
+            string message = MiddleLayer.LangMsg(Name, "msg_SaveConfirm", "保存报警表吗？", "Save the alarm table?", "¿Guardar la tabla de alarmas?");
+            if (MessageBox.Show(message, Text, MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            try
             {
-                string strIndex = forRow["Index"].ToString().Trim();
-                if (forRow["AlarID"].ToString().Trim().Length == 0)
-                {
-                    MessageBox.Show(string.Format(
-                        MiddleLayer.LangMsg("AlarmSetting", "msg_AlarmRowEmpty", "行{0}，[{1}]不能為空！", "Row {0}: [{1}] must not be empty!", "La fila {0}: ¡[{1}] no puede estar vacía!"),
-                        strIndex, "AlarID"));
-                    return;
-                }
-                if (forRow["DoStop"].ToString().Trim().Length == 0)
-                {
-                    MessageBox.Show("行" + strIndex + "，[DoStop]不能為空！");
-                    return;
-                }
-                if (forRow["Type"].ToString().Trim().Length == 0)
-                {
-                    MessageBox.Show("行" + strIndex + "，[Type]不能為空！");
-                    return;
-                }
+                AlarmCatalog.Save(dtTable);
+                OperationLog.Write("AlarmSetting", "保存报警表：" + dtTable.Rows.Count);
+                SetEditing(false);
             }
-            List<string> mlist = new List<string>();
-            List<string> Emlist = new List<string>();
-            List<string> Esmlist = new List<string>();
-            foreach (DataRow forRow in this.dtTable.Rows)
+            catch (Exception ex) { ShowError(ex.Message); }
+        }
+
+        /// <summary>校验所有行，错误提示包含行号；校验使用字段键，不依赖翻译后的表头。</summary>
+        private string ValidateRows()
+        {
+            HashSet<string> keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (DataRow row in dtTable.Rows)
             {
-                mlist.Add("  <" + forRow["AlarID"].ToString().Trim() + " Type = \"" + forRow["Type"].ToString().Trim() + "\" Content = \"" + forRow["Content"].ToString().Trim() + "\" DoStop = \"" + forRow["DoStop"].ToString().Trim() + "\" />");
-                Emlist.Add("  <" + forRow["AlarID"].ToString().Trim() + " Type = \"" + forRow["Type"].ToString().Trim() + "\" Content = \"" + forRow["EContent"].ToString().Trim() + "\" DoStop = \"" + forRow["DoStop"].ToString().Trim() + "\" />");
-                Esmlist.Add("  <" + forRow["AlarID"].ToString().Trim() + " Type = \"" + forRow["Type"].ToString().Trim() + "\" Content = \"" + forRow["SPContent"].ToString().Trim() + "\" DoStop = \"" + forRow["DoStop"].ToString().Trim() + "\" />");
+                string id = Convert.ToString(row["AlarID"]).Trim();
+                string reason = ValidateField("AlarID", id) ?? ValidateField("Type", Convert.ToString(row["Type"]))
+                    ?? ValidateField("DoStop", Convert.ToString(row["DoStop"]));
+                if (!keys.Add(id)) reason = MiddleLayer.LangMsg(Name, "msg_Duplicate", "报警编号重复", "Duplicate alarm ID", "ID de alarma duplicado");
+                if (reason != null) return string.Format(MiddleLayer.LangMsg(Name, "msg_RowError", "第 {0} 行：{1}", "Row {0}: {1}", "Fila {0}: {1}"), dtTable.Rows.IndexOf(row) + 1, reason);
             }
-            string strText = "<AlarmTable>\r\n" + String.Join("\r\n", mlist) + "\r\n</AlarmTable>";
-            string strEText = "<AlarmTable>\r\n" + String.Join("\r\n", Emlist) + "\r\n</AlarmTable>";
-            string strEsText = "<AlarmTable>\r\n" + String.Join("\r\n", Esmlist) + "\r\n</AlarmTable>";
-
-            //6.获取启动了应用程序的可执行文件的路径  
-            string strPath = System.Windows.Forms.Application.StartupPath + "\\AlarmTable";
-            if (!System.IO.Directory.Exists(strPath))//如果不存在就创建file文件夹　　             　　                
-                System.IO.Directory.CreateDirectory(strPath);
-
-            string strPathName = strPath + @"\Chinese.xml";
-            if (System.IO.File.Exists(strPathName))//如果文件存在则删除 
-                System.IO.File.Delete(strPathName);
-            System.IO.FileStream fs = new System.IO.FileStream(strPathName, System.IO.FileMode.CreateNew);
-            System.IO.StreamWriter sw = new System.IO.StreamWriter(fs);
-            sw.Write(strText);  //这里是写入的内容
-            sw.Flush();
-            sw.Dispose();
-
-            string _strPathName = strPath + @"\English.xml";
-            if (System.IO.File.Exists(_strPathName))//如果文件存在则删除 
-                System.IO.File.Delete(_strPathName);
-            System.IO.FileStream _fs = new System.IO.FileStream(_strPathName, System.IO.FileMode.CreateNew);
-            System.IO.StreamWriter _sw = new System.IO.StreamWriter(_fs);
-            _sw.Write(strEText);  //这里是写入的内容
-            _sw.Flush();
-            _sw.Dispose();
-
-            string _esstrPathName = strPath + @"\Spanish.xml";
-            if (System.IO.File.Exists(_esstrPathName))//如果文件存在则删除 
-                System.IO.File.Delete(_esstrPathName);
-            System.IO.FileStream _esfs = new System.IO.FileStream(_esstrPathName, System.IO.FileMode.CreateNew);
-            System.IO.StreamWriter _essw = new System.IO.StreamWriter(_esfs);
-            _essw.Write(strEsText);  //这里是写入的内容
-            _essw.Flush();
-            _essw.Dispose();
-
-            OperationLog.Write("AlarmSetting", "保存报警表：共 " + this.dtTable.Rows.Count
-                + " 条（中文 / 英文 / 西语三份）");
-
-            this.btnAdd.Enabled = true;
-            this.btnUpdate.Enabled = true;
-            this.btnRemove.Enabled = true;
-            this.btnSave.Enabled = false;
-            this.btnCancel.Enabled = false;
-            this.btnRefresh.Enabled = true;
-            #endregion
+            return null;
         }
-        private void btnCancel_Click(object sender, EventArgs e)
+
+        /// <summary>校验报警编号、类型和停机标志，返回可显示的三语错误。</summary>
+        private string ValidateField(string field, string value)
         {
-            #region MyRegion
-            this.btnAdd.Enabled = true;
-            this.btnUpdate.Enabled = true;
-            this.btnRemove.Enabled = true;
-            this.btnSave.Enabled = false;
-            this.btnCancel.Enabled = false;
-            this.btnRefresh.Enabled = true;
-            this.AlarmSetting_Shown(this, null);
-            #endregion
+            value = value.Trim();
+            if (field == "AlarID")
+            {
+                try { System.Xml.XmlConvert.VerifyNCName(value); }
+                catch (Exception) { return MiddleLayer.LangMsg(Name, "msg_InvalidID", "报警编号必须是有效的 XML 名称，例如 A4013", "Alarm ID must be a valid XML name, e.g. A4013", "El ID de alarma debe ser un nombre XML válido, p. ej. A4013"); }
+            }
+            if (field == "Type" && !new[] { "E", "I", "Q", "W", "K" }.Contains(value.ToUpperInvariant()))
+                return MiddleLayer.LangMsg(Name, "msg_InvalidType", "类型必须为 E、I、Q、W 或 K", "Type must be E, I, Q, W or K", "El tipo debe ser E, I, Q, W o K");
+            bool stop;
+            if (field == "DoStop" && !bool.TryParse(value, out stop))
+                return MiddleLayer.LangMsg(Name, "msg_InvalidStop", "停机标志必须为 True 或 False", "Stop flag must be True or False", "El indicador de parada debe ser True o False");
+            return null;
         }
-        private void btnRefresh_Click(object sender, EventArgs e)
-        {
-            #region MyRegion
-            this.AlarmSetting_Shown(this, null);
-            #endregion
-        }
+
+        /// <summary>验证正在编辑的字段，不改变绑定键和用户输入。</summary>
         private void dgvData_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
-            #region MyRegion
-            if (e.RowIndex > -1 && e.ColumnIndex > -1)
-            {
-                DataGridView dgvDataGrid = (DataGridView)sender;
-                dgvDataGrid.Rows[e.RowIndex].ErrorText = "";
-                switch (dgvDataGrid.Columns[e.ColumnIndex].HeaderText.Trim())
-                {
-                    case "AlarID":
-                        if (e.FormattedValue.ToString().Trim().Length > 0)
-                        {
-                            if (e.FormattedValue.ToString().Trim().Length > 0)
-                            {
-                                if (e.FormattedValue.ToString().Trim().IndexOf(' ') != -1)
-                                {
-                                    e.Cancel = true;
-                    string strError = string.Format(
-                        MiddleLayer.LangMsg("AlarmSetting", "msg_ValNoSpace", "行{0}，{1} 值不能含有空格", "Row {0}: value of {1} must not contain spaces", "La fila {0}: el valor de {1} no puede contener espacios"),
-                        e.RowIndex, dgvDataGrid.Columns[e.ColumnIndex].HeaderText.Trim());
-                                    dgvDataGrid.Rows[e.RowIndex].ErrorText = strError;
-                                    MessageBox.Show(strError, MiddleLayer.LangMsg("AlarmSetting", "msg_ErrorTitle", "錯誤提示", "Error", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                                    return;
-                                }
-                            }
-                        }
-                        break;
-                    case "Type":
-                        if (e.FormattedValue.ToString().Trim().Length > 0)
-                        {
-                            if (e.FormattedValue.ToString().Trim().ToUpper() != "E" && e.FormattedValue.ToString().Trim().ToUpper() != "I" && e.FormattedValue.ToString().Trim().ToUpper() != "Q" && e.FormattedValue.ToString().Trim().ToUpper() != "W")
-                            {
-                                e.Cancel = true;
-                                string strError = string.Format(
-                                    MiddleLayer.LangMsg("AlarmSetting", "msg_ValOnlyEIQW", "行{0}，{1} 值只能為E、I、Q、W", "Row {0}: value of {1} must be E, I, Q or W", "La fila {0}: el valor de {1} solo puede ser E, I, Q, W"),
-                                    e.RowIndex, dgvDataGrid.Columns[e.ColumnIndex].HeaderText.Trim());
-                                dgvDataGrid.Rows[e.RowIndex].ErrorText = strError;
-                                MessageBox.Show(strError, MiddleLayer.LangMsg("AlarmSetting", "msg_ErrorTitle", "錯誤提示", "Error", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            }
-                        }
-                        break;
-                    case "DoStop":
-                        if (e.FormattedValue.ToString().Trim().Length > 0)
-                        {
-                            if (e.FormattedValue.ToString().Trim().ToUpper() != "FALSE" && e.FormattedValue.ToString().Trim().ToUpper() != "TRUE")
-                            {
-                                e.Cancel = true;
-                                string strError = string.Format(
-                                    MiddleLayer.LangMsg("AlarmSetting", "msg_ValTrueFalse", "行{0}，{1} 值只能為True 或False", "Row {0}: value of {1} must be True or False", "La fila {0}: el valor de {1} solo puede ser True o False"),
-                                    e.RowIndex, dgvDataGrid.Columns[e.ColumnIndex].HeaderText.Trim());
-                                dgvDataGrid.Rows[e.RowIndex].ErrorText = strError;
-                                MessageBox.Show(strError, MiddleLayer.LangMsg("AlarmSetting", "msg_ErrorTitle", "錯誤提示", "Error", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            }
-                        }
-                        break;
-                }
-            }
-            #endregion
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 || dgvData.Columns[e.ColumnIndex].ReadOnly) return;
+            string error = ValidateField(dgvData.Columns[e.ColumnIndex].DataPropertyName, Convert.ToString(e.FormattedValue));
+            dgvData.Rows[e.RowIndex].ErrorText = error ?? "";
+            e.Cancel = error != null;
+        }
+
+        /// <summary>取消编辑并重新读取已保存的报警表。</summary>
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            dgvData.CancelEdit();
+            bindingSource1.CancelEdit();
+            AlarmSetting_Shown(sender, e);
+        }
+
+        /// <summary>刷新三语报警表。</summary>
+        private void btnRefresh_Click(object sender, EventArgs e) { AlarmSetting_Shown(sender, e); }
+
+        /// <summary>按列控制编辑状态，序号始终只读。</summary>
+        private void SetEditing(bool editing)
+        {
+            foreach (DataGridViewColumn column in dgvData.Columns) column.ReadOnly = !editing || column.Index == 0;
+            btnAdd.Enabled = true;
+            btnUpdate.Enabled = !editing;
+            btnRemove.Enabled = true;
+            btnSave.Enabled = editing;
+            btnCancel.Enabled = editing;
+            btnRefresh.Enabled = !editing;
+        }
+
+        /// <summary>显示报警表操作失败的原因。</summary>
+        private void ShowError(string error)
+        {
+            MessageBox.Show(error, MiddleLayer.LangMsg(Name, "msg_ErrorTitle", "报警表错误", "Alarm table error", "Error en la tabla de alarmas"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
 }

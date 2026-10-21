@@ -64,6 +64,7 @@ namespace AlphaRap
         public CheckForm()
         {
             InitializeComponent();
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
 
             rbGroup_GreenLight_RunMode = new RadioButton[] { rbGreenOff_R, rbGreenOn_R, rbGreenBlink_R };
@@ -79,7 +80,7 @@ namespace AlphaRap
             foreach (RadioButton rb in StateButtons)
                 ApplyRoundedRegion(rb, 8);
 
-            ReadAllSignalTowerData();
+            if (!UiTheme.IsDesignTime) ReadAllSignalTowerData();
         }
 
         /// <summary>把控件裁剪为圆角矩形。尺寸固定，所以只需在构造时算一次。</summary>
@@ -354,7 +355,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "System Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, MiddleLayer.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return false;
         }

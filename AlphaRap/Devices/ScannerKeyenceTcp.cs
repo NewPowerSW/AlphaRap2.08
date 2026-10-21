@@ -142,13 +142,13 @@ namespace AlphaRap
                         catch (Exception ex)
                         {
                             _netStream = null;      // 连接失败：清掉流，IsConnected 才会如实返回 false
-                            ShowException("连接扫码枪网口失败！", ex);
+                            ShowException(MiddleLayer.LangMsg("Device", "error_ScannerConnect", "连接扫码枪网口失败！", "Failed to connect to the barcode scanner.", "No se pudo conectar con el lector de códigos."), ex);
                         }
                 }
             }
             catch (Exception ex)
             {
-                ShowException("打开扫码枪网口失败！", ex);
+                ShowException(MiddleLayer.LangMsg("Device", "error_ScannerOpen", "打开扫码枪网口失败！", "Failed to open the barcode scanner connection.", "No se pudo abrir la conexión del lector de códigos."), ex);
             }
         }
 
@@ -164,7 +164,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                ShowException("关闭扫码枪网口失败！", ex);
+                ShowException(MiddleLayer.LangMsg("Device", "error_ScannerClose", "关闭扫码枪网口失败！", "Failed to close the barcode scanner connection.", "No se pudo cerrar la conexión del lector de códigos."), ex);
             }
         }
 
@@ -238,7 +238,7 @@ namespace AlphaRap
                     }
                     catch (Exception ex)
 					{
-						ShowException("扫码枪 [" + DeviceName + "] 扫码失败！\r\n异常信息:\r\n", ex);
+						ShowException(string.Format(MiddleLayer.LangMsg("Device", "error_Scan", "扫码枪 [{0}] 扫码失败。", "Barcode scanner [{0}] failed to scan.", "El lector de códigos [{0}] no pudo leer."), DeviceName), ex);
                     }
 
                     StopScanning(); //发生错误，停止扫码

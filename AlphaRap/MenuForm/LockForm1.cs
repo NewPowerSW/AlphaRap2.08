@@ -8,6 +8,7 @@ namespace AlphaRap.MenuForm
         public LockForm1()
         {
             InitializeComponent();
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
         }
 

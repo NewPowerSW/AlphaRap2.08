@@ -615,7 +615,7 @@
             this.lblRightsHint.Font = new System.Drawing.Font("微软雅黑", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblRightsHint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
             this.lblRightsHint.Location = new System.Drawing.Point(0, 0);
-            this.lblRightsHint.Name = "lblRightsHint";
+            this.lblRightsHint.Name = "lblRightsHint_dyn";
             this.lblRightsHint.Size = new System.Drawing.Size(1122, 50);
             this.lblRightsHint.TabIndex = 0;
             this.lblRightsHint.Text = "勾选各权限允许的功能后点保存";

@@ -14,14 +14,15 @@ using AlphaRap.MenuForm;
 using AlphaRap.TaskProcess;
 using AlphaRap.MES;
 using Alpha;
+using NPSDK.Motion;
 
 namespace AlphaRap
 {
-	class MiddleLayer
+	partial class MiddleLayer
 	{
 		//===================Module Form===================
 
-		public static LifeSpan.LifeSpanForm SpanLifeF;
+		public static LifeSpanForm SpanLifeF;
 		public static Flow FlowF;
 		public static MainForm MainF;
 		public static SystemForm SystemF;
@@ -69,8 +70,9 @@ namespace AlphaRap
 
 		public static void InitialProject3()
 		{
+            ReadLanguageSettings();
 			#region Load Ini File
-			LoadingF.SetCaption("Load Ini File");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Ini", "读取系统配置", "Loading system configuration", "Cargando configuración del sistema"));
 
 			IniFile iniFile = new IniFile(".\\MachineSetup.ini");
 			SysPara.ProjectName = iniFile.ReadString("MachineSetup", "ProjectName", "AlphaRap3.0");
@@ -83,18 +85,17 @@ namespace AlphaRap
 			SysPara.RecipeDataDirectory = iniFile.ReadString("PathSetup", "RecipeDirectory", ".\\ModuleData\\RecipeData");
 			SysPara.MESDirectory = iniFile.ReadString("PathSetup", "MESDirectory", ".\\ModuleData\\MESData");
 			SysPara.IOPortDirectory = iniFile.ReadString("PathSetup", "IOPortDirectory", ".\\ModuleData");
-			SysPara.LanguageDataDirectory = iniFile.ReadString("PathSetup", "LanguageDirectory", ".\\LanguageData");
 
 			ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
 			#endregion
 
 			#region Load Alarm Table
-			LoadingF.SetCaption("Load Alarm Table");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Alarms", "载入报警表", "Loading alarms", "Cargando alarmas"));
 			LoadAlarmTable();
 			#endregion
 
 			#region Creat Module
-			LoadingF.SetCaption("Load Form");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Forms", "载入页面", "Loading pages", "Cargando páginas"));
 			//=======================Module Create===========================
 			SystemF = CreateForm(SystemF, "SystemForm");
 
@@ -103,18 +104,15 @@ namespace AlphaRap
 			#endregion
 
 			InitialLanguageData();
-			if (SysPara.LanguageName == "English")
-				SysPara.LanguageShow = LanguageType.English;
-			else if (SysPara.LanguageName == "Chinese")
-				SysPara.LanguageShow = LanguageType.Chinese;
-			else
-				SysPara.LanguageShow = LanguageType.Español;
 
 			SwitchLanguage(SysPara.LanguageShow);
 
 			SwitchPermission(SysPara.UserPermission);
 
-			OpenRecipe(string.Format("{0}\\{1}.xml", SysPara.RecipeDataDirectory, SysPara.RecipeName));
+
+           
+
+            OpenRecipe(string.Format("{0}\\{1}.xml", SysPara.RecipeDataDirectory, SysPara.RecipeName));
 			ServoOn();
 		}
 		public static FlowControl FlowCtrl;
@@ -123,6 +121,7 @@ namespace AlphaRap
 		/// </summary>
 		public static void InitialProject()
 		{
+            ReadLanguageSettings();
 			#region Load Ini File
 
 			IniFile iniFile = new IniFile(".\\MachineSetup.ini");
@@ -136,10 +135,6 @@ namespace AlphaRap
 			SysPara.RecipeDataDirectory = iniFile.ReadString("PathSetup", "RecipeDirectory", ".\\ModuleData\\RecipeData");
 			SysPara.MESDirectory = iniFile.ReadString("PathSetup", "MESDirectory", ".\\ModuleData\\MESData");
 			SysPara.IOPortDirectory = iniFile.ReadString("PathSetup", "IOPortDirectory", ".\\ModuleData");
-			SysPara.LanguageDataDirectory = iniFile.ReadString("PathSetup", "LanguageDirectory", ".\\LanguageData");
-
-			SysPara.LanguageDataDirectory = iniFile.ReadString("PathSetup", "LanguageDirectory", ".\\LanguageData");
-			SysPara.LanguageName = iniFile.ReadString("MachineSetup", "LanguageName", "");
 
 			ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
 			SysPara.FilePath = SysPara.RecipeDataDirectory + "\\" + SysPara.RecipeName + ".xml";
@@ -157,17 +152,17 @@ namespace AlphaRap
 			#endregion
 
 			SpanLifeF = new LifeSpanForm();
-			LoadingF.SetCaption("Load ProductManagerForm");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Products", "载入型号管理", "Loading model management", "Cargando gestión de modelos"));
 			ProductF = CreateForm(ProductF, "ProductManagerForm");
 			PlatF = CreateForm(PlatF, "PlatFormSetting");
 			SystemS = CreateForm(SystemS, "SystemSetting");
 			ParF = CreateForm(ParF, "Parameter");
 			SystemF = CreateForm(SystemF, "SystemForm");
-			LoadingF.SetCaption("Load MainForm");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Main", "载入主界面", "Loading main window", "Cargando ventana principal"));
 			MainF = CreateForm(MainF, "MainForm");
-			LoadingF.SetCaption("Load HomeForm");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Home", "载入主页", "Loading home page", "Cargando página de inicio"));
 			HomeF = CreateForm(HomeF, "HomeForm");
-			LoadingF.SetCaption("Load ManualForm");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Manual", "载入手动页面", "Loading manual controls", "Cargando controles manuales"));
 			ManualF = CreateForm(ManualF, "ManualForm");
 			HardF = CreateForm(HardF, "HardForm");
 			CheckF = CreateForm(CheckF, "CheckForm");
@@ -181,20 +176,14 @@ namespace AlphaRap
 			LockForm1 = new LockForm1();
 			MesF = CreateForm(MesF, "LENS");
 
-			LoadingF.SetCaption("Load InitialLanguageData");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Languages", "载入语言表", "Loading translations", "Cargando traducciones"));
 			InitialLanguageData();
-			if (SysPara.LanguageName == "English")
-				SysPara.LanguageShow = LanguageType.English;
-			else if (SysPara.LanguageName == "Chinese")
-				SysPara.LanguageShow = LanguageType.Chinese;
-			else
-				SysPara.LanguageShow = LanguageType.Español;
 
 			SwitchLanguage(SysPara.LanguageShow);
 
-			LoadingF.SetCaption("SwitchPermission");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Permissions", "载入权限", "Loading permissions", "Cargando permisos"));
 			SwitchPermission(SysPara.UserPermission);
-			LoadingF.SetCaption("Load IO");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_IO", "初始化输入输出", "Initializing IO", "Inicializando E/S"));
 
 			SDKKernal.SetSimulation(SysPara.Simulation);
 			SDKKernal.InitializeComponent();
@@ -205,14 +194,14 @@ namespace AlphaRap
 			alTask = new AlwaysRunTask();
 			alarmRunTask = new AlarmRunTask();
 
-			LoadingF.SetCaption("OpenRecipe");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Recipe", "载入配方", "Loading recipe", "Cargando receta"));
 			OpenRecipe(string.Format("{0}\\{1}.xml", SysPara.RecipeDataDirectory, SysPara.RecipeName));
 
 			FlowCtrl = new FlowControl();
 			FlowCtrl.StartThread();
 
 			ServoOn();
-			LoadingF.SetCaption("Load Vision");
+			LoadingF.SetCaption(LangMsg("LoadingForm", "stage_Vision", "载入视觉算法", "Loading vision algorithms", "Cargando algoritmos de visión"));
 		}
 
 		public static void ServoOn()
@@ -257,7 +246,7 @@ namespace AlphaRap
 		#region Convey
 		public static void StartRunCV()
 		{
-			foreach (KeyValuePair<Adlink_Output, int> item in FlowLineStatus)
+			foreach (KeyValuePair<NP_Output, int> item in FlowLineStatus)
 			{
 				if (item.Value == 0)
 				{
@@ -265,7 +254,7 @@ namespace AlphaRap
 				}
 			}
 		}
-		static Dictionary<Adlink_Output, int> FlowLineStatus = new Dictionary<Adlink_Output, int>();
+		static Dictionary<NP_Output, int> FlowLineStatus = new Dictionary<NP_Output, int>();
 		public static void StopRunCV()
 		{
 			try
@@ -289,236 +278,33 @@ namespace AlphaRap
 			}
 		}
 
-		static int ReturnOutPutStaus(Adlink_Output output)
+		static int ReturnOutPutStaus(NP_Output output)
 		{
-			if (output.OutputStaus)
+			if (output.IsOn())
 			{
 				return 0;
 			}
 			return -1;
 		}
 		#endregion
-		private static void InitialLanguageData()
-		{
-			string[] LanguageArray = Enum.GetNames(typeof(LanguageType));
-			SysPara.ComponentLangurageList = new List<ComponentTextInfo>[LanguageArray.Length];
-
-			SysPara.TStripLangurageList = new List<TStripItemTextInfo>[LanguageArray.Length]; //for ToolStrip
-			SysPara.CyCtrlLangList = new List<CylinderCtrlTextInfo>[LanguageArray.Length];//for CylinderControl
-			for (int i = 0; i < LanguageArray.Length; i++)
-			{
-				SysPara.ComponentLangurageList[i] = new List<ComponentTextInfo>();
-				List<ComponentTextInfo> XmlDataList = new List<ComponentTextInfo>();
-				SysPara.TStripLangurageList[i] = new List<TStripItemTextInfo>();  //for MainForm ToolStrip
-				List<TStripItemTextInfo> XmlDataList2 = new List<TStripItemTextInfo>(); // for MainForm ToolStrip
-				SysPara.CyCtrlLangList[i] = new List<CylinderCtrlTextInfo>();// CylinderCotrol
-				#region Load from xml file
-				string sFilePath = string.Format("{0}\\{1}.xml", SysPara.LanguageDataDirectory, LanguageArray[i]);
-				if (File.Exists(sFilePath))
-				{
-					XmlDocument ReadDoc = new XmlDocument();
-					ReadDoc.Load(sFilePath);
-					XmlElement Element = (XmlElement)ReadDoc.SelectSingleNode(LanguageArray[i]);
-					if (Element != null)
-					{
-						XmlNodeList FormData = Element.ChildNodes;
-						for (int j = 0; j < FormData.Count; j++)
-						{
-							#region MainForm ToolStrip，提取到XmlDataList2
-							if (FormData[j].Name is "MainForm")     //MainForm ToolStrip，提取到XmlDataList2 
-							{
-								XmlNodeList ComponentData2 = FormData[j].ChildNodes;
-								for (int k = 0; k < ComponentData2.Count; k++)
-								{
-									if (ComponentData2[k].Name.Contains("ToolStrip"))
-									{
-										TStripItemTextInfo CmpTextInfo2 = new TStripItemTextInfo();
-										CmpTextInfo2.FormName = FormData[j].Name;
-										CmpTextInfo2.ComponentName = ComponentData2[k].Name;
-										CmpTextInfo2.ComponentText = ((XmlElement)ComponentData2[k]).GetAttribute("ComponentText");
-										XmlDataList2.Add(CmpTextInfo2);
-									}
-								}
-							}
-
-							#endregion
-							XmlNodeList ComponentData = FormData[j].ChildNodes;
-							for (int k = 0; k < ComponentData.Count; k++)
-							{
-								ComponentTextInfo CmpTextInfo = new ComponentTextInfo();
-								CmpTextInfo.FormName = FormData[j].Name;
-								CmpTextInfo.ComponentName = ComponentData[k].Name;
-								CmpTextInfo.ComponentText = ((XmlElement)ComponentData[k]).GetAttribute("ComponentText");
-								XmlDataList.Add(CmpTextInfo);
-							}
-						}
-					}
-				}
-				#endregion
-
-				#region compare all component text data and write to list
-				//AllForm
-				foreach (Control Form in lstForm)
-				{
-					InitialLanguageCallback(Form, Form.Name, ref SysPara.ComponentLangurageList[i], ref XmlDataList);
-				}
-				//MainForm
-
-				InitialLanguageCallbackMForm(MainF, MainF.Name, ref SysPara.TStripLangurageList[i], ref XmlDataList2); //MainForm ToolStrip
-				#endregion
-
-				#region Write to xml file
-				// 在已有语言文件的基础上更新，保留运行时按键登记的条目（见 LangText）
-				XmlDocument WriteDoc = new XmlDocument();
-				try
-				{
-					if (File.Exists(sFilePath)) WriteDoc.Load(sFilePath);
-				}
-				catch (Exception) { WriteDoc = new XmlDocument(); }
-
-				// 摘掉旧声明：WriteUnicodeXML 会重新插一条，留着就会写出两条 <?xml ?>
-				for (int k = WriteDoc.ChildNodes.Count - 1; k >= 0; k--)
-					if (WriteDoc.ChildNodes[k] is XmlDeclaration) WriteDoc.RemoveChild(WriteDoc.ChildNodes[k]);
-
-				XMLExpand.GetElement(WriteDoc, LanguageArray[i]);
-				for (int j = 0; j < SysPara.ComponentLangurageList[i].Count; j++)
-				{
-					string compName = SysPara.ComponentLangurageList[i][j].ComponentName;
-					if (string.IsNullOrEmpty(compName)) continue;          // 空名会拼出非法 XPath
-					XmlElement eSetting = XMLExpand.GetElement(WriteDoc, LanguageArray[i] + "/" + SysPara.ComponentLangurageList[i][j].FormName + "/" + compName);
-					if (eSetting != null) eSetting.SetAttribute("ComponentText", SysPara.ComponentLangurageList[i][j].ComponentText);
-				}
-				for (int j = 0; j < SysPara.TStripLangurageList[i].Count; j++)   //MainForm ToolStrip
-				{
-					string tsName = SysPara.TStripLangurageList[i][j].ComponentName;
-					if (string.IsNullOrEmpty(tsName)) continue;            // 空名会拼出非法 XPath
-					XmlElement eSetting = XMLExpand.GetElement(WriteDoc, LanguageArray[i] + "/" + SysPara.TStripLangurageList[i][j].FormName + "/" + tsName);
-					if (eSetting != null) eSetting.SetAttribute("ComponentText", SysPara.TStripLangurageList[i][j].ComponentText);
-				}
-
-				if (!Directory.Exists(SysPara.LanguageDataDirectory))
-					Directory.CreateDirectory(SysPara.LanguageDataDirectory);
-				XMLExpand.WriteUnicodeXML(WriteDoc, sFilePath);
-				#endregion
-
-				#region write initial data for Cylinder control
-				//write the initial data to CyCtrlLangList[i] from cyCtrlLangIniDataList;
-
-				OtherItemsForLang.GetCyCtrlLanIntitialData(ManualF, ref SysPara.cyCtrlLangIniDataList);
-				LanguageType LanTypeTemp = (LanguageType)i;
-				InitialLangCallbackCyldCtrl(ManualF, LanTypeTemp, ref SysPara.cyCtrlLangIniDataList, ref SysPara.CyCtrlLangList[i]);
-				#endregion
-			}
-
-			// VPForm 在语言表建立之前已构建，且控件为 UiLabel/UiButton 子类（白名单扫描不到），在此登记
-			if (VPF != null) VPF.RegisterVpLanguage();
-			// LockForm1 同样是启动期直接 new 的（不经 CreateForm，不在 lstForm，白名单扫不到），一并补登记。
-			if (LockForm1 != null) RegisterLanguage(LockForm1, "LockForm1");
-			// ProductManagerForm 的控件为 UiLabel / FlatButton 等自绘子类（白名单扫描不到），在此登记
-			if (ProductF != null) RegisterLanguage(ProductF, "ProductManagerForm");
-			// AddUserForm 同理（自绘控件 + 建得比语言表早）。
-			if (AddF != null) RegisterLanguage(AddF, "AddUserForm");
-		}
-
-		private static void InitialLanguageCallback(Control cl, string FormName, ref List<ComponentTextInfo> ComponentLangurageList, ref List<ComponentTextInfo> XmlDataList)
-		{
-			foreach (Control control in cl.Controls)
-			{
-				Type ControlType = control.GetType();
-				bool bNeedAdded = false;
-				bNeedAdded |= (ControlType == typeof(Form));
-				bNeedAdded |= (ControlType == typeof(Label));
-				bNeedAdded |= (ControlType == typeof(GroupBox));
-				bNeedAdded |= (ControlType == typeof(CheckBox));
-				bNeedAdded |= (ControlType == typeof(CheckedListBox));
-				bNeedAdded |= (ControlType == typeof(Button));
-				bNeedAdded |= (ControlType == typeof(TabPage));
-				bNeedAdded |= (ControlType == typeof(RadioButton));
-				bNeedAdded |= (ControlType == typeof(Adlink_Motor));
-				bNeedAdded |= (ControlType == typeof(Adlink_Input));
-				bNeedAdded |= (ControlType == typeof(Adlink_Output));
-				bNeedAdded |= (ControlType == typeof(Flow_Chart));
-
-				bNeedAdded |= (ControlType == typeof(NPSDK.Flow_Chart));
-				bool bCylinderControl = false;
-				bCylinderControl |= (control.Name == "btnOn");
-				bCylinderControl |= (control.Name == "btnOff");
-				// 名字为空的控件不登记：PropertyGrid 这类系统控件的内部子控件名都是空的，
-				// 空名写回 XML 时会拼出 "Chinese/Form/" 这种非法 XPath ⇒ XPathException
-				if (bNeedAdded && !bCylinderControl && !string.IsNullOrEmpty(control.Name))
-				{
-					ComponentTextInfo AddComLan = new ComponentTextInfo();
-					if (ControlType == typeof(NPSDK.Flow_Chart))
-					{
-						int Index = XmlDataList.FindIndex(ComLan => (ComLan.FormName == FormName && ComLan.ComponentName == ((NPSDK.Flow_Chart)control).Name));
-						if (Index >= 0)
-						{
-							AddComLan.FormName = FormName;
-							AddComLan.ComponentName = XmlDataList[Index].ComponentName;
-							AddComLan.ComponentText = XmlDataList[Index].ComponentText;
-							AddComLan.Component = ((NPSDK.Flow_Chart)control);
-						}
-						else
-						{
-							AddComLan.FormName = FormName;
-							AddComLan.ComponentName = ((NPSDK.Flow_Chart)control).Name;
-							AddComLan.ComponentText = ((NPSDK.Flow_Chart)control).text;
-							AddComLan.Component = ((NPSDK.Flow_Chart)control);
-						}
-					}
-					else
-					{
-						int Index = XmlDataList.FindIndex(ComLan => (ComLan.FormName == FormName && ComLan.ComponentName == control.Name));
-						if (Index >= 0)
-						{
-							AddComLan.FormName = FormName;
-							AddComLan.ComponentName = XmlDataList[Index].ComponentName;
-							AddComLan.ComponentText = XmlDataList[Index].ComponentText;
-							AddComLan.Component = control;
-						}
-						else
-						{
-							AddComLan.FormName = FormName;
-							AddComLan.ComponentName = control.Name;
-							AddComLan.ComponentText = control.Text;
-							AddComLan.Component = control;
-						}
-					}
-					ComponentLangurageList.Add(AddComLan);
-				}
-				if (control.HasChildren && ControlType != typeof(NPSDK.Flow_Chart))
-					InitialLanguageCallback(control, FormName, ref ComponentLangurageList, ref XmlDataList);
-			}
-		}
-
-		private static void InitialLanguageCallbackMForm(Form Form, string FormName, ref List<TStripItemTextInfo> TStripComponentLangurageList, ref List<TStripItemTextInfo> XmlDataList2)
-		{
-			List<TStripItemTextInfo> TStripItemList = new List<TStripItemTextInfo>();
-			if (FormName is "MainForm")
-			{
-				OtherItemsForLang.GetToolStripItems(Form, ref TStripItemList);     //取Form的ToolStrip
-			}
-			foreach (TStripItemTextInfo TStripItemTxtInfo in TStripItemList)
-			{
-				TStripItemTextInfo AddComLan = new TStripItemTextInfo();
-				int Index = XmlDataList2.FindIndex(ComLan => (ComLan.FormName == FormName && ComLan.ComponentName == TStripItemTxtInfo.ComponentName));
-				if (Index >= 0)
-				{
-					AddComLan.FormName = FormName;
-					AddComLan.ComponentName = XmlDataList2[Index].ComponentName;
-					AddComLan.ComponentText = XmlDataList2[Index].ComponentText;
-					AddComLan.Component = TStripItemTxtInfo.Component;
-				}
-				else
-				{
-					AddComLan.FormName = FormName;
-					AddComLan.ComponentName = TStripItemTxtInfo.ComponentName;
-					AddComLan.ComponentText = TStripItemTxtInfo.ComponentText;
-					AddComLan.Component = TStripItemTxtInfo.Component;
-				}
-				TStripComponentLangurageList.Add(AddComLan);
-			}
-		}
+        /// <summary>初始化三语登记表，扫描所有启动页及框架自定义控件。</summary>
+        private static void InitialLanguageData()
+        {
+            int count = Enum.GetValues(typeof(LanguageType)).Length;
+            SysPara.ComponentLangurageList = new List<ComponentTextInfo>[count];
+            SysPara.TStripLangurageList = new List<TStripItemTextInfo>[count];
+            SysPara.CyCtrlLangList = new List<CylinderCtrlTextInfo>[count];
+            for (int i = 0; i < count; i++)
+            {
+                SysPara.ComponentLangurageList[i] = new List<ComponentTextInfo>();
+                SysPara.TStripLangurageList[i] = new List<TStripItemTextInfo>();
+                SysPara.CyCtrlLangList[i] = new List<CylinderCtrlTextInfo>();
+            }
+            foreach (Control form in lstForm) RegisterLanguage(form, form.Name);
+            if (LockForm1 != null) RegisterLanguage(LockForm1, "LockForm1");
+            if (FlowF != null) RegisterLanguage(FlowF, "Flow");
+            if (SpanLifeF != null) RegisterLanguage(SpanLifeF, "SpanLife");
+        }
 
 		public static void InitialLangCallbackCyldCtrl(Form FormName, LanguageType Lantype, ref List<CyldCtrlLangIniData> cyCtrlLangIniDataList, ref List<CylinderCtrlTextInfo> CyCtrlLangList)
 		{
@@ -551,34 +337,24 @@ namespace AlphaRap
 		/// <summary>按指定语言加载报警表。</summary>
 		private static void LoadAlarmTable(LanguageType lanType)
 		{
+			string temporary = null;
 			try
 			{
-				string dir = SysPara.AlarmTableDirectory;
-				if (string.IsNullOrEmpty(dir)) dir = ".\\AlarmTable";
-
-				string langName;
-				switch (lanType)
-				{
-					case LanguageType.Chinese: langName = "Chinese"; break;
-					case LanguageType.English: langName = "English"; break;
-					case LanguageType.Español: langName = "Spanish"; break;   // 枚举名 Español，文件名却是 Spanish
-					default: langName = lanType.ToString(); break;
-				}
-
-				string file = Path.Combine(dir, langName + ".xml");
-				if (!File.Exists(file))                                  // 兼容另一种命名
-					file = Path.Combine(dir, lanType.ToString() + ".xml");
-				if (!File.Exists(file))                                  // 兜底：宁可显示英文报警，也不能没有报警
-					file = Path.Combine(dir, "English.xml");
-
-				NPSDK.Alarm.Initial(file);
+                if (!File.Exists(AlarmCatalog.FilePath(lanType, true))) return;
+                temporary = Path.GetTempFileName();
+                AlarmCatalog.RuntimeTable(lanType).Save(temporary);
+				NPSDK.Alarm.Initial(temporary);
 			}
 			catch { }
+			finally
+			{
+				try { if (temporary != null) File.Delete(temporary); }
+				catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex); }
+			}
 		}
 
 		/// <summary>
-		/// 界面语言切换完成后触发。SwitchLanguage 只更新语言表中登记的控件，
-		/// 自行管理文字的页面（FieldBox / FlatButton / UiLabel 等）通过此事件刷新文字。
+		/// 固定文案切换完成后触发，页面通过此事件刷新计数、状态和带业务数据的提示。
 		/// </summary>
 		public static event EventHandler LanguageChanged;
 
@@ -595,7 +371,7 @@ namespace AlphaRap
 		public const string DynTextSuffix = "_dyn";
 
 		/// <summary>语言包文件路径：LanguageData\{语言}.xml（西语枚举是 Español，文件名也是 Español）。</summary>
-		private static string LangFilePath(LanguageType lang)
+		internal static string LangFilePath(LanguageType lang)
 		{
 			string dir = SysPara.LanguageDataDirectory;
 			if (string.IsNullOrEmpty(dir)) dir = ".\\LanguageData";
@@ -610,10 +386,9 @@ namespace AlphaRap
 			if (_langDocs[i] != null) return _langDocs[i];
 
 			XmlDocument doc = new XmlDocument();
-			string file = LangFilePath(lang);
 			try
 			{
-				if (File.Exists(file)) doc.Load(file);
+				doc.LoadXml(LanguageCatalog.ReadDocument(lang).ToString());
 			}
 			catch (Exception) { doc = new XmlDocument(); }
 			if (doc.DocumentElement == null || doc.DocumentElement.Name != lang.ToString())
@@ -637,20 +412,23 @@ namespace AlphaRap
 		}
 
 		/// <summary>取某语言下这个键的文案；XML 里没有（或为空）返回 null。</summary>
-		private static string LangTextOf(LanguageType lang, string formName, string key)
-		{
-			try
-			{
-				if (string.IsNullOrEmpty(formName) || string.IsNullOrEmpty(key)) return null;
+        private static string LangTextOf(LanguageType lang, string formName, string key)
+        {
+            lock (LanguageSync)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(formName) || string.IsNullOrEmpty(key)) return null;
 
-				XmlNode node = LangDoc(lang).SelectSingleNode("/" + lang + "/" + formName + "/" + key);
-				if (node == null) return null;
+                    XmlNode node = LangDoc(lang).SelectSingleNode("/" + lang + "/" + formName + "/" + key);
+                    if (node == null) return null;
 
-				string s = ((XmlElement)node).GetAttribute("ComponentText");
-				return string.IsNullOrEmpty(s) ? null : s;
-			}
-			catch (Exception) { return null; }
-		}
+                    string s = ((XmlElement)node).GetAttribute("ComponentText");
+                    return string.IsNullOrEmpty(s) ? null : s;
+                }
+                catch (Exception) { return null; }
+            }
+        }
 
 		/// <summary>
 		/// 取消息类文案（弹窗 / 报警 / ToolTip）：三语底稿写入 LanguageData\{语言}.xml 的 /{语言}/{formName}/{key}
@@ -661,28 +439,31 @@ namespace AlphaRap
 		/// <param name="zh">中文底稿。</param>
 		/// <param name="en">英文底稿。</param>
 		/// <param name="es">西语底稿；省略时回落英文。</param>
-		public static string LangMsg(string formName, string key, string zh, string en, string es = null)
-		{
-			string fallback = (SysPara.LanguageShow == LanguageType.Chinese) ? zh
-							: (SysPara.LanguageShow == LanguageType.English) ? en
-							: (string.IsNullOrEmpty(es) ? en : es);
-			try
-			{
-				SeedLangText(LanguageType.Chinese, formName, key, zh);
-				SeedLangText(LanguageType.English, formName, key, en);
-				SeedLangText(LanguageType.Español, formName, key, string.IsNullOrEmpty(es) ? en : es);
+        public static string LangMsg(string formName, string key, string zh, string en, string es = null)
+        {
+            lock (LanguageSync)
+            {
+                string fallback = (SysPara.LanguageShow == LanguageType.Chinese) ? zh
+                                : (SysPara.LanguageShow == LanguageType.English) ? en
+                                : (string.IsNullOrEmpty(es) ? en : es);
+                try
+                {
+                    SeedLangText(LanguageType.Chinese, formName, key, zh);
+                    SeedLangText(LanguageType.English, formName, key, en);
+                    SeedLangText(LanguageType.Español, formName, key, string.IsNullOrEmpty(es) ? en : es);
 
-				string s = LangTextOf(SysPara.LanguageShow, formName, key);
-				if (!string.IsNullOrEmpty(s)) return s;
-				if (SysPara.LanguageShow == LanguageType.Español)
-				{
-					s = LangTextOf(LanguageType.English, formName, key);    // 西语缺翻译时回落英文
-					if (!string.IsNullOrEmpty(s)) return s;
-				}
-			}
-			catch (Exception) { }
-			return fallback;
-		}
+                    string s = LangTextOf(SysPara.LanguageShow, formName, key);
+                    if (!string.IsNullOrEmpty(s)) return s;
+                    if (SysPara.LanguageShow == LanguageType.Español)
+                    {
+                        s = LangTextOf(LanguageType.English, formName, key);    // 西语缺翻译时回落英文
+                        if (!string.IsNullOrEmpty(s)) return s;
+                    }
+                }
+                catch (Exception) { }
+                return fallback;
+            }
+        }
 
 		/// <summary>LangMsg 的补写一步：该语言还没有这个键时才写底稿，已有（可能已人工翻译）不动。</summary>
 		private static void SeedLangText(LanguageType lang, string formName, string key, string text)
@@ -700,6 +481,9 @@ namespace AlphaRap
 		{
 			if (root == null) return;
 			RegisterLanguageControl(root, formName);
+			RegisterLanguageParts(root, formName);
+			if (root.GetType() == typeof(NPSDK.Flow_Chart)) return;
+			if (root is TextBoxBase || root is FieldBox || root is DeviceControl || root is NP_Cylinder || root is ComboBox || root is DataGridView || root is PropertyGrid) return;
 			for (int i = 0; i < root.Controls.Count; i++) RegisterLanguage(root.Controls[i], formName);
 		}
 
@@ -718,6 +502,11 @@ namespace AlphaRap
 			try
 			{
 				if (root == null) return;
+				if (root.GetType() == typeof(NPSDK.Flow_Chart))
+				{
+					((NPSDK.Flow_Chart)root).text = LangText(formName, root.Name, ((NPSDK.Flow_Chart)root).text);
+					return;
+				}
 
 				string key = root.Name;
 				if (!string.IsNullOrEmpty(key) && !key.EndsWith(DynTextSuffix) && IsLanguageControl(root))
@@ -732,6 +521,7 @@ namespace AlphaRap
 					}
 				}
 
+				if (root is TextBoxBase || root is FieldBox || root is DeviceControl || root is NP_Cylinder || root is ComboBox || root is DataGridView || root is PropertyGrid) return;
 				for (int i = 0; i < root.Controls.Count; i++) ApplyLanguageTexts(root.Controls[i], formName);
 			}
 			catch (Exception) { }
@@ -745,10 +535,14 @@ namespace AlphaRap
 		private static bool IsLanguageControl(Control c)
 		{
 			if (c == null) return false;
+			if (c is ModuleBaseForm) return false;
+			if (c.DataBindings.Count > 0) return false;
 			if (c is TextBoxBase) return false;
 			if (c is DataGridView) return false;
 			if (c is ComboBox) return false;
 			if (c is ListControl) return false;
+			if (c is TabPage && (c.Tag is VpCameraConfig || c.Tag is VpVppConfig)) return false;
+			if (c is TabPage && c.Tag is DeviceControl) return false;
 
 			return c is Form
 				|| c is Label
@@ -760,15 +554,18 @@ namespace AlphaRap
 				|| c is CheckedListBox
 				|| c is FlatButton
 				|| c is AlarmChip
+				|| c is NP_Input
+				|| c is NP_Output
+				|| c is NP_Motor
 				|| c.GetType() == typeof(NPSDK.Flow_Chart);
 		}
 
+		/// <summary>按控件身份登记三语固定文字，排除数据绑定、动态内容和模块身份。</summary>
 		private static void RegisterLanguageControl(Control c, string formName)
 		{
 			try
 			{
-				// 语言表（ComponentLangurageList）可能尚未创建：此时只写入 XML 条目，
-				// 内存登记由 InitialLanguageData 末尾的 VPF.RegisterVpLanguage() 完成
+				// 启动期间先记录缺少的条目，控件引用由统一初始化重新登记。
 				if (c == null) return;
 
 				string key = c.Name;
@@ -780,17 +577,16 @@ namespace AlphaRap
 
 				string[] langs = Enum.GetNames(typeof(LanguageType));
 				int listCount = (SysPara.ComponentLangurageList == null) ? 0 : SysPara.ComponentLangurageList.Length;
-				for (int i = 0; i < langs.Length && i < listCount; i++)
+				for (int i = 0; i < langs.Length; i++)
 				{
+					string t = LangTextOf((LanguageType)i, formName, key);
+					if (t == null) { SetLangText((LanguageType)i, formName, key, text); t = text; }
+					if (i >= listCount) continue;
 					List<ComponentTextInfo> list = SysPara.ComponentLangurageList[i];
 					if (list == null) continue;
 
 					// 同一个控件只留一条（拆页重建 / 重复登记时不至于越积越多）
 					list.RemoveAll(delegate (ComponentTextInfo x) { return ReferenceEquals(x.Component, c); });
-
-					// XML 中没有该键时，用控件当前 Text 写入
-					string t = LangTextOf((LanguageType)i, formName, key);
-					if (t == null) { SetLangText((LanguageType)i, formName, key, text); t = text; }
 
 					ComponentTextInfo info = new ComponentTextInfo();
 					info.FormName = formName;
@@ -804,18 +600,21 @@ namespace AlphaRap
 		}
 
 		/// <summary>往某个语言的 XML 里写/更新一条文案（键不存在则新建节点）。</summary>
-		private static void SetLangText(LanguageType lang, string formName, string key, string text)
-		{
-			try
-			{
-				XmlDocument doc = LangDoc(lang);
-				XmlNode node = doc.SelectSingleNode("/" + lang + "/" + formName + "/" + key);
-				XmlElement el = (node as XmlElement) ?? XMLExpand.GetElement(doc, lang + "/" + formName + "/" + key);
-				el.SetAttribute("ComponentText", text ?? "");
-				SaveLangDoc(doc, LangFilePath(lang));
-			}
-			catch (Exception) { }
-		}
+        private static void SetLangText(LanguageType lang, string formName, string key, string text)
+        {
+            lock (LanguageSync)
+            {
+                try
+                {
+                    XmlDocument doc = LangDoc(lang);
+                    XmlNode node = doc.SelectSingleNode("/" + lang + "/" + formName + "/" + key);
+                    XmlElement el = (node as XmlElement) ?? XMLExpand.GetElement(doc, lang + "/" + formName + "/" + key);
+                    el.SetAttribute("ComponentText", text ?? "");
+                    SaveLangDoc(doc, LangFilePath(lang));
+                }
+                catch (Exception) { }
+            }
+        }
 
 		/// <summary>存盘（UTF-16，与 InitialLanguageData 一致）。必须先摘掉旧的 XML 声明，否则会写出两条。</summary>
 		private static void SaveLangDoc(XmlDocument doc, string file)
@@ -837,89 +636,31 @@ namespace AlphaRap
 		}
 		#endregion
 
-		public static void SwitchLanguage(LanguageType LanType)
-		{
-			// 先切换报警表：新报警在 Show(编号) 时按当前表解析（已显示的报警由 AlarmRunTask 经 HomeF.ResolveAlarmContent 重新解析）
-			LoadAlarmTable(LanType);
+        /// <summary>切换框架语言，依次刷新控件、报警和动态页面，并保留业务数据。</summary>
+        public static void SwitchLanguage(LanguageType LanType)
+        {
+            if (!Enum.IsDefined(typeof(LanguageType), LanType)) return;
+            SysPara.LanguageShow = LanType;
+            Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(
+                LanType == LanguageType.Chinese ? "zh-CN" : LanType == LanguageType.English ? "en-US" : "es-ES");
+            LoadAlarmTable(LanType);
+            if (SysPara.ComponentLangurageList != null)
+            {
+                foreach (List<ComponentTextInfo> list in SysPara.ComponentLangurageList)
+                    if (list != null) list.RemoveAll(entry => entry.Component == null || entry.Component.IsDisposed);
+                List<ComponentTextInfo> entries = SysPara.ComponentLangurageList[(int)LanType];
+                foreach (ComponentTextInfo entry in entries.ToArray()) ApplyRegisteredControl(entry);
+            }
+            if (MainF != null)
+            {
+                MainF.NumC1.Image = LanType == LanguageType.Chinese ? MainF.NumC2.Image
+                    : LanType == LanguageType.English ? MainF.NumC3.Image : MainF.NumC4.Image;
+                MainF.NumC1.Text = LanType == LanguageType.Chinese ? "CN" : LanType == LanguageType.English ? "EN" : "ES";
+            }
+            foreach (Flow_BaseForm module in Flow_Module.FlowChart_ModuleList) module.Refresh();
+            NotifyLanguageChanged();
+        }
 
-			// 移除已释放控件的登记项（运行时创建的控件会随页面重建而释放）
-			if (SysPara.ComponentLangurageList != null)
-			{
-				for (int i = 0; i < SysPara.ComponentLangurageList.Length; i++)
-				{
-					List<ComponentTextInfo> lst = SysPara.ComponentLangurageList[i];
-					if (lst == null) continue;
-					lst.RemoveAll(delegate (ComponentTextInfo x) { return x.Component == null || x.Component.IsDisposed; });
-				}
-			}
-
-			// 单个控件换字失败不该连累后面（尤其是报警表/事件通知），逐条兜住
-			try
-			{
-				for (int i = 0; i < SysPara.ComponentLangurageList[(int)LanType].Count; i++)
-				{
-					if (SysPara.ComponentLangurageList[(int)LanType][i].Component.GetType() == typeof(NPSDK.Flow_Chart))
-					{
-						((NPSDK.Flow_Chart)SysPara.ComponentLangurageList[(int)LanType][i].Component).text = SysPara.ComponentLangurageList[(int)LanType][i].ComponentText;
-					}
-					else
-					{
-						SysPara.ComponentLangurageList[(int)LanType][i].Component.Text = SysPara.ComponentLangurageList[(int)LanType][i].ComponentText;
-					}
-				}
-			}
-			catch (Exception ex) { System.Diagnostics.Debug.WriteLine("[SwitchLanguage] 控件换字异常: " + ex); }
-
-			try
-			{
-				for (int i = 0; i < SysPara.TStripLangurageList[(int)LanType].Count; i++)
-				{
-					SysPara.TStripLangurageList[(int)LanType][i].Component.Text = SysPara.TStripLangurageList[(int)LanType][i].ComponentText;
-				}
-			}
-			catch (Exception ex) { System.Diagnostics.Debug.WriteLine("[SwitchLanguage] ToolStrip换字异常: " + ex); }
-
-			try
-			{
-				string[] a = SysPara.FilePath.Split('\\');
-				string[] b = a[a.Length - 1].Split('.');
-				ProductF.CurrentModel.Text = b[0];
-			}
-			catch (Exception ex) { System.Diagnostics.Debug.WriteLine("[SwitchLanguage] 型号名异常: " + ex); }
-
-			if (SysPara.LanguageShow == LanguageType.Chinese)
-			{
-				MainF.NumC1.Image = MainF.NumC2.Image;
-				MainF.NumC1.Text = "CN";
-			}
-			else if (SysPara.LanguageShow == LanguageType.English)
-			{
-				MainF.NumC1.Image = MainF.NumC3.Image;
-				MainF.NumC1.Text = "EN";
-			}
-			else
-			{
-				MainF.NumC1.Image = MainF.NumC4.Image;
-				MainF.NumC1.Text = "ES";
-			}
-
-			#region
-			//解决切换语言Flow_chat 断线问题
-			foreach (Flow_BaseForm Module in Flow_Module.FlowChart_ModuleList)
-			{
-				Module.Refresh();
-			}
-			#endregion
-
-			// 通知自管文案的页面重新套一次文字（自定义控件不在语言表白名单里）。
-			// 必须放在最后：前面的语言表循环会先把控件的 Text 改掉，这里再纠正回来。
-			try
-			{
-				EventHandler handler = LanguageChanged;
-				if (handler != null) handler(null, EventArgs.Empty);
-			}
-			catch { }
-		}
 		public static void SwitchPermission(PermissionType Permission)
 		{
 			SysPara.UserPermission = Permission;
@@ -970,7 +711,7 @@ namespace AlphaRap
 			if (NPSDK.Alarm.IsError)
 			{
 				OptionChoiceForm warning = new OptionChoiceForm();
-				warning.fnChangeButtonsText("OK", "OK");
+				warning.fnChangeButtonsText(LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar"), LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar"));
 				warning.fnSetMessageAndButtons(LangMsg("MiddleLayer", "msg_ResetAlarmFirst", "请先清除报警！", "Please Reset Alarm Firstly!", "¡Restablezca la alarma primero!"), false, true, false);
 				warning.ShowDialog();
 
@@ -993,7 +734,7 @@ namespace AlphaRap
 					NPSDK.Flow_Module.Module_InitialRun();
 					break;
 				case RunMode.RUN:
-					DialogResult result = MessageBox.Show("Automatic production now, Are you sure to exit automatic production and execute initialize?", "Initialize", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+					DialogResult result = MessageBox.Show(LangMsg("MiddleLayer", "msg_Reinitialize", "正在自动生产，确认退出自动生产并执行初始化吗？", "Exit automatic production and initialize?", "¿Salir de producción automática e inicializar?"), LangMsg("MiddleLayer", "msg_InitializeTitle", "初始化", "Initialize", "Inicializar"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
 					if (result == System.Windows.Forms.DialogResult.Cancel)
 						break;
 					SysPara.UpConveyorInitialOk = false;
@@ -1014,12 +755,18 @@ namespace AlphaRap
 
 		public static void StartRun()
 		{
+			string visionError;
+			if (VPF != null && !VPF.CanStartProduction(out visionError))
+			{
+				MessageBox.Show(visionError, LangMsg("Vision", "msg_NotReady", "视觉尚未就绪", "Vision is not ready", "Visión no está lista"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				return;
+			}
 			AlarmClear();
 			Thread.Sleep(200);
 			if (NPSDK.Alarm.IsError)
 			{
 				OptionChoiceForm warning = new OptionChoiceForm();
-				warning.fnChangeButtonsText("OK", "OK");
+				warning.fnChangeButtonsText(LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar"), LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar"));
 				warning.fnSetMessageAndButtons(LangMsg("MiddleLayer", "msg_ResetAlarmFirst", "请先清除报警！", "Please Reset Alarm Firstly!", "¡Restablezca la alarma primero!"), false, true, false);
 				warning.ShowDialog();
 				return;
@@ -1057,7 +804,7 @@ namespace AlphaRap
 			}
 			else
 			{
-				MessageBox.Show("Please Initialize Firstly!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+				MessageBox.Show(LangMsg("MiddleLayer", "msg_InitializeFirst", "请先初始化。", "Initialize the machine first.", "Inicialice primero la máquina."), LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Aviso"), MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
 			}
 		}
 
@@ -1106,9 +853,9 @@ namespace AlphaRap
 		{
 			foreach (ControlBaseInterface control in SDKPara.ControlList)
 			{
-				if (control is Adlink_Motor)
+				if (control is NP_Motor)
 				{
-					((Adlink_Motor)control).Stop();
+					((NP_Motor)control).Stop();
 				}
 			}
 		}
@@ -1116,11 +863,11 @@ namespace AlphaRap
 		public static void AlarmClear()
 		{
 			foreach (ControlBaseInterface control in SDKPara.ControlList)
-				if (control is Adlink_Motor)
+				if (control is NP_Motor)
 				{
-					if (((Adlink_Motor)control).GetAxisIOState().ALM)
+					if (((NP_Motor)control).GetAxisIOState().ALM)
 					{
-						((Adlink_Motor)control).AlarmReset();
+						((NP_Motor)control).AlarmReset();
 					}
 				}
 
@@ -1154,6 +901,17 @@ namespace AlphaRap
 		/// </summary>
 		public static bool OpenRecipe(string RecipePath)
 		{
+			if (SysPara.SystemMode != RunMode.IDLE)
+			{
+				MessageBox.Show(LangMsg("MiddleLayer", "msg_RunningRecipe", "设备运行中，不能切换配方。", "Cannot change recipes while the machine is running.", "No se puede cambiar de receta mientras la máquina está funcionando."), LangMsg("MiddleLayer", "msg_RecipeTitle", "切换配方", "Change recipe", "Cambiar receta"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				return false;
+			}
+			foreach (VisionproInterface station in VisionproInterface.VList)
+			{
+				if (!station.IsBusy) continue;
+				MessageBox.Show(LangMsg("MiddleLayer", "msg_VisionBusy", "请先结束视觉运行或编辑：", "Finish the vision operation or editing first: ", "Finalice primero la operación o edición de visión: ") + station.StationName, LangMsg("MiddleLayer", "msg_RecipeTitle", "切换配方", "Change recipe", "Cambiar receta"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				return false;
+			}
 			bool bOpenSuccess = false;
 			string oldRecipeName = SysPara.RecipeName;
 			try
@@ -1174,14 +932,12 @@ namespace AlphaRap
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(ex.Message, "System Message", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+				MessageBox.Show(ex.Message, MiddleLayer.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
 				SysPara.RecipeDataDirectory = ".\\ModuleData\\RecipeData";
 				SysPara.RecipeName = "Recipe";
 				bOpenSuccess = false;
 			}
 
-			MiddleLayer.HardF.dgv_CalibPos.LoadXmlFileFromPath(string.Format(@"{0}\{1}\{2}\{3}\{4}", Application.StartupPath, "ModuleData", "HardForm", SysPara.RecipeName, "CalibPosition.xml"));
-			MiddleLayer.HardF.dgv_MotorPos.LoadXmlFileFromPath(string.Format(@"{0}\{1}\{2}\{3}\{4}", Application.StartupPath, "ModuleData", "HardForm", SysPara.RecipeName, "MotorPosition.xml"));
 			OpenVision();
 			IniFile IniFile = new IniFile(".\\MachineSetup.ini");
 			IniFile.WriteString("MachineSetup", "RecipeName", SysPara.RecipeName);
@@ -1202,6 +958,7 @@ namespace AlphaRap
 				FileInfo f = new FileInfo(path);
 				VisionproInterface.VList[i].LoadTB(f.FullName);
 			}
+			if (VPF != null) VPF.Getdgv_H1_VisionDataList();
 
 			// 刷新视觉页面上显示的 vpp 路径（VPForm 尚未创建时为 null）
 			if (VPF != null) VPF.OnRecipeChanged();
@@ -1237,11 +994,11 @@ namespace AlphaRap
 			AxisIOState IOState;
 			foreach (ControlBaseInterface control in SDKPara.ControlList)
 			{
-				if (control is Adlink_Motor)
+				if (control is NP_Motor)
 				{
 					control.Refresh();
 
-					IOState = ((Adlink_Motor)control).GetAxisIOState();
+					IOState = ((NP_Motor)control).GetAxisIOState();
 
 					if (IOState.ALM)
 						NPSDK.Alarm.Show("2030", $"Motor {control.Name} alarmado");

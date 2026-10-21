@@ -56,7 +56,7 @@
             this.Button1.CornerRadius = 8;
             this.Button1.Location = new System.Drawing.Point(93, 17);
             this.Button1.Margin = new System.Windows.Forms.Padding(0);
-            this.Button1.Name = "Button1";
+            this.Button1.Name = "Button1_dyn";
             this.Button1.Size = new System.Drawing.Size(116, 42);
             this.Button1.TabIndex = 0;
             this.Button1.Text = "确定";
@@ -69,7 +69,7 @@
             this.Button2.CornerRadius = 8;
             this.Button2.Location = new System.Drawing.Point(221, 17);
             this.Button2.Margin = new System.Windows.Forms.Padding(0);
-            this.Button2.Name = "Button2";
+            this.Button2.Name = "Button2_dyn";
             this.Button2.Size = new System.Drawing.Size(116, 42);
             this.Button2.TabIndex = 1;
             this.Button2.Text = "跳过";
@@ -82,7 +82,7 @@
             this.Button3.CornerRadius = 8;
             this.Button3.Location = new System.Drawing.Point(349, 17);
             this.Button3.Margin = new System.Windows.Forms.Padding(0);
-            this.Button3.Name = "Button3";
+            this.Button3.Name = "Button3_dyn";
             this.Button3.Size = new System.Drawing.Size(116, 42);
             this.Button3.TabIndex = 2;
             this.Button3.Text = "取消";
@@ -112,7 +112,7 @@
             this.lblMessage.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.lblMessage.Location = new System.Drawing.Point(28, 16);
             this.lblMessage.Margin = new System.Windows.Forms.Padding(0);
-            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Name = "lblMessage_dyn";
             this.lblMessage.Size = new System.Drawing.Size(502, 138);
             this.lblMessage.TabIndex = 0;
             this.lblMessage.Text = "请选择";

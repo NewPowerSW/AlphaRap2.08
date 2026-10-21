@@ -35,8 +35,8 @@
             this.head = new System.Windows.Forms.Panel();
             this.lblCapCameraName = new AlphaRap.UiLabel();
             this.tbName = new System.Windows.Forms.TextBox();
-            this.lblCapCameraIndex = new AlphaRap.UiLabel();
-            this.tbIndex = new System.Windows.Forms.TextBox();
+            this.lblCapCameraSN = new AlphaRap.UiLabel();
+            this.cbSN = new System.Windows.Forms.ComboBox();
             this.lblCapDefaultExposure = new AlphaRap.UiLabel();
             this.tbExposure = new System.Windows.Forms.TextBox();
             this.btnLive = new AlphaRap.UiButton();
@@ -78,8 +78,8 @@
             this.head.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
             this.head.Controls.Add(this.lblCapCameraName);
             this.head.Controls.Add(this.tbName);
-            this.head.Controls.Add(this.lblCapCameraIndex);
-            this.head.Controls.Add(this.tbIndex);
+            this.head.Controls.Add(this.lblCapCameraSN);
+            this.head.Controls.Add(this.cbSN);
             this.head.Controls.Add(this.lblCapDefaultExposure);
             this.head.Controls.Add(this.tbExposure);
             this.head.Controls.Add(this.btnLive);
@@ -96,7 +96,7 @@
             this.lblCapCameraName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(92)))), ((int)(((byte)(106)))));
             this.lblCapCameraName.Location = new System.Drawing.Point(10, 15);
             this.lblCapCameraName.Name = "lblCapCameraName";
-            this.lblCapCameraName.Size = new System.Drawing.Size(98, 22);
+            this.lblCapCameraName.Size = new System.Drawing.Size(86, 22);
             this.lblCapCameraName.TabIndex = 0;
             this.lblCapCameraName.Text = "相机名称";
             this.lblCapCameraName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -104,48 +104,49 @@
             // tbName
             // 
             this.tbName.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.tbName.Location = new System.Drawing.Point(112, 13);
+            this.tbName.Location = new System.Drawing.Point(100, 13);
             this.tbName.Name = "tbName";
-            this.tbName.Size = new System.Drawing.Size(120, 25);
+            this.tbName.Size = new System.Drawing.Size(110, 25);
             this.tbName.TabIndex = 1;
             // 
-            // lblCapCameraIndex
+            // lblCapCameraSN
             // 
-            this.lblCapCameraIndex.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.lblCapCameraIndex.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(92)))), ((int)(((byte)(106)))));
-            this.lblCapCameraIndex.Location = new System.Drawing.Point(248, 15);
-            this.lblCapCameraIndex.Name = "lblCapCameraIndex";
-            this.lblCapCameraIndex.Size = new System.Drawing.Size(98, 22);
-            this.lblCapCameraIndex.TabIndex = 2;
-            this.lblCapCameraIndex.Text = "CameraIndex";
-            this.lblCapCameraIndex.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblCapCameraSN.Font = new System.Drawing.Font("宋体", 11.25F);
+            this.lblCapCameraSN.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(92)))), ((int)(((byte)(106)))));
+            this.lblCapCameraSN.Location = new System.Drawing.Point(216, 15);
+            this.lblCapCameraSN.Name = "lblCapCameraSN_dyn";
+            this.lblCapCameraSN.Size = new System.Drawing.Size(90, 22);
+            this.lblCapCameraSN.TabIndex = 2;
+            this.lblCapCameraSN.Text = "相机SN";
+            this.lblCapCameraSN.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // tbIndex
+            // cbSN（相机 SN 下拉：列出当前可用的全部相机 SN，选中即按 SN 绑定）
             // 
-            this.tbIndex.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.tbIndex.Location = new System.Drawing.Point(350, 13);
-            this.tbIndex.Name = "tbIndex";
-            this.tbIndex.Size = new System.Drawing.Size(64, 25);
-            this.tbIndex.TabIndex = 3;
+            this.cbSN.Font = new System.Drawing.Font("宋体", 11.25F);
+            this.cbSN.Location = new System.Drawing.Point(306, 13);
+            this.cbSN.Name = "cbSN";
+            this.cbSN.Size = new System.Drawing.Size(224, 25);
+            this.cbSN.TabIndex = 2;
+
             // 
             // lblCapDefaultExposure
             // 
             this.lblCapDefaultExposure.Font = new System.Drawing.Font("宋体", 11.25F);
             this.lblCapDefaultExposure.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(92)))), ((int)(((byte)(106)))));
-            this.lblCapDefaultExposure.Location = new System.Drawing.Point(430, 15);
+            this.lblCapDefaultExposure.Location = new System.Drawing.Point(536, 15);
             this.lblCapDefaultExposure.Name = "lblCapDefaultExposure";
-            this.lblCapDefaultExposure.Size = new System.Drawing.Size(98, 22);
-            this.lblCapDefaultExposure.TabIndex = 4;
+            this.lblCapDefaultExposure.Size = new System.Drawing.Size(70, 22);
+            this.lblCapDefaultExposure.TabIndex = 3;
             this.lblCapDefaultExposure.Text = "默认曝光";
             this.lblCapDefaultExposure.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // tbExposure
             // 
             this.tbExposure.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.tbExposure.Location = new System.Drawing.Point(532, 13);
+            this.tbExposure.Location = new System.Drawing.Point(610, 13);
             this.tbExposure.Name = "tbExposure";
-            this.tbExposure.Size = new System.Drawing.Size(70, 25);
-            this.tbExposure.TabIndex = 5;
+            this.tbExposure.Size = new System.Drawing.Size(60, 25);
+            this.tbExposure.TabIndex = 4;
             // 
             // btnLive
             // 
@@ -155,10 +156,10 @@
             this.btnLive.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLive.Font = new System.Drawing.Font("宋体", 11.25F);
             this.btnLive.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.btnLive.Location = new System.Drawing.Point(618, 12);
-            this.btnLive.Name = "btnLive";
-            this.btnLive.Size = new System.Drawing.Size(118, 30);
-            this.btnLive.TabIndex = 6;
+            this.btnLive.Location = new System.Drawing.Point(728, 12);
+            this.btnLive.Name = "btnLive_dyn";
+            this.btnLive.Size = new System.Drawing.Size(110, 30);
+            this.btnLive.TabIndex = 5;
             this.btnLive.UseVisualStyleBackColor = false;
             // 
             // btnDeleteCamera
@@ -169,10 +170,10 @@
             this.btnDeleteCamera.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDeleteCamera.Font = new System.Drawing.Font("宋体", 11.25F);
             this.btnDeleteCamera.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.btnDeleteCamera.Location = new System.Drawing.Point(744, 12);
+            this.btnDeleteCamera.Location = new System.Drawing.Point(846, 12);
             this.btnDeleteCamera.Name = "btnDeleteCamera";
-            this.btnDeleteCamera.Size = new System.Drawing.Size(118, 30);
-            this.btnDeleteCamera.TabIndex = 7;
+            this.btnDeleteCamera.Size = new System.Drawing.Size(110, 30);
+            this.btnDeleteCamera.TabIndex = 6;
             this.btnDeleteCamera.Text = "删除本相机";
             this.btnDeleteCamera.UseVisualStyleBackColor = false;
             // 
@@ -200,8 +201,8 @@
         private System.Windows.Forms.Panel head;
         private UiLabel lblCapCameraName;
         private System.Windows.Forms.TextBox tbName;
-        private UiLabel lblCapCameraIndex;
-        private System.Windows.Forms.TextBox tbIndex;
+        private UiLabel lblCapCameraSN;
+        private System.Windows.Forms.ComboBox cbSN;
         private UiLabel lblCapDefaultExposure;
         private System.Windows.Forms.TextBox tbExposure;
         private UiButton btnLive;

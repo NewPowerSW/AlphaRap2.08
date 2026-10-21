@@ -185,6 +185,24 @@ namespace AlphaRap
         public double MotorPosX;
         public double MotorPosY;
     }
+    /// <summary>一次「应用标定」的结果：是否写入、失败原因、标定质量指标。</summary>
+    public class CalibApplyInfo
+    {
+        /// <summary>是否成功写入 TB。</summary>
+        public bool Ok;
+        /// <summary>失败原因；成功时为空。</summary>
+        public string Error = "";
+        /// <summary>Cognex 是否算出有效标定（点位共线或重复时为 false）。</summary>
+        public bool Calibrated;
+        /// <summary>标定残差 RMS，单位为电机坐标单位（通常 mm）。</summary>
+        public double Rmse;
+        /// <summary>估算比例：电机单位 / 像素。</summary>
+        public double ScalePerPixel;
+        /// <summary>像素三角与电机三角方向相反，X/Y 可能接反或镜像。</summary>
+        public bool Mirrored;
+        /// <summary>参与标定的点数。</summary>
+        public int PointCount;
+    }
     public enum PermissionType
     {
         Operator = 0,

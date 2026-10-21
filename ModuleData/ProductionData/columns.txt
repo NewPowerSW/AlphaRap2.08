@@ -1,0 +1,7 @@
+﻿Time
+PalletCode
+Driver
+Pressure
+PressureMax
+PressureMin
+Result

@@ -13,6 +13,7 @@ namespace AlphaRap.MES
 		public DongJu()
 		{
 			InitializeComponent();
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
 		}
 

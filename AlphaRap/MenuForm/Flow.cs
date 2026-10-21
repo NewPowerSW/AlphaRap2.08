@@ -10,6 +10,7 @@ namespace AlphaRap
             CheckForIllegalCrossThreadCalls = false;
 
             InitializeComponent();
+            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
         }
 

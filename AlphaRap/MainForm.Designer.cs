@@ -237,7 +237,7 @@
             // 
             this.toolStripStatusLabel3.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
             this.toolStripStatusLabel3.ForeColor = System.Drawing.Color.White;
-            this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
+            this.toolStripStatusLabel3.Name = "toolStripStatusLabel3_dyn";
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(250, 25);
             this.toolStripStatusLabel3.Text = " AlphaRap-SRM Modify Date 2023/07/04";
             // 
@@ -246,7 +246,7 @@
             this.toolStripStatusLabel4.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
             this.toolStripStatusLabel4.BorderStyle = System.Windows.Forms.Border3DStyle.Bump;
             this.toolStripStatusLabel4.ForeColor = System.Drawing.Color.White;
-            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
+            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4_dyn";
             this.toolStripStatusLabel4.Size = new System.Drawing.Size(87, 25);
             this.toolStripStatusLabel4.Text = "Version 2.0.8";
             // 
@@ -505,7 +505,7 @@
             this.MachineStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(30)))), ((int)(((byte)(46)))));
             this.MachineStatus.Location = new System.Drawing.Point(1231, 2);
             this.MachineStatus.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
-            this.MachineStatus.Name = "MachineStatus";
+            this.MachineStatus.Name = "MachineStatus_dyn";
             this.MachineStatus.Size = new System.Drawing.Size(150, 46);
             this.MachineStatus.TabIndex = 211;
             this.MachineStatus.Text = "IDLE";
@@ -573,7 +573,7 @@
             this.NumC1.ForeColor = System.Drawing.Color.White;
             this.NumC1.Image = ((System.Drawing.Image)(resources.GetObject("NumC1.Image")));
             this.NumC1.Margin = new System.Windows.Forms.Padding(5);
-            this.NumC1.Name = "NumC1";
+            this.NumC1.Name = "NumC1_dyn";
             this.NumC1.Size = new System.Drawing.Size(152, 36);
             this.NumC1.Text = "EN";
             this.NumC1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -613,7 +613,7 @@
             this.LoginText.ForeColor = System.Drawing.Color.White;
             this.LoginText.Location = new System.Drawing.Point(42, 0);
             this.LoginText.Margin = new System.Windows.Forms.Padding(0);
-            this.LoginText.Name = "LoginText";
+            this.LoginText.Name = "LoginText_dyn";
             this.LoginText.Size = new System.Drawing.Size(210, 38);
             this.LoginText.TabIndex = 7;
             this.LoginText.Text = "";
@@ -627,7 +627,7 @@
             this.lbRecipeName.ForeColor = System.Drawing.Color.White;
             this.lbRecipeName.Location = new System.Drawing.Point(139, 5);
             this.lbRecipeName.Margin = new System.Windows.Forms.Padding(12, 5, 5, 5);
-            this.lbRecipeName.Name = "lbRecipeName";
+            this.lbRecipeName.Name = "lbRecipeName_dyn";
             this.lbRecipeName.Size = new System.Drawing.Size(312, 40);
             this.lbRecipeName.TabIndex = 0;
             this.lbRecipeName.Text = "Recipe Name:";
@@ -1012,7 +1012,7 @@
             // 
             this.btnAlarmFilterAll.AccentColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
             this.btnAlarmFilterAll.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
-            this.btnAlarmFilterAll.Name = "btnAlarmFilterAll";
+            this.btnAlarmFilterAll.Name = "btnAlarmFilterAll_dyn";
             this.btnAlarmFilterAll.Size = new System.Drawing.Size(68, 22);
             this.btnAlarmFilterAll.Style = AlphaRap.AlarmChipStyle.Toggle;
             this.btnAlarmFilterAll.TabIndex = 0;
@@ -1023,7 +1023,7 @@
             // 
             this.btnAlarmFilterWarn.AccentColor = System.Drawing.Color.FromArgb(((int)(((byte)(219)))), ((int)(((byte)(149)))), ((int)(((byte)(44)))));
             this.btnAlarmFilterWarn.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
-            this.btnAlarmFilterWarn.Name = "btnAlarmFilterWarn";
+            this.btnAlarmFilterWarn.Name = "btnAlarmFilterWarn_dyn";
             this.btnAlarmFilterWarn.Size = new System.Drawing.Size(80, 22);
             this.btnAlarmFilterWarn.Style = AlphaRap.AlarmChipStyle.Toggle;
             this.btnAlarmFilterWarn.TabIndex = 1;
@@ -1034,7 +1034,7 @@
             // 
             this.btnAlarmFilterAlarm.AccentColor = System.Drawing.Color.FromArgb(((int)(((byte)(214)))), ((int)(((byte)(69)))), ((int)(((byte)(69)))));
             this.btnAlarmFilterAlarm.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
-            this.btnAlarmFilterAlarm.Name = "btnAlarmFilterAlarm";
+            this.btnAlarmFilterAlarm.Name = "btnAlarmFilterAlarm_dyn";
             this.btnAlarmFilterAlarm.Size = new System.Drawing.Size(76, 22);
             this.btnAlarmFilterAlarm.Style = AlphaRap.AlarmChipStyle.Toggle;
             this.btnAlarmFilterAlarm.TabIndex = 2;

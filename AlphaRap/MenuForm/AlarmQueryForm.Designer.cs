@@ -327,7 +327,7 @@
             // 
             this.boxCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
             this.boxCode.Location = new System.Drawing.Point(284, 58);
-            this.boxCode.Name = "boxCode";
+            this.boxCode.Name = "boxCode_dyn";
             this.boxCode.Size = new System.Drawing.Size(120, 32);
             this.boxCode.TabIndex = 11;
             // 
@@ -335,7 +335,7 @@
             // 
             this.boxKeyword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(254)))));
             this.boxKeyword.Location = new System.Drawing.Point(416, 58);
-            this.boxKeyword.Name = "boxKeyword";
+            this.boxKeyword.Name = "boxKeyword_dyn";
             this.boxKeyword.Size = new System.Drawing.Size(706, 32);
             this.boxKeyword.TabIndex = 12;
             // 
@@ -527,7 +527,7 @@
             this.lblStatus.Font = new System.Drawing.Font("微软雅黑", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.lblStatus.Location = new System.Drawing.Point(620, 0);
-            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Name = "lblStatus_dyn";
             this.lblStatus.Padding = new System.Windows.Forms.Padding(0, 0, 18, 0);
             this.lblStatus.Size = new System.Drawing.Size(520, 44);
             this.lblStatus.TabIndex = 1;

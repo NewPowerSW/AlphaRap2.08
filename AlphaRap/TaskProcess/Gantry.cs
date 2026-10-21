@@ -14,6 +14,11 @@ namespace AlphaRap.TaskProcess
 		}
 
 		INOVANCE plc = new INOVANCE();
+		private const int VisionTimeoutMs = 5000;
+		private long _visionRunId;
+		private bool _visionFailed;
+		private VisionPostData _visionCriterion;
+		private VpStation _productionStation;
 		public override void Initial()
 		{
 			GantryInit_Flow1_1.FlowChart_Run();
@@ -23,9 +28,14 @@ namespace AlphaRap.TaskProcess
 		}
 		public override void StartRun()
 		{
+			_visionFailed = false;
 		}
 		public override void StopRun()
 		{
+			if (_productionStation != null) _productionStation.CancelRun(_visionRunId);
+			_productionStation = null;
+			_visionRunId = 0;
+			_visionFailed = false;
 		}
 
 		private NPSDK.Flow_Chart.ResultType ScrewInit_Flow1_1_FlowChartRun()
@@ -117,10 +127,15 @@ namespace AlphaRap.TaskProcess
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
+		/// <summary>校验本次判据、清除 PLC 完成标志，再启动具有独立编号的拍照请求。</summary>
 		private NPSDK.Flow_Chart.ResultType FlowAuto_Vison3_2_FlowChartRun()
 		{
-			MiddleLayer.VPF.H1_VFiducial.RunTB();
-
+			if (_visionFailed) return NPSDK.Flow_Chart.ResultType.IDLE;
+			string error;
+			if (!MiddleLayer.VPF.TryGetProductionStation(out _productionStation, out error)) return FailVision(error);
+			if (!MiddleLayer.VPF.TryGetProductionVisionData(out _visionCriterion, out error)) return FailVision(error);
+			if (!plc.WritePlc("D6210", "0")) return FailVision("清除视觉完成标志失败：" + plc.WritErrorMessage);
+			if (!_productionStation.TryRunTB(out _visionRunId)) return FailVision(_productionStation.LastError);
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
@@ -128,43 +143,64 @@ namespace AlphaRap.TaskProcess
 		{
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
+		/// <summary>检查有限数值是否处于配方指定的开区间。</summary>
 		private bool IsNumberInRange(double number, double minValue, double maxValue)
 		{
-			if (number > minValue && number < maxValue)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return IsFinite(number) && number > minValue && number < maxValue;
 		}
+		/// <summary>检查工位坐标是否满足生产判据，供现有调用方使用。</summary>
 		public bool CheckVisionData(VisionPostData ts, VpStation h1)
 		{
-			if (!ts.Enable)
-				return true;
-			if (IsNumberInRange(h1.Fiducial.x, ts.X_Low, ts.X_Hi) && IsNumberInRange(h1.Fiducial.y, ts.Y_Low, ts.Y_Hi) && IsNumberInRange(h1.Fiducial.u, ts.R_Low, ts.R_Hi))
-			{
-				return true;
-			}
-			return false;
+			return CheckVisionPosition(ts, h1.Fiducial.x, h1.Fiducial.y, h1.Fiducial.u);
 		}
+		/// <summary>判定结果快照，禁用范围检查时仍拒绝无效数值。</summary>
+		private bool CheckVisionPosition(VisionPostData data, double x, double y, double angle)
+		{
+			if (!IsFinite(x) || !IsFinite(y) || !IsFinite(angle)) return false;
+			if (!data.Enable) return true;
+			return IsNumberInRange(x, data.X_Low, data.X_Hi)
+				&& IsNumberInRange(y, data.Y_Low, data.Y_Hi)
+				&& IsNumberInRange(angle, data.R_Low, data.R_Hi);
+		}
+		/// <summary>数值必须既不是 NaN 也不是无穷值。</summary>
+		private static bool IsFinite(double value)
+		{
+			return !double.IsNaN(value) && !double.IsInfinity(value);
+		}
+		/// <summary>等待同编号拍照的终止状态；NG、异常及超时报警停留，不提交旧坐标。</summary>
 		private NPSDK.Flow_Chart.ResultType FlowAuto_Vison3_3_FlowChartRun()
 		{
-			if (MiddleLayer.VPF.H1_VFiducial.RunTBOk())
-			{
-				if (MiddleLayer.VPF.H1_VFiducial.IsAccept)
-				{
-					if (CheckVisionData(MiddleLayer.VPF.dgv_H1_VisionData_List[0], MiddleLayer.VPF.H1_VFiducial))
-					{
-						plc.WritePlc("D6210", "1");
-						plc.WritePlc("D6212", MiddleLayer.VPF.H1_VFiducial.Fiducial.x.ToString());
-						plc.WritePlc("D6214", MiddleLayer.VPF.H1_VFiducial.Fiducial.y.ToString());
-						plc.WritePlc("D6216", MiddleLayer.VPF.H1_VFiducial.Fiducial.u.ToString());
-						return NPSDK.Flow_Chart.ResultType.NEXT;
-					}
-				}
-			}
+			if (_visionFailed) return NPSDK.Flow_Chart.ResultType.IDLE;
+			VpStation station = _productionStation;
+			if (station == null) return FailVision("本周期生产工位已失效。");
+			VisionRunResult result = station.LastRunResult;
+			if (result == null || result.RunId != _visionRunId) return FailVision("视觉运行编号不一致。");
+			if (result.State == VisionRunState.Running && FlowAuto_Vison3_3.FlowChart_ElapsedMilliseconds < VisionTimeoutMs)
+				return NPSDK.Flow_Chart.ResultType.IDLE;
+			station.TimeoutRun(_visionRunId);
+			result = station.LastRunResult;
+			if (result.State != VisionRunState.Succeeded) return FailVision(result.Error);
+			if (!CheckVisionPosition(_visionCriterion, result.X, result.Y, result.Angle)) return FailVision("视觉定位超出配方允许范围。");
+			if (!WriteVisionResult(result)) return FailVision("写入视觉结果失败：" + plc.WritErrorMessage);
+			return NPSDK.Flow_Chart.ResultType.NEXT;
+		}
+
+		/// <summary>坐标全部写入成功后才设置完成标志，任一写入失败均不发布完成。</summary>
+		private bool WriteVisionResult(VisionRunResult result)
+		{
+			if (!plc.WritePlc("D6212", result.X.ToString())) return false;
+			if (!plc.WritePlc("D6214", result.Y.ToString())) return false;
+			if (!plc.WritePlc("D6216", result.Angle.ToString())) return false;
+			return plc.WritePlc("D6210", "1");
+		}
+
+		/// <summary>记录本周期唯一一次视觉故障并触发已有视觉报警。</summary>
+		private NPSDK.Flow_Chart.ResultType FailVision(string error)
+		{
+			if (_visionFailed) return NPSDK.Flow_Chart.ResultType.IDLE;
+			_visionFailed = true;
+			OperationLog.Write("Vision", "生产视觉失败：" + error);
+			NPSDK.Alarm.Show("2009");
 			return NPSDK.Flow_Chart.ResultType.IDLE;
 		}
 

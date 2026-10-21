@@ -178,7 +178,7 @@ namespace AlphaRap
                 g.DrawString(AppName, fTitle, b, new PointF(0, UiTheme.Dpi(9)));
 
             using (SolidBrush b = new SolidBrush(Color.FromArgb(185, 255, 255, 255)))
-                g.DrawString("Version " + AppVersion, fVersion, b, new PointF(UiTheme.Dpi(3), UiTheme.Dpi(48)));
+                g.DrawString(UiTheme.T("LoadingForm", "version", "版本 ", "Version ", "Versión ") + AppVersion, fVersion, b, new PointF(UiTheme.Dpi(3), UiTheme.Dpi(48)));
         }
 
         /// <summary>当前加载阶段 + 来回走的进度条（整块白区重画，保证不留残影）。</summary>

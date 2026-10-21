@@ -22,6 +22,7 @@ namespace AlphaRap
 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
+                MiddleLayer.ReadLanguageSettings();
 
 				#region LogShow
 				MiddleLayer.LoadingF = new LoadingForm();
@@ -41,7 +42,8 @@ namespace AlphaRap
             }
             else
             {
-                MessageBox.Show("Program is Running!","OK",MessageBoxButtons.OK,MessageBoxIcon.Warning,MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MiddleLayer.ReadLanguageSettings();
+                MessageBox.Show(MiddleLayer.LangMsg("Program", "msg_AlreadyRunning", "程序已在运行。", "The program is already running.", "El programa ya está en ejecución."), "AlphaRap", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
         }   
     }   

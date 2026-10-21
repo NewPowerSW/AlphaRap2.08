@@ -37,7 +37,9 @@ namespace AlphaRap
 			RebuildDeviceStatus();
 
 			ApplyPageStyle();
-			MiddleLayer.LanguageChanged += (s, e) => RefreshPageTexts();
+			EventHandler languageHandler = delegate { RefreshPageTexts(); };
+			MiddleLayer.LanguageChanged += languageHandler;
+			Disposed += delegate { MiddleLayer.LanguageChanged -= languageHandler; };
 
 			bool bPlat = Convert.ToBoolean(SysPara.bPlat);
 
@@ -399,7 +401,7 @@ namespace AlphaRap
 
 					// 设备名：直接显示 Parameter 里的"设备名"（数据、不接语言包，改名后这里跟着改）
 					UiLabel name = new UiLabel();
-					name.Name = "devName" + (i + 1);
+					name.Name = "devName" + (i + 1) + MiddleLayer.DynTextSuffix;
 					name.AutoSize = true;
 					name.Font = UiTheme.Body;
 					name.ForeColor = UiKit.TextPrimary;
@@ -487,52 +489,27 @@ namespace AlphaRap
 			Position[Columns, RowIndex].Value = CellValue;
 		}
 
-		// 报警表缓存：语言 -> (编号 -> Content)。文件运行期不变，每种语言只解析一次
-		// （AlarmRun 在后台线程刷新，UI 线程也会查，读写都走锁）。
-		private static readonly Dictionary<string, Dictionary<string, string>> AlarmTableCache = new Dictionary<string, Dictionary<string, string>>();
-		private static readonly object AlarmTableCacheLock = new object();
+        private static readonly Dictionary<string, Dictionary<string, string>> AlarmTableCache = new Dictionary<string, Dictionary<string, string>>();
+        private static readonly object AlarmTableCacheLock = new object();
 
-		private static Dictionary<string, string> LoadAlarmTableMap(LanguageType lang)
-		{
-			lock (AlarmTableCacheLock)
-			{
-				Dictionary<string, string> map;
-				if (AlarmTableCache.TryGetValue(lang.ToString(), out map)) return map;
-
-				map = new Dictionary<string, string>();
-				try
-				{
-					// 枚举名即文件名：Chinese/English/Español；缺文件时回落英文，宁可显示英文报警也不能哑掉
-					string file = System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\" + lang + ".xml";
-					if (!System.IO.File.Exists(file))
-						file = System.Windows.Forms.Application.StartupPath + "\\AlarmTable\\English.xml";
-
-					AlphaRap.srvConfigReadWriteXML srv = new AlphaRap.srvConfigReadWriteXML();
-					System.Xml.XmlDocument doc = srv.XmlDocumentLoad(file);
-					string inner = doc.FirstChild.InnerXml.Trim();
-					if (inner.Length > 0)
-					{
-						string[] rows = inner.Replace("/><", "/>\n<").Split('\n');
-						foreach (string forRow in rows)
-						{
-							string line = forRow.Trim();
-							int sp = line.IndexOf(' ');
-							if (sp < 3 || !line.StartsWith("<A")) continue;
-							string code = line.Substring(2, sp - 2);
-							int ci = line.IndexOf("Content=\"");
-							if (ci < 0) continue;
-							ci += "Content=\"".Length;
-							int ce = line.IndexOf('"', ci);
-							if (ce < 0) continue;
-							map[code] = line.Substring(ci, ce - ci);
-						}
-					}
-				}
-				catch (Exception) { }
-				AlarmTableCache[lang.ToString()] = map;
-				return map;
-			}
-		}
+        /// <summary>按文件路径和修改时间缓存报警文本，兼容现场修改和配置目录。</summary>
+        private static Dictionary<string, string> LoadAlarmTableMap(LanguageType lang)
+        {
+            string file = AlarmCatalog.FilePath(lang, true);
+            string key = System.IO.Path.GetFullPath(file) + "|" + System.IO.File.GetLastWriteTimeUtc(file).Ticks;
+            lock (AlarmTableCacheLock)
+            {
+                Dictionary<string, string> map;
+                if (AlarmTableCache.TryGetValue(key, out map)) return map;
+                map = new Dictionary<string, string>();
+                if (!System.IO.File.Exists(file)) return map;
+                foreach (System.Xml.Linq.XElement entry in System.Xml.Linq.XElement.Load(file).Elements())
+                    map[entry.Name.LocalName.TrimStart('A')] = (string)entry.Attribute("Content") ?? "";
+                if (AlarmTableCache.Count > 12) AlarmTableCache.Clear();
+                AlarmTableCache[key] = map;
+                return map;
+            }
+        }
 
 		/// <summary>按指定语言查报警表内容（找不到返回 "Error"，与旧口径一致）。</summary>
 		public string GetAlarmConentOf(LanguageType lang, string Index)

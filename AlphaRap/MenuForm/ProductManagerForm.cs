@@ -35,6 +35,7 @@ namespace AlphaRap
 
             // 静态文案由语言表管理（InitialLanguageData 末尾登记），此事件用于刷新型号条数等动态文字
             MiddleLayer.LanguageChanged += ProductManagerForm_LanguageChanged;
+            Disposed += delegate { MiddleLayer.LanguageChanged -= ProductManagerForm_LanguageChanged; };
 
             // 选中项变化 → 重新计算"删除 / 使用"是否可点
             listView1.SelectedIndexChanged += listView1_SelectedIndexChanged;
@@ -279,7 +280,7 @@ namespace AlphaRap
         {
             if (SysPara.SystemMode != RunMode.IDLE)
             {
-                MessageBox.Show("Machine is running, can't create model!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                MessageBox.Show(MiddleLayer.LangMsg("ProductManagerForm", "msg_RunningCreate", "设备运行中，不能新建型号。", "Cannot create a model while the machine is running.", "No se puede crear un modelo mientras la máquina está funcionando."), MiddleLayer.LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Aviso"), MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                 return;
             }
 
@@ -315,22 +316,22 @@ namespace AlphaRap
             {
                 if (SysPara.SystemMode != RunMode.IDLE)
                 {
-                    MessageBox.Show("Machine is running, can't delete!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                    MessageBox.Show(MiddleLayer.LangMsg("ProductManagerForm", "msg_RunningDelete", "设备运行中，不能删除型号。", "Cannot delete a model while the machine is running.", "No se puede eliminar un modelo mientras la máquina está funcionando."), MiddleLayer.LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Aviso"), MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                     return;
                 }
 
                 if (listView1.SelectedItems[0].Text == CurrentModel.Text)
                 {
-                    MessageBox.Show("This model is using, can't delete!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                    MessageBox.Show(MiddleLayer.LangMsg("ProductManagerForm", "msg_ModelInUse", "当前正在使用此型号，不能删除。", "Cannot delete the model currently in use.", "No se puede eliminar el modelo que se está utilizando."), MiddleLayer.LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Aviso"), MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                     return;
                 }
                 if (listView1.SelectedItems[0].Text == "AllModel")
                 {
-                    MessageBox.Show("AllModel can't delete!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                    MessageBox.Show(MiddleLayer.LangMsg("ProductManagerForm", "msg_AllModelProtected", "不能删除 AllModel 基础型号。", "The AllModel base model cannot be deleted.", "No se puede eliminar el modelo base AllModel."), MiddleLayer.LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Aviso"), MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                     return;
                 }
 
-                DialogResult result = MessageBox.Show("Are you sure to delete " + listView1.SelectedItems[0].Text + " model?", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                DialogResult result = MessageBox.Show(string.Format(MiddleLayer.LangMsg("ProductManagerForm", "msg_DeleteModel", "确认删除型号「{0}」吗？", "Delete model \"{0}\"?", "¿Eliminar el modelo \"{0}\"?"), listView1.SelectedItems[0].Text), MiddleLayer.LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Aviso"), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                 if (result == System.Windows.Forms.DialogResult.Cancel)
                 {
                     return;
@@ -359,20 +360,14 @@ namespace AlphaRap
             {
                 if (SysPara.SystemMode != RunMode.IDLE)
                 {
-                    MessageBox.Show("Machine is running, can't change model!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                    MessageBox.Show(MiddleLayer.LangMsg("ProductManagerForm", "msg_RunningChange", "设备运行中，不能切换型号。", "Cannot change models while the machine is running.", "No se puede cambiar de modelo mientras la máquina está funcionando."), MiddleLayer.LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Aviso"), MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                     return;
                 }
 
-                string[] Sp2 = new string[1];
-                Sp2[0] = ".xml";
-
                 OperationLog.Write("ProductManagerForm", "切换当前型号：" + listView1.SelectedItems[0].Text);
                 string filePath = SysPara.RecipeDataDirectory + "\\" + listView1.SelectedItems[0].Text + ".xml";
-                MiddleLayer.OpenRecipe(filePath);
-                string[] a = filePath.Split('\\');
-                string[] b = a[a.Length - 1].Split(Sp2, StringSplitOptions.RemoveEmptyEntries);
-                CurrentModel.Text = b[0];
-                MiddleLayer.OpenRecipe(SysPara.FilePath);
+                if (!MiddleLayer.OpenRecipe(filePath)) return;
+                CurrentModel.Text = SysPara.RecipeName;
                 MiddleLayer.show();
             }
         }

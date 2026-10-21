@@ -104,7 +104,7 @@ namespace AlphaRap
             // 提示文字必须是一个**盖在内层 TextBox 之上**的子控件：TextBox 是不透明控件，
             // 画在父面板 OnPaint 里的提示会被它整个盖住（看不见）。
             _hint.AutoSize = false;
-            _hint.Name = "fieldHint";                 // 空名的 Label 会让开机写语言 XML 时抛 XPathException
+            _hint.Name = "fieldHint_dyn";
             _hint.BackColor = UiKit.FieldBg;          // 与内层 TextBox 同色，视觉上无缝
             _hint.ForeColor = UiKit.TextSecondary;    // 占位文字往往是这一格唯一的说明，按正文门槛取色（5.4:1）
             _hint.TextAlign = ContentAlignment.MiddleLeft;

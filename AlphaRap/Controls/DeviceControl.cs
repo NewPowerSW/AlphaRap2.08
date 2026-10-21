@@ -1252,8 +1252,10 @@ namespace AlphaRap
 
             string what = _current.Name + "（" + _current.DeviceType.Name + "）";
             DialogResult r = MessageBox.Show(
-                "确定删除设备 " + what + " 吗？" + Environment.NewLine + "它的参数会在下次保存时从配置文件里移除。",
-                "删除设备", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                string.Format(L("msg_DeleteConfirm", "确定删除设备 {0} 吗？\r\n它的参数会在下次保存时从配置文件里移除。",
+                    "Delete device {0}?\r\nIts parameters will be removed from the configuration the next time you save.",
+                    "¿Eliminar el dispositivo {0}?\r\nSus parámetros se quitarán de la configuración la próxima vez que guarde."), what),
+                L("msg_DeleteTitle", "删除设备", "Delete device", "Eliminar dispositivo"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (r != DialogResult.Yes) return;
 
             CloseSilently();

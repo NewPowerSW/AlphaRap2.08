@@ -411,11 +411,11 @@ namespace AlphaRap
         public static string AddTray(string name)
         {
             DataTable t = PSet();
-            if (t == null) return "配方表不可用";
+            if (t == null) return MiddleLayer.LangMsg("PlatFormSetting", "error_NoRecipe", "配方表不可用", "Recipe table is unavailable", "La tabla de receta no está disponible");
 
             name = (name ?? "").Trim();
-            if (name.Length == 0) return "请输入托盘名称";
-            if (!IsValidName(name)) return "名称只能是英文字母开头，后接英文字母、数字或下划线（不能用中文）";
+            if (name.Length == 0) return MiddleLayer.LangMsg("PlatFormSetting", "needName", "请输入托盘名称", "Enter a tray name", "Escriba un nombre de bandeja");
+            if (!IsValidName(name)) return MiddleLayer.LangMsg("PlatFormSetting", "error_Name", "名称只能是英文字母开头，后接英文字母、数字或下划线（不能用中文）", "Name must start with an ASCII letter and contain only ASCII letters, digits or underscores.", "El nombre debe empezar con una letra ASCII y contener solo letras ASCII, dígitos o guiones bajos.");
 
             try
             {
@@ -437,8 +437,8 @@ namespace AlphaRap
         public static string RemoveTray(TrayRowSpec row)
         {
             DataTable t = PSet();
-            if (t == null || row == null) return "配方表不可用";
-            if (!row.CanRemove) return "这一组列不全，不能删除";
+            if (t == null || row == null) return MiddleLayer.LangMsg("PlatFormSetting", "error_NoRecipe", "配方表不可用", "Recipe table is unavailable", "La tabla de receta no está disponible");
+            if (!row.CanRemove) return MiddleLayer.LangMsg("PlatFormSetting", "error_Incomplete", "这一组列不全，不能删除", "Cannot delete an incomplete group of columns", "No se puede eliminar un grupo de columnas incompleto");
 
             try
             {

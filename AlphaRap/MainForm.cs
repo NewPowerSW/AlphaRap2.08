@@ -80,6 +80,17 @@ int nheightEllipse
 
             // 把整个控件树的鼠标事件转发到主窗体，这样无论按在哪个子控件上都能拖动/缩放
             HookMouseForwarding(this);
+            MiddleLayer.LanguageChanged += MainForm_LanguageChanged;
+            Disposed += delegate { MiddleLayer.LanguageChanged -= MainForm_LanguageChanged; };
+        }
+
+        /// <summary>语言表保存或语言切换后刷新主框架的动态文字。</summary>
+        private void MainForm_LanguageChanged(object sender, EventArgs e)
+        {
+            _statusLabelLang = (LanguageType)(-1);
+            _statusTextMap = null;
+            SyncLanguageTexts();
+            UpdateMachineStatus();
         }
 
         /// <summary>是否运行在 VS 的 WinForms 设计器中（设计期跳过运行期逻辑）。</summary>
@@ -732,14 +743,6 @@ int nheightEllipse
         public readonly System.Collections.Generic.List<string[]> AlarmLogCache =
             new System.Collections.Generic.List<string[]>();
 
-        /// <summary>筛选按钮文案：按 LanguageType 顺序 = Chinese / English / Español</summary>
-        private static readonly string[][] AlarmFilterTexts =
-        {
-            new string[] { "全部", "警告", "报警" },
-            new string[] { "All", "Warning", "Alarm" },
-            new string[] { "Todo", "Aviso", "Alarma" }
-        };
-
         // 报警筛选标签的图标颜色：全部 = 品牌蓝 / 警告 = 琥珀 / 报警 = 红
         private static readonly Color AlarmChipBrand = Color.FromArgb(4, 108, 182);
         private static readonly Color AlarmChipWarn = Color.FromArgb(219, 149, 44);
@@ -823,15 +826,12 @@ int nheightEllipse
         {
             try
             {
-                int lang = (int)SysPara.LanguageShow;
-                if (lang < 0 || lang >= AlarmFilterTexts.Length) lang = 0;
-
                 int total, warn, error;
                 GetAlarmCounts(out total, out warn, out error);
 
-                if (btnAlarmFilterAll != null) btnAlarmFilterAll.Text = AlarmFilterTexts[lang][0] + " " + total;
-                if (btnAlarmFilterWarn != null) btnAlarmFilterWarn.Text = AlarmFilterTexts[lang][1] + " " + warn;
-                if (btnAlarmFilterAlarm != null) btnAlarmFilterAlarm.Text = AlarmFilterTexts[lang][2] + " " + error;
+                if (btnAlarmFilterAll != null) btnAlarmFilterAll.Text = UiTheme.T("MainForm", "alarm_All", "全部", "All", "Todos") + " " + total;
+                if (btnAlarmFilterWarn != null) btnAlarmFilterWarn.Text = UiTheme.T("MainForm", "alarm_Warning", "警告", "Warning", "Avisos") + " " + warn;
+                if (btnAlarmFilterAlarm != null) btnAlarmFilterAlarm.Text = UiTheme.T("MainForm", "alarm_Alarm", "报警", "Alarm", "Alarmas") + " " + error;
 
                 // 「查询」按钮不带条数，宽度随语言自适应
                 if (btnAlarmQuery != null)
@@ -951,6 +951,7 @@ int nheightEllipse
         /// <summary>统一切换界面语言（顶栏 CN 下拉 与 报警栏语言选择 共用同一入口）。</summary>
         public void SwitchLanguageTo(LanguageType lanType)
         {
+            if (!Enum.IsDefined(typeof(LanguageType), lanType)) return;
             try
             {
                 SysPara.LanguageShow = lanType;
@@ -988,6 +989,9 @@ int nheightEllipse
 
                 // 登录芯片的悬停提示（含完整登录时间）
                 UpdateLoginChipTip();
+                RefreshLoginChipText();
+                EnsureStatusLabels();
+                if (MiddleLayer.ProductF != null) lbRecipeName.Text = _lblRecipe + MiddleLayer.ProductF.CurrentModel.Text;
             }
             catch { }
         }
@@ -1021,45 +1025,11 @@ int nheightEllipse
                     btnAlarmQuery.Click += (s, e) => OpenAlarmQuery();
                 }
 
-                RegisterAlarmFilterForLanguage();
                 UpdateAlarmFilterButtons();
                 // 按当前语言刷新标签文字
                 SyncLanguageTexts();
             }
             catch { }
-        }
-
-        /// <summary>
-        /// 把报警筛选条的控件登记进语言表 SysPara.ComponentLangurageList（语言表在 MainForm_Load 之前建好，需手动登记）。
-        /// </summary>
-        private void RegisterAlarmFilterForLanguage()
-        {
-            try
-            {
-                var lists = SysPara.ComponentLangurageList;
-                if (lists == null) return;
-                for (int lang = 0; lang < lists.Length && lang < AlarmFilterTexts.Length; lang++)
-                {
-                    var list = lists[lang];
-                    if (list == null) continue;
-                    AddLanguageItem(list, btnAlarmFilterAll, AlarmFilterTexts[lang][0]);
-                    AddLanguageItem(list, btnAlarmFilterWarn, AlarmFilterTexts[lang][1]);
-                    AddLanguageItem(list, btnAlarmFilterAlarm, AlarmFilterTexts[lang][2]);
-                }
-            }
-            catch { }
-        }
-
-        /// <summary>把一个控件登记进指定语言的文本表，SwitchLanguage 时会自动套用。</summary>
-        private static void AddLanguageItem(System.Collections.Generic.List<ComponentTextInfo> list, Control c, string text)
-        {
-            if (list == null || c == null) return;
-            ComponentTextInfo info = new ComponentTextInfo();
-            info.FormName = "MainForm";
-            info.ComponentName = c.Name;
-            info.ComponentText = text;
-            info.Component = c;
-            list.Add(info);
         }
 
         #endregion
@@ -1321,6 +1291,15 @@ int nheightEllipse
         }
         #endregion
 
+        /// <summary>显示当前用户名、权限译文和登录时刻，保留实际账号与权限代码。</summary>
+        private void RefreshLoginChipText()
+        {
+            string loginAt = SysPara.UserLoginTime ?? "";
+            DateTime loginTime;
+            if (DateTime.TryParse(loginAt, out loginTime)) loginAt = loginTime.ToString("HH:mm");
+            LoginText.Text = SysPara.UserName + " · " + MiddleLayer.PermissionText(SysPara.UserPermission) + " · " + loginAt;
+        }
+
         private void timer1_Tick(object sender, EventArgs e)
         {
             #region Machine Status 
@@ -1338,10 +1317,7 @@ int nheightEllipse
             #region  RecipeName
             toolStripStatusLabel5.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             // 右上角登录芯片：用户名 · 权限 · 登录时刻（完整日期见悬停提示；芯片宽度有限，只显示到分钟）
-            string loginAt = SysPara.UserLoginTime ?? "";
-            DateTime loginTime;
-            if (DateTime.TryParse(loginAt, out loginTime)) loginAt = loginTime.ToString("HH:mm");
-            LoginText.Text = SysPara.UserName + " · " + SysPara.UserPermission + " · " + loginAt;
+            RefreshLoginChipText();
             lbRecipeName.Text = _lblRecipe + MiddleLayer.ProductF.CurrentModel.Text;
             #endregion
 
@@ -1525,7 +1501,10 @@ int nheightEllipse
             MachineStatus.Focus();
 
             OptionChoiceForm warning = new OptionChoiceForm();
-            warning.fnChangeButtonsText("YES", "OK", "NO");
+            warning.fnChangeButtonsText(
+                MiddleLayer.LangMsg("Common", "msg_Yes", "是", "Yes", "Sí"),
+                MiddleLayer.LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar"),
+                MiddleLayer.LangMsg("Common", "msg_No", "否", "No", "No"));
             warning.fnSetMessageAndButtons(MiddleLayer.LangMsg("MainForm", "msg_SaveConfirm", "确认要保存吗？", "Are you sure to save it？", "¿Seguro que quieres guardar?"), true, false, true);
             warning.ShowDialog();
             dr = warning.dResult;

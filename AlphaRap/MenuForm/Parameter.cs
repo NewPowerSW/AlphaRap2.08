@@ -151,6 +151,7 @@ namespace AlphaRap
 			TabPage page = new TabPage();
 			page.Name = panelName;          // 与面板同名，方便用 tabDevices.TabPages[name] 反查
 			page.Text = DefaultTabTitle;
+            page.Tag = panel;
 			page.UseVisualStyleBackColor = true;
 			page.Controls.Add(panel);       // 这一步会触发面板的 Load
 

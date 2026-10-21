@@ -109,7 +109,7 @@
             this.lblType.Font = new System.Drawing.Font("宋体", 10F);
             this.lblType.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.lblType.Location = new System.Drawing.Point(8, 8);
-            this.lblType.Name = "lblType";
+            this.lblType.Name = "lblType_dyn";
             this.lblType.Size = new System.Drawing.Size(62, 18);
             this.lblType.TabIndex = 0;
             this.lblType.Text = "设备";
@@ -195,7 +195,7 @@
             this.lblState.Font = new System.Drawing.Font("宋体", 10F);
             this.lblState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
             this.lblState.Location = new System.Drawing.Point(292, 10);
-            this.lblState.Name = "lblState";
+            this.lblState.Name = "lblState_dyn";
             this.lblState.Size = new System.Drawing.Size(236, 18);
             this.lblState.TabIndex = 3;
             this.lblState.Text = "未选择设备类";

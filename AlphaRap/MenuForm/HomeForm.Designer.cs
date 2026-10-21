@@ -147,7 +147,7 @@
             this.lblKpiInputValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.lblKpiInputValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiInputValue.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiInputValue.Name = "lblKpiInputValue";
+            this.lblKpiInputValue.Name = "lblKpiInputValue_dyn";
             this.lblKpiInputValue.Size = new System.Drawing.Size(332, 56);
             this.lblKpiInputValue.TabIndex = 0;
             this.lblKpiInputValue.Text = "0";
@@ -194,7 +194,7 @@
             this.lblKpiOkValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(150)))), ((int)(((byte)(67)))));
             this.lblKpiOkValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiOkValue.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiOkValue.Name = "lblKpiOkValue";
+            this.lblKpiOkValue.Name = "lblKpiOkValue_dyn";
             this.lblKpiOkValue.Size = new System.Drawing.Size(332, 56);
             this.lblKpiOkValue.TabIndex = 0;
             this.lblKpiOkValue.Text = "0";
@@ -241,7 +241,7 @@
             this.lblKpiNgValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(206)))), ((int)(((byte)(62)))), ((int)(((byte)(62)))));
             this.lblKpiNgValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiNgValue.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiNgValue.Name = "lblKpiNgValue";
+            this.lblKpiNgValue.Name = "lblKpiNgValue_dyn";
             this.lblKpiNgValue.Size = new System.Drawing.Size(332, 56);
             this.lblKpiNgValue.TabIndex = 0;
             this.lblKpiNgValue.Text = "0";
@@ -288,7 +288,7 @@
             this.lblKpiYieldValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
             this.lblKpiYieldValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiYieldValue.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiYieldValue.Name = "lblKpiYieldValue";
+            this.lblKpiYieldValue.Name = "lblKpiYieldValue_dyn";
             this.lblKpiYieldValue.Size = new System.Drawing.Size(332, 56);
             this.lblKpiYieldValue.TabIndex = 0;
             this.lblKpiYieldValue.Text = "0";
@@ -335,7 +335,7 @@
             this.lblKpiCtValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.lblKpiCtValue.Location = new System.Drawing.Point(18, 34);
             this.lblKpiCtValue.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiCtValue.Name = "lblKpiCtValue";
+            this.lblKpiCtValue.Name = "lblKpiCtValue_dyn";
             this.lblKpiCtValue.Size = new System.Drawing.Size(346, 56);
             this.lblKpiCtValue.TabIndex = 0;
             this.lblKpiCtValue.Text = "0";
@@ -574,7 +574,7 @@
             this.tHourlyInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.tHourlyInput.Location = new System.Drawing.Point(0, 24);
             this.tHourlyInput.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
-            this.tHourlyInput.Name = "tHourlyInput";
+            this.tHourlyInput.Name = "tHourlyInput_dyn";
             this.tHourlyInput.ReadOnly = true;
             this.tHourlyInput.Size = new System.Drawing.Size(268, 29);
             this.tHourlyInput.TabIndex = 1;
@@ -604,7 +604,7 @@
             this.tHourlyOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.tHourlyOutput.Location = new System.Drawing.Point(276, 24);
             this.tHourlyOutput.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
-            this.tHourlyOutput.Name = "tHourlyOutput";
+            this.tHourlyOutput.Name = "tHourlyOutput_dyn";
             this.tHourlyOutput.ReadOnly = true;
             this.tHourlyOutput.Size = new System.Drawing.Size(268, 29);
             this.tHourlyOutput.TabIndex = 3;
@@ -634,7 +634,7 @@
             this.tHourlyReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.tHourlyReject.Location = new System.Drawing.Point(552, 24);
             this.tHourlyReject.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
-            this.tHourlyReject.Name = "tHourlyReject";
+            this.tHourlyReject.Name = "tHourlyReject_dyn";
             this.tHourlyReject.ReadOnly = true;
             this.tHourlyReject.Size = new System.Drawing.Size(268, 29);
             this.tHourlyReject.TabIndex = 5;
@@ -664,7 +664,7 @@
             this.tHourlyYield.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.tHourlyYield.Location = new System.Drawing.Point(828, 24);
             this.tHourlyYield.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
-            this.tHourlyYield.Name = "tHourlyYield";
+            this.tHourlyYield.Name = "tHourlyYield_dyn";
             this.tHourlyYield.ReadOnly = true;
             this.tHourlyYield.Size = new System.Drawing.Size(268, 29);
             this.tHourlyYield.TabIndex = 7;
