@@ -1,0 +1,1072 @@
+{
+  "review_date": "2026-10-22",
+  "runtime_dll": "AlphaRap/bin/x64/Debug/NPSDK.dll",
+  "runtime_sha256": "23ee59b1d45534e348ef897db5cdd06aff83ac98a3a982593e16178e9f2c0609",
+  "runtime_bytes": 427520,
+  "top_level_types": 176,
+  "native_import_declarations_by_library": {
+    "APS168.dll": 505,
+    "APS168x64.dll": 505,
+    "LTDMC.dll": 762,
+    "kernel32.dll": 2
+  },
+  "coverage_note": "全量反编译类型清单；托管逻辑按模块审查，原生声明按接口审查。清单不等于每个硬件分支已运行；厂商原生 DLL 内部实现未包含。",
+  "types": [
+    {
+      "type": "_PrivateImplementationDetails_",
+      "lines": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "AlphaRap.TextLogWrite",
+      "lines": 36,
+      "sha256": "84de22a12c3b10b8a46f1bef20a7ea418fc5d6a64c7e671a9b704a5fb8b51c24",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "APS168_W32.APS168",
+      "lines": 1522,
+      "sha256": "6a62e60a367ee51158ed50a38eecceb92a46ff85a4647b4dbe54ac74b439fa8a",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.ASYNCALL",
+      "lines": 8,
+      "sha256": "276012a160c7a2833a5f014dc4c86b95d98f5f55add4a7b4a729eca536269df9",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.DEBUG_DATA",
+      "lines": 16,
+      "sha256": "c6f4147a1d87d1dbe0c67063e2e21866f355d864a4a7ab8efa08219a82a403d2",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.DEBUG_STATE",
+      "lines": 10,
+      "sha256": "0b2266ffb4036f32891909d522c01f723cc09c32a7bba75ef4cdddf85d941cfb",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.DI_DATA_EX",
+      "lines": 8,
+      "sha256": "09089517e4162d9408fb59d05975b16dd1adaa50e69fc549ce2ac56aab384b9d",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.DO_DATA_EX",
+      "lines": 8,
+      "sha256": "e3fbb18cec684b1bbbf3e4fc27cdbd30bc47a664b5016c0c0ae22bf411309af1",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.EC_MODULE_INFO",
+      "lines": 46,
+      "sha256": "2d7341b1ade395e6cabdb907396cd4608270beece74d17d367e7c566e656dab6",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.EC_Sub_MODULE_INFO",
+      "lines": 17,
+      "sha256": "74512a75bd827e44f01b98dd45b81f409c565b607aa514880b50dd6956a182bf",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.EC_Sub_MODULE_OD_INFO",
+      "lines": 16,
+      "sha256": "8aeb6ff1106e2545aafbd67ba31b8a3758d616e69c6f272a7cfbc279e371ee29",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.HOME_PARA",
+      "lines": 20,
+      "sha256": "f421315adde5b7e20058bfee7bd6f881447865fe030d49a4666049c3f4fd8f58",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.JOG_DATA",
+      "lines": 20,
+      "sha256": "42098826c2e4fb4ec8f1415286b8f51f2ab67740a3140b5f7292d924826bf298",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.LATCH_POINT",
+      "lines": 8,
+      "sha256": "01acc693f817077fb5cffa9d923c2d742151fab3ace7d8b4cc8bf339cfa616d1",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.LPSTS",
+      "lines": 12,
+      "sha256": "e517fb1ed8e49497add228eabacb8f6d4a70ab2ad76673a1b35acee421b5df8c",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.MCMP_POINT",
+      "lines": 14,
+      "sha256": "84549e549cf36cb02de6e6bed10da008fdd47d533a6225d65c16b433e85eee4d",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.MOVE_PARA",
+      "lines": 18,
+      "sha256": "35e4199ae32a722e91adf759adf804e7e1dfcd95df47260b3df720d7d930e33b",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.OD_DESC_ENTRY",
+      "lines": 34,
+      "sha256": "b209659e83c59a523bf434db200cfcad9a5da93a7ecef1fb2fc9374f5f0144b0",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PDO_OFFSET",
+      "lines": 17,
+      "sha256": "a24e14cd1c73230c807cbcf8338d0b81ef6a820f1b47481ce37026ae4e81e20e",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PNT_DATA",
+      "lines": 20,
+      "sha256": "280e199b91e0bb6324045ba3839c1278150313087e9dd36d4c301ebabefcc732",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PNT_DATA_2D",
+      "lines": 22,
+      "sha256": "723b990b7c19e638493c2009a2b98c325409f8cb0c53f62680378ff2829fee6a",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PNT_DATA_2D_EXT",
+      "lines": 58,
+      "sha256": "807997df9f1744a930fcf270f577f058cd245accd558cdf8159d51053f77796f",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PNT_DATA_2D_F64",
+      "lines": 24,
+      "sha256": "905ad142b809129cc8ec630d0421648aad1a4ca3b4a6fdc04dc1b628787411cb",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PNT_DATA_4DL",
+      "lines": 24,
+      "sha256": "ce9972f80a6a8b1971bf762a13b91975b48cc28a1ab541302a9ec75dbf740cf5",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.POINT_DATA",
+      "lines": 26,
+      "sha256": "2ee359f2fe691ba311dcf017127ce999be47196d7273e62d7d64383d13e2a549",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.POINT_DATA2",
+      "lines": 20,
+      "sha256": "06422ae8ea4093a5c15d4cad99d64605446bd1387f776e216b21652defc0aa49",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.POINT_DATA3",
+      "lines": 19,
+      "sha256": "b9d4f912b15da9706276ddd655aaa65a2b954792380ef339f14034eac7a324ec",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.POINT_DATA_EX",
+      "lines": 34,
+      "sha256": "5c07ceb255b9a5705ea10359697b6e1ae9b7685a9179f365fe67b4402cded73b",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.POS_DATA_2D",
+      "lines": 12,
+      "sha256": "95841ea0e47de1f5985daabf19fb0c6c8154823a3ed59bda28e63a0f1ce31eb8",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.POS_DATA_2D_F64",
+      "lines": 12,
+      "sha256": "e5fdf959a1b22a82bf041d25f46a941daa5b194ae83db44dd574827ae3bff9db",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.POS_DATA_2D_F64_RPS",
+      "lines": 14,
+      "sha256": "76c7dc4980fea9b42f9f0fdd6883b103377c56f2db8e55bbb0aadbba9e8e8c5e",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.POS_DATA_2D_RPS",
+      "lines": 14,
+      "sha256": "713da8aaadcf8c022a906c0c155a83c3ec3748cb11e13983540ebde8296fc436",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PTA2CA",
+      "lines": 14,
+      "sha256": "33c36e02212f3f3d1a8801158a52cd4e8d16e1e58fb1e91bfe603772c2d56fa8",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PTA2CE",
+      "lines": 18,
+      "sha256": "d4d288fde44292ff3d5332ed94bf1d77aa8b433b9ddd42ede1f851bd7aed6e2d",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PTA3CA",
+      "lines": 17,
+      "sha256": "19775583e2761d31d0612cf5b6c640e7a12846d1cc19940d511a89d7213baa6a",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PTA3CE",
+      "lines": 17,
+      "sha256": "e9ea90e05799592c3c04fe65480fb095ade192888c43894ccfb90312d2488f8d",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PTDWL",
+      "lines": 6,
+      "sha256": "3322b00470db42cc1eead34744cd15a9289f27839a3d7b52232e0cc536e15d81",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PTHCA",
+      "lines": 21,
+      "sha256": "7aab1423959030196d0025fea962c4b4a23ae258d88cdbff1a9b62b1dbcd7593",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PTHCE",
+      "lines": 20,
+      "sha256": "29dc5c3039c6f84d002c572bc5572ccaf3221b2ead505b73e207f38bd240ff46",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PTINFO",
+      "lines": 12,
+      "sha256": "110b7f57e5d230b667132144bf70837e37a17b879fafdc4f4eaaa23355b6c14a",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PTLINE",
+      "lines": 11,
+      "sha256": "513a9d8309cbcd150d57bb0c9e3e8f87b3a83e083d9dbbbabe991c077477d0de",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.PTSTS",
+      "lines": 12,
+      "sha256": "a8c76478f3369c8e437164774c10f1ca6f8752c583f0f54950d175c1bd1084e0",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.SAMP_PARAM",
+      "lines": 23,
+      "sha256": "dc23a1d4536f514eb7995dcb21f4aaf4c52ab3d3263b9da203ef41fc8362decf",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.Speed_profile",
+      "lines": 14,
+      "sha256": "b5b6a2fc54d17be57e02e7dea75caa16e264176c66b2993757b12ae024987e0d",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.STR_SAMP_DATA_4CH",
+      "lines": 14,
+      "sha256": "2679372e17af867ded49da11e122084f3729a4ba36eefdb51a32c6f8d363b122",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.STR_SAMP_DATA_8CH",
+      "lines": 12,
+      "sha256": "3f7645f8557d108ed60cc5677fc3432a7c0da748074552f5f1447882eca66f81",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.TSK_INFO",
+      "lines": 16,
+      "sha256": "889d5a6cea338581c4266e7f011d2b3d9b49d717f461c7a05b8f7dc2dd6c02af",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W32.VAO_DATA",
+      "lines": 24,
+      "sha256": "b9b816e3ff136bf5aac8210e379b1bfe0e4f020f1e6caa43003e1b2066d08fd6",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.APS168",
+      "lines": 1522,
+      "sha256": "4379fe4d915e3805f00239e27f50cd1c605551ffdce75e61ff318924891fbede",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.ASYNCALL",
+      "lines": 8,
+      "sha256": "30b5143dc55ce1fdb760db88313ed60009c9043d24487a2a469b57f7bfbb1aae",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.DEBUG_DATA",
+      "lines": 16,
+      "sha256": "89a196ebf031b307c6b684fc1306945b777cbeef757aa0ba9ad99cd6d236e952",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.DEBUG_STATE",
+      "lines": 10,
+      "sha256": "6685764c24b9d14383678fc207c5534efc3863b10ec4f37c10540af684bb5cb5",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.DI_DATA_EX",
+      "lines": 8,
+      "sha256": "22223f163b380ad9e3285a71796f0e862f6ab6c3e1c84251a6ef16cba46d2cfe",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.DO_DATA_EX",
+      "lines": 8,
+      "sha256": "a8de0ca384a2b09f1dde49513a6b751f4555538666d3577162af38f9f10304a0",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.EC_MODULE_INFO",
+      "lines": 46,
+      "sha256": "ddcea11ac2292e07b7eb9e21eaf68d97e71f1bfe5b7df98ec3f73a6df7357ca4",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.EC_Sub_MODULE_INFO",
+      "lines": 17,
+      "sha256": "5db0d58d38f5743b8930f4e88c7404bb96ff2301a6ce2a3d677a4a0764980b93",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.EC_Sub_MODULE_OD_INFO",
+      "lines": 16,
+      "sha256": "0a9d80664b9f98f1c89e4b1539912f9ec260ec7651f3df70bb0a63aaa565b002",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.HOME_PARA",
+      "lines": 20,
+      "sha256": "d2860164bb99af2512af9d86d57a5e821ba654b4056ae3cc8e9701562f6d51c9",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.JOG_DATA",
+      "lines": 20,
+      "sha256": "895165e90543a42d90cdf28e550a6dda17d09f28aa777692bb4711aa37c90618",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.LATCH_POINT",
+      "lines": 8,
+      "sha256": "8c16c908ec397b5d5c3b45a8fab443508fe1c275661eed157bdad625acf1b391",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.LPSTS",
+      "lines": 12,
+      "sha256": "444fdb9e474be97357b6a5527d305354a77e574f707bd9a598d97d97f6a39f37",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.MCMP_POINT",
+      "lines": 14,
+      "sha256": "8ab3f1e0a1dc039bfb69b960d3e8766d538ff6b91d48168ec408d916531fe300",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.MOVE_PARA",
+      "lines": 18,
+      "sha256": "ce00c65e84a7644d540899de828284c0ae322d10a56cac03d0ff99d65e45ce04",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.OD_DESC_ENTRY",
+      "lines": 34,
+      "sha256": "3b08b8a531ffd0e6e3e0bc0f9c0cd3cdff6875b101fa291bab02dd5cf7f155ed",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PDO_OFFSET",
+      "lines": 17,
+      "sha256": "0b779222b654037a265d931bfc4947ec39f535f06349dd298d8c93fb80db8de2",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PNT_DATA",
+      "lines": 20,
+      "sha256": "6a44b88c6ffc1eebae0dbf58ac63e5128fdd9150b7722af93731d715a59b5e80",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PNT_DATA_2D",
+      "lines": 22,
+      "sha256": "34878183c26648f25b22f7a0661de3f39bdb36ac767be3cf8a5341cfd2cd9319",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PNT_DATA_2D_EXT",
+      "lines": 58,
+      "sha256": "42ef6c6b3b6b178681cdb22cacdaa3bc62a653c2b9961a77d8b783726cee5c72",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PNT_DATA_2D_F64",
+      "lines": 24,
+      "sha256": "fab0d3b79ae629e30a27d8e221d1b4cbe6693b9d8c074631f0381556191d28e2",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PNT_DATA_4DL",
+      "lines": 24,
+      "sha256": "bb5697deffc265ddffcd294ef62d7296c95938a3824a862e8d2f2b2d7eb358f6",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.POINT_DATA",
+      "lines": 26,
+      "sha256": "da7a866a53f1ee2411eaf67b71ad9c62ba2681dadaf093b3819e066c4a9b3a9f",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.POINT_DATA2",
+      "lines": 20,
+      "sha256": "99b119fdc46266a65c5f7a36d81d176d2074687b91fb6c4a5fe198ba4de7ad54",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.POINT_DATA3",
+      "lines": 19,
+      "sha256": "9e21b73f96dc5ac7b2013b0087c72b56287a6cdcd5541d943dba07a66f45ceb1",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.POINT_DATA_EX",
+      "lines": 34,
+      "sha256": "8b5aa87c76da040d9be2256f2b69c168afcd0db9b6eea78fedb9d3a54f3155f3",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.POS_DATA_2D",
+      "lines": 12,
+      "sha256": "7a42faf37c835eb7041d2bd72fc14554f32fe9de2f1c5d469525a8261bdc30f2",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.POS_DATA_2D_F64",
+      "lines": 12,
+      "sha256": "8af27ad5aa957f16f1fbb1a614a3fd592d6b9b679759daed6ebdc77cbef3bc5d",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.POS_DATA_2D_F64_RPS",
+      "lines": 14,
+      "sha256": "c300ef0b3c96ce59ccde400373b89e14d1c43573ec652e0f444db6ba51519ac5",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.POS_DATA_2D_RPS",
+      "lines": 14,
+      "sha256": "bdf1feb92580eaf6e8580988cc60d7e80983541c0194b2331b943439834ad5bf",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PTA2CA",
+      "lines": 14,
+      "sha256": "576e85d05d9bd5b7ad2a0d4e2076a8be513106f241848d31633091517bbdf30d",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PTA2CE",
+      "lines": 18,
+      "sha256": "624b3c32709a3eb777de73537fc45ae8439bb94856c68dfd0087bd1d9153213c",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PTA3CA",
+      "lines": 17,
+      "sha256": "ee065aeee0314a316059d91cfcc20b8f0d2e2eadd8ddcf705c1a7684f3ddd578",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PTA3CE",
+      "lines": 17,
+      "sha256": "73bb8ecc4c01c3b903fdd70f69e8852063fb3a4deef6e9c05e64f5a959a4bf09",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PTDWL",
+      "lines": 6,
+      "sha256": "cc52723e39dd9a72ab02f91a72887f00d3987a6587155c8032d0fb7f9fb73a8d",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PTHCA",
+      "lines": 21,
+      "sha256": "2d3a10c53900613f5ca6f8a9f8faa65283e720ea36d1e067edfea95272f89dc3",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PTHCE",
+      "lines": 20,
+      "sha256": "c9d3935c17f17decca18b7fe14527bc232c859e649d8b5c8725136b5bf8c6e72",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PTINFO",
+      "lines": 12,
+      "sha256": "51b013e9bdc8b5cd49443a40016ee1faa80f79e24324e79be5dba38299bc63d6",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PTLINE",
+      "lines": 11,
+      "sha256": "760acd96440f7c5d01a942186ede360bb2d55d6c846c528f09d8f2e838674546",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.PTSTS",
+      "lines": 12,
+      "sha256": "465b5f74595032e303ba5a02978b8128a69c0d5393563d8570b875279d00be43",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.SAMP_PARAM",
+      "lines": 23,
+      "sha256": "305cd8d56d49cbc67f456cb94fad1ca5b566350768e83276145e12a5f01ebf5e",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.Speed_profile",
+      "lines": 14,
+      "sha256": "e6fe6c66994b66f9548503d3e626534dcf95fba0bf86bbab0202a22f7425fe92",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.STR_SAMP_DATA_4CH",
+      "lines": 14,
+      "sha256": "4e788a189ef8452170ce146fcf20f0395856f494708780f6a0ee2641811a27e4",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.STR_SAMP_DATA_8CH",
+      "lines": 12,
+      "sha256": "12d8a2475a0a7844ca231b2c895153967d540932cbf2bf180b66cabe6bc9b092",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.TSK_INFO",
+      "lines": 16,
+      "sha256": "9ab12aa81cfea58454a8b1bc4d17759c8863295a1eef56ea47fe1d53bc2a4cb0",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS168_W64.VAO_DATA",
+      "lines": 24,
+      "sha256": "823c4ff960c544c4378771d15a696602c93b7d005ef1519e3e4c0d8b8c82f0d4",
+      "category": "native-declaration"
+    },
+    {
+      "type": "APS_Define_W32.APS_Define",
+      "lines": 922,
+      "sha256": "bb41d4788761ded5d83fe5b79642173cd4727c953a98f6b4553f7a97057bc7f2",
+      "category": "native-declaration"
+    },
+    {
+      "type": "csLTDMC.LTDMC",
+      "lines": 2293,
+      "sha256": "7d66a953eadd6e2580e36b2130816ff14abc8effa9ee5a90eb20c28600d093f4",
+      "category": "native-declaration"
+    },
+    {
+      "type": "DataSave.CCSVObj",
+      "lines": 81,
+      "sha256": "02bba9338288f4008dc785a803273f4e3563742c660e3d92a9fd6bddc8c105ef",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "DataSave.CSVInfo",
+      "lines": 42,
+      "sha256": "220e311eb38564cf7ab596558baa22ac6c9a79ed1b8f152512e44c99a9cc78d9",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "DataSave.Data",
+      "lines": 920,
+      "sha256": "8522a05317be27cae89de62cd373bf02cb1373843090a78f354a549fe62a3433",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "DataSave.DataFormat",
+      "lines": 29,
+      "sha256": "c806922019a025d71df510aa81100d463ab2e23c67f81f4aa0d1f54f81bd9e4c",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "DataSave.FileDataControl",
+      "lines": 53,
+      "sha256": "bb0c483689a4c3bb8af20e191eebb8cd7baf9aa7cef3e4091810ec905ddf60a6",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "DataSave.TypeCollection1",
+      "lines": 186,
+      "sha256": "32ee1141e413c9e4717a8c783219d0a7c0e45218a1e3ce9890b123869575734e",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "GetTickCountEx",
+      "lines": 47,
+      "sha256": "8834812e2bce53c41cd0c24d6a937de174ea108d165201c3740533905412646f",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "JTimer",
+      "lines": 26,
+      "sha256": "a80eb3a7879f2bbe230a36ea3620e5ddef4ffd1ce6422cd7c8cf39537e1367bd",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.AbstractDevice",
+      "lines": 43,
+      "sha256": "3a6a6121214915a412c23e6dfe96e4aad59938cd55ff03e369c68b49f25f97f4",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.AdlinkNP_Input",
+      "lines": 72,
+      "sha256": "a61856b7255d9e78415ac5eea2992e400ef97a16c79237b5efc8b1284391dcf1",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.AdlinkNP_Motor",
+      "lines": 717,
+      "sha256": "18bbc1775516c1eec97b88d0e11b2e3a13b1a172d561bc82750dfb19c582cb93",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.AdlinkNP_Output",
+      "lines": 77,
+      "sha256": "1f11121bf3fd3c754115617dd2c761445140aa884afa8ba089686e48ccaf55e0",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Alarm",
+      "lines": 245,
+      "sha256": "46b0166a747d8e5b332742dc43344322176a51b16186bf5364b4938bacc5c9c8",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.AxisIOState",
+      "lines": 20,
+      "sha256": "45558299870712088d44aaf1d26cd2f790115823d49847b72f7b7c456a781b0e",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.ControlBaseInterface",
+      "lines": 69,
+      "sha256": "d7663ead023f71a6da494c8ee39afa3e7664a45fcf31ec0b438007cdafee4bde",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.DESEncryption",
+      "lines": 78,
+      "sha256": "b671b76129e3fc1a9f0613d4d52af8ebccf3ae99942bc66b29fe1dc8eecef343",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Flow_BaseForm",
+      "lines": 104,
+      "sha256": "0715530809570de47fac025a54a9043350611337b2a6400dea245e6d0524973c",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Flow_Chart",
+      "lines": 608,
+      "sha256": "1fea036d2a8cbc10f5b3165611441aa4e038a9c91ab41089f399d80116630f63",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Flow_Module",
+      "lines": 224,
+      "sha256": "fd6aa0e3a54244833b3899661c1e3f1eff461357ed62c8af0b0b3fe424aa3bd9",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.FundStatusConverter",
+      "lines": 70,
+      "sha256": "bfd8d19b2643df7ca3d36a59f6b0e61d31d55a2bc8fa49083850e72caffd9400",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.IOBaseInterface",
+      "lines": 50,
+      "sha256": "b2c2e81048b9310f2d2b167acfb8f39bb8831d6552b830a56dc40871d1758ae8",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.IOCardType",
+      "lines": 20,
+      "sha256": "23dc1e6a27cb61c5f15db9b362a5b38c55116f0d3e9121f04b4ba75536e2cc65",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.KeyenceHostLink",
+      "lines": 170,
+      "sha256": "96ff696d61cf7eba0068332d0bf9f8e6b918cc21179ed739ff6ab232ce92ff1e",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.KeyenceNP_Input",
+      "lines": 92,
+      "sha256": "11e2737d77be30af15c3788ad80d70bdefe499f6f75442db4d21780f16f83fa0",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.KeyenceNP_Output",
+      "lines": 92,
+      "sha256": "986178b90f1eb267ae89924f75ad469c8cea8e8069ef464ade8b4101976d1b33",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.LeadshineNP_Input",
+      "lines": 80,
+      "sha256": "d07336dd9e0744aa8b62b240c90f350c51bd868820185bd61e14fe0c55d764c8",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.LeadshineNP_Motor",
+      "lines": 376,
+      "sha256": "d3fcfed8668db8e921bd5404eb54cfe74a0ef3266068d299dff1944554ff61fa",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.LeadshineNP_Output",
+      "lines": 90,
+      "sha256": "02fc04039468e7cab4fc05f36ed6bcbf029182bb6c372c0cc8b594db451a639b",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.LocalLogSave",
+      "lines": 126,
+      "sha256": "b0857ac7f3f1fb1f9fc5594f413891a64a980af88bd6fce869f872c4228b3df7",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.KeyenceDataFormat",
+      "lines": 10,
+      "sha256": "1f138c5c4709f833d924a1a88514588dbd30e2b02dde46d7ef2bc8fe16732797",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.KeyenceDeviceType",
+      "lines": 8,
+      "sha256": "edaa25bdae3e9823418b856389d4e5c40ec6d391fabcb81cf602b579188542da",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.MotionSDK",
+      "lines": 24,
+      "sha256": "95cd8ee8e8f57e0c4c6b14dbead9bbf0b25c47be85889166a4c6251ec0a9ce44",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.MotionVendorConverter",
+      "lines": 30,
+      "sha256": "4d0dca2c20ea946b6887670418cceb7371f26333797ff28c6f184c6cd726695e",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.MotorParaData",
+      "lines": 46,
+      "sha256": "43fb82ab536c10f0c4614dfca10ba691b806324d0673b173a3439536a5e7ddc8",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.MotorParaForm",
+      "lines": 648,
+      "sha256": "92bad42fb8d944714567eabbc311a43f3336d561e650cac7911e47c9bb007b5e",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.MotorParaLanguage",
+      "lines": 7,
+      "sha256": "578f71b25dc0cec3d7c4f82c92637cd7d3fb400a1e7792f6651239c113147319",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_Cylinder",
+      "lines": 194,
+      "sha256": "b6ef0bc64e217482585fec54c87ea93b4f17006d132bd66930a246413c915bb5",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_Home",
+      "lines": 62,
+      "sha256": "ef8096c131a5ceb8f72819f68baedac1a73350151791f739165467f5da54c260",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_Input",
+      "lines": 144,
+      "sha256": "b36eba1af3fbe72bd332e632aeffc7ea80dd0e1a3e3ba1e0abf6d48cb3df42c2",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_JogOption",
+      "lines": 207,
+      "sha256": "21627efe722174489a9ded45ebce4fbee2e8b0b883e549aea985115db1f76786",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_ManualControl",
+      "lines": 47,
+      "sha256": "de27b2792dcccc78fed90e50ada9c529d3a7e1dc85ddd205501481f4d77abae0",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_MotionIOStatus",
+      "lines": 82,
+      "sha256": "2c808d096cdbcb09aaa9103a3757ef7b7910b5eb84f0a50d9088dde3ba0bb386",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_Motor",
+      "lines": 509,
+      "sha256": "1ae68a9c84a79f52a4b3f757a10aac12593a052c79c52781cab34267fb55eba5",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_MotorJog",
+      "lines": 245,
+      "sha256": "b750707fc9b8f771ee15cc7d3c3b95e4542eeaf2bc2a1dfc59a66cd022cf323a",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_Output",
+      "lines": 185,
+      "sha256": "d4c116fc17b4d74120f5f36e2f4510a16d6cdebb43f43c9e198dfbdc19f91c92",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_PositionShow",
+      "lines": 86,
+      "sha256": "ef35ab466f8fc59af86d6a384248a43e717386f46ee6a97ddaa4c6216847ee56",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NP_PositionTable",
+      "lines": 728,
+      "sha256": "c86381cc21373ea7a8059fd6ac511ec69e849630f7690bd78d10ac07b768dc60",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NpCategoryDescriptor",
+      "lines": 51,
+      "sha256": "ac1d7d3827096ea95b2607560e0ee35818471ae6f5f5fa01091499870bab3e03",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NPControlBase",
+      "lines": 57,
+      "sha256": "970c500b41c2d6759bfb7b7e11a8880cbff34b0603a0a330849bae48bc08aaee",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NPHub",
+      "lines": 66,
+      "sha256": "27db4a1027f5777616b014cded08e2e71e9eac4fd62dc63e69ddd4fe9b706815",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NpIoDesigner",
+      "lines": 70,
+      "sha256": "fb6adc8119f29f5a908c8a9e90703e65ecdab5063809dfb62ea742aa40849b52",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.NPVendor",
+      "lines": 9,
+      "sha256": "7ad62b5770eef0a8f3a3ea635d17e5de40cd151d1de12336aca9e8472e4ad9b8",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Motion.PositionColumn",
+      "lines": 33,
+      "sha256": "6c71773045fd853160abe6886787c36866fe1a3439653304bcefd81e3b074d3c",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.MotionCardType",
+      "lines": 13,
+      "sha256": "2b73724bd2e30341179071f29973aa4deb2f75d9cf0fe70119d840f568904e10",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.MotionState",
+      "lines": 8,
+      "sha256": "01250688c9e8e57d8040a6d3fc94de5ff2fbff7a40db4da61be6d83a49298e19",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.MotorBaseInterface",
+      "lines": 381,
+      "sha256": "0e9bfc9eaa2e5905fe69026cb0b7a2166e79d84a2e833b4f8e2c53d33e3a8e62",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.MotorControlForm",
+      "lines": 1943,
+      "sha256": "137689c4b473e37a11d8129f8ecc90553c4973ea1540aab718d4bdb6febd8432",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.MotorMaxSPDPara",
+      "lines": 8,
+      "sha256": "96a8792b567ac816e9119be4c91135364b6e6f65d7d035626d911dbe5e6dde70",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.MotorSPDPara",
+      "lines": 14,
+      "sha256": "78a6d424c02239fe0cad3bf0ab18986b06edb60e932e95094c540077ebf936c0",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.NPMotionState",
+      "lines": 10,
+      "sha256": "8215dfd7274ecc3dd1c8fd7ac547585ce7be8a17f2a6ddaa2bdcb444b7f10a6b",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.NPSDKPara",
+      "lines": 16,
+      "sha256": "f82efd823c262d4039e036b0f208b26199357ba5b9d20f6f546cd225446fcafc",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.NSDK",
+      "lines": 61,
+      "sha256": "e5f5f40c94414152f0bae9410b0d801956657c671ef391510a7d7f05b3ba97e7",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.OmronNP_Input",
+      "lines": 54,
+      "sha256": "40b2bcbfff6e14127f588b8616f59ae196b7258eafe4e54005c1029146847724",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.OmronNP_Output",
+      "lines": 54,
+      "sha256": "ccf6019f865b8b4587a2f51a28f1eaf2c5202529fdf437d891ca34395b93f0a8",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.OmronPLC",
+      "lines": 628,
+      "sha256": "907f0ff701e70688cf39a5859d8a0f5ffeb972f1b95bc4457da2b1ecf833c881",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.OmronPlcShare",
+      "lines": 30,
+      "sha256": "a17f54739283ccc37d7d4a857195551baccca9a82203bc54d9298c129dac7997",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.PDMCOUNTCALLBACK",
+      "lines": 3,
+      "sha256": "6b8c50473a71f3a127fd792ca268b366b429987a757c075bb2e1eaad4dd04020",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.PDMSTOPCALLBACK",
+      "lines": 3,
+      "sha256": "d705da1ef2c659b7ffd862a234b7fc31c061a8e08e8bf9842f111b3fd65c1574",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.PINTCALLBACK",
+      "lines": 3,
+      "sha256": "87b12fb0202ba588574480e8ee855aaf20842de3bb71652c52a319fbea09f6d6",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Properties.Resources",
+      "lines": 49,
+      "sha256": "67c1ccdad7655cba6d2bc8bfe9751aaeede138d84baf3ee42c4be852852a1e9d",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.PTRGCALLBACK",
+      "lines": 3,
+      "sha256": "1c8057b7a10df45e3c0989cc8dca6efa8fc66aef0be38412ad797b6f020e780b",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.PulseModeType",
+      "lines": 8,
+      "sha256": "f2eb8b10313397d25c8127a86b01c36b308759118a52913f2361900612f46c0d",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Resource",
+      "lines": 158,
+      "sha256": "1e83e552e2dd36333255e6da26991f8f9bd46cfa0c5eea69df2781211706f6fb",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.Scope",
+      "lines": 46,
+      "sha256": "e78bf7ea34d5e2cfb6d5617ae0b30b2cdf8fc93204020d4560ac706c5974acd6",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.ScopeDropDownEditor",
+      "lines": 37,
+      "sha256": "a687b5b01122b2665c73fdad1e5b3abc9d6103029abbd0591605dd81fdd2c735",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.ScopeEditorControl",
+      "lines": 131,
+      "sha256": "01bad6025e21c4b53204b5bc2095ecabd6bceee35b017509199df668dc30f967",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.SDKKernal",
+      "lines": 120,
+      "sha256": "b626611bca98bf16973706b5349d70a4b25b24c7e58d2676f2c6a1db81ebc600",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.SDKPara",
+      "lines": 82,
+      "sha256": "2428c445be5542c9e787ad75a0c2fb4d263f746272cff81b116d08ada360ecea",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "NPSDK.StateObject",
+      "lines": 22,
+      "sha256": "faa51b806754d1f9366802b527c975ed4a27bdda1fc549c4ec2689969860dc3c",
+      "category": "managed-or-resource"
+    },
+    {
+      "type": "TcpipClient",
+      "lines": 176,
+      "sha256": "667dfc4426adadfa5ee3a472c8a6e804780bc66acedea82c3f10642413ceadb9",
+      "category": "managed-or-resource"
+    }
+  ]
+}
