@@ -26,6 +26,7 @@ namespace AlphaRap
             }
 
             bool loaded = false;
+            if (SystemS != null && !SystemS.ConfirmRecipeChange()) return false;
             string oldRecipeName = SysPara.RecipeName;
             try
             {

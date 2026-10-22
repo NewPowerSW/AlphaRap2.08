@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace AlphaRap.FlowProgramming
 {
@@ -67,7 +67,7 @@ namespace AlphaRap.FlowProgramming
             { "ok", new[] { "确定", "OK", "Aceptar" } },
             { "cancel", new[] { "取消", "Cancel", "Cancelar" } },
             { "end", new[] { "结束", "End", "Fin" } },
-            { "hint", new[] { "编辑模式下拖动节点，双击配置。原回调节点须完成配置后才能执行。资源参数先在原页面保存。", "Drag nodes in edit mode; double-click to configure. Configure legacy nodes before execution. Save resource settings on their original pages first.", "Arrastre nodos en edición; haga doble clic para configurar. Configure los nodos heredados antes de ejecutar. Guarde primero los recursos en sus páginas originales." } },
+            { "hint", new[] { "编辑模式下拖动、双击节点。保存并退出编辑后，使用主界面初始化 / 启动；运行模式取机器 Simulation 设置。", "Drag and double-click nodes in edit mode. Save and exit editing, then use the main Initialize / Start buttons. Execution uses the machine Simulation setting.", "Arrastre y configure los nodos en edición. Guarde y salga de edición; use Inicializar / Iniciar en la pantalla principal. Se usa Simulation de la máquina." } },
             { "busy", new[] { "流程正在运行或停止，请等待完成。", "The flow is running or stopping. Wait for completion.", "El flujo se está ejecutando o deteniendo. Espere a que termine." } },
             { "permission", new[] { "当前为只读查看，编辑流程需要维护员或管理员权限，且需启用流程页面权限。", "Read-only view. Editing requires Maintenance or Administrator access and flow page permission.", "Vista de solo lectura. La edición requiere permisos de mantenimiento o administrador y acceso a la página de flujo." } },
             { "error", new[] { "操作失败：{0}", "Operation failed: {0}", "Error en la operación: {0}" } },

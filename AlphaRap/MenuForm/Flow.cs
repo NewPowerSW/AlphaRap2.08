@@ -43,8 +43,6 @@ namespace AlphaRap
             save.Click += (sender, args) => Execute(() => { FlowPrograms.Save(); status.Text = string.Format(FlowText.T("saved"), FlowPrograms.FilePath); });
             reload.Click += (sender, args) => Execute(() => { if (MessageBox.Show(FlowText.T("discard"), FlowText.T("title"), MessageBoxButtons.OKCancel) == DialogResult.OK) { FlowPrograms.Reload(); AddFlowChart(); RefreshSelection(); } });
             validate.Click += (sender, args) => Execute(() => { Current().Validate(null); status.Text = FlowText.T("valid"); });
-            test.Click += (sender, args) => Execute(() => RunEntry(false));
-            initialize.Click += (sender, args) => Execute(() => RunEntry(true));
             stop.Click += (sender, args) => { if (tabControl1.SelectedTab != null) Current().Runtime.Stop(); };
             pause.Click += (sender, args) => { if (tabControl1.SelectedTab != null) Current().TogglePause(); };
             schema.Click += (sender, args) => Execute(() => { FlowPrograms.RequireIdle(); using (FlowSchemaForm dialog = new FlowSchemaForm(MiddleLayer.DataF)) dialog.ShowDialog(this); });
@@ -176,23 +174,14 @@ namespace AlphaRap
             FlowPrograms.DeleteModule(module);
             AddFlowChart(); RefreshSelection();
         }
-        /// <summary>Run the active draft entry with the visible simulation setting.</summary>
-        private void RunEntry(bool initializing)
-        {
-            FlowPrograms.RequireIdle();
-            string entry = initializing ? Current().Program.InitialEntry : Current().Program.AutoEntry;
-            if (string.IsNullOrEmpty(entry)) throw new InvalidOperationException("Select an entry node first.");
-            FlowPrograms.BeginBatch(); Current().Start(entry, simulation.Checked, initializing);
-            filling = true; edit.Checked = false; filling = false;
-        }
         /// <summary>Refresh availability and completion errors without rebinding editable rows.</summary>
         private void RefreshRuntime(object sender, EventArgs args)
         {
             bool busy = FlowPrograms.AnyRunning;
             bool canEdit = FlowPrograms.CanEdit;
             bool hasModule = tabControl1.SelectedTab != null;
-            foreach (Control control in new Control[] { addModule, save, reload, schema, simulation }) control.Enabled = !busy && canEdit;
-            foreach (Control control in new Control[] { deleteModule, edit, modeValue, initialValue, autoValue, selectedValue, add, delete, validate, test, initialize }) control.Enabled = !busy && canEdit && hasModule;
+            foreach (Control control in new Control[] { addModule, save, reload, schema }) control.Enabled = !busy && canEdit;
+            foreach (Control control in new Control[] { deleteModule, edit, modeValue, initialValue, autoValue, selectedValue, add, delete, validate }) control.Enabled = !busy && canEdit && hasModule;
             if (!canEdit)
             {
                 foreach (FlowModuleEditor module in FlowPrograms.Modules.Where(module => module.IsEditing)) module.SetEditing(false);

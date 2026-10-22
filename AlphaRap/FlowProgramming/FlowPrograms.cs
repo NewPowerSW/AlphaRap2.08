@@ -178,6 +178,24 @@ namespace AlphaRap.FlowProgramming
             if (references.Count > 0) throw new InvalidOperationException(string.Format(FlowText.T("nodeReferenced"), string.Join(Environment.NewLine, references)));
         }
 
+        /// <summary>常量删改前检查所有已载入工程的输入和出口条件，保留仍被引用的业务键与类型。</summary>
+        public static void RequireParameterUnused(string reference)
+        {
+            Install();
+            if (loadError != null) throw new InvalidDataException("Restore the flow project before changing parameter identities.", loadError);
+            List<string> users = new List<string>();
+            foreach (FlowProgram module in project.Modules)
+            {
+                foreach (FlowStep step in module.Steps)
+                {
+                    IEnumerable<FlowCondition> conditions = step.Conditions.Concat(step.Branches.SelectMany(branch => branch.Conditions));
+                    IEnumerable<FlowInput> inputs = step.Inputs.Concat(conditions.SelectMany(condition => new[] { condition.Left, condition.Right }));
+                    if (inputs.Any(input => input.Source == "Parameter" && input.Reference == reference)) users.Add(module.ModuleId + " / " + step.Caption);
+                }
+            }
+            if (users.Count > 0) throw new InvalidOperationException(string.Format(Configuration.ConstantText.T("referenced"), string.Join(Environment.NewLine, users)));
+        }
+
         /// <summary>检查生产入口，显式阻止旧回调与配置流程混合控制同一设备。</summary>
         public static bool CanStartMachine(bool initialize)
         {

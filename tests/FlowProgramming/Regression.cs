@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AlphaRap;
 using AlphaRap.FlowProgramming;
+using AlphaRap.Configuration;
 using AlphaRapLibrary;
 using NPSDK;
 using NPSDK.Motion;
@@ -61,6 +62,7 @@ internal static class Cases
     private static FlowStep model;
     private static FlowStep measured;
     private static FlowStep save;
+    private static SystemSetting constantForm;
 
     /// <summary>Run offline business, persistence, isolation and UI regression scenarios.</summary>
     public static int Run(string[] args)
@@ -115,6 +117,12 @@ internal static class Cases
         Test("node deletion rejects input and CASE output consumers and clears links", NodeDeletion);
         Test("module deletion checks modeled and hidden nested live FlowChat nodes", ModuleDeletionGuards);
         Test("empty inherited module deletion persists and cannot restore legacy callbacks", ModuleDeletionPersistence);
+        Test("existing system flags migrate to persistent Setting constants", ConstantExamples);
+        Test("constant CRUD uses saved typed snapshots and stable keys", ConstantCrud);
+        Test("ProductManager recipe switching changes Recipe constants and preserves Setting", ConstantRecipes);
+        Test("referenced constants cannot be renamed deleted or retyped", ConstantReferences);
+        Test("constant validation and failed writes preserve committed values", ConstantFailures);
+        Test("constant table and editor follow three languages without losing drafts", ConstantLanguages);
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
         Console.WriteLine("RESULT: " + (count - failures) + "/" + count + " passed");
         return failures == 0 ? 0 : 1;
@@ -751,6 +759,119 @@ internal static class Cases
         }
     }
 
+    /// <summary>Migrate the actual two historical fields and create all eight Setting examples once.</summary>
+    private static void ConstantExamples()
+    {
+        ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory; Directory.CreateDirectory(ModuleManager.SettingDataDirectory);
+        DataSet old = new DataSet(); DataTable flags = old.Tables.Add("PSet"); flags.Columns.Add("DisScann", typeof(bool)); flags.Columns.Add("UseTryRun", typeof(bool)); flags.Rows.Add(true, false);
+        old.WriteXml(Path.Combine(ModuleManager.SettingDataDirectory, "SysSetting.xml"));
+        constantForm = new SystemSetting(); constantForm.ModuleInitialize(constantForm.Text); SetHost("SystemS", constantForm); RegisterForm(constantForm);
+        Assert(constantForm.Constants.Table("Setting").Select("Key <> ''").Length == 8, "The existing switches were not added as eight Setting constants.");
+        Assert((bool)FlowResources.Capture().Parameters["Constants/Setting/DisScann"], "Existing scanner setting was overwritten.");
+        Assert(!(bool)FlowResources.Capture().Parameters["Constants/Setting/UseTryRun"], "Existing dry-run setting was overwritten.");
+        constantForm.Constants.Put("Setting", "UseTryRun", new ConstantValue { Key = "UseTryRun", Type = "Boolean", Value = "True" }); constantForm.Constants.Save("Setting");
+        Assert((bool)constantForm.GetSettingValue("PSet", "UseTryRun"), "Historical PSet binding is not preserved.");
+    }
+
+    /// <summary>Read only saved values and keep references stable when rows are edited, sorted or deleted.</summary>
+    private static void ConstantCrud()
+    {
+        ConstantStore store = constantForm.Constants;
+        store.Put("Setting", null, new ConstantValue { Key = "MaxRetries", Type = "Integer", Value = "3", Description = "Retry count" }); store.Save("Setting");
+        store.Put("Setting", "MaxRetries", new ConstantValue { Key = "MaxRetries", Type = "Integer", Value = "5", Description = "Retry count" });
+        Assert((long)FlowResources.Capture().Parameters["Constants/Setting/MaxRetries"] == 3L, "Unsaved constant leaked into the running snapshot.");
+        store.Table("Setting").DefaultView.Sort = "Key DESC"; store.Save("Setting");
+        Assert((long)FlowResources.Capture().Parameters["Constants/Setting/MaxRetries"] == 5L, "Sorting changed the constant reference.");
+        store.Put("Setting", null, new ConstantValue { Key = "Temporary", Type = "Text", Value = "test" }); store.Save("Setting");
+        store.Delete("Setting", "Temporary");
+        Assert(FlowResources.Capture().Parameters.ContainsKey("Constants/Setting/Temporary"), "A draft deletion changed the production snapshot.");
+        store.Save("Setting");
+        Assert(!FlowResources.Capture().Parameters.ContainsKey("Constants/Setting/Temporary"), "Saved deletion was not published.");
+        store.Delete("Setting", "Dis3D"); store.Save("Setting");
+        using (SystemSetting reloaded = new SystemSetting())
+        {
+            try { reloaded.ModuleInitialize(reloaded.Text); Assert(ConstantStore.Find(reloaded.Constants.Table("Setting"), "Dis3D") == null, "Deleted examples reappeared on restart."); }
+            finally { ModuleManager.ModuleList.Remove(reloaded); }
+        }
+        store.Put("Setting", null, new ConstantValue { Key = "Dis3D", Type = "Boolean", Value = "False" }); store.Save("Setting");
+    }
+
+    /// <summary>Use the real recipe loading entry and prove a missing Recipe key never reuses the previous model's value.</summary>
+    private static void ConstantRecipes()
+    {
+        ConstantStore store = constantForm.Constants;
+        string first = Path.Combine(SysPara.RecipeDataDirectory, "Constant-A.xml"), second = Path.Combine(SysPara.RecipeDataDirectory, "Constant-B.xml");
+        store.Put("Recipe", null, new ConstantValue { Key = "Limit", Type = "Number", Value = "1.5" });
+        store.Put("Recipe", null, new ConstantValue { Key = "OnlyA", Type = "Text", Value = "A" }); constantForm.WriteRecipeData(first);
+        store.Table("Recipe").Clear(); store.Put("Recipe", null, new ConstantValue { Key = "Limit", Type = "Number", Value = "9.5" }); constantForm.WriteRecipeData(second);
+        Assert((bool)host.GetMethod("OpenRecipe", BindingFlags.Static | BindingFlags.Public).Invoke(null, new object[] { first }), "Recipe A did not load.");
+        Assert((double)FlowResources.Capture().Parameters["Constants/Recipe/Limit"] == 1.5 && (long)FlowResources.Capture().Parameters["Constants/Setting/MaxRetries"] == 5L, "Recipe load mixed the two scopes.");
+        Assert((bool)host.GetMethod("OpenRecipe", BindingFlags.Static | BindingFlags.Public).Invoke(null, new object[] { second }), "Recipe B did not load.");
+        FlowResources loaded = FlowResources.Capture();
+        Assert((double)loaded.Parameters["Constants/Recipe/Limit"] == 9.5 && !loaded.Parameters.ContainsKey("Constants/Recipe/OnlyA"), "Recipe B retained Recipe A constants.");
+        store.Put("Recipe", "Limit", new ConstantValue { Key = "Limit", Type = "Number", Value = "7.25" }); store.Save("Recipe");
+        constantForm.ReadRecipeData(SysPara.FilePath);
+        Assert((double)FlowResources.Capture().Parameters["Constants/Recipe/Limit"] == 7.25, "Recipe-table save did not reload.");
+        Assert(recipe.RecipeData.Tables["ProductSetting"].Rows.Count > 0, "Saving constants damaged ProductManager data.");
+    }
+
+    /// <summary>Protect parameters referenced by any node input or CASE condition.</summary>
+    private static void ConstantReferences()
+    {
+        ConstantStore store = constantForm.Constants;
+        using (Flow_BaseForm form = FlowPrograms.AddModule("Constant consumer"))
+        {
+            FlowModuleEditor module = FlowPrograms.Attach(form); FlowStep node = module.AddNode();
+            node.Inputs[0].Source = "Parameter"; node.Inputs[0].Reference = "Constants/Setting/MaxRetries";
+            bool rejected = false; try { store.Delete("Setting", "MaxRetries"); } catch (InvalidOperationException) { rejected = true; } Assert(rejected, "A referenced constant was deleted.");
+            rejected = false; try { store.Put("Setting", "MaxRetries", new ConstantValue { Key = "Renamed", Type = "Integer", Value = "1" }); } catch (InvalidOperationException) { rejected = true; } Assert(rejected, "A referenced constant was renamed.");
+            node.Inputs[0].Source = "Constant";
+            node.Branches.Add(new FlowBranch { Code = "CASE3", Conditions = new List<FlowCondition> { new FlowCondition { Left = new FlowInput { Source = "Parameter", Reference = "Constants/Setting/MaxRetries" }, Right = new FlowInput { Reference = "1" } } } });
+            rejected = false; try { store.Put("Setting", "MaxRetries", new ConstantValue { Key = "MaxRetries", Type = "Text", Value = "1" }); } catch (InvalidOperationException) { rejected = true; } Assert(rejected, "A CASE reference did not protect the type.");
+            module.Delete(node.Id); FlowPrograms.DeleteModule(module);
+        }
+    }
+
+    /// <summary>Reject invalid types and preserve the last committed snapshot if atomic file replacement fails.</summary>
+    private static void ConstantFailures()
+    {
+        ConstantStore store = constantForm.Constants;
+        foreach (string invalid in new[] { "NaN", "Infinity", "1,25" })
+        {
+            bool rejected = false; try { store.Put("Setting", null, new ConstantValue { Key = "Invalid", Type = "Number", Value = invalid }); } catch (InvalidOperationException) { rejected = true; } Assert(rejected, "Invalid number was accepted: " + invalid);
+        }
+        store.Put("Setting", "MaxRetries", new ConstantValue { Key = "MaxRetries", Type = "Integer", Value = "8" });
+        string previous = ModuleManager.SettingDataDirectory;
+        ModuleManager.SettingDataDirectory = Path.Combine(root, "BlockedSettings"); Directory.CreateDirectory(Path.Combine(ModuleManager.SettingDataDirectory, "SysSetting.xml"));
+        bool failed = false;
+        try { store.Save("Setting"); } catch (IOException) { failed = true; } finally { ModuleManager.SettingDataDirectory = previous; }
+        Assert(failed && (long)FlowResources.Capture().Parameters["Constants/Setting/MaxRetries"] == 5L, "Failed save published a draft value.");
+        constantForm.SettingData.RejectChanges();
+        bool denied = false; PermissionType role = SysPara.UserPermission; SysPara.UserPermission = PermissionType.Operator;
+        try { store.Put("Setting", null, new ConstantValue { Key = "Unauthorized", Type = "Text", Value = "x" }); } catch (InvalidOperationException) { denied = true; } finally { SysPara.UserPermission = role; }
+        Assert(denied, "Operator edited constants through a service entry.");
+    }
+
+    /// <summary>Render all three language versions and retain text, scope and typed selections during switching.</summary>
+    private static void ConstantLanguages()
+    {
+        constantForm.Show(); Application.DoEvents();
+        foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+        {
+            SwitchLanguage(language); Application.DoEvents();
+            using (Bitmap bitmap = new Bitmap(constantForm.Width,constantForm.Height)) { constantForm.DrawToBitmap(bitmap,new Rectangle(Point.Empty,constantForm.Size)); bitmap.Save(Path.Combine(root,"constants-"+language+".png")); }
+        }
+        using (ConstantEditForm dialog = new ConstantEditForm(new ConstantValue { Key = "Pending", Type = "Number", Value = "1.25" }, value => { }))
+        {
+            dialog.Show(); Application.DoEvents(); TextBox value = (TextBox)dialog.Controls.Find("constantValueValue",true)[0]; value.Text = "pending value";
+            ComboBox type = (ComboBox)dialog.Controls.Find("constantTypeValue",true)[0];
+            SwitchLanguage(LanguageType.Chinese); SwitchLanguage(LanguageType.English);
+            Assert(value.Text == "pending value" && Convert.ToString(type.SelectedItem) == "Number" && dialog.Controls.Find("constantKeyValue",true)[0].Text == "Pending", "Language switch overwrote the constant draft.");
+            dialog.Close();
+        }
+        constantForm.Hide(); SwitchLanguage(LanguageType.Chinese);
+    }
+
     /// <summary>Verify module hosting, right-click targeting and removal of empty modules from the actual flow page.</summary>
     private static void FlowPage()
     {
@@ -758,6 +879,7 @@ internal static class Cases
         using (Flow page = new Flow())
         {
             page.Show(); Application.DoEvents();
+            Assert(page.Controls.Find("initialize",true).Length == 0 && page.Controls.Find("test",true).Length == 0 && page.Controls.Find("simulation",true).Length == 0, "The flow page still has separate initialization/start or simulation controls.");
             TabControl tabs = (TabControl)page.Controls.Find("tabControl1", true)[0];
             Assert(tabs.TabPages.Cast<TabPage>().Any(tab => tab.Text == "FutureStation") && tabs.TabPages.Cast<TabPage>().Any(tab => tab.Text == "Configured module"), "Generic module hosting failed.");
             Flow_Chart visible = (Flow_Chart)station.Controls.Find(model.ControlName, true)[0];

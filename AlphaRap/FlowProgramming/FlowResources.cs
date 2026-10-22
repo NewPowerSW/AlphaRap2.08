@@ -61,6 +61,9 @@ namespace AlphaRap.FlowProgramming
             {
                 catalog.AddParameters(module.Name, "Recipe", module.RecipeData);
                 catalog.AddParameters(module.Name, "Machine", module.SettingData);
+                SystemSetting constants = module as SystemSetting;
+                if (constants != null)
+                    foreach (string scope in new[] { "Setting", "Recipe" }) catalog.AddConstants(constants, scope);
             }
             foreach (KeyValuePair<string, AbstractDevice> device in DeviceControl.GetFlowDevices())
                 catalog.Add("device/" + device.Key, device.Value.DeviceName + " · " + device.Value.GetType().Name, "device", device.Value);
@@ -146,7 +149,20 @@ namespace AlphaRap.FlowProgramming
         private void AddParameters(string module, string scope, DataSet data)
         {
             foreach (DataTable table in data.Tables)
+            {
+                if (table.TableName == Configuration.ConstantStore.TableName) continue;
                 for (int rowIndex = 0; rowIndex < table.Rows.Count; rowIndex++) AddParameterRow(module, scope, table, rowIndex);
+            }
+        }
+
+        /// <summary>常量绑定按作用域和键生成稳定引用，排序、删除其他行和切换配方不改变引用。</summary>
+        private void AddConstants(SystemSetting form, string scope)
+        {
+            foreach (KeyValuePair<string, object> item in form.Constants.Committed(scope))
+            {
+                Parameters.Add(item.Key, item.Value);
+                ParameterChoices.Add(new FlowChoice { Id = item.Key, Label = item.Key + " · " + item.Value.GetType().Name });
+            }
         }
 
         /// <summary>添加一行参数；空值保留空值语义，不替换为零。</summary>

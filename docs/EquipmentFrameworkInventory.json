@@ -8,12 +8,12 @@
     "公开方法包含底层入口和事件回调，不等于应用工程师可直接选择的动作清单。"
   ],
   "summary": {
-    "explicit_compile_files": 161,
-    "forms": 33,
+    "explicit_compile_files": 165,
+    "forms": 34,
     "flow_modules": 3,
     "flow_nodes": 123,
     "device_types": 5,
-    "declared_tables": 30,
+    "declared_tables": 28,
     "resource_types": {
       "DataSave.TypeCollection1": 6,
       "NPSDK.Motion.NP_Cylinder": 4,
@@ -29,6 +29,14 @@
     }
   },
   "forms": [
+    {
+      "class": "ConstantEditForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/Configuration/ConstantEditForm.cs",
+        "line": 6
+      }
+    },
     {
       "class": "FlowLanguageForm",
       "base": "Form",
@@ -234,7 +242,7 @@
       "base": "ModuleBaseForm",
       "source": {
         "file": "AlphaRap/MenuForm/SystemSetting.cs",
-        "line": 8
+        "line": 11
       }
     },
     {
@@ -4091,39 +4099,6 @@
       "source": {
         "file": "AlphaRap/MenuForm/ProductManagerForm.Designer.cs",
         "line": 103
-      }
-    },
-    {
-      "scope": "SettingData",
-      "variable": "dataTable1",
-      "name": "\"MSet\"",
-      "columns": [],
-      "source": {
-        "file": "AlphaRap/MenuForm/SystemSetting.Designer.cs",
-        "line": 62
-      }
-    },
-    {
-      "scope": "SettingData",
-      "variable": "dataTable2",
-      "name": "\"PSet\"",
-      "columns": [
-        {
-          "variable": "dataColumn1",
-          "name": "\"DisScann\"",
-          "type": "typeof(bool)",
-          "default_expression": null
-        },
-        {
-          "variable": "dataColumn2",
-          "name": "\"UseTryRun\"",
-          "type": "typeof(bool)",
-          "default_expression": null
-        }
-      ],
-      "source": {
-        "file": "AlphaRap/MenuForm/SystemSetting.Designer.cs",
-        "line": 62
       }
     },
     {

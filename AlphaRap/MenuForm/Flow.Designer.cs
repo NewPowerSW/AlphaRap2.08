@@ -12,7 +12,6 @@ namespace AlphaRap
         private FlowLayoutPanel toolbar;
         private FlowLayoutPanel entries;
         private CheckBox edit;
-        private CheckBox simulation;
         private ComboBox modeValue;
         private ComboBox initialValue;
         private ComboBox autoValue;
@@ -29,8 +28,6 @@ namespace AlphaRap
         private Button save;
         private Button reload;
         private Button validate;
-        private Button initialize;
-        private Button test;
         private Button pause;
         private Button stop;
         private Button schema;
@@ -53,8 +50,6 @@ namespace AlphaRap
             entries.Name = "entries";
             edit = new CheckBox();
             edit.Name = "edit";
-            simulation = new CheckBox();
-            simulation.Name = "simulation";
             modeValue = new ComboBox();
             modeValue.Name = "modeValue";
             initialValue = new ComboBox();
@@ -96,10 +91,6 @@ namespace AlphaRap
             reload.Name = "reload";
             validate = new Button();
             validate.Name = "validate";
-            initialize = new Button();
-            initialize.Name = "initialize";
-            test = new Button();
-            test.Name = "test";
             pause = new Button();
             pause.Name = "pause";
             stop = new Button();
@@ -117,14 +108,9 @@ namespace AlphaRap
             edit.Tag = "edit";
             edit.Text = "编辑流程";
             edit.AutoSize = true;
-            simulation.Tag = "simulation";
-            simulation.Text = "模拟执行（不访问硬件）";
-            simulation.Checked = true;
-            simulation.AutoSize = true;
             toolbar.Controls.Add(addModule);
             toolbar.Controls.Add(deleteModule);
             toolbar.Controls.Add(edit);
-            toolbar.Controls.Add(simulation);
             add.Tag = "add";
             add.Text = "添加节点";
             add.AutoSize = true;
@@ -145,14 +131,6 @@ namespace AlphaRap
             validate.Text = "校验";
             validate.AutoSize = true;
             toolbar.Controls.Add(validate);
-            initialize.Tag = "initialize";
-            initialize.Text = "运行初始化入口";
-            initialize.AutoSize = true;
-            toolbar.Controls.Add(initialize);
-            test.Tag = "test";
-            test.Text = "运行自动入口";
-            test.AutoSize = true;
-            toolbar.Controls.Add(test);
             pause.Tag = "pause";
             pause.Text = "边界暂停 / 继续";
             pause.AutoSize = true;
@@ -209,7 +187,7 @@ namespace AlphaRap
             tabControl1.Font = new Font("Microsoft YaHei", 10F);
             hint.Name = "flowHint";
             hint.Tag = "hint";
-            hint.Text = "编辑模式下拖动节点，双击配置。";
+            hint.Text = "编辑模式下拖动、双击节点。保存并退出编辑后，使用主界面初始化 / 启动；运行模式取机器 Simulation 设置。";
             hint.Dock = DockStyle.Bottom;
             hint.Height = 40;
             status.Name = "flowStatus_dyn";

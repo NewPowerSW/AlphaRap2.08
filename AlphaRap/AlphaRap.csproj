@@ -955,6 +955,10 @@
     </Compile>
     <Compile Include="Core\MiddleLayer.cs" />
     <Compile Include="FlowProgramming\FlowActionExecution.cs" />
+    <Compile Include="Configuration\ConstantStore.cs" />
+    <Compile Include="Configuration\ConstantText.cs" />
+    <Compile Include="Configuration\ConstantEditForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="Configuration\ConstantEditForm.Designer.cs"><DependentUpon>ConstantEditForm.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowBranchEditor.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="FlowProgramming\FlowBranchEditor.Designer.cs"><DependentUpon>FlowBranchEditor.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowActions.cs" />

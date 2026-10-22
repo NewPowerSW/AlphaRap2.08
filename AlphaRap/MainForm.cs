@@ -1495,6 +1495,8 @@ int nheightEllipse
         }
         public void SaveData()
         {
+            try { if (MiddleLayer.SystemS != null) MiddleLayer.SystemS.ValidateConstants(); }
+            catch (Exception error) { MessageBox.Show(error.Message, Configuration.ConstantText.T("title")); return; }
             if (FlowProgramming.FlowPrograms.AnyRunning)
             {
                 MessageBox.Show(FlowProgramming.FlowText.T("busy"), FlowProgramming.FlowText.T("title"));
