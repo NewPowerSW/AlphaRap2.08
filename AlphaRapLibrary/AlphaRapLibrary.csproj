@@ -54,7 +54,7 @@
       <HintPath>..\AlphaRap\bin\x64\Debug\Epson.dll</HintPath>
     </Reference>
     <Reference Include="NPSDK">
-      <HintPath>..\AlphaRap\bin\x64\Debug\NPSDK.dll</HintPath>
+      <HintPath>..\SDK\lib\NPSDK.dll</HintPath>
     </Reference>
     <Reference Include="ScottPlot, Version=4.1.63.0, Culture=neutral, PublicKeyToken=86698dc10387c39e, processorArchitecture=MSIL">
       <HintPath>..\packages\ScottPlot.4.1.63\lib\net462\ScottPlot.dll</HintPath>
