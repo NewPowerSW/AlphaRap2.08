@@ -11,6 +11,7 @@ namespace AlphaRap
         /// <summary>确认运行中重新初始化的请求，按当前状态只发送一次初始化指令。</summary>
         public static void Initial()
         {
+            if (FlowDesignerRunning) { MessageBox.Show(DesignerText("Busy")); return; }
             if (Alarm.IsError) { ShowResetAlarmWarning(); return; }
             if (SysPara.SystemMode == RunMode.RUN)
             {
@@ -37,6 +38,7 @@ namespace AlphaRap
         /// <summary>视觉就绪且完成初始化时进入生产；暂停后的恢复保留输送线状态。</summary>
         public static void StartRun()
         {
+            if (FlowDesignerRunning) { MessageBox.Show(DesignerText("Busy")); return; }
             string visionError;
             if (VPF != null && !VPF.CanStartProduction(out visionError))
             {
@@ -75,6 +77,7 @@ namespace AlphaRap
         /// <summary>暂停自动或未完成的初始化流程，取消手动动作并记录输送线状态。</summary>
         public static void PauseRun()
         {
+            if (FlowDesignerRunning) flowDesigner.RequestPause(true);
             bool pauseConveyor = SysPara.SystemMode == RunMode.RUN
                 || (SysPara.SystemMode == RunMode.INITIAL && !SysPara.UpConveyorInitialOk);
             if (pauseConveyor) SysPara.SystemMode = RunMode.PAUSE;
@@ -86,6 +89,7 @@ namespace AlphaRap
         /// <summary>退出自动和初始化状态，停止流程、手动动作及所有电机。</summary>
         public static void StopRun()
         {
+            if (FlowDesignerRunning) flowDesigner.RequestStop();
             SysPara.SystemRun = false;
             SysPara.UpConveyorInitialOk = false;
             SysPara.SystemMode = RunMode.IDLE;

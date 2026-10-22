@@ -1,0 +1,9 @@
+SDK repository: https://github.com/JeffreyWub/NPSDK
+SDK branch: codex/flowchart-designer-20261022
+SDK commit: d8bd9ba66acfd9be462e5ce820e071d68c8d0647
+SDK commit URL: https://github.com/JeffreyWub/NPSDK/commit/d8bd9ba66acfd9be462e5ce820e071d68c8d0647
+Clean source baseline: 247b846
+Core patch: ../NPSDK.Core.FlowDesigner.patch
+NPSDK.dll SHA256: 238f6b538bae3b5424a13a7c3de3fae0f699d795f8166dbca0cdfb399fbfa255
+AlphaRap branch: codex/middlelayer-refactor-20261021
+Validation: 56 designer checks; 62 existing regressions; 1453 language keys x 3 with 0 errors; 8 IO polarity comparisons match existing DLL; no public API removed.

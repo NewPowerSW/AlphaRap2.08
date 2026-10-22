@@ -626,6 +626,19 @@ namespace AlphaRap
             return list;
         }
 
+        /// <summary>在 UI 线程取得现有设备对象快照，不创建、连接或重配设备。</summary>
+        public static List<KeyValuePair<string, AbstractDevice>> GetFlowDesignerDevices()
+        {
+            var result = new List<KeyValuePair<string, AbstractDevice>>();
+            foreach (var control in LiveInstances)
+            {
+                if (control == null || control.IsDisposed) continue;
+                foreach (var device in control._devices)
+                    if (device.Instance != null) result.Add(new KeyValuePair<string, AbstractDevice>(control.XmlKey + "/" + device.Name, device.Instance));
+            }
+            return result;
+        }
+
         #endregion
 
         #region 参数持久化（XML，跟随 MainForm 的【保存】按钮）

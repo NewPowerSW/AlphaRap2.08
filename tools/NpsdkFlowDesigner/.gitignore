@@ -1,0 +1,6 @@
+bin/
+obj/
+ProductionData/
+DemoAlarm.xml
+FlowChart.xml
+FlowChart.xml.bak

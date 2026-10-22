@@ -29,16 +29,23 @@
         private void InitializeComponent()
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.btnFlowDesigner = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // tabControl1
             // 
             this.tabControl1.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tabControl1.Location = new System.Drawing.Point(0, 13);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(0, 40);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(1280, 1330);
             this.tabControl1.TabIndex = 1;
+            this.btnFlowDesigner.Name = "btnFlowDesigner";
+            this.btnFlowDesigner.Text = "Flow_Chart 设计器";
+            this.btnFlowDesigner.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnFlowDesigner.Height = 40;
+            this.btnFlowDesigner.Click += new System.EventHandler(this.OpenDesigner);
             // 
             // Flow
             // 
@@ -49,6 +56,7 @@
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ClientSize = new System.Drawing.Size(1280, 920);
             this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.btnFlowDesigner);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Flow";
             this.Text = "Flow";
@@ -60,5 +68,6 @@
         #endregion
 
         private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.Button btnFlowDesigner;
     }
 }

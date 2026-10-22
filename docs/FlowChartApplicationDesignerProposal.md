@@ -1,6 +1,6 @@
 # 面向应用工程师的 FlowChart 设计器方案
 
-日期：2026-10-22。状态：架构提案；已交付独立的仿真运行器与工作台测试版，参见 [FlowWorkbench 使用说明](../tools/FlowWorkbench/README.md)。测试版尚未接管生产流程或更换现有 NPSDK.dll，以下高级能力仍按分阶段方案推进。
+日期：2026-10-22。当前实现以真实 NPSDK.Flow_Chart 为核心，参见 [NPSDK 设计器使用说明](../tools/NpsdkFlowDesigner/README.md)。此前独立 FlowWorkbench 原型保留用于历史对照。本文件中的并行、子流程和高级表达式等内容仍为提案，不能视为已实现。
 
 ## 判断
 

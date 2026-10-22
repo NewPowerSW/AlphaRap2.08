@@ -9,6 +9,16 @@ namespace AlphaRap
 {
     public partial class VPForm : ModuleBaseForm
 	{
+        /// <summary>取得已创建 VPP 的稳定身份和现有对象，供流程设计器选择。</summary>
+        public List<KeyValuePair<string, VpStation>> GetFlowDesignerStations()
+        {
+            var stations = new List<KeyValuePair<string, VpStation>>();
+            foreach (var camera in _config.Cameras)
+                foreach (var vpp in camera.Vpps)
+                    if (vpp.Station != null) stations.Add(new KeyValuePair<string, VpStation>(camera.StorageFolder + "/" + vpp.StorageFolder, vpp.Station));
+            return stations;
+        }
+
 		public VPForm()
         {
             InitializeComponent();

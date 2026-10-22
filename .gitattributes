@@ -3,6 +3,9 @@
 ###############################################################################
 * text=auto
 
+# 补丁上下文保留原始缩进和空行。
+SDK/NPSDK.Core.FlowDesigner.patch whitespace=-blank-at-eol,-space-before-tab
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
