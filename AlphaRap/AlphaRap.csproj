@@ -955,6 +955,8 @@
     </Compile>
     <Compile Include="Core\MiddleLayer.cs" />
     <Compile Include="FlowProgramming\FlowActionExecution.cs" />
+    <Compile Include="FlowProgramming\FlowBranchEditor.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowBranchEditor.Designer.cs"><DependentUpon>FlowBranchEditor.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowActions.cs" />
     <Compile Include="FlowProgramming\FlowInputForm.cs"><SubType>Form</SubType></Compile>
     <Compile Include="FlowProgramming\FlowInputForm.Designer.cs"><DependentUpon>FlowInputForm.cs</DependentUpon></Compile>

@@ -113,6 +113,9 @@ namespace AlphaRap.FlowProgramming
         /// <summary>校验已配置目标和输入字段，未迁移旧回调不能执行。</summary>
         public void Validate(FlowStep step)
         {
+            if (FlowProgramFile.RequiresBranchReview(step)) throw new InvalidOperationException(FlowText.T("reviewBranches") + " " + step.Caption);
+            List<string> branchErrors = FlowProgramFile.ValidateBranches(step);
+            if (branchErrors.Count > 0) throw new InvalidOperationException(string.Join(Environment.NewLine, branchErrors));
             FlowAction action = Actions.SingleOrDefault(item => item.Id == step.Action);
             if (action == null) throw new InvalidOperationException("Unconfigured action: " + step.Caption);
             FlowResource resource = FindResource(step.Target);
@@ -120,7 +123,7 @@ namespace AlphaRap.FlowProgramming
             foreach (string name in InputNames(action))
                 if (step.Inputs.Count(item => item.Name == name) != 1) throw new InvalidOperationException("Missing input: " + step.Caption + "/" + name);
             foreach (FlowInput input in step.Inputs) ValidateInput(input, false, action, resource);
-            foreach (FlowCondition condition in step.Conditions)
+            foreach (FlowCondition condition in FlowProgramFile.BranchesOf(step).Where(branch => !branch.Unconditional).SelectMany(branch => branch.Conditions))
             {
                 ValidateInput(condition.Left, true, action, resource);
                 ValidateInput(condition.Right, true, action, resource);

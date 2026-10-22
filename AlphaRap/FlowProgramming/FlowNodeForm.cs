@@ -13,6 +13,7 @@ namespace AlphaRap.FlowProgramming
         private readonly FlowStep original;
         private readonly FlowActions catalog;
         private bool filling;
+        private readonly List<FlowBranchEditor> branchEditors = new List<FlowBranchEditor>();
 
         /// <summary>Build the fixed controls without loading application data.</summary>
         public FlowNodeForm() { InitializeComponent(); }
@@ -26,27 +27,18 @@ namespace AlphaRap.FlowProgramming
             filling = true;
             captionValue.Text = step.Caption;
             timeoutValue.Value = Math.Max(timeoutValue.Minimum, Math.Min(timeoutValue.Maximum, step.TimeoutMs));
-            wait.Checked = step.WaitForCondition;
-            any.Checked = step.AnyCondition;
             SetSources(inputs, 1);
-            SetSources(conditions, 0);
-            SetSources(conditions, 4);
             categoryValue.DataSource = new[] { "flow", "io", "motion", "vision", "device", "data" }
                 .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
             categoryValue.DisplayMember = "Label"; categoryValue.ValueMember = "Id";
-            foreach (ComboBox combo in new[] { nextValue, otherwiseValue, failureValue }) FillDestinations(combo);
-            nextValue.SelectedValue = step.Next ?? "";
-            otherwiseValue.SelectedValue = step.Otherwise ?? "";
-            failureValue.SelectedValue = step.Failure ?? "";
             FillAlarms();
-            alarmValue.Text = step.AlarmCode ?? "";
+            alarmValue.Text = string.IsNullOrEmpty(step.AlarmCode) ? "2019" : step.AlarmCode;
             FlowAction action = catalog.Actions.SingleOrDefault(item => item.Id == step.Action);
             categoryValue.SelectedValue = action == null ? "flow" : action.Category;
             FillTargets(step.Target);
             FillActions(step.Action);
             FillInputs(step.Inputs);
-            foreach (FlowCondition condition in step.Conditions)
-                conditions.Rows.Add(condition.Left.Source, condition.Left.Reference, "…", condition.Operator, condition.Right.Source, condition.Right.Reference, "…");
+            foreach (FlowBranch branch in FlowProgramFile.BranchesOf(step)) AddBranchEditor(branch, step.TargetOf(branch.Code));
             filling = false;
             categoryValue.SelectedIndexChanged += CategoryChanged;
             targetValue.SelectedIndexChanged += TargetChanged;
@@ -54,12 +46,10 @@ namespace AlphaRap.FlowProgramming
             inputs.CellContentClick += InputPick;
             inputs.CellDoubleClick += InputPick;
             inputs.CellFormatting += FormatReference;
-            conditions.CellFormatting += FormatReference;
             inputs.CellBeginEdit += GuardReferenceEdit;
-            conditions.CellBeginEdit += GuardReferenceEdit;
-            conditions.CellContentClick += ConditionPick;
-            conditions.CellDoubleClick += ConditionPick;
-            conditions.DefaultValuesNeeded += (sender, args) => { args.Row.Cells[0].Value = "Result"; args.Row.Cells[3].Value = "=="; args.Row.Cells[4].Value = "Constant"; };
+            addCase.Click += AddCase;
+            branchPanel.Resize += (sender, args) => ResizeBranches();
+            ResizeBranches();
             ok.Click += SaveNode;
         }
 
@@ -72,12 +62,61 @@ namespace AlphaRap.FlowProgramming
             column.DisplayMember = "Label"; column.ValueMember = "Id";
         }
 
-        /// <summary>列出本模块全部连接终点，空值明确表示结束。</summary>
-        private void FillDestinations(ComboBox combo)
+        /// <summary>用同一设计器模板绑定默认 NEXT 和按需添加的 CASE。</summary>
+        private FlowBranchEditor AddBranchEditor(FlowBranch branch, string targetId)
         {
-            List<FlowChoice> choices = new List<FlowChoice> { new FlowChoice { Id = "", Label = FlowText.T("end") } };
-            choices.AddRange(module.Program.Steps.Where(step => step.Id != original.Id).Select(step => new FlowChoice { Id = step.Id, Label = step.Caption }));
-            combo.DisplayMember = "Label"; combo.ValueMember = "Id"; combo.DataSource = choices;
+            FlowBranchEditor editor = branch.Code == "NEXT" ? nextBranch : new FlowBranchEditor();
+            editor.Name = "branch_" + branch.Code + "_dyn";
+            DataGridView grid = editor.ConditionsGrid;
+            SetSources(grid, 0); SetSources(grid, 4);
+            grid.CellContentClick += ConditionPick; grid.CellDoubleClick += ConditionPick;
+            grid.CellFormatting += FormatReference; grid.CellBeginEdit += GuardReferenceEdit;
+            grid.DefaultValuesNeeded += (sender, args) => { args.Row.Cells[0].Value = "Result"; args.Row.Cells[3].Value = "=="; args.Row.Cells[4].Value = "Constant"; };
+            List<FlowChoice> targets = new List<FlowChoice> { new FlowChoice { Id = "", Label = FlowText.T("end") } };
+            targets.AddRange(module.Program.Steps.Where(step => step.Id != original.Id).Select(step => new FlowChoice { Id = step.Id, Label = step.Caption }));
+            editor.Bind(branch, targetId, targets);
+            editor.RemoveRequested += RemoveBranch;
+            branchEditors.Add(editor);
+            if (editor.Parent == null) branchPanel.Controls.Add(editor);
+            FlowLanguageForm.ApplyTexts(editor);
+            addCase.Enabled = branchEditors.Count < 4;
+            return editor;
+        }
+
+        /// <summary>每次只添加一个尚未使用的 CASE，默认节点始终只有 NEXT。</summary>
+        private void AddCase(object sender, EventArgs args)
+        {
+            string code = new[] { "CASE1", "CASE2", "CASE3" }.FirstOrDefault(value => branchEditors.All(editor => editor.Code != value));
+            if (code == null) return;
+            FlowAction action = actionValue.SelectedItem as FlowAction;
+            string field = action == null ? null : catalog.OutputNames(action, catalog.FindResource(Convert.ToString(targetValue.SelectedValue))).FirstOrDefault();
+            if (nextBranch.IsUnconditional) nextBranch.MakeConditional(field);
+            FlowBranchEditor added = AddBranchEditor(new FlowBranch { Code = code }, "");
+            added.MakeConditional(field);
+            ResizeBranches();
+            branchPanel.ScrollControlIntoView(added);
+        }
+
+        /// <summary>移除草稿中的 CASE，取消窗口仍保留原节点定义。</summary>
+        private void RemoveBranch(object sender, EventArgs args)
+        {
+            FlowBranchEditor editor = (FlowBranchEditor)sender;
+            if (editor.Code == "NEXT") return;
+            branchEditors.Remove(editor); branchPanel.Controls.Remove(editor); editor.Dispose();
+            addCase.Enabled = true;
+        }
+
+        /// <summary>动态出口沿用同一模板宽度，并按原生出口顺序显示。</summary>
+        private void ResizeBranches()
+        {
+            string[] codes = { "NEXT", "CASE1", "CASE2", "CASE3" };
+            List<FlowBranchEditor> ordered = branchEditors.OrderBy(editor => Array.IndexOf(codes, editor.Code)).ToList();
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                FlowBranchEditor editor = ordered[i];
+                editor.Width = Math.Max(editor.MinimumSize.Width, branchPanel.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 8);
+                branchPanel.Controls.SetChildIndex(editor, i);
+            }
         }
 
         /// <summary>报警条目来自与运行内核相同的目录和当前语言。</summary>
@@ -173,15 +212,17 @@ namespace AlphaRap.FlowProgramming
         /// <summary>通过相同选择器编辑条件左右值。</summary>
         private void ConditionPick(object sender, DataGridViewCellEventArgs args)
         {
-            if (args.RowIndex < 0 || conditions.Rows[args.RowIndex].IsNewRow) return;
-            if (args.ColumnIndex == 1 || args.ColumnIndex == 2) Pick(conditions.Rows[args.RowIndex], 0, 1, "");
-            if (args.ColumnIndex == 5 || args.ColumnIndex == 6) Pick(conditions.Rows[args.RowIndex], 4, 5, "");
+            DataGridView grid = (DataGridView)sender;
+            if (args.RowIndex < 0 || grid.Rows[args.RowIndex].IsNewRow) return;
+            if (args.ColumnIndex == 1 || args.ColumnIndex == 2) Pick(grid.Rows[args.RowIndex], 0, 1, "");
+            if (args.ColumnIndex == 5 || args.ColumnIndex == 6) Pick(grid.Rows[args.RowIndex], 4, 5, "");
         }
 
         /// <summary>提交单个来源引用，不要求工程师输入对象路径。</summary>
         private void Pick(DataGridViewRow row, int sourceColumn, int referenceColumn, string field)
         {
-            inputs.EndEdit(); conditions.EndEdit();
+            inputs.EndEdit();
+            foreach (FlowBranchEditor editor in branchEditors) editor.ConditionsGrid.EndEdit();
             string source = Convert.ToString(row.Cells[sourceColumn].Value);
             using (FlowSourceForm dialog = new FlowSourceForm(source, Convert.ToString(row.Cells[referenceColumn].Value), catalog,
                 actionValue.SelectedItem as FlowAction, catalog.FindResource(Convert.ToString(targetValue.SelectedValue)), field))
@@ -206,14 +247,15 @@ namespace AlphaRap.FlowProgramming
         private void GuardReferenceEdit(object sender, DataGridViewCellCancelEventArgs args)
         {
             DataGridView grid = (DataGridView)sender;
-            int sourceColumn = grid == inputs && args.ColumnIndex == 2 ? 1 : grid == conditions && args.ColumnIndex == 1 ? 0 : grid == conditions && args.ColumnIndex == 5 ? 4 : -1;
+            int sourceColumn = grid == inputs && args.ColumnIndex == 2 ? 1 : grid != inputs && args.ColumnIndex == 1 ? 0 : grid != inputs && args.ColumnIndex == 5 ? 4 : -1;
             if (sourceColumn >= 0 && Convert.ToString(grid.Rows[args.RowIndex].Cells[sourceColumn].Value) != "Constant") args.Cancel = true;
         }
 
         /// <summary>完成字段校验后一次更新原节点，失败保留编辑窗口。</summary>
         private void SaveNode(object sender, EventArgs args)
         {
-            inputs.EndEdit(); conditions.EndEdit();
+            inputs.EndEdit();
+            foreach (FlowBranchEditor editor in branchEditors) editor.ConditionsGrid.EndEdit();
             try
             {
                 FlowPrograms.RequireIdle();
@@ -225,13 +267,11 @@ namespace AlphaRap.FlowProgramming
                 candidate.Target = Convert.ToString(targetValue.SelectedValue);
                 candidate.TimeoutMs = (int)timeoutValue.Value;
                 candidate.AlarmCode = alarmValue.SelectedIndex >= 0 ? Convert.ToString(alarmValue.SelectedValue) : alarmValue.Text.Trim();
-                candidate.Next = Convert.ToString(nextValue.SelectedValue);
-                candidate.Otherwise = Convert.ToString(otherwiseValue.SelectedValue);
-                candidate.Failure = Convert.ToString(failureValue.SelectedValue);
-                candidate.WaitForCondition = wait.Checked; candidate.AnyCondition = any.Checked;
                 candidate.Inputs = inputs.Rows.Cast<DataGridViewRow>().Where(row => !row.IsNewRow).Select(row => ReadInput(row, 1, 2, Convert.ToString(row.Cells[0].Value))).ToList();
-                candidate.Conditions = conditions.Rows.Cast<DataGridViewRow>().Where(row => !row.IsNewRow).Select(row =>
-                    new FlowCondition { Left = ReadInput(row, 0, 1, ""), Operator = Convert.ToString(row.Cells[3].Value), Right = ReadInput(row, 4, 5, "") }).ToList();
+                candidate.Conditions.Clear(); candidate.WaitForCondition = false; candidate.AnyCondition = false;
+                candidate.Branches = branchEditors.Select(editor => editor.ReadBranch()).ToList();
+                foreach (string code in new[] { "NEXT", "CASE1", "CASE2", "CASE3" }) candidate.SetTarget(code, null);
+                foreach (FlowBranchEditor editor in branchEditors) candidate.SetTarget(editor.Code, editor.TargetId);
                 catalog.Validate(candidate);
                 int index = module.Program.Steps.IndexOf(original);
                 module.Program.Steps[index] = candidate;

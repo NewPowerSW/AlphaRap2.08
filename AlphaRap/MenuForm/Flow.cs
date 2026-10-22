@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using AlphaRap.FlowProgramming;
@@ -9,6 +10,8 @@ namespace AlphaRap
     public partial class Flow : Form
     {
         private bool filling;
+        private FlowModuleEditor contextModule;
+        private string contextNodeId;
         private readonly Dictionary<Flow_BaseForm, TabPage> pages = new Dictionary<Flow_BaseForm, TabPage>();
         /// <summary>Bind the engineering commands to all registered base-form instances.</summary>
         public Flow()
@@ -34,8 +37,11 @@ namespace AlphaRap
             });
             add.Click += (sender, args) => Execute(() => { Current().AddNode(); RefreshSelection(); });
             delete.Click += (sender, args) => Execute(DeleteSelected);
+            deleteModule.Click += (sender, args) => Execute(DeleteCurrentModule);
+            nodeMenu.Opening += OpenNodeMenu;
+            nodeDelete.Click += (sender, args) => Execute(() => DeleteNode(contextModule, contextNodeId));
             save.Click += (sender, args) => Execute(() => { FlowPrograms.Save(); status.Text = string.Format(FlowText.T("saved"), FlowPrograms.FilePath); });
-            reload.Click += (sender, args) => Execute(() => { if (MessageBox.Show(FlowText.T("discard"), FlowText.T("title"), MessageBoxButtons.OKCancel) == DialogResult.OK) { FlowPrograms.Reload(); RefreshSelection(); } });
+            reload.Click += (sender, args) => Execute(() => { if (MessageBox.Show(FlowText.T("discard"), FlowText.T("title"), MessageBoxButtons.OKCancel) == DialogResult.OK) { FlowPrograms.Reload(); AddFlowChart(); RefreshSelection(); } });
             validate.Click += (sender, args) => Execute(() => { Current().Validate(null); status.Text = FlowText.T("valid"); });
             test.Click += (sender, args) => Execute(() => RunEntry(false));
             initialize.Click += (sender, args) => Execute(() => RunEntry(true));
@@ -48,17 +54,43 @@ namespace AlphaRap
         public void AddFlowChart()
         {
             FlowPrograms.Install();
+            foreach (KeyValuePair<Flow_BaseForm, TabPage> item in pages.ToArray())
+            {
+                FlowModuleEditor editor = (FlowModuleEditor)item.Value.Tag;
+                if (!item.Key.IsDisposed && !editor.Program.Removed) continue;
+                item.Key.Hide();
+                item.Value.Controls.Remove(item.Key);
+                tabControl1.TabPages.Remove(item.Value);
+                item.Value.Dispose();
+                pages.Remove(item.Key);
+            }
             foreach (Flow_BaseForm form in Flow_Module.FlowChart_ModuleList.ToArray())
             {
                 if (form.IsDisposed || pages.ContainsKey(form)) continue;
                 FlowModuleEditor editor = FlowPrograms.Attach(form);
+                if (editor.Program.Removed) continue;
                 TabPage page = new TabPage(form.Name) { Name = "flowModule_" + pages.Count + "_dyn", Tag = editor, AutoScroll = true };
                 form.TopLevel = false; form.FormBorderStyle = FormBorderStyle.None; form.Dock = DockStyle.Fill; form.AutoScroll = true;
                 page.Controls.Add(form); tabControl1.TabPages.Add(page); pages.Add(form, page);
-                editor.Changed += (sender, args) => RefreshSelection();
+                editor.Changed -= ModuleChanged;
+                editor.Changed += ModuleChanged;
                 form.Show();
             }
+            foreach (Flow_BaseForm form in pages.Keys) BindNodeMenus(form);
         }
+
+        /// <summary>复用节点右键菜单，覆盖 Flow_Chart 内部按钮的鼠标表面。</summary>
+        private void BindNodeMenus(Control parent)
+        {
+            foreach (Control child in parent.Controls)
+            {
+                if (child is Flow_Chart || parent.ContextMenuStrip == nodeMenu) child.ContextMenuStrip = nodeMenu;
+                BindNodeMenus(child);
+            }
+        }
+
+        /// <summary>节点编辑完成后刷新列表及新节点的右键入口。</summary>
+        private void ModuleChanged(object sender, EventArgs args) { RefreshSelection(); }
         /// <summary>Resolve the active module controller.</summary>
         private FlowModuleEditor Current()
         {
@@ -68,7 +100,15 @@ namespace AlphaRap
         /// <summary>Refresh node and entry pickers while keeping business identifiers stable.</summary>
         private void RefreshSelection()
         {
-            if (tabControl1.SelectedTab == null) return;
+            if (tabControl1.SelectedTab == null)
+            {
+                filling = true;
+                foreach (ComboBox combo in new[] { modeValue, initialValue, autoValue, selectedValue }) combo.DataSource = null;
+                edit.Checked = false;
+                filling = false;
+                RefreshRuntime(null, EventArgs.Empty);
+                return;
+            }
             filling = true;
             FlowModuleEditor module = Current();
             modeValue.DisplayMember = "Label"; modeValue.ValueMember = "Id";
@@ -82,7 +122,9 @@ namespace AlphaRap
             initialValue.SelectedValue = module.Program.InitialEntry ?? ""; autoValue.SelectedValue = module.Program.AutoEntry ?? "";
             initialValue.AccessibleName = FlowText.T("initialEntry"); autoValue.AccessibleName = FlowText.T("autoEntry"); selectedValue.AccessibleName = FlowText.T("delete");
             edit.Checked = module.IsEditing;
+            BindNodeMenus(module.Form);
             filling = false;
+            RefreshRuntime(null, EventArgs.Empty);
         }
         /// <summary>Update the engineering draft; production uses only the saved definition.</summary>
         private void UpdateDefinition(object sender, EventArgs args)
@@ -100,10 +142,39 @@ namespace AlphaRap
         /// <summary>Delete the selected node and its connections after an explicit choice.</summary>
         private void DeleteSelected()
         {
-            string id = Convert.ToString(selectedValue.SelectedValue);
-            if (string.IsNullOrEmpty(id)) return;
+            DeleteNode(Current(), Convert.ToString(selectedValue.SelectedValue));
+        }
+
+        /// <summary>右键菜单仅使用打开菜单时命中的节点身份，不依赖旧的下拉框选择。</summary>
+        private void OpenNodeMenu(object sender, CancelEventArgs args)
+        {
+            contextModule = null; contextNodeId = null;
+            Control source = nodeMenu.SourceControl;
+            while (source != null && !(source is Flow_Chart)) source = source.Parent;
+            if (source == null) { args.Cancel = true; return; }
+            contextModule = FlowPrograms.Modules.FirstOrDefault(module => module.Form.Contains(source) && !module.Program.Removed);
+            if (contextModule != null) contextNodeId = contextModule.IdOf((Flow_Chart)source);
+            nodeDelete.Enabled = contextNodeId != null && FlowPrograms.CanEdit && !FlowPrograms.AnyRunning && SysPara.SystemMode == RunMode.IDLE && !Flow_Module.Module_GetRunningStatus;
+        }
+
+        /// <summary>确认后删除指定节点，统一清理入口和 NEXT / CASE 连接。</summary>
+        private void DeleteNode(FlowModuleEditor module, string id)
+        {
+            if (module == null || string.IsNullOrEmpty(id)) return;
+            FlowPrograms.RequireIdle();
+            FlowPrograms.ValidateNodeDeletion(module, id);
             if (MessageBox.Show(FlowText.T("remove"), FlowText.T("title"), MessageBoxButtons.OKCancel) != DialogResult.OK) return;
-            Current().Delete(id); RefreshSelection();
+            module.Delete(id); RefreshSelection();
+        }
+
+        /// <summary>先检查整个空模块再确认删除，重新加载可恢复未保存的删除。</summary>
+        private void DeleteCurrentModule()
+        {
+            FlowModuleEditor module = Current();
+            FlowPrograms.ValidateModuleDeletion(module);
+            if (MessageBox.Show(string.Format(FlowText.T("removeModule"), module.Form.Name), FlowText.T("title"), MessageBoxButtons.OKCancel) != DialogResult.OK) return;
+            FlowPrograms.DeleteModule(module);
+            AddFlowChart(); RefreshSelection();
         }
         /// <summary>Run the active draft entry with the visible simulation setting.</summary>
         private void RunEntry(bool initializing)
@@ -117,14 +188,28 @@ namespace AlphaRap
         /// <summary>Refresh availability and completion errors without rebinding editable rows.</summary>
         private void RefreshRuntime(object sender, EventArgs args)
         {
-            if (tabControl1.SelectedTab == null) return;
             bool busy = FlowPrograms.AnyRunning;
-            foreach (Control control in new Control[] { addModule, edit, modeValue, initialValue, autoValue, selectedValue, add, delete, save, reload, validate, test, initialize, schema, simulation }) control.Enabled = !busy;
-            pause.Enabled = Current().Runtime.IsRunning; stop.Enabled = Current().Runtime.IsRunning;
+            bool canEdit = FlowPrograms.CanEdit;
+            bool hasModule = tabControl1.SelectedTab != null;
+            foreach (Control control in new Control[] { addModule, save, reload, schema, simulation }) control.Enabled = !busy && canEdit;
+            foreach (Control control in new Control[] { deleteModule, edit, modeValue, initialValue, autoValue, selectedValue, add, delete, validate, test, initialize }) control.Enabled = !busy && canEdit && hasModule;
+            if (!canEdit)
+            {
+                foreach (FlowModuleEditor module in FlowPrograms.Modules.Where(module => module.IsEditing)) module.SetEditing(false);
+                filling = true; edit.Checked = false; filling = false;
+            }
+            if (!canEdit) status.Text = FlowText.T("permission");
+            pause.Enabled = hasModule && Current().Runtime.IsRunning; stop.Enabled = hasModule && Current().Runtime.IsRunning;
+            if (!hasModule) return;
             if (Current().Runtime.Error != null) status.Text = string.Format(FlowText.T("error"), Current().Runtime.Error);
         }
         /// <summary>Translate labels without changing names or selected data references.</summary>
-        private void ApplyLanguage(object sender, EventArgs args) { FlowLanguageForm.ApplyTexts(this); }
+        private void ApplyLanguage(object sender, EventArgs args)
+        {
+            FlowLanguageForm.ApplyTexts(this);
+            string[] words = FlowText.Defaults["delete"];
+            nodeDelete.Text = MiddleLayer.LangMsg("Flow", "nodeDelete", words[0], words[1], words[2]);
+        }
         /// <summary>Keep the draft available when an engineering operation fails.</summary>
         private void Execute(Action action)
         {

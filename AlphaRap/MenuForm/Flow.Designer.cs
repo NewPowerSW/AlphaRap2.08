@@ -22,6 +22,9 @@ namespace AlphaRap
         private Timer timer;
         private Button add;
         private Button addModule;
+        private Button deleteModule;
+        private ContextMenuStrip nodeMenu;
+        private ToolStripMenuItem nodeDelete;
         private Button delete;
         private Button save;
         private Button reload;
@@ -35,6 +38,7 @@ namespace AlphaRap
         protected override void Dispose(bool disposing)
         {
             if (disposing && timer != null) timer.Dispose();
+            if (disposing && nodeMenu != null) nodeMenu.Dispose();
             base.Dispose(disposing);
         }
         /// <summary>Build the fixed flow engineering toolbar and canvas host.</summary>
@@ -70,6 +74,18 @@ namespace AlphaRap
             addModule.Tag = "addModule";
             addModule.Text = "添加流程模块";
             addModule.AutoSize = true;
+            deleteModule = new Button();
+            deleteModule.Name = "deleteModule";
+            deleteModule.Tag = "deleteModule";
+            deleteModule.Text = "删除流程模块";
+            deleteModule.AutoSize = true;
+            nodeMenu = new ContextMenuStrip();
+            nodeMenu.Name = "nodeMenu";
+            nodeDelete = new ToolStripMenuItem();
+            nodeDelete.Name = "nodeDelete";
+            nodeDelete.Text = "删除节点";
+            nodeMenu.Items.Add(nodeDelete);
+            ContextMenuStrip = nodeMenu;
             add = new Button();
             add.Name = "add";
             delete = new Button();
@@ -106,6 +122,7 @@ namespace AlphaRap
             simulation.Checked = true;
             simulation.AutoSize = true;
             toolbar.Controls.Add(addModule);
+            toolbar.Controls.Add(deleteModule);
             toolbar.Controls.Add(edit);
             toolbar.Controls.Add(simulation);
             add.Tag = "add";

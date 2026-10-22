@@ -19,7 +19,9 @@ namespace AlphaRap.FlowProgramming
         public static readonly FlowResultHub Results = new FlowResultHub();
         public static bool AnyRunning { get { return modules.Values.Any(module => module.Runtime.IsRunning); } }
         public static bool AnyEditing { get { return modules.Values.Any(module => module.IsEditing); } }
-        public static bool HasPrograms { get { return modules.Values.Any(module => module.IsProgram); } }
+        public static bool HasPrograms { get { return modules.Values.Any(module => module.IsProgram || module.IsRemovedPublished); } }
+        public static bool IsInitialized { get { return HasPrograms && modules.Values.All(module => module.IsEnabled && module.Form.InitialStatus); } }
+        public static bool CanEdit { get { return SysPara.UserPermission == PermissionType.Administrator || SysPara.UserPermission == PermissionType.Maintenance; } }
         public static IEnumerable<FlowModuleEditor> Modules { get { return modules.Values.ToArray(); } }
 
         public static string FilePath
@@ -67,8 +69,7 @@ namespace AlphaRap.FlowProgramming
         public static void RequireIdle()
         {
             if (AnyRunning || SysPara.SystemMode != RunMode.IDLE || Flow_Module.Module_GetRunningStatus) throw new InvalidOperationException(FlowText.T("busy"));
-            if (SysPara.UserPermission != PermissionType.Administrator && SysPara.UserPermission != PermissionType.Maintenance)
-                throw new InvalidOperationException("Maintenance or Administrator permission is required.");
+            if (!CanEdit) throw new InvalidOperationException(FlowText.T("permission"));
         }
 
         /// <summary>保存完整工程；加载失败时禁止将损坏文件覆盖为空工程。</summary>
@@ -130,6 +131,53 @@ namespace AlphaRap.FlowProgramming
             return module;
         }
 
+        /// <summary>递归检查整个窗体，任何页签或嵌套容器有节点时禁止删除模块。</summary>
+        public static void ValidateModuleDeletion(FlowModuleEditor module)
+        {
+            RequireIdle();
+            if (module == null || !modules.ContainsValue(module) || module.Program.Removed) throw new InvalidOperationException(FlowText.T("moduleMissing"));
+            if (module.Program.Steps.Count > 0 || ContainsFlowNode(module.Form))
+                throw new InvalidOperationException(string.Format(FlowText.T("moduleHasNodes"), module.Form.Name));
+        }
+
+        /// <summary>删除空模块的设计草稿，保存后持久化删除标记并阻止原回调重新启用。</summary>
+        public static void DeleteModule(FlowModuleEditor module)
+        {
+            ValidateModuleDeletion(module);
+            module.SetEditing(false);
+            module.Program.Removed = true;
+            module.Program.Mode = "Disabled";
+            module.Program.InitialEntry = null;
+            module.Program.AutoEntry = null;
+        }
+
+        /// <summary>包括不可见页签在内检查所有子容器，不依赖节点是否已经导入模型。</summary>
+        private static bool ContainsFlowNode(Control parent)
+        {
+            foreach (Control child in parent.Controls)
+                if (child is Flow_Chart || ContainsFlowNode(child)) return true;
+            return false;
+        }
+
+        /// <summary>删除输出源之前列出引用它的其他节点，避免留下无法解析的数据来源。</summary>
+        internal static void ValidateNodeDeletion(FlowModuleEditor owner, string nodeId)
+        {
+            string prefix = owner.Program.ModuleId + "/" + nodeId + "/";
+            List<string> references = new List<string>();
+            foreach (FlowProgram module in project.Modules)
+            {
+                foreach (FlowStep step in module.Steps)
+                {
+                    if (module.ModuleId == owner.Program.ModuleId && step.Id == nodeId) continue;
+                    IEnumerable<FlowCondition> conditions = step.Conditions.Concat(step.Branches.SelectMany(branch => branch.Conditions));
+                    IEnumerable<FlowInput> inputs = step.Inputs.Concat(conditions.SelectMany(condition => new[] { condition.Left, condition.Right }));
+                    if (inputs.Any(input => input.Source == "Output" && (input.Reference ?? "").StartsWith(prefix, StringComparison.Ordinal)))
+                        references.Add(module.ModuleId + " / " + step.Caption);
+                }
+            }
+            if (references.Count > 0) throw new InvalidOperationException(string.Format(FlowText.T("nodeReferenced"), string.Join(Environment.NewLine, references)));
+        }
+
         /// <summary>检查生产入口，显式阻止旧回调与配置流程混合控制同一设备。</summary>
         public static bool CanStartMachine(bool initialize)
         {
@@ -189,6 +237,7 @@ namespace AlphaRap.FlowProgramming
         private FlowProgram published;
         public bool IsEnabled { get { return published != null && published.Mode != "Legacy"; } }
         public bool IsProgram { get { return published != null && published.Mode == "Program"; } }
+        public bool IsRemovedPublished { get { return published != null && published.Removed; } }
         public bool IsEditing { get { return editing; } }
         public event EventHandler Changed;
 
@@ -200,7 +249,7 @@ namespace AlphaRap.FlowProgramming
             Restore(program);
             Publish();
             Runtime.StateChanged += DisplayState;
-            Runtime.AlarmRequested += code => { if (!simulating) Alarm.Show(code); };
+            Runtime.AlarmRequested += code => { if (!simulating) Alarm.Show(string.IsNullOrWhiteSpace(code) ? "2019" : code); };
             Runtime.Finished += Finish;
         }
 
@@ -220,6 +269,7 @@ namespace AlphaRap.FlowProgramming
         {
             if (Runtime.IsRunning) throw new InvalidOperationException(FlowText.T("busy"));
             ValidateLayout(program);
+            foreach (ScrollableControl canvas in program.Steps.Select(step => FindParent(step.ParentPath)).OfType<ScrollableControl>().Distinct()) canvas.AutoScrollPosition = Point.Empty;
             foreach (Flow_Chart node in nodes.Values) node.ConfigurationRequested -= Configure;
             nodes.Clear();
             Program = program;
@@ -235,8 +285,9 @@ namespace AlphaRap.FlowProgramming
             List<Flow_Chart> existing = Enumerate(Form).ToList();
             foreach (Flow_Chart node in existing)
             {
-                if (program.RemovedControls.Contains(node.Name) || (!originalControls.Contains(node.Name) && program.Steps.All(definition => definition.ControlName != node.Name)))
+                if (program.Removed || program.RemovedControls.Contains(node.Name) || (!originalControls.Contains(node.Name) && program.Steps.All(definition => definition.ControlName != node.Name)))
                 {
+                    if (program.Removed && !program.RemovedControls.Contains(node.Name)) program.RemovedControls.Add(node.Name);
                     RemoveControl(node);
                     continue;
                 }
@@ -282,14 +333,14 @@ namespace AlphaRap.FlowProgramming
             {
                 Flow_Chart node = nodes[step.Id];
                 if (step.Next == null) step.Next = IdOf(node.Next);
-                if (step.Otherwise == null) step.Otherwise = IdOf(node.Casse1);
-                if (step.Failure == null) step.Failure = IdOf(node.Casse2);
-                if (step.Third == null) step.Third = IdOf(node.Casse3);
+                if (step.Case1 == null) step.Case1 = IdOf(node.Casse1);
+                if (step.Case2 == null) step.Case2 = IdOf(node.Casse2);
+                if (step.Case3 == null) step.Case3 = IdOf(node.Casse3);
             }
         }
 
         /// <summary>取得节点稳定身份。</summary>
-        private string IdOf(Flow_Chart node) { return node == null ? null : nodes.Where(item => ReferenceEquals(item.Value, node)).Select(item => item.Key).FirstOrDefault(); }
+        internal string IdOf(Flow_Chart node) { return node == null ? null : nodes.Where(item => ReferenceEquals(item.Value, node)).Select(item => item.Key).FirstOrDefault(); }
 
         /// <summary>保存相对窗体的父容器路径。</summary>
         private string ParentPath(Control parent)
@@ -325,9 +376,9 @@ namespace AlphaRap.FlowProgramming
                 Flow_Chart node = nodes[step.Id];
                 node.text = step.Caption;
                 node.Next = Node(step.Next);
-                node.Casse1 = Node(step.Otherwise);
-                node.Casse2 = Node(step.Failure);
-                node.Casse3 = Node(step.Third);
+                node.Casse1 = Node(step.Case1);
+                node.Casse2 = Node(step.Case2);
+                node.Casse3 = Node(step.Case3);
                 node.ProgramManaged = IsEnabled;
             }
             Form.Invalidate(true);
@@ -339,6 +390,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>统一切换节点拖动及配置状态。</summary>
         public void SetEditing(bool value)
         {
+            if (value && Program.Removed) throw new InvalidOperationException(FlowText.T("moduleMissing"));
             if (value) FlowPrograms.RequireIdle();
             editing = value;
             foreach (Flow_Chart node in nodes.Values) node.EnableProgramEditor(value);
@@ -348,21 +400,31 @@ namespace AlphaRap.FlowProgramming
         public FlowStep AddNode()
         {
             FlowPrograms.RequireIdle();
+            if (Program.Removed) throw new InvalidOperationException(FlowText.T("moduleMissing"));
             Control parent = Enumerate(Form).Where(item => item.Visible && item.Parent != Form).Select(item => item.Parent).FirstOrDefault();
             if (parent == null) parent = (Control)Form.FlowChartTable.SelectedTab ?? Form;
             string parentPath = ParentPath(parent);
-            int offset = Program.Steps.Count(item => item.ParentPath == parentPath);
-            FlowStep step = new FlowStep { ControlName = "flow_" + Guid.NewGuid().ToString("N"), Caption = "Step " + (Program.Steps.Count + 1), Action = "value", ParentPath = parentPath, X = 40, Y = 40 + offset * 100 };
+            Point scrollOffset = parent is ScrollableControl ? ((ScrollableControl)parent).AutoScrollPosition : Point.Empty;
+            int y = nodes.Values.Where(existing => existing.Parent == parent).Select(existing => existing.Bottom - scrollOffset.Y + 40).DefaultIfEmpty(40).Max();
+            FlowStep step = new FlowStep { ControlName = "flow_" + Guid.NewGuid().ToString("N"), Caption = "Step " + (Program.Steps.Count + 1), Action = "value", ParentPath = parentPath, X = 40, Y = y, AlarmCode = "2019", Branches = FlowBranch.Default() };
             step.Inputs.Add(new FlowInput { Name = "Value", Reference = "" });
             Program.Steps.Add(step);
-            if (string.IsNullOrEmpty(Program.AutoEntry)) Program.AutoEntry = step.Id;
+            if (parent == Form.InitialPage && string.IsNullOrEmpty(Program.InitialEntry)) Program.InitialEntry = step.Id;
+            if (parent != Form.InitialPage && string.IsNullOrEmpty(Program.AutoEntry)) Program.AutoEntry = step.Id;
             Flow_Chart node = CreateNode(step);
             nodes.Add(step.Id, node);
             node.ConfigurationRequested += Configure;
             node.EnableProgramEditor(editing);
             node.BringToFront();
             ScrollableControl canvas = parent as ScrollableControl;
-            if (canvas != null) { canvas.AutoScroll = true; canvas.AutoScrollMinSize = new Size(500, node.Bottom + 40); }
+            if (canvas != null)
+            {
+                Point scroll = canvas.AutoScrollPosition;
+                node.Location = new Point(step.X + scroll.X, step.Y + scroll.Y);
+                canvas.AutoScroll = true;
+                canvas.AutoScrollMinSize = new Size(500, step.Y + node.Height + 40);
+                canvas.ScrollControlIntoView(node);
+            }
             return step;
         }
 
@@ -372,6 +434,7 @@ namespace AlphaRap.FlowProgramming
             FlowPrograms.RequireIdle();
             Flow_Chart node = Node(id);
             if (node == null) return;
+            FlowPrograms.ValidateNodeDeletion(this, id);
             node.ConfigurationRequested -= Configure;
             Program.RemovedControls.Add(node.Name);
             RemoveControl(node);
@@ -380,9 +443,9 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowStep step in Program.Steps)
             {
                 if (step.Next == id) step.Next = null;
-                if (step.Otherwise == id) step.Otherwise = null;
-                if (step.Failure == id) step.Failure = null;
-                if (step.Third == id) step.Third = null;
+                if (step.Case1 == id) step.Case1 = null;
+                if (step.Case2 == id) step.Case2 = null;
+                if (step.Case3 == id) step.Case3 = null;
             }
             if (Program.InitialEntry == id) Program.InitialEntry = null;
             if (Program.AutoEntry == id) Program.AutoEntry = null;
@@ -405,7 +468,8 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowStep step in Program.Steps)
             {
                 Flow_Chart node = nodes[step.Id];
-                step.X = node.Left; step.Y = node.Top; step.ParentPath = ParentPath(node.Parent);
+                Point scroll = node.Parent is ScrollableControl ? ((ScrollableControl)node.Parent).AutoScrollPosition : Point.Empty;
+                step.X = node.Left - scroll.X; step.Y = node.Top - scroll.Y; step.ParentPath = ParentPath(node.Parent);
             }
         }
 
@@ -462,6 +526,7 @@ namespace AlphaRap.FlowProgramming
             if (Runtime.IsRunning) throw new InvalidOperationException(FlowText.T("busy"));
             SetEditing(false);
             FlowProgram plan = production ? published : Program;
+            if (plan.Removed) throw new InvalidOperationException(FlowText.T("moduleMissing"));
             ValidatePlan(plan, entry);
             if (string.IsNullOrEmpty(entry)) { Form.InitialStatus = true; Form.RunningStatus = false; return; }
             FlowResources resources = FlowResources.Capture();
@@ -486,7 +551,7 @@ namespace AlphaRap.FlowProgramming
             foreach (Flow_Chart node in nodes.Values) node.ProgramManaged = IsEnabled;
             if (isInitializing) Form.InitialStatus = Runtime.Error == null;
             if (Runtime.Error != null) OperationLog.Write("Flow", Form.Name + ": " + Runtime.Error);
-            if (isProduction && Runtime.Error != null && Runtime.Error != "Cancelled") Alarm.Show("2019", Form.Name + ": " + Runtime.Error);
+            if (isProduction && !Runtime.AlarmWasRaised && Runtime.Error != null && Runtime.Error != "Cancelled") Alarm.Show("2019", Form.Name + ": " + Runtime.Error);
         }
 
         /// <summary>切换到节点 UI 显示状态，语言切换不修改节点业务名称。</summary>

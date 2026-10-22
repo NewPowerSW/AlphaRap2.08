@@ -8,6 +8,7 @@ namespace AlphaRap
 {
     partial class MiddleLayer
     {
+        public static bool MachineInitialReady { get { return FlowProgramming.FlowPrograms.HasPrograms ? FlowProgramming.FlowPrograms.IsInitialized : SysPara.UpConveyorInitialOk; } }
         /// <summary>确认运行中重新初始化的请求，按当前状态只发送一次初始化指令。</summary>
         public static void Initial()
         {
@@ -82,7 +83,7 @@ namespace AlphaRap
         public static void PauseRun()
         {
             bool pauseConveyor = SysPara.SystemMode == RunMode.RUN
-                || (SysPara.SystemMode == RunMode.INITIAL && !SysPara.UpConveyorInitialOk);
+                || (SysPara.SystemMode == RunMode.INITIAL && !MachineInitialReady);
             if (pauseConveyor) SysPara.SystemMode = RunMode.PAUSE;
             Flow_Module.Module_PauseRun();
             if (!FlowProgramming.FlowPrograms.HasPrograms) StopManualRun();

@@ -706,7 +706,7 @@ int nheightEllipse
         private bool ConfirmPageSwitchSideEffect(MENU_PageType pageType)
         {
             bool busy = SysPara.SystemMode == RunMode.RUN
-                     || (SysPara.SystemMode == RunMode.INITIAL && !SysPara.UpConveyorInitialOk);
+                     || (SysPara.SystemMode == RunMode.INITIAL && !MiddleLayer.MachineInitialReady);
 
             string message;
             if (pageType == MENU_PageType.Hard || pageType == MENU_PageType.Manual)
@@ -1115,7 +1115,7 @@ int nheightEllipse
             return new Dictionary<RunMode, string>
             {
                 { RunMode.IDLE, MiddleLayer.LangMsg("MainForm", "msg_StatusIdle", "待机状态", "IDLE", "modo espera") },
-                { RunMode.INITIAL, SysPara.UpConveyorInitialOk
+                { RunMode.INITIAL, MiddleLayer.MachineInitialReady
                         ? MiddleLayer.LangMsg("MainForm", "msg_StatusInitOk", "初始化完成", "INITIAL Completed", "cargando terminado")
                         : MiddleLayer.LangMsg("MainForm", "msg_StatusInitializing", "正在初始化状态", "INITIAL", "Estado inicialización") },
                 { RunMode.RUN, MiddleLayer.LangMsg("MainForm", "msg_StatusRun", "运行状态", "RUNNING", "CORRER") },
@@ -1171,11 +1171,11 @@ int nheightEllipse
         private void UpdateMachineStatus()
         {
             if (_statusTextMap == null || _statusTextLang != SysPara.LanguageShow
-                || _statusTextInitOk != SysPara.UpConveyorInitialOk)
+                || _statusTextInitOk != MiddleLayer.MachineInitialReady)
             {
                 _statusTextMap = GetStatusTextMap(SysPara.LanguageShow);
                 _statusTextLang = SysPara.LanguageShow;
-                _statusTextInitOk = SysPara.UpConveyorInitialOk;
+                _statusTextInitOk = MiddleLayer.MachineInitialReady;
                 _statusAlarmText = MiddleLayer.LangMsg("MainForm", "msg_StatusAlarm", "设备报警", "ALARM", "ALARMA");
             }
 
@@ -1324,7 +1324,7 @@ int nheightEllipse
             #region  PictureBox
 
             // 按运行状态设置按钮可用性，图标颜色由 RefreshButtonIcons() 按 Enabled 绘制
-            MENU_Run.Enabled = SysPara.UpConveyorInitialOk
+            MENU_Run.Enabled = MiddleLayer.MachineInitialReady
                 && (SysPara.SystemMode == RunMode.INITIAL || SysPara.SystemMode == RunMode.PAUSE);
             MENU_Pause.Enabled = SysPara.SystemMode == RunMode.RUN;
             MENU_LifeSpan.Enabled = (SysPara.UserPermission == PermissionType.Administrator
