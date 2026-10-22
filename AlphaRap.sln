@@ -7,10 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlphaRap", "AlphaRap\AlphaR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlphaRapLibrary", "AlphaRapLibrary\AlphaRapLibrary.csproj", "{46B43E85-8B46-4186-956A-DCD82FC781B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NPSDK.FlowDesigner", "SDK\NPSDK.FlowDesigner\NPSDK.FlowDesigner.csproj", "{A5E6EDB9-A8D9-45B9-84E0-E8CE53E735F0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NpsdkFlowDesigner", "tools\NpsdkFlowDesigner\NpsdkFlowDesigner.csproj", "{52D3E96E-9920-4FCB-8DC6-60238B214D50}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,22 +15,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A5E6EDB9-A8D9-45B9-84E0-E8CE53E735F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5E6EDB9-A8D9-45B9-84E0-E8CE53E735F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5E6EDB9-A8D9-45B9-84E0-E8CE53E735F0}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A5E6EDB9-A8D9-45B9-84E0-E8CE53E735F0}.Debug|x64.Build.0 = Debug|Any CPU
-		{A5E6EDB9-A8D9-45B9-84E0-E8CE53E735F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5E6EDB9-A8D9-45B9-84E0-E8CE53E735F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5E6EDB9-A8D9-45B9-84E0-E8CE53E735F0}.Release|x64.ActiveCfg = Release|Any CPU
-		{A5E6EDB9-A8D9-45B9-84E0-E8CE53E735F0}.Release|x64.Build.0 = Release|Any CPU
-		{52D3E96E-9920-4FCB-8DC6-60238B214D50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52D3E96E-9920-4FCB-8DC6-60238B214D50}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52D3E96E-9920-4FCB-8DC6-60238B214D50}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{52D3E96E-9920-4FCB-8DC6-60238B214D50}.Debug|x64.Build.0 = Debug|Any CPU
-		{52D3E96E-9920-4FCB-8DC6-60238B214D50}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52D3E96E-9920-4FCB-8DC6-60238B214D50}.Release|Any CPU.Build.0 = Release|Any CPU
-		{52D3E96E-9920-4FCB-8DC6-60238B214D50}.Release|x64.ActiveCfg = Release|Any CPU
-		{52D3E96E-9920-4FCB-8DC6-60238B214D50}.Release|x64.Build.0 = Release|Any CPU
 		{42D8907D-EEB5-42F7-96CF-16C7772660BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{42D8907D-EEB5-42F7-96CF-16C7772660BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42D8907D-EEB5-42F7-96CF-16C7772660BF}.Debug|x64.ActiveCfg = Debug|x64

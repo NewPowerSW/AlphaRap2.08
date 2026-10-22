@@ -487,7 +487,7 @@
     </Reference>
     <Reference Include="NPSDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SDK\NPSDK.FlowDesigner\lib\NPSDK.dll</HintPath>
+      <HintPath>bin\x64\Debug\NPSDK.dll</HintPath>
     </Reference>
     <Reference Include="NP_PressureSensor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -958,7 +958,6 @@
       <DependentUpon>SystemSetting.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\MiddleLayer.cs" />
-    <Compile Include="Core\MiddleLayer.FlowDesigner.cs" />
     <Compile Include="Core\MiddleLayer.Startup.cs">
       <DependentUpon>MiddleLayer.cs</DependentUpon>
     </Compile>
@@ -1329,11 +1328,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SDK\NPSDK.FlowDesigner\NPSDK.FlowDesigner.csproj">
-      <Project>{A5E6EDB9-A8D9-45B9-84E0-E8CE53E735F0}</Project><Name>NPSDK.FlowDesigner</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

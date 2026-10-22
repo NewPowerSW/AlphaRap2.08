@@ -46,8 +46,5 @@ namespace AlphaRap
         {
             AddFlowChart();
         }
-
-        /// <summary>打开以 SDK Flow_Chart 为核心的配置设计器。</summary>
-        private void OpenDesigner(object sender, EventArgs e) { MiddleLayer.OpenFlowDesigner(); }
     }
 }
