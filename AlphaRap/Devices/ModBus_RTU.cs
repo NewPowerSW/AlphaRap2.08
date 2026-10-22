@@ -11,7 +11,7 @@ namespace AlaphaRap
     /// 可配置的属性包括：串口连接参数
     /// 修改时间2023-4-06----------------蔡泳
     /// </summary>
-    public class ModBus_RTU : AbstractDevice
+    public partial class ModBus_RTU : AbstractDevice
     {
         /// <summary>
         /// 实例化一个串口对象

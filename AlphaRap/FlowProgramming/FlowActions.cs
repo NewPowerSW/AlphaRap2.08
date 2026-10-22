@@ -1,5 +1,4 @@
 ﻿using System;
-using AlaphaRap;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -10,158 +9,128 @@ using NPSDK.Motion;
 
 namespace AlphaRap.FlowProgramming
 {
-    public sealed class FlowAction
-    {
-        public string Id;
-        public string Category;
-        public string Kind;
-        public string TitleKey;
-        public string[] Inputs;
-        public string[] Outputs;
-        /// <summary>按当前界面语言显示动作名称。</summary>
-        public override string ToString() { return FlowText.T(TitleKey); }
-    }
-
-    public sealed partial class FlowActions
+    /// <summary>校验和调用对象已声明的方法，不维护具体设备动作或协议分支。</summary>
+    public sealed class FlowActions
     {
         public readonly FlowResources Resources;
-        public readonly List<FlowAction> Actions = new List<FlowAction>();
+        private readonly List<FlowMethod> utility;
         public bool Simulate;
         public Func<string, CancellationToken, Task<string>> RequestInput;
 
-        /// <summary>建立明确的动作目录，设备浏览不调用动作。</summary>
+        /// <summary>使用已捕获的实际对象与配方快照。</summary>
         public FlowActions(FlowResources resources)
         {
             Resources = resources;
-            Add("value", "flow", "", "读取或传递数据", "Read or pass a value", "Leer o pasar un valor", "Value", "Value");
-            Add("calculate", "flow", "", "数值计算", "Calculate values", "Calcular valores", "A,Operation,B", "Value");
-            Add("counter", "flow", "", "循环索引", "Loop index", "Índice de ciclo", "Start,End,Step", "Index");
-            Add("delay", "flow", "", "等待时间", "Delay", "Esperar", "Milliseconds", "ElapsedMs");
-            Add("cycle.begin", "flow", "", "开始产品周期", "Begin product cycle", "Iniciar ciclo de producto", "Key", "CycleId");
-            Add("cycle.end", "flow", "", "结束产品周期并释放结果", "Complete cycle and release results", "Completar ciclo y liberar resultados", "", "");
-            Add("operator.input", "flow", "", "等待操作员输入", "Request operator input", "Solicitar entrada", "Prompt", "Value");
-            Add("alarm.show", "flow", "", "触发报警", "Show alarm", "Mostrar alarma", "Code", "Code");
-            Add("io.read", "io", "input", "读取输入", "Read input", "Leer entrada", "", "Value");
-            Add("io.wait", "io", "input", "等待输入稳定", "Wait for stable input", "Esperar entrada estable", "Value,StableMs", "Value");
-            Add("io.set", "io", "output", "设置输出", "Set output", "Establecer salida", "Value", "Value");
-            Add("cylinder.set", "io", "cylinder", "气缸动作并等待到位", "Drive cylinder and wait", "Accionar cilindro y esperar", "Value", "Value");
-            Add("point.move", "motion", "point", "移动到点位表索引", "Move to point table index", "Mover al índice de posición", "Index,Offset,Tolerance", "Index,Position");
-            Add("tray.position", "motion", "tray", "计算托盘穴位偏移", "Calculate tray pocket offset", "Calcular desplazamiento de bandeja", "Index", "Row,Column,OffsetX,OffsetY");
-            Add("axis.position", "motion", "axis", "读取轴位置", "Read axis position", "Leer posición del eje", "", "Position");
-            Add("axis.stop", "motion", "axis", "停止轴", "Stop axis", "Detener eje", "", "Position");
-            Add("vision.run", "vision", "vision", "运行 VPP 并获取输出", "Run VPP and read outputs", "Ejecutar VPP y leer salidas", "", "RunId,X,Y,Angle");
-            Add("device.open", "device", "device", "连接设备", "Open device", "Conectar dispositivo", "", "Connected");
-            Add("device.close", "device", "device", "断开设备", "Close device", "Desconectar dispositivo", "", "Connected");
-            Add("device.send", "device", "device", "发送命令", "Send command", "Enviar comando", "Text", "Value");
-            Add("device.receive", "device", "device", "读取接收数据", "Receive data", "Recibir datos", "", "Value");
-            Add("scanner.once", "device", "device", "扫码一次", "Scan once", "Escanear una vez", "", "Barcode");
-            Add("ateq.result", "device", "device", "读取气密结果", "Read leak test result", "Leer prueba de fugas", "", "Value");
-            Add("hioki.result", "device", "device", "读取电阻结果", "Read resistance results", "Leer resultados de resistencia", "", "Valid,Values");
-            Add("keyence.trigger", "device", "device", "触发 3D", "Trigger 3D", "Activar 3D", "Position", "Value");
-            Add("keyence.change", "device", "device", "切换 3D 程序", "Change 3D program", "Cambiar programa 3D", "Position", "Value");
-            Add("modbus.read", "device", "device", "读取 Modbus 寄存器", "Read Modbus registers", "Leer registros Modbus", "Slave,Start,Count,DelayMs", "Bytes,Hex");
-            Add("plc.read", "device", "plc", "读取 PLC", "Read PLC", "Leer PLC", "Address,Count,Type", "Value");
-            Add("plc.write", "device", "plc", "写入 PLC", "Write PLC", "Escribir PLC", "Address,Value,Type", "Value");
-            Add("data.save", "data", "data", "保存 DataForm 生产记录", "Save DataForm production record", "Guardar registro de producción", "", "RecordId,Path");
+            utility = new FlowUtilityObject().GetFlowMethods().ToList();
+            foreach (FlowMethod method in utility) method.ValidateDefinition();
         }
 
-        /// <summary>登记一个动作及完整三语底稿。</summary>
-        private void Add(string id, string category, string kind, string zh, string en, string es, string inputs, string outputs)
+        /// <summary>读取选中对象自己的方法；空目标只提供流程上下文方法。</summary>
+        public List<FlowMethod> MethodsFor(FlowResource resource) { return resource == null ? utility : resource.Methods; }
+
+        /// <summary>按对象身份和方法身份联合解析，禁止用其他对象的同名方法补位。</summary>
+        public FlowMethod FindMethod(FlowStep step)
         {
-            string key = "action." + id;
-            if (!FlowText.Defaults.ContainsKey(key)) FlowText.Defaults.Add(key, new[] { zh, en, es });
-            Actions.Add(new FlowAction { Id = id, Category = category, Kind = kind, TitleKey = key,
-                Inputs = Split(inputs), Outputs = Split(outputs) });
+            FlowResource resource = FindResource(step.Target);
+            if (!string.IsNullOrEmpty(step.Target) && resource == null) return null;
+            return MethodsFor(resource).SingleOrDefault(method => method.Id == step.Action);
         }
 
-        /// <summary>拆分固定字段定义。</summary>
-        private static string[] Split(string text) { return text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries); }
+        /// <summary>从选定方法声明读取输入字段。</summary>
+        public string[] InputNames(FlowMethod method) { return method.Inputs.Select(field => field.Name).ToArray(); }
 
-        /// <summary>按真实实例筛选具有对应协议适配的动作。</summary>
-        public bool Supports(FlowAction action, FlowResource resource)
-        {
-            if (string.IsNullOrEmpty(action.Kind)) return resource == null;
-            if (resource == null || resource.Kind != action.Kind) return false;
-            if (action.Id == "scanner.once") return resource.Instance is ScannerKeyenceTcp;
-            if (action.Id == "ateq.result") return resource.Instance is ATEQ_F620;
-            if (action.Id == "hioki.result") return resource.Instance is HIOKI_RM3545;
-            if (action.Id.StartsWith("keyence.")) return resource.Instance is Keyence3DTcp;
-            if (action.Id == "modbus.read") return resource.Instance is ModBus_RTU;
-            if (action.Id == "device.send" || action.Id == "device.receive") return ((AbstractDevice)resource.Instance).SupportsRawIo;
-            return true;
-        }
+        /// <summary>从选定对象方法声明读取具名输出。</summary>
+        public string[] OutputNames(FlowMethod method) { return method.Outputs.Select(field => field.Name).ToArray(); }
 
-        /// <summary>读取动作真实字段，生产表字段来自 DataForm。</summary>
-        public string[] InputNames(FlowAction action)
-        {
-            if (action.Id == "data.save" && MiddleLayer.DataF != null)
-                return (Resources.IncludesDraft ? MiddleLayer.DataF.GetProductionDraft() : MiddleLayer.DataF.GetProductionSchema()).Select(field=>field.Name).ToArray();
-            return action.Inputs;
-        }
-
-        /// <summary>列出 VPP 的实际输出以及设备的具名输出。</summary>
-        public string[] OutputNames(FlowAction action, FlowResource resource)
-        {
-            VisionproInterface station = resource == null ? null : resource.Instance as VisionproInterface;
-            if (action.Id == "vision.run" && station != null && station.TB != null)
-                return action.Outputs.Concat(station.TB.Outputs.Cast<Cognex.VisionPro.ToolBlock.CogToolBlockTerminal>().Select(item => "TB:" + item.Name)).ToArray();
-            HIOKI_RM3545 hioki = resource == null ? null : resource.Instance as HIOKI_RM3545;
-            if (action.Id == "hioki.result" && hioki != null)
-                return action.Outputs.Concat(Enumerable.Range(0, hioki.ChannelNum).Select(index => "Value" + index)).ToArray();
-            return action.Outputs;
-        }
-
-        /// <summary>校验已配置目标和输入字段，未迁移旧回调不能执行。</summary>
+        /// <summary>校验方法、输入类型及数据来源，失效的对象或端口必须先修复。</summary>
         public void Validate(FlowStep step)
         {
             if (FlowProgramFile.RequiresBranchReview(step)) throw new InvalidOperationException(FlowText.T("reviewBranches") + " " + step.Caption);
-            List<string> branchErrors = FlowProgramFile.ValidateBranches(step);
-            if (branchErrors.Count > 0) throw new InvalidOperationException(string.Join(Environment.NewLine, branchErrors));
-            FlowAction action = Actions.SingleOrDefault(item => item.Id == step.Action);
-            if (action == null) throw new InvalidOperationException("Unconfigured action: " + step.Caption);
-            FlowResource resource = FindResource(step.Target);
-            if (!Supports(action, resource)) throw new InvalidOperationException("Missing or incompatible resource: " + step.Caption);
-            foreach (string name in InputNames(action))
-                if (step.Inputs.Count(item => item.Name == name) != 1) throw new InvalidOperationException("Missing input: " + step.Caption + "/" + name);
-            foreach (FlowInput input in step.Inputs) ValidateInput(input, false, action, resource);
+            List<string> errors = FlowProgramFile.ValidateBranches(step);
+            if (errors.Count > 0) throw new InvalidOperationException(string.Join(Environment.NewLine, errors));
+            FlowMethod method = FindMethod(step);
+            if (method == null) throw new InvalidOperationException(FlowText.T("methodMissing") + " " + step.Caption + " / " + step.Target + " / " + step.Action);
+            if (step.Inputs.Count != method.Inputs.Count || method.Inputs.Any(field => step.Inputs.Count(input => input.Name == field.Name) != 1))
+                throw new InvalidOperationException(FlowText.T("fieldsChanged") + " " + step.Caption);
+            foreach (FlowInput input in step.Inputs)
+            {
+                ValidateSource(input, false, method);
+                FlowField field = method.Inputs.Single(item => item.Name == input.Name);
+                if (input.Source == "Constant") ValidateValue(field, input.Reference ?? "");
+                if (input.Source == "Parameter") ValidateValue(field, Resources.Parameters[input.Reference]);
+            }
+            Dictionary<string, object> known = step.Inputs.Where(input => input.Source == "Constant" || input.Source == "Parameter")
+                .ToDictionary(input => input.Name, input => input.Source == "Constant" ? (object)input.Reference : Resources.Parameters[input.Reference]);
+            if (method.ValidateInputs != null) method.ValidateInputs(known);
             foreach (FlowCondition condition in FlowProgramFile.BranchesOf(step).Where(branch => !branch.Unconditional).SelectMany(branch => branch.Conditions))
             {
-                ValidateInput(condition.Left, true, action, resource);
-                ValidateInput(condition.Right, true, action, resource);
+                ValidateSource(condition.Left, true, method);
+                ValidateSource(condition.Right, true, method);
             }
         }
 
-        /// <summary>保存前检查引用目录及来源类别，当前动作结果只可用于动作后的条件。</summary>
-        private void ValidateInput(FlowInput input, bool condition, FlowAction action, FlowResource resource)
+        /// <summary>固定值和可静态读取的参数在保存时就按真实方法类型校验。</summary>
+        private static object ValidateValue(FlowField field, object value)
+        {
+            object typed;
+            try { typed = field.ConvertValue(value); }
+            catch (Exception error) when (error is FormatException || error is OverflowException || error is InvalidCastException || error is InvalidOperationException || error is ArgumentException)
+            {
+                throw new InvalidOperationException(string.Format(FlowText.T("invalidType"), field.Name, field.Type.Name), error);
+            }
+            if (field.Options.Count > 0 && !field.Options.Any(option => option.Value == Convert.ToString(typed, CultureInfo.InvariantCulture)))
+                throw new InvalidOperationException(FlowText.T("invalidChoice") + " " + field.Name);
+            return typed;
+        }
+
+        /// <summary>结果来源只允许用于动作后的条件；其他节点输出必须存在于当前工程。</summary>
+        private void ValidateSource(FlowInput input, bool condition, FlowMethod method)
         {
             if (input.Source == "Constant") return;
             if (input.Source == "Parameter" && Resources.Parameters.ContainsKey(input.Reference ?? "")) return;
             if (input.Source == "Context" && new[] { "CycleId", "RunId", "RecipeName", "ExecutionId" }.Contains(input.Reference)) return;
-            if (input.Source == "Result" && condition && OutputNames(action, resource).Contains(input.Reference)) return;
+            if (input.Source == "Result" && condition && OutputNames(method).Contains(input.Reference)) return;
             if (input.Source == "Output" && FlowPrograms.OutputChoices(this).Any(choice => choice.Id == input.Reference)) return;
-            throw new InvalidOperationException("Missing or invalid input source: " + input.Name + "/" + input.Source + "/" + input.Reference);
+            throw new InvalidOperationException(FlowText.T("sourceMissing") + " " + input.Name + " / " + input.Reference);
         }
 
-        /// <summary>解析资源身份；旧名称删除后明确报告，不替换为其他对象。</summary>
+        /// <summary>按稳定身份取得实际对象；删除后不按显示名猜测替代对象。</summary>
         public FlowResource FindResource(string id)
         {
             FlowResource resource;
             return id != null && Resources.Items.TryGetValue(id, out resource) ? resource : null;
         }
 
-        /// <summary>解析输入一次并取得资源租约，整个底层动作退出后才释放。</summary>
+        /// <summary>解析类型化输入后持有实际资源租约，调用该对象自己的实现。</summary>
         public async Task<IDictionary<string, object>> Execute(FlowStep step, FlowExecutionContext context, CancellationToken token)
         {
             Validate(step);
-            Dictionary<string, object> input = step.Inputs.ToDictionary(item => item.Name, context.Resolve);
+            FlowMethod method = FindMethod(step);
+            Dictionary<string, object> input = method.Inputs.ToDictionary(field => field.Name,
+                field => ValidateValue(field, context.Resolve(step.Inputs.Single(item => item.Name == field.Name))));
+            FlowCall call = new FlowCall { Step = step, Context = context, Inputs = input, Token = token, Simulation = Simulate, RequestInput = RequestInput };
             FlowResource resource = FindResource(step.Target);
-            object instance = resource == null ? null : resource.Instance;
-            List<object> locks = ResourceLocks(instance);
-            using (FlowResourceGate.Lease lease = await FlowResourceGate.Acquire(locks, token).ConfigureAwait(false))
-                return await lease.Run(() => ExecuteCore(step, context, input, resource, token)).ConfigureAwait(false);
+            if (method.ValidateInputs != null) method.ValidateInputs(input);
+            using (FlowResourceGate.Lease lease = await FlowResourceGate.Acquire(ResourceLocks(resource == null ? null : resource.Instance), token).ConfigureAwait(false))
+                return await lease.Run(() => Invoke(method, call)).ConfigureAwait(false);
         }
 
-        /// <summary>气缸占用实际输出，点位占用真实轴，相机同采集通道共用租约。</summary>
+        /// <summary>模拟硬件必须使用明确的模拟实现；实际方法返回后检查输出契约。</summary>
+        private static async Task<IDictionary<string, object>> Invoke(FlowMethod method, FlowCall call)
+        {
+            call.Token.ThrowIfCancellationRequested();
+            Func<FlowCall, Task<IDictionary<string, object>>> invoke = call.Simulation && method.UsesHardware ? method.Simulate : method.Invoke;
+            if (invoke == null) throw new InvalidOperationException(FlowText.T("noSimulation") + " " + method.Id);
+            IDictionary<string, object> output = await invoke(call).ConfigureAwait(false);
+            call.Token.ThrowIfCancellationRequested();
+            if (output == null || method.Outputs.Any(field => !output.ContainsKey(field.Name)))
+                throw new InvalidOperationException(FlowText.T("outputMissing") + " " + method.Id);
+            foreach (FlowField field in method.Outputs)
+                if (output[field.Name] != null) output[field.Name] = ValidateValue(field, output[field.Name]);
+            return output;
+        }
+
+        /// <summary>绑定表与轴共用资源，气缸占用实际输出，相机按采集通道互斥。</summary>
         private static List<object> ResourceLocks(object instance)
         {
             FlowPointAxis point = instance as FlowPointAxis;
@@ -172,7 +141,6 @@ namespace AlphaRap.FlowProgramming
             if (station != null) return new List<object> { station, string.Intern("camera:" + station.CameraName) };
             return instance == null ? new List<object>() : new List<object> { instance };
         }
-
         /// <summary>读取有限数值，所有区域设置使用相同的持久化数值格式。</summary>
         internal static double Number(object value)
         {
@@ -198,7 +166,6 @@ namespace AlphaRap.FlowProgramming
             return Convert.ToBoolean(value, CultureInfo.InvariantCulture);
         }
 
-        /// <summary>创建具名输出。</summary>
-        private static IDictionary<string, object> Result(string name, object value) { return new Dictionary<string, object> { { name, value } }; }
+
     }
 }

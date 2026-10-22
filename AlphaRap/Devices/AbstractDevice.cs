@@ -8,7 +8,7 @@ namespace AlphaRap
     /// 抽象类：设备抽象类，定义了设备通用的属性和方法，包括设备名、参数配置、打开、关闭、运行、停止等。
     /// 带参实例构造函数需提供设备名。
     /// </summary>
-    public abstract class AbstractDevice
+    public abstract partial class AbstractDevice
     {
 
         #region 1. 普通属性
@@ -20,9 +20,9 @@ namespace AlphaRap
 
 
         /// <summary>
-        /// 抽象类的只读属性：是否连接并打开，可在子类中重写。仅可在构造函数中初始化
+        /// 获取设备当前连接状态，由具体设备实现。
         /// </summary>
-        public virtual bool IsConnected { get; }
+        public abstract bool IsConnected { get; }
 
 
         /// <summary>
@@ -51,15 +51,15 @@ namespace AlphaRap
         #region 3.主要功能：打开、关闭、运行、停止设备
 
         /// <summary>
-        /// 抽象类的方法：打开并连接设备，可在子类中重写
+        /// 打开并连接设备，由具体设备实现。
         /// </summary>
-        public virtual void Open() { }
+        public abstract void Open();
 
 
         /// <summary>
-        /// 抽象类的方法：断开连接并关闭设备，可在子类中重写
+        /// 断开连接并关闭设备，由具体设备实现。
         /// </summary>
-        public virtual void Close() { }
+        public abstract void Close();
 
 
         /// <summary>

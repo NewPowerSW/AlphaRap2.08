@@ -62,6 +62,17 @@ namespace AlphaRap.FlowProgramming
             conditions.Rows.Add(string.IsNullOrEmpty(field) ? "Constant" : "Result", field ?? "0", "…", "==", "Constant", "", "…");
         }
 
+        /// <summary>切换结束出口的显示文案，保留目标身份和条件编辑行。</summary>
+        internal void RefreshDestinationLanguage()
+        {
+            List<FlowChoice> choices = target.DataSource as List<FlowChoice>;
+            if (choices == null) return;
+            string selected = TargetId;
+            FlowChoice end = choices.FirstOrDefault(choice => string.IsNullOrEmpty(choice.Id));
+            if (end != null) end.Label = FlowText.T("end");
+            target.DataSource = choices.ToList(); target.SelectedValue = selected;
+        }
+
         /// <summary>读取独立编辑副本，不向节点对象写入半完成的条件。</summary>
         public FlowBranch ReadBranch()
         {

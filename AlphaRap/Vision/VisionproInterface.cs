@@ -23,6 +23,7 @@ namespace AlphaRap
         public double X { get; private set; }
         public double Y { get; private set; }
         public double Angle { get; private set; }
+        public bool IsFlowManaged { get; internal set; }
 
         /// <summary>记录运行编号、状态、错误和定位坐标。</summary>
         public VisionRunResult(long runId, VisionRunState state, string error = "", double x = 0, double y = 0, double angle = 0)
@@ -36,7 +37,7 @@ namespace AlphaRap
         }
     }
 
-    public abstract class VisionproInterface
+    public abstract partial class VisionproInterface
     {
         public static List<VisionproInterface> VList = new List<VisionproInterface>();
         public CogToolBlock TB;
@@ -354,6 +355,7 @@ namespace AlphaRap
                 _isRunning = false;
                 IsAccept = false;
                 if (_lastRunResult.RunId != runId || _lastRunResult.State != VisionRunState.Running) return;
+                result.IsFlowManaged = flowRunId == runId;
                 _lastRunResult = result;
                 IsAccept = result.State == VisionRunState.Succeeded;
                 LastError = result.Error;

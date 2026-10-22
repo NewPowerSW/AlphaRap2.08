@@ -40,6 +40,7 @@ internal static class Program
 internal sealed class FutureStation : Flow_BaseForm
 {
     public int LegacyStarts;
+    public readonly DesignerProbe Capability = new DesignerProbe();
     /// <summary>Detect accidental execution of an existing application callback.</summary>
     public override void StartRun() { LegacyStarts++; }
     public readonly Panel Canvas = new Panel { Name = "canvas", Dock = DockStyle.Fill };
@@ -69,7 +70,7 @@ internal sealed class InitializationProbe : ControlBaseInterface
     public override void Initial() { Starts++; }
 }
 
-internal static class Cases
+internal static partial class Cases
 {
     private static int count;
     private static int failures;
@@ -157,6 +158,13 @@ internal static class Cases
         Test("axis and IO pages create resources through the actual add and confirm buttons", HardwareAddUi);
         Test("resource constant and point menus target the actual right-click object", ContextTargets);
         Test("CASE condition and production-field drafts delete through context menus", DraftMenus);
+        Test("new object methods are discovered and invoked without changing the designer catalog", ObjectContract);
+        Test("axis methods bind only their own point tables and use typed fields", AxisMethodBindings);
+        Test("Goto false means movement in progress and Home follows the driver state machine", AxisDriverSemantics);
+        Test("cancelling an axis method stops the real instance before releasing its lease", AxisMethodCancellation);
+        Test("VPP methods expose actual terminals and allow NEXT CASE conditions to handle NG", VisionObjectMethods);
+        Test("vision result consumers reject another run and compensation follows the main save snapshot", VisionMethodSnapshots);
+        Test("object method language changes retain unfinished input and selected identities", ObjectMethodLanguage);
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
         Console.WriteLine("RESULT: " + (count - failures) + "/" + count + " passed");
         return failures == 0 ? 0 : 1;
@@ -597,13 +605,13 @@ internal static class Cases
             ComboBox action = (ComboBox)dialog.Controls.Find("actionValue", true)[0];
             DataGridView inputs = (DataGridView)dialog.Controls.Find("inputs", true)[0];
             category.SelectedValue = "motion"; Application.DoEvents();
-            string point = FlowResources.Capture().Items.Values.Single(item => item.Kind == "point").Id;
-            target.SelectedValue = point; Application.DoEvents();
-            Assert((action.SelectedItem as FlowAction).Id == "point.move", "Selecting a point did not select its motion action.");
-            Assert(inputs.Rows.Cast<DataGridViewRow>().Select(row => Convert.ToString(row.Cells[0].Value)).SequenceEqual(new[] { "Index", "Offset", "Tolerance" }), "Motion inputs did not refresh.");
+            string axis = FlowResources.Capture().Items.Values.Single(item => item.Kind == "axis").Id;
+            target.SelectedValue = axis; Application.DoEvents();
+            action.SelectedItem = ((IList<FlowMethod>)action.DataSource).Single(item => item.Id == "point.move"); Application.DoEvents();
+            Assert(inputs.Rows.Cast<DataGridViewRow>().Select(row => Convert.ToString(row.Cells[0].Value)).SequenceEqual(new[] { "Table", "Index", "Offset", "Tolerance" }), "Axis-bound table inputs did not refresh.");
             category.SelectedValue = "data"; Application.DoEvents();
-            Assert((action.SelectedItem as FlowAction).Id == "data.save" && inputs.Rows.Count == data.GetProductionFields().Length, "DataForm fields did not refresh.");
-            category.SelectedValue = "flow"; action.SelectedItem = ((IList<FlowAction>)action.DataSource).Single(item => item.Id == "delay"); Application.DoEvents();
+            Assert((action.SelectedItem as FlowMethod).Id == "data.save" && inputs.Rows.Count == data.GetProductionFields().Length, "DataForm fields did not refresh.");
+            category.SelectedValue = "flow"; action.SelectedItem = ((IList<FlowMethod>)action.DataSource).Single(item => item.Id == "delay"); Application.DoEvents();
             Assert(inputs.Rows.Count == 1 && Convert.ToString(inputs.Rows[0].Cells[0].Value) == "Milliseconds", "Changing actions retained another action's fields.");
             dialog.Close();
         }

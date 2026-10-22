@@ -687,6 +687,15 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Devices\DeviceFlowMethods.cs" />
+    <Compile Include="Vision\VisionFlowMethods.cs" />
+    <Compile Include="PLC\PlcFlowMethods.cs" />
+    <Compile Include="FlowProgramming\FlowMethods.cs" />
+    <Compile Include="FlowProgramming\FlowUtilityObject.cs" />
+    <Compile Include="FlowProgramming\FlowIoObject.cs" />
+    <Compile Include="FlowProgramming\FlowAxisObject.cs" />
+    <Compile Include="FlowProgramming\FlowDataMethods.cs" />
+    <Compile Include="FlowProgramming\FlowTrayMethods.cs" />
     <Compile Include="Tasks\AlarmRunTask.cs" />
     <Compile Include="Tasks\AlwaysRunTask.cs" />
     <Compile Include="Classes\FFU.cs" />
@@ -962,7 +971,6 @@
     <Compile Include="Configuration\HardwareEditForm.Designer.cs"><DependentUpon>HardwareEditForm.cs</DependentUpon></Compile>
     <Compile Include="Configuration\HardwareResourcePanel.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="Configuration\HardwareResourcePanel.Designer.cs"><DependentUpon>HardwareResourcePanel.cs</DependentUpon></Compile>
-    <Compile Include="FlowProgramming\FlowActionExecution.cs" />
     <Compile Include="Configuration\ConstantStore.cs" />
     <Compile Include="Configuration\ConstantText.cs" />
     <Compile Include="Configuration\ConstantEditForm.cs"><SubType>Form</SubType></Compile>

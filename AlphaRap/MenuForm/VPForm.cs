@@ -1433,16 +1433,20 @@ namespace AlphaRap
 			vpp.Station = st;
 		}
 
+        /// <summary>从已加载配置创建相机的 VPP 实例并建立生产参数快照。</summary>
 		private void CreateCameraStations(VpCameraConfig cam)
 		{
-			for (int i = 0; i < cam.Vpps.Count; i++)
-				if (cam.Vpps[i].Station == null) CreateStation(cam, cam.Vpps[i]);
+			foreach (VpVppConfig vpp in cam.Vpps)
+            {
+                if (vpp.Station == null) CreateStation(cam, vpp);
+                vpp.Station.AcceptFlowConfiguration();
+            }
 		}
 
 		/// <summary>在 UI 线程反馈手动调试失败，不让错误通知占用视觉运行线程。</summary>
 		private void OnStationRunCompleted(VisionRunResult result)
 		{
-			if (result.State == VisionRunState.Succeeded || IsDisposed || !IsHandleCreated) return;
+            if (result.IsFlowManaged || result.State == VisionRunState.Succeeded || IsDisposed || !IsHandleCreated) return;
 			if (InvokeRequired)
 			{
 				BeginInvoke(new Action(() => OnStationRunCompleted(result)));
@@ -1743,7 +1747,11 @@ namespace AlphaRap
 			if (!string.IsNullOrEmpty(error)) return false;
 			VpConfigStore.Save(_config);
 			error = VpConfigStore.LastSaveError;
-			return string.IsNullOrEmpty(error);
+            if (!string.IsNullOrEmpty(error)) return false;
+            foreach (VpCameraConfig camera in _cameras)
+                foreach (VpVppConfig vpp in camera.Vpps)
+                    if (vpp.Station != null) vpp.Station.AcceptFlowConfiguration();
+			return true;
 		}
 
 		/// <summary>主界面【保存】选"是"时由 MainForm.SaveData() 调用：把相机 / VPP / 标定参数写入 VPForm.Cameras.xml。</summary>

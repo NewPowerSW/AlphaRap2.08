@@ -21,7 +21,10 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>切换语言只修改文字，不重新绑定数据行或提交正在编辑的值。</summary>
-        private void LanguageChanged(object sender, EventArgs e) { ApplyTexts(this); }
+        private void LanguageChanged(object sender, EventArgs e) { ApplyTexts(this); RefreshLanguageChoices(); }
+
+        /// <summary>派生窗口可刷新目录文案，不重建业务输入和草稿。</summary>
+        protected virtual void RefreshLanguageChoices() { }
 
         /// <summary>刷新 Designer 中以 Tag 标识的固定文字。</summary>
         internal static void ApplyTexts(Control parent)

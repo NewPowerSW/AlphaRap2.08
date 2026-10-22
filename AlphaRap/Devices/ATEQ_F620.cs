@@ -9,7 +9,7 @@ namespace AlaphaRap
     /// 可配置的属性包括：串口连接参数
     /// 修改时间2023-4-10----------------欧益儒
     /// </summary>
-    public class ATEQ_F620 : AbstractDevice
+    public partial class ATEQ_F620 : AbstractDevice
     {
         /// <summary>
         /// 实例化一个串口对象

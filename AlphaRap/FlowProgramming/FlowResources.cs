@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -25,6 +25,21 @@ namespace AlphaRap.FlowProgramming
         public string Kind;
         public object Instance;
         public List<FlowChoice> Points = new List<FlowChoice>();
+        public List<FlowMethod> Methods = new List<FlowMethod>();
+        public string Category
+        {
+            get
+            {
+                switch (Kind)
+                {
+                    case "axis": case "point": case "tray": return "motion";
+                    case "input": case "output": case "cylinder": return "io";
+                    case "vision": case "data": return Kind;
+                    default: return "device";
+                }
+            }
+        }
+        public bool Selectable { get { return Kind != "point"; } }
     }
 
     public sealed class FlowPointAxis
@@ -36,7 +51,7 @@ namespace AlphaRap.FlowProgramming
         public double High;
     }
 
-    public sealed class FlowTray
+    public sealed partial class FlowTray
     {
         public int Rows;
         public int Columns;
@@ -55,8 +70,18 @@ namespace AlphaRap.FlowProgramming
         public static FlowResources Capture(bool includeDraft = false)
         {
             FlowResources catalog = new FlowResources { RecipeName = SysPara.RecipeName, includeDraft = includeDraft };
+            foreach (KeyValuePair<string, AbstractDevice> device in DeviceControl.GetFlowDevices())
+                catalog.Add("device/" + device.Key, device.Value.DeviceName + " · " + device.Value.GetType().Name, "device", device.Value);
+            if (MiddleLayer.VPF != null)
+                foreach (KeyValuePair<string, VisionproInterface> station in MiddleLayer.VPF.GetFlowStations())
+                    catalog.Add("vision/" + station.Key, station.Value.StationName, "vision", station.Value);
+            if (MiddleLayer.DataF != null) catalog.Add("data/Production", "DataForm · Production", "data", MiddleLayer.DataF);
             List<Form> forms = MiddleLayer.lstForm.OfType<Form>().Concat(Flow_Module.FlowChart_ModuleList).Distinct().ToList();
-            foreach (Form form in forms) { catalog.AddControls(form, form.Name); catalog.AddPlcFields(form); }
+            foreach (Form form in forms)
+            {
+                if (form is IFlowObject && !(form is DataForm)) catalog.Add("module/" + form.GetType().FullName + "/" + form.Name, form.Name, "object", form);
+                catalog.AddControls(form, form.Name); catalog.AddObjectFields(form);
+            }
             foreach (HardForm form in forms.OfType<HardForm>()) catalog.AddHardwareGroups(form);
             foreach (ModuleBaseForm module in ModuleManager.ModuleList.ToArray())
             {
@@ -66,24 +91,44 @@ namespace AlphaRap.FlowProgramming
                 if (constants != null)
                     foreach (string scope in new[] { "Setting", "Recipe" }) catalog.AddConstants(constants, scope);
             }
-            foreach (KeyValuePair<string, AbstractDevice> device in DeviceControl.GetFlowDevices())
-                catalog.Add("device/" + device.Key, device.Value.DeviceName + " · " + device.Value.GetType().Name, "device", device.Value);
-            if (MiddleLayer.VPF != null)
-                foreach (KeyValuePair<string, VisionproInterface> station in MiddleLayer.VPF.GetFlowStations())
-                    catalog.Add("vision/" + station.Key, station.Value.StationName + " · " + station.Key, "vision", station.Value);
-            if (MiddleLayer.DataF != null) catalog.Add("data/Production", "DataForm · Production", "data", MiddleLayer.DataF);
             catalog.AddTrays();
+            catalog.BindMethods();
             return catalog;
         }
         private bool includeDraft;
-        internal bool IncludesDraft { get { return includeDraft; } }
 
-        /// <summary>登记窗体已有的 PLC 对象字段，不调用构造函数或属性获取器。</summary>
-        private void AddPlcFields(Form form)
+        /// <summary>发现窗体已有的能力对象字段，不调用构造函数、属性获取器或业务操作。</summary>
+        private void AddObjectFields(Form form)
         {
             for (Type type = form.GetType(); type != null && type != typeof(Form); type = type.BaseType)
                 foreach (System.Reflection.FieldInfo field in type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.DeclaredOnly))
-                    if (field.FieldType == typeof(PLC.INOVANCE)) Add(form.Name + "/" + type.FullName + "/" + field.Name, form.Name + " · " + field.Name, "plc", field.GetValue(form));
+                    if (typeof(IFlowObject).IsAssignableFrom(field.FieldType))
+                        AddObjectField(form, type, field);
+        }
+
+        /// <summary>登记已有的能力对象字段，不调用构造器、属性获取器或业务方法。</summary>
+        private void AddObjectField(Form form, Type type, System.Reflection.FieldInfo field)
+        {
+            object instance = field.GetValue(form);
+            if (instance == null || Items.Values.Any(item => ReferenceEquals(item.Instance, instance))) return;
+            Add(form.Name + "/" + type.FullName + "/" + field.Name, form.Name + " · " + field.Name, "object", instance);
+        }
+
+        /// <summary>从对象契约读取方法；SDK 旧控件通过轻量适配器复用同一实际实例。</summary>
+        private void BindMethods()
+        {
+            foreach (FlowResource resource in Items.Values)
+            {
+                IFlowObject provider = resource.Instance as IFlowObject;
+                NP_Motor motor = resource.Instance as NP_Motor;
+                if (motor != null) provider = new FlowAxisObject(motor, Items.Values.Where(item => item.Kind == "point" && ReferenceEquals(((FlowPointAxis)item.Instance).Motor, motor)));
+                if (resource.Kind == "point") provider = new FlowAxisObject(((FlowPointAxis)resource.Instance).Motor, new[] { resource }, true);
+                if (resource.Kind == "input" || resource.Kind == "output" || resource.Kind == "cylinder") provider = new FlowIoObject(resource.Instance);
+                if (provider == null) continue;
+                resource.Methods = provider.GetFlowMethods(includeDraft).ToList();
+                foreach (FlowMethod method in resource.Methods) method.ValidateDefinition();
+                if (resource.Methods.GroupBy(method => method.Id).Any(group => group.Count() > 1)) throw new InvalidOperationException("Duplicate method: " + resource.Id);
+            }
         }
 
         /// <summary>从已提交配方读取全部托盘行列及间距，动态新增托盘自动进入目录。</summary>
@@ -132,7 +177,7 @@ namespace AlphaRap.FlowProgramming
                 Add(key + "axis",entry.Definition.Name,"axis",axis.Motor);
                 AddPointTable(key+"points",axis.Points);
                 FlowResource point = Items[key+"points/Position"];
-                point.Label = entry.Definition.Name + " · " + axis.Points.DataSet1.TableName;
+                point.Label = entry.Definition.Name;
             }
         }
 
@@ -197,7 +242,7 @@ namespace AlphaRap.FlowProgramming
             {
                 string key = scope + "/" + module + "/" + table.TableName + "/" + rowIndex + "/" + column.ColumnName;
                 Parameters.Add(key, row[column, version]);
-                ParameterChoices.Add(new FlowChoice { Id = key, Label = key + " · " + column.DataType.Name });
+                ParameterChoices.Add(new FlowChoice { Id = key, Label = scope + " / " + module + " / " + table.TableName + " / " + (rowIndex + 1) + " / " + column.ColumnName + " (" + column.DataType.Name + ")" });
             }
         }
 

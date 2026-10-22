@@ -39,7 +39,7 @@ namespace AlphaRap.PLC
 	/// 可配置的属性包括：网口连接参数
 	/// 修改时间2023-11-19----------------
 	/// </summary>
-	public class INOVANCE
+	public partial class INOVANCE
     {
         #region
         [DllImport("StandardModbusApi.dll", EntryPoint = "Init_ETH_String", CallingConvention = CallingConvention.Cdecl)]

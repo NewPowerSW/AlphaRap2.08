@@ -11,7 +11,7 @@ namespace AlphaRap
     /// V1.0初始版本
     /// 修改时间2023-10-26 ---------CY
     /// </summary>
-    class HIOKI_RM3545 : AbstractDevice
+    partial class HIOKI_RM3545 : AbstractDevice
     {
         #region 1.字段、属性
         //实例化一个串口对象

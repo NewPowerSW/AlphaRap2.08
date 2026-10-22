@@ -104,7 +104,7 @@ namespace AlphaRap.FlowProgramming
             root.RowCount = 7;
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 96F));
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
-            root.RowStyles.Add(new RowStyle(SizeType.Absolute, 130F));
+            root.RowStyles.Add(new RowStyle(SizeType.Absolute, 180F));
             root.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 26F));
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
@@ -138,8 +138,8 @@ namespace AlphaRap.FlowProgramming
             targetLabel.Text = "实际对象";
             targetLabel.Dock = DockStyle.Fill;
             targetLabel.TextAlign = ContentAlignment.MiddleLeft;
-            actionLabel.Tag = "action";
-            actionLabel.Text = "执行动作";
+            actionLabel.Tag = "method";
+            actionLabel.Text = "对象方法";
             actionLabel.Dock = DockStyle.Fill;
             actionLabel.TextAlign = ContentAlignment.MiddleLeft;
             timeoutLabel.Tag = "timeout";

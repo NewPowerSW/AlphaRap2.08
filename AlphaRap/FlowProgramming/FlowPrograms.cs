@@ -280,10 +280,10 @@ namespace AlphaRap.FlowProgramming
         /// <summary>从动作描述及真实 VPP 字段生成一个节点的输出选项。</summary>
         private static void AddOutputChoices(List<FlowChoice> list, FlowActions actions, FlowModuleEditor module, FlowStep step)
         {
-            FlowAction action = actions.Actions.SingleOrDefault(item => item.Id == step.Action);
+            FlowMethod action = actions.FindMethod(step);
             if (action == null) return;
-            foreach (string field in actions.OutputNames(action, actions.FindResource(step.Target)))
-                list.Add(new FlowChoice { Id = module.Program.ModuleId + "/" + step.Id + "/" + Uri.EscapeDataString(field), Label = module.Form.Name + " / " + step.Caption + " / " + field });
+            foreach (string field in actions.OutputNames(action))
+                list.Add(new FlowChoice { Id = module.Program.ModuleId + "/" + step.Id + "/" + Uri.EscapeDataString(field), Label = module.Form.Name + " / " + step.Caption + " / " + field + " (" + action.Outputs.Single(item => item.Name == field).Type.Name + ")" });
         }
     }
 

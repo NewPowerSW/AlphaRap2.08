@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -82,7 +82,7 @@ internal static class StartupSmoke
         setting.Constants.Put("Recipe",null,new ConstantValue { Key="MainRecipeNumber",Type="Number",Value="12.5" });
         data.SetProductionDraft(new List<ProductionField> { new ProductionField { Name="Barcode" },new ProductionField { Name="Result" },new ProductionField { Name="MainValue",Type="Number" } });
         FlowActions draftActions = new FlowActions(FlowResources.Capture(true)), liveActions = new FlowActions(FlowResources.Capture());
-        if (!draftActions.InputNames(draftActions.Actions.Single(action=>action.Id=="data.save")).Contains("MainValue") || liveActions.InputNames(liveActions.Actions.Single(action=>action.Id=="data.save")).Contains("MainValue")) throw new InvalidOperationException("Production field drafts leaked into runtime or were unavailable in the designer.");
+        if (!draftActions.InputNames(draftActions.MethodsFor(draftActions.FindResource("data/Production")).Single(action=>action.Id=="data.save")).Contains("MainValue") || liveActions.InputNames(liveActions.MethodsFor(liveActions.FindResource("data/Production")).Single(action=>action.Id=="data.save")).Contains("MainValue")) throw new InvalidOperationException("Production field drafts leaked into runtime or were unavailable in the designer.");
         FlowModuleEditor flow = FlowPrograms.Attach(FlowPrograms.AddModule("Main save flow")); FlowStep step = flow.AddNode(); flow.Program.Mode="Program"; flow.Program.AutoEntry=step.Id;
         if (FlowResources.Capture().Parameters.ContainsKey("Constants/Setting/MainSaveFlag") || !FlowResources.Capture(true).Parameters.ContainsKey("Constants/Setting/MainSaveFlag")) throw new InvalidOperationException("Draft and production snapshots are mixed.");
         ChooseSave(main,"Button1_dyn");

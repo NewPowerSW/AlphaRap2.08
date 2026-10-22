@@ -320,7 +320,7 @@ namespace AlphaRap
     /// 视觉站：运行 vpp 中的 ToolBlock 并按 <see cref="VpStationKind"/> 取结果。
     /// 构造参数决定 vpp 目录（工位名，或"相机名\VPP名"）、工位类型和默认 CCD 号（运行时被配方 Pset 覆盖）。
     /// </summary>
-    public class VpStation : VisionproInterface
+    public partial class VpStation : VisionproInterface
     {
         /// <summary>所属相机名（固定工位时等于工位名）。</summary>
         public string CameraName = "";
@@ -407,28 +407,31 @@ namespace AlphaRap
         /// 原图为采集根记录，截图为主界面显示的子记录（<see cref="VisionproInterface.VisionRunDisplayIndex"/>）；
         /// 保存后按保留天数清理旧照片。
         /// </summary>
-        public string SaveLastImage()
+        public string SaveLastImage() { return SaveLastImage(Config); }
+
+        /// <summary>按已捕获的存图设置保存最近图像，不读取其他节点的设置或覆盖页面草稿。</summary>
+        private string SaveLastImage(VpVppConfig settings)
         {
-            if (Config == null || !Config.SaveImageEnabled) return "";
+            if (settings == null || !settings.SaveImageEnabled) return "";
             if (TB == null || !IsLoadTBOk) return "";
-            if (!Config.SaveImageOriginal && !Config.SaveImageSnapshot) return "";
+            if (!settings.SaveImageOriginal && !settings.SaveImageSnapshot) return "";
 
             try
             {
                 Cognex.VisionPro.ICogRecord root = TB.CreateLastRunRecord();   // CreateLastRunRecord 返回的是 ICogRecord 接口
                 if (root == null) return "";
 
-                string dir = SaveImageDirectory();
+                string dir = SaveImageDirectory(settings);
                 if (!System.IO.Directory.Exists(dir)) System.IO.Directory.CreateDirectory(dir);
                 string stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
                 string last = "";
 
-                if (Config.SaveImageOriginal)
+                if (settings.SaveImageOriginal)
                     last = WriteImageFile(root.Content as Cognex.VisionPro.ICogImage, dir, stamp + "_original.bmp");
-                if (Config.SaveImageSnapshot && root.SubRecords.Count > VisionRunDisplayIndex)
+                if (settings.SaveImageSnapshot && root.SubRecords.Count > VisionRunDisplayIndex)
                     last = WriteImageFile(root.SubRecords[VisionRunDisplayIndex].Content as Cognex.VisionPro.ICogImage, dir, stamp + "_snap.bmp");
 
-                CleanOldImages(dir);
+                CleanOldImages(dir, settings);
                 return last;
             }
             catch (Exception) { return ""; }
@@ -454,9 +457,9 @@ namespace AlphaRap
         }
 
         /// <summary>存图目录：VPP 配置中的路径，未设置时为 vpp 所在目录下的 Images。</summary>
-        private string SaveImageDirectory()
+        private string SaveImageDirectory(VpVppConfig settings)
         {
-            if (!string.IsNullOrEmpty(Config.SaveImagePath)) return Config.SaveImagePath;
+            if (!string.IsNullOrEmpty(settings.SaveImagePath)) return settings.SaveImagePath;
             try
             {
                 return System.IO.Path.Combine(System.IO.Path.GetDirectoryName(GetVppPath(SysPara.RecipeName)), "Images");
@@ -467,13 +470,13 @@ namespace AlphaRap
         /// <summary>
         /// 启用自动删除时，按保留天数删除存图目录中的旧 *.bmp（每次存图时执行；天数 &lt;= 0 时不删除）。
         /// </summary>
-        private void CleanOldImages(string dir)
+        private void CleanOldImages(string dir, VpVppConfig settings)
         {
-            if (!Config.SaveImageAutoDelete) return;
-            if (Config.SaveImageKeepDays <= 0) return;
+            if (!settings.SaveImageAutoDelete) return;
+            if (settings.SaveImageKeepDays <= 0) return;
             try
             {
-                DateTime dead = DateTime.Now.AddDays(-Config.SaveImageKeepDays);
+                DateTime dead = DateTime.Now.AddDays(-settings.SaveImageKeepDays);
                 string[] files = System.IO.Directory.GetFiles(dir, "*.bmp");
                 for (int i = 0; i < files.Length; i++)
                     if (System.IO.File.GetLastWriteTime(files[i]) < dead)
