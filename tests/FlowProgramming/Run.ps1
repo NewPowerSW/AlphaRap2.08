@@ -15,3 +15,11 @@ $flowRunRoot = Join-Path $flowTestRoot ([Guid]::NewGuid().ToString('N'))
 & $flowTestExecutable $flowAssemblyRoot $flowRunRoot $flowProjectRoot
 if ($LASTEXITCODE -ne 0) { throw 'Flow regressions failed.' }
 Write-Output "Flow UI screenshots: $flowRunRoot"
+$flowStartupExecutable = Join-Path $flowTestRoot 'FlowProgramming.StartupSmoke.exe'
+$flowStartupArguments = $flowArguments | Where-Object { $_ -notlike '/out:*' -and $_ -notlike '*Regression.cs' }
+$flowStartupArguments += "/out:$flowStartupExecutable"
+$flowStartupArguments += Join-Path $PSScriptRoot 'StartupSmoke.cs'
+& $flowCompiler @flowStartupArguments
+if ($LASTEXITCODE -ne 0) { throw 'Startup smoke compilation failed.' }
+& $flowStartupExecutable $flowAssemblyRoot (Join-Path $flowRunRoot 'startup') $flowProjectRoot
+if ($LASTEXITCODE -ne 0) { throw 'Startup smoke failed.' }

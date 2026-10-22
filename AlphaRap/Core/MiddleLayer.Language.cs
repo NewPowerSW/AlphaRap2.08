@@ -61,6 +61,7 @@ namespace AlphaRap
         public static void RegisterLanguage(Control root, string formName)
         {
             if (root == null) return;
+            if (root is Configuration.HardwareResourcePanel) return;
             RegisterLanguageControl(root, formName);
             RegisterLanguageParts(root, formName);
             if (root.GetType() == typeof(NPSDK.Flow_Chart)) return;
@@ -83,6 +84,7 @@ namespace AlphaRap
             try
             {
                 if (root == null) return;
+                if (root is Configuration.HardwareResourcePanel) return;
                 if (root.GetType() == typeof(NPSDK.Flow_Chart))
                 {
                     ((NPSDK.Flow_Chart)root).text = LangText(formName, root.Name, ((NPSDK.Flow_Chart)root).text);

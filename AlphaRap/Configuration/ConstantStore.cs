@@ -47,7 +47,7 @@ namespace AlphaRap.Configuration
         public void InitializeExamples()
         {
             DataRow marker = owner.SettingData.Tables["MSet"].Rows[0];
-            if (Convert.ToBoolean(marker["ConstantsInitialized"])) return;
+            if (!marker.IsNull("ConstantsInitialized") && Convert.ToBoolean(marker["ConstantsInitialized"])) return;
             DataTable table = Table("Setting");
             foreach (string key in ExampleKeys)
             {
@@ -144,12 +144,16 @@ namespace AlphaRap.Configuration
         }
 
         /// <summary>运行快照只读取已保存版本，稳定引用使用作用域和键，不使用行索引。</summary>
-        public IEnumerable<KeyValuePair<string, object>> Committed(string scope)
+        public IEnumerable<KeyValuePair<string, object>> Committed(string scope) { return Snapshot(scope,false); }
+
+        /// <summary>工程校验可读取草稿，运行快照只读取已保存版本。</summary>
+        public IEnumerable<KeyValuePair<string, object>> Snapshot(string scope,bool includeDraft)
         {
             foreach (DataRow row in Table(scope).Rows)
             {
-                if (!row.HasVersion(DataRowVersion.Original)) continue;
-                ConstantValue value = Read(row, DataRowVersion.Original);
+                DataRowVersion version = includeDraft ? DataRowVersion.Current : DataRowVersion.Original;
+                if (!row.HasVersion(version)) continue;
+                ConstantValue value = Read(row, version);
                 if (string.IsNullOrWhiteSpace(value.Key)) continue;
                 yield return new KeyValuePair<string, object>(Reference(scope, value.Key), Parse(value.Type, value.Value));
             }

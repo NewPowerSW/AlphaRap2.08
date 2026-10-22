@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using NPSDK;
 using NPSDK.Motion;
@@ -25,10 +25,10 @@ namespace AlphaRap
         /// <summary>停止已登记的全部电机，不缓存可能变化的设备列表。</summary>
         public static void StopAllMotor()
         {
-            foreach (ControlBaseInterface control in SDKPara.ControlList)
+            foreach (ControlBaseInterface control in SDKPara.ControlsSnapshot())
             {
                 NP_Motor motor = control as NP_Motor;
-                if (motor != null) motor.Stop();
+                if (motor != null) lock (motor) { if (!motor.IsDisposed) motor.Stop(); }
             }
         }
 
@@ -66,12 +66,12 @@ namespace AlphaRap
         public static void CheckMotorProtected()
         {
             if (SysPara.Simulation) return;
-            foreach (ControlBaseInterface control in SDKPara.ControlList)
+            foreach (ControlBaseInterface control in SDKPara.ControlsSnapshot())
             {
                 NP_Motor motor = control as NP_Motor;
                 if (motor == null) continue;
-                motor.Refresh();
-                AxisIOState state = motor.GetAxisIOState();
+                AxisIOState state;
+                lock (motor) { if (motor.IsDisposed) continue; state = motor.GetAxisIOState(); }
                 if (state.ALM) Alarm.Show("2030", string.Format(LangMsg("MiddleLayer", "msg_MotorAlarm",
                     "电机「{0}」报警。", "Motor \"{0}\" has an alarm.", "El motor «{0}» tiene una alarma."), motor.Name));
                 if (state.EMG) Alarm.Show("2031", string.Format(LangMsg("MiddleLayer", "msg_MotorEmergency",

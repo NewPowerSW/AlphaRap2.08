@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
@@ -11,6 +12,7 @@ namespace AlphaRap
     public partial class SystemSetting : ModuleBaseForm
     {
         public ConstantStore Constants { get; private set; }
+        private string contextKey, contextScope;
         private string Scope { get { return scopes.SelectedTab == settingPage ? "Setting" : "Recipe"; } }
 
         /// <summary>创建固定常量表布局，设计期不读取机器文件。</summary>
@@ -27,8 +29,10 @@ namespace AlphaRap
             searchValue.TextChanged += (sender, args) => Filter();
             add.Click += (sender, args) => Execute(() => EditConstant(null));
             edit.Click += (sender, args) => Execute(() => EditConstant(SelectedKey()));
-            delete.Click += (sender, args) => Execute(DeleteSelected);
-            save.Click += (sender, args) => Execute(() => { Constants.Save(Scope); status.Text = string.Format(ConstantText.T("saved"), Scope); });
+            constants.MouseDown += SelectContextRow;
+            constantMenu.Opening += OpenConstantMenu;
+            constantDelete.Click += (sender, args) => Execute(DeleteSelected);
+            ApplyLanguage(null, EventArgs.Empty);
             constants.CellDoubleClick += (sender, args) => { if (args.RowIndex >= 0) Execute(() => EditConstant(SelectedKey())); };
             constants.CellFormatting += FormatCell;
             VisibleChanged += (sender, args) => { if (Visible) { BindScope(); RefreshPermission(); } };
@@ -81,9 +85,29 @@ namespace AlphaRap
         private void DeleteSelected()
         {
             FlowPrograms.RequireIdle();
-            string key = SelectedKey();
+            string key = contextKey;
+            if (key == null || contextScope != Scope) return;
             if (MessageBox.Show(string.Format(ConstantText.T("remove"), key), ConstantText.T("title"), MessageBoxButtons.OKCancel) != DialogResult.OK) return;
             Constants.Delete(Scope, key);
+        }
+
+        /// <summary>只记录右键命中的绑定行，表头和空白区不沿用旧选择。</summary>
+        private void SelectContextRow(object sender, MouseEventArgs args)
+        {
+            if (args.Button != MouseButtons.Right) return;
+            contextKey = null; contextScope = Scope;
+            int index = constants.HitTest(args.X, args.Y).RowIndex;
+            if (index < 0) return;
+            constants.CurrentCell = constants.Rows[index].Cells[0];
+            constants.ClearSelection(); constants.Rows[index].Selected = true;
+            contextKey = SelectedKey();
+        }
+
+        /// <summary>只有命中行且可编辑时才允许删除，服务层仍检查流程引用。</summary>
+        private void OpenConstantMenu(object sender, CancelEventArgs args)
+        {
+            if (contextKey == null || contextScope != Scope) { args.Cancel = true; return; }
+            constantDelete.Enabled = FlowPrograms.CanEdit && SysPara.SystemMode == RunMode.IDLE && !FlowPrograms.AnyRunning && !NPSDK.Flow_Module.Module_GetRunningStatus;
         }
 
         /// <summary>翻译类型和内置说明，不翻译常量业务键或用户备注。</summary>
@@ -99,25 +123,19 @@ namespace AlphaRap
         /// <summary>全局保存前校验两个作用域的类型和值。</summary>
         public void ValidateConstants() { Constants.Validate("Setting"); Constants.Validate("Recipe"); }
 
-        /// <summary>切换配方前处理 Recipe 草稿，Setting 草稿保持独立。</summary>
+        /// <summary>切换配方前拦截未保存常量，由主保存统一处理。</summary>
         public bool ConfirmRecipeChange()
         {
             if (Constants.Table("Recipe").GetChanges() == null) return true;
-            DialogResult choice = MessageBox.Show(ConstantText.T("pendingRecipe"), ConstantText.T("title"), MessageBoxButtons.YesNoCancel);
-            if (choice == DialogResult.Cancel) return false;
-            if (choice == DialogResult.Yes)
-            {
-                try { Constants.Save("Recipe"); return true; }
-                catch (Exception error) { MessageBox.Show(error.Message, ConstantText.T("title")); return false; }
-            }
-            Constants.Table("Recipe").RejectChanges();
-            return true;
+            MessageBox.Show(ConstantText.T("pendingMainSave"),ConstantText.T("title"));
+            return false;
         }
 
         /// <summary>只刷新文字和显示格式，保留过滤条件及草稿。</summary>
         private void ApplyLanguage(object sender, EventArgs args)
         {
             ConstantText.Apply(this);
+            constantDelete.Text = MiddleLayer.LangMsg(Name, constantDelete.Name, "删除", "Delete", "Eliminar");
             recipeCaption.Text = string.Format(ConstantText.T("context"), SysPara.RecipeName);
             constants.Invalidate();
         }
@@ -126,7 +144,7 @@ namespace AlphaRap
         private void RefreshPermission()
         {
             bool allowed = FlowPrograms.CanEdit && SysPara.SystemMode == RunMode.IDLE && !FlowPrograms.AnyRunning && !NPSDK.Flow_Module.Module_GetRunningStatus;
-            foreach (Control control in new Control[] { add, edit, delete, save }) control.Enabled = allowed;
+            foreach (Control control in new Control[] { add, edit }) control.Enabled = allowed;
             recipeCaption.Text = string.Format(ConstantText.T("context"), SysPara.RecipeName);
         }
 

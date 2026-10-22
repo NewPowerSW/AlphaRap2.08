@@ -10,6 +10,14 @@ namespace AlphaRap.FlowProgramming
         private Button ok;
         private Button cancel;
         private FlowLayoutPanel buttons;
+        private ContextMenuStrip fieldMenu;
+        private ToolStripMenuItem fieldDelete;
+        /// <summary>释放生产字段的行菜单。</summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && fieldMenu != null) fieldMenu.Dispose();
+            base.Dispose(disposing);
+        }
         /// <summary>Build the fixed layout shared by designer preview and runtime.</summary>
         private void InitializeComponent()
         {
@@ -20,7 +28,11 @@ namespace AlphaRap.FlowProgramming
             fields.AutoGenerateColumns = false;
             fields.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             fields.AllowUserToAddRows = true;
-            fields.AllowUserToDeleteRows = true;
+            fields.AllowUserToDeleteRows = false;
+            fieldMenu = new ContextMenuStrip { Name = "fieldMenu" };
+            fieldDelete = new ToolStripMenuItem { Name = "fieldDelete", Tag = "deleteField", Text = "删除字段" };
+            fieldMenu.Items.Add(fieldDelete);
+            fields.ContextMenuStrip = fieldMenu;
             fieldName = new DataGridViewTextBoxColumn();
             fieldName.Name = "fieldName";
             fieldName.Tag = "name";

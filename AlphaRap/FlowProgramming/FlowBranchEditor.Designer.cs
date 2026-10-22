@@ -13,7 +13,8 @@ namespace AlphaRap.FlowProgramming
         private RadioButton unconditional;
         private RadioButton all;
         private RadioButton any;
-        private Button remove;
+        private ToolStripMenuItem remove, conditionDelete;
+        private ContextMenuStrip branchMenu, conditionMenu;
         private DataGridView conditions;
         private DataGridViewComboBoxColumn leftSource;
         private DataGridViewTextBoxColumn leftReference;
@@ -22,6 +23,14 @@ namespace AlphaRap.FlowProgramming
         private DataGridViewComboBoxColumn rightSource;
         private DataGridViewTextBoxColumn rightReference;
         private DataGridViewButtonColumn rightPick;
+
+        /// <summary>释放分支及条件行的固定右键菜单。</summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && branchMenu != null) branchMenu.Dispose();
+            if (disposing && conditionMenu != null) conditionMenu.Dispose();
+            base.Dispose(disposing);
+        }
 
         /// <summary>同一固定出口布局用于默认 NEXT、手动添加的 CASE 和设计器预览。</summary>
         private void InitializeComponent()
@@ -34,7 +43,14 @@ namespace AlphaRap.FlowProgramming
             unconditional = new RadioButton();
             all = new RadioButton();
             any = new RadioButton();
-            remove = new Button();
+            branchMenu = new ContextMenuStrip { Name = "branchMenu" };
+            conditionMenu = new ContextMenuStrip { Name = "conditionMenu" };
+            remove = new ToolStripMenuItem();
+            conditionDelete = new ToolStripMenuItem { Name = "conditionDelete", Tag = "deleteCondition", Text = "删除条件" };
+            branchMenu.Items.Add(remove);
+            conditionMenu.Items.Add(conditionDelete);
+            header.ContextMenuStrip = branchMenu;
+            codeLabel.ContextMenuStrip = branchMenu;
             conditions = new DataGridView();
             leftSource = new DataGridViewComboBoxColumn();
             leftReference = new DataGridViewTextBoxColumn();
@@ -90,13 +106,14 @@ namespace AlphaRap.FlowProgramming
             header.Controls.Add(unconditional);
             header.Controls.Add(all);
             header.Controls.Add(any);
-            header.Controls.Add(remove);
             conditions.Name = "branchConditions";
             conditions.Dock = DockStyle.Fill;
             conditions.AutoGenerateColumns = false;
             conditions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             conditions.RowHeadersWidth = 28;
             conditions.Enabled = false;
+            conditions.AllowUserToDeleteRows = false;
+            conditions.ContextMenuStrip = conditionMenu;
             leftSource.Name = "leftSource";
             leftSource.Tag = "source";
             leftSource.HeaderText = "来源类型";

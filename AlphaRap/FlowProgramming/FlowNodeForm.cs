@@ -23,7 +23,7 @@ namespace AlphaRap.FlowProgramming
         {
             module = owner;
             original = step;
-            catalog = new FlowActions(FlowResources.Capture());
+            catalog = new FlowActions(FlowResources.Capture(true));
             filling = true;
             captionValue.Text = step.Caption;
             timeoutValue.Value = Math.Max(timeoutValue.Minimum, Math.Min(timeoutValue.Maximum, step.TimeoutMs));

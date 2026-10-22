@@ -6,6 +6,8 @@ namespace AlphaRap.FlowProgramming
     {
         public static readonly Dictionary<string, string[]> Defaults = new Dictionary<string, string[]>
         {
+            { "deleteCondition", new[] { "删除条件", "Delete condition", "Eliminar condición" } },
+            { "deleteField", new[] { "删除字段", "Delete field", "Eliminar campo" } },
             { "title", new[] { "流程工程", "Flow engineering", "Ingeniería de flujo" } },
             { "edit", new[] { "编辑流程", "Edit flow", "Editar flujo" } },
             { "addModule", new[] { "添加流程模块", "Add flow module", "Añadir módulo de flujo" } },
@@ -67,7 +69,7 @@ namespace AlphaRap.FlowProgramming
             { "ok", new[] { "确定", "OK", "Aceptar" } },
             { "cancel", new[] { "取消", "Cancel", "Cancelar" } },
             { "end", new[] { "结束", "End", "Fin" } },
-            { "hint", new[] { "编辑模式下拖动、双击节点。保存并退出编辑后，使用主界面初始化 / 启动；运行模式取机器 Simulation 设置。", "Drag and double-click nodes in edit mode. Save and exit editing, then use the main Initialize / Start buttons. Execution uses the machine Simulation setting.", "Arrastre y configure los nodos en edición. Guarde y salga de edición; use Inicializar / Iniciar en la pantalla principal. Se usa Simulation de la máquina." } },
+            { "hint", new[] { "编辑模式下拖动、双击节点。配置统一使用主界面【保存】；退出编辑后使用主界面初始化 / 启动，运行模式取机器 Simulation 设置。", "Drag and double-click nodes in edit mode. Use the main Save button for configuration; exit editing, then use the main Initialize / Start buttons. Execution uses the machine Simulation setting.", "Arrastre y configure los nodos en edición. Use Guardar principal para la configuración; salga de edición y use Inicializar / Iniciar. Se usa Simulation de la máquina." } },
             { "busy", new[] { "流程正在运行或停止，请等待完成。", "The flow is running or stopping. Wait for completion.", "El flujo se está ejecutando o deteniendo. Espere a que termine." } },
             { "permission", new[] { "当前为只读查看，编辑流程需要维护员或管理员权限，且需启用流程页面权限。", "Read-only view. Editing requires Maintenance or Administrator access and flow page permission.", "Vista de solo lectura. La edición requiere permisos de mantenimiento o administrador y acceso a la página de flujo." } },
             { "error", new[] { "操作失败：{0}", "Operation failed: {0}", "Error en la operación: {0}" } },

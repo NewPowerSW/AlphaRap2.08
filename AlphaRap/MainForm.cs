@@ -1488,14 +1488,15 @@ int nheightEllipse
         {
             MiddleLayer.Initial();
         }
-        //保存数据按钮
+        /// <summary>从主界面统一触发配置保存。</summary>
         private void SaveData_Click(object sender, EventArgs e)
         {
             SaveData();
         }
+        /// <summary>确认后统一保存配置，放弃时恢复草稿，失败保留修改供重试。</summary>
         public void SaveData()
         {
-            try { if (MiddleLayer.SystemS != null) MiddleLayer.SystemS.ValidateConstants(); }
+            try { FlowProgramming.FlowPrograms.RequireIdle(); }
             catch (Exception error) { MessageBox.Show(error.Message, Configuration.ConstantText.T("title")); return; }
             if (FlowProgramming.FlowPrograms.AnyRunning)
             {
@@ -1515,15 +1516,17 @@ int nheightEllipse
             warning.fnSetMessageAndButtons(MiddleLayer.LangMsg("MainForm", "msg_SaveConfirm", "确认要保存吗？", "Are you sure to save it？", "¿Seguro que quieres guardar?"), true, false, true);
             warning.ShowDialog();
             dr = warning.dResult;
+            warning.Dispose();
+            if (dr == DialogResult.Abort) dr = DialogResult.No;
+            if (dr != DialogResult.Yes && dr != DialogResult.No) return;
+            try
+            {
             if (dr == DialogResult.Yes)
             {
                 plMainShow.Focus();
-                MiddleLayer.AddF.WritePermission();
-                for (int i = 0; i < ModuleManager.ModuleList.Count; i++)
-                {
-                    ModuleManager.ModuleList[i].WriteRecipeData(SysPara.FilePath);
-                    ModuleManager.ModuleList[i].WriteSettingData();
-                }
+                foreach (Form form in MiddleLayer.lstForm) if (!EndConfigurationEdits(form)) throw new InvalidOperationException(MiddleLayer.LangMsg("MainForm","msg_FinishEdit","请完成或取消当前单元格编辑后保存。","Complete or cancel the current cell edit before saving.","Complete o cancele la edición de la celda antes de guardar."));
+                Configuration.ProjectConfiguration.Save();
+                if (MiddleLayer.AddF != null) MiddleLayer.AddF.WritePermission();
 
                 // 视觉参数单独保存在 ModuleData\SettingData\VPForm.Cameras.xml
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.CommitVpConfig();
@@ -1538,11 +1541,7 @@ int nheightEllipse
             }
             else
             {
-                for (int i = 0; i < ModuleManager.ModuleList.Count; i++)
-                {
-                    ModuleManager.ModuleList[i].ReadRecipeData(SysPara.FilePath);
-                    ModuleManager.ModuleList[i].ReadSettingData();
-                }
+                Configuration.ProjectConfiguration.Discard();
 
                 // 选"否"：视觉参数恢复为上一次保存的值
                 if (MiddleLayer.VPF != null) MiddleLayer.VPF.RevertVpConfig();
@@ -1552,7 +1551,23 @@ int nheightEllipse
 
                 OperationLog.Write("MainForm", "放弃保存，参数还原为上次保存值");
             }
-            MiddleLayer.HardF.SaveHardData();
+            if (MiddleLayer.HardF != null) MiddleLayer.HardF.SaveHardData();
+            }
+            catch (Exception error) { MessageBox.Show(error.Message,MiddleLayer.LangMsg("MainForm","msg_SaveFailed","保存失败","Save failed","Error al guardar")); }
+        }
+
+        /// <summary>主保存时结束各页面表格的当前编辑，失败时保留编辑器供修正。</summary>
+        private static bool EndConfigurationEdits(Control control)
+        {
+            DataGridView grid = control as DataGridView;
+            if (grid != null && !grid.EndEdit()) return false;
+            if (grid != null && grid.DataSource != null)
+            {
+                CurrencyManager manager = grid.BindingContext[grid.DataSource,grid.DataMember] as CurrencyManager;
+                if (manager != null) manager.EndCurrentEdit();
+            }
+            foreach (Control child in control.Controls) if (!EndConfigurationEdits(child)) return false;
+            return true;
         }
 
         private void btStart_Click(object sender, EventArgs e)

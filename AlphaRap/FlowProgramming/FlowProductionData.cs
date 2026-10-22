@@ -35,9 +35,44 @@ namespace AlphaRap
     {
         private readonly object productionSync = new object();
         private List<FlowProgramming.ProductionField> productionFields;
+        private List<FlowProgramming.ProductionField> productionDraft;
+
+        /// <summary>字段编辑器读取待保存草稿，运行仍读取已保存定义。</summary>
+        public List<FlowProgramming.ProductionField> GetProductionDraft()
+        {
+            lock (productionSync) return CopyFields(productionDraft??GetProductionSchema());
+        }
+
+        /// <summary>字段窗口确定只更新草稿，不写入配置文件。</summary>
+        public void SetProductionDraft(List<FlowProgramming.ProductionField> fields)
+        {
+            ValidateFields(fields);
+            lock (productionSync) productionDraft = CopyFields(fields);
+        }
+
+        /// <summary>主保存前校验字段草稿。</summary>
+        public void ValidateProductionDraft() { ValidateFields(GetProductionDraft()); }
+
+        /// <summary>将字段草稿写入主保存暂存文件。</summary>
+        public void WriteProductionDraft(string path)
+        {
+            using (FileStream output = File.Create(path)) new XmlSerializer(typeof(List<FlowProgramming.ProductionField>)).Serialize(output,GetProductionDraft());
+        }
+
+        /// <summary>主保存成功后提交字段版本。</summary>
+        public void AcceptProductionDraft() { lock (productionSync) { productionFields=GetProductionDraft(); productionDraft=null; } }
+
+        /// <summary>放弃字段草稿，恢复已保存定义。</summary>
+        public void DiscardProductionDraft() { lock (productionSync) productionDraft=null; }
+
+        /// <summary>复制字段定义，避免窗口修改运行列表。</summary>
+        private static List<FlowProgramming.ProductionField> CopyFields(IEnumerable<FlowProgramming.ProductionField> fields)
+        {
+            return fields.Select(field=>new FlowProgramming.ProductionField { Name=field.Name,Type=field.Type }).ToList();
+        }
 
         /// <summary>生产表定义与 DataForm 的机器配置保存在同一目录。</summary>
-        private static string ProductionSchemaPath
+        internal static string ProductionSchemaPath
         {
             get { return Path.Combine(string.IsNullOrEmpty(SysPara.SettingDataDirectory) ? @".\ModuleData\SettingData" : SysPara.SettingDataDirectory, "DataForm.Production.xml"); }
         }
@@ -69,14 +104,7 @@ namespace AlphaRap
         /// <summary>校验并原子保存生产表定义，字段键保持业务原值。</summary>
         public void SaveProductionSchema(List<FlowProgramming.ProductionField> fields)
         {
-            if (fields.Count == 0) throw new InvalidDataException("At least one production field is required.");
-            HashSet<string> names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (FlowProgramming.ProductionField field in fields)
-            {
-                if (string.IsNullOrWhiteSpace(field.Name) || field.Name.IndexOfAny(new[] { '\r', '\n' }) >= 0 || !names.Add(field.Name) || IsProductionMetadata(field.Name))
-                    throw new InvalidDataException("Invalid, duplicate or reserved field: " + field.Name);
-                if (!new[] { "Text", "Number", "Boolean" }.Contains(field.Type)) throw new InvalidDataException("Unsupported field type: " + field.Type);
-            }
+            ValidateFields(fields);
             lock (productionSync)
             {
                 string path = ProductionSchemaPath;
@@ -86,9 +114,22 @@ namespace AlphaRap
                 {
                     using (FileStream stream = File.Create(temporary)) new XmlSerializer(typeof(List<FlowProgramming.ProductionField>)).Serialize(stream, fields);
                     if (File.Exists(path)) File.Replace(temporary, path, path + ".bak"); else File.Move(temporary, path);
-                    productionFields = fields.Select(field => new FlowProgramming.ProductionField { Name = field.Name, Type = field.Type }).ToList();
+                    productionFields = CopyFields(fields); productionDraft=null;
                 }
                 finally { if (File.Exists(temporary)) File.Delete(temporary); }
+            }
+        }
+
+        /// <summary>校验生产表键、唯一性、保留字段及类型。</summary>
+        private static void ValidateFields(List<FlowProgramming.ProductionField> fields)
+        {
+            if (fields.Count == 0) throw new InvalidDataException("At least one production field is required.");
+            HashSet<string> names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (FlowProgramming.ProductionField field in fields)
+            {
+                if (string.IsNullOrWhiteSpace(field.Name) || field.Name.IndexOfAny(new[] { '\r', '\n' }) >= 0 || !names.Add(field.Name) || IsProductionMetadata(field.Name))
+                    throw new InvalidDataException("Invalid, duplicate or reserved field: " + field.Name);
+                if (!new[] { "Text", "Number", "Boolean" }.Contains(field.Type)) throw new InvalidDataException("Unsupported field type: " + field.Type);
             }
         }
 

@@ -29,6 +29,9 @@ namespace AlphaRap
 		private void InitializeComponent()
 		{
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.ioResourcesPage = new System.Windows.Forms.TabPage { Name = "ioResourcesPage", Text = "IO 资源" };
+            this.ioResourcePanel = new AlphaRap.Configuration.HardwareResourcePanel { Name = "ioResourcePanel", ResourceKind = "IO", Dock = System.Windows.Forms.DockStyle.Fill };
+            this.ioResourcesPage.Controls.Add(this.ioResourcePanel);
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.IB_Back_Door_Sensor = new NPSDK.Motion.NP_Input();
@@ -128,6 +131,7 @@ namespace AlphaRap
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.ioResourcesPage);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Font = new System.Drawing.Font("宋体", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
@@ -1494,6 +1498,8 @@ namespace AlphaRap
 		#endregion
 
 		private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage ioResourcesPage;
+        private AlphaRap.Configuration.HardwareResourcePanel ioResourcePanel;
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabPage tabPage2;
 		private System.Windows.Forms.GroupBox groupBox1;

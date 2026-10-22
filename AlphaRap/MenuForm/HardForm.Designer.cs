@@ -138,7 +138,7 @@
             this.X1_Group.Controls.Add(this.X1_PositionTable1);
             this.X1_Group.Controls.Add(this.nP_PositionShow1);
             this.X1_Group.Controls.Add(this.MTR_H1_X);
-            this.X1_Group.Location = new System.Drawing.Point(53, 52);
+            this.X1_Group.Location = new System.Drawing.Point(53, 94);
             this.X1_Group.Name = "X1_Group";
             this.X1_Group.Size = new System.Drawing.Size(585, 491);
             this.X1_Group.TabIndex = 7;
@@ -238,7 +238,7 @@
             // 
             this.nP_ManualControl1.BackColor = System.Drawing.Color.White;
             this.nP_ManualControl1.DefaultSpeed = 30D;
-            this.nP_ManualControl1.Location = new System.Drawing.Point(669, 74);
+            this.nP_ManualControl1.Location = new System.Drawing.Point(669, 116);
             this.nP_ManualControl1.MaximumJogSpeed = 100D;
             this.nP_ManualControl1.Name = "nP_ManualControl1";
             this.nP_ManualControl1.Size = new System.Drawing.Size(134, 48);
@@ -252,6 +252,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(1284, 735);
+            this.resourceToolbar = new System.Windows.Forms.FlowLayoutPanel { Name = "resourceToolbar", Dock = System.Windows.Forms.DockStyle.Top, Height = 42 };
+            this.legacyResources = new System.Windows.Forms.Button { Name = "legacyResources", Text = "原有轴页面", AutoSize = true };
+            this.configuredResources = new System.Windows.Forms.Button { Name = "configuredResources", Text = "轴资源", AutoSize = true };
+            this.resourceToolbar.Controls.Add(this.legacyResources);
+            this.resourceToolbar.Controls.Add(this.configuredResources);
+            this.resourcePanel = new AlphaRap.Configuration.HardwareResourcePanel { Name = "hardwareResourcePanel", Dock = System.Windows.Forms.DockStyle.Fill, Visible = false };
+            this.Controls.Add(this.resourcePanel);
+            this.Controls.Add(this.resourceToolbar);
             this.Controls.Add(this.nP_ManualControl1);
             this.Controls.Add(this.X1_Group);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -278,6 +286,9 @@
         private System.Data.DataColumn dataColumn8;
 		private System.Data.DataTable dataTable2;
         public System.Data.DataColumn dataColumn29;
+        private System.Windows.Forms.FlowLayoutPanel resourceToolbar;
+        private System.Windows.Forms.Button legacyResources, configuredResources;
+        private AlphaRap.Configuration.HardwareResourcePanel resourcePanel;
         public NPSDK.Motion.NP_Motor MTR_H1_X;
         private System.Windows.Forms.GroupBox X1_Group;
         private NPSDK.Motion.NP_JogOption nP_JogOption1;

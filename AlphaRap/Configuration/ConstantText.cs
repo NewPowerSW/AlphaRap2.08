@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace AlphaRap.Configuration
@@ -17,7 +17,7 @@ namespace AlphaRap.Configuration
             { "value", new[] { "值", "Value", "Valor" } }, { "description", new[] { "说明", "Description", "Descripción" } },
             { "Boolean", new[] { "布尔", "Boolean", "Booleano" } }, { "Integer", new[] { "整数", "Integer", "Entero" } },
             { "Number", new[] { "数值", "Number", "Número" } }, { "Text", new[] { "文本", "Text", "Texto" } },
-            { "hint", new[] { "Setting 不随配方切换；Recipe 使用物料管理的当前配方。修改后保存，在流程节点的“型号 / 机器参数”中选择 Constants。", "Setting is independent of recipes; Recipe follows the current model in product management. Save edits, then choose Constants under Recipe / Machine parameter in a flow node.", "Setting no cambia con la receta; Recipe sigue el modelo actual en gestión de productos. Guarde y elija Constants en Parámetro de receta / máquina del nodo." } },
+            { "hint", new[] { "Setting 不随配方切换；Recipe 跟随物料管理的当前配方。修改后使用主界面【保存】。流程节点的“型号 / 机器参数”可绑定 Constants。", "Setting is independent of recipes; Recipe follows product management. Use the main Save button after editing. Bind Constants under Recipe / Machine parameter in flow nodes.", "Setting no cambia con la receta; Recipe sigue la gestión de productos. Use Guardar principal tras editar. Vincule Constants en Parámetro de receta / máquina del nodo." } },
             { "context", new[] { "当前配方：{0}", "Current recipe: {0}", "Receta actual: {0}" } },
             { "duplicate", new[] { "该作用域已有同名常量。", "A constant with this key already exists in this scope.", "Ya existe una constante con esta clave en este ámbito." } },
             { "missing", new[] { "常量已删除或不存在，请重新选择。", "The constant is unavailable. Select it again.", "La constante no está disponible. Vuelva a seleccionarla." } },
@@ -28,6 +28,7 @@ namespace AlphaRap.Configuration
             { "remove", new[] { "删除常量“{0}”？保存后生效。", "Delete constant '{0}'? Save to apply.", "¿Eliminar la constante «{0}»? Guarde para aplicar." } },
             { "saved", new[] { "{0} 常量已保存。", "{0} constants saved.", "Constantes de {0} guardadas." } },
             { "pendingRecipe", new[] { "当前配方常量有未保存修改，是否保存后再切换？", "Save changes to current recipe constants before switching?", "¿Guardar cambios de las constantes de la receta antes de cambiar?" } },
+            { "pendingMainSave", new[] { "当前配方常量有未保存修改，请先使用主界面【保存】；选择否可放弃修改。", "Current recipe constants have unsaved edits. Use the main Save button first; choose No to discard.", "Hay constantes sin guardar. Use Guardar principal; elija No para descartar." } },
             { "referenced", new[] { "以下流程节点仍引用该参数，不能删除、改键或改变类型：{0}", "These flow nodes still reference this parameter; it cannot be deleted, renamed or retyped: {0}", "Estos nodos aún usan el parámetro; no puede eliminarse ni cambiar su clave o tipo: {0}" } },
             { "DisScann", new[] { "禁用扫码枪", "Disable scanner", "Desactivar escáner" } },
             { "UseTryRun", new[] { "使用空跑", "Dry run", "Ejecución en vacío" } },

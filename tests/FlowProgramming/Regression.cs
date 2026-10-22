@@ -48,6 +48,27 @@ internal sealed class FutureStation : Flow_BaseForm
     public FutureStation() { Name = "FutureStation"; Canvas.Controls.Add(Existing); Controls.Add(Canvas); }
 }
 
+internal sealed class JogDriver : MotorBaseInterface
+{
+    public int Starts, Stops;
+    private bool moving;
+    /// <summary>Record a positive jog without touching hardware.</summary>
+    public override void JogP() { Starts++; moving = true; }
+    /// <summary>Record a negative jog without touching hardware.</summary>
+    public override void JogN() { Starts++; moving = true; }
+    /// <summary>Complete a test stop immediately.</summary>
+    public override void FastStop() { Stops++; moving = false; }
+    /// <summary>Expose only the fake driver's motion state.</summary>
+    public override bool GetBusy() { return moving; }
+}
+
+internal sealed class InitializationProbe : ControlBaseInterface
+{
+    public int Starts;
+    /// <summary>Count driver initialization without physical IO.</summary>
+    public override void Initial() { Starts++; }
+}
+
 internal static class Cases
 {
     private static int count;
@@ -57,12 +78,14 @@ internal static class Cases
     private static DataForm data;
     private static ModuleBaseForm recipe;
     private static HardForm hardware;
+    private static ManualForm ioPage;
     private static FutureStation station;
     private static FlowModuleEditor editor;
     private static FlowStep model;
     private static FlowStep measured;
     private static FlowStep save;
     private static SystemSetting constantForm;
+    private static HardwareDefinition groupedAxis, groupedInput, groupedOutput;
 
     /// <summary>Run offline business, persistence, isolation and UI regression scenarios.</summary>
     public static int Run(string[] args)
@@ -123,6 +146,17 @@ internal static class Cases
         Test("referenced constants cannot be renamed deleted or retyped", ConstantReferences);
         Test("constant validation and failed writes preserve committed values", ConstantFailures);
         Test("constant table and editor follow three languages without losing drafts", ConstantLanguages);
+        Test("axis and IO groups reuse one real instance and expose double-click settings", HardwareGroups);
+        Test("grouped hardware and recipe points are selectable flow resources", HardwareBindings);
+        Test("resource definitions and current-recipe points reload independently", HardwarePersistence);
+        Test("resource deletion rejects action parameter and lease references", HardwareDeletion);
+        Test("grouped resource editor follows language changes without committing edits", HardwareLanguages);
+        Test("SDK refresh survives adding and disposing registered controls", HardwareRegistry);
+        Test("continuous jog survives capture gain and stops on release or capture loss", JogCapture);
+        Test("SDK startup defers host-managed resources to the existing initialization button", DeferredInitialization);
+        Test("axis and IO pages create resources through the actual add and confirm buttons", HardwareAddUi);
+        Test("resource constant and point menus target the actual right-click object", ContextTargets);
+        Test("CASE condition and production-field drafts delete through context menus", DraftMenus);
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
         Console.WriteLine("RESULT: " + (count - failures) + "/" + count + " passed");
         return failures == 0 ? 0 : 1;
@@ -763,7 +797,8 @@ internal static class Cases
     private static void ConstantExamples()
     {
         ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory; Directory.CreateDirectory(ModuleManager.SettingDataDirectory);
-        DataSet old = new DataSet(); DataTable flags = old.Tables.Add("PSet"); flags.Columns.Add("DisScann", typeof(bool)); flags.Columns.Add("UseTryRun", typeof(bool)); flags.Rows.Add(true, false);
+        DataSet old = new DataSet(); DataTable emptyMarker = old.Tables.Add("MSet"); emptyMarker.Rows.Add(emptyMarker.NewRow());
+        DataTable flags = old.Tables.Add("PSet"); flags.Columns.Add("DisScann", typeof(bool)); flags.Columns.Add("UseTryRun", typeof(bool)); flags.Rows.Add(true, false);
         old.WriteXml(Path.Combine(ModuleManager.SettingDataDirectory, "SysSetting.xml"));
         constantForm = new SystemSetting(); constantForm.ModuleInitialize(constantForm.Text); SetHost("SystemS", constantForm); RegisterForm(constantForm);
         Assert(constantForm.Constants.Table("Setting").Select("Key <> ''").Length == 8, "The existing switches were not added as eight Setting constants.");
@@ -872,6 +907,257 @@ internal static class Cases
         constantForm.Hide(); SwitchLanguage(LanguageType.Chinese);
     }
 
+    /// <summary>Create actual NPSDK templates without connecting hardware and verify their shared instances and setting entry.</summary>
+    private static void HardwareGroups()
+    {
+        ioPage = new ManualForm(); ioPage.ModuleInitialize(ioPage.Text); SetHost("ManualF",ioPage); RegisterForm(ioPage);
+        hardware.ModuleInitialize(hardware.Text);
+        groupedAxis = new HardwareDefinition { Name = "Grouped X", Port = "2" };
+        groupedInput = hardware.Resources.NewDefinition("Input"); groupedInput.Name = "Grouped sensor";
+        groupedOutput = hardware.Resources.NewDefinition("Output"); groupedOutput.Name = "Grouped valve";
+        HardwareEntry axis = hardware.Resources.Put(groupedAxis), input = hardware.Resources.Put(groupedInput), output = hardware.Resources.Put(groupedOutput);
+        NP_AxisGroup group = (NP_AxisGroup)axis.Group;
+        Assert(ReferenceEquals(group.Motor,group.Points.WorkMotor) && ReferenceEquals(group.Motor,group.Points.ParameterSet.Single().Axis), "The group duplicated its axis instance.");
+        Assert(input.Device is NP_Input && output.Device is NP_Output && ((NP_IoGroup)output.Group).IO == output.Device, "IO direction or instance binding is wrong.");
+        Assert(!axis.Device.InitializeWithSdk && !input.Device.InitializeWithSdk && !output.Device.InitializeWithSdk,"Host-managed resources would connect during SDK startup.");
+        Assert(axis.Group.FindForm()==hardware && input.Group.FindForm()==ioPage && output.Group.FindForm()==ioPage,"Axis or IO groups were placed on the wrong page.");
+        int settings = 0;
+        using (NP_AxisGroup probeAxis = new NP_AxisGroup())
+        using (NP_InputGroup probeInput = new NP_InputGroup())
+        {
+            probeAxis.ParametersRequested += (sender,args)=>settings++; probeAxis.ShowParameters();
+            probeInput.ParametersRequested += (sender,args)=>settings++; probeInput.ShowParameters();
+        }
+        Assert(settings == 2, "Group settings did not come from the composite entry.");
+        bool blocked = false; try { hardware.Resources.ValidateStart(); } catch (InvalidOperationException) { blocked = true; } Assert(blocked,"Unsaved definitions were allowed to start.");
+        blocked = false; try { hardware.Resources.Put(new HardwareDefinition { Name = "Duplicate port",Port = "2" }); } catch (InvalidOperationException) { blocked = true; } Assert(blocked,"A second axis object was bound to the same physical channel.");
+        hardware.Resources.Save();
+        Assert(!hardware.Resources.IsDirty && HardwareResources.Load(hardware.Resources.PathName).Resources.Count == 3,"Resource definitions were not saved.");
+        using (NP_Motor duplicate = new NP_Motor { Port=groupedAxis.Port,Vendor=groupedAxis.Vendor })
+        {
+            blocked = false; try { hardware.Resources.ValidateStart(); } catch (InvalidOperationException) { blocked = true; }
+            Assert(blocked,"Startup did not detect a channel conflict introduced by a legacy control.");
+        }
+    }
+
+    /// <summary>Capture committed point rows and real driver instances through stable hardware IDs.</summary>
+    private static void HardwareBindings()
+    {
+        HardwareEntry entry = hardware.Resources.Entries.Single(item=>item.Definition.Id==groupedAxis.Id);
+        NP_AxisGroup group = (NP_AxisGroup)entry.Group;
+        group.Points.DataSet1.Rows.Add(25.5,"Fixture point"); hardware.RecipeData.AcceptChanges();
+        FlowResources capture = FlowResources.Capture();
+        string prefix = "hardware/"+groupedAxis.Id+"/";
+        Assert(ReferenceEquals(capture.Items[prefix+"axis"].Instance,entry.Device),"Flow nodes use a different axis object.");
+        FlowPointAxis points = (FlowPointAxis)capture.Items[prefix+"points/Position"].Instance;
+        Assert(points.Positions[0]==25.5 && ReferenceEquals(points.Motor,entry.Device),"The point binding lost its row or axis.");
+        Assert(capture.Items["hardware/"+groupedInput.Id+"/input"].Instance is NP_Input && capture.Items["hardware/"+groupedOutput.Id+"/output"].Instance is NP_Output,"IO resources are not discoverable.");
+        string stableId = entry.Definition.Id; HardwareDefinition renamed = entry.Definition.Copy(); renamed.Name = "Renamed X";
+        hardware.Resources.Put(renamed); hardware.Resources.Save();
+        Assert(FlowResources.Capture().Items.ContainsKey("hardware/"+stableId+"/points/Position"),"Renaming a group changed its flow identity.");
+    }
+
+    /// <summary>Use real recipe XML loading and metadata reload while keeping Setting hardware addresses unchanged.</summary>
+    private static void HardwarePersistence()
+    {
+        DataTable table = hardware.RecipeData.Tables[HardwareResources.PointsName(groupedAxis.Id)];
+        string first = Path.Combine(SysPara.RecipeDataDirectory,"Hardware-A.xml"), second = Path.Combine(SysPara.RecipeDataDirectory,"Hardware-B.xml");
+        hardware.WriteRecipeData(first); table.Rows[0]["Position"] = 81.25; hardware.WriteRecipeData(second);
+        Assert((bool)host.GetMethod("OpenRecipe",BindingFlags.Static|BindingFlags.Public).Invoke(null,new object[]{first}),"Hardware recipe A failed to open.");
+        Assert((double)((FlowPointAxis)FlowResources.Capture().Items["hardware/"+groupedAxis.Id+"/points/Position"].Instance).Positions[0]==25.5,"Point rows did not follow recipe A.");
+        Assert((bool)host.GetMethod("OpenRecipe",BindingFlags.Static|BindingFlags.Public).Invoke(null,new object[]{second}),"Hardware recipe B failed to open.");
+        using (HardForm restored = new HardForm())
+        {
+            try
+            {
+                restored.ModuleInitialize(restored.Text); restored.ReadRecipeData(second);
+                HardwareEntry axis = restored.Resources.Entries.Single(item=>item.Definition.Id==groupedAxis.Id);
+                Assert(axis.Definition.Port=="2" && ((NP_AxisGroup)axis.Group).Points.DataSet1.Rows[0].Field<double>("Position")==81.25,"Hardware definitions or recipe points failed to reload.");
+            }
+            finally { ModuleManager.ModuleList.Remove(restored); }
+        }
+        hardware.ReadRecipeData(second);
+    }
+
+    /// <summary>Prevent dangling hardware targets, point parameters and deletion while a flow owns the IO channel.</summary>
+    private static void HardwareDeletion()
+    {
+        using (Flow_BaseForm form = FlowPrograms.AddModule("Hardware consumer"))
+        {
+            FlowModuleEditor module = FlowPrograms.Attach(form); FlowStep node = module.AddNode();
+            node.Target = "hardware/"+groupedAxis.Id+"/axis";
+            bool blocked = false; try { hardware.Resources.Delete(groupedAxis.Id); } catch (InvalidOperationException) { blocked = true; } Assert(blocked,"A hardware action target was deleted.");
+            node.Target = ""; node.Inputs[0].Source = "Parameter"; node.Inputs[0].Reference = "Recipe/HardForm/"+HardwareResources.PointsName(groupedAxis.Id)+"/0/Position";
+            blocked = false; try { hardware.Resources.Delete(groupedAxis.Id); } catch (InvalidOperationException) { blocked = true; } Assert(blocked,"Referenced point data did not block deletion.");
+            module.Delete(node.Id); FlowPrograms.DeleteModule(module);
+        }
+        HardwareEntry output = hardware.Resources.Entries.Single(item=>item.Definition.Id==groupedOutput.Id);
+        using (FlowResourceGate.Lease lease = FlowResourceGate.Acquire(new object[]{output.Device},CancellationToken.None).GetAwaiter().GetResult())
+        {
+            bool blocked = false; try { hardware.Resources.Delete(groupedOutput.Id); } catch (InvalidOperationException) { blocked = true; } Assert(blocked,"Leased IO was deleted.");
+        }
+        ControlBaseInterface removed = output.Device; hardware.Resources.Delete(groupedOutput.Id); hardware.Resources.Save();
+        Assert(removed.IsDisposed && !SDKPara.ControlsSnapshot().Contains(removed) && HardwareResources.Load(hardware.Resources.PathName).Resources.All(item=>item.Id!=groupedOutput.Id),"Deleted IO remained registered or reloaded.");
+    }
+
+    /// <summary>Render group templates in three languages and preserve unfinished parameter edits and actual point rows.</summary>
+    private static void HardwareLanguages()
+    {
+        host.GetMethod("InitialLanguageData",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
+        hardware.Show(); ((Button)hardware.Controls.Find("configuredResources",true)[0]).PerformClick(); Application.DoEvents();
+        Control panel = hardware.Controls.Find("HardwareResourcePanel",true)[0], toolbar = hardware.Controls.Find("resourceToolbar",false)[0];
+        Assert(!panel.Bounds.IntersectsWith(toolbar.Bounds), "The group canvas covers the hardware navigation toolbar.");
+        DataTable table = hardware.RecipeData.Tables[HardwareResources.PointsName(groupedAxis.Id)]; DataRow row = table.Rows[0];
+        ioPage.Show(); ((TabControl)ioPage.Controls.Find("tabControl1",true)[0]).SelectedTab = (TabPage)ioPage.Controls.Find("ioResourcesPage",true)[0];
+        foreach (LanguageType language in new[]{LanguageType.Chinese,LanguageType.English,LanguageType.Español})
+        {
+            SwitchLanguage(language); Application.DoEvents(); Assert(ReferenceEquals(table.Rows[0],row) && (double)row["Position"]==81.25,"Language switch rebuilt point rows.");
+            using (Bitmap bitmap = new Bitmap(hardware.Width,hardware.Height)) { hardware.DrawToBitmap(bitmap,new Rectangle(Point.Empty,hardware.Size)); bitmap.Save(Path.Combine(root,"hardware-"+language+".png")); }
+            using (Bitmap bitmap = new Bitmap(ioPage.Width,ioPage.Height)) { ioPage.DrawToBitmap(bitmap,new Rectangle(Point.Empty,ioPage.Size)); bitmap.Save(Path.Combine(root,"io-"+language+".png")); }
+        }
+        using (HardwareEditForm dialog = new HardwareEditForm(groupedAxis,value=>{}))
+        {
+            dialog.Show(); Application.DoEvents(); DataGridView grid = (DataGridView)dialog.Controls.Find("hardwareParameters",true)[0];
+            grid.CurrentCell = grid.Rows.Cast<DataGridViewRow>().Single(item=>Convert.ToString(item.Cells[0].Value)=="WorkSpeed").Cells[1]; grid.BeginEdit(false); ((TextBox)grid.EditingControl).Text = "pending speed";
+            SwitchLanguage(LanguageType.Chinese); SwitchLanguage(LanguageType.English);
+            Assert(((TextBox)grid.EditingControl).Text=="pending speed","Language switch committed the hardware parameter edit."); dialog.Close();
+        }
+        hardware.Hide(); ioPage.Hide(); SwitchLanguage(LanguageType.Chinese);
+    }
+
+    /// <summary>Refresh a stable snapshot while the UI thread creates and disposes composite control instances.</summary>
+    private static void HardwareRegistry()
+    {
+        int before = SDKPara.ControlsSnapshot().Length;
+        Task scan = Task.Run(()=>{ for(int i=0;i<200;i++) SDKKernal.RefreshControls(); });
+        for(int i=0;i<30;i++) using(NP_InputGroup group = new NP_InputGroup()) { Assert(SDKPara.ControlsSnapshot().Contains(group.IO),"New group IO was not registered."); }
+        scan.GetAwaiter().GetResult(); Assert(SDKPara.ControlsSnapshot().Length==before,"Disposed group controls leaked into the SDK scan registry.");
+    }
+
+    /// <summary>Exercise real mouse capture with a fake driver and no physical motion card.</summary>
+    private static void JogCapture()
+    {
+        using (Form fixture = new Form())
+        using (NP_AxisGroup group = new NP_AxisGroup())
+        {
+            JogDriver driver = new JogDriver();
+            typeof(NP_Motor).GetField("dMotor",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(group.Motor,driver);
+            typeof(NP_Motor).GetField("ready",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(group.Motor,true);
+            fixture.Controls.Add(group); fixture.Show(); Application.DoEvents();
+            ((CheckBox)group.Controls.Find("axisContinuous",true)[0]).Checked = true;
+            Control positive = group.Controls.Find("axisPositive",true)[0];
+            RaiseMouse(positive,"OnMouseDown",new MouseEventArgs(MouseButtons.Left,1,5,5,0));
+            Assert(driver.Starts==1 && driver.Stops==0 && group.IsManualRunning,"Gaining mouse capture stopped the jog before it began.");
+            RaiseMouse(positive,"OnMouseUp",new MouseEventArgs(MouseButtons.Left,1,5,5,0)); positive.Capture = false;
+            Assert(driver.Stops==1 && !group.IsManualRunning,"Releasing the jog did not stop exactly once.");
+            RaiseMouse(positive,"OnMouseDown",new MouseEventArgs(MouseButtons.Left,1,5,5,0)); positive.Capture = false;
+            Assert(driver.Starts==2 && driver.Stops==2 && !group.IsManualRunning,"Losing mouse capture left the axis jogging.");
+            fixture.Close();
+        }
+    }
+
+    /// <summary>Initialize a temporary registry containing only fake controls, then restore every original object.</summary>
+    private static void DeferredInitialization()
+    {
+        ControlBaseInterface[] original = SDKPara.ControlsSnapshot();
+        lock (SDKPara.ControlList) SDKPara.ControlList.Clear();
+        try
+        {
+            using (InitializationProbe automatic = new InitializationProbe())
+            using (InitializationProbe deferred = new InitializationProbe { InitializeWithSdk = false })
+            {
+                NSDK.InitialControls(); Assert(automatic.Starts==1 && deferred.Starts==0,"SDK initialized a deferred host-managed resource.");
+            }
+        }
+        finally { lock (SDKPara.ControlList) { SDKPara.ControlList.Clear(); SDKPara.ControlList.AddRange(original); } }
+        bool blocked = false; try { hardware.Resources.ValidateStart(true); } catch (InvalidOperationException) { blocked = true; }
+        Assert(blocked,"Production start allowed new real resources before initialization.");
+    }
+
+    /// <summary>Verify menus locate clicked rows and groups without using previous selection or confirmation dialogs.</summary>
+    private static void ContextTargets()
+    {
+        hardware.Show(); ((Button)hardware.Controls.Find("configuredResources",true)[0]).PerformClick(); Application.DoEvents();
+        HardwareResourcePanel panel = (HardwareResourcePanel)hardware.Controls.Find("HardwareResourcePanel",true)[0];
+        HardwareEntry input = hardware.Resources.Entries.Single(item=>item.Definition.Id==groupedInput.Id);
+        ioPage.Show(); ((TabControl)ioPage.Controls.Find("tabControl1",true)[0]).SelectedTab = (TabPage)ioPage.Controls.Find("ioResourcesPage",true)[0]; Application.DoEvents();
+        HardwareResourcePanel ioPanel = (HardwareResourcePanel)ioPage.Controls.Find("ioResourcePanel",true)[0];
+        ContextMenuStrip menu = input.Group.ContextMenuStrip; menu.Show(input.Group,new Point(5,5)); Application.DoEvents();
+        Assert((string)typeof(HardwareResourcePanel).GetField("contextResourceId",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(ioPanel)==groupedInput.Id,"Resource menu used the toolbar's previous selection."); menu.Close(); ioPage.Hide();
+        Assert(panel.Controls.Find("resourceDelete",true).Length==0,"A resource delete button remains on the toolbar.");
+        constantForm.Show(); Application.DoEvents(); DataGridView constants = (DataGridView)constantForm.Controls.Find("constantsGrid",true)[0];
+        Rectangle area = constants.GetCellDisplayRectangle(0,1,false); RaiseMouse(constants,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,area.Left+4,area.Top+4,0));
+        constants.ContextMenuStrip.Show(constants,new Point(area.Left+4,area.Top+4)); Application.DoEvents();
+        Assert((string)typeof(SystemSetting).GetField("contextKey",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(constantForm)==Convert.ToString(constants.Rows[1].Cells[0].Value),"Constant menu did not target the clicked row."); constants.ContextMenuStrip.Close();
+        RaiseMouse(constants,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,5,5,0)); constants.ContextMenuStrip.Show(constants,new Point(5,5));
+        Assert(!constants.ContextMenuStrip.Visible,"A constant header inherited a previous row deletion."); constantForm.Hide(); hardware.Hide();
+        using (Form fixture = new Form())
+        using (NP_PositionTable points = new NP_PositionTable())
+        {
+            fixture.Controls.Add(points); fixture.Show(); Application.DoEvents(); points.DataSet1.Rows.Add(1); points.DataSet1.Rows.Add(2); Application.DoEvents();
+            DataGridView grid = points.Position; area = grid.GetCellDisplayRectangle(0,1,false);
+            RaiseMouse(grid,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,area.Left+4,area.Top+4,0)); grid.ContextMenuStrip.Show(grid,new Point(area.Left+4,area.Top+4)); Application.DoEvents();
+            Assert(ReferenceEquals(typeof(NP_PositionTable).GetField("contextRow",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(points),points.DataSet1.Rows[1]),"Point menu did not target the clicked row.");
+            Assert(points.Controls.Find("btn_DeletePost",true).Length==0 && !grid.AllowUserToDeleteRows,"Point deletion still has a button or keyboard shortcut."); grid.ContextMenuStrip.Close();
+            points.CanEdit = ()=>false; grid.ContextMenuStrip.Show(grid,new Point(area.Left+4,area.Top+4)); Assert(!grid.ContextMenuStrip.Items[0].Enabled,"Point deletion ignored the host permission guard."); grid.ContextMenuStrip.Close(); fixture.Close();
+        }
+    }
+
+    /// <summary>Complete the real modal editor through button events, checking defaults, parent page and saved definition reload.</summary>
+    private static void HardwareAddUi()
+    {
+        hardware.Show(); ((Button)hardware.Controls.Find("configuredResources",true)[0]).PerformClick();
+        ioPage.Show(); ((TabControl)ioPage.Controls.Find("tabControl1",true)[0]).SelectedTab = (TabPage)ioPage.Controls.Find("ioResourcesPage",true)[0]; Application.DoEvents();
+        HardwareResourcePanel axisPanel = (HardwareResourcePanel)hardware.Controls.Find("hardwareResourcePanel",true)[0];
+        HardwareResourcePanel ioPanel = (HardwareResourcePanel)ioPage.Controls.Find("ioResourcePanel",true)[0];
+        Assert(!axisPanel.Controls.Find("resourceAddInput",true)[0].Visible && !ioPanel.Controls.Find("resourceAddAxis",true)[0].Visible,"Axis and IO creation tools are mixed on one page.");
+        foreach (string kind in new[]{"Axis","Input","Output"})
+        {
+            string[] original = hardware.Resources.Entries.Select(entry=>entry.Definition.Id).ToArray();
+            Exception failure = null; bool confirmed = false;
+            using (System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval=30 })
+            {
+                timer.Tick += (sender,args)=>
+                {
+                    HardwareEditForm dialog = Application.OpenForms.OfType<HardwareEditForm>().FirstOrDefault();
+                    if (dialog==null) return;
+                    timer.Stop();
+                    try { confirmed=true; ((Button)dialog.Controls.Find("hardwareOk",true)[0]).PerformClick(); }
+                    catch (Exception error) { failure=error; dialog.DialogResult=DialogResult.Cancel; }
+                };
+                timer.Start(); Control owner = kind=="Axis" ? (Control)axisPanel : ioPanel;
+                ((Button)owner.Controls.Find("resourceAdd"+kind,true)[0]).PerformClick();
+            }
+            if (failure!=null) throw failure;
+            Assert(confirmed,"The add button did not open its parameter editor.");
+            HardwareEntry created = hardware.Resources.Entries.Single(entry=>!original.Contains(entry.Definition.Id));
+            Assert(created.Definition.Kind==kind && created.Group.FindForm()==(kind=="Axis" ? (Form)hardware : ioPage),"Confirmed resource was not created on the correct page.");
+            hardware.Resources.Save(); Assert(HardwareResources.Load(hardware.Resources.PathName).Resources.Any(item=>item.Id==created.Definition.Id),"Confirmed resource failed to persist.");
+            hardware.Resources.Delete(created.Definition.Id); hardware.Resources.Save();
+        }
+        hardware.Hide(); ioPage.Hide();
+    }
+
+    /// <summary>Remove only draft rows via right-click commands, and retain NEXT as a mandatory exit.</summary>
+    private static void DraftMenus()
+    {
+        using (Form fixture = new Form())
+        using (FlowBranchEditor branch = new FlowBranchEditor())
+        using (FlowSchemaForm schema = new FlowSchemaForm(data))
+        {
+            branch.Bind(new FlowBranch { Code="CASE1" },"",new List<FlowChoice>{new FlowChoice{Id="",Label="End"}});
+            branch.ConditionsGrid.Columns.OfType<DataGridViewComboBoxColumn>().Where(column=>column.Name.EndsWith("Source")).ToList().ForEach(column=>column.Items.Add("Constant"));
+            branch.MakeConditional(""); fixture.Controls.Add(branch); fixture.Show(); Application.DoEvents();
+            DataGridView grid = branch.ConditionsGrid; Rectangle area = grid.GetCellDisplayRectangle(0,0,false);
+            RaiseMouse(grid,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,area.Left+3,area.Top+3,0)); grid.ContextMenuStrip.Show(grid,new Point(area.Left+3,area.Top+3)); grid.ContextMenuStrip.Items[0].PerformClick();
+            Assert(grid.Rows.Cast<DataGridViewRow>().All(row=>row.IsNewRow) && !grid.AllowUserToDeleteRows,"Condition context deletion failed.");
+            Assert(branch.Controls.Find("removeBranch",true).Length==0,"CASE still has a toolbar delete button.");
+            schema.Show(); Application.DoEvents(); grid = (DataGridView)schema.Controls.Find("productionFields",true)[0]; int before = grid.Rows.Count;
+            area = grid.GetCellDisplayRectangle(0,0,false); RaiseMouse(grid,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,area.Left+3,area.Top+3,0)); grid.ContextMenuStrip.Show(grid,new Point(area.Left+3,area.Top+3)); grid.ContextMenuStrip.Items[0].PerformClick();
+            Assert(grid.Rows.Count==before-1 && !grid.AllowUserToDeleteRows,"Production-field context deletion failed."); schema.Close(); fixture.Close();
+        }
+    }
+
     /// <summary>Verify module hosting, right-click targeting and removal of empty modules from the actual flow page.</summary>
     private static void FlowPage()
     {
@@ -881,6 +1167,11 @@ internal static class Cases
             page.Show(); Application.DoEvents();
             Assert(page.Controls.Find("initialize",true).Length == 0 && page.Controls.Find("test",true).Length == 0 && page.Controls.Find("simulation",true).Length == 0, "The flow page still has separate initialization/start or simulation controls.");
             TabControl tabs = (TabControl)page.Controls.Find("tabControl1", true)[0];
+            Assert(page.Controls.Find("delete",true).Length==0 && page.Controls.Find("deleteModule",true).Length==0,"Flow toolbar still exposes delete buttons.");
+            int moduleIndex = tabs.TabPages.Cast<TabPage>().ToList().FindIndex(tab=>tab.Text=="Configured module");
+            Rectangle header = tabs.GetTabRect(moduleIndex); RaiseMouse(tabs,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,header.Left+5,header.Top+5,0));
+            Assert(ReferenceEquals(typeof(Flow).GetField("contextPage",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(page),FlowPrograms.Attach(created)),"Module context menu selected a different page.");
+            ((ContextMenuStrip)typeof(Flow).GetField("moduleMenu",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(page)).Close(); tabs.SelectedIndex = 0;
             Assert(tabs.TabPages.Cast<TabPage>().Any(tab => tab.Text == "FutureStation") && tabs.TabPages.Cast<TabPage>().Any(tab => tab.Text == "Configured module"), "Generic module hosting failed.");
             Flow_Chart visible = (Flow_Chart)station.Controls.Find(model.ControlName, true)[0];
             ((ScrollableControl)visible.Parent).ScrollControlIntoView(visible); Application.DoEvents();

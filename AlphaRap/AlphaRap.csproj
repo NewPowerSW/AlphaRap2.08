@@ -954,6 +954,14 @@
       <DependentUpon>SystemSetting.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\MiddleLayer.cs" />
+    <Compile Include="Configuration\ProjectConfiguration.cs" />
+    <Compile Include="Configuration\HardwareDefinition.cs"></Compile>
+    <Compile Include="Configuration\HardwareResources.cs"></Compile>
+    <Compile Include="Configuration\HardwareText.cs"></Compile>
+    <Compile Include="Configuration\HardwareEditForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="Configuration\HardwareEditForm.Designer.cs"><DependentUpon>HardwareEditForm.cs</DependentUpon></Compile>
+    <Compile Include="Configuration\HardwareResourcePanel.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Include="Configuration\HardwareResourcePanel.Designer.cs"><DependentUpon>HardwareResourcePanel.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowActionExecution.cs" />
     <Compile Include="Configuration\ConstantStore.cs" />
     <Compile Include="Configuration\ConstantText.cs" />

@@ -13,6 +13,7 @@ namespace AlphaRap.FlowProgramming
         public string TargetId { get { return Convert.ToString(target.SelectedValue); } }
         public bool IsUnconditional { get { return unconditional.Checked; } }
         public event EventHandler RemoveRequested;
+        private DataGridViewRow contextCondition;
 
         /// <summary>建立可在设计器预览的单条原生出口模板。</summary>
         public FlowBranchEditor()
@@ -20,6 +21,20 @@ namespace AlphaRap.FlowProgramming
             InitializeComponent();
             unconditional.CheckedChanged += (sender, args) => conditions.Enabled = !unconditional.Checked;
             remove.Click += (sender, args) => { if (RemoveRequested != null) RemoveRequested(this, EventArgs.Empty); };
+            conditions.MouseDown += SelectCondition;
+            conditionMenu.Opening += (sender, args) => args.Cancel = contextCondition == null || contextCondition.IsNewRow;
+            conditionDelete.Click += (sender, args) => { if (contextCondition != null && !contextCondition.IsNewRow && contextCondition.DataGridView == conditions) conditions.Rows.Remove(contextCondition); contextCondition = null; };
+        }
+
+        /// <summary>右键只定位命中的条件，空白行和新增行不执行删除。</summary>
+        private void SelectCondition(object sender, MouseEventArgs args)
+        {
+            if (args.Button != MouseButtons.Right) return;
+            contextCondition = null;
+            int index = conditions.HitTest(args.X, args.Y).RowIndex;
+            if (index < 0 || conditions.Rows[index].IsNewRow) return;
+            contextCondition = conditions.Rows[index];
+            conditions.CurrentCell = contextCondition.Cells[0];
         }
 
         /// <summary>绑定一条出口的目标和独立条件，原生代码不参加翻译。</summary>

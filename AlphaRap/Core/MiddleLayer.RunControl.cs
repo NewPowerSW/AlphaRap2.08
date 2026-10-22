@@ -15,6 +15,11 @@ namespace AlphaRap
             if (!FlowProgramming.FlowPrograms.CanStartMachine(true)) return;
             if (FlowProgramming.FlowPrograms.HasPrograms) FlowProgramming.FlowPrograms.BeginBatch();
             if (Alarm.IsError) { ShowResetAlarmWarning(); return; }
+            if (HardF != null && HardF.Resources != null)
+            {
+                try { HardF.Resources.InitializePending(); }
+                catch (System.Exception error) { MessageBox.Show(error.Message,Configuration.HardwareText.T("title")); return; }
+            }
             if (SysPara.SystemMode == RunMode.RUN)
             {
                 DialogResult choice = MessageBox.Show(

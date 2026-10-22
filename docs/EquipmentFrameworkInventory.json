@@ -8,8 +8,8 @@
     "公开方法包含底层入口和事件回调，不等于应用工程师可直接选择的动作清单。"
   ],
   "summary": {
-    "explicit_compile_files": 165,
-    "forms": 34,
+    "explicit_compile_files": 173,
+    "forms": 35,
     "flow_modules": 3,
     "flow_nodes": 123,
     "device_types": 5,
@@ -35,6 +35,14 @@
       "source": {
         "file": "AlphaRap/Configuration/ConstantEditForm.cs",
         "line": 6
+      }
+    },
+    {
+      "class": "HardwareEditForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/Configuration/HardwareEditForm.cs",
+        "line": 7
       }
     },
     {
@@ -242,7 +250,7 @@
       "base": "ModuleBaseForm",
       "source": {
         "file": "AlphaRap/MenuForm/SystemSetting.cs",
-        "line": 11
+        "line": 12
       }
     },
     {
@@ -5016,7 +5024,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 34
+        "line": 37
       }
     },
     {
@@ -5029,7 +5037,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 35
+        "line": 38
       }
     },
     {
@@ -5042,7 +5050,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 36
+        "line": 39
       }
     },
     {
@@ -5055,7 +5063,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 37
+        "line": 40
       }
     },
     {
@@ -5068,7 +5076,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 38
+        "line": 41
       }
     },
     {
@@ -5081,7 +5089,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 39
+        "line": 42
       }
     },
     {
@@ -5094,7 +5102,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 40
+        "line": 43
       }
     },
     {
@@ -5107,7 +5115,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 41
+        "line": 44
       }
     },
     {
@@ -5120,7 +5128,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 42
+        "line": 45
       }
     },
     {
@@ -5133,7 +5141,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 43
+        "line": 46
       }
     },
     {
@@ -5146,7 +5154,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 44
+        "line": 47
       }
     },
     {
@@ -5159,7 +5167,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 45
+        "line": 48
       }
     },
     {
@@ -5172,7 +5180,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 46
+        "line": 49
       }
     },
     {
@@ -5185,7 +5193,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 47
+        "line": 50
       }
     },
     {
@@ -5198,7 +5206,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 48
+        "line": 51
       }
     },
     {
@@ -5211,7 +5219,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 49
+        "line": 52
       }
     },
     {
@@ -5224,7 +5232,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 50
+        "line": 53
       }
     },
     {
@@ -5237,7 +5245,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 51
+        "line": 54
       }
     },
     {
@@ -5250,7 +5258,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 52
+        "line": 55
       }
     },
     {
@@ -5263,7 +5271,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 53
+        "line": 56
       }
     },
     {
@@ -5286,7 +5294,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 59
+        "line": 62
       }
     },
     {
@@ -5299,7 +5307,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 60
+        "line": 63
       }
     },
     {
@@ -5312,7 +5320,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 61
+        "line": 64
       }
     },
     {
@@ -5325,7 +5333,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 62
+        "line": 65
       }
     },
     {
@@ -5338,7 +5346,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 63
+        "line": 66
       }
     },
     {
@@ -5351,7 +5359,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 64
+        "line": 67
       }
     },
     {
@@ -5364,7 +5372,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 65
+        "line": 68
       }
     },
     {
@@ -5377,7 +5385,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 66
+        "line": 69
       }
     },
     {
@@ -5390,7 +5398,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 67
+        "line": 70
       }
     },
     {
@@ -5403,7 +5411,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 68
+        "line": 71
       }
     },
     {
@@ -5416,7 +5424,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 69
+        "line": 72
       }
     },
     {
@@ -5429,7 +5437,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 71
+        "line": 74
       }
     },
     {
@@ -5442,7 +5450,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 72
+        "line": 75
       }
     },
     {
@@ -5465,7 +5473,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 73
+        "line": 76
       }
     },
     {
@@ -5478,7 +5486,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 74
+        "line": 77
       }
     },
     {
@@ -5491,7 +5499,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 75
+        "line": 78
       }
     },
     {
@@ -5514,7 +5522,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 76
+        "line": 79
       }
     },
     {
@@ -5527,7 +5535,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 77
+        "line": 80
       }
     },
     {
@@ -5540,7 +5548,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 78
+        "line": 81
       }
     },
     {
@@ -5553,7 +5561,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 79
+        "line": 82
       }
     },
     {
@@ -5566,7 +5574,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 80
+        "line": 83
       }
     },
     {
@@ -5579,7 +5587,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 81
+        "line": 84
       }
     },
     {
@@ -5592,7 +5600,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 82
+        "line": 85
       }
     },
     {
@@ -5605,7 +5613,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 83
+        "line": 86
       }
     },
     {
@@ -5618,7 +5626,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 84
+        "line": 87
       }
     },
     {
@@ -5631,7 +5639,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 85
+        "line": 88
       }
     },
     {
@@ -5644,7 +5652,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 86
+        "line": 89
       }
     },
     {
@@ -5657,7 +5665,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 87
+        "line": 90
       }
     },
     {
@@ -5670,7 +5678,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 88
+        "line": 91
       }
     },
     {
@@ -5683,7 +5691,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 89
+        "line": 92
       }
     },
     {
@@ -5706,7 +5714,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 91
+        "line": 94
       }
     },
     {
@@ -5719,7 +5727,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 92
+        "line": 95
       }
     },
     {
@@ -5732,7 +5740,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 93
+        "line": 96
       }
     },
     {
@@ -5745,7 +5753,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 94
+        "line": 97
       }
     },
     {
@@ -5758,7 +5766,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 95
+        "line": 98
       }
     },
     {
@@ -5771,7 +5779,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 96
+        "line": 99
       }
     },
     {
@@ -5784,7 +5792,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 97
+        "line": 100
       }
     },
     {
@@ -5797,7 +5805,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 98
+        "line": 101
       }
     },
     {
@@ -5810,7 +5818,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 99
+        "line": 102
       }
     },
     {
@@ -5823,7 +5831,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 100
+        "line": 103
       }
     },
     {
@@ -5836,7 +5844,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 101
+        "line": 104
       }
     },
     {
@@ -5849,7 +5857,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 102
+        "line": 105
       }
     },
     {
@@ -5862,7 +5870,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 104
+        "line": 107
       }
     },
     {
@@ -5875,7 +5883,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 105
+        "line": 108
       }
     },
     {
@@ -5888,7 +5896,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 106
+        "line": 109
       }
     },
     {
@@ -5901,7 +5909,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 107
+        "line": 110
       }
     },
     {
@@ -5914,7 +5922,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 108
+        "line": 111
       }
     },
     {
@@ -5927,7 +5935,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 109
+        "line": 112
       }
     },
     {
@@ -5940,7 +5948,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 110
+        "line": 113
       }
     },
     {
@@ -5953,7 +5961,7 @@
       },
       "source": {
         "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
-        "line": 111
+        "line": 114
       }
     }
   ]

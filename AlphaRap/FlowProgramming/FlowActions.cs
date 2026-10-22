@@ -94,7 +94,8 @@ namespace AlphaRap.FlowProgramming
         /// <summary>读取动作真实字段，生产表字段来自 DataForm。</summary>
         public string[] InputNames(FlowAction action)
         {
-            if (action.Id == "data.save" && MiddleLayer.DataF != null) return MiddleLayer.DataF.GetProductionFields();
+            if (action.Id == "data.save" && MiddleLayer.DataF != null)
+                return (Resources.IncludesDraft ? MiddleLayer.DataF.GetProductionDraft() : MiddleLayer.DataF.GetProductionSchema()).Select(field=>field.Name).ToArray();
             return action.Inputs;
         }
 

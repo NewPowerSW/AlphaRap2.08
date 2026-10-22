@@ -52,11 +52,12 @@ namespace AlphaRap.FlowProgramming
         public readonly List<FlowChoice> ParameterChoices = new List<FlowChoice>();
 
         /// <summary>在 UI 线程建立资源和已提交参数快照，不连接设备或执行设备方法。</summary>
-        public static FlowResources Capture()
+        public static FlowResources Capture(bool includeDraft = false)
         {
-            FlowResources catalog = new FlowResources { RecipeName = SysPara.RecipeName };
+            FlowResources catalog = new FlowResources { RecipeName = SysPara.RecipeName, includeDraft = includeDraft };
             List<Form> forms = MiddleLayer.lstForm.OfType<Form>().Concat(Flow_Module.FlowChart_ModuleList).Distinct().ToList();
             foreach (Form form in forms) { catalog.AddControls(form, form.Name); catalog.AddPlcFields(form); }
+            foreach (HardForm form in forms.OfType<HardForm>()) catalog.AddHardwareGroups(form);
             foreach (ModuleBaseForm module in ModuleManager.ModuleList.ToArray())
             {
                 catalog.AddParameters(module.Name, "Recipe", module.RecipeData);
@@ -74,6 +75,8 @@ namespace AlphaRap.FlowProgramming
             catalog.AddTrays();
             return catalog;
         }
+        private bool includeDraft;
+        internal bool IncludesDraft { get { return includeDraft; } }
 
         /// <summary>登记窗体已有的 PLC 对象字段，不调用构造函数或属性获取器。</summary>
         private void AddPlcFields(Form form)
@@ -106,6 +109,7 @@ namespace AlphaRap.FlowProgramming
             foreach (Control control in root.Controls)
             {
                 string id = path + "/" + control.Name;
+                if (control.Tag is Configuration.HardwareDefinition) continue;
                 if (control is NP_Motor) Add(id, control.Name, "axis", control);
                 if (control is NP_Input) Add(id, control.Name, "input", control);
                 if (control is NP_Output) Add(id, control.Name, "output", control);
@@ -113,6 +117,22 @@ namespace AlphaRap.FlowProgramming
                 NP_PositionTable points = control as NP_PositionTable;
                 if (points != null) AddPointTable(id, points);
                 if (!(control is Flow_Chart)) AddControls(control, id);
+            }
+        }
+
+        /// <summary>动态组合资源使用稳定 ID，内部布局或显示名称变化不改变流程绑定。</summary>
+        private void AddHardwareGroups(HardForm form)
+        {
+            if (form.Resources == null) return;
+            foreach (Configuration.HardwareEntry entry in form.Resources.Entries)
+            {
+                string key = "hardware/" + entry.Definition.Id + "/";
+                NP_AxisGroup axis = entry.Group as NP_AxisGroup;
+                if (axis == null) { Add(key + entry.Definition.Kind.ToLowerInvariant(), entry.Definition.Name, entry.Definition.Kind.ToLowerInvariant(), entry.Device); continue; }
+                Add(key + "axis",entry.Definition.Name,"axis",axis.Motor);
+                AddPointTable(key+"points",axis.Points);
+                FlowResource point = Items[key+"points/Position"];
+                point.Label = entry.Definition.Name + " · " + axis.Points.DataSet1.TableName;
             }
         }
 
@@ -128,20 +148,22 @@ namespace AlphaRap.FlowProgramming
                 if (!table.DataSet1.Columns.Contains(column.Name)) continue;
                 FlowPointAxis axis = new FlowPointAxis { Motor = column.Axis, TableName = table.DataSet1.TableName, Low = column.Limit_Low, High = column.Limit_High };
                 FlowResource resource = Add(id + "/" + column.Name, column.Axis.Name + " · " + table.DataSet1.TableName + "/" + column.Name, "point", axis);
-                for (int i = 0; i < table.DataSet1.Rows.Count; i++) AddPoint(resource, axis, table.DataSet1.Rows[i], column, i);
+                DataRow[] rows = table.DataSet1.Rows.Cast<DataRow>().Where(row=>!includeDraft || row.RowState!=DataRowState.Deleted).ToArray();
+                for (int i = 0; i < rows.Length; i++) AddPoint(resource, axis, rows[i], column, i);
             }
         }
 
         /// <summary>只收录已保存且满足列限位的有限坐标，显示 P1 与内部索引 0 的对应关系。</summary>
-        private static void AddPoint(FlowResource resource, FlowPointAxis axis, DataRow row, PositionColumn column, int index)
+        private void AddPoint(FlowResource resource, FlowPointAxis axis, DataRow row, PositionColumn column, int index)
         {
-            if (!row.HasVersion(DataRowVersion.Original)) return;
-            object value = row[column.Name, DataRowVersion.Original];
+            DataRowVersion version = includeDraft ? DataRowVersion.Current : DataRowVersion.Original;
+            if (!row.HasVersion(version)) return;
+            object value = row[column.Name, version];
             if (value == DBNull.Value) return;
             double position = Convert.ToDouble(value, CultureInfo.InvariantCulture);
             if (double.IsNaN(position) || double.IsInfinity(position) || position < column.Limit_Low || position > column.Limit_High) return;
             axis.Positions.Add(index, position);
-            string annotation = row.Table.Columns.Contains("Annotation") ? Convert.ToString(row["Annotation", DataRowVersion.Original]) : "";
+            string annotation = row.Table.Columns.Contains("Annotation") ? Convert.ToString(row["Annotation", version]) : "";
             resource.Points.Add(new FlowChoice { Id = index.ToString(CultureInfo.InvariantCulture), Label = "P" + (index + 1) + " [" + index + "] " + annotation + " = " + position.ToString(CultureInfo.InvariantCulture) });
         }
 
@@ -151,14 +173,15 @@ namespace AlphaRap.FlowProgramming
             foreach (DataTable table in data.Tables)
             {
                 if (table.TableName == Configuration.ConstantStore.TableName) continue;
-                for (int rowIndex = 0; rowIndex < table.Rows.Count; rowIndex++) AddParameterRow(module, scope, table, rowIndex);
+                DataRow[] rows = table.Rows.Cast<DataRow>().Where(row=>!includeDraft || row.RowState!=DataRowState.Deleted).ToArray();
+                for (int rowIndex = 0; rowIndex < rows.Length; rowIndex++) AddParameterRow(module, scope, table, rows[rowIndex], rowIndex);
             }
         }
 
         /// <summary>常量绑定按作用域和键生成稳定引用，排序、删除其他行和切换配方不改变引用。</summary>
         private void AddConstants(SystemSetting form, string scope)
         {
-            foreach (KeyValuePair<string, object> item in form.Constants.Committed(scope))
+            foreach (KeyValuePair<string, object> item in form.Constants.Snapshot(scope,includeDraft))
             {
                 Parameters.Add(item.Key, item.Value);
                 ParameterChoices.Add(new FlowChoice { Id = item.Key, Label = item.Key + " · " + item.Value.GetType().Name });
@@ -166,14 +189,14 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>添加一行参数；空值保留空值语义，不替换为零。</summary>
-        private void AddParameterRow(string module, string scope, DataTable table, int rowIndex)
+        private void AddParameterRow(string module, string scope, DataTable table, DataRow row, int rowIndex)
         {
-            DataRow row = table.Rows[rowIndex];
-            if (!row.HasVersion(DataRowVersion.Original)) return;
+            DataRowVersion version = includeDraft ? DataRowVersion.Current : DataRowVersion.Original;
+            if (!row.HasVersion(version)) return;
             foreach (DataColumn column in table.Columns)
             {
                 string key = scope + "/" + module + "/" + table.TableName + "/" + rowIndex + "/" + column.ColumnName;
-                Parameters.Add(key, row[column, DataRowVersion.Original]);
+                Parameters.Add(key, row[column, version]);
                 ParameterChoices.Add(new FlowChoice { Id = key, Label = key + " · " + column.DataType.Name });
             }
         }

@@ -36,6 +36,10 @@ namespace AlphaRap.FlowProgramming
             if (grid != null)
                 foreach (DataGridViewColumn column in grid.Columns) ApplyColumnText(grid, column, scope);
             foreach (Control child in parent.Controls) ApplyTexts(child);
+            if (parent.ContextMenuStrip != null)
+                foreach (ToolStripItem item in parent.ContextMenuStrip.Items)
+                    if (FlowText.Defaults.TryGetValue(item.Tag as string ?? "", out words))
+                        item.Text = UiTheme.IsDesignTime ? words[0] : MiddleLayer.LangMsg(scope, item.Name, words[0], words[1], words[2]);
         }
 
         /// <summary>按表名和列名登记固定表头。</summary>

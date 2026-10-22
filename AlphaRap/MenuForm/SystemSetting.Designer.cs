@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using AlphaRap.Configuration;
@@ -11,7 +11,9 @@ namespace AlphaRap
         private TabControl scopes;
         private TabPage settingPage, recipePage;
         private FlowLayoutPanel toolbar;
-        private Button add, edit, delete, save;
+        private Button add, edit;
+        private ContextMenuStrip constantMenu;
+        private ToolStripMenuItem constantDelete;
         private Label searchLabel, recipeCaption, hint, status;
         private TextBox searchValue;
         private DataGridView constants;
@@ -22,6 +24,7 @@ namespace AlphaRap
         protected override void Dispose(bool disposing)
         {
             if (disposing && permissionTimer != null) permissionTimer.Dispose();
+            if (disposing && constantMenu != null) constantMenu.Dispose();
             base.Dispose(disposing);
         }
 
@@ -43,19 +46,21 @@ namespace AlphaRap
             toolbar = new FlowLayoutPanel { Name = "constantToolbar", Dock = DockStyle.Top, Height = 76, Padding = new Padding(6), WrapContents = true };
             add = new Button { Name = "constantAdd", Tag = "add", Text = "新增", AutoSize = true };
             edit = new Button { Name = "constantEdit", Tag = "edit", Text = "修改", AutoSize = true };
-            delete = new Button { Name = "constantDelete", Tag = "delete", Text = "删除", AutoSize = true };
-            save = new Button { Name = "constantSave", Tag = "save", Text = "保存当前表", AutoSize = true };
+            constantMenu = new ContextMenuStrip { Name = "constantMenu" };
+            constantDelete = new ToolStripMenuItem { Name = "constantDelete", Text = "删除" };
+            constantMenu.Items.Add(constantDelete);
             searchLabel = new Label { Name = "constantSearchLabel", Tag = "search", Text = "查询键或说明", AutoSize = true, Padding = new Padding(0,5,0,0) };
             searchValue = new TextBox { Name = "constantSearchValue", Width = 210 };
             recipeCaption = new Label { Name = "constantRecipeCaption_dyn", AutoSize = true, Padding = new Padding(0,5,0,0) };
-            toolbar.Controls.AddRange(new Control[] { add, edit, delete, save, searchLabel, searchValue, recipeCaption });
+            toolbar.Controls.AddRange(new Control[] { add, edit, searchLabel, searchValue, recipeCaption });
             constants = new DataGridView { Name = "constantsGrid", Dock = DockStyle.Fill, AutoGenerateColumns = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, MultiSelect = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, RowHeadersVisible = false };
             constantKey = new DataGridViewTextBoxColumn { Name = "constantKey", Tag = "key", HeaderText = "常量键", DataPropertyName = "Key", FillWeight = 25 };
             constantType = new DataGridViewTextBoxColumn { Name = "constantType", Tag = "type", HeaderText = "类型", DataPropertyName = "Type", FillWeight = 15 };
             constantValue = new DataGridViewTextBoxColumn { Name = "constantValue", Tag = "value", HeaderText = "值", DataPropertyName = "Value", FillWeight = 20 };
             constantDescription = new DataGridViewTextBoxColumn { Name = "constantDescription", Tag = "description", HeaderText = "说明", DataPropertyName = "Description", FillWeight = 40 };
             constants.Columns.AddRange(constantKey, constantType, constantValue, constantDescription);
-            hint = new Label { Name = "constantHint", Tag = "hint", Text = "Setting 不随配方切换；Recipe 使用物料管理的当前配方。修改后保存，在流程节点的“型号 / 机器参数”中选择 Constants。", Dock = DockStyle.Bottom, Height = 55, Padding = new Padding(6) };
+            constants.ContextMenuStrip = constantMenu;
+            hint = new Label { Name = "constantHint", Tag = "hint", Text = "Setting 不随配方切换；Recipe 跟随物料管理的当前配方。修改后使用主界面【保存】。流程节点的“型号 / 机器参数”可绑定 Constants。", Dock = DockStyle.Bottom, Height = 55, Padding = new Padding(6) };
             status = new Label { Name = "constantStatus_dyn", Dock = DockStyle.Bottom, Height = 28, AutoEllipsis = true };
             permissionTimer = new Timer { Interval = 300 };
             Controls.Add(constants); Controls.Add(toolbar); Controls.Add(scopes); Controls.Add(title); Controls.Add(status); Controls.Add(hint);

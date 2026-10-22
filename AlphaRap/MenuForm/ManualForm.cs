@@ -8,6 +8,12 @@ namespace AlphaRap
 	public partial class ManualForm : ModuleBaseForm
 	{
 		public List<NP_Output> Conveyor_List = new List<NP_Output>();
+
+        /// <summary>输入输出资源使用独立页面，复用统一硬件目录和实例。</summary>
+        public void BindResources(Configuration.HardwareResources resources)
+        {
+            ioResourcePanel.BindResources(resources);
+        }
 		public ManualForm()
 		{
 			CheckForIllegalCrossThreadCalls = false;

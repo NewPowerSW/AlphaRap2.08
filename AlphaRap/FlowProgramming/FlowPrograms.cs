@@ -75,12 +75,38 @@ namespace AlphaRap.FlowProgramming
         /// <summary>保存完整工程；加载失败时禁止将损坏文件覆盖为空工程。</summary>
         public static void Save()
         {
+            WriteDraft(FilePath);
+            PublishSaved();
+        }
+
+        /// <summary>将完整草稿写入指定暂存文件，统一保存成功前不发布。</summary>
+        public static void WriteDraft(string path)
+        {
+            ValidateForSave();
+            FlowProgramFile.Save(path, project);
+        }
+
+        /// <summary>主保存全部落盘成功后发布流程运行版本。</summary>
+        public static void PublishSaved()
+        {
+            foreach (FlowModuleEditor editor in modules.Values) editor.Publish();
+            OperationLog.Write("Flow", "Save flow project: " + FilePath);
+        }
+
+        /// <summary>主保存落盘前校验工程草稿及当前参数，不发布运行版本。</summary>
+        public static void ValidateForSave()
+        {
             RequireIdle();
             if (loadError != null) throw new InvalidDataException("Reload or restore the project backup first.", loadError);
             foreach (FlowModuleEditor editor in modules.Values) { editor.CaptureLayout(); editor.Validate(null); }
-            FlowProgramFile.Save(FilePath, project);
-            foreach (FlowModuleEditor editor in modules.Values) editor.Publish();
-            OperationLog.Write("Flow", "Save flow project: " + FilePath);
+        }
+
+        /// <summary>主界面放弃修改时恢复上次保存；首次保存前恢复各模块的初始快照。</summary>
+        public static void DiscardChanges()
+        {
+            if (System.IO.File.Exists(FilePath)) { Reload(); return; }
+            foreach (FlowModuleEditor editor in modules.Values) editor.RestorePublished();
+            project.Modules = modules.Values.Select(editor=>editor.Program).ToList();
         }
 
         /// <summary>先完整读取并验证，再替换内存工程；失败时保留当前设计。</summary>
@@ -196,9 +222,31 @@ namespace AlphaRap.FlowProgramming
             if (users.Count > 0) throw new InvalidOperationException(string.Format(Configuration.ConstantText.T("referenced"), string.Join(Environment.NewLine, users)));
         }
 
+        /// <summary>删除组合硬件前检查动作目标及点位参数引用，包含不可达草稿和独立 CASE 条件。</summary>
+        public static void RequireHardwareUnused(string id,string tableName)
+        {
+            Install();
+            if (loadError != null) throw new InvalidDataException("Restore the flow project before deleting hardware.",loadError);
+            string targetPrefix = "hardware/"+id+"/";
+            string parameterPrefix = "Recipe/HardForm/"+tableName+"/";
+            List<string> users = new List<string>();
+            foreach (FlowProgram module in project.Modules)
+            {
+                foreach (FlowStep step in module.Steps)
+                {
+                    IEnumerable<FlowCondition> conditions = step.Conditions.Concat(step.Branches.SelectMany(branch=>branch.Conditions));
+                    IEnumerable<FlowInput> inputs = step.Inputs.Concat(conditions.SelectMany(condition=>new[]{condition.Left,condition.Right}));
+                    if ((step.Target??"").StartsWith(targetPrefix,StringComparison.Ordinal) || inputs.Any(input=>input.Source=="Parameter" && (input.Reference??"").StartsWith(parameterPrefix,StringComparison.Ordinal))) users.Add(module.ModuleId+" / "+step.Caption);
+                }
+            }
+            if (users.Count>0) throw new InvalidOperationException(string.Format(Configuration.HardwareText.T("referenced"),string.Join(Environment.NewLine,users)));
+        }
+
         /// <summary>检查生产入口，显式阻止旧回调与配置流程混合控制同一设备。</summary>
         public static bool CanStartMachine(bool initialize)
         {
+            try { if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) MiddleLayer.HardF.Resources.ValidateStart(!initialize && !SysPara.Simulation); }
+            catch (Exception error) { MessageBox.Show(error.Message,Configuration.HardwareText.T("title")); return false; }
             if (!installed) return true;
             if (AnyEditing || (AnyRunning && (initialize || SysPara.SystemMode != RunMode.PAUSE)))
             {
@@ -508,17 +556,24 @@ namespace AlphaRap.FlowProgramming
         /// <summary>检查工程结构及已选择入口的真实资源、参数和动作。</summary>
         public void Validate(string entry)
         {
-            ValidatePlan(Program, entry);
+            ValidatePlan(Program, entry, true);
+        }
+
+        /// <summary>恢复当前模块已发布的初始或保存快照。</summary>
+        internal void RestorePublished()
+        {
+            Restore(FlowProgramFile.Snapshot(published));
+            if (Changed != null) Changed(this,EventArgs.Empty);
         }
 
         /// <summary>校验固定的执行计划，生产执行只使用已保存版本。</summary>
-        private void ValidatePlan(FlowProgram plan, string entry)
+        private void ValidatePlan(FlowProgram plan, string entry, bool includeDraft = false)
         {
             List<string> errors = FlowProgramFile.Validate(plan);
             if (errors.Count > 0) throw new InvalidDataException(string.Join(Environment.NewLine, errors));
             if (plan.Mode != "Program" && entry == null) return;
             if (plan.Mode == "Program" && string.IsNullOrEmpty(plan.AutoEntry)) throw new InvalidDataException("Select an automatic entry: " + Form.Name);
-            FlowActions actions = new FlowActions(FlowResources.Capture());
+            FlowActions actions = new FlowActions(FlowResources.Capture(includeDraft));
             IEnumerable<FlowStep> reachable = entry == null
                 ? FlowProgramFile.Reachable(plan, plan.InitialEntry).Concat(FlowProgramFile.Reachable(plan, plan.AutoEntry))
                 : FlowProgramFile.Reachable(plan, entry);

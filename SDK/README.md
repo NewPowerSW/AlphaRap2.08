@@ -1,4 +1,4 @@
-# 核心程序集引用
+﻿# 核心程序集引用
 
 `lib/NPSDK.dll` 是 AlphaRap 与 AlphaRapLibrary 共用的核心程序集，包含 JTimer、Alarm、Flow_Chart、Flow_BaseForm 和 NPSDK.Motion 等接口。
 
@@ -8,11 +8,11 @@ AlphaRap 使用 ProjectReference 引用 AlphaRapLibrary；其输出名称仍为 
 
 ## 当前二进制来源
 
-- 来源：[NPSDK 43b6789295c973912b26494953f223801715b950](https://github.com/JeffreyWub/NPSDK/commit/43b6789295c973912b26494953f223801715b950)，分支 `codex/flowchart-designer-20261022`。
+- 来源：[NPSDK fef849fc19350fcdc65122d702221cfc3e968177](https://github.com/JeffreyWub/NPSDK/commit/fef849fc19350fcdc65122d702221cfc3e968177)，分支 `codex/flowchart-designer-20261022`。
 - 从该提交包含的源码构建，排除了外部工作区尚未提交的其他运动控件改动；Debug / x64，SDK 目标 .NET Framework 4.7.1，宿主目标 4.8。
-- 大小：457728 字节。
-- SHA256：`5d06e23d5c5f02454a2a456d74600fa6258bcaac33603018efe32ff2c29aba61`。
-- 包含全部 Flow_BaseForm 的统一控制器工厂、鼠标捕获拖动和配置入口、版本 2 工程 XML、NEXT / CASE 独立条件运行器、独立超时报警、空模块删除标记校验、具名结果与资源租约，以及现有宿主使用的 AlarmReset 转发接口。
+- 大小：473088 字节。
+- SHA256：`3d2c7cf7bb09e6e6c8d9d8d0b526b7ffffc53aad94d42b641821198582115bb4`。
+- 包含全部 Flow_BaseForm 的统一控制器工厂、鼠标捕获拖动和配置入口、版本 2 工程 XML、NEXT / CASE 独立条件运行器、独立超时报警、空模块删除标记校验、具名结果与资源租约，以及现有宿主使用的 AlarmReset 转发接口。另包含轴和 IO 组合控件、点位右键删除、宿主管理的延迟初始化，以及动态控件扫描与释放互斥。另包含轴和 IO 组合控件、点位右键删除、宿主管理的延迟初始化，以及动态控件扫描与释放互斥。另包含轴和 IO 组合控件、点位右键删除、宿主管理的延迟初始化，以及动态控件扫描与释放互斥。另包含轴和 IO 组合控件、点位右键删除、宿主管理的延迟初始化，以及动态控件扫描与释放互斥。
 
 升级 NPSDK 时替换此处的已验证版本并更新来源和校验值；两个项目始终引用同一版本。不要直接引用其他开发工作区中含未提交修改的构建产物。
 
@@ -28,6 +28,6 @@ MSBuild.exe AlphaRap.sln /t:Rebuild /p:Configuration=Debug /p:Platform=x64
 ./tests/FlowProgramming/Run.ps1 -AssemblyDirectory AlphaRap/bin/x64/Debug
 ```
 
-Debug / x64 正常构建通过，使用实际输出程序集通过原有 62 项回归和 35 项流程集成回归，语言 XML 1504 键三语校验无错误。验证没有使用临时 ReferencePath。隔离运行真实主程序验证了进入流程、节点拖动、双击和添加 CASE；未进行现场硬件或 Visual Studio 交互式设计器实测。
+Debug / x64 正常构建通过，使用实际输出程序集通过原有 62 项回归和 52 项流程与资源集成回归及5 项启动 / 主保存检查，语言 XML 1667 键三语校验无错误。验证没有使用临时 ReferencePath。隔离运行真实主程序验证了进入流程、节点拖动、双击和添加 CASE；未进行现场硬件或 Visual Studio 交互式设计器实测。
 
-功能入口与操作见 [节点设计器使用说明](../docs/FlowProgrammingUsage.md)。
+功能入口与操作见 [节点设计器使用说明](../docs/FlowProgrammingUsage.md) 和 [组合硬件资源使用说明](../docs/HardwareResources.md)。

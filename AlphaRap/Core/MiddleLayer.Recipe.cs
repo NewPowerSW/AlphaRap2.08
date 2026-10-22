@@ -27,6 +27,11 @@ namespace AlphaRap
 
             bool loaded = false;
             if (SystemS != null && !SystemS.ConfirmRecipeChange()) return false;
+            if (HardF != null && HardF.Resources != null && HardF.Resources.HasRecipeChanges())
+            {
+                MessageBox.Show(Configuration.HardwareText.T("pendingRecipe"),Configuration.HardwareText.T("title"));
+                return false;
+            }
             string oldRecipeName = SysPara.RecipeName;
             try
             {
