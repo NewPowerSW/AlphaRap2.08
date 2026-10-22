@@ -1,0 +1,14 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration><Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Exe</OutputType><AssemblyName>FlowWorkbench.Regression</AssemblyName><TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <OutputPath>bin\$(Configuration)\</OutputPath><LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <ItemGroup><Reference Include="System" /><Reference Include="System.Core" /><Reference Include="System.Drawing" /><Reference Include="System.Windows.Forms" /></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\tools\FlowWorkbench\FlowWorkbench.csproj"><Project>{E176B15F-9866-4AD3-A650-97A415E13621}</Project><Name>FlowWorkbench</Name></ProjectReference>
+    <ProjectReference Include="..\..\tools\FlowWorkbench\Runtime\FlowRuntime.csproj"><Project>{19A0D36D-7CA2-4BDA-A12C-080F60E5B6C1}</Project><Name>FlowRuntime</Name></ProjectReference>
+    <Compile Include="Regression.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
