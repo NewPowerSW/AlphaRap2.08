@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Windows.Forms;
 using AlphaRap.Classes;
@@ -11,7 +11,7 @@ namespace AlphaRap
         /// <summary>空闲时加载模块配方、托盘列与视觉算法，保存最终选中的配方位置。</summary>
         public static bool OpenRecipe(string RecipePath)
         {
-            if (SysPara.SystemMode != RunMode.IDLE)
+            if (SysPara.SystemMode != RunMode.IDLE || FlowProgramming.FlowPrograms.AnyRunning)
             {
                 MessageBox.Show(LangMsg("MiddleLayer", "msg_RunningRecipe", "设备运行中，不能切换配方。", "Cannot change recipes while the machine is running.", "No se puede cambiar de receta mientras la máquina está funcionando."),
                     LangMsg("MiddleLayer", "msg_RecipeTitle", "切换配方", "Change recipe", "Cambiar receta"), MessageBoxButtons.OK, MessageBoxIcon.Warning);

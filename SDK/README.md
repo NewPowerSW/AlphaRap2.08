@@ -8,10 +8,11 @@ AlphaRap 使用 ProjectReference 引用 AlphaRapLibrary；其输出名称仍为 
 
 ## 当前二进制来源
 
-- 来源：本仓库 `ef11eff` 提交的 `AlphaRap/bin/x64/Debug/NPSDK.dll`，与回滚后的框架接口一致。
-- 大小：427520 字节。
-- SHA256：`23ee59b1d45534e348ef897db5cdd06aff83ac98a3a982593e16178e9f2c0609`。
-- 本次仅固定引用位置，未重新编译或修改外部 NPSDK 工作区。
+- 来源：[NPSDK 0970f896d3f2e50b65124628f3f96c2bd5563205](https://github.com/JeffreyWub/NPSDK/commit/0970f896d3f2e50b65124628f3f96c2bd5563205)，分支 `codex/flowchart-designer-20261022`。
+- 从该提交包含的源码构建，排除了外部工作区尚未提交的其他运动控件改动；Debug / x64，SDK 目标 .NET Framework 4.7.1，宿主目标 4.8。
+- 大小：450048 字节。
+- SHA256：`3e2133ad54161de59986577fca660d501ab3cb681e18cc066f2aeddb586f3a7c`。
+- 包含全部 Flow_BaseForm 的统一控制器工厂、节点拖动和配置入口、工程 XML、运行器、具名结果与资源租约，以及现有宿主使用的 AlarmReset 转发接口。
 
 升级 NPSDK 时替换此处的已验证版本并更新来源和校验值；两个项目始终引用同一版本。不要直接引用其他开发工作区中含未提交修改的构建产物。
 
@@ -24,6 +25,9 @@ AlphaRap 使用 ProjectReference 引用 AlphaRapLibrary；其输出名称仍为 
 ```powershell
 MSBuild.exe AlphaRap.sln /t:Rebuild /p:Configuration=Debug /p:Platform=x64
 ./tests/VisionRuntime/Run.ps1 -AssemblyDirectory AlphaRap/bin/x64/Debug
+./tests/FlowProgramming/Run.ps1 -AssemblyDirectory AlphaRap/bin/x64/Debug
 ```
 
-Debug/x64 已验证两个项目正常生成，并使用实际输出程序集通过 62 项视觉、语言和运行入口回归。验证没有使用临时 ReferencePath；本次未进行现场硬件运行或 Visual Studio 设计器实测。
+Debug / x64 正常重新生成通过，使用实际输出程序集通过原有 62 项回归和新增 21 项流程集成回归。验证没有使用临时 ReferencePath。重新生成有一条既有输出目录 Spanish.xml 只读清理警告；未进行现场硬件或 Visual Studio 交互式设计器实测。
+
+功能入口与操作见 [节点设计器使用说明](../docs/FlowProgrammingUsage.md)。

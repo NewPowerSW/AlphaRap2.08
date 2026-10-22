@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Windows.Forms;
 using AlphaRapLibrary;
 using NPSDK;
@@ -11,6 +11,8 @@ namespace AlphaRap
         /// <summary>确认运行中重新初始化的请求，按当前状态只发送一次初始化指令。</summary>
         public static void Initial()
         {
+            if (!FlowProgramming.FlowPrograms.CanStartMachine(true)) return;
+            if (FlowProgramming.FlowPrograms.HasPrograms) FlowProgramming.FlowPrograms.BeginBatch();
             if (Alarm.IsError) { ShowResetAlarmWarning(); return; }
             if (SysPara.SystemMode == RunMode.RUN)
             {
@@ -37,8 +39,9 @@ namespace AlphaRap
         /// <summary>视觉就绪且完成初始化时进入生产；暂停后的恢复保留输送线状态。</summary>
         public static void StartRun()
         {
+            if (!FlowProgramming.FlowPrograms.CanStartMachine(false)) return;
             string visionError;
-            if (VPF != null && !VPF.CanStartProduction(out visionError))
+            if (!FlowProgramming.FlowPrograms.HasPrograms && VPF != null && !VPF.CanStartProduction(out visionError))
             {
                 MessageBox.Show(visionError, LangMsg("Vision", "msg_NotReady", "视觉尚未就绪", "Vision is not ready", "Visión no está lista"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -46,7 +49,7 @@ namespace AlphaRap
             AlarmClear();
             Thread.Sleep(200);
             if (Alarm.IsError) { ShowResetAlarmWarning(); return; }
-            if (!SysPara.UpConveyorInitialOk)
+            if (!FlowProgramming.FlowPrograms.HasPrograms && !SysPara.UpConveyorInitialOk)
             {
                 MessageBox.Show(LangMsg("MiddleLayer", "msg_InitializeFirst", "请先初始化。", "Initialize the machine first.", "Inicialice primero la máquina."),
                     LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Aviso"), MessageBoxButtons.OK, MessageBoxIcon.Warning,
@@ -66,8 +69,11 @@ namespace AlphaRap
             if (SysPara.SystemRun || SysPara.SystemMode != RunMode.INITIAL) return;
             SysPara.SystemMode = RunMode.RUN;
             AlarmClear();
-            Flow_Module.Module_StopRun();
-            Thread.Sleep(500);
+            if (!FlowProgramming.FlowPrograms.HasPrograms)
+            {
+                Flow_Module.Module_StopRun();
+                Thread.Sleep(500);
+            }
             Flow_Module.Module_StartRun();
             SysPara.SystemRun = true;
         }
@@ -79,8 +85,8 @@ namespace AlphaRap
                 || (SysPara.SystemMode == RunMode.INITIAL && !SysPara.UpConveyorInitialOk);
             if (pauseConveyor) SysPara.SystemMode = RunMode.PAUSE;
             Flow_Module.Module_PauseRun();
-            StopManualRun();
-            if (pauseConveyor) StopRunCV();
+            if (!FlowProgramming.FlowPrograms.HasPrograms) StopManualRun();
+            if (pauseConveyor && !FlowProgramming.FlowPrograms.HasPrograms) StopRunCV();
         }
 
         /// <summary>退出自动和初始化状态，停止流程、手动动作及所有电机。</summary>

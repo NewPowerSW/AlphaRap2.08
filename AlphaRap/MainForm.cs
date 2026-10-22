@@ -1495,6 +1495,11 @@ int nheightEllipse
         }
         public void SaveData()
         {
+            if (FlowProgramming.FlowPrograms.AnyRunning)
+            {
+                MessageBox.Show(FlowProgramming.FlowText.T("busy"), FlowProgramming.FlowText.T("title"));
+                return;
+            }
             SysPara.items = 1;
             SysPara.items2 = 1;
             DialogResult dr;
@@ -1675,6 +1680,13 @@ int nheightEllipse
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (FlowProgramming.FlowPrograms.AnyRunning)
+            {
+                FlowProgramming.FlowPrograms.StopAll();
+                e.Cancel = true;
+                MessageBox.Show(FlowProgramming.FlowText.T("busy"), FlowProgramming.FlowText.T("title"));
+                return;
+            }
             // 先停止自动登出定时器并卸载全局鼠标/键盘钩子，防止退出过程中钩子事件访问已释放的对象
             try { if (LoginOutTime != null) LoginOutTime.Stop(); } catch { }
 

@@ -1,64 +1,216 @@
-﻿namespace AlphaRap
+﻿using System.Drawing;
+using System.Windows.Forms;
+namespace AlphaRap
 {
     partial class Flow
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        private Label modeEntryLabel;
+        private Label initialEntryEntryLabel;
+        private Label autoEntryEntryLabel;
+        private Label captionEntryLabel;
+        private TabControl tabControl1;
+        private FlowLayoutPanel toolbar;
+        private FlowLayoutPanel entries;
+        private CheckBox edit;
+        private CheckBox simulation;
+        private ComboBox modeValue;
+        private ComboBox initialValue;
+        private ComboBox autoValue;
+        private ComboBox selectedValue;
+        private Label status;
+        private Label hint;
+        private Timer timer;
+        private Button add;
+        private Button addModule;
+        private Button delete;
+        private Button save;
+        private Button reload;
+        private Button validate;
+        private Button initialize;
+        private Button test;
+        private Button pause;
+        private Button stop;
+        private Button schema;
+        /// <summary>Release the UI refresh timer and child controls.</summary>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && timer != null) timer.Dispose();
             base.Dispose(disposing);
         }
-
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
+        /// <summary>Build the fixed flow engineering toolbar and canvas host.</summary>
         private void InitializeComponent()
         {
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.SuspendLayout();
-            // 
-            // tabControl1
-            // 
-            this.tabControl1.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tabControl1.Location = new System.Drawing.Point(0, 13);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1280, 1330);
-            this.tabControl1.TabIndex = 1;
-            // 
-            // Flow
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.AutoScroll = true;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(1280, 920);
-            this.Controls.Add(this.tabControl1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "Flow";
-            this.Text = "Flow";
-            this.Load += new System.EventHandler(this.Flow_Load);
-            this.ResumeLayout(false);
-
+            SuspendLayout();
+            tabControl1 = new TabControl();
+            tabControl1.Name = "tabControl1";
+            toolbar = new FlowLayoutPanel();
+            toolbar.Name = "toolbar";
+            entries = new FlowLayoutPanel();
+            entries.Name = "entries";
+            edit = new CheckBox();
+            edit.Name = "edit";
+            simulation = new CheckBox();
+            simulation.Name = "simulation";
+            modeValue = new ComboBox();
+            modeValue.Name = "modeValue";
+            initialValue = new ComboBox();
+            initialValue.Name = "initialValue";
+            autoValue = new ComboBox();
+            autoValue.Name = "autoValue";
+            selectedValue = new ComboBox();
+            selectedValue.Name = "selectedValue";
+            status = new Label();
+            status.Name = "status";
+            hint = new Label();
+            hint.Name = "hint";
+            timer = new Timer();
+            timer.Interval = 250;
+            addModule = new Button();
+            addModule.Name = "addModule";
+            addModule.Tag = "addModule";
+            addModule.Text = "添加流程模块";
+            addModule.AutoSize = true;
+            add = new Button();
+            add.Name = "add";
+            delete = new Button();
+            delete.Name = "delete";
+            save = new Button();
+            save.Name = "save";
+            reload = new Button();
+            reload.Name = "reload";
+            validate = new Button();
+            validate.Name = "validate";
+            initialize = new Button();
+            initialize.Name = "initialize";
+            test = new Button();
+            test.Name = "test";
+            pause = new Button();
+            pause.Name = "pause";
+            stop = new Button();
+            stop.Name = "stop";
+            schema = new Button();
+            schema.Name = "schema";
+            toolbar.Dock = DockStyle.Top;
+            toolbar.Height = 78;
+            toolbar.WrapContents = true;
+            toolbar.Padding = new Padding(6);
+            entries.Dock = DockStyle.Top;
+            entries.Height = 72;
+            entries.WrapContents = true;
+            entries.Padding = new Padding(6);
+            edit.Tag = "edit";
+            edit.Text = "编辑流程";
+            edit.AutoSize = true;
+            simulation.Tag = "simulation";
+            simulation.Text = "模拟执行（不访问硬件）";
+            simulation.Checked = true;
+            simulation.AutoSize = true;
+            toolbar.Controls.Add(addModule);
+            toolbar.Controls.Add(edit);
+            toolbar.Controls.Add(simulation);
+            add.Tag = "add";
+            add.Text = "添加节点";
+            add.AutoSize = true;
+            toolbar.Controls.Add(add);
+            delete.Tag = "delete";
+            delete.Text = "删除节点";
+            delete.AutoSize = true;
+            toolbar.Controls.Add(delete);
+            save.Tag = "save";
+            save.Text = "保存工程";
+            save.AutoSize = true;
+            toolbar.Controls.Add(save);
+            reload.Tag = "reload";
+            reload.Text = "重新加载";
+            reload.AutoSize = true;
+            toolbar.Controls.Add(reload);
+            validate.Tag = "validate";
+            validate.Text = "校验";
+            validate.AutoSize = true;
+            toolbar.Controls.Add(validate);
+            initialize.Tag = "initialize";
+            initialize.Text = "运行初始化入口";
+            initialize.AutoSize = true;
+            toolbar.Controls.Add(initialize);
+            test.Tag = "test";
+            test.Text = "运行自动入口";
+            test.AutoSize = true;
+            toolbar.Controls.Add(test);
+            pause.Tag = "pause";
+            pause.Text = "边界暂停 / 继续";
+            pause.AutoSize = true;
+            toolbar.Controls.Add(pause);
+            stop.Tag = "stop";
+            stop.Text = "停止";
+            stop.AutoSize = true;
+            toolbar.Controls.Add(stop);
+            schema.Tag = "schema";
+            schema.Text = "生产表字段";
+            schema.AutoSize = true;
+            toolbar.Controls.Add(schema);
+            modeValue.DropDownStyle = ComboBoxStyle.DropDownList;
+            modeValue.Width = 220;
+            modeEntryLabel = new Label();
+            modeEntryLabel.Name = "modeEntryLabel";
+            modeEntryLabel.Tag = "mode";
+            modeEntryLabel.Text = "运行模式";
+            modeEntryLabel.AutoSize = true;
+            modeEntryLabel.Padding = new Padding(0, 6, 0, 0);
+            entries.Controls.Add(modeEntryLabel);
+            entries.Controls.Add(modeValue);
+            initialValue.DropDownStyle = ComboBoxStyle.DropDownList;
+            initialValue.Width = 220;
+            initialEntryEntryLabel = new Label();
+            initialEntryEntryLabel.Name = "initialEntryEntryLabel";
+            initialEntryEntryLabel.Tag = "initialEntry";
+            initialEntryEntryLabel.Text = "初始化入口";
+            initialEntryEntryLabel.AutoSize = true;
+            initialEntryEntryLabel.Padding = new Padding(0, 6, 0, 0);
+            entries.Controls.Add(initialEntryEntryLabel);
+            entries.Controls.Add(initialValue);
+            autoValue.DropDownStyle = ComboBoxStyle.DropDownList;
+            autoValue.Width = 220;
+            autoEntryEntryLabel = new Label();
+            autoEntryEntryLabel.Name = "autoEntryEntryLabel";
+            autoEntryEntryLabel.Tag = "autoEntry";
+            autoEntryEntryLabel.Text = "自动入口";
+            autoEntryEntryLabel.AutoSize = true;
+            autoEntryEntryLabel.Padding = new Padding(0, 6, 0, 0);
+            entries.Controls.Add(autoEntryEntryLabel);
+            entries.Controls.Add(autoValue);
+            selectedValue.DropDownStyle = ComboBoxStyle.DropDownList;
+            selectedValue.Width = 220;
+            captionEntryLabel = new Label();
+            captionEntryLabel.Name = "captionEntryLabel";
+            captionEntryLabel.Tag = "caption";
+            captionEntryLabel.Text = "节点名称";
+            captionEntryLabel.AutoSize = true;
+            captionEntryLabel.Padding = new Padding(0, 6, 0, 0);
+            entries.Controls.Add(captionEntryLabel);
+            entries.Controls.Add(selectedValue);
+            tabControl1.Dock = DockStyle.Fill;
+            tabControl1.Font = new Font("Microsoft YaHei", 10F);
+            hint.Name = "flowHint";
+            hint.Tag = "hint";
+            hint.Text = "编辑模式下拖动节点，双击配置。";
+            hint.Dock = DockStyle.Bottom;
+            hint.Height = 40;
+            status.Name = "flowStatus_dyn";
+            status.Dock = DockStyle.Bottom;
+            status.Height = 28;
+            status.AutoEllipsis = true;
+            Controls.Add(tabControl1);
+            Controls.Add(entries);
+            Controls.Add(toolbar);
+            Controls.Add(status);
+            Controls.Add(hint);
+            Name = "Flow";
+            Text = "Flow";
+            Font = new Font("Microsoft YaHei", 9F);
+            ClientSize = new Size(1280, 920);
+            AutoScaleMode = AutoScaleMode.None;
+            FormBorderStyle = FormBorderStyle.None;
+            ResumeLayout(false);
         }
-
-        #endregion
-
-        private System.Windows.Forms.TabControl tabControl1;
     }
 }

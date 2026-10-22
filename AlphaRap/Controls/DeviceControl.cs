@@ -626,6 +626,24 @@ namespace AlphaRap
             return list;
         }
 
+        /// <summary>取得全部已配置设备实例，供流程目录复用；不会创建实例或打开连接。</summary>
+        public static Dictionary<string, AbstractDevice> GetFlowDevices()
+        {
+            Dictionary<string, AbstractDevice> result = new Dictionary<string, AbstractDevice>();
+            foreach (DeviceControl panel in LiveInstances.ToArray())
+            {
+                if (panel == null || panel.IsDisposed) continue;
+                foreach (DeviceItem item in panel._devices)
+                {
+                    if (item.Instance == null) continue;
+                    string key = panel.XmlKey + "/" + Uri.EscapeDataString(item.Name);
+                    if (result.ContainsKey(key)) throw new InvalidOperationException("Duplicate device identity: " + key);
+                    result.Add(key, item.Instance);
+                }
+            }
+            return result;
+        }
+
         #endregion
 
         #region 参数持久化（XML，跟随 MainForm 的【保存】按钮）

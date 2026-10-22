@@ -1876,6 +1876,22 @@ namespace AlphaRap
 			return null;
 		}
 
+        /// <summary>列出动态 VPP 和兼容视觉站的实际对象，使用稳定 VPP 身份而非显示名定位。</summary>
+        public Dictionary<string, VisionproInterface> GetFlowStations()
+        {
+            Dictionary<string, VisionproInterface> result = new Dictionary<string, VisionproInterface>();
+            foreach (VpCameraConfig camera in _cameras)
+                foreach (VpVppConfig vpp in camera.Vpps)
+                    if (vpp.Station != null) result.Add("vpp/" + vpp.Id, vpp.Station);
+            foreach (System.Reflection.FieldInfo field in GetType().GetFields())
+            {
+                if (!typeof(VisionproInterface).IsAssignableFrom(field.FieldType)) continue;
+                VisionproInterface station = field.GetValue(this) as VisionproInterface;
+                if (station != null) result.Add("legacy/" + field.Name, station);
+            }
+            return result;
+        }
+
 		private VpVppConfig FindVpp(VpCameraConfig cam, string name)
 		{
 			if (cam == null) return null;

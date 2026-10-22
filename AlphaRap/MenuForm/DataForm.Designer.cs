@@ -56,10 +56,17 @@
 			this.LogError = new DataSave.TypeCollection1();
 			this.UserLogin = new DataSave.TypeCollection1();
 			this.UserOperationLog = new DataSave.TypeCollection1();
+			this.flowProductionFields = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// data1
 			// 
+            this.flowProductionFields.Name = "flowProductionFields";
+            this.flowProductionFields.Tag = "schema";
+            this.flowProductionFields.Text = "生产表字段";
+            this.flowProductionFields.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flowProductionFields.Height = 38;
+            this.flowProductionFields.Click += new System.EventHandler(this.FlowProductionFieldsClick);
 			this.data1.BackColor = System.Drawing.Color.White;
 			this.data1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.data1.Location = new System.Drawing.Point(0, 0);
@@ -152,6 +159,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.ClientSize = new System.Drawing.Size(1224, 740);
 			this.Controls.Add(this.data1);
+            this.Controls.Add(this.flowProductionFields);
 			this.Name = "DataForm";
 			this.Text = "DataForm";
 			this.ResumeLayout(false);
@@ -159,6 +167,7 @@
 
         #endregion
 
+        private System.Windows.Forms.Button flowProductionFields;
         private DataSave.Data data1;
         public DataSave.TypeCollection1 MESLOG;
         public DataSave.TypeCollection1 Alarm;

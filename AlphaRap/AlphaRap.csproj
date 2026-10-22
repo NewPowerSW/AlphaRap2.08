@@ -954,6 +954,21 @@
       <DependentUpon>SystemSetting.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\MiddleLayer.cs" />
+    <Compile Include="FlowProgramming\FlowActionExecution.cs" />
+    <Compile Include="FlowProgramming\FlowActions.cs" />
+    <Compile Include="FlowProgramming\FlowInputForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowInputForm.Designer.cs"><DependentUpon>FlowInputForm.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowLanguageForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowNodeForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowNodeForm.Designer.cs"><DependentUpon>FlowNodeForm.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowProductionData.cs" />
+    <Compile Include="FlowProgramming\FlowPrograms.cs" />
+    <Compile Include="FlowProgramming\FlowResources.cs" />
+    <Compile Include="FlowProgramming\FlowSchemaForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowSchemaForm.Designer.cs"><DependentUpon>FlowSchemaForm.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowSourceForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowSourceForm.Designer.cs"><DependentUpon>FlowSourceForm.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowText.cs" />
     <Compile Include="Core\MiddleLayer.Startup.cs">
       <DependentUpon>MiddleLayer.cs</DependentUpon>
     </Compile>

@@ -35,11 +35,15 @@ namespace AlphaRap
     ///
     /// root 取日志页配置的 ProducPath；没配时退回 &lt;当前目录&gt;\ModuleData\ProductionData。
     ///
-    /// ⚠ 已知取舍：同一天里**新增**的列不会补进当天已存在的文件（该列的数据当天丢弃，
-    /// 第二天新文件才会有）。改列名的老列照常按名对上，不受影响。列名通常由代码固定，够用。
+    /// 同一天新增字段时先原子扩展文件表头，旧记录保留原值；写入由同一锁串行处理。
     /// </summary>
     public static class ProductionDataStore
     {
+        private static readonly object WriteSync = new object();
+        private static string recordIndexPath;
+        private static long recordIndexLength = -1;
+        private static readonly HashSet<string> recordIndex = new HashSet<string>(StringComparer.Ordinal);
+
         /// <summary>时间列的列名（固定第一列）。</summary>
         public const string TimeColumn = "Time";
 
@@ -148,6 +152,12 @@ namespace AlphaRap
         /// </summary>
         public static string Append(DateTime time, string[] values)
         {
+            lock (WriteSync) return AppendCore(time, values);
+        }
+
+        /// <summary>Serialize production writes and expand changed headers before writing values.</summary>
+        private static string AppendCore(DateTime time, string[] values)
+        {
             try
             {
                 string[] cols = GetColumns();
@@ -160,6 +170,7 @@ namespace AlphaRap
                 string[] fileCols = ReadHeader(file);
                 bool needHeader = fileCols.Length == 0;
                 if (needHeader) fileCols = cols;
+                else fileCols = ExpandHeader(file, fileCols, cols);
 
                 StringBuilder line = new StringBuilder();
                 line.Append(time.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -192,6 +203,75 @@ namespace AlphaRap
                 if (string.Equals(cols[i], column, StringComparison.OrdinalIgnoreCase))
                     return values[i] ?? "";
             return "";
+        }
+
+        /// <summary>Write named fields with a stable record identity; retries do not append duplicates.</summary>
+        public static string AppendNamed(DateTime time, IDictionary<string, string> fields, string recordId)
+        {
+            lock (WriteSync)
+            {
+                if (string.IsNullOrWhiteSpace(recordId)) return "RecordId is required.";
+                foreach (KeyValuePair<string, string> field in fields)
+                    if ((field.Value ?? "").IndexOfAny(new[] { '\r', '\n' }) >= 0) return "Production values must not contain line breaks: " + field.Key;
+                string file = DayFile(time);
+                LoadRecordIndex(file);
+                if (recordIndex.Contains(recordId)) return "";
+                List<string> columns = new List<string>(GetColumns());
+                foreach (string field in fields.Keys)
+                    if (!columns.Contains(field)) columns.Add(field);
+                string error = SetColumns(columns.ToArray());
+                if (!string.IsNullOrEmpty(error)) return error;
+                string[] values = new string[columns.Count];
+                for (int index = 0; index < columns.Count; index++) fields.TryGetValue(columns[index], out values[index]);
+                error = AppendCore(time, values);
+                if (!string.IsNullOrEmpty(error)) return error;
+                recordIndex.Add(recordId);
+                recordIndexLength = new FileInfo(file).Length;
+                return "";
+            }
+        }
+
+        /// <summary>Rebuild the single-file record index when another writer changes its length.</summary>
+        private static void LoadRecordIndex(string file)
+        {
+            long length = File.Exists(file) ? new FileInfo(file).Length : 0;
+            if (recordIndexPath == file && recordIndexLength == length) return;
+            recordIndex.Clear();
+            recordIndexPath = file;
+            recordIndexLength = length;
+            if (length == 0) return;
+            string[] lines = DecodeLines(File.ReadAllBytes(file));
+            string[] header = SplitLine(lines[0]);
+            int column = Array.IndexOf(header, "RecordId");
+            if (column < 0) return;
+            for (int row = 1; row < lines.Length; row++)
+            {
+                string[] values = SplitLine(lines[row]);
+                if (column < values.Length && !string.IsNullOrEmpty(values[column])) recordIndex.Add(values[column]);
+            }
+        }
+
+        /// <summary>Atomically add new columns to today's file without dropping old values.</summary>
+        private static string[] ExpandHeader(string file, string[] previous, string[] requested)
+        {
+            List<string> combined = new List<string>(previous);
+            foreach (string column in requested) if (!combined.Contains(column)) combined.Add(column);
+            if (combined.Count == previous.Length) return previous;
+            string[] lines = DecodeLines(File.ReadAllBytes(file));
+            StringBuilder text = new StringBuilder(Csv(TimeColumn));
+            foreach (string column in combined) text.Append(',').Append(Csv(column));
+            text.AppendLine();
+            string suffix = new string(',', combined.Count - previous.Length);
+            for (int row = 1; row < lines.Length; row++)
+                if (!string.IsNullOrEmpty(lines[row])) text.Append(lines[row]).Append(suffix).AppendLine();
+            string temporary = file + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            try
+            {
+                File.WriteAllText(temporary, text.ToString(), new UTF8Encoding(true));
+                File.Replace(temporary, file, file + ".bak");
+            }
+            finally { if (File.Exists(temporary)) File.Delete(temporary); }
+            return combined.ToArray();
         }
 
         // ---------------- 查询 ----------------

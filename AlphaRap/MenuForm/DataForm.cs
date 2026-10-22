@@ -16,6 +16,7 @@ namespace AlphaRap
 		public DataForm()
 		{
 			InitializeComponent();
+            FlowProgramming.FlowLanguageForm.ApplyTexts(this);
             if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
 		}

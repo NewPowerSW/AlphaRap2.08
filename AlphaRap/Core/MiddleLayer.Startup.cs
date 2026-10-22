@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -36,6 +36,7 @@ namespace AlphaRap
             alarmRunTask = new AlarmRunTask();
             ShowLoadingStage("stage_Recipe", "载入配方", "Loading recipe", "Cargando receta");
             OpenRecipe(SysPara.FilePath);
+            FlowProgramming.FlowPrograms.Install();
             gEXIT = false;
             FlowCtrl = new FlowControl();
             FlowCtrl.StartThread();

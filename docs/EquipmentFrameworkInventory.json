@@ -8,8 +8,8 @@
     "公开方法包含底层入口和事件回调，不等于应用工程师可直接选择的动作清单。"
   ],
   "summary": {
-    "explicit_compile_files": 144,
-    "forms": 32,
+    "explicit_compile_files": 159,
+    "forms": 33,
     "flow_modules": 3,
     "flow_nodes": 123,
     "device_types": 5,
@@ -29,6 +29,14 @@
     }
   },
   "forms": [
+    {
+      "class": "FlowLanguageForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/FlowProgramming/FlowLanguageForm.cs",
+        "line": 6
+      }
+    },
     {
       "class": "OptionChoiceForm",
       "base": "Form",
@@ -114,7 +122,7 @@
       "base": "Form",
       "source": {
         "file": "AlphaRap/MenuForm/Flow.cs",
-        "line": 6
+        "line": 9
       }
     },
     {

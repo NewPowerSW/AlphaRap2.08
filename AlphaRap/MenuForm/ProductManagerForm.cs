@@ -244,8 +244,9 @@ namespace AlphaRap
         {
             RECIPEIDList.Clear();
 
-            string path = System.Windows.Forms.Application.StartupPath + "\\" + SysPara.RecipeDataDirectory.Substring(1);
+            string path = Path.GetFullPath(SysPara.RecipeDataDirectory);
             DirectoryInfo root = new DirectoryInfo(path);
+            if (!root.Exists) { listView1.Items.Clear(); RefreshModelCount(); return; }
             listView1.BeginUpdate();
             listView1.Items.Clear();
             foreach (FileInfo f in root.GetFiles())
