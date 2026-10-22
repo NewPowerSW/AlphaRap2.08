@@ -1,0 +1,5977 @@
+{
+  "format_version": 1,
+  "scope": "AlphaRap.csproj 显式 Compile 项的静态声明，不含硬件探测、动态对象或配置实例计数",
+  "limitations": [
+    "基于常见设计器语法的正则抽取，不是 C# 语义分析器。",
+    "未计算 MSBuild 条件、继承方法、动态创建的相机/VPP/Device 实例或动态托盘列。",
+    "配方字段默认值和 IO Port 是源码表达式，不能当作现场已验证配置。",
+    "公开方法包含底层入口和事件回调，不等于应用工程师可直接选择的动作清单。"
+  ],
+  "summary": {
+    "explicit_compile_files": 144,
+    "forms": 32,
+    "flow_modules": 3,
+    "flow_nodes": 123,
+    "device_types": 5,
+    "declared_tables": 30,
+    "resource_types": {
+      "DataSave.TypeCollection1": 6,
+      "NPSDK.Motion.NP_Cylinder": 4,
+      "NPSDK.Motion.NP_Home": 1,
+      "NPSDK.Motion.NP_Input": 35,
+      "NPSDK.Motion.NP_JogOption": 1,
+      "NPSDK.Motion.NP_ManualControl": 1,
+      "NPSDK.Motion.NP_Motor": 1,
+      "NPSDK.Motion.NP_MotorJog": 2,
+      "NPSDK.Motion.NP_Output": 31,
+      "NPSDK.Motion.NP_PositionShow": 1,
+      "NPSDK.Motion.NP_PositionTable": 1
+    }
+  },
+  "forms": [
+    {
+      "class": "OptionChoiceForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/FunctionForms/OptionChoiceForm.cs",
+        "line": 26
+      }
+    },
+    {
+      "class": "Amphenol",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MES/Amphenol.cs",
+        "line": 11
+      }
+    },
+    {
+      "class": "DongJu",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MES/DongJu.cs",
+        "line": 11
+      }
+    },
+    {
+      "class": "LENS",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MES/LENS.cs",
+        "line": 11
+      }
+    },
+    {
+      "class": "MainForm",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MainForm.cs",
+        "line": 16
+      }
+    },
+    {
+      "class": "AddUserForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/AddUserForm.cs",
+        "line": 14
+      }
+    },
+    {
+      "class": "AlarmQueryForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/AlarmQueryForm.cs",
+        "line": 17
+      }
+    },
+    {
+      "class": "AlarmSetting",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/AlarmSetting.cs",
+        "line": 9
+      }
+    },
+    {
+      "class": "CheckForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/CheckForm.cs",
+        "line": 9
+      }
+    },
+    {
+      "class": "DataForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/DataForm.cs",
+        "line": 5
+      }
+    },
+    {
+      "class": "Flow",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/Flow.cs",
+        "line": 6
+      }
+    },
+    {
+      "class": "HardForm",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.cs",
+        "line": 8
+      }
+    },
+    {
+      "class": "HomeForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/HomeForm.cs",
+        "line": 12
+      }
+    },
+    {
+      "class": "LanguageSetting",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/LanguageSetting.cs",
+        "line": 7
+      }
+    },
+    {
+      "class": "LoadingForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/LoadingForm.cs",
+        "line": 21
+      }
+    },
+    {
+      "class": "LockForm1",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/LockForm1.cs",
+        "line": 6
+      }
+    },
+    {
+      "class": "LogForm",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MenuForm/LogForm.cs",
+        "line": 8
+      }
+    },
+    {
+      "class": "ManualForm",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.cs",
+        "line": 8
+      }
+    },
+    {
+      "class": "Parameter",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MenuForm/Parameter.cs",
+        "line": 17
+      }
+    },
+    {
+      "class": "PlatFormSetting",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MenuForm/PlatFormSetting.cs",
+        "line": 17
+      }
+    },
+    {
+      "class": "ProductManagerForm",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MenuForm/ProductManagerForm.cs",
+        "line": 18
+      }
+    },
+    {
+      "class": "ProductionQueryForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/ProductionQueryForm.cs",
+        "line": 19
+      }
+    },
+    {
+      "class": "SpanLife",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/SpanLife.cs",
+        "line": 5
+      }
+    },
+    {
+      "class": "SystemForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/SystemForm.cs",
+        "line": 8
+      }
+    },
+    {
+      "class": "SystemSetting",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MenuForm/SystemSetting.cs",
+        "line": 8
+      }
+    },
+    {
+      "class": "UserLoginForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/MenuForm/UserLoginForm.cs",
+        "line": 14
+      }
+    },
+    {
+      "class": "VPForm",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.cs",
+        "line": 10
+      }
+    },
+    {
+      "class": "Warning",
+      "base": "ModuleBaseForm",
+      "source": {
+        "file": "AlphaRap/MenuForm/Warning.cs",
+        "line": 6
+      }
+    },
+    {
+      "class": "DownConveryor",
+      "base": "NPSDK.Flow_BaseForm",
+      "source": {
+        "file": "AlphaRap/TaskProcess/DownConveryor.cs",
+        "line": 4
+      }
+    },
+    {
+      "class": "Gantry",
+      "base": "NPSDK.Flow_BaseForm",
+      "source": {
+        "file": "AlphaRap/TaskProcess/Gantry.cs",
+        "line": 7
+      }
+    },
+    {
+      "class": "UpConveryor",
+      "base": "NPSDK.Flow_BaseForm",
+      "source": {
+        "file": "AlphaRap/TaskProcess/UpConveryor.cs",
+        "line": 5
+      }
+    },
+    {
+      "class": "TBEditForm",
+      "base": "Form",
+      "source": {
+        "file": "AlphaRap/Vision/TBEditForm.cs",
+        "line": 5
+      }
+    }
+  ],
+  "flow_modules": [
+    {
+      "class": "DownConveryor",
+      "source": {
+        "file": "AlphaRap/TaskProcess/DownConveryor.cs",
+        "line": 4
+      },
+      "nodes": [
+        {
+          "variable": "DownConveyInit_Flow1_3",
+          "text_expression": "\"下流道阻挡上升1.3\"",
+          "branches": {
+            "Next": "this.DownConveyInit_Flow1_4",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyInit_Flow1_3_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 31
+          }
+        },
+        {
+          "variable": "DownConveyInit_Flow1_4",
+          "text_expression": "\"流道转动1.4\"",
+          "branches": {
+            "Next": "this.DownConveyInit_Flow1_5",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyInit_Flow1_4_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 32
+          }
+        },
+        {
+          "variable": "DownConveyInit_Flow1_5",
+          "text_expression": "\"流道停止1.5\"",
+          "branches": {
+            "Next": "this.DownConveyInit_Flow1_6",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyInit_Flow1_5_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 33
+          }
+        },
+        {
+          "variable": "DownConveyInit_Flow1_6",
+          "text_expression": "\"初始化完成1.6\"",
+          "branches": {
+            "Next": "null",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyInit_Flow1_6_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 34
+          }
+        },
+        {
+          "variable": "DownConveyInit_Flow1_2",
+          "text_expression": "\"下流道初始化1.2\"",
+          "branches": {
+            "Next": "this.DownConveyInit_Flow1_3",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyInit_Flow1_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 35
+          }
+        },
+        {
+          "variable": "DownConveyInit_Flow1_1",
+          "text_expression": "\"启动1.1\"",
+          "branches": {
+            "Next": "this.DownConveyInit_Flow1_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyInit_Flow1_1_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 36
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow3_0",
+          "text_expression": "\"出料感应器OFF3.0\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow3_1",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow3_0_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 37
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow3_1",
+          "text_expression": "\"等待下机要料信号OFF3.1\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow3_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow3_1_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 38
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow3_2",
+          "text_expression": "\"流道停止3.2\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow3_3",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow3_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 39
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow3_3",
+          "text_expression": "\"交互完成3.3\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow3_4",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow3_3_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 40
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow3_4",
+          "text_expression": "\"Loop3.4\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow3_5",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow3_4_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 41
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow3_5",
+          "text_expression": "\"Loop3.5\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow1_1",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow3_5_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 42
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow1_1",
+          "text_expression": "\"启动1.1\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow1_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow1_1_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 43
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow1_2",
+          "text_expression": "\"检查是否有板1.2\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow1_4",
+            "Casse1": "this.DownConveyorAuto_Flow1_3",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow1_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 44
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow1_3",
+          "text_expression": "\"有板1.3\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_5",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow1_3_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 45
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow2_5",
+          "text_expression": "\"给下机有板待出信号2.5\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_6",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow2_5_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 46
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow2_6",
+          "text_expression": "\"等待下机要料信号ON2.6\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_7",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow2_6_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 47
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow2_7",
+          "text_expression": "\"阻挡区阻挡下降2.7\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_8",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow2_7_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 48
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow2_8",
+          "text_expression": "\"流道转动2.8\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_9",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow2_8_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 49
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow2_9",
+          "text_expression": "\"出料感应器ON2.9\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow3_0",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow2_9_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 50
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow1_4",
+          "text_expression": "\"下流道阻挡升起1.4\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow1_5",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow1_4_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 51
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow1_5",
+          "text_expression": "\"向上机要板1.5\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow1_6",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow1_5_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 52
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow1_6",
+          "text_expression": "\"等待上机有板待出信号1.6\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow1_7",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow1_6_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 53
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow1_7",
+          "text_expression": "\"流道转动1.7\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow1_8",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow1_7_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 54
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow1_8",
+          "text_expression": "\"入料感应器ON1.8\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow1_9",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow1_8_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 55
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow1_9",
+          "text_expression": "\"入料感应器OFF1.9\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_0",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow1_9_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 56
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow2_0",
+          "text_expression": "\"要板信号OFF2.0\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_1",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow2_0_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 57
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow2_1",
+          "text_expression": "\"减速感应器ON2.1\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow2_1_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 58
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow2_2",
+          "text_expression": "\"流道速度切换2.2\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_3",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow2_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 59
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow2_3",
+          "text_expression": "\"到位感应器ON2.3\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_4",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow2_3_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 60
+          }
+        },
+        {
+          "variable": "DownConveyorAuto_Flow2_4",
+          "text_expression": "\"流道停止2.4\"",
+          "branches": {
+            "Next": "this.DownConveyorAuto_Flow2_5",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.DownConveyorAuto_Flow2_4_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/DownConveryor.Designer.cs",
+            "line": 61
+          }
+        }
+      ],
+      "entry_calls": []
+    },
+    {
+      "class": "Gantry",
+      "source": {
+        "file": "AlphaRap/TaskProcess/Gantry.cs",
+        "line": 7
+      },
+      "nodes": [
+        {
+          "variable": "GantryInit_Flow1_1",
+          "text_expression": "\"启动1.1\"",
+          "branches": {
+            "Next": "this.GantryInit_Flow1_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.ScrewInit_Flow1_1_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 31
+          }
+        },
+        {
+          "variable": "GantryInit_Flow1_2",
+          "text_expression": "\"扫码枪连接1.2\"",
+          "branches": {
+            "Next": "this.GantryInit_Flow1_3",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.GantryInit_Flow1_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 32
+          }
+        },
+        {
+          "variable": "GantryInit_Flow1_3",
+          "text_expression": "\"PLC连接1.3\"",
+          "branches": {
+            "Next": "this.GantryInit_Flow1_4",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.GantryInit_Flow1_3_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 33
+          }
+        },
+        {
+          "variable": "GantryInit_Flow1_4",
+          "text_expression": "\"确认MES连接1.4\"",
+          "branches": {
+            "Next": "this.GantryInit_Flow1_5",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.GantryInit_Flow1_4_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 34
+          }
+        },
+        {
+          "variable": "GantryInit_Flow1_5",
+          "text_expression": "\"获取视觉数据1.5\"",
+          "branches": {
+            "Next": "this.GantryInit_Flow1_6",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.GantryInit_Flow1_5_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 35
+          }
+        },
+        {
+          "variable": "GantryInit_Flow1_6",
+          "text_expression": "\"初始化完成1.6\"",
+          "branches": {
+            "Next": "null",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.ScrewInit_Flow1_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 36
+          }
+        },
+        {
+          "variable": "FlowAuto_Scann2_5",
+          "text_expression": "\"Loop2.5\"",
+          "branches": {
+            "Next": "this.FlowAuto_Scann2_1",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Scann2_5_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 39
+          }
+        },
+        {
+          "variable": "FlowAuto_Scann2_1",
+          "text_expression": "\"等到扫码信号2.1\"",
+          "branches": {
+            "Next": "this.FlowAuto_Scann2_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Scann2_1_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 40
+          }
+        },
+        {
+          "variable": "FlowAuto_Scann2_2",
+          "text_expression": "\"启动扫码2.2\"",
+          "branches": {
+            "Next": "this.FlowAuto_Scann2_3",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Scann2_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 41
+          }
+        },
+        {
+          "variable": "FlowAuto_Scann2_3",
+          "text_expression": "\"MES校验2.3\"",
+          "branches": {
+            "Next": "this.FlowAuto_Scann2_4",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Scann2_3_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 42
+          }
+        },
+        {
+          "variable": "FlowAuto_Scann2_4",
+          "text_expression": "\"结果传给PLC2.4\"",
+          "branches": {
+            "Next": "this.FlowAuto_Scann2_5",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Scann2_4_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 43
+          }
+        },
+        {
+          "variable": "FlowAuto_Vison3_5",
+          "text_expression": "\"Loop3.5\"",
+          "branches": {
+            "Next": "this.FlowAuto_Vison3_1",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Vison3_5_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 45
+          }
+        },
+        {
+          "variable": "FlowAuto_Vison3_1",
+          "text_expression": "\"等到拍照信号3.1\"",
+          "branches": {
+            "Next": "this.FlowAuto_Vison3_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Vison3_1_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 46
+          }
+        },
+        {
+          "variable": "FlowAuto_Vison3_2",
+          "text_expression": "\"启动拍照3.2\"",
+          "branches": {
+            "Next": "this.FlowAuto_Vison3_3",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Vison3_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 47
+          }
+        },
+        {
+          "variable": "FlowAuto_Vison3_3",
+          "text_expression": "\"获取拍照结果3.3\"",
+          "branches": {
+            "Next": "this.FlowAuto_Vison3_4",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Vison3_3_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 48
+          }
+        },
+        {
+          "variable": "FlowAuto_Vison3_4",
+          "text_expression": "\"结果传给PLC3.4\"",
+          "branches": {
+            "Next": "this.FlowAuto_Vison3_5",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Vison3_4_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 49
+          }
+        },
+        {
+          "variable": "FlowAuto_Heart5_4",
+          "text_expression": "\"Loop5.4\"",
+          "branches": {
+            "Next": "this.FlowAuto_Heart5_1",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Heart5_4_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 51
+          }
+        },
+        {
+          "variable": "FlowAuto_Heart5_1",
+          "text_expression": "\"写入PLC心跳5.1\"",
+          "branches": {
+            "Next": "this.FlowAuto_Heart5_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Heart5_1_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 52
+          }
+        },
+        {
+          "variable": "FlowAuto_Heart5_2",
+          "text_expression": "\"时间间隔5.2\"",
+          "branches": {
+            "Next": "this.FlowAuto_Heart5_3",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Heart5_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 53
+          }
+        },
+        {
+          "variable": "FlowAuto_Heart5_3",
+          "text_expression": "\"读取PLC心跳5.3\"",
+          "branches": {
+            "Next": "this.FlowAuto_Heart5_4",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_Heart5_3_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 54
+          }
+        },
+        {
+          "variable": "FlowAuto_MES4_5",
+          "text_expression": "\"Loop4.5\"",
+          "branches": {
+            "Next": "this.FlowAuto_MES4_1",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": null,
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 56
+          }
+        },
+        {
+          "variable": "FlowAuto_MES4_1",
+          "text_expression": "\"等到MES信号4.1\"",
+          "branches": {
+            "Next": "this.FlowAuto_MES4_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": null,
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 57
+          }
+        },
+        {
+          "variable": "FlowAuto_MES4_2",
+          "text_expression": "\"启动MES上传4.2\"",
+          "branches": {
+            "Next": "this.FlowAuto_MES4_3",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": null,
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 58
+          }
+        },
+        {
+          "variable": "FlowAuto_MES4_3",
+          "text_expression": "\"获取上传结果4.3\"",
+          "branches": {
+            "Next": "this.FlowAuto_MES4_4",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": null,
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 59
+          }
+        },
+        {
+          "variable": "FlowAuto_MES4_4",
+          "text_expression": "\"结果传给PLC4.4\"",
+          "branches": {
+            "Next": "this.FlowAuto_MES4_5",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_MES4_4_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.Designer.cs",
+            "line": 60
+          }
+        }
+      ],
+      "entry_calls": [
+        {
+          "node": "GantryInit_Flow1_1",
+          "source": {
+            "file": "AlphaRap/TaskProcess/Gantry.cs",
+            "line": 24
+          }
+        }
+      ]
+    },
+    {
+      "class": "UpConveryor",
+      "source": {
+        "file": "AlphaRap/TaskProcess/UpConveryor.cs",
+        "line": 5
+      },
+      "nodes": [
+        {
+          "variable": "UPConveyInit_Flow1_1",
+          "text_expression": "\"启动1.1\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow1_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow1_1_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 31
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow1_2",
+          "text_expression": "\"等到模组初始化完成1.2\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow1_3",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow1_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 32
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow1_3",
+          "text_expression": "\"上缓存流道初始化1.3\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow1_4",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow1_3_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 33
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow1_4",
+          "text_expression": "\"上工作流道初始化1.4\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow1_6",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow1_4_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 34
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow1_6",
+          "text_expression": "\"上流道缓存位阻挡上升1.6\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow1_7",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow1_6_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 35
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow1_7",
+          "text_expression": "\"上流道工作位顶升下降1.7\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow1_8",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow1_7_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 36
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow1_8",
+          "text_expression": "\"上流道工作位阻挡上升1.8\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow1_9",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow1_8_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 37
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow1_9",
+          "text_expression": "\"流道反转1.9\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow2_0",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow1_9_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 38
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow2_0",
+          "text_expression": "\"上流道缓存位阻挡上升2_0\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow2_01",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow2_0_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 39
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow2_01",
+          "text_expression": "\"上流道缓存位阻挡上升2_0\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow2_1",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": null,
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 40
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow2_1",
+          "text_expression": "\"流道转动2.1\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow2_2",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow2_1_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 41
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow2_2",
+          "text_expression": "\"流道停止2.2\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow2_21",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow2_2_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 42
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow2_21",
+          "text_expression": "\"等待下流道初始化完成2.21\"",
+          "branches": {
+            "Next": "this.UPConveyInit_Flow2_3",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow2_21_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 43
+          }
+        },
+        {
+          "variable": "UPConveyInit_Flow2_3",
+          "text_expression": "\"初始化完成2.3\"",
+          "branches": {
+            "Next": "null",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow2_3_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 44
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_09",
+          "text_expression": "\"入料信号OFF1.09\"",
+          "branches": {
+            "Next": "this.UPConveyAuto_Flow1_10",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_09_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 47
+          }
+        },
+        {
+          "variable": "UPConveyAuto_Flow1_10",
+          "text_expression": "\"要板信号关闭1.10\"",
+          "branches": {
+            "Next": "this.UPConveyAuto_Flow1_11",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_10_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 48
+          }
+        },
+        {
+          "variable": "UPConveyAuto_Flow1_11",
+          "text_expression": "\"减速感应器ON1.11\"",
+          "branches": {
+            "Next": "this.UPConveyAuto_Flow1_12",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_11_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 49
+          }
+        },
+        {
+          "variable": "UPConveyAuto_Flow1_12",
+          "text_expression": "\"流道速度切换1.12\"",
+          "branches": {
+            "Next": "this.UPConveyAuto_Flow1_13",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_12_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 50
+          }
+        },
+        {
+          "variable": "UPConveyAuto_Flow1_13",
+          "text_expression": "\"到位感应器ON1.13\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_14",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_13_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 51
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_14",
+          "text_expression": "\"流道停止1.14\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_15",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_14_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 52
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_15",
+          "text_expression": "\"给工作区有板信号1.15\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_16",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_15_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 53
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_16",
+          "text_expression": "\"等待工作区要板1.16\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_17",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_16_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 54
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_17",
+          "text_expression": "\"阻挡区阻挡下降1.17\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_18",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_17_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 55
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_18",
+          "text_expression": "\"流道转动1.18\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_19",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_18_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 56
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_19",
+          "text_expression": "\"等待工作区要料信号关闭1.19\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_20",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_19_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 57
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_20",
+          "text_expression": "\"流道停止1.20\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_21",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_20_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 58
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_21",
+          "text_expression": "\"交互完成1.21\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_22",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_21_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 59
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_22",
+          "text_expression": "\"Loop1.22\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_23",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_22_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 60
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_23",
+          "text_expression": "\"Loop1.23\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_01",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_23_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 61
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_01",
+          "text_expression": "\"启动1.01\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_02",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_01_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 62
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_02",
+          "text_expression": "\"检查是否有板1.02\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_04",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_02_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 63
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_04",
+          "text_expression": "\"缓存区阻挡升起1.04\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_05",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_04_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 64
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_05",
+          "text_expression": "\"向上机要板1.05\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_06",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_05_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 65
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_06",
+          "text_expression": "\"等待上机有板待出信号1.06\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_07",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_06_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 66
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_07",
+          "text_expression": "\"流道转动1.07\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_08",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_07_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 67
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_08",
+          "text_expression": "\"入料信号ON1.08\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_09",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_08_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 68
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow1_03",
+          "text_expression": "\"有板1.03\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow1_15",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow1_03_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 69
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_21",
+          "text_expression": "\"顶升下降2.21\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_22",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_21_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 71
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_22",
+          "text_expression": "\"流道转动2.22\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_23",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_22_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 72
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_23",
+          "text_expression": "\"出料信号ON2.23\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_24",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_23_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 73
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_24",
+          "text_expression": "\"出料信号OFF2.24\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_25",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_24_FlowChartRun_1)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 74
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_25",
+          "text_expression": "\"等待下机要料信号OFF2.25\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_26",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_25_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 75
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_26",
+          "text_expression": "\"流道停止2.26\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_27",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_26_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 76
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_27",
+          "text_expression": "\"交互完成2.27\"",
+          "branches": {
+            "Next": "this.UPConveyoAuto_Flow2_28",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_27_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 77
+          }
+        },
+        {
+          "variable": "UPConveyoAuto_Flow2_28",
+          "text_expression": "\"Loop2.28\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_29",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_28_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 78
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_29",
+          "text_expression": "\"Loop2.29\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_01",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_29_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 79
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_01",
+          "text_expression": "\"启动2.01\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_02",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_01_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 80
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_02",
+          "text_expression": "\"检查是否有板2.02\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_04",
+            "Casse1": "this.UPConveyorAuto_Flow2_03",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_02_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 81
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_03",
+          "text_expression": "\"有板2.03\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_15",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_03_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 82
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_15",
+          "text_expression": "\"顶升上升2.15\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_30",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_15_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 83
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_30",
+          "text_expression": "\"ByPass?2.30\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_16",
+            "Casse1": "this.UPConveyorAuto_Flow2_19",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_30_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 84
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_19",
+          "text_expression": "\"等待下机要板2.19\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_20",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_19_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 85
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_20",
+          "text_expression": "\"工作区阻挡下降2.20\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_21",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_20_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 86
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_16",
+          "text_expression": "\"给设备工作信号2.16\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_17",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_16_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 87
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_17",
+          "text_expression": "\"等待设备工作完成2.17\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_18",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_17_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 88
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_18",
+          "text_expression": "\"给下机有板信号2.18\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_19",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_18_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 89
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_04",
+          "text_expression": "\"工作区阻挡升起2.04\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_05",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_04_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 90
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_05",
+          "text_expression": "\"向缓存区要板2.05\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_06",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_05_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 91
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_06",
+          "text_expression": "\"等待缓存区有板待出2.06\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_07",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_06_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 92
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_07",
+          "text_expression": "\"流道转动2.07\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_08",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_07_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 93
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_08",
+          "text_expression": "\"入料信号ON2.08\"",
+          "branches": {
+            "Next": "null",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_08_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 94
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_09",
+          "text_expression": "\"入料信号OFF2.09\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_10",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_09_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 95
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_10",
+          "text_expression": "\"要板信号关闭2.10\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_11",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_10_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 96
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_11",
+          "text_expression": "\"减速感应器ON2.11\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_12",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_11_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 97
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_12",
+          "text_expression": "\"流道速度切换2.12\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_13",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_12_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 98
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_13",
+          "text_expression": "\"到位感应器ON2.13\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_14",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_13_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 99
+          }
+        },
+        {
+          "variable": "UPConveyorAuto_Flow2_14",
+          "text_expression": "\"流道停止2.14\"",
+          "branches": {
+            "Next": "this.UPConveyorAuto_Flow2_15",
+            "Casse1": "null",
+            "Casse2": "null",
+            "Casse3": "null"
+          },
+          "callback_expression": "new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyAuto_Flow2_14_FlowChartRun)",
+          "source": {
+            "file": "AlphaRap/TaskProcess/UpConveryor.Designer.cs",
+            "line": 100
+          }
+        }
+      ],
+      "entry_calls": []
+    }
+  ],
+  "device_types": [
+    {
+      "class": "ATEQ_F620",
+      "declared_public_methods": [
+        {
+          "signature": "override void Open()",
+          "source": {
+            "file": "AlphaRap/Devices/ATEQ_F620.cs",
+            "line": 98
+          }
+        },
+        {
+          "signature": "void Connect(string portName, int baudRate, int parity, int dataBits, int stopBits)",
+          "source": {
+            "file": "AlphaRap/Devices/ATEQ_F620.cs",
+            "line": 120
+          }
+        },
+        {
+          "signature": "override void Close()",
+          "source": {
+            "file": "AlphaRap/Devices/ATEQ_F620.cs",
+            "line": 172
+          }
+        },
+        {
+          "signature": "string Readdata()",
+          "source": {
+            "file": "AlphaRap/Devices/ATEQ_F620.cs",
+            "line": 189
+          }
+        },
+        {
+          "signature": "override string Send(string data)",
+          "source": {
+            "file": "AlphaRap/Devices/ATEQ_F620.cs",
+            "line": 209
+          }
+        },
+        {
+          "signature": "override string Receive()",
+          "source": {
+            "file": "AlphaRap/Devices/ATEQ_F620.cs",
+            "line": 225
+          }
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/Devices/ATEQ_F620.cs",
+        "line": 12
+      }
+    },
+    {
+      "class": "HIOKI_RM3545",
+      "declared_public_methods": [
+        {
+          "signature": "override void Open()",
+          "source": {
+            "file": "AlphaRap/Devices/HIOKI_RM3545.cs",
+            "line": 100
+          }
+        },
+        {
+          "signature": "void MyCom_DataReceived(object sender, SerialDataReceivedEventArgs e)",
+          "source": {
+            "file": "AlphaRap/Devices/HIOKI_RM3545.cs",
+            "line": 126
+          }
+        },
+        {
+          "signature": "List<double> GetFinalResult(ref bool bLengthOK)",
+          "source": {
+            "file": "AlphaRap/Devices/HIOKI_RM3545.cs",
+            "line": 145
+          }
+        },
+        {
+          "signature": "bool Write(string Command)",
+          "source": {
+            "file": "AlphaRap/Devices/HIOKI_RM3545.cs",
+            "line": 166
+          }
+        },
+        {
+          "signature": "override string Send(string data)",
+          "source": {
+            "file": "AlphaRap/Devices/HIOKI_RM3545.cs",
+            "line": 185
+          }
+        },
+        {
+          "signature": "override string Receive()",
+          "source": {
+            "file": "AlphaRap/Devices/HIOKI_RM3545.cs",
+            "line": 192
+          }
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/Devices/HIOKI_RM3545.cs",
+        "line": 14
+      }
+    },
+    {
+      "class": "Keyence3DTcp",
+      "declared_public_methods": [
+        {
+          "signature": "override void Open()",
+          "source": {
+            "file": "AlphaRap/Devices/Keyence3DTcp.cs",
+            "line": 111
+          }
+        },
+        {
+          "signature": "override void Close()",
+          "source": {
+            "file": "AlphaRap/Devices/Keyence3DTcp.cs",
+            "line": 123
+          }
+        },
+        {
+          "signature": "override void StartRunning()",
+          "source": {
+            "file": "AlphaRap/Devices/Keyence3DTcp.cs",
+            "line": 201
+          }
+        },
+        {
+          "signature": "string Triger3D(int Position)",
+          "source": {
+            "file": "AlphaRap/Devices/Keyence3DTcp.cs",
+            "line": 214
+          }
+        },
+        {
+          "signature": "string Change3D(int Position)",
+          "source": {
+            "file": "AlphaRap/Devices/Keyence3DTcp.cs",
+            "line": 296
+          }
+        },
+        {
+          "signature": "override string Send(string data)",
+          "source": {
+            "file": "AlphaRap/Devices/Keyence3DTcp.cs",
+            "line": 349
+          }
+        },
+        {
+          "signature": "override string Receive()",
+          "source": {
+            "file": "AlphaRap/Devices/Keyence3DTcp.cs",
+            "line": 365
+          }
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/Devices/Keyence3DTcp.cs",
+        "line": 11
+      }
+    },
+    {
+      "class": "ModBus_RTU",
+      "declared_public_methods": [
+        {
+          "signature": "override void Open()",
+          "source": {
+            "file": "AlphaRap/Devices/ModBus_RTU.cs",
+            "line": 100
+          }
+        },
+        {
+          "signature": "void Connect(string portName, int baudRate, int parity, int dataBits, int stopBits)",
+          "source": {
+            "file": "AlphaRap/Devices/ModBus_RTU.cs",
+            "line": 122
+          }
+        },
+        {
+          "signature": "override void Close()",
+          "source": {
+            "file": "AlphaRap/Devices/ModBus_RTU.cs",
+            "line": 174
+          }
+        },
+        {
+          "signature": "byte[] ReadOutputRegisters(byte slaveld, ushort start, ushort count, int threadSleep)",
+          "source": {
+            "file": "AlphaRap/Devices/ModBus_RTU.cs",
+            "line": 196
+          }
+        },
+        {
+          "signature": "string GetResultData()",
+          "source": {
+            "file": "AlphaRap/Devices/ModBus_RTU.cs",
+            "line": 261
+          }
+        },
+        {
+          "signature": "override string Send(string data)",
+          "source": {
+            "file": "AlphaRap/Devices/ModBus_RTU.cs",
+            "line": 377
+          }
+        },
+        {
+          "signature": "override string Receive()",
+          "source": {
+            "file": "AlphaRap/Devices/ModBus_RTU.cs",
+            "line": 393
+          }
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/Devices/ModBus_RTU.cs",
+        "line": 14
+      }
+    },
+    {
+      "class": "ScannerKeyenceTcp",
+      "declared_public_methods": [
+        {
+          "signature": "override void Open()",
+          "source": {
+            "file": "AlphaRap/Devices/ScannerKeyenceTcp.cs",
+            "line": 100
+          }
+        },
+        {
+          "signature": "override void Close()",
+          "source": {
+            "file": "AlphaRap/Devices/ScannerKeyenceTcp.cs",
+            "line": 112
+          }
+        },
+        {
+          "signature": "override void StartRunning()",
+          "source": {
+            "file": "AlphaRap/Devices/ScannerKeyenceTcp.cs",
+            "line": 178
+          }
+        },
+        {
+          "signature": "override void StopRunning()",
+          "source": {
+            "file": "AlphaRap/Devices/ScannerKeyenceTcp.cs",
+            "line": 190
+          }
+        },
+        {
+          "signature": "string ScanOnce()",
+          "source": {
+            "file": "AlphaRap/Devices/ScannerKeyenceTcp.cs",
+            "line": 203
+          }
+        },
+        {
+          "signature": "override string Send(string data)",
+          "source": {
+            "file": "AlphaRap/Devices/ScannerKeyenceTcp.cs",
+            "line": 270
+          }
+        },
+        {
+          "signature": "override string Receive()",
+          "source": {
+            "file": "AlphaRap/Devices/ScannerKeyenceTcp.cs",
+            "line": 293
+          }
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/Devices/ScannerKeyenceTcp.cs",
+        "line": 12
+      }
+    }
+  ],
+  "tables": [
+    {
+      "scope": "SettingData",
+      "variable": "dataTable1",
+      "name": "\"Mset\"",
+      "columns": [
+        {
+          "variable": "dataColumn1",
+          "name": "\"textBox_InURL\"",
+          "type": "typeof(string)",
+          "default_expression": "\"http://IP:端口/api/ProductStationInSfcNo\""
+        },
+        {
+          "variable": "dataColumn2",
+          "name": "\"textBox_InSfcNo\"",
+          "type": "typeof(string)",
+          "default_expression": "\"YT20180730-001\""
+        },
+        {
+          "variable": "dataColumn3",
+          "name": "\"textBox_InProductSn\"",
+          "type": "typeof(string)",
+          "default_expression": "\"P1098369-00-D:SAL7190850123400\""
+        },
+        {
+          "variable": "dataColumn4",
+          "name": "\"textBox_InDeviceCode\"",
+          "type": "typeof(string)",
+          "default_expression": "\"EOL-8275\""
+        },
+        {
+          "variable": "dataColumn5",
+          "name": "\"textBox_OutURL\"",
+          "type": "typeof(string)",
+          "default_expression": "\"http://IP:端口/api/ProductStationOutSfcNo\""
+        },
+        {
+          "variable": "dataColumn6",
+          "name": "\"textBox_OutSfcNo\"",
+          "type": "typeof(string)",
+          "default_expression": "\"YT20180730-001\""
+        },
+        {
+          "variable": "dataColumn7",
+          "name": "\"textBox_OutUserID\"",
+          "type": "typeof(string)",
+          "default_expression": "\"ADMIN\""
+        },
+        {
+          "variable": "dataColumn8",
+          "name": "\"textBox_OutProductSn\"",
+          "type": "typeof(string)",
+          "default_expression": "\"P1098369-00-D:SAL7190850123400\""
+        },
+        {
+          "variable": "dataColumn9",
+          "name": "\"textBox_OutDeviceCode\"",
+          "type": "typeof(string)",
+          "default_expression": "\"EOL-8275\""
+        },
+        {
+          "variable": "dataColumn10",
+          "name": "\"textBox_OutEditionCode\"",
+          "type": "typeof(string)",
+          "default_expression": "\"A\""
+        },
+        {
+          "variable": "dataColumn11",
+          "name": "\"textBox_OutErrorCode\"",
+          "type": "typeof(string)",
+          "default_expression": "\"\""
+        },
+        {
+          "variable": "dataColumn12",
+          "name": "\"textBox_OutErrorSpot\"",
+          "type": "typeof(string)",
+          "default_expression": "\"\""
+        },
+        {
+          "variable": "dataColumn13",
+          "name": "\"textBox_BindingUrl\"",
+          "type": "typeof(string)",
+          "default_expression": "\"http://IP:端口/api/ProductBondingSfcNo\""
+        },
+        {
+          "variable": "dataColumn14",
+          "name": "\"textBox_BindingSfcNO\"",
+          "type": "typeof(string)",
+          "default_expression": "\"YT20180730-001\""
+        },
+        {
+          "variable": "dataColumn15",
+          "name": "\"textBox_BindingProductSn\"",
+          "type": "typeof(string)",
+          "default_expression": "\"P1098369-00-D:SAL7190850123400\""
+        },
+        {
+          "variable": "dataColumn16",
+          "name": "\"textBox_BindingDeviceCode\"",
+          "type": "typeof(string)",
+          "default_expression": "\"EOL-8275\""
+        },
+        {
+          "variable": "dataColumn17",
+          "name": "\"textBox_BindingUserID\"",
+          "type": "typeof(string)",
+          "default_expression": "\"HYSK0124\""
+        },
+        {
+          "variable": "dataColumn18",
+          "name": "\"textBox_BindingKeyPcbCode\"",
+          "type": "typeof(string)",
+          "default_expression": "\"12345678963\""
+        },
+        {
+          "variable": "dataColumn19",
+          "name": "\"textBox_LaserMarkUrl\"",
+          "type": "typeof(string)",
+          "default_expression": "\"http://IP:端口/api/LaserMarkPCB\""
+        },
+        {
+          "variable": "dataColumn20",
+          "name": "\"textBox_LaserProduct\"",
+          "type": "typeof(string)",
+          "default_expression": "\"GM8283-04-000\""
+        },
+        {
+          "variable": "dataColumn21",
+          "name": "\"textBox_LaserWorkStationName\"",
+          "type": "typeof(string)",
+          "default_expression": "\"leidiaoji1\""
+        },
+        {
+          "variable": "dataColumn22",
+          "name": "\"textBox_LaserVersion\"",
+          "type": "typeof(string)",
+          "default_expression": "\"CF\""
+        },
+        {
+          "variable": "dataColumn23",
+          "name": "\"textBox_LaserSide\"",
+          "type": "typeof(string)",
+          "default_expression": "\"T\""
+        },
+        {
+          "variable": "dataColumn24",
+          "name": "\"textBox_LaserPaneCode\"",
+          "type": "typeof(string)",
+          "default_expression": "\"PCB1\""
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MES/Amphenol.Designer.cs",
+        "line": 106
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable2",
+      "name": "\"Pet\"",
+      "columns": [
+        {
+          "variable": "dataColumn25",
+          "name": "\"DisableLaser\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MES/Amphenol.Designer.cs",
+        "line": 106
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable1",
+      "name": "\"Mset\"",
+      "columns": [
+        {
+          "variable": "dataColumn1",
+          "name": "\"textBox_Product_SN_Verification_URL\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn2",
+          "name": "\"textBox_Product_SN_Verification_site\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn3",
+          "name": "\"textBox_Product_SN_Verification_operation\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn4",
+          "name": "\"textBox_Product_SN_Verification_mo\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn5",
+          "name": "\"textBox_Product_SN_Verification_SN\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn6",
+          "name": "\"textBox_Product_SN_Verification_item\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn7",
+          "name": "\"textBox_Product_SN_Verification_Resource\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn8",
+          "name": "\"textBox_MaterialStartup_SN_URL\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn9",
+          "name": "\"textBox_MaterialStartup_SN_resource\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn10",
+          "name": "\"textBox_MaterialStartup_SN_SN\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn11",
+          "name": "\"textBox_MaterialStartup_SN_operation\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn12",
+          "name": "\"textBox_MaterialStartup_SN_Site\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn13",
+          "name": "\"textBox_MaterialStartup_SN_Item\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn14",
+          "name": "\"textBox_Product_SN_Start_Url\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn15",
+          "name": "\"textBox_Product_SN_Start_Site\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn16",
+          "name": "\"textBox_Product_SN_Start_Shift\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn17",
+          "name": "\"textBox_Product_SN_Start_Resource\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn18",
+          "name": "\"textBox_Product_SN_Start_SN\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn19",
+          "name": "\"textBox_Product_SN_Start_Operation\"",
+          "type": "typeof(string)",
+          "default_expression": "\"1\""
+        },
+        {
+          "variable": "dataColumn20",
+          "name": "\"textBox_Integrated_Transit_Url\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn21",
+          "name": "\"textBox_Integrated_Transit_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn22",
+          "name": "\"textBox_Integrated_Transit_Mo\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn23",
+          "name": "\"textBox_Integrated_Transit_Item\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn24",
+          "name": "\"textBox_Integrated_Transit_ItemRevision\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn26",
+          "name": "\"textBox_Integrated_Transit_Operation\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn27",
+          "name": "\"textBox_Integrated_Transit_Resource\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn28",
+          "name": "\"textBox_Integrated_Transit_Sn\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn29",
+          "name": "\"textBox_Integrated_Transit_Shift\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn30",
+          "name": "\"textBox_Material_Barcode_Inspection_Url\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn31",
+          "name": "\"textBox_Material_Barcode_Inspection_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn32",
+          "name": "\"textBox_Material_Barcode_Inspection_Bluetooth\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn33",
+          "name": "\"textBox_Material_Barcode_Inspection_Resource\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn34",
+          "name": "\"textBox_Material_Barcode_Inspection_Sn\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn35",
+          "name": "\"textBox_Material_Barcode_Inspection_Camera\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn36",
+          "name": "\"textBox_Material_Barcode_Inspection_Operation\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn37",
+          "name": "\"textBox_Material_Loading_Unloading_Url \"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn38",
+          "name": "\"textBox_Material_Loading_Unloading_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn39",
+          "name": "\"textBox_Material_Loading_Unloading_Mocde1\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn40",
+          "name": "\"textBox_Material_Loading_Unloading_Slot1\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn41",
+          "name": "\"textBox_Material_Loading_Unloading_Pvdate1\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn42",
+          "name": "\"textBox_Material_Loading_Unloading_Qty1\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn43",
+          "name": "\"textBox_Material_Loading_Unloading_Mocde2\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn44",
+          "name": "\"textBox_Material_Loading_Unloading_Slot2\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn45",
+          "name": "\"textBox_Material_Loading_Unloading_Pvdate2\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn46",
+          "name": "\"textBox_Material_Loading_Unloading_Qty2\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn47",
+          "name": "\"textBox_Material_Loading_Unloading_Resource\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn48",
+          "name": "\"textBox_Material_Loading_Unloading_Function\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn49",
+          "name": "\"textBox_Material_Loading_Unloading_Operation\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn50",
+          "name": "\"textBox_Material_Loading_Unloading_Item\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn51",
+          "name": "\"textBox_Electrical_Measurement_Query_Url\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn52",
+          "name": "\"textBox_Electrical_Measurement_Query_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn53",
+          "name": "\"textBox_Electrical_Measurement_Query_Operation\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn54",
+          "name": "\"textBox_Electrical_Measurement_Query_Sn\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn55",
+          "name": "\"textBox_BTtext_Detection_Upload_Url\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn56",
+          "name": "\"textBox_BTtext_Detection_Upload_Item\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn57",
+          "name": "\"textBox_BTtext_Detection_Upload_Resource\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn58",
+          "name": "\"textBox_BTtext_Detection_Upload_PostSNList\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn59",
+          "name": "\"textBox_BTtext_Detection_Upload_DcGroupName\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn60",
+          "name": "\"textBox_BTtext_Detection_Upload_DcParameListName1\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn61",
+          "name": "\"textBox_BTtext_Detection_Upload_DcParameListValue1\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn62",
+          "name": "\"textBox_BTtext_Detection_Upload_DcParameListName2\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn63",
+          "name": "\"textBox_BTtext_Detection_Upload_DcParameListValue2\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn64",
+          "name": "\"textBox_BTtext_Detection_Upload_ItemRevision\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn65",
+          "name": "\"textBox_BTtext_Detection_Upload_Shift\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn66",
+          "name": "\"textBox_BTtext_Detection_Upload_SN\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn67",
+          "name": "\"textBox_BTtext_Detection_Upload_TestResult\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn68",
+          "name": "\"textBox_BTtext_Detection_Upload_Operation\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn69",
+          "name": "\"textBox_BTtext_Detection_Upload_AssembleComponents\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn70",
+          "name": "\"textBox_BTtext_Detection_Upload_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn71",
+          "name": "\"textBox_Glass_FPC_SN_Consistency_Verification_Url\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn72",
+          "name": "\"textBox_Glass_FPC_SN_Consistency_Verification_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn73",
+          "name": "\"textBox_Glass_FPC_SN_Consistency_Verification_Glass\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn74",
+          "name": "\"textBox_Glass_FPC_SN_Consistency_Verification_Fpc\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn75",
+          "name": "\"TrayBarcodeBinding_URL\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn76",
+          "name": "\"TrayBarcodeBinding_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn77",
+          "name": "\"TrayBarcodeBinding_TrayNumber\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn78",
+          "name": "\"TrayBarcodeBinding_Glass_L\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn79",
+          "name": "\"TrayBarcodeBinding_Glass_R\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn80",
+          "name": "\"TrayBarcodeBinding_Plastic_R\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn81",
+          "name": "\"TrayBarcodeBinding_Plastic_L\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn82",
+          "name": "\"TrayDiskBarcodeUnbinding_Url\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn83",
+          "name": "\"TrayDiskBarcodeUnbinding_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn84",
+          "name": "\"TrayDiskBarcodeUnbinding_TrayNumber\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn85",
+          "name": "\"TaryDiskInformationQuery_Url\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn86",
+          "name": "\"TaryDiskInformationQuery_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn87",
+          "name": "\"TaryDiskInformationQuery_TrayNumber\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn88",
+          "name": "\"TrayStartInterface_Url\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn89",
+          "name": "\"TrayStartInterface_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn90",
+          "name": "\"TrayStartInterface_TrayNumber\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn91",
+          "name": "\"TrayStartInterface_Resource\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn92",
+          "name": "\"TrayDiskCompleted_Url\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn93",
+          "name": "\"TrayDiskCompleted_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn94",
+          "name": "\"TrayDiskCompleted_Resource\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn95",
+          "name": "\"TrayDiskCompleted_Dclist\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn96",
+          "name": "\"TrayDiskCompleted_TrayNumber\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn97",
+          "name": "\"TrayDiskCompleted_Operation\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn98",
+          "name": "\"TrayDiskCompleted_ResultList\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn99",
+          "name": "\"TrayDiscPressingStart_Url\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn100",
+          "name": "\"TrayDiscPressingStart_Resource\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn101",
+          "name": "\"TrayDiscPressingStart_TrayNumber\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn102",
+          "name": "\"TrayDiscPressingStart_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn103",
+          "name": "\"TrayDiscPressingStart_Operation\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn104",
+          "name": "\"Tray_PressCompletes_URL\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn105",
+          "name": "\"Tray_PressCompletes_Site\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn106",
+          "name": "\"Tray_PressCompletes_Resource\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn107",
+          "name": "\"Tray_PressCompletes_DcGroupName\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn108",
+          "name": "\"Tray_PressCompletes_TrayNumber\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn109",
+          "name": "\"Tray_PressCompletes_OPeration\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn110",
+          "name": "\"Tray_PressCompletes_ResultList\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn111",
+          "name": "\"Tray_PressCompletes_AssembleComponents\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn112",
+          "name": "\"Tray_PressCompletes_DcParameterlist\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MES/LENS.Designer.cs",
+        "line": 345
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable2",
+      "name": "\"Pet\"",
+      "columns": [
+        {
+          "variable": "dataColumn25",
+          "name": "\"DisableLaser\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MES/LENS.Designer.cs",
+        "line": 345
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable2",
+      "name": "\"Mset\"",
+      "columns": [
+        {
+          "variable": "dataColumn29",
+          "name": "\"AxisSpeed\"",
+          "type": "typeof(string)",
+          "default_expression": "\"100\""
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 61
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable1",
+      "name": "\"RSet\"",
+      "columns": [],
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 66
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "tb_H1_Srew1Post",
+      "name": "\"tb_X1_Post\"",
+      "columns": [
+        {
+          "variable": "dataColumn1",
+          "name": "\"X1\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn8",
+          "name": "\"Annotation\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 66
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable1",
+      "name": "\"Path\"",
+      "columns": [
+        {
+          "variable": "dataColumn1",
+          "name": "\"UserPath\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn2",
+          "name": "\"RunError\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn3",
+          "name": "\"RunPath\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn4",
+          "name": "\"AlarmPath\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn5",
+          "name": "\"MesPath\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/LogForm.Designer.cs",
+        "line": 95
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "TableData1",
+      "name": "\"TableData1\"",
+      "columns": [
+        {
+          "variable": "dataColumn7",
+          "name": "\"Product1exist\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        },
+        {
+          "variable": "dataColumn8",
+          "name": "\"Product1NeedWork\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        },
+        {
+          "variable": "dataColumn9",
+          "name": "\"PCB1SN\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn10",
+          "name": "\"Housing1SN\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn11",
+          "name": "\"Screw1Status\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        },
+        {
+          "variable": "dataColumn12",
+          "name": "\"Screw1Torque1\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn13",
+          "name": "\"Screw1Angle1\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn14",
+          "name": "\"Screw1Torque2\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn15",
+          "name": "\"Screw1Angle2\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn16",
+          "name": "\"Screw1Torque3\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn17",
+          "name": "\"Screw1Angle3\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn28",
+          "name": "\"LOTID1\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn32",
+          "name": "\"AXXONDATAName1\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn33",
+          "name": "\"AXXONDATAValue1\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/LogForm.Designer.cs",
+        "line": 95
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "TableData2",
+      "name": "\"TableData2\"",
+      "columns": [
+        {
+          "variable": "dataColumn18",
+          "name": "\"Product2exist\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        },
+        {
+          "variable": "dataColumn19",
+          "name": "\"Product2NeedWork\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        },
+        {
+          "variable": "dataColumn20",
+          "name": "\"PCB2SN\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn21",
+          "name": "\"Housing2SN\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn22",
+          "name": "\"Screw2Status\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        },
+        {
+          "variable": "dataColumn23",
+          "name": "\"Screw2Torque1\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn24",
+          "name": "\"Screw2Angle1\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn25",
+          "name": "\"Screw2Torque2\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn26",
+          "name": "\"Screw2Angle2\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn27",
+          "name": "\"Screw2Torque3\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn29",
+          "name": "\"Screw2Angle3\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn31",
+          "name": "\"LOTID2\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn34",
+          "name": "\"AXXONDATAName2\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn35",
+          "name": "\"AXXONDATAValue2\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/LogForm.Designer.cs",
+        "line": 95
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable2",
+      "name": "\"TableData3\"",
+      "columns": [
+        {
+          "variable": "dataColumn36",
+          "name": "\"Product1Staus\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        },
+        {
+          "variable": "dataColumn37",
+          "name": "\"Product2Staus\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/LogForm.Designer.cs",
+        "line": 95
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable1",
+      "name": "\"MSet\"",
+      "columns": [
+        {
+          "variable": "dataColumn1",
+          "name": "\"PLCIP\"",
+          "type": "typeof(string)",
+          "default_expression": "\"192.168.10.10\""
+        },
+        {
+          "variable": "dataColumn2",
+          "name": "\"PLCPort\"",
+          "type": "typeof(int)",
+          "default_expression": "502"
+        },
+        {
+          "variable": "dataColumn3",
+          "name": "\"ScannIP\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn4",
+          "name": "\"ScannPort\"",
+          "type": "typeof(int)",
+          "default_expression": "1024"
+        },
+        {
+          "variable": "dataColumn5",
+          "name": "\"Pressure_COM\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/Parameter.Designer.cs",
+        "line": 50
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable2",
+      "name": "\"PSet\"",
+      "columns": [],
+      "source": {
+        "file": "AlphaRap/MenuForm/Parameter.Designer.cs",
+        "line": 50
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable1",
+      "name": "\"MSet\"",
+      "columns": [
+        {
+          "variable": "dataColumn1",
+          "name": "\"H1-XMax\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn2",
+          "name": "\"H1-XMin\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn3",
+          "name": "\"H1-YMax\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn4",
+          "name": "\"H1-YMin\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn5",
+          "name": "\"H1-ZMax\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn6",
+          "name": "\"H1-ZMin\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn7",
+          "name": "\"H2-XMax\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn8",
+          "name": "\"H2-XMin\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn9",
+          "name": "\"H2-YMax\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn10",
+          "name": "\"H2-YMin\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn11",
+          "name": "\"H2-ZMax\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn12",
+          "name": "\"H2-ZMin\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn13",
+          "name": "\"SinglePlat\"",
+          "type": "typeof(bool)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn14",
+          "name": "\"DoublePlat\"",
+          "type": "typeof(bool)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn15",
+          "name": "\"H1-UMax\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn16",
+          "name": "\"H1-UMin\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn17",
+          "name": "\"H2-UMax\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn18",
+          "name": "\"H2-UMin\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn21",
+          "name": "\"Number\"",
+          "type": "typeof(int)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn22",
+          "name": "\"Interval\"",
+          "type": "typeof(int)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn50",
+          "name": "\"Distance\"",
+          "type": "typeof(double)",
+          "default_expression": "0.6D"
+        },
+        {
+          "variable": "dataColumn51",
+          "name": "\"XUpLimit\"",
+          "type": "typeof(double)",
+          "default_expression": "3D"
+        },
+        {
+          "variable": "dataColumn52",
+          "name": "\"YUpLimit\"",
+          "type": "typeof(double)",
+          "default_expression": "3D"
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/PlatFormSetting.Designer.cs",
+        "line": 100
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable2",
+      "name": "\"PSet\"",
+      "columns": [
+        {
+          "variable": "dataColumn19",
+          "name": "\"H1ScaleFactor\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn20",
+          "name": "\"H2ScaleFactor\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/PlatFormSetting.Designer.cs",
+        "line": 100
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable3",
+      "name": "\"MSet\"",
+      "columns": [],
+      "source": {
+        "file": "AlphaRap/MenuForm/PlatFormSetting.Designer.cs",
+        "line": 106
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable4",
+      "name": "\"PSet\"",
+      "columns": [
+        {
+          "variable": "dataColumn23",
+          "name": "\"TrayColumnDis\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn24",
+          "name": "\"TrayRowdis\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn25",
+          "name": "\"TrayColumnNum\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn26",
+          "name": "\"TrayRowNum\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn27",
+          "name": "\"NGTrayColumnDis\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn28",
+          "name": "\"NGTrayRowdis\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn29",
+          "name": "\"NGTrayColumnNum\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn30",
+          "name": "\"NGTrayRowNum\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn31",
+          "name": "\"RejectTrayColumnDis\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn32",
+          "name": "\"RejectTrayRowdis\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn33",
+          "name": "\"RejectTrayColumnNum\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn34",
+          "name": "\"RejectTrayRowNum\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn35",
+          "name": "\"UnloadTrayRowNum\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn36",
+          "name": "\"UnloadTrayColumnNum\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn37",
+          "name": "\"UnloadTrayRowdis\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn38",
+          "name": "\"UnloadTrayColumnDis\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn39",
+          "name": "\"Limit3D_Up\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn40",
+          "name": "\"Limit3D_Down\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn41",
+          "name": "\"UnloadTrayRowNum2\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn42",
+          "name": "\"UnloadTrayColumnNum2\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn43",
+          "name": "\"UnloadTrayRowdis2\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn44",
+          "name": "\"UnloadTrayColumnDis2\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn45",
+          "name": "\"LimitScrewTorque_Up\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn46",
+          "name": "\"LimitScrewTorque_Down\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn47",
+          "name": "\"LimitScrewTURN_Up\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn48",
+          "name": "\"LimitScrewTURN_Down\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn49",
+          "name": "\"AngleAddValue\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/PlatFormSetting.Designer.cs",
+        "line": 106
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable1",
+      "name": "\"ProductSetting\"",
+      "columns": [
+        {
+          "variable": "dataColumn1",
+          "name": "\"PRODUCTID\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn2",
+          "name": "\"STEPID\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn3",
+          "name": "\"RECIPEID\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn4",
+          "name": "\"PORTID\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn5",
+          "name": "\"SN1KeySub\"",
+          "type": "typeof(string)",
+          "default_expression": "\"\""
+        },
+        {
+          "variable": "dataColumn7",
+          "name": "\"EnableSN1KeySub\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        },
+        {
+          "variable": "dataColumn6",
+          "name": "\"SN2KeySub\"",
+          "type": "typeof(string)",
+          "default_expression": "\"\""
+        },
+        {
+          "variable": "dataColumn8",
+          "name": "\"EnableSN2KeySub\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/ProductManagerForm.Designer.cs",
+        "line": 103
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable1",
+      "name": "\"MSet\"",
+      "columns": [],
+      "source": {
+        "file": "AlphaRap/MenuForm/SystemSetting.Designer.cs",
+        "line": 62
+      }
+    },
+    {
+      "scope": "SettingData",
+      "variable": "dataTable2",
+      "name": "\"PSet\"",
+      "columns": [
+        {
+          "variable": "dataColumn1",
+          "name": "\"DisScann\"",
+          "type": "typeof(bool)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn2",
+          "name": "\"UseTryRun\"",
+          "type": "typeof(bool)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/SystemSetting.Designer.cs",
+        "line": 62
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable1",
+      "name": "\"Pset\"",
+      "columns": [
+        {
+          "variable": "dataColumn1",
+          "name": "\"H1_Fiducial_X\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn2",
+          "name": "\"H1_Fiducial_Y\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn3",
+          "name": "\"H1_Fiducial_U\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn13",
+          "name": "\"H1_Fiducial2_X\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn14",
+          "name": "\"H1_Fiducial2_Y\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn15",
+          "name": "\"H1_Fiducial2_U\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn17",
+          "name": "\"H1_Fiducial3_X\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn18",
+          "name": "\"H1_Fiducial3_Y\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn19",
+          "name": "\"H1_Fiducial3_U\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn20",
+          "name": "\"H1_Fiducial4_X\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn21",
+          "name": "\"H1_Fiducial4_Y\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn22",
+          "name": "\"H1_Fiducial4_U\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn68",
+          "name": "\"CenterX1\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn69",
+          "name": "\"CenterY1\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn70",
+          "name": "\"R1\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn112",
+          "name": "\"Screw1CCDNum\"",
+          "type": "typeof(int)",
+          "default_expression": "1"
+        },
+        {
+          "variable": "dataColumn113",
+          "name": "\"Screw1CCDLight\"",
+          "type": "typeof(double)",
+          "default_expression": "10D"
+        },
+        {
+          "variable": "dataColumn115",
+          "name": "\"Screw2CCDLight\"",
+          "type": "typeof(double)",
+          "default_expression": "10D"
+        },
+        {
+          "variable": "dataColumn116",
+          "name": "\"PickPCBCCDNum\"",
+          "type": "typeof(int)",
+          "default_expression": "1"
+        },
+        {
+          "variable": "dataColumn117",
+          "name": "\"PickPCBCCDLight\"",
+          "type": "typeof(double)",
+          "default_expression": "10D"
+        },
+        {
+          "variable": "dataColumn118",
+          "name": "\"UnloadCCDNum\"",
+          "type": "typeof(int)",
+          "default_expression": "1"
+        },
+        {
+          "variable": "dataColumn119",
+          "name": "\"UnloadCCDLight\"",
+          "type": "typeof(double)",
+          "default_expression": "10D"
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.Designer.cs",
+        "line": 165
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable3",
+      "name": "\"tb_H1_VisCalib\"",
+      "columns": [
+        {
+          "variable": "dataColumn9",
+          "name": "\"PixelX\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn10",
+          "name": "\"PixelY\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn11",
+          "name": "\"MotorPoxtX\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn12",
+          "name": "\"MotorPoxtY\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn16",
+          "name": "\"MotorPoxtZ\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.Designer.cs",
+        "line": 165
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable4",
+      "name": "\"tb_H1_Visdata\"",
+      "columns": [
+        {
+          "variable": "dataColumn23",
+          "name": "\"X\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn24",
+          "name": "\"Y\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn25",
+          "name": "\"U\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn26",
+          "name": "\"X_Low\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn27",
+          "name": "\"X_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn28",
+          "name": "\"Y_Low\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn29",
+          "name": "\"Y_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn30",
+          "name": "\"U_Low\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn31",
+          "name": "\"U_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn32",
+          "name": "\"Enable\"",
+          "type": "typeof(bool)",
+          "default_expression": "true"
+        },
+        {
+          "variable": "dataColumn33",
+          "name": "\"Mark\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.Designer.cs",
+        "line": 165
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable5",
+      "name": "\"tb_H2_VisCalib\"",
+      "columns": [
+        {
+          "variable": "dataColumn34",
+          "name": "\"PixelX\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn35",
+          "name": "\"PixelY\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn36",
+          "name": "\"MotorPoxtX\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn37",
+          "name": "\"MotorPoxtY\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn38",
+          "name": "\"MotorPoxtZ\"",
+          "type": "typeof(double)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.Designer.cs",
+        "line": 165
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable6",
+      "name": "\"tb_H2_Visdata\"",
+      "columns": [
+        {
+          "variable": "dataColumn39",
+          "name": "\"X\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn40",
+          "name": "\"Y\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn41",
+          "name": "\"U\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn4",
+          "name": "\"X_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn5",
+          "name": "\"X_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn6",
+          "name": "\"Y_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn7",
+          "name": "\"Y_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn8",
+          "name": "\"U_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn45",
+          "name": "\"U_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn53",
+          "name": "\"Eanble\"",
+          "type": "typeof(bool)",
+          "default_expression": "true"
+        },
+        {
+          "variable": "dataColumn54",
+          "name": "\"Mark\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.Designer.cs",
+        "line": 165
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable7",
+      "name": "\"tb_H1_Visdata2\"",
+      "columns": [
+        {
+          "variable": "dataColumn46",
+          "name": "\"X\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn47",
+          "name": "\"Y\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn48",
+          "name": "\"U\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn49",
+          "name": "\"X_Low\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn50",
+          "name": "\"X_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn51",
+          "name": "\"Y_Low\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn52",
+          "name": "\"Y_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn64",
+          "name": "\"U_Low\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn65",
+          "name": "\"U_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": "\"0\""
+        },
+        {
+          "variable": "dataColumn66",
+          "name": "\"Enable\"",
+          "type": "typeof(bool)",
+          "default_expression": "false"
+        },
+        {
+          "variable": "dataColumn67",
+          "name": "\"Mark\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.Designer.cs",
+        "line": 165
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable9",
+      "name": "\"tb_H1_Visdata3\"",
+      "columns": [
+        {
+          "variable": "dataColumn71",
+          "name": "\"X\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn72",
+          "name": "\"Y\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn73",
+          "name": "\"U\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn74",
+          "name": "\"X_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn75",
+          "name": "\"X_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn76",
+          "name": "\"Y_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn77",
+          "name": "\"Y_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn78",
+          "name": "\"U_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn79",
+          "name": "\"U_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn80",
+          "name": "\"Enable\"",
+          "type": "typeof(bool)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn81",
+          "name": "\"Mark\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.Designer.cs",
+        "line": 165
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable10",
+      "name": "\"tb_H3_VisCalib\"",
+      "columns": [
+        {
+          "variable": "dataColumn107",
+          "name": "\"PixelX\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn108",
+          "name": "\"PixelY\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn109",
+          "name": "\"MotorPoxtX\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn110",
+          "name": "\"MotorPoxtY\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        },
+        {
+          "variable": "dataColumn111",
+          "name": "\"MotorPoxtZ\"",
+          "type": "typeof(double)",
+          "default_expression": "0D"
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.Designer.cs",
+        "line": 165
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable11",
+      "name": "\"tb_H3_Visdata\"",
+      "columns": [
+        {
+          "variable": "dataColumn98",
+          "name": "\"X\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn99",
+          "name": "\"Y\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn100",
+          "name": "\"U\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn101",
+          "name": "\"X_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn102",
+          "name": "\"X_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn103",
+          "name": "\"Y_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn104",
+          "name": "\"Y_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn105",
+          "name": "\"U_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn106",
+          "name": "\"U_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn42",
+          "name": "\"Eanble\"",
+          "type": "typeof(bool)",
+          "default_expression": "true"
+        },
+        {
+          "variable": "dataColumn43",
+          "name": "\"Mark\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.Designer.cs",
+        "line": 165
+      }
+    },
+    {
+      "scope": "RecipeData",
+      "variable": "dataTable13",
+      "name": "\"tb_H1_Visdata4\"",
+      "columns": [
+        {
+          "variable": "dataColumn87",
+          "name": "\"X\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn88",
+          "name": "\"Y\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn89",
+          "name": "\"U\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn90",
+          "name": "\"X_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn91",
+          "name": "\"X_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn92",
+          "name": "\"Y_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn93",
+          "name": "\"Y_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn94",
+          "name": "\"U_Low\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn95",
+          "name": "\"U_Hi\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        },
+        {
+          "variable": "dataColumn96",
+          "name": "\"Enable\"",
+          "type": "typeof(bool)",
+          "default_expression": "true"
+        },
+        {
+          "variable": "dataColumn97",
+          "name": "\"Mark\"",
+          "type": "typeof(string)",
+          "default_expression": null
+        }
+      ],
+      "source": {
+        "file": "AlphaRap/MenuForm/VPForm.Designer.cs",
+        "line": 165
+      }
+    }
+  ],
+  "resources": [
+    {
+      "variable": "MESLOG",
+      "type": "DataSave.TypeCollection1",
+      "bindings": {
+        "SavePath": "\"D:\\\\Log\\\\MESLOG\"",
+        "Text": "\"MESLOG\""
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/DataForm.Designer.cs",
+        "line": 53
+      }
+    },
+    {
+      "variable": "Alarm",
+      "type": "DataSave.TypeCollection1",
+      "bindings": {
+        "SavePath": "\"D:\\\\Log\\\\Alarm\"",
+        "Text": "\"Alarm\""
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/DataForm.Designer.cs",
+        "line": 54
+      }
+    },
+    {
+      "variable": "LogRun",
+      "type": "DataSave.TypeCollection1",
+      "bindings": {
+        "SavePath": "\"D:\\\\Log\\\\LogRun\"",
+        "Text": "\"LogRun\""
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/DataForm.Designer.cs",
+        "line": 55
+      }
+    },
+    {
+      "variable": "LogError",
+      "type": "DataSave.TypeCollection1",
+      "bindings": {
+        "SavePath": "\"D:\\\\Log\\\\LogError\"",
+        "Text": "\"LogError\""
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/DataForm.Designer.cs",
+        "line": 56
+      }
+    },
+    {
+      "variable": "UserLogin",
+      "type": "DataSave.TypeCollection1",
+      "bindings": {
+        "SavePath": "\"D:\\\\Log\\\\UserLogin\"",
+        "Text": "\"UserLogin\""
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/DataForm.Designer.cs",
+        "line": 57
+      }
+    },
+    {
+      "variable": "UserOperationLog",
+      "type": "DataSave.TypeCollection1",
+      "bindings": {
+        "SavePath": "\"D:\\\\Log\\\\OperationLog\"",
+        "Text": "\"OperationLog\""
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/DataForm.Designer.cs",
+        "line": 58
+      }
+    },
+    {
+      "variable": "MTR_H1_X",
+      "type": "NPSDK.Motion.NP_Motor",
+      "bindings": {
+        "Port": "\"0\"",
+        "Text": "\"XAxis\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 34
+      }
+    },
+    {
+      "variable": "nP_MotorJog2",
+      "type": "NPSDK.Motion.NP_MotorJog",
+      "bindings": {
+        "WorkMotor": "this.MTR_H1_X"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 44
+      }
+    },
+    {
+      "variable": "nP_JogOption1",
+      "type": "NPSDK.Motion.NP_JogOption",
+      "bindings": {
+        "WorkMotor": "this.MTR_H1_X"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 45
+      }
+    },
+    {
+      "variable": "nP_MotorJog1",
+      "type": "NPSDK.Motion.NP_MotorJog",
+      "bindings": {
+        "WorkMotor": "this.MTR_H1_X"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 46
+      }
+    },
+    {
+      "variable": "X1_Home",
+      "type": "NPSDK.Motion.NP_Home",
+      "bindings": {
+        "Text": "\"X1 Home\"",
+        "WorkMotor": "this.MTR_H1_X"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 47
+      }
+    },
+    {
+      "variable": "X1_PositionTable1",
+      "type": "NPSDK.Motion.NP_PositionTable",
+      "bindings": {
+        "DataSet": "this.RecipeData",
+        "DataSet1": "this.tb_H1_Srew1Post",
+        "WorkMotor": "null"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 48
+      },
+      "axis_columns": [
+        {
+          "variable": "positionColumn1",
+          "properties": {
+            "Axis": "this.MTR_H1_X",
+            "Name": "\"X1\""
+          }
+        }
+      ]
+    },
+    {
+      "variable": "nP_PositionShow1",
+      "type": "NPSDK.Motion.NP_PositionShow",
+      "bindings": {
+        "WorkMotor": "this.MTR_H1_X"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 49
+      }
+    },
+    {
+      "variable": "nP_ManualControl1",
+      "type": "NPSDK.Motion.NP_ManualControl",
+      "bindings": {
+        "Text": "\"nP_ManualControl1\"",
+        "WorkMotor": "null"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/HardForm.Designer.cs",
+        "line": 50
+      }
+    },
+    {
+      "variable": "IB_Back_Door_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Back Door\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 34
+      }
+    },
+    {
+      "variable": "IB_Front_Door_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Front Door\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 35
+      }
+    },
+    {
+      "variable": "adlink_Input2",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopButton\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 36
+      }
+    },
+    {
+      "variable": "OB_StopButton_Light",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopButton_Light\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 37
+      }
+    },
+    {
+      "variable": "OB_LEDLight",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"LED Light\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 38
+      }
+    },
+    {
+      "variable": "OB_StartButton_Light",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StartButton_Light\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 39
+      }
+    },
+    {
+      "variable": "OB_Door",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Door\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 40
+      }
+    },
+    {
+      "variable": "OB_Air",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Air\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 41
+      }
+    },
+    {
+      "variable": "OB_YellowLight",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Yellow Light\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 42
+      }
+    },
+    {
+      "variable": "OB_RedLight",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Red Light\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 43
+      }
+    },
+    {
+      "variable": "OB_GreenLight",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Green Light\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 44
+      }
+    },
+    {
+      "variable": "IB_StartButton",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StartButton\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 45
+      }
+    },
+    {
+      "variable": "IB_SafetyReady",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"SafetyReady\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 46
+      }
+    },
+    {
+      "variable": "IB_ResetButton",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"ResetButton\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 47
+      }
+    },
+    {
+      "variable": "IB_StopButton",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopButton\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 48
+      }
+    },
+    {
+      "variable": "IB_Air",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Air\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 49
+      }
+    },
+    {
+      "variable": "IB_Back_EmergencyStop",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Back Emergency Stop \"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 50
+      }
+    },
+    {
+      "variable": "IB_Front_EmergencyStop",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Front Emergency Stop \"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 51
+      }
+    },
+    {
+      "variable": "IB_Door",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Door\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 52
+      }
+    },
+    {
+      "variable": "OB_Buzz",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Buzz\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 53
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Buffer_Stop_Cylinder",
+      "type": "NPSDK.Motion.NP_Cylinder",
+      "bindings": {
+        "CyOff_IB1": "null",
+        "CyOff_IB2": "null",
+        "CyOff_IB3": "null",
+        "CyOff_IB4": "null",
+        "CyOff_OB1": "this.OB_UpConveyor_Buffer_StopUp_Cylinder",
+        "CyOff_OB2": "null",
+        "CyOn_IB1": "null",
+        "CyOn_IB2": "null",
+        "CyOn_IB3": "null",
+        "CyOn_IB4": "null",
+        "CyOn_OB1": "this.OB_UpConveyor_Buffer_StopDown_Cylinder",
+        "CyOn_OB2": "null",
+        "CyTimeoutTime": "30000"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 59
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Buffer_StopUp_Cylinder",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopUp_Cylinder\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 60
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Buffer_StopDown_Cylinder",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopDown_Cylinder\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 61
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Buffer_StopUp_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopUp_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 62
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Buffer_StopDown_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopDown_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 63
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Buffer_ConveyorReverse",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"ConveyorReverse\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 64
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Buffer_ConveyorSpeedSwitch",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"ConveyorSpeedSwitch\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 65
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Buffer_BoardStop_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"BoardStop_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 66
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"ConveySpeedSwitch_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 67
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Buffer_ConveyorForward",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"ConveyorForward\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 68
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Buffer_BoardIn_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"BoardIn_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 69
+      }
+    },
+    {
+      "variable": "OB_Upconveyor_AlarmClear",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00231\"",
+        "Text": "\"Motor Alarm Clear\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 71
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Work_BoardAlarm",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00232\"",
+        "Text": "\"ConveyAlarm\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 72
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Work_Stop_Cylinder",
+      "type": "NPSDK.Motion.NP_Cylinder",
+      "bindings": {
+        "CyOff_IB1": "null",
+        "CyOff_IB2": "null",
+        "CyOff_IB3": "null",
+        "CyOff_IB4": "null",
+        "CyOff_OB1": "this.OB_UpConveyor_Work_StopUp_Cylinder",
+        "CyOff_OB2": "null",
+        "CyOn_IB1": "null",
+        "CyOn_IB2": "null",
+        "CyOn_IB3": "null",
+        "CyOn_IB4": "null",
+        "CyOn_OB1": "this.OB_UpConveyor_Work_StopDown_Cylinder",
+        "CyOn_OB2": "null",
+        "CyTimeoutTime": "30000"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 73
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Work_StopUp_Cylinder",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopUp_Cylinder\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 74
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Work_StopDown_Cylinder",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopDown_Cylinder\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 75
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Work_Jacking_Cylinder",
+      "type": "NPSDK.Motion.NP_Cylinder",
+      "bindings": {
+        "CyOff_IB1": "null",
+        "CyOff_IB2": "null",
+        "CyOff_IB3": "null",
+        "CyOff_IB4": "null",
+        "CyOff_OB1": "this.OB_UpConveyor_Work_JackingUp_Cylinder",
+        "CyOff_OB2": "null",
+        "CyOn_IB1": "null",
+        "CyOn_IB2": "null",
+        "CyOn_IB3": "null",
+        "CyOn_IB4": "null",
+        "CyOn_OB1": "this.OB_UpConveyor_Work_StopDown_Cylinder",
+        "CyOn_OB2": "null",
+        "CyTimeoutTime": "30000"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 76
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Work_JackingUp_Cylinder",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"JackingUp_Cylinder\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 77
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Work_StopDown_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopDown_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 78
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Work_StopUp_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopUp_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 79
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Work_JackingDown_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"JackingDown_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 80
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Work_JackingUp_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"JackingUp_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 81
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Work_JackingDown_Cylinder",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"JackingDown_Cylinder\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 82
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Work_ConveyorSpedSwitch",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"ConveyorSpeedSwitch\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 83
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Work_ConveyorReverse",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"ConveyorReverse\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 84
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_Work_ConveyorForward",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"ConveyorForward\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 85
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Work_BoardSpeedSwitch_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"ConveySpeedSwitch_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 86
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Work_BoardOut_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"BoardOut_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 87
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Work_BoardStop_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"BoardStop_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 88
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_Work_BoardIn_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"BoardIn_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 89
+      }
+    },
+    {
+      "variable": "OB_DownConveyor_Stop_Cylinder",
+      "type": "NPSDK.Motion.NP_Cylinder",
+      "bindings": {
+        "CyOff_IB1": "null",
+        "CyOff_IB2": "null",
+        "CyOff_IB3": "null",
+        "CyOff_IB4": "null",
+        "CyOff_OB1": "this.OB_DownConveyor_StopUp_Cylinder",
+        "CyOff_OB2": "null",
+        "CyOn_IB1": "null",
+        "CyOn_IB2": "null",
+        "CyOn_IB3": "null",
+        "CyOn_IB4": "null",
+        "CyOn_OB1": "this.OB_DownConveyor_StopDown_Cylinder",
+        "CyOn_OB2": "null",
+        "CyTimeoutTime": "30000"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 91
+      }
+    },
+    {
+      "variable": "OB_DownConveyor_StopUp_Cylinder",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopUp_Cylinder\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 92
+      }
+    },
+    {
+      "variable": "OB_DownConveyor_StopDown_Cylinder",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopDown_Cylinder\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 93
+      }
+    },
+    {
+      "variable": "IB_DownConveyor_StopDown_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopDown_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 94
+      }
+    },
+    {
+      "variable": "IB_DownConveyor_StopUp_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"StopUp_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 95
+      }
+    },
+    {
+      "variable": "OB_DownConveyor_Forward",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"ConveyorForward\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 96
+      }
+    },
+    {
+      "variable": "IB_DownConveyor_BoardOut_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"BoardOut_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 97
+      }
+    },
+    {
+      "variable": "IB_DownConveyor_BoardStop_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"BoardStop_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 98
+      }
+    },
+    {
+      "variable": "OB_DownConveyor_SpeedSwitch",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Conveyor_SpeedSwitch\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 99
+      }
+    },
+    {
+      "variable": "IB_DownConveyor_BoardSpeedSwitch_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"SpeedSwitch_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 100
+      }
+    },
+    {
+      "variable": "OB_DownConveyor_Reverse",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"Conveyor_Reverse\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 101
+      }
+    },
+    {
+      "variable": "IB_DownConveyor_BoardIn_Sensor",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"BoardIn_Sensor\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 102
+      }
+    },
+    {
+      "variable": "OB_DownConveyor_LocalMachineAvailable_SMEMA",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"DownConveyor_LocalMachineAvailable_SMEMA\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 104
+      }
+    },
+    {
+      "variable": "OB_DownConveyor_LocalMachineReady_SMEMA",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"DownConveyor_LocalMachineReady_SMEMA\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 105
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_LocalMachineAvailable_SMEMA",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"UpConveyor_LocalMachineAvailable_SMEMA\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 106
+      }
+    },
+    {
+      "variable": "OB_UpConveyor_LocalMachineReady_SMEMA",
+      "type": "NPSDK.Motion.NP_Output",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"UpConveyor_LocalMachineReady_SMEMA\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 107
+      }
+    },
+    {
+      "variable": "IB_DownConveyor_DownMachineReady_SMEMA",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"DownConveyor_DownMachineReady_SMEMA\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 108
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_DownMachineReady_SMEMA",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"UpConveyor_DownMachineReady_SMEMA\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 109
+      }
+    },
+    {
+      "variable": "IB_DownConveyor_UpMachineAvailable_SMEMA",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"DownConveyor_UpMachineAvailable_SMEMA\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 110
+      }
+    },
+    {
+      "variable": "IB_UpConveyor_UpMachineAvailable_SMEMA",
+      "type": "NPSDK.Motion.NP_Input",
+      "bindings": {
+        "Port": "\"00101\"",
+        "Text": "\"UpConveyor_UpMachineAvailable_SMEMA\"",
+        "Vendor": "NPSDK.Motion.NPVendor.Leadshine"
+      },
+      "source": {
+        "file": "AlphaRap/MenuForm/ManualForm.Designer.cs",
+        "line": 111
+      }
+    }
+  ]
+}
