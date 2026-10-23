@@ -30,4 +30,6 @@ MSBuild.exe AlphaRap.sln /t:Rebuild /p:Configuration=Debug /p:Platform=x64
 
 Debug / x64 隔离构建通过，使用实际输出程序集通过原有 62 项回归和 80 项流程与资源集成回归及 6 项启动 / 主保存检查，语言 XML 1901 键三语校验无错误。验证没有使用临时 ReferencePath。隔离运行真实主程序验证了进入流程、节点拖动、双击和添加 CASE；未进行现场硬件或 Visual Studio 交互式设计器实测。
 
+关闭运行实例后，原 `AlphaRap/bin/x64/Debug` 已正常构建更新，输出 NPSDK.dll 的 SHA256 与上方发布版本一致。直接使用该目录的程序集再次通过 80 项流程与资源检查、6 项启动 / 主保存检查和 62 项视觉与语言检查；测试配置、配方和生产记录均写入独立测试目录，没有启动硬件或生产线程。
+
 功能入口与操作见 [节点设计器使用说明](../docs/FlowProgrammingUsage.md) 和 [组合硬件资源使用说明](../docs/HardwareResources.md)。
