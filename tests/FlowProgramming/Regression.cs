@@ -174,7 +174,9 @@ internal static partial class Cases
         Test("constant read nodes protect referenced keys and types", ConstantReadReferences);
         Test("compact IO cards reuse the original instance and guard manual toggles", CompactIoCards);
         Test("direct condition rows preserve references literals operators and languages", DirectConditionEditing);
-        Test("constant setters share typed run values and reject stale writes", ConstantRuntimeWrites);
+        Test("constant setters update actual table rows and preserve main-save boundaries", ConstantRuntimeWrites);
+        Test("constant table writes use the UI thread and reject cancelled queued actions", ConstantTableWriteDispatch);
+        Test("axis point picker includes every valid row with table context in three languages", AxisMultiplePointChoices);
         Test("vision selection contains only configured VPPs without unused Camera1 fields", ConfiguredVisionCatalog);
         Test("DI DO and cylinder categories each list their own actual objects", IoCategorySelection);
         Test("tray node explains the current layout and calculates the selected pocket", TrayNodeHelp);

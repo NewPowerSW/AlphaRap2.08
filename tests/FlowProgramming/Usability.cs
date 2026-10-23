@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using AlphaRap;
 using AlphaRap.Configuration;
@@ -94,7 +95,7 @@ internal static partial class Cases
         SwitchLanguage(LanguageType.Chinese);
     }
 
-    /// <summary>Constant writes share one typed run value across modules and direct parameter bindings without modifying defaults.</summary>
+    /// <summary>Flow writes change the real typed table while preserving disk and Original until the main Save.</summary>
     private static void ConstantRuntimeWrites()
     {
         ConstantStore store=constantForm.Constants; string key="Writable run number", integer="Writable run integer";
@@ -108,14 +109,93 @@ internal static partial class Cases
         FlowStep read=BoundStep(actions.FindResource("constants/Setting"),"constant.read"); read.Inputs[0].Reference=key;
         Assert((double)actions.Execute(read,second,CancellationToken.None).GetAwaiter().GetResult()["Value"]==7.25,"Another module did not observe the run value.");
         Assert((double)second.Resolve(new FlowInput{Source="Parameter",Reference=ConstantStore.Reference("Setting",key)})==7.25,"Direct condition/input bindings read a stale initial value.");
-        Assert((double)actions.Resources.Parameters[ConstantStore.Reference("Setting",key)]==2.5 && (double)ConstantValueOf(new FlowActions(FlowResources.Capture()),"Setting",key)==2.5,"A run write mutated the saved snapshot.");
+        DataRow changed=ConstantStore.Find(store.Table("Setting"),key);
+        Assert(Convert.ToString(changed["Value"])=="7.25" && Convert.ToString(changed["Value",DataRowVersion.Original])=="2.5" && changed.RowState==DataRowState.Modified,"The node did not update the real table or committed it without the main Save.");
+        Assert((double)actions.Resources.Parameters[ConstantStore.Reference("Setting",key)]==2.5 && (double)ConstantValueOf(new FlowActions(FlowResources.Capture()),"Setting",key)==7.25,"Fresh flows cannot read the table value or an old captured parameter snapshot was mutated.");
         FlowStep bad=BoundStep(actions.FindResource("constants/Recipe"),"constant.set"); bad.Inputs[0].Reference=integer; bad.Inputs[1].Reference="1.5";
         bool blocked=false; try{actions.Execute(bad,first,CancellationToken.None).GetAwaiter().GetResult();}catch(InvalidOperationException){blocked=true;} Assert(blocked,"An integer constant rounded a fractional write.");
         hub.Reset(); blocked=false; try{actions.Execute(write,first,CancellationToken.None).GetAwaiter().GetResult();}catch(OperationCanceledException){blocked=true;} Assert(blocked,"An expired run wrote to the new batch.");
-        second.RunId=hub.Epoch; Assert((double)actions.Execute(read,second,CancellationToken.None).GetAwaiter().GetResult()["Value"]==2.5,"A new batch reused the previous runtime value.");
+        second.RunId=hub.Epoch; Assert((double)actions.Execute(read,second,CancellationToken.None).GetAwaiter().GetResult()["Value"]==7.25,"A new batch reverted the actual Setting table value.");
+        store.Put("Setting",key,new ConstantValue{Key=key,Type="Number",Value="9"});
+        Assert((double)ConstantValueOf(new FlowActions(FlowResources.Capture()),"Setting",key)==7.25,"An ordinary page draft replaced the last value explicitly set by a flow.");
+        store.Table("Setting").RejectChanges();
+        Assert((double)ConstantValueOf(new FlowActions(FlowResources.Capture()),"Setting",key)==2.5,"Discard did not restore the saved table value.");
         FlowStep consumer=editor.AddNode(); consumer.Action="constant.set"; consumer.Target="constants/Setting"; consumer.Inputs=write.Inputs;
         blocked=false;try{store.Delete("Setting",key);}catch(InvalidOperationException){blocked=true;}Assert(blocked,"A set-node key was deleted while referenced.");
         editor.Delete(consumer.Id); store.Delete("Setting",key);store.Save("Setting");store.Delete("Recipe",integer);store.Save("Recipe");
+    }
+
+    /// <summary>Background setters marshal to the table's UI thread and reject cancelled or stale queued writes.</summary>
+    private static void ConstantTableWriteDispatch()
+    {
+        ConstantStore store=constantForm.Constants; string key="Dispatched table write";
+        store.Put("Setting",null,new ConstantValue{Key=key,Type="Number",Value="1"}); store.Save("Setting");
+        FlowActions actions=new FlowActions(FlowResources.Capture()); FlowResultHub hub=new FlowResultHub();
+        FlowExecutionContext context=new FlowExecutionContext{Hub=hub,RunId=hub.Epoch,Parameters=actions.Resources.Parameters};
+        FlowStep write=BoundStep(actions.FindResource("constants/Setting"),"constant.set");write.Inputs[0].Reference=key;write.Inputs[1].Reference="4.5";
+        int changedThread=0,expectedThread=Thread.CurrentThread.ManagedThreadId;
+        DataColumnChangeEventHandler observed=(sender,args)=>{if(Convert.ToString(args.Row["Key"])==key)changedThread=Thread.CurrentThread.ManagedThreadId;};
+        store.Table("Setting").ColumnChanged+=observed;
+        try
+        {
+            Task task=Task.Run(()=>actions.Execute(write,context,CancellationToken.None)); Wait(task);
+            Assert(changedThread==expectedThread && Convert.ToString(ConstantStore.Find(store.Table("Setting"),key)["Value"])=="4.5","A flow wrote the bound table from a worker thread.");
+            using(CancellationTokenSource cancellation=new CancellationTokenSource())
+            using(ManualResetEventSlim posted=new ManualResetEventSlim())
+            {
+                Task pending=null;write.Inputs[1].Reference="9";
+                Task launch=Task.Run(()=>{pending=actions.Execute(write,context,cancellation.Token);posted.Set();});
+                Assert(posted.Wait(2000),"The table write was not queued."); cancellation.Cancel();Wait(launch);
+                bool cancelled=false;try{Wait(pending);}catch(OperationCanceledException){cancelled=true;}
+                Assert(cancelled && Convert.ToString(ConstantStore.Find(store.Table("Setting"),key)["Value"])=="4.5","A cancelled queued action changed the table.");
+            }
+            using(ManualResetEventSlim posted=new ManualResetEventSlim())
+            {
+                Task pending=null; Task launch=Task.Run(()=>{pending=actions.Execute(write,context,CancellationToken.None);posted.Set();});
+                Assert(posted.Wait(2000),"The old-batch write was not queued.");hub.Reset();Wait(launch);
+                bool cancelled=false;try{Wait(pending);}catch(OperationCanceledException){cancelled=true;}
+                Assert(cancelled && Convert.ToString(ConstantStore.Find(store.Table("Setting"),key)["Value"])=="4.5","An expired queued action changed the table.");
+            }
+        }
+        finally{store.Table("Setting").ColumnChanged-=observed;store.Table("Setting").RejectChanges();store.Delete("Setting",key);store.Save("Setting");}
+    }
+
+    /// <summary>All valid rows of the selected axis appear in the picker with stable zero-based indices and a visible table context.</summary>
+    private static void AxisMultiplePointChoices()
+    {
+        NP_AxisGroup group=(NP_AxisGroup)hardware.Resources.Entries.Single(item=>item.Definition.Id==groupedAxis.Id).Group;
+        DataTable table=group.Points.DataSet1; int saved=table.Rows.Count;
+        table.Rows.Add(82,"Second point"); table.Rows.Add(83,"Third point"); table.Rows.Add(DBNull.Value,"Unconfigured point");
+        try
+        {
+            FlowActions actions=new FlowActions(FlowResources.Capture(true)){Simulate=true};
+            FlowResource axis=actions.FindResource("hardware/"+groupedAxis.Id+"/axis");FlowMethod move=axis.Methods.Single(method=>method.Id=="point.move");
+            FlowPointAxis points=(FlowPointAxis)axis.BoundPoints.Instance;
+            Assert(points.RowCount==saved+3 && move.Inputs[0].Options.Count==saved+2,"The axis picker lost rows or offered a blank coordinate.");
+            Assert(new FlowActions(FlowResources.Capture()).FindResource(axis.Id).Methods.Single(method=>method.Id=="point.move").Inputs[0].Options.Count==saved,"Unsaved points leaked into the production snapshot.");
+            FlowStep step=BoundStep(axis,"point.move");step.Inputs[0].Reference=(saved+1).ToString();
+            Assert((double)ExecuteBound(actions,step)["Position"]==83,"The last point index was remapped to the first row.");
+            using(FlowNodeForm dialog=new FlowNodeForm(editor,step))
+            {
+                dialog.Show();Application.DoEvents();
+                foreach(LanguageType language in new[]{LanguageType.Chinese,LanguageType.English,LanguageType.Español})
+                {
+                    SwitchLanguage(language);Application.DoEvents();Control hint=dialog.Controls.Find("methodHint_dyn",true)[0];
+                    Assert(hint.Visible && hint.Text.Contains(axis.Label) && hint.Text.Contains((saved+2).ToString()),"The movement node omitted its binding or selectable count: "+hint.Text+"; expected "+axis.Label+"; visible="+hint.Visible);
+                    using(FlowSourceForm picker=new FlowSourceForm("Constant",(saved+1).ToString(),actions,move,"Index",hint.Text))
+                    {
+                        picker.Show();Application.DoEvents();TreeView tree=(TreeView)picker.Controls.Find("sources",true)[0];Control context=picker.Controls.Find("sourceContext_dyn",true)[0];
+                        Assert(tree.Nodes.Count==saved+2 && context.Visible && !tree.Bounds.IntersectsWith(context.Bounds),"The picker hid points or covered the table context.");
+                        tree.SelectedNode=tree.Nodes.Cast<TreeNode>().Single(node=>Convert.ToString(node.Tag)==(saved+1).ToString());
+                        Screenshot(picker,"axis-point-picker-"+language);((Button)picker.Controls.Find("ok",true)[0]).PerformClick();
+                        Assert(picker.Reference==(saved+1).ToString(),"Point selection saved a label instead of its original row index.");
+                    }
+                    Screenshot(dialog,"axis-point-help-"+language);
+                }
+                dialog.Close();
+            }
+        }
+        finally{table.RejectChanges();SwitchLanguage(LanguageType.Chinese);}
     }
 
     /// <summary>VPForm exposes only configured VPPs; its unused Camera1 compatibility fields never appear as selectable vision objects.</summary>

@@ -167,7 +167,7 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowBranchEditor editor in branchEditors) editor.Configure(catalog,action);
         }
 
-        /// <summary>直接解释托盘计算与运行值设置，无参数方法不显示空输入网格。</summary>
+        /// <summary>解释绑定点位、托盘计算及表值设置，无参数方法不显示空输入网格。</summary>
         private void RefreshMethodHelp()
         {
             FlowMethod action = actionValue.SelectedItem as FlowMethod;
@@ -180,6 +180,12 @@ namespace AlphaRap.FlowProgramming
             if (action.Inputs.Count == 0) methodHint.Text = FlowText.T("noInputs");
             if (action.Id == "constant.set") methodHint.Text = FlowText.T("constantSetHelp");
             FlowResource resource = catalog.FindResource(Convert.ToString(targetValue.SelectedValue));
+            if (action.Id == "point.move" && resource != null && resource.BoundPoints != null)
+            {
+                FlowPointAxis points = (FlowPointAxis)resource.BoundPoints.Instance;
+                string table = points.TableName.StartsWith("AxisPoints_", StringComparison.Ordinal) ? resource.Label : points.TableName;
+                methodHint.Text = string.Format(FlowText.T("axisPointsHelp"), resource.Label, table, points.RowCount, points.Positions.Count);
+            }
             FlowTray tray = resource == null ? null : resource.Instance as FlowTray;
             if (tray != null) methodHint.Text = string.Format(FlowText.T("trayHelp"),tray.Rows,tray.Columns,tray.RowPitch,tray.ColumnPitch,(long)tray.Rows*tray.Columns-1);
             bool hasHelp = methodHint.Text.Length > 0;
@@ -245,8 +251,10 @@ namespace AlphaRap.FlowProgramming
         {
             inputs.EndEdit();
             string source = Convert.ToString(row.Cells[sourceColumn].Value);
+            FlowMethod action = actionValue.SelectedItem as FlowMethod;
+            string description = field == "Index" && action != null && action.Id == "point.move" ? methodHint.Text : null;
             using (FlowSourceForm dialog = new FlowSourceForm(source, Convert.ToString(row.Cells[referenceColumn].Value), catalog,
-                actionValue.SelectedItem as FlowMethod, field))
+                action, field, description))
                 if (dialog.ShowDialog(this) == DialogResult.OK) row.Cells[referenceColumn].Value = dialog.Reference;
         }
 

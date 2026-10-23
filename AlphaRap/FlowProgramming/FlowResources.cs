@@ -59,6 +59,7 @@ namespace AlphaRap.FlowProgramming
     {
         public NP_Motor Motor;
         public string TableName;
+        public int RowCount;
         public Dictionary<int, double> Positions = new Dictionary<int, double>();
         public double Low;
         public double High;
@@ -139,7 +140,14 @@ namespace AlphaRap.FlowProgramming
             {
                 IFlowObject provider = resource.Instance as IFlowObject;
                 NP_Motor motor = resource.Instance as NP_Motor;
-                if (motor != null) provider = new FlowAxisObject(motor, resource.BoundPoints == null ? Items.Values.Where(item => item.Kind == "point" && ReferenceEquals(((FlowPointAxis)item.Instance).Motor, motor)) : new[] { resource.BoundPoints });
+                if (motor != null)
+                {
+                    List<FlowResource> bound = resource.BoundPoints == null
+                        ? Items.Values.Where(item => item.Kind == "point" && ReferenceEquals(((FlowPointAxis)item.Instance).Motor, motor)).ToList()
+                        : new List<FlowResource> { resource.BoundPoints };
+                    if (bound.Count == 1) resource.BoundPoints = bound[0];
+                    provider = new FlowAxisObject(motor, bound);
+                }
                 if (resource.Kind == "point") provider = new FlowAxisObject(((FlowPointAxis)resource.Instance).Motor, new[] { resource }, true);
                 if (resource.Kind == "input" || resource.Kind == "output" || resource.Kind == "cylinder") provider = new FlowIoObject(resource.Instance);
                 if (provider == null) continue;
@@ -214,6 +222,7 @@ namespace AlphaRap.FlowProgramming
                 FlowPointAxis axis = new FlowPointAxis { Motor = column.Axis, TableName = table.DataSet1.TableName, Low = column.Limit_Low, High = column.Limit_High };
                 FlowResource resource = Add(id + "/" + column.Name, column.Axis.Name + " · " + table.DataSet1.TableName + "/" + column.Name, "point", axis);
                 DataRow[] rows = table.DataSet1.Rows.Cast<DataRow>().Where(row=>!includeDraft || row.RowState!=DataRowState.Deleted).ToArray();
+                axis.RowCount = rows.Count(row => row.HasVersion(includeDraft ? DataRowVersion.Current : DataRowVersion.Original));
                 for (int i = 0; i < rows.Length; i++) AddPoint(resource, axis, rows[i], column, i);
             }
         }

@@ -5,6 +5,7 @@ namespace AlphaRap.FlowProgramming
     partial class FlowSourceForm
     {
         private TreeView tree;
+        private Label contextHint;
         private TextBox value;
         private Button ok;
         private Button cancel;
@@ -18,6 +19,12 @@ namespace AlphaRap.FlowProgramming
             tree.Name = "sources";
             tree.Dock = DockStyle.Fill;
             tree.HideSelection = false;
+            contextHint = new Label();
+            contextHint.Name = "sourceContext_dyn";
+            contextHint.Dock = DockStyle.Top;
+            contextHint.Height = 52;
+            contextHint.Padding = new Padding(6);
+            contextHint.Visible = false;
             value = new TextBox();
             value.Name = "referenceValue";
             value.Dock = DockStyle.Top;
@@ -49,6 +56,7 @@ namespace AlphaRap.FlowProgramming
             footer.Controls.Add(value);
             footer.Controls.Add(buttons);
             Controls.Add(tree);
+            Controls.Add(contextHint);
             Controls.Add(footer);
             Name = "FlowSourceForm";
             Tag = "title";

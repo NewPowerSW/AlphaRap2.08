@@ -14,8 +14,10 @@ namespace AlphaRap.FlowProgramming
         public FlowSourceForm() { InitializeComponent(); }
 
         /// <summary>按来源显示实际可选对象或常量；引用键与显示名称分开。</summary>
-        public FlowSourceForm(string source, string current, FlowActions actions, FlowMethod action, string field) : this()
+        public FlowSourceForm(string source, string current, FlowActions actions, FlowMethod action, string field, string description = null) : this()
         {
+            contextHint.Text = description ?? "";
+            contextHint.Visible = !string.IsNullOrEmpty(description);
             value.Text = current ?? "";
             value.ReadOnly = source != "Constant";
             List<FlowChoice> choices = Choices(source, actions, action, field);

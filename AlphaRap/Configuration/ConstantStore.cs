@@ -5,6 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using NPSDK;
 using AlphaRap.FlowProgramming;
 
 namespace AlphaRap.Configuration
@@ -21,11 +25,87 @@ namespace AlphaRap.Configuration
     {
         public const string TableName = "DesignerConstants";
         private readonly SystemSetting owner;
+        private readonly int ownerThread;
+        private readonly object flowSync = new object();
+        private readonly Dictionary<string, FlowValue> flowValues = new Dictionary<string, FlowValue>();
+        private sealed class FlowValue { internal DataRow Row; internal object Value; }
         public static readonly string[] Types = { "Boolean", "Integer", "Number", "Text" };
         public static readonly string[] ExampleKeys = { "DisScann", "UseTryRun", "DisVision", "DisMes", "DisDoor", "DisRecheck", "DisBuzzer", "Dis3D" };
 
         /// <summary>使用系统设置模块已有的 SettingData 和 RecipeData，不维护第二套配方目录。</summary>
-        public ConstantStore(SystemSetting form) { owner = form; }
+        public ConstantStore(SystemSetting form)
+        {
+            owner = form; ownerThread = Thread.CurrentThread.ManagedThreadId;
+            foreach (string scope in new[] { "Setting", "Recipe" })
+            {
+                Table(scope).RowChanged += ClearPublishedRow;
+                Table(scope).TableCleared += ClearPublishedTable;
+            }
+        }
+
+        /// <summary>提交或放弃数据行时清理流程发布值，读取重新跟随表的已保存版本。</summary>
+        private void ClearPublishedRow(object sender, DataRowChangeEventArgs args)
+        {
+            if (args.Action != DataRowAction.Commit && args.Action != DataRowAction.Rollback) return;
+            lock (flowSync)
+                foreach (string key in flowValues.Where(item => ReferenceEquals(item.Value.Row,args.Row)).Select(item => item.Key).ToArray()) flowValues.Remove(key);
+        }
+
+        /// <summary>配方或设置重新加载时清理该表的流程发布值，不影响另一作用域。</summary>
+        private void ClearPublishedTable(object sender, DataTableClearEventArgs args)
+        {
+            lock (flowSync)
+                foreach (string key in flowValues.Where(item => ReferenceEquals(item.Value.Row.Table,sender)).Select(item => item.Key).ToArray()) flowValues.Remove(key);
+        }
+
+        /// <summary>读取流程已经写入真实表的值，普通页面的未保存编辑不会被发布。</summary>
+        internal bool TryReadFlowValue(string scope,string key,out object value)
+        {
+            lock (flowSync)
+            {
+                FlowValue published;
+                if (flowValues.TryGetValue(Reference(scope,key),out published)) { value=published.Value; return true; }
+                value=null; return false;
+            }
+        }
+
+        /// <summary>在界面线程设置表值并发布到当前流程；取消、失效批次或配方变更不修改数据。</summary>
+        internal Task<object> SetFromFlowAsync(string scope,string key,object value,Type expectedType,FlowCall call,string recipePath)
+        {
+            TaskCompletionSource<object> completion=new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            Action apply=()=>{
+                try
+                {
+                    call.Token.ThrowIfCancellationRequested();
+                    if (owner.IsDisposed || call.Context.Hub.Epoch!=call.Context.RunId) throw new OperationCanceledException();
+                    if (scope=="Recipe" && !string.Equals(recipePath,SysPara.FilePath,StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException(FlowText.T("constantScopeChanged"));
+                    object actual=SetTableValue(scope,key,value,expectedType);
+                    call.Context.Hub.SetParameter(call.Context.RunId,Reference(scope,key),actual);
+                    completion.TrySetResult(actual);
+                }
+                catch (OperationCanceledException) { completion.TrySetCanceled(); }
+                catch (Exception error) { completion.TrySetException(error); }
+            };
+            if (Thread.CurrentThread.ManagedThreadId==ownerThread) { apply(); return completion.Task; }
+            Control dispatcher=MiddleLayer.MainF!=null && !MiddleLayer.MainF.IsDisposed && MiddleLayer.MainF.IsHandleCreated ? (Control)MiddleLayer.MainF : owner;
+            if (dispatcher.IsDisposed || !dispatcher.IsHandleCreated) return Task.FromException<object>(new InvalidOperationException(FlowText.T("constantUiUnavailable")));
+            try { dispatcher.BeginInvoke(apply); }
+            catch (InvalidOperationException error) { completion.TrySetException(error); }
+            return completion.Task;
+        }
+
+        /// <summary>只修改已有行的 Value 和兼容开关，保留键、类型、备注与保存前 Original 版本。</summary>
+        private object SetTableValue(string scope,string key,object value,Type expectedType)
+        {
+            DataRow row=Find(Table(scope),key);
+            if (row==null) throw new InvalidOperationException(ConstantText.T("missing"));
+            object parsed=Parse(Convert.ToString(row["Type"]),Convert.ToString(value,CultureInfo.InvariantCulture));
+            if (parsed.GetType()!=expectedType) throw new InvalidOperationException(FlowText.T("constantTypeChanged"));
+            row["Value"]=parsed is double ? ((double)parsed).ToString("R",CultureInfo.InvariantCulture) : Convert.ToString(parsed,CultureInfo.InvariantCulture);
+            if (scope=="Setting" && IsLegacyKey(key)) owner.SettingData.Tables["PSet"].Rows[0][key]=parsed;
+            lock (flowSync) flowValues[Reference(scope,key)]=new FlowValue { Row=row,Value=parsed };
+            return parsed;
+        }
 
         /// <summary>建立固定结构，数值以不受界面语言影响的文本保存。</summary>
         public static DataTable CreateTable()
@@ -143,10 +223,10 @@ namespace AlphaRap.Configuration
             finally { if (File.Exists(temporary)) File.Delete(temporary); }
         }
 
-        /// <summary>运行快照只读取已保存版本，稳定引用使用作用域和键，不使用行索引。</summary>
+        /// <summary>读取已保存值及流程明确写入表的发布值，稳定引用不使用行索引。</summary>
         public IEnumerable<KeyValuePair<string, object>> Committed(string scope) { return Snapshot(scope,false); }
 
-        /// <summary>工程校验可读取草稿，运行快照只读取已保存版本。</summary>
+        /// <summary>工程校验读取草稿；流程使用保存值或流程写入的表值，忽略普通页面编辑草稿。</summary>
         public IEnumerable<KeyValuePair<string, object>> Snapshot(string scope,bool includeDraft)
         {
             foreach (DataRow row in Table(scope).Rows)
@@ -155,7 +235,9 @@ namespace AlphaRap.Configuration
                 if (!row.HasVersion(version)) continue;
                 ConstantValue value = Read(row, version);
                 if (string.IsNullOrWhiteSpace(value.Key)) continue;
-                yield return new KeyValuePair<string, object>(Reference(scope, value.Key), Parse(value.Type, value.Value));
+                object published;
+                object result=!includeDraft && TryReadFlowValue(scope,value.Key,out published) ? published : Parse(value.Type,value.Value);
+                yield return new KeyValuePair<string, object>(Reference(scope, value.Key), result);
             }
         }
 

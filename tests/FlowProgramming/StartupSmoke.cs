@@ -113,6 +113,38 @@ internal static class StartupSmoke
         }
         if (!failed || File.ReadAllText(path)!=before || !(bool)setting.Constants.Committed("Setting").Single(pair=>pair.Key=="Constants/Setting/MainSaveFlag").Value || setting.Constants.Table("Setting").GetChanges()==null) throw new InvalidOperationException("A late save failure did not roll back previously replaced files.");
         Console.WriteLine("PASS late unified-save replacement failure rolls back earlier configuration files and retains drafts.");
+        ChooseSave(main,"Button3_dyn");
+        VerifyFlowTableSave(main,setting);
+    }
+
+    /// <summary>Write actual Setting and Recipe rows from flow nodes, then exercise real main Save, reload, failure and discard.</summary>
+    private static void VerifyFlowTableSave(MainForm main,SystemSetting setting)
+    {
+        string path=Path.Combine(ModuleManager.SettingDataDirectory,"SysSetting.xml"), before=File.ReadAllText(path);
+        SetTableFromNode("Setting","DisScann","false"); SetTableFromNode("Recipe","MainRecipeNumber","27.5");
+        DataRow row=ConstantStore.Find(setting.Constants.Table("Setting"),"DisScann");
+        if(Convert.ToString(row["Value"])!="False" || Convert.ToString(row["Value",DataRowVersion.Original])!="True" || (bool)setting.SettingData.Tables["PSet"].Rows[0]["DisScann"] || File.ReadAllText(path)!=before) throw new InvalidOperationException("Flow setting did not change the actual row and legacy switch in memory only.");
+        ChooseSave(main,"Button3_dyn");
+        if(!(bool)setting.Constants.Committed("Setting").Single(item=>item.Key==ConstantStore.Reference("Setting","DisScann")).Value || (double)setting.Constants.Committed("Recipe").Single(item=>item.Key==ConstantStore.Reference("Recipe","MainRecipeNumber")).Value!=12.5) throw new InvalidOperationException("Discard retained a value published by an earlier flow.");
+        SetTableFromNode("Setting","DisScann","false"); SetTableFromNode("Recipe","MainRecipeNumber","27.5");
+        bool failed=false;
+        using(FileStream locked=File.Open(FlowPrograms.FilePath,FileMode.Open,FileAccess.Read,FileShare.Read))
+        { try{ProjectConfiguration.Save();}catch(IOException){failed=true;} }
+        row=ConstantStore.Find(setting.Constants.Table("Setting"),"DisScann");
+        if(!failed || File.ReadAllText(path)!=before || row.RowState!=DataRowState.Modified || Convert.ToString(row["Value",DataRowVersion.Original])!="True" || (bool)setting.Constants.Committed("Setting").Single(item=>item.Key==ConstantStore.Reference("Setting","DisScann")).Value) throw new InvalidOperationException("Failed Save lost the flow-written table value or committed it prematurely.");
+        ChooseSave(main,"Button1_dyn");ChooseSave(main,"Button3_dyn");
+        if((bool)setting.GetSettingValue("PSet","DisScann") || Convert.ToString(ConstantStore.Find(setting.Constants.Table("Setting"),"DisScann")["Value",DataRowVersion.Original])!="False" || (double)setting.Constants.Committed("Recipe").Single(item=>item.Key==ConstantStore.Reference("Recipe","MainRecipeNumber")).Value!=27.5) throw new InvalidOperationException("Main Save and reload did not preserve actual flow-written table values.");
+        Console.WriteLine("PASS flow writes update real Setting/Recipe rows and legacy switches; Main Save, failed Save, discard and reload preserve the correct versions.");
+    }
+
+    /// <summary>Execute the table setter through the same typed object method used by a configured node.</summary>
+    private static void SetTableFromNode(string scope,string key,string value)
+    {
+        FlowActions actions=new FlowActions(FlowResources.Capture()); FlowResource resource=actions.FindResource("constants/"+scope);
+        FlowMethod method=resource.Methods.Single(item=>item.Id=="constant.set");
+        FlowStep step=new FlowStep {Action=method.Id,Target=resource.Id,Inputs=method.Inputs.Select(field=>new FlowInput{Name=field.Name,Reference=field.Name=="Key"?key:value}).ToList()};
+        FlowResultHub hub=new FlowResultHub();FlowExecutionContext context=new FlowExecutionContext{Hub=hub,RunId=hub.Epoch,Parameters=actions.Resources.Parameters};
+        actions.Execute(step,context,System.Threading.CancellationToken.None).GetAwaiter().GetResult();
     }
 
     /// <summary>Complete the real main-save confirmation using its visible button event in the isolated fixture.</summary>
