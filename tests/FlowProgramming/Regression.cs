@@ -172,6 +172,12 @@ internal static partial class Cases
         Test("resource property context menus edit the clicked instance as a draft", ResourceProperties);
         Test("Setting and Recipe constant tables are selectable objects with saved typed values", ConstantTableObjects);
         Test("constant read nodes protect referenced keys and types", ConstantReadReferences);
+        Test("compact IO cards reuse the original instance and guard manual toggles", CompactIoCards);
+        Test("direct condition rows preserve references literals operators and languages", DirectConditionEditing);
+        Test("constant setters share typed run values and reject stale writes", ConstantRuntimeWrites);
+        Test("vision selection contains only configured VPPs without unused Camera1 fields", ConfiguredVisionCatalog);
+        Test("DI DO and cylinder categories each list their own actual objects", IoCategorySelection);
+        Test("tray node explains the current layout and calculates the selected pocket", TrayNodeHelp);
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
         Console.WriteLine("RESULT: " + (count - failures) + "/" + count + " passed");
         return failures == 0 ? 0 : 1;
@@ -639,7 +645,7 @@ internal static partial class Cases
             int index = 0;
             foreach (FlowBranchEditor branch in panel.Controls.OfType<FlowBranchEditor>())
             {
-                branch.ConditionsGrid.Rows[0].Cells[5].Value = (index++).ToString();
+                ((ComboBox)branch.ConditionRows.First().Controls.Find("conditionRight",true)[0]).Text = (index++).ToString();
                 ((ComboBox)branch.Controls.Find("branchTargetValue", true)[0]).SelectedValue = measured.Id;
             }
             ((Button)dialog.Controls.Find("ok", true)[0]).PerformClick();
@@ -705,15 +711,13 @@ internal static partial class Cases
             RadioButton unconditional = (RadioButton)branch.Controls.Find("branchUnconditional", true)[0];
             Assert(unconditional.Checked && !all.Checked && !any.Checked, "Default mode is ambiguous.");
             all.Checked = true;
-            Assert(!unconditional.Checked && !any.Checked && branch.ConditionsGrid.Enabled, "AND is not exclusive or does not enable conditions.");
-            branch.ConditionsGrid.Rows.Add("Constant", "1", "…", "==", "Constant", "1", "…");
-            branch.ConditionsGrid.CurrentCell = branch.ConditionsGrid.Rows[0].Cells[5]; branch.ConditionsGrid.BeginEdit(false);
-            ((TextBox)branch.ConditionsGrid.EditingControl).Text = "pending threshold";
+            Assert(!unconditional.Checked && !any.Checked && branch.ConditionRows.Count()==1, "AND is not exclusive or does not create a direct-edit condition.");
+            ComboBox right = (ComboBox)branch.ConditionRows.First().Controls.Find("conditionRight",true)[0];
+            right.Focus(); right.Text = "pending threshold";
             SwitchLanguage(LanguageType.English); Application.DoEvents();
-            Assert(all.Text == "All conditions (AND)" && all.Checked && ((TextBox)branch.ConditionsGrid.EditingControl).Text == "pending threshold", "English switch changed the mode or active edit.");
+            Assert(all.Text == "All conditions (AND)" && all.Checked && right.Text == "pending threshold", "English switch changed the mode or active edit.");
             SwitchLanguage(LanguageType.Español); Application.DoEvents();
             Assert(all.Text == "Todas las condiciones (AND)" && all.Checked, "Spanish mode label or state is wrong.");
-            branch.ConditionsGrid.EndEdit();
             FlowBranch saved = branch.ReadBranch();
             FlowProgram copy = FlowProgramFile.Snapshot(new FlowProgram { Steps = new List<FlowStep> { new FlowStep { Branches = new List<FlowBranch> { saved } } } });
             branch.Bind(copy.Steps[0].Branches[0], "", new List<FlowChoice> { new FlowChoice { Id = "", Label = "End" } });
@@ -721,7 +725,7 @@ internal static partial class Cases
             any.Checked = true;
             Assert(!all.Checked && !unconditional.Checked && branch.ReadBranch().AnyCondition, "OR is not exclusive or was not persisted.");
             unconditional.Checked = true;
-            Assert(!all.Checked && !any.Checked && !branch.ConditionsGrid.Enabled, "Unconditional is not exclusive.");
+            Assert(!all.Checked && !any.Checked && !branch.Controls.Find("branchConditions",true)[0].Visible, "Unconditional does not collapse the condition area.");
             dialog.Close();
         }
         SwitchLanguage(LanguageType.Chinese);
@@ -1161,14 +1165,13 @@ internal static partial class Cases
         using (FlowSchemaForm schema = new FlowSchemaForm(data))
         {
             branch.Bind(new FlowBranch { Code="CASE1" },"",new List<FlowChoice>{new FlowChoice{Id="",Label="End"}});
-            branch.ConditionsGrid.Columns.OfType<DataGridViewComboBoxColumn>().Where(column=>column.Name.EndsWith("Source")).ToList().ForEach(column=>column.Items.Add("Constant"));
-            branch.MakeConditional(""); fixture.Controls.Add(branch); fixture.Show(); Application.DoEvents();
-            DataGridView grid = branch.ConditionsGrid; Rectangle area = grid.GetCellDisplayRectangle(0,0,false);
-            RaiseMouse(grid,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,area.Left+3,area.Top+3,0)); grid.ContextMenuStrip.Show(grid,new Point(area.Left+3,area.Top+3)); grid.ContextMenuStrip.Items[0].PerformClick();
-            Assert(grid.Rows.Cast<DataGridViewRow>().All(row=>row.IsNewRow) && !grid.AllowUserToDeleteRows,"Condition context deletion failed.");
+            branch.MakeConditional(); fixture.Controls.Add(branch); fixture.Show(); Application.DoEvents();
+            FlowConditionRow conditionRow = branch.ConditionRows.First();
+            conditionRow.ContextMenuStrip.Show(conditionRow,new Point(4,4)); conditionRow.ContextMenuStrip.Items[0].PerformClick();
+            Assert(!branch.ConditionRows.Any(),"Condition context deletion failed.");
             Assert(branch.Controls.Find("removeBranch",true).Length==0,"CASE still has a toolbar delete button.");
-            schema.Show(); Application.DoEvents(); grid = (DataGridView)schema.Controls.Find("productionFields",true)[0]; int before = grid.Rows.Count;
-            area = grid.GetCellDisplayRectangle(0,0,false); RaiseMouse(grid,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,area.Left+3,area.Top+3,0)); grid.ContextMenuStrip.Show(grid,new Point(area.Left+3,area.Top+3)); grid.ContextMenuStrip.Items[0].PerformClick();
+            schema.Show(); Application.DoEvents(); DataGridView grid = (DataGridView)schema.Controls.Find("productionFields",true)[0]; int before = grid.Rows.Count;
+            Rectangle area = grid.GetCellDisplayRectangle(0,0,false); RaiseMouse(grid,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,area.Left+3,area.Top+3,0)); grid.ContextMenuStrip.Show(grid,new Point(area.Left+3,area.Top+3)); grid.ContextMenuStrip.Items[0].PerformClick();
             Assert(grid.Rows.Count==before-1 && !grid.AllowUserToDeleteRows,"Production-field context deletion failed."); schema.Close(); fixture.Close();
         }
     }

@@ -23,6 +23,7 @@ namespace AlphaRap.Configuration
         public HardwareResourcePanel()
         {
             InitializeComponent();
+            canvas.Resize += (sender, args) => ArrangeIo();
             ApplyKind();
             if (UiTheme.IsDesignTime) return;
             HardwareText.Apply(this);
@@ -73,6 +74,11 @@ namespace AlphaRap.Configuration
             if (addAxis == null) return;
             addAxis.Visible = resourceKind!="IO";
             addInput.Visible = resourceKind=="IO"; addOutput.Visible = resourceKind=="IO";
+            selected.Visible = resourceKind!="IO"; edit.Visible = resourceKind!="IO";
+            toolbar.Height = resourceKind=="IO" ? 42 : 78;
+            hint.Name = resourceKind=="IO" ? "ioResourceHint" : "resourceHint"; hint.Tag = resourceKind=="IO" ? "ioHint" : "hint";
+            hint.Text = HardwareText.T(resourceKind=="IO" ? "ioHint" : "hint");
+            ArrangeIo();
         }
 
         /// <summary>选择列表按对象身份定位，业务名称不作翻译。</summary>
@@ -131,10 +137,10 @@ namespace AlphaRap.Configuration
             NP_AxisGroup axis = entry.Group as NP_AxisGroup;
             NP_IoGroup io = entry.Group as NP_IoGroup;
             if (axis != null) { axis.ParametersRequested -= GroupSettings; axis.ParametersRequested += GroupSettings; axis.ApplyLanguage(HardwareText.Translate); }
-            if (io != null) { io.ParametersRequested -= GroupSettings; io.ParametersRequested += GroupSettings; io.ApplyLanguage(HardwareText.Translate); }
+            if (io != null) { io.ParametersRequested -= GroupSettings; io.ParametersRequested += GroupSettings; IoTileStyle.Style(io.IO); IoTileStyle.PlaceIndicator(io.IO); }
         }
 
-        /// <summary>轴和 IO 的表面共用删除菜单，点位表保留自己的行菜单。</summary>
+        /// <summary>轴和 IO 表面共用属性及删除菜单，点位表保留自己的行菜单。</summary>
         private void BindResourceMenu(Control control)
         {
             if (control is NP_PositionTable) return;
@@ -165,19 +171,46 @@ namespace AlphaRap.Configuration
         private void RefreshEntries()
         {
             selected.DataSource = Resources.Entries.Where(BelongsHere).ToList();
+            ArrangeIo();
+        }
+
+        /// <summary>输入和输出在同一画布分区平铺，卡片使用原 IO 外观而不增加可见外框。</summary>
+        private void ArrangeIo()
+        {
+            if (Resources == null || resourceKind != "IO") return;
+            int width = System.Math.Max(240,canvas.ClientSize.Width - canvas.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth);
+            int columns = System.Math.Max(1,width / 275);
+            int tileWidth = System.Math.Min(360,width / columns - 10);
+            int position = 0;
+            canvas.SuspendLayout();
+            foreach (string kind in new[] { "Input","Output" })
+            {
+                HardwareEntry[] entries = Resources.Entries.Where(entry => entry.Definition.Kind == kind).ToArray();
+                Label header = kind == "Input" ? inputHeader : outputHeader;
+                header.Text = FlowText.T(kind == "Input" ? "di" : "do") + " · " + entries.Length;
+                header.Visible = entries.Length > 0; header.Width = width - 6;
+                canvas.Controls.SetChildIndex(header,position++);
+                foreach (HardwareEntry entry in entries)
+                {
+                    entry.Group.Size = new System.Drawing.Size(tileWidth,40);
+                    canvas.Controls.SetChildIndex(entry.Group,position++);
+                    IoTileStyle.PlaceIndicator(entry.Device);
+                }
+            }
+            canvas.ResumeLayout();
         }
 
         /// <summary>只刷新固定标签及组合控件标题，保留点位数据和选中资源。</summary>
         private void ApplyLanguage(object sender,EventArgs args)
         {
             HardwareText.Apply(this);
+            ArrangeIo();
             resourceDelete.Text = HardwareText.Translate(resourceDelete.Name, "删除资源", "Delete resource", "Eliminar recurso");
             resourceProperties.Text = HardwareText.Translate(resourceProperties.Name, "属性编辑", "Edit properties", "Editar propiedades");
             if (Resources == null) return;
             foreach (HardwareEntry entry in Resources.Entries.Where(BelongsHere))
             {
                 NP_AxisGroup axis = entry.Group as NP_AxisGroup; if (axis != null) axis.ApplyLanguage(HardwareText.Translate);
-                NP_IoGroup io = entry.Group as NP_IoGroup; if (io != null) io.ApplyLanguage(HardwareText.Translate);
             }
         }
 

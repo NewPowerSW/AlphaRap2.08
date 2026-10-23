@@ -225,7 +225,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>常量表读取节点按作用域和业务键保护引用，动态键读取时保护该表的键。</summary>
         private static bool ReadsConstant(FlowStep step, string reference)
         {
-            if (step.Action != "constant.read" || !(reference ?? "").StartsWith("Constants/", StringComparison.Ordinal)) return false;
+            if ((step.Action != "constant.read" && step.Action != "constant.set") || !(reference ?? "").StartsWith("Constants/", StringComparison.Ordinal)) return false;
             int separator = reference.IndexOf('/', "Constants/".Length);
             if (separator < 0 || step.Target != "constants/" + reference.Substring("Constants/".Length, separator - "Constants/".Length)) return false;
             FlowInput key = step.Inputs.FirstOrDefault(input => input.Name == "Key");

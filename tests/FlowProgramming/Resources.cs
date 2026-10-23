@@ -90,7 +90,7 @@ internal static partial class Cases
                 string identity = source.Id; input.Text = "Arrival sensor";
                 Assert(source.Label == "Arrival sensor" && source.Id == identity, "A display-name change altered the flow identity.");
                 string technical = group.IO.Name; group.IO.Text = "原始输入文字";
-                Assert(group.SignalCaption == "原始输入文字" && group.Controls.Find("ioCaption_dyn", true)[0].Text == "原始输入文字" && group.IO.Name == technical, "The group copied a stale caption or renamed the underlying object.");
+                Assert(group.SignalCaption == "原始输入文字" && group.Controls.Count == 1 && group.Height == 40 && group.IO.Name == technical, "The compact group duplicated the caption or renamed the underlying object.");
             }
             finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(form); }
         }
@@ -189,7 +189,7 @@ internal static partial class Cases
         ConstantStore store = constantForm.Constants;
         store.Put("Setting", null, new ConstantValue { Key = key, Type = "Number", Value = "12.75" });
         store.Put("Recipe", null, new ConstantValue { Key = key, Type = "Integer", Value = "9" });
-        Assert(!new FlowActions(FlowResources.Capture()).FindResource("constants/Setting").Methods.Single().Inputs[0].Options.Any(option => option.Value == key), "A draft constant entered the saved object snapshot.");
+        Assert(!new FlowActions(FlowResources.Capture()).FindResource("constants/Setting").Methods.Single(method=>method.Id=="constant.read").Inputs[0].Options.Any(option => option.Value == key), "A draft constant entered the saved object snapshot.");
         FlowActions draft = new FlowActions(FlowResources.Capture(true));
         Assert((double)ConstantValueOf(draft, "Setting", key) == 12.75 && (long)ConstantValueOf(draft, "Recipe", key) == 9, "The two constant scopes lost their actual types.");
         store.Save("Setting"); store.Save("Recipe");

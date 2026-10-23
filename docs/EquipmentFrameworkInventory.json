@@ -8,7 +8,7 @@
     "公开方法包含底层入口和事件回调，不等于应用工程师可直接选择的动作清单。"
   ],
   "summary": {
-    "explicit_compile_files": 182,
+    "explicit_compile_files": 184,
     "forms": 35,
     "flow_modules": 3,
     "flow_nodes": 123,

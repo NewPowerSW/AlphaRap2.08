@@ -6,6 +6,23 @@ namespace AlphaRap.FlowProgramming
     {
         public static readonly Dictionary<string, string[]> Defaults = new Dictionary<string, string[]>
         {
+            { "selectNode", new[] { "请选择实际对象和方法，并填写节点名称。", "Select a configured object and method, and enter a node name.", "Seleccione un objeto y un método configurados e introduzca el nombre del nodo." } },
+            { "di", new[] { "数字输入 (DI)", "Digital inputs (DI)", "Entradas digitales (DI)" } },
+            { "do", new[] { "数字输出 (DO)", "Digital outputs (DO)", "Salidas digitales (DO)" } },
+            { "cylinder", new[] { "气缸", "Cylinders", "Cilindros" } },
+            { "addCondition", new[] { "+ 添加条件", "+ Add condition", "+ Añadir condición" } },
+            { "conditionHelp", new[] { "直接选择字段，或输入固定值；true / false 可从下拉选择。右键删除条件。", "Select a field or type a literal; true / false are available in the list. Right-click to delete.", "Seleccione un campo o escriba un valor; true / false están en la lista. Clic derecho para eliminar." } },
+            { "equals", new[] { "等于 (=)", "Equals (=)", "Igual (=)" } },
+            { "notEquals", new[] { "不等于 (≠)", "Not equal (≠)", "Distinto (≠)" } },
+            { "greater", new[] { "大于 (>)", "Greater than (>)", "Mayor que (>)" } },
+            { "greaterEqual", new[] { "大于等于 (≥)", "At least (≥)", "Mayor o igual (≥)" } },
+            { "less", new[] { "小于 (<)", "Less than (<)", "Menor que (<)" } },
+            { "lessEqual", new[] { "小于等于 (≤)", "At most (≤)", "Menor o igual (≤)" } },
+            { "contains", new[] { "包含文本", "Contains text", "Contiene texto" } },
+            { "empty", new[] { "为空", "Is empty", "Está vacío" } },
+            { "noInputs", new[] { "此方法无需输入参数，执行后可直接在下方选择返回值作为跳转条件。", "No input parameters are needed. Use a returned field directly in the exit conditions below.", "No se necesitan parámetros de entrada. Use un campo devuelto en las condiciones siguientes." } },
+            { "trayHelp", new[] { "当前托盘：{0} 行 × {1} 列，行距 {2}，列距 {3}。Index 范围 0–{4}，先列后行。仅计算偏移；将 OffsetX / OffsetY 绑定到对应轴移动的 Offset。", "Tray: {0} rows × {1} columns, row pitch {2}, column pitch {3}. Index 0–{4}, columns first. Calculates offsets only; bind OffsetX / OffsetY to the corresponding axis move Offset.", "Bandeja: {0} filas × {1} columnas, paso de fila {2}, de columna {3}. Índice 0–{4}, primero columnas. Solo calcula desplazamientos; vincule OffsetX / OffsetY al Offset del eje." } },
+            { "constantSetHelp", new[] { "设置本次运行的共享值，后续节点及常量绑定可读取。保留原类型，不自动改写配置初值；配置保存仍使用主界面【保存】。", "Set a shared value for this run. Later nodes and constant bindings read it with its original type. Configured defaults are unchanged; use the main Save button for configuration.", "Establece un valor compartido para esta ejecución. Los nodos y vínculos posteriores lo leen con su tipo original. Los valores iniciales se guardan desde Guardar principal." } },
             { "properties", new[] { "属性编辑", "Edit properties", "Editar propiedades" } },
             { "enableEditing", new[] { "请先启用流程编辑。", "Enable flow editing first.", "Active primero la edición del flujo." } },
             { "boundTable", new[] { "请在轴页面为该轴明确绑定唯一的点位表。", "Bind one point table to this axis on the axis page.", "Vincule una sola tabla de puntos a este eje en su página." } },

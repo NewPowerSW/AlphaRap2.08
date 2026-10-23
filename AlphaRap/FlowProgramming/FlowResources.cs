@@ -44,7 +44,9 @@ namespace AlphaRap.FlowProgramming
                 switch (Kind)
                 {
                     case "axis": case "point": return "motion";
-                    case "input": case "output": case "cylinder": return "io";
+                    case "input": return "di";
+                    case "output": return "do";
+                    case "cylinder": return Kind;
                     case "vision": case "data": case "tray": case "constants": return Kind;
                     default: return "device";
                 }
@@ -125,6 +127,7 @@ namespace AlphaRap.FlowProgramming
         private void AddObjectField(Form form, Type type, System.Reflection.FieldInfo field)
         {
             object instance = field.GetValue(form);
+            if (form is VPForm && instance is VisionproInterface) return;
             if (instance == null || Items.Values.Any(item => ReferenceEquals(item.Instance, instance))) return;
             Add(form.Name + "/" + type.FullName + "/" + field.Name, form.Name + " · " + field.Name, "object", instance);
         }
@@ -146,19 +149,20 @@ namespace AlphaRap.FlowProgramming
             }
         }
 
-        /// <summary>从已提交配方读取全部托盘行列及间距，动态新增托盘自动进入目录。</summary>
+        /// <summary>按编辑草稿或已提交配方读取托盘行列与间距，动态托盘自动进入目录。</summary>
         private void AddTrays()
         {
             if (MiddleLayer.PlatF == null) return;
             DataTable table = MiddleLayer.PlatF.RecipeData.Tables["PSet"];
-            if (table == null || table.Rows.Count == 0 || !table.Rows[0].HasVersion(DataRowVersion.Original)) return;
+            DataRowVersion version = includeDraft ? DataRowVersion.Current : DataRowVersion.Original;
+            if (table == null || table.Rows.Count == 0 || !table.Rows[0].HasVersion(version)) return;
             foreach (TrayRowSpec spec in TrayConfig.BuildRows())
             {
                 if (!spec.CanRemove) continue;
                 string[] columns = { spec.RowNumCol, spec.ColumnNumCol, spec.RowPitchCol, spec.ColumnPitchCol };
-                if (columns.Any(column => !table.Columns.Contains(column) || table.Rows[0][column, DataRowVersion.Original] == DBNull.Value)) continue;
-                FlowTray tray = new FlowTray { Rows = FlowActions.Integer(table.Rows[0][spec.RowNumCol, DataRowVersion.Original]), Columns = FlowActions.Integer(table.Rows[0][spec.ColumnNumCol, DataRowVersion.Original]),
-                    RowPitch = FlowActions.Number(table.Rows[0][spec.RowPitchCol, DataRowVersion.Original]), ColumnPitch = FlowActions.Number(table.Rows[0][spec.ColumnPitchCol, DataRowVersion.Original]) };
+                if (columns.Any(column => !table.Columns.Contains(column) || table.Rows[0][column, version] == DBNull.Value)) continue;
+                FlowTray tray = new FlowTray { Rows = FlowActions.Integer(table.Rows[0][spec.RowNumCol, version]), Columns = FlowActions.Integer(table.Rows[0][spec.ColumnNumCol, version]),
+                    RowPitch = FlowActions.Number(table.Rows[0][spec.RowPitchCol, version]), ColumnPitch = FlowActions.Number(table.Rows[0][spec.ColumnPitchCol, version]) };
                 Add("tray/" + spec.Key, spec.Key, "tray", tray);
             }
         }

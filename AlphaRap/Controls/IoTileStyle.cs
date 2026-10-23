@@ -186,6 +186,7 @@ namespace AlphaRap
         {
             if (c == null || Styled.Contains(c)) return;
             Styled.Add(c);
+            c.Disposed += (sender,args) => Styled.Remove(c);
 
             if (c is NP_Cylinder)
             {
@@ -222,19 +223,22 @@ namespace AlphaRap
             if (!IndicatorHooked.Contains(pic))
             {
                 IndicatorHooked.Add(pic);
+                pic.Disposed += (sender,args) => IndicatorHooked.Remove(pic);
                 // 指示图的底色保持与卡片一致（控件内部刷新状态时可能改回系统色）
                 pic.BackColorChanged += (o, e) => { if (pic.BackColor != UiKit.Surface) pic.BackColor = UiKit.Surface; };
             }
-            int h = Math.Min(pic.Height, tile.Height - UiTheme.Dpi(8));
+            int h = Math.Max(1,Math.Min(UiTheme.Dpi(32),tile.Height-UiTheme.Dpi(8)));
             pic.Bounds = new Rectangle(tile.Width - pic.Width - IndicatorMargin, (tile.Height - h) / 2, pic.Width, h);
             UpdatePadding(tile);
         }
 
+        /// <summary>显示当前厂商实际使用的地址，PLC 信号不显示无效的板卡默认点号。</summary>
         private static string PortText(Control tile)
         {
             string port = null;
-            if (tile is NP_Input) port = ((NP_Input)tile).Port;
-            else if (tile is NP_Output) port = ((NP_Output)tile).Port;
+            NP_Input input = tile as NP_Input; NP_Output output = tile as NP_Output;
+            if (input != null) port = input.Vendor == NPVendor.Keyence ? input.DeviceType.ToString()+input.Address : input.Vendor == NPVendor.Omron ? input.OmronAddress : input.Port;
+            if (output != null) port = output.Vendor == NPVendor.Keyence ? output.DeviceType.ToString()+output.Address : output.Vendor == NPVendor.Omron ? output.OmronAddress : output.Port;
             return string.IsNullOrEmpty(port) ? "" : port.Trim();
         }
 

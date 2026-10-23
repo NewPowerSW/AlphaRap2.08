@@ -29,7 +29,7 @@ namespace AlphaRap.FlowProgramming
             captionValue.Text = step.Caption;
             timeoutValue.Value = Math.Max(timeoutValue.Minimum, Math.Min(timeoutValue.Maximum, step.TimeoutMs));
             SetSources(inputs, 1);
-            categoryValue.DataSource = new[] { "flow", "constants", "io", "motion", "vision", "device", "tray", "data" }
+            categoryValue.DataSource = new[] { "flow", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data" }
                 .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
             categoryValue.DisplayMember = "Label"; categoryValue.ValueMember = "Id";
             FillAlarms();
@@ -68,11 +68,7 @@ namespace AlphaRap.FlowProgramming
         {
             FlowBranchEditor editor = branch.Code == "NEXT" ? nextBranch : new FlowBranchEditor();
             editor.Name = "branch_" + branch.Code + "_dyn";
-            DataGridView grid = editor.ConditionsGrid;
-            SetSources(grid, 0); SetSources(grid, 4);
-            grid.CellContentClick += ConditionPick; grid.CellDoubleClick += ConditionPick;
-            grid.CellFormatting += FormatReference; grid.CellBeginEdit += GuardReferenceEdit;
-            grid.DefaultValuesNeeded += (sender, args) => { args.Row.Cells[0].Value = "Result"; args.Row.Cells[3].Value = "=="; args.Row.Cells[4].Value = "Constant"; };
+            editor.Configure(catalog,actionValue.SelectedItem as FlowMethod);
             List<FlowChoice> targets = new List<FlowChoice> { new FlowChoice { Id = "", Label = FlowText.T("end") } };
             targets.AddRange(module.Program.Steps.Where(step => step.Id != original.Id).Select(step => new FlowChoice { Id = step.Id, Label = step.Caption }));
             editor.Bind(branch, targetId, targets);
@@ -89,11 +85,9 @@ namespace AlphaRap.FlowProgramming
         {
             string code = new[] { "CASE1", "CASE2", "CASE3" }.FirstOrDefault(value => branchEditors.All(editor => editor.Code != value));
             if (code == null) return;
-            FlowMethod action = actionValue.SelectedItem as FlowMethod;
-            string field = action == null ? null : catalog.OutputNames(action).FirstOrDefault();
-            if (nextBranch.IsUnconditional) nextBranch.MakeConditional(field);
+            if (nextBranch.IsUnconditional) nextBranch.MakeConditional();
             FlowBranchEditor added = AddBranchEditor(new FlowBranch { Code = code }, "");
-            added.MakeConditional(field);
+            added.MakeConditional();
             ResizeBranches();
             branchPanel.ScrollControlIntoView(added);
         }
@@ -162,13 +156,35 @@ namespace AlphaRap.FlowProgramming
         {
             inputs.Rows.Clear();
             FlowMethod action = actionValue.SelectedItem as FlowMethod;
-            if (action == null) { outputsValue.Text = ""; return; }
+            if (action == null) { outputsValue.Text = ""; RefreshMethodHelp(); return; }
             foreach (string name in catalog.InputNames(action))
             {
                 FlowInput value = previous.SingleOrDefault(item => item.Name == name) ?? new FlowInput { Name = name, Reference = action.Inputs.Single(field => field.Name == name).DefaultValue };
                 inputs.Rows.Add(name, value.Source, value.Reference, "…");
             }
             outputsValue.Text = string.Join("   ", action.Outputs.Select(field => field.Name + " (" + field.Type.Name + ")"));
+            RefreshMethodHelp();
+            foreach (FlowBranchEditor editor in branchEditors) editor.Configure(catalog,action);
+        }
+
+        /// <summary>直接解释托盘计算与运行值设置，无参数方法不显示空输入网格。</summary>
+        private void RefreshMethodHelp()
+        {
+            FlowMethod action = actionValue.SelectedItem as FlowMethod;
+            methodHint.Text = "";
+            methodHint.Visible = false; inputLayout.RowStyles[1].Height = 0;
+            bool hasInputs = action != null && action.Inputs.Count > 0;
+            inputs.Visible = hasInputs;
+            root.RowStyles[2].Height = hasInputs ? 180 : 76;
+            if (action == null) return;
+            if (action.Inputs.Count == 0) methodHint.Text = FlowText.T("noInputs");
+            if (action.Id == "constant.set") methodHint.Text = FlowText.T("constantSetHelp");
+            FlowResource resource = catalog.FindResource(Convert.ToString(targetValue.SelectedValue));
+            FlowTray tray = resource == null ? null : resource.Instance as FlowTray;
+            if (tray != null) methodHint.Text = string.Format(FlowText.T("trayHelp"),tray.Rows,tray.Columns,tray.RowPitch,tray.ColumnPitch,(long)tray.Rows*tray.Columns-1);
+            bool hasHelp = methodHint.Text.Length > 0;
+            methodHint.Visible = hasHelp;
+            inputLayout.RowStyles[1].Height = hasHelp ? 52 : 0;
         }
 
         /// <summary>刷新方法、类别和来源的显示语言，保留输入网格及尚未提交的编辑内容。</summary>
@@ -183,7 +199,7 @@ namespace AlphaRap.FlowProgramming
             filling = true;
             try
             {
-                categoryValue.DataSource = new[] { "flow", "constants", "io", "motion", "vision", "device", "tray", "data" }
+                categoryValue.DataSource = new[] { "flow", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data" }
                     .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
                 categoryValue.SelectedValue = category;
                 FillTargets(target); FillActions(method == null ? null : method.Id);
@@ -193,9 +209,9 @@ namespace AlphaRap.FlowProgramming
                 SetSources(inputs, 1);
                 foreach (FlowBranchEditor editor in branchEditors)
                 {
-                    SetSources(editor.ConditionsGrid, 0); SetSources(editor.ConditionsGrid, 4);
                     editor.RefreshDestinationLanguage();
                 }
+                RefreshMethodHelp();
             }
             finally { filling = false; }
         }
@@ -224,20 +240,10 @@ namespace AlphaRap.FlowProgramming
             Pick(inputs.Rows[args.RowIndex], 1, 2, Convert.ToString(inputs.Rows[args.RowIndex].Cells[0].Value));
         }
 
-        /// <summary>通过相同选择器编辑条件左右值。</summary>
-        private void ConditionPick(object sender, DataGridViewCellEventArgs args)
-        {
-            DataGridView grid = (DataGridView)sender;
-            if (args.RowIndex < 0 || grid.Rows[args.RowIndex].IsNewRow) return;
-            if (args.ColumnIndex == 1 || args.ColumnIndex == 2) Pick(grid.Rows[args.RowIndex], 0, 1, "");
-            if (args.ColumnIndex == 5 || args.ColumnIndex == 6) Pick(grid.Rows[args.RowIndex], 4, 5, "");
-        }
-
         /// <summary>提交单个来源引用，不要求工程师输入对象路径。</summary>
         private void Pick(DataGridViewRow row, int sourceColumn, int referenceColumn, string field)
         {
             inputs.EndEdit();
-            foreach (FlowBranchEditor editor in branchEditors) editor.ConditionsGrid.EndEdit();
             string source = Convert.ToString(row.Cells[sourceColumn].Value);
             using (FlowSourceForm dialog = new FlowSourceForm(source, Convert.ToString(row.Cells[referenceColumn].Value), catalog,
                 actionValue.SelectedItem as FlowMethod, field))
@@ -256,8 +262,8 @@ namespace AlphaRap.FlowProgramming
                 if (field != null) { args.Value = field.Name + " (" + field.Type.Name + ")"; args.FormattingApplied = true; }
                 return;
             }
-            int sourceColumn = grid == inputs ? 1 : args.ColumnIndex == 1 ? 0 : args.ColumnIndex == 5 ? 4 : -1;
-            if (sourceColumn < 0 || (grid == inputs && args.ColumnIndex != 2)) return;
+            int sourceColumn = 1;
+            if (args.ColumnIndex != 2) return;
             string source = Convert.ToString(grid.Rows[args.RowIndex].Cells[sourceColumn].Value);
             string reference = Convert.ToString(args.Value);
             if (grid == inputs && source == "Constant")
@@ -277,7 +283,7 @@ namespace AlphaRap.FlowProgramming
         private void GuardReferenceEdit(object sender, DataGridViewCellCancelEventArgs args)
         {
             DataGridView grid = (DataGridView)sender;
-            int sourceColumn = grid == inputs && args.ColumnIndex == 2 ? 1 : grid != inputs && args.ColumnIndex == 1 ? 0 : grid != inputs && args.ColumnIndex == 5 ? 4 : -1;
+            int sourceColumn = args.ColumnIndex == 2 ? 1 : -1;
             if (sourceColumn >= 0 && Convert.ToString(grid.Rows[args.RowIndex].Cells[sourceColumn].Value) != "Constant") args.Cancel = true;
             if (grid != inputs || args.ColumnIndex != 2) return;
             FlowMethod method = actionValue.SelectedItem as FlowMethod;
@@ -289,12 +295,11 @@ namespace AlphaRap.FlowProgramming
         private void SaveNode(object sender, EventArgs args)
         {
             inputs.EndEdit();
-            foreach (FlowBranchEditor editor in branchEditors) editor.ConditionsGrid.EndEdit();
             try
             {
                 FlowPrograms.RequireIdle();
                 FlowMethod action = actionValue.SelectedItem as FlowMethod;
-                if (action == null || string.IsNullOrWhiteSpace(captionValue.Text)) throw new InvalidOperationException("Select a configured object and action, and enter a node name.");
+                if (action == null || string.IsNullOrWhiteSpace(captionValue.Text)) throw new InvalidOperationException(FlowText.T("selectNode"));
                 FlowStep candidate = FlowProgramFile.Snapshot(new FlowProgram { Steps = new List<FlowStep> { original } }).Steps[0];
                 candidate.Caption = captionValue.Text;
                 candidate.Action = action.Id;

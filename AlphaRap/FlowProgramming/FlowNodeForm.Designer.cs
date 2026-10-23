@@ -22,6 +22,8 @@ namespace AlphaRap.FlowProgramming
         private GroupBox inputsGroup;
         private GroupBox branchesGroup;
         private DataGridView inputs;
+        private TableLayoutPanel inputLayout;
+        private Label methodHint;
         private DataGridViewTextBoxColumn inputName;
         private DataGridViewComboBoxColumn inputSource;
         private DataGridViewTextBoxColumn inputReference;
@@ -186,7 +188,10 @@ namespace AlphaRap.FlowProgramming
             inputs.RowHeadersWidth = 28;
             inputs.AllowUserToAddRows = false;
             inputs.AllowUserToDeleteRows = false;
-            inputsGroup.Controls.Add(inputs);
+            inputLayout = new TableLayoutPanel { Name = "inputLayout", Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2 };
+            inputLayout.RowStyles.Add(new RowStyle(SizeType.Percent,100)); inputLayout.RowStyles.Add(new RowStyle(SizeType.Absolute,0));
+            methodHint = new Label { Name = "methodHint_dyn", Dock = DockStyle.Fill, Padding = new Padding(4), Visible = false };
+            inputLayout.Controls.Add(inputs,0,0); inputLayout.Controls.Add(methodHint,0,1); inputsGroup.Controls.Add(inputLayout);
             inputName.Tag = "name";
             inputName.HeaderText = "字段";
             inputName.FillWeight = 24;
