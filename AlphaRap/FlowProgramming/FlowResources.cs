@@ -21,20 +21,31 @@ namespace AlphaRap.FlowProgramming
     public sealed class FlowResource
     {
         public string Id;
-        public string Label;
+        private string label;
+        public string Label
+        {
+            get
+            {
+                Control control = Instance as Control;
+                bool hardware = Kind == "axis" || Kind == "input" || Kind == "output" || Kind == "cylinder";
+                return hardware && control != null && !control.IsDisposed && !string.IsNullOrWhiteSpace(control.Text) ? control.Text : label;
+            }
+            set { label = value; }
+        }
         public string Kind;
         public object Instance;
         public List<FlowChoice> Points = new List<FlowChoice>();
         public List<FlowMethod> Methods = new List<FlowMethod>();
+        public FlowResource BoundPoints;
         public string Category
         {
             get
             {
                 switch (Kind)
                 {
-                    case "axis": case "point": case "tray": return "motion";
+                    case "axis": case "point": return "motion";
                     case "input": case "output": case "cylinder": return "io";
-                    case "vision": case "data": return Kind;
+                    case "vision": case "data": case "tray": case "constants": return Kind;
                     default: return "device";
                 }
             }
@@ -89,7 +100,11 @@ namespace AlphaRap.FlowProgramming
                 catalog.AddParameters(module.Name, "Machine", module.SettingData);
                 SystemSetting constants = module as SystemSetting;
                 if (constants != null)
-                    foreach (string scope in new[] { "Setting", "Recipe" }) catalog.AddConstants(constants, scope);
+                    foreach (string scope in new[] { "Setting", "Recipe" })
+                    {
+                        catalog.AddConstants(constants, scope);
+                        catalog.Add("constants/" + scope, scope, "constants", new FlowConstantTable(constants.Constants, scope, includeDraft));
+                    }
             }
             catalog.AddTrays();
             catalog.BindMethods();
@@ -121,7 +136,7 @@ namespace AlphaRap.FlowProgramming
             {
                 IFlowObject provider = resource.Instance as IFlowObject;
                 NP_Motor motor = resource.Instance as NP_Motor;
-                if (motor != null) provider = new FlowAxisObject(motor, Items.Values.Where(item => item.Kind == "point" && ReferenceEquals(((FlowPointAxis)item.Instance).Motor, motor)));
+                if (motor != null) provider = new FlowAxisObject(motor, resource.BoundPoints == null ? Items.Values.Where(item => item.Kind == "point" && ReferenceEquals(((FlowPointAxis)item.Instance).Motor, motor)) : new[] { resource.BoundPoints });
                 if (resource.Kind == "point") provider = new FlowAxisObject(((FlowPointAxis)resource.Instance).Motor, new[] { resource }, true);
                 if (resource.Kind == "input" || resource.Kind == "output" || resource.Kind == "cylinder") provider = new FlowIoObject(resource.Instance);
                 if (provider == null) continue;
@@ -174,10 +189,11 @@ namespace AlphaRap.FlowProgramming
                 string key = "hardware/" + entry.Definition.Id + "/";
                 NP_AxisGroup axis = entry.Group as NP_AxisGroup;
                 if (axis == null) { Add(key + entry.Definition.Kind.ToLowerInvariant(), entry.Definition.Name, entry.Definition.Kind.ToLowerInvariant(), entry.Device); continue; }
-                Add(key + "axis",entry.Definition.Name,"axis",axis.Motor);
+                FlowResource axisResource = Add(key + "axis",entry.Definition.Name,"axis",axis.Motor);
                 AddPointTable(key+"points",axis.Points);
                 FlowResource point = Items[key+"points/Position"];
                 point.Label = entry.Definition.Name;
+                axisResource.BoundPoints = point;
             }
         }
 
@@ -229,7 +245,8 @@ namespace AlphaRap.FlowProgramming
             foreach (KeyValuePair<string, object> item in form.Constants.Snapshot(scope,includeDraft))
             {
                 Parameters.Add(item.Key, item.Value);
-                ParameterChoices.Add(new FlowChoice { Id = item.Key, Label = item.Key + " · " + item.Value.GetType().Name });
+                string prefix = "Constants/" + scope + "/";
+                ParameterChoices.Add(new FlowChoice { Id = item.Key, Label = scope + " / " + Uri.UnescapeDataString(item.Key.Substring(prefix.Length)) + " (" + item.Value.GetType().Name + ")" });
             }
         }
 

@@ -10,6 +10,7 @@ $flowArguments = @('/nologo', '/target:exe', '/platform:x64', "/out:$flowTestExe
 foreach ($flowAssembly in @('AlphaRap.exe', 'NPSDK.dll', 'NewPowerLibrary.dll')) { $flowArguments += '/r:' + (Join-Path $flowAssemblyRoot $flowAssembly) }
 $flowArguments += Join-Path $PSScriptRoot 'Regression.cs'
 $flowArguments += Join-Path $PSScriptRoot 'ObjectMethods.cs'
+$flowArguments += Join-Path $PSScriptRoot 'Resources.cs'
 foreach ($flowCognexAssembly in @('Cognex.VisionPro.dll','Cognex.VisionPro.Core.dll','Cognex.VisionPro.ToolGroup.dll')) { $flowArguments += '/r:C:/Program Files/Cognex/VisionPro/ReferencedAssemblies/' + $flowCognexAssembly }
 & $flowCompiler @flowArguments
 if ($LASTEXITCODE -ne 0) { throw 'Flow regression compilation failed.' }
@@ -18,7 +19,7 @@ $flowRunRoot = Join-Path $flowTestRoot ([Guid]::NewGuid().ToString('N'))
 if ($LASTEXITCODE -ne 0) { throw 'Flow regressions failed.' }
 Write-Output "Flow UI screenshots: $flowRunRoot"
 $flowStartupExecutable = Join-Path $flowTestRoot 'FlowProgramming.StartupSmoke.exe'
-$flowStartupArguments = $flowArguments | Where-Object { $_ -notlike '/out:*' -and $_ -notlike '*Regression.cs' -and $_ -notlike '*ObjectMethods.cs' }
+$flowStartupArguments = $flowArguments | Where-Object { $_ -notlike '/out:*' -and $_ -notlike '*Regression.cs' -and $_ -notlike '*ObjectMethods.cs' -and $_ -notlike '*Resources.cs' }
 $flowStartupArguments += "/out:$flowStartupExecutable"
 $flowStartupArguments += Join-Path $PSScriptRoot 'StartupSmoke.cs'
 & $flowCompiler @flowStartupArguments

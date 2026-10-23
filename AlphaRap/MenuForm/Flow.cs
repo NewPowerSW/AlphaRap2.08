@@ -39,6 +39,7 @@ namespace AlphaRap
             add.Click += (sender, args) => Execute(() => { Current().AddNode(); RefreshSelection(); });
             nodeMenu.Opening += OpenNodeMenu;
             nodeDelete.Click += (sender, args) => Execute(() => DeleteNode(contextModule, contextNodeId));
+            nodeProperties.Click += (sender, args) => Execute(() => { if (contextModule != null) contextModule.EditNode(contextNodeId); });
             tabControl1.MouseDown += OpenModuleMenu;
             moduleDelete.Click += (sender, args) => Execute(() => DeleteModule(contextPage));
             ApplyLanguage(null, EventArgs.Empty);
@@ -148,6 +149,7 @@ namespace AlphaRap
             contextModule = FlowPrograms.Modules.FirstOrDefault(module => module.Form.Contains(source) && !module.Program.Removed);
             if (contextModule != null) contextNodeId = contextModule.IdOf((Flow_Chart)source);
             nodeDelete.Enabled = contextNodeId != null && FlowPrograms.CanEdit && !FlowPrograms.AnyRunning && SysPara.SystemMode == RunMode.IDLE && !Flow_Module.Module_GetRunningStatus;
+            nodeProperties.Enabled = nodeDelete.Enabled && contextModule.IsEditing;
         }
 
         /// <summary>确认后删除指定节点，统一清理入口和 NEXT / CASE 连接。</summary>
@@ -209,6 +211,8 @@ namespace AlphaRap
             FlowLanguageForm.ApplyTexts(this);
             string[] words = FlowText.Defaults["delete"];
             nodeDelete.Text = MiddleLayer.LangMsg("Flow", "nodeDelete", words[0], words[1], words[2]);
+            words = FlowText.Defaults["properties"];
+            nodeProperties.Text = MiddleLayer.LangMsg("Flow", "nodeProperties", words[0], words[1], words[2]);
             words = FlowText.Defaults["deleteModule"];
             moduleDelete.Text = MiddleLayer.LangMsg("Flow", "moduleDelete", words[0], words[1], words[2]);
         }

@@ -39,17 +39,11 @@ namespace AlphaRap.FlowProgramming
                     call => { RequireReady(true); motor.AlarmReset(); return new Dictionary<string, object>(); });
             }
             if (tables.Count == 0) yield break;
-            FlowField table = new FlowField("Table", typeof(string), tables[0].Id);
             FlowField index = new FlowField("Index", typeof(int), "0");
-            foreach (FlowResource item in tables)
-            {
-                table.Options.Add(new FlowOption { Value = item.Id, Label = item.Label });
-                index.Options.AddRange(item.Points.Select(point => new FlowOption { Value = point.Id, Label = item.Label + " / " + point.Label, Group = item.Id }));
-            }
+            if (tables.Count == 1) index.Options.AddRange(tables[0].Points.Select(point => new FlowOption { Value = point.Id, Label = point.Label }));
             FlowMethod move = FlowMethods.Sync("point.move", "移动到绑定表的点位", "Move to a bound table point", "Mover a un punto de la tabla vinculada",
                 new[] { index, new FlowField("Offset", typeof(double), "0"), new FlowField("Tolerance", typeof(double), "0.2") },
                 new[] { new FlowField("Index", typeof(int)), new FlowField("Position", typeof(double)) }, call => null);
-            if (!legacyPoint) move.Inputs.Insert(0, table);
             move.Invoke = Move;
             move.Simulate = Move;
             move.ValidateInputs = ValidatePoint;
@@ -59,10 +53,8 @@ namespace AlphaRap.FlowProgramming
         /// <summary>保存前检查可确定的点位绑定，动态来源在执行前使用同一规则校验。</summary>
         private void ValidatePoint(IDictionary<string, object> values)
         {
-            if ((!legacyPoint && !values.ContainsKey("Table")) || !values.ContainsKey("Index")) return;
-            string tableId = legacyPoint ? tables[0].Id : Convert.ToString(values["Table"]);
-            FlowResource table = tables.SingleOrDefault(item => item.Id == tableId);
-            if (table == null) throw new InvalidOperationException(FlowText.T("error.pointTable"));
+            FlowResource table = BoundTable();
+            if (!values.ContainsKey("Index")) return;
             double position;
             FlowPointAxis points = (FlowPointAxis)table.Instance;
             if (!points.Positions.TryGetValue(FlowActions.Integer(values["Index"]), out position)) throw new InvalidOperationException(FlowText.T("error.pointIndex"));
@@ -75,9 +67,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>按表身份与索引取坐标，偏移必须显式绑定并满足该列限位。</summary>
         private async Task<IDictionary<string, object>> Move(FlowCall call)
         {
-            string tableId = legacyPoint ? tables[0].Id : call.Get<string>("Table");
-            FlowResource table = tables.SingleOrDefault(item => item.Id == tableId);
-            if (table == null) throw new InvalidOperationException(FlowText.T("error.pointTable"));
+            FlowResource table = BoundTable();
             FlowPointAxis points = (FlowPointAxis)table.Instance;
             int index = call.Get<int>("Index");
             double target, tolerance = call.Get<double>("Tolerance");
@@ -96,6 +86,13 @@ namespace AlphaRap.FlowProgramming
                 return new Dictionary<string, object> { { "Index", index }, { "Position", actual } };
             }
             catch { await StopAndWait().ConfigureAwait(false); throw; }
+        }
+
+        /// <summary>只使用轴页面明确绑定的唯一点位表，多重绑定必须先在原页面修正。</summary>
+        private FlowResource BoundTable()
+        {
+            if (tables.Count != 1) throw new InvalidOperationException(FlowText.T("boundTable"));
+            return tables[0];
         }
 
         /// <summary>调用本轴回零，等待完成；取消后等待物理运动结束。</summary>

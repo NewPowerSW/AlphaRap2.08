@@ -7,10 +7,13 @@ namespace AlphaRap.Configuration
     {
         public static readonly Dictionary<string,string[]> Words = new Dictionary<string,string[]>
         {
+            { "AxisPort",new[]{"轴号","Axis number","Número de eje"} },
+            { "IoPort",new[]{"IO 点号","IO port","Puerto de E/S"} },
+            { "properties",new[]{"属性编辑","Edit properties","Editar propiedades"} },
             { "title",new[]{"硬件资源组合","Hardware resource groups","Grupos de recursos de hardware"} },
             { "addAxis",new[]{"新增轴","Add axis","Añadir eje"} }, { "addInput",new[]{"新增输入","Add input","Añadir entrada"} }, { "addOutput",new[]{"新增输出","Add output","Añadir salida"} },
             { "edit",new[]{"参数","Parameters","Parámetros"} }, { "delete",new[]{"删除资源","Delete resource","Eliminar recurso"} }, { "save",new[]{"保存资源定义","Save resource definitions","Guardar definiciones"} },
-            { "hint", new[] { "双击标题设置参数，右键删除；配置统一使用主界面【保存】。轴点位随当前配方切换。新资源使用主界面【初始化】连接；已连接资源修改参数后需保存并重启。", "Double-click titles to configure; right-click to delete. Use the main Save button for all configuration. Axis points follow the recipe. Main Initialize connects new resources; restart after saving changes to connected hardware.", "Doble clic para configurar y clic derecho para eliminar. Use Guardar principal para toda la configuración. Los puntos siguen la receta. Inicializar conecta recursos nuevos; reinicie tras guardar cambios al hardware conectado." } },
+            { "hint", new[] { "双击标题或右键属性编辑，右键删除；配置统一使用主界面【保存】。轴点位随当前配方切换。新资源使用主界面【初始化】连接；已连接资源修改驱动参数后需保存并重启。", "Double-click titles or right-click to edit properties; right-click to delete. Use the main Save button. Axis points follow the recipe. Main Initialize connects new resources; restart after saving driver changes to connected hardware.", "Doble clic en el título o clic derecho para editar propiedades; clic derecho para eliminar. Use Guardar principal. Los puntos siguen la receta. Inicializar conecta recursos nuevos; reinicie tras guardar cambios de controlador." } },
             { "invalid",new[]{"请检查名称、地址、有限参数、速度及软限位。","Check name, address, finite parameters, speeds and soft limits.","Revise nombre, dirección, parámetros finitos, velocidades y límites."} },
             { "vendor",new[]{"轴仅支持当前 SDK 提供的运动板卡厂商。","Axes require a motion-card vendor supported by this SDK.","Los ejes requieren un fabricante de tarjeta de movimiento admitido."} },
             { "duplicate",new[]{"资源名称重复。","Duplicate resource name.","Nombre de recurso duplicado."} },

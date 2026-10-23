@@ -14,11 +14,11 @@ namespace AlphaRap.FlowProgramming
         public FlowSourceForm() { InitializeComponent(); }
 
         /// <summary>按来源显示实际可选对象或常量；引用键与显示名称分开。</summary>
-        public FlowSourceForm(string source, string current, FlowActions actions, FlowMethod action, string field, IDictionary<string, string> fixedInputs = null) : this()
+        public FlowSourceForm(string source, string current, FlowActions actions, FlowMethod action, string field) : this()
         {
             value.Text = current ?? "";
             value.ReadOnly = source != "Constant";
-            List<FlowChoice> choices = Choices(source, actions, action, field, fixedInputs);
+            List<FlowChoice> choices = Choices(source, actions, action, field);
             if (source == "Constant" && choices.Count > 0) value.ReadOnly = true;
             foreach (FlowChoice choice in choices)
             {
@@ -45,17 +45,15 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>统一列出型号参数、全部模块输出、当前动作结果与上下文字段。</summary>
-        private static List<FlowChoice> Choices(string source, FlowActions actions, FlowMethod action, string field, IDictionary<string, string> fixedInputs)
+        private static List<FlowChoice> Choices(string source, FlowActions actions, FlowMethod action, string field)
         {
             if (source == "Parameter") return actions.Resources.ParameterChoices;
             if (source == "Output") return FlowPrograms.OutputChoices(actions);
             if (source == "Result" && action != null) return actions.OutputNames(action).Select(name => new FlowChoice { Id = name, Label = name }).ToList();
             if (source == "Context") return new[] { "RecipeName", "CycleId", "RunId", "ExecutionId" }.Select(name => new FlowChoice { Id = name, Label = name }).ToList();
             FlowField parameter = action == null ? null : action.Inputs.FirstOrDefault(item => item.Name == field);
-            string table;
             if (source == "Constant" && parameter != null)
-                return parameter.Options.Where(option => option.Group == null || fixedInputs == null || !fixedInputs.TryGetValue("Table", out table) || option.Group == table)
-                    .Select(option => new FlowChoice { Id = option.Value, Label = option.Label }).ToList();
+                return parameter.Options.Select(option => new FlowChoice { Id = option.Value, Label = option.Label }).ToList();
             return new List<FlowChoice>();
         }
 

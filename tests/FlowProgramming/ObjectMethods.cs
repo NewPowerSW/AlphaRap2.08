@@ -114,12 +114,12 @@ internal static partial class Cases
         FlowActions actions = new FlowActions(FlowResources.Capture()) { Simulate = true };
         FlowResource axis = actions.FindResource("hardware/" + groupedAxis.Id + "/axis");
         FlowMethod move = axis.Methods.Single(method => method.Id == "point.move");
-        Assert(move.Inputs[0].Name == "Table" && move.Inputs[0].Options.Single().Value == "hardware/" + groupedAxis.Id + "/points/Position", "Axis methods detached from their configured point table.");
+        Assert(move.Inputs[0].Name == "Index" && move.Inputs.All(field => field.Name != "Table") && axis.BoundPoints.Id == "hardware/" + groupedAxis.Id + "/points/Position", "Axis methods detached from their configured point table.");
         Assert(actions.Resources.Items.Values.Where(item => item.Kind == "point").All(item => !item.Selectable), "Point tables were offered as independent motion objects.");
         FlowStep step = BoundStep(axis, "point.move");
-        double expected = ((FlowPointAxis)actions.FindResource(step.Inputs[0].Reference).Instance).Positions[0];
+        double expected = ((FlowPointAxis)axis.BoundPoints.Instance).Positions[0];
         Assert((double)ExecuteBound(actions, step)["Position"] == expected, "Axis points were guessed from the current selection.");
-        step.Inputs[0].Reference = "unrelated/table";
+        step.Inputs[0].Reference = "999999";
         bool blocked = false; try { actions.Validate(step); } catch (InvalidOperationException) { blocked = true; }
         Assert(blocked, "Saving accepted a point table outside this axis.");
     }

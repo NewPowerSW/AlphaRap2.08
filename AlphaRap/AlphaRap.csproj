@@ -687,6 +687,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FlowProgramming\FlowConstantTable.cs" />
     <Compile Include="Devices\DeviceFlowMethods.cs" />
     <Compile Include="Vision\VisionFlowMethods.cs" />
     <Compile Include="PLC\PlcFlowMethods.cs" />

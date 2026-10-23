@@ -35,6 +35,7 @@ namespace AlphaRap.Configuration
             edit.Click += (sender,args) => Execute(()=>EditEntry(Selected()));
             resourceMenu.Opening += OpenResourceMenu;
             resourceDelete.Click += (sender,args) => Execute(DeleteEntry);
+            resourceProperties.Click += (sender,args) => Execute(EditContextEntry);
         }
 
         /// <summary>在所属硬件模块初始化后，加载资源并绑定当前配方点位表。</summary>
@@ -108,6 +109,14 @@ namespace AlphaRap.Configuration
             Resources.Delete(entry.Definition.Id);
         }
 
+        /// <summary>右键属性编辑始终打开当前命中的组合对象，与工具栏选择无关。</summary>
+        private void EditContextEntry()
+        {
+            FlowPrograms.RequireIdle();
+            HardwareEntry entry = Resources.Entries.FirstOrDefault(value => value.Definition.Id == contextResourceId);
+            if (entry != null) EditEntry(entry);
+        }
+
         /// <summary>资源增删改后更新组合控件事件及选择列表，避免外部调用服务后界面失效。</summary>
         private void ResourcesChanged(object sender,EventArgs args)
         {
@@ -143,6 +152,7 @@ namespace AlphaRap.Configuration
             if (definition == null || Resources == null) { args.Cancel = true; return; }
             contextResourceId = definition.Id;
             resourceDelete.Enabled = FlowPrograms.CanEdit && !FlowPrograms.AnyRunning && SysPara.SystemMode == RunMode.IDLE && !NPSDK.Flow_Module.Module_GetRunningStatus;
+            resourceProperties.Enabled = resourceDelete.Enabled;
         }
 
         /// <summary>按发送组合控件定位资源，不使用旧的下拉框选择。</summary>
@@ -162,6 +172,7 @@ namespace AlphaRap.Configuration
         {
             HardwareText.Apply(this);
             resourceDelete.Text = HardwareText.Translate(resourceDelete.Name, "删除资源", "Delete resource", "Eliminar recurso");
+            resourceProperties.Text = HardwareText.Translate(resourceProperties.Name, "属性编辑", "Edit properties", "Editar propiedades");
             if (Resources == null) return;
             foreach (HardwareEntry entry in Resources.Entries.Where(BelongsHere))
             {

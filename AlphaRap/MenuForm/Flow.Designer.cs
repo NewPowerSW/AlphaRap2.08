@@ -22,7 +22,7 @@ namespace AlphaRap
         private ContextMenuStrip nodeMenu;
         private ContextMenuStrip moduleMenu;
         private ToolStripMenuItem moduleDelete;
-        private ToolStripMenuItem nodeDelete;
+        private ToolStripMenuItem nodeDelete, nodeProperties;
         private Button reload;
         private Button validate;
         private Button pause;
@@ -70,7 +70,8 @@ namespace AlphaRap
             nodeDelete = new ToolStripMenuItem();
             nodeDelete.Name = "nodeDelete";
             nodeDelete.Text = "删除节点";
-            nodeMenu.Items.Add(nodeDelete);
+            nodeProperties = new ToolStripMenuItem { Name = "nodeProperties", Text = "属性编辑" };
+            nodeMenu.Items.AddRange(new ToolStripItem[] { nodeProperties, new ToolStripSeparator(), nodeDelete });
             moduleMenu = new ContextMenuStrip { Name = "moduleMenu" };
             moduleDelete = new ToolStripMenuItem { Name = "moduleDelete", Text = "删除流程模块" };
             moduleMenu.Items.Add(moduleDelete);

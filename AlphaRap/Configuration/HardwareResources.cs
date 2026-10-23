@@ -23,7 +23,7 @@ namespace AlphaRap.Configuration
         public Control Group;
         public ControlBaseInterface Device;
         /// <summary>显示名称为工程师配置的业务名称。</summary>
-        public override string ToString() { return Definition.Name + " · " + Definition.Kind; }
+        public override string ToString() { return (string.IsNullOrWhiteSpace(Device.Text) ? Definition.Name : Device.Text) + " · " + Definition.Kind; }
     }
 
     public sealed class HardwareResources
@@ -107,7 +107,15 @@ namespace AlphaRap.Configuration
             {
                 if (definition.Kind != current.Definition.Kind) throw new InvalidOperationException(HardwareText.T("invalid"));
                 if (!FlowResourceGate.CanAccess(current.Device) || (current.Group is NP_AxisGroup && ((NP_AxisGroup)current.Group).IsManualRunning)) throw new InvalidOperationException(FlowText.T("busy"));
-                if (Ready(current.Device)) { current.Definition = definition.Copy(); RequiresRestart = true; IsDirty = true; if (Changed != null) Changed(this,EventArgs.Empty); return current; }
+                if (Ready(current.Device))
+                {
+                    RequiresRestart |= current.Definition.Fields().Union(definition.Fields()).Where(name => name != "Name")
+                        .Any(name => !Equals(typeof(HardwareDefinition).GetField(name).GetValue(current.Definition), typeof(HardwareDefinition).GetField(name).GetValue(definition)));
+                    current.Definition = definition.Copy(); current.Group.Tag = current.Definition; current.Device.Text = definition.Name;
+                    NP_AxisGroup axis = current.Group as NP_AxisGroup;
+                    if (axis != null) axis.AxisCaption = definition.Name;
+                    IsDirty = true; if (Changed != null) Changed(this,EventArgs.Empty); return current;
+                }
                 RemoveGroup(current);
             }
             HardwareEntry created = Create(definition.Copy());
@@ -230,7 +238,7 @@ namespace AlphaRap.Configuration
             HardwareDefinition definition = entry.Definition;
             NP_AxisGroup group = new NP_AxisGroup { AxisCaption = definition.Name, LowLimit = definition.LowLimit, HighLimit = definition.HighLimit };
             group.Motor.Name = "Axis_" + definition.Id; group.Motor.Text = definition.Name;
-            CopyProperties(definition,group.Motor,HardwareDefinition.CommonFields.Concat(HardwareDefinition.AxisFields));
+            CopyProperties(definition,group.Motor,definition.Fields());
             DataTable table = owner.RecipeData.Tables[PointsName(definition.Id)];
             if (table == null)
             {
@@ -248,7 +256,7 @@ namespace AlphaRap.Configuration
             HardwareDefinition definition = entry.Definition;
             NP_IoGroup group = definition.Kind == "Output" ? (NP_IoGroup)new NP_OutputGroup() : new NP_InputGroup();
             group.SignalCaption = definition.Name; group.IO.Name = "IO_" + definition.Id;
-            CopyProperties(definition,group.IO,HardwareDefinition.CommonFields.Concat(HardwareDefinition.IoFields));
+            CopyProperties(definition,group.IO,definition.Fields());
             group.CanOperate = () => CanOperate() && !RequiresRestart;
             entry.Group = group; entry.Device = group.IO;
         }

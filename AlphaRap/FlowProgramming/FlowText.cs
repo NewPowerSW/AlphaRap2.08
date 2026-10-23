@@ -6,6 +6,12 @@ namespace AlphaRap.FlowProgramming
     {
         public static readonly Dictionary<string, string[]> Defaults = new Dictionary<string, string[]>
         {
+            { "properties", new[] { "属性编辑", "Edit properties", "Editar propiedades" } },
+            { "enableEditing", new[] { "请先启用流程编辑。", "Enable flow editing first.", "Active primero la edición del flujo." } },
+            { "boundTable", new[] { "请在轴页面为该轴明确绑定唯一的点位表。", "Bind one point table to this axis on the axis page.", "Vincule una sola tabla de puntos a este eje en su página." } },
+            { "constantKey", new[] { "该常量表中不存在此键，请检查作用域并使用主界面【保存】。", "This key is missing from the constant table. Check its scope and use the main Save button.", "La clave no existe en la tabla de constantes. Revise el ámbito y use Guardar principal." } },
+            { "constants", new[] { "常量表", "Constant tables", "Tablas de constantes" } },
+            { "tray", new[] { "托盘计算", "Tray calculations", "Cálculos de bandeja" } },
             { "error.deviceClose", new[] { "设备未能断开连接。", "The device did not disconnect.", "El dispositivo no se desconectó." } },
             { "invalidType", new[] { "字段 {0} 的值不符合 {1} 类型。", "The value of field {0} is invalid for type {1}.", "El valor del campo {0} no es válido para el tipo {1}." } },
             { "error.deviceConnect", new[] { "设备连接失败：", "Device connection failed: ", "Falló la conexión del dispositivo: " } },
@@ -98,7 +104,7 @@ namespace AlphaRap.FlowProgramming
             { "operator", new[] { "比较", "Comparison", "Comparación" } },
             { "right", new[] { "右值", "Right value", "Valor derecho" } },
             { "Constant", new[] { "固定值", "Constant", "Constante" } },
-            { "Parameter", new[] { "型号 / 机器参数", "Recipe / Machine parameter", "Parámetro de receta / máquina" } },
+            { "Parameter", new[] { "常量表 / 参数", "Constants / Parameters", "Constantes / Parámetros" } },
             { "Output", new[] { "其他节点输出", "Other node output", "Salida de otro nodo" } },
             { "Result", new[] { "当前动作结果", "Current action result", "Resultado de acción actual" } },
             { "Context", new[] { "当前产品 / 型号", "Current product / Model", "Producto / Modelo actual" } },
@@ -118,7 +124,7 @@ namespace AlphaRap.FlowProgramming
             { "simulation", new[] { "模拟执行（不访问硬件）", "Simulate (no hardware access)", "Simular (sin acceso al hardware)" } },
             { "flow", new[] { "流程与数据", "Flow and data", "Flujo y datos" } },
             { "io", new[] { "输入输出", "Input / Output", "Entrada / Salida" } },
-            { "motion", new[] { "轴与点位", "Axes and points", "Ejes y posiciones" } },
+            { "motion", new[] { "轴运动", "Axis motion", "Movimiento de ejes" } },
             { "vision", new[] { "视觉", "Vision", "Visión" } },
             { "device", new[] { "设备", "Devices", "Dispositivos" } },
             { "data", new[] { "本地数据保存", "Local data storage", "Almacenamiento local" } },

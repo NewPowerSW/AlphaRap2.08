@@ -29,7 +29,7 @@ namespace AlphaRap.FlowProgramming
             captionValue.Text = step.Caption;
             timeoutValue.Value = Math.Max(timeoutValue.Minimum, Math.Min(timeoutValue.Maximum, step.TimeoutMs));
             SetSources(inputs, 1);
-            categoryValue.DataSource = new[] { "flow", "io", "motion", "vision", "device", "data" }
+            categoryValue.DataSource = new[] { "flow", "constants", "io", "motion", "vision", "device", "tray", "data" }
                 .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
             categoryValue.DisplayMember = "Label"; categoryValue.ValueMember = "Id";
             FillAlarms();
@@ -183,7 +183,7 @@ namespace AlphaRap.FlowProgramming
             filling = true;
             try
             {
-                categoryValue.DataSource = new[] { "flow", "io", "motion", "vision", "device", "data" }
+                categoryValue.DataSource = new[] { "flow", "constants", "io", "motion", "vision", "device", "tray", "data" }
                     .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
                 categoryValue.SelectedValue = category;
                 FillTargets(target); FillActions(method == null ? null : method.Id);
@@ -240,15 +240,8 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowBranchEditor editor in branchEditors) editor.ConditionsGrid.EndEdit();
             string source = Convert.ToString(row.Cells[sourceColumn].Value);
             using (FlowSourceForm dialog = new FlowSourceForm(source, Convert.ToString(row.Cells[referenceColumn].Value), catalog,
-                actionValue.SelectedItem as FlowMethod, field, ReadFixedInputs()))
+                actionValue.SelectedItem as FlowMethod, field))
                 if (dialog.ShowDialog(this) == DialogResult.OK) row.Cells[referenceColumn].Value = dialog.Reference;
-        }
-
-        /// <summary>读取当前固定输入，点位选择器可按已选点位表筛选索引。</summary>
-        private Dictionary<string, string> ReadFixedInputs()
-        {
-            return inputs.Rows.Cast<DataGridViewRow>().Where(row => !row.IsNewRow && Convert.ToString(row.Cells[1].Value) == "Constant")
-                .ToDictionary(row => Convert.ToString(row.Cells[0].Value), row => Convert.ToString(row.Cells[2].Value));
         }
 
         /// <summary>引用以资源名称显示，底层仍保存稳定身份。</summary>
@@ -271,10 +264,7 @@ namespace AlphaRap.FlowProgramming
             {
                 FlowMethod method = actionValue.SelectedItem as FlowMethod;
                 FlowField field = method == null ? null : method.Inputs.FirstOrDefault(item => item.Name == Convert.ToString(grid.Rows[args.RowIndex].Cells[0].Value));
-                string table;
-                Dictionary<string, string> fixedInputs = ReadFixedInputs();
-                FlowOption option = field == null ? null : field.Options.FirstOrDefault(item => item.Value == reference &&
-                    (item.Group == null || !fixedInputs.TryGetValue("Table", out table) || item.Group == table));
+                FlowOption option = field == null ? null : field.Options.FirstOrDefault(item => item.Value == reference);
                 if (option != null) { args.Value = option.Label; args.FormattingApplied = true; }
                 return;
             }

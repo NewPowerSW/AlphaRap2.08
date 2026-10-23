@@ -216,10 +216,20 @@ namespace AlphaRap.FlowProgramming
                 {
                     IEnumerable<FlowCondition> conditions = step.Conditions.Concat(step.Branches.SelectMany(branch => branch.Conditions));
                     IEnumerable<FlowInput> inputs = step.Inputs.Concat(conditions.SelectMany(condition => new[] { condition.Left, condition.Right }));
-                    if (inputs.Any(input => input.Source == "Parameter" && input.Reference == reference)) users.Add(module.ModuleId + " / " + step.Caption);
+                    if (inputs.Any(input => input.Source == "Parameter" && input.Reference == reference) || ReadsConstant(step, reference)) users.Add(module.ModuleId + " / " + step.Caption);
                 }
             }
             if (users.Count > 0) throw new InvalidOperationException(string.Format(Configuration.ConstantText.T("referenced"), string.Join(Environment.NewLine, users)));
+        }
+
+        /// <summary>常量表读取节点按作用域和业务键保护引用，动态键读取时保护该表的键。</summary>
+        private static bool ReadsConstant(FlowStep step, string reference)
+        {
+            if (step.Action != "constant.read" || !(reference ?? "").StartsWith("Constants/", StringComparison.Ordinal)) return false;
+            int separator = reference.IndexOf('/', "Constants/".Length);
+            if (separator < 0 || step.Target != "constants/" + reference.Substring("Constants/".Length, separator - "Constants/".Length)) return false;
+            FlowInput key = step.Inputs.FirstOrDefault(input => input.Name == "Key");
+            return key != null && (key.Source != "Constant" || key.Reference == Uri.UnescapeDataString(reference.Substring(separator + 1)));
         }
 
         /// <summary>删除组合硬件前检查动作目标及点位参数引用，包含不可达草稿和独立 CASE 条件。</summary>
@@ -543,14 +553,19 @@ namespace AlphaRap.FlowProgramming
         private void Configure(object sender, EventArgs args)
         {
             if (!editing) return;
-            try
-            {
-                FlowPrograms.RequireIdle();
-                FlowStep step = Program.Steps.Single(item => item.Id == IdOf((Flow_Chart)sender));
-                using (FlowNodeForm dialog = new FlowNodeForm(this, step))
-                    if (dialog.ShowDialog(Form) == DialogResult.OK) { ApplyLinks(); if (Changed != null) Changed(this, EventArgs.Empty); }
-            }
+            try { EditNode(IdOf((Flow_Chart)sender)); }
             catch (Exception error) { MessageBox.Show(string.Format(FlowText.T("error"), error.Message), FlowText.T("title")); }
+        }
+
+        /// <summary>双击和右键属性共用一个节点编辑入口，确定后仅提交内存草稿。</summary>
+        public void EditNode(string id)
+        {
+            FlowPrograms.RequireIdle();
+            if (!editing) throw new InvalidOperationException(FlowText.T("enableEditing"));
+            FlowStep step = Program.Steps.SingleOrDefault(item => item.Id == id);
+            if (step == null) throw new InvalidOperationException(FlowText.T("methodMissing"));
+            using (FlowNodeForm dialog = new FlowNodeForm(this, step))
+                if (dialog.ShowDialog(Form) == DialogResult.OK) { ApplyLinks(); if (Changed != null) Changed(this, EventArgs.Empty); }
         }
 
         /// <summary>检查工程结构及已选择入口的真实资源、参数和动作。</summary>
