@@ -60,7 +60,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>布尔结果默认与 true 比较，其他字段默认与空固定值比较。</summary>
         private FlowCondition DefaultCondition()
         {
-            FlowField field = method == null ? null : method.Outputs.FirstOrDefault();
+            FlowField field = method == null ? null : method.Outputs.FirstOrDefault(output => !output.Advanced);
             return new FlowCondition { Left = new FlowInput { Source = "Result", Reference = field == null ? "" : field.Name },
                 Operator = "==", Right = new FlowInput { Reference = field != null && field.Type == typeof(bool) ? "true" : "" } };
         }

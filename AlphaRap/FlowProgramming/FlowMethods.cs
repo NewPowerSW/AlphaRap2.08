@@ -36,5 +36,26 @@ namespace AlphaRap.FlowProgramming
             FlowText.Defaults[key] = method.Title;
             return FlowText.T(key);
         }
+
+        /// <summary>显示字段的业务标题，三语相同的用户名称保持原值且不登记为翻译。</summary>
+        internal static string FieldTitle(string methodId, FlowField field, bool output = false)
+        {
+            return FieldText("field." + methodId + (output ? ".output." : ".input.") + field.Name, field.DisplayName, field.Name);
+        }
+
+        /// <summary>读取字段的三语操作说明，未声明说明时不生成额外提示。</summary>
+        internal static string FieldHelp(string methodId, FlowField field)
+        {
+            return FieldText("fieldHelp." + methodId + "." + field.Name, field.Help, "");
+        }
+
+        /// <summary>沿用现场语言覆盖并为固定文案提供三语底稿。</summary>
+        private static string FieldText(string key, string[] words, string fallback)
+        {
+            if (words == null || words.Length != 3) return fallback;
+            if (words[0] == words[1] && words[1] == words[2]) return words[0];
+            if (UiTheme.IsDesignTime) return words[0];
+            return MiddleLayer.LangMsg("EquipmentFlow", key, words[0], words[1], words[2]);
+        }
     }
 }

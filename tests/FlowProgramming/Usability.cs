@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -77,7 +77,7 @@ internal static partial class Cases
             Assert(row.ReadCondition().Left.Source=="Result" && row.ReadCondition().Right.Reference=="true","A boolean result did not default to a usable true condition.");
             right.SelectedItem=right.Items.Cast<object>().First(item=>item.ToString().Contains("Setting / DisScann"));
             Assert(row.ReadCondition().Right.Source=="Parameter" && row.ReadCondition().Right.Reference==ConstantStore.Reference("Setting","DisScann"),"Selecting a constant saved a display label instead of its stable identity.");
-            right.SelectedItem=right.Items.Cast<object>().First(item=>item.ToString().Contains("/ "+model.Caption+" / Value"));
+            right.SelectedItem=right.Items.Cast<object>().First(item=>Convert.ToString(item.GetType().GetField("Reference",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(item))==editor.Program.ModuleId+"/"+model.Id+"/Value");
             Assert(row.ReadCondition().Right.Source=="Output","A direct node-output choice became a literal.");
             comparison.SelectedValue="Empty"; Assert(!right.Enabled,"Empty comparison still asks for a right operand.");
             comparison.SelectedValue="=="; right.Focus(); right.Text="pending 1.";
@@ -182,13 +182,13 @@ internal static partial class Cases
                 {
                     SwitchLanguage(language);Application.DoEvents();Control hint=dialog.Controls.Find("methodHint_dyn",true)[0];
                     Assert(hint.Visible && hint.Text.Contains(axis.Label) && hint.Text.Contains((saved+2).ToString()),"The movement node omitted its binding or selectable count: "+hint.Text+"; expected "+axis.Label+"; visible="+hint.Visible);
-                    using(FlowSourceForm picker=new FlowSourceForm("Constant",(saved+1).ToString(),actions,move,"Index",hint.Text))
+                    using(FlowSourceForm picker=new FlowSourceForm(step.Inputs[0],actions,move,move.Inputs[0],hint.Text,axis.Id))
                     {
                         picker.Show();Application.DoEvents();TreeView tree=(TreeView)picker.Controls.Find("sources",true)[0];Control context=picker.Controls.Find("sourceContext_dyn",true)[0];
-                        Assert(tree.Nodes.Count==saved+2 && context.Visible && !tree.Bounds.IntersectsWith(context.Bounds),"The picker hid points or covered the table context.");
-                        tree.SelectedNode=tree.Nodes.Cast<TreeNode>().Single(node=>Convert.ToString(node.Tag)==(saved+1).ToString());
+                        Assert(tree.Nodes["bindingFixed"].Nodes.Count==saved+2 && context.Visible && !tree.Bounds.IntersectsWith(context.Bounds),"The picker hid points or covered the table context.");
+                        tree.SelectedNode=tree.Nodes["bindingFixed"].Nodes.Cast<TreeNode>().Single(node=>node.Name=="Constant:"+(saved+1).ToString());
                         Screenshot(picker,"axis-point-picker-"+language);((Button)picker.Controls.Find("ok",true)[0]).PerformClick();
-                        Assert(picker.Reference==(saved+1).ToString(),"Point selection saved a label instead of its original row index.");
+                        Assert(picker.Selection.Reference==(saved+1).ToString(),"Point selection saved a label instead of its original row index.");
                     }
                     Screenshot(dialog,"axis-point-help-"+language);
                 }

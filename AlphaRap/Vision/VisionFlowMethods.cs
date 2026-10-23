@@ -16,25 +16,36 @@ namespace AlphaRap
         public virtual IEnumerable<FlowMethod> GetFlowMethods(bool includeDraft = false)
         {
             FlowMethod run = FlowMethods.Sync("vision.run", "拍照并运行当前 VPP", "Capture and run this VPP", "Capturar y ejecutar este VPP", new FlowField[0],
-                new[] { new FlowField("RunId", typeof(long)), new FlowField("Accepted", typeof(bool)), new FlowField("X", typeof(double)),
-                    new FlowField("Y", typeof(double)), new FlowField("Angle", typeof(double)) }, call => null);
+                new[] { new FlowField("RunId", typeof(long)) { DisplayName = new[] { "拍照结果编号", "Capture result identifier", "Identificador del resultado de captura" }, Advanced = true,
+                        Help = new[] { "关联本次拍照结果；保存照片或读取输出时选择本拍照节点即可。", "Identifies this capture result; select this capture node when saving its image or reading its output.", "Identifica este resultado; seleccione este nodo de captura para guardar su imagen o leer su salida." } },
+                    new FlowField("Accepted", typeof(bool)) { DisplayName = new[] { "视觉判定通过", "Vision accepted", "Visión aceptada" } },
+                    new FlowField("X", typeof(double)) { DisplayName = new[] { "视觉 X 结果", "Vision X result", "Resultado X de visión" } },
+                    new FlowField("Y", typeof(double)) { DisplayName = new[] { "视觉 Y 结果", "Vision Y result", "Resultado Y de visión" } },
+                    new FlowField("Angle", typeof(double)) { DisplayName = new[] { "视觉角度结果", "Vision angle result", "Resultado angular de visión" } } }, call => null);
             lock (_operationLock)
             {
                 if (TB != null)
                 {
                     foreach (CogToolBlockTerminal terminal in TB.Inputs)
-                        run.Inputs.Add(new FlowField("TB:" + terminal.Name, terminal.ValueType, Convert.ToString(terminal.Value, CultureInfo.InvariantCulture)));
-                    foreach (CogToolBlockTerminal terminal in TB.Outputs) run.Outputs.Add(new FlowField("TB:" + terminal.Name, terminal.ValueType));
+                        run.Inputs.Add(new FlowField("TB:" + terminal.Name, terminal.ValueType, Convert.ToString(terminal.Value, CultureInfo.InvariantCulture)) {
+                            DisplayName = new[] { terminal.Name, terminal.Name, terminal.Name }
+                        });
+                    foreach (CogToolBlockTerminal terminal in TB.Outputs) run.Outputs.Add(new FlowField("TB:" + terminal.Name, terminal.ValueType) {
+                        DisplayName = new[] { terminal.Name, terminal.Name, terminal.Name }
+                    });
                 }
             }
             run.Invoke = RunFlowVision;
             yield return run;
-            FlowField output = new FlowField("Output", typeof(string));
+            FlowField output = new FlowField("Output", typeof(string)) { DisplayName = new[] { "VPP 输出项目", "VPP output item", "Salida de VPP" } };
             output.Options.AddRange(run.Outputs.Where(field => field.Name.StartsWith("TB:")).Select(field => new FlowOption { Value = field.Name.Substring(3), Label = field.Name.Substring(3) }));
             if (output.Options.Count == 0) yield break;
             output.DefaultValue = output.Options[0].Value;
             yield return FlowMethods.Sync("vision.output", "读取指定运行的 VPP 输出", "Read a VPP run output", "Leer salida de una ejecución VPP",
-                new[] { new FlowField("RunId", typeof(long)), output }, new[] { new FlowField("Value", typeof(object)) }, call => {
+                new[] { new FlowField("RunId", typeof(long)) { DisplayName = new[] { "来源拍照节点", "Source capture node", "Nodo de captura de origen" },
+                    Help = new[] { "选择本 VPP 的拍照节点，自动使用该节点本次拍照的结果编号。", "Choose a capture node for this VPP; its capture result identifier is bound automatically.", "Seleccione un nodo de captura de este VPP; se vincula automáticamente el identificador de su resultado." },
+                    OutputSourceMethod = "vision.run", OutputSourceField = "RunId" }, output },
+                new[] { new FlowField("Value", typeof(object)) { DisplayName = new[] { "VPP 输出值", "VPP output value", "Valor de salida de VPP" } } }, call => {
                     lock (_operationLock) { RequireFlowResult(call.Get<long>("RunId")); return FlowCall.Result("Value", GetOutput(call.Get<string>("Output"))); }
                 });
         }
@@ -128,7 +139,10 @@ namespace AlphaRap
             VpVppConfig settings = CopyFlowConfiguration(includeDraft ? Config : flowSavedConfig);
             if (settings == null) yield break;
             yield return FlowMethods.Sync("vision.image.save", "按本站配置保存指定运行照片", "Save a run image using this VPP configuration", "Guardar imagen con la configuración de este VPP",
-                new[] { new FlowField("RunId", typeof(long)) }, new[] { new FlowField("Path", typeof(string)) }, call => {
+                new[] { new FlowField("RunId", typeof(long)) { DisplayName = new[] { "来源拍照节点", "Source capture node", "Nodo de captura de origen" },
+                    Help = new[] { "选择本 VPP 的拍照节点，保存该次拍照的照片；不重新拍照。", "Choose a capture node for this VPP to save that capture's image without taking another photo.", "Seleccione un nodo de captura de este VPP para guardar su imagen sin tomar otra foto." },
+                    OutputSourceMethod = "vision.run", OutputSourceField = "RunId" } },
+                new[] { new FlowField("Path", typeof(string)) { DisplayName = new[] { "照片文件路径", "Image file path", "Ruta del archivo de imagen" } } }, call => {
                     lock (_operationLock)
                     {
                         RequireFlowResult(call.Get<long>("RunId"));
@@ -140,10 +154,13 @@ namespace AlphaRap
             List<VpCompLimitItem> limits = settings.CompLimits.Where(item => item != null).Select(item =>
                 new VpCompLimitItem(item.Item, item.Min, item.Max) { Compensation = item.Compensation }).ToList();
             if (limits.Count == 0) yield break;
-            FlowField itemField = new FlowField("Item", typeof(string), limits[0].Item);
+            FlowField itemField = new FlowField("Item", typeof(string), limits[0].Item) { DisplayName = new[] { "补偿表项目", "Compensation table item", "Elemento de la tabla de compensación" },
+                Help = new[] { "选择本 VPP 已有的补偿项目；读取后由后续节点显式使用，不自动移动轴。", "Choose an existing compensation item in this VPP; later nodes must explicitly use it. Reading does not move an axis.", "Seleccione un elemento de compensación existente de este VPP; los nodos posteriores deben usarlo explícitamente. La lectura no mueve ningún eje." } };
             itemField.Options.AddRange(limits.Select(item => new FlowOption { Value = item.Item, Label = item.Item }));
             yield return FlowMethods.Sync("vision.compensation", "读取本站补偿表项目", "Read this VPP compensation item", "Leer compensación de este VPP",
-                new[] { itemField }, new[] { new FlowField("Compensation", typeof(double)), new FlowField("Min", typeof(double)), new FlowField("Max", typeof(double)) }, call => {
+                new[] { itemField }, new[] { new FlowField("Compensation", typeof(double)) { DisplayName = new[] { "补偿值", "Compensation value", "Valor de compensación" } },
+                    new FlowField("Min", typeof(double)) { DisplayName = new[] { "下限", "Lower limit", "Límite inferior" } },
+                    new FlowField("Max", typeof(double)) { DisplayName = new[] { "上限", "Upper limit", "Límite superior" } } }, call => {
                     VpCompLimitItem item = limits.SingleOrDefault(row => row.Item == call.Get<string>("Item"));
                     if (item == null) throw new InvalidOperationException(FlowText.T("error.compensationMissing"));
                     return new Dictionary<string, object> { { "Compensation", FlowActions.Number(item.Compensation) }, { "Min", FlowActions.Number(item.Min) }, { "Max", FlowActions.Number(item.Max) } };

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -226,13 +226,14 @@ internal static partial class Cases
         using (FlowNodeForm dialog = new FlowNodeForm(editor, step))
         {
             dialog.Show(); Application.DoEvents();
-            DataGridView inputs = (DataGridView)dialog.Controls.Find("inputs", true)[0];
-            DataGridViewRow offset = inputs.Rows.Cast<DataGridViewRow>().Single(row => (string)row.Cells[0].Value == "Offset");
-            inputs.CurrentCell = offset.Cells[2]; inputs.BeginEdit(false); ((TextBox)inputs.EditingControl).Text = "pending offset";
+            ((CheckBox)dialog.Controls.Find("showAdvanced", true)[0]).Checked = true;
+            FlowInputRow offset = dialog.Controls.Find("inputs", true)[0].Controls.OfType<FlowInputRow>().Single(row => row.FieldName == "Offset");
+            TextBox inputValue = (TextBox)offset.Controls.Find("inputLiteral", true)[0];
+            inputValue.Focus(); inputValue.Text = "pending offset";
             foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
             {
                 SwitchLanguage(language); Application.DoEvents();
-                Assert(inputs.EditingControl != null && ((TextBox)inputs.EditingControl).Text == "pending offset", "Language refresh replaced the active editor.");
+                Assert(inputValue.Text == "pending offset" && offset.ReadInput().Reference == "pending offset", "Language refresh replaced the active editor.");
                 Assert(((ComboBox)dialog.Controls.Find("targetValue", true)[0]).SelectedValue.ToString() == axis.Id &&
                     ((FlowMethod)((ComboBox)dialog.Controls.Find("actionValue", true)[0]).SelectedItem).Id == "point.move", "Language refresh changed the method binding.");
                 using (Bitmap screenshot = new Bitmap(dialog.Width, dialog.Height))

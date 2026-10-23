@@ -687,6 +687,8 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FlowProgramming\FlowInputRow.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowInputRow.Designer.cs"><DependentUpon>FlowInputRow.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowConditionRow.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="FlowProgramming\FlowConditionRow.Designer.cs"><DependentUpon>FlowConditionRow.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowConstantTable.cs" />

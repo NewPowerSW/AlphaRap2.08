@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Data;
 using System.Drawing;
@@ -122,8 +122,8 @@ internal static partial class Cases
                 using (FlowNodeForm dialog = new FlowNodeForm(editor, old))
                 {
                     dialog.Show(); Application.DoEvents();
-                    DataGridView grid = (DataGridView)dialog.Controls.Find("inputs", true)[0];
-                    Assert(grid.Rows.Cast<DataGridViewRow>().All(row => Convert.ToString(row.Cells[0].Value) != "Table"), "The node editor still asks for a point table.");
+                    FlowLayoutPanel grid = (FlowLayoutPanel)dialog.Controls.Find("inputs", true)[0];
+                    Assert(grid.Controls.OfType<FlowInputRow>().All(row => row.FieldName != "Table"), "The node editor still asks for a point table.");
                     ComboBox target = (ComboBox)dialog.Controls.Find("targetValue", true)[0];
                     Assert(((System.Collections.Generic.List<FlowChoice>)target.DataSource).All(choice => actions.Resources.Items[choice.Id].Kind == "axis"), "Motion target picker includes non-axis objects.");
                     ((Button)dialog.Controls.Find("ok", true)[0]).PerformClick();

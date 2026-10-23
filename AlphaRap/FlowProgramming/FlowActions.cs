@@ -56,6 +56,7 @@ namespace AlphaRap.FlowProgramming
             {
                 ValidateSource(input, false, method);
                 FlowField field = method.Inputs.Single(item => item.Name == input.Name);
+                ValidateProducer(input, field, step);
                 if (input.Source == "Constant") ValidateValue(field, input.Reference ?? "");
                 if (input.Source == "Parameter") ValidateValue(field, Resources.Parameters[input.Reference]);
             }
@@ -67,6 +68,20 @@ namespace AlphaRap.FlowProgramming
                 ValidateSource(condition.Left, true, method);
                 ValidateSource(condition.Right, true, method);
             }
+        }
+
+        /// <summary>具有来源约束的结果必须来自同一实际对象的指定动作，拒绝跨 VPP 冒用相同运行编号。</summary>
+        private void ValidateProducer(FlowInput input, FlowField field, FlowStep step)
+        {
+            if (string.IsNullOrEmpty(field.OutputSourceMethod) && string.IsNullOrEmpty(field.OutputSourceField)) return;
+            if (input.Source == "Constant") return;
+            if (input.Source != "Output")
+                throw new InvalidOperationException(string.Format(FlowText.T("producerMismatch"), step.Caption, FlowMethods.FieldTitle(step.Action, field)));
+            FlowChoice source = FlowPrograms.OutputChoices(this).Single(item => item.Id == input.Reference);
+            bool methodMatches = string.IsNullOrEmpty(field.OutputSourceMethod) || source.ActionId == field.OutputSourceMethod;
+            bool fieldMatches = string.IsNullOrEmpty(field.OutputSourceField) || source.FieldName == field.OutputSourceField;
+            if (source.TargetId == step.Target && methodMatches && fieldMatches) return;
+            throw new InvalidOperationException(string.Format(FlowText.T("producerMismatch"), step.Caption, FlowMethods.FieldTitle(step.Action, field)));
         }
 
         /// <summary>固定值和可静态读取的参数在保存时就按真实方法类型校验。</summary>

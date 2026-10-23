@@ -177,10 +177,17 @@ internal static partial class Cases
         Test("constant setters update actual table rows and preserve main-save boundaries", ConstantRuntimeWrites);
         Test("constant table writes use the UI thread and reject cancelled queued actions", ConstantTableWriteDispatch);
         Test("axis point picker includes every valid row with table context in three languages", AxisMultiplePointChoices);
+        Test("P0 axis parameter editing exposes business points and preserves advanced drafts", P0AxisParameterEditing);
+        Test("P0 language changes retain unavailable objects and methods without adopting defaults", P0MissingMethodLanguage);
+        Test("P0 Empty conditions preserve hidden right bindings and typed candidate filtering", P0ConditionEmptyDrafts);
+        Test("P0 typed rows retain boolean spellings missing options and structured sources", P0TypedParameterRows);
+        Test("P0 unified binding filters searches and preserves source identity across languages", P0UnifiedSourcePicker);
+        Test("P0 image sources bind the selected VPP capture node without numeric run IDs", P0VisionProducerBindings);
         Test("vision selection contains only configured VPPs without unused Camera1 fields", ConfiguredVisionCatalog);
         Test("DI DO and cylinder categories each list their own actual objects", IoCategorySelection);
         Test("tray node explains the current layout and calculates the selected pocket", TrayNodeHelp);
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
+        ExportP0FieldTexts();
         Console.WriteLine("RESULT: " + (count - failures) + "/" + count + " passed");
         return failures == 0 ? 0 : 1;
     }
@@ -618,16 +625,16 @@ internal static partial class Cases
             ComboBox category = (ComboBox)dialog.Controls.Find("categoryValue", true)[0];
             ComboBox target = (ComboBox)dialog.Controls.Find("targetValue", true)[0];
             ComboBox action = (ComboBox)dialog.Controls.Find("actionValue", true)[0];
-            DataGridView inputs = (DataGridView)dialog.Controls.Find("inputs", true)[0];
+            FlowLayoutPanel inputs = (FlowLayoutPanel)dialog.Controls.Find("inputs", true)[0];
             category.SelectedValue = "motion"; Application.DoEvents();
             string axis = FlowResources.Capture().Items.Values.Single(item => item.Kind == "axis").Id;
             target.SelectedValue = axis; Application.DoEvents();
             action.SelectedItem = ((IList<FlowMethod>)action.DataSource).Single(item => item.Id == "point.move"); Application.DoEvents();
-            Assert(inputs.Rows.Cast<DataGridViewRow>().Select(row => Convert.ToString(row.Cells[0].Value)).SequenceEqual(new[] { "Index", "Offset", "Tolerance" }), "Axis-bound point inputs did not refresh.");
+            Assert(inputs.Controls.OfType<FlowInputRow>().Select(row => row.FieldName).SequenceEqual(new[] { "Index", "Offset", "Tolerance" }), "Axis-bound point inputs did not refresh.");
             category.SelectedValue = "data"; Application.DoEvents();
-            Assert((action.SelectedItem as FlowMethod).Id == "data.save" && inputs.Rows.Count == data.GetProductionFields().Length, "DataForm fields did not refresh.");
+            Assert((action.SelectedItem as FlowMethod).Id == "data.save" && inputs.Controls.OfType<FlowInputRow>().Count() == data.GetProductionFields().Length, "DataForm fields did not refresh.");
             category.SelectedValue = "flow"; action.SelectedItem = ((IList<FlowMethod>)action.DataSource).Single(item => item.Id == "delay"); Application.DoEvents();
-            Assert(inputs.Rows.Count == 1 && Convert.ToString(inputs.Rows[0].Cells[0].Value) == "Milliseconds", "Changing actions retained another action's fields.");
+            Assert(inputs.Controls.OfType<FlowInputRow>().Count() == 1 && inputs.Controls.OfType<FlowInputRow>().Single().FieldName == "Milliseconds", "Changing actions retained another action's fields.");
             dialog.Close();
         }
     }

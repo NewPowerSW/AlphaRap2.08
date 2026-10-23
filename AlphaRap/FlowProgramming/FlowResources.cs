@@ -14,6 +14,11 @@ namespace AlphaRap.FlowProgramming
     {
         public string Id { get; set; }
         public string Label { get; set; }
+        public Type ValueType { get; set; }
+        public string ActionId { get; set; }
+        public string FieldName { get; set; }
+        public string TargetId { get; set; }
+        public bool Advanced { get; set; }
         /// <summary>显示名称保持业务原值。</summary>
         public override string ToString() { return Label; }
     }
@@ -259,7 +264,7 @@ namespace AlphaRap.FlowProgramming
             {
                 Parameters.Add(item.Key, item.Value);
                 string prefix = "Constants/" + scope + "/";
-                ParameterChoices.Add(new FlowChoice { Id = item.Key, Label = scope + " / " + Uri.UnescapeDataString(item.Key.Substring(prefix.Length)) + " (" + item.Value.GetType().Name + ")" });
+                ParameterChoices.Add(new FlowChoice { Id = item.Key, Label = scope + " / " + Uri.UnescapeDataString(item.Key.Substring(prefix.Length)), ValueType = item.Value.GetType() });
             }
         }
 
@@ -272,7 +277,7 @@ namespace AlphaRap.FlowProgramming
             {
                 string key = scope + "/" + module + "/" + table.TableName + "/" + rowIndex + "/" + column.ColumnName;
                 Parameters.Add(key, row[column, version]);
-                ParameterChoices.Add(new FlowChoice { Id = key, Label = scope + " / " + module + " / " + table.TableName + " / " + (rowIndex + 1) + " / " + column.ColumnName + " (" + column.DataType.Name + ")" });
+                ParameterChoices.Add(new FlowChoice { Id = key, Label = scope + " / " + module + " / " + table.TableName + " / " + (rowIndex + 1) + " / " + column.ColumnName, ValueType = column.DataType, Advanced = scope == "Setting" });
             }
         }
 

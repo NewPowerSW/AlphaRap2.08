@@ -27,14 +27,19 @@ namespace AlphaRap.FlowProgramming
         /// <summary>按已有业务键和原类型声明读表及写表方法。</summary>
         public IEnumerable<FlowMethod> GetFlowMethods(bool includeDraft = false)
         {
-            FlowField key = new FlowField("Key", typeof(string), values.Keys.FirstOrDefault() ?? "");
+            FlowField key = new FlowField("Key", typeof(string), values.Keys.FirstOrDefault() ?? "") {
+                DisplayName = new[] { "表中参数", "Table parameter", "Parámetro de la tabla" },
+                Help = new[] { "选择当前表已有参数，参数名称和原有类型保持不变。", "Choose an existing parameter in this table; its name and type are preserved.", "Seleccione un parámetro existente de esta tabla; se conservan su nombre y tipo." }
+            };
             key.Options.AddRange(values.Select(item => new FlowOption { Value = item.Key, Label = item.Key + " (" + item.Value.GetType().Name + ")" }));
             FlowMethod read = FlowMethods.Sync("constant.read", "读取常量值", "Read constant value", "Leer valor constante", new[] { key },
-                new[] { new FlowField("Value", typeof(object)) }, Read, false);
+                new[] { new FlowField("Value", typeof(object)) { DisplayName = new[] { "参数值", "Parameter value", "Valor del parámetro" } } }, Read, false);
             read.ValidateInputs = Validate;
             yield return read;
             FlowMethod write = FlowMethods.Sync("constant.set", "设置表值", "Set table value", "Establecer valor de tabla",
-                new[] { key, new FlowField("Value", typeof(object)) }, new[] { new FlowField("Value", typeof(object)) }, call=>null, false);
+                new[] { key, new FlowField("Value", typeof(object)) { DisplayName = new[] { "新值", "New value", "Nuevo valor" },
+                    Help = new[] { "按原参数类型设置实际表值；写入文件仍需主界面保存。", "Update the actual table value using its existing type; use the main Save button to persist it.", "Actualiza el valor real con el tipo existente; use Guardar en la pantalla principal para persistirlo." } } },
+                new[] { new FlowField("Value", typeof(object)) { DisplayName = new[] { "设置后的值", "Updated value", "Valor actualizado" } } }, call=>null, false);
             write.Invoke=Set;
             write.ValidateInputs = Validate;
             yield return write;

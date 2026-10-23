@@ -12,6 +12,7 @@ $flowArguments += Join-Path $PSScriptRoot 'Regression.cs'
 $flowArguments += Join-Path $PSScriptRoot 'ObjectMethods.cs'
 $flowArguments += Join-Path $PSScriptRoot 'Resources.cs'
 $flowArguments += Join-Path $PSScriptRoot 'Usability.cs'
+$flowArguments += Join-Path $PSScriptRoot 'P0Usability.cs'
 foreach ($flowCognexAssembly in @('Cognex.VisionPro.dll','Cognex.VisionPro.Core.dll','Cognex.VisionPro.ToolGroup.dll')) { $flowArguments += '/r:C:/Program Files/Cognex/VisionPro/ReferencedAssemblies/' + $flowCognexAssembly }
 & $flowCompiler @flowArguments
 if ($LASTEXITCODE -ne 0) { throw 'Flow regression compilation failed.' }

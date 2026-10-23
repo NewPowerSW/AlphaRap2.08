@@ -6,6 +6,9 @@ namespace AlphaRap.FlowProgramming
     {
         public static readonly Dictionary<string, string[]> Defaults = new Dictionary<string, string[]>
         {
+            { "parameters", new[] { "动作参数", "Action parameters", "Parámetros de la acción" } },
+            { "producerMismatch", new[] { "节点「{0}」的「{1}」必须选择同一实际对象的匹配执行节点。", "Node '{0}' requires '{1}' from a matching execution node of the same object.", "El nodo «{0}» requiere «{1}» de un nodo de ejecución compatible del mismo objeto." } },
+            { "showAdvanced", new[] { "显示高级参数", "Show advanced parameters", "Mostrar parámetros avanzados" } },
             { "axisPointsHelp", new[] { "轴 {0} 绑定表：{1}；共 {2} 行，可选 {3} 个点位。Index 从 0 开始；在该轴页面添加点位，空值或超限行不可选。", "Axis {0}, bound table: {1}; {2} rows, {3} selectable points. Index starts at 0. Add points on this axis page; blank or out-of-limit rows cannot be selected.", "Eje {0}, tabla vinculada: {1}; {2} filas, {3} puntos disponibles. Index comienza en 0. Añada puntos en la página de este eje; las filas vacías o fuera de límites no se pueden seleccionar." } },
             { "constantScopeChanged", new[] { "配方已变更，请重新加载流程对象后再设置表值。", "The recipe changed. Reload the flow objects before setting a table value.", "La receta cambió. Vuelva a cargar los objetos antes de establecer un valor." } },
             { "constantUiUnavailable", new[] { "设置页面已关闭或界面线程不可用，未修改表值。", "The settings page is closed or its UI thread is unavailable. The table was not changed.", "La página está cerrada o su hilo de interfaz no está disponible. La tabla no se modificó." } },
@@ -158,6 +161,13 @@ namespace AlphaRap.FlowProgramming
             { "Timeout", new[] { "超时", "Timed out", "Tiempo agotado" } },
             { "Cancelled", new[] { "已取消", "Cancelled", "Cancelado" } },
         };
+
+        /// <summary>汇集复用编辑控件的固定文案，统一使用原框架语言入口。</summary>
+        static FlowText()
+        {
+            foreach (KeyValuePair<string, string[]> item in FlowInputRow.TextDefaults) Defaults[item.Key] = item.Value;
+            foreach (KeyValuePair<string, string[]> item in FlowSourceForm.TextDefaults) Defaults[item.Key] = item.Value;
+        }
 
         /// <summary>读取三语文案，设计期不触发宿主静态初始化。</summary>
         public static string T(string key)

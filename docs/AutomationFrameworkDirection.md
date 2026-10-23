@@ -1,6 +1,6 @@
 # AlphaRap 自动化框架的目标与简化建议
 
-评审日期：2026-10-23。依据当前 AlphaRap 代码、NPSDK FlowChart 核心实现和连续需求，重点复核资源配置、节点编辑、执行、数据流转、配方及保存。本报告是设计建议，不表示下述建议已经实现；本轮不改业务代码。外部 NPSDK 运动控件目录存在其他未提交修改，不能把那些源码变更等同于宿主已交付 DLL 的能力。
+评审日期：2026-10-23。依据 AlphaRap 代码、NPSDK FlowChart 核心实现和连续需求，重点复核资源配置、节点编辑、执行、数据流转、配方及保存。本文件记录产品方向和实施边界：P0 的参数与绑定交互已按下文落地，P1、P2 仍是后续建议。外部 NPSDK 运动控件目录存在其他未提交修改，不能把那些源码变更等同于宿主已交付 DLL 的能力。
 
 ## 产品定位
 
@@ -8,7 +8,7 @@
 
 工程师日常应只需要理解三件事：设备上有什么对象、这一步要做什么、完成后往哪里走。其交付物应是可保存和重载的设备工程，无需为每台设备重复编写扫码、等待、搬运、检测和保存代码。新设备协议及特殊算法仍由框架开发者提供一次经过验证的能力，不能承诺任意未知设备都自动实现零代码。
 
-前一阶段把“对象方法可以被选择”推进得较快，仍大量沿用通用参数表和运行器术语。能力逐渐齐全，应用层的操作模型尚未收敛，这是当前复杂的主要原因。
+前一阶段把“对象方法可以被选择”推进得较快，大量沿用通用参数表和运行器术语。本阶段先改为业务参数行和统一数据绑定，减少填写内部字段的操作；产品周期、循环、完整工艺复用和调试解释仍需继续收敛。
 
 必须保留的约束：
 
@@ -19,49 +19,58 @@
 - 三语标题与内部业务键分离，语言切换保留编辑值；组合控件固定布局可在 WinForms 设计器预览。
 - NEXT / CASE1 / CASE2 / CASE3 沿用原生出口，每条独立判断；默认仅 NEXT，额外 CASE 手动添加，超时独立报警。
 
-## 当前复杂性的具体来源
+## 已完成的 P0 交互
+
+- 参数按业务含义显示，文字 / 数值直接输入，布尔值选是 / 否，轴点位与表中参数直接选择。字段仍由实际对象声明，不增加一套动作实现。
+- 每行使用一个【绑定数据】入口，在同一窗口搜索固定值、机器设置、当前配方和节点结果，并按目标字段类型筛选。失效旧选项或引用保留供修正，不自动选第一项。
+- 轴移动默认只显示目标点位，偏移和到位误差按【显示高级参数】展开；旧非默认高级值或已有绑定会自动显示。语言切换保留草稿，取消不修改原节点。
+- 视觉存图和读取输出选择同一 VPP 的【来源拍照节点】，框架绑定其执行结果编号；普通条件显示业务结果名，内部运行编号默认收起。
+
+这些改动使用原有对象、方法、输入来源和运行校验，工程格式、主 Save、ProductManagerForm 配方切换及执行周期规则不变。它们不代表产品与循环分离、重试、子流程、“本件记录”或多产品调度已经实现。
+
+## 复杂性的来源与后续差距
 
 ### 1. 参数描述面向代码，编辑器只能照着字段显示
 
-NPSDK 的 FlowField 目前主要是 Name、Type、DefaultValue 和 Options。节点界面直接显示字段名与 .NET 类型。因此 Index、Offset、Tolerance、Value、Int32、Double 出现在工程师操作中。翻译动作标题并不能解决参数的业务含义问题。
+原 FlowField 主要是 Name、Type、DefaultValue 和 Options，通用表格直接把 Index、Offset、Tolerance、Value、Int32、Double 暴露给工程师。当前已增加三语 DisplayName / Help、明确单位 Unit、高级标记和来源节点约束；节点使用可在设计器预览的业务参数行，内部类型继续用于校验。
 
-证据：[FlowObject.cs](https://github.com/JeffreyWub/NPSDK/blob/81f30cfcfb327c1b720e3617b421d56901dd1381/NPSDK/FlowChart/FlowObject.cs#L17)、[FlowNodeForm.cs](../AlphaRap/FlowProgramming/FlowNodeForm.cs#L263)。
+实现：[FlowNodeForm.cs](../AlphaRap/FlowProgramming/FlowNodeForm.cs)、[FlowInputRow.cs](../AlphaRap/FlowProgramming/FlowInputRow.cs)、[对象接入契约](FlowObjectMethods.md#框架开发者的接入边界)。
 
-建议保留稳定字段键，在能力描述中增加三语显示名、说明、单位、输入方式、范围和常用/高级标记。同一个字段声明驱动参数编辑和校验；按“点位选择、开关、时间、数值、结果引用”复用少量编辑模板，不为每个动作增加一个特殊窗口或大型类型判断。
+已保留稳定字段键，并按选项、布尔、自由输入和结构化引用复用编辑方式。后续可继续补充可见范围约束、来源定位和工艺说明，仍由同一个对象声明提供，不为每个动作另开特殊窗口或大型类型判断。
 
 轴移动的常用设置应是“轴：X轴；点位：拍照位；完成：到位后继续”，偏移及到位误差按需展开。点位旁展示当前配方坐标和备注，原始索引在详情中可见。实际物理单位取轴的配置，不猜测所有轴都使用毫米。
 
 ### 2. 数据选择器一次展示了过多不相关内容
 
-当前输入先选来源类型再打开选择窗口；参数目录会展开各模块数据表，条件列表同时加入所有参数、全部节点输出及 RunId/CycleId/ExecutionId。工程师必须先理解内部数据结构，再找自己的一个值。输出引用校验主要确认字段存在，不能据此保证运行到该位置时生产者已经完成。
+原输入需要先选来源类型再打开选择窗口，条件列表混合大量参数和运行身份。本阶段已合并为参数旁的【绑定数据】，提供业务名称搜索和类型筛选；条件使用业务字段名称，按左侧类型筛选右侧候选，内部身份默认隐藏，已有高级引用继续保留。输出引用校验仍主要确认字段存在，不能据此保证运行到该位置时生产者已经完成。
 
-证据：[FlowSourceForm.cs](../AlphaRap/FlowProgramming/FlowSourceForm.cs#L51)、[FlowConditionRow.cs](../AlphaRap/FlowProgramming/FlowConditionRow.cs#L56)、[FlowResources.cs](../AlphaRap/FlowProgramming/FlowResources.cs#L274)、[FlowPrograms.cs](../AlphaRap/FlowProgramming/FlowPrograms.cs#L282)、[FlowActions.cs](../AlphaRap/FlowProgramming/FlowActions.cs#L86)。
+实现与待改进边界：[FlowSourceForm.cs](../AlphaRap/FlowProgramming/FlowSourceForm.cs)、[FlowConditionRow.cs](../AlphaRap/FlowProgramming/FlowConditionRow.cs)、[FlowResources.cs](../AlphaRap/FlowProgramming/FlowResources.cs)、[FlowPrograms.cs](../AlphaRap/FlowProgramming/FlowPrograms.cs)、[FlowActions.cs](../AlphaRap/FlowProgramming/FlowActions.cs)。
 
-建议输入框直接填写固定值，旁边一个“绑定数据”入口，按当前配方、机器设置、节点结果分组并支持搜索。默认推荐类型匹配和路径合理的来源；全部模块仍可查找，但要标出可能尚未执行的节点和跨模块等待依赖。业务字段显示“扫码结果/条码”“检测结果/是否合格”，底层路径与身份由框架保存。不能通过把缺失输出变成空串或零来简化界面。
+后续需要增加路径与依赖提示：全部模块仍可查找，但标出可能尚未执行的节点和跨模块等待关系。当前类型筛选是编辑推荐，不代替执行前的数值范围、整数性或结果有效期检查，不能通过把缺失输出变成空串或零来简化界面。
 
 ### 3. 读取一次、等待变化和动作完成容易混淆
 
 io.read 只读取一次；io.wait 才持续读取并检查稳定时间。运行器的出口等待会重算条件，但不会重新执行动作；CurrentResult 是动作完成时的一份结果。如果一次读取返回 false，再等待该份 Value 变成 true，不会得到新的输入采样。
 
-证据：[FlowIoObject.cs](../AlphaRap/FlowProgramming/FlowIoObject.cs#L18)、[FlowProgramRuntime.cs](https://github.com/JeffreyWub/NPSDK/blob/81f30cfcfb327c1b720e3617b421d56901dd1381/NPSDK/FlowChart/FlowProgramRuntime.cs#L240)、[出口等待](https://github.com/JeffreyWub/NPSDK/blob/81f30cfcfb327c1b720e3617b421d56901dd1381/NPSDK/FlowChart/FlowProgramRuntime.cs#L273)。
+证据：[FlowIoObject.cs](../AlphaRap/FlowProgramming/FlowIoObject.cs#L18)、[FlowProgramRuntime.cs](https://github.com/JeffreyWub/NPSDK/blob/codex/flowchart-designer-20261022/NPSDK/FlowChart/FlowProgramRuntime.cs#L240)、[出口等待](https://github.com/JeffreyWub/NPSDK/blob/codex/flowchart-designer-20261022/NPSDK/FlowChart/FlowProgramRuntime.cs#L273)。
 
-建议动作库明确区分“读取当前输入”和“等待输入到位”。等待输入只需选择信号、目标电平、稳定时间和超时；轴、气缸、扫码、视觉等动作由各自实现定义完成标准。动作完成通常直接走 NEXT，工程师只在有业务分流时填写条件。保留动作只发送一次、等待只检查状态的运行原则，不能为了刷新条件反复触发运动、拍照或扫码。
+当前通过业务标签与帮助说明两种动作的区别，等待输入使用【等待状态】，稳定保持时间作为高级参数；默认 NEXT 仍可无条件继续。下一步需要在运行诊断中说明“等待什么”和“实际读到什么”。轴、气缸、扫码、视觉等动作仍由各自实现定义完成标准，保留动作只发送一次、等待只检查状态的运行原则，不能为了刷新条件反复触发运动、拍照或扫码。
 
 ### 4. 循环执行与产品身份绑得过紧
 
 当前运行器用 visited 集合拒绝重复节点，经过 cycle.begin 才清空访问记录。开始产品周期同时改变 CycleId，结果又按 RunId + CycleId 隔离。这使同一产品的重拍、有限重试或穴位遍历需要理解产品周期机制。托盘方法目前只计算单个索引的偏移，不是完整的托盘遍历动作。
 
-证据：[FlowProgramRuntime.Run](https://github.com/JeffreyWub/NPSDK/blob/81f30cfcfb327c1b720e3617b421d56901dd1381/NPSDK/FlowChart/FlowProgramRuntime.cs#L198)、[FlowTrayMethods.cs](../AlphaRap/FlowProgramming/FlowTrayMethods.cs#L10)、[FlowUtilityObject.cs](../AlphaRap/FlowProgramming/FlowUtilityObject.cs#L29)。
+证据：[FlowProgramRuntime.Run](https://github.com/JeffreyWub/NPSDK/blob/codex/flowchart-designer-20261022/NPSDK/FlowChart/FlowProgramRuntime.cs#L198)、[FlowTrayMethods.cs](../AlphaRap/FlowProgramming/FlowTrayMethods.cs#L10)、[FlowUtilityObject.cs](../AlphaRap/FlowProgramming/FlowUtilityObject.cs#L29)。
 
 建议分别定义设备运行批次、当前产品、循环迭代和本次动作调用。工程师看到“遍历托盘”“重试最多几次”“调用子流程”“本件结束”；框架负责身份与结果有效期。普通回跳不能自动当成新产品，也不能直接删除旧结果保护。重试要显式配置次数与允许重复的动作，避免隐式重发命令。跨工位用明确的产品交接携带上下文；多载具并行留在后续阶段，不能只靠全局变量拼接。
 
 ### 5. 视觉的正确性约束需要保留，但不应要求手填运行编号
 
-保存照片和读取指定 VPP 输出目前需要绑定 RunId；这能拒绝被新拍照覆盖的旧结果，但工程师要理解额外编号。现有保存照片使用本站最近图像，过期运行不能继续使用，不能简单隐藏 RunId 后自动取“最后一次”。
+保存照片和读取指定 VPP 输出底层仍绑定 RunId，用来拒绝被新拍照覆盖的旧结果。界面现已改成【来源拍照节点】，候选限定为当前实际 VPP 的拍照执行节点，框架自动绑定其结果编号。现有存图仍使用本站最近图像，过期运行不能继续使用，选择节点不等于保留了历史照片。
 
-证据：[VisionFlowMethods.cs](../AlphaRap/Vision/VisionFlowMethods.cs#L35)、[RequireFlowResult](../AlphaRap/Vision/VisionFlowMethods.cs#L75)、[存图动作](../AlphaRap/Vision/VisionFlowMethods.cs#L130)。
+实现：[VisionFlowMethods.cs](../AlphaRap/Vision/VisionFlowMethods.cs)、[来源选择器](../AlphaRap/FlowProgramming/FlowSourceForm.cs)。
 
-建议界面选择“使用哪次视觉节点的结果”，框架从强类型结果引用携带对象身份、运行编号和产品关联。若有多次拍照，要求明确选择来源。需要延后存图时，再设计有生命周期的图像结果句柄；不能用无限保留图像或错误使用最近图像解决问题。视觉补偿仍由工程师显式绑定到轴偏移，不自动附加运动。
+多次拍照时仍需明确选择来源。后续如果需要延后存图，再设计有生命周期的图像结果句柄；不能用无限保留图像或错误使用最近图像解决问题。视觉补偿仍由工程师显式绑定到轴高级参数中的附加偏移，不自动附加运动。
 
 ### 6. 点位索引与配置状态仍让工程师承担额外核对
 
@@ -103,10 +112,10 @@ DataForm 继续定义本地生产表。常见节点可让工程师明确确认�
 
 ### P0：先让已有功能容易理解
 
-1. 用常用动作和专用参数编辑替换“所有字段都用一张通用表”；补充显示名、单位、默认值及高级折叠。
-2. 合并数据绑定交互，按用途和类型过滤，提供搜索与来源定位；保留所有真实对象及跨流程输出的访问能力。
-3. 明确读取一次、等待到位、动作完成、业务分支的区别；让普通节点只配动作与 NEXT。
-4. 精简旧/新入口及新工程模式选择，清楚显示已保存状态，原 Save 与配方入口保持不变。
+1. 已用业务参数行替换输入通用表，提供显示名、说明、明确单位及高级折叠；后续继续完善范围和工艺说明。
+2. 已合并绑定入口，提供分组、搜索与类型推荐，并实现同一 VPP 的拍照节点选择；来源页面定位及执行依赖推荐仍待完成。
+3. 已在参数、帮助和使用说明中明确读取一次、等待到位和业务分支；运行时等待原因与实际值诊断仍待增强。
+4. 原 Save 与配方入口保持不变；旧/新模式迁移入口和运行版本提示仍需后续精简，本阶段没有替换模式或执行器。
 
 ### P1：形成完整设备工艺的执行闭环
 
@@ -138,4 +147,6 @@ DataForm 继续定义本地生产表。常见节点可让工程师明确确认�
 
 ## 本次交付边界
 
-本轮只做源码审查与建议文档，没有修改业务功能、EXE 或 NPSDK DLL，也没有执行现场设备操作。配套简化评审画布通过 TypeScript 检查（0 错误），文档内部链接及引用行号通过本地检查；未验证交互式宿主画布的实际呈现，上述建议功能仍需后续实施和验收。
+本阶段落地 P0 参数与绑定交互：对象能力声明增加业务元数据，参数行与统一绑定窗口使用相同声明，条件显示业务结果。原有方法 ID、输入来源结构、配方切换和主保存保持不变；视觉来源新增对象、动作及字段校验。循环和产品周期的运行规则本阶段不变。新增回归覆盖常用 / 高级参数、旧值保护、统一绑定和视觉来源的三语交互，实际验证结果以交付记录为准。
+
+P1、P2 的循环 / 产品解耦、有限重试、自动托盘遍历、子流程、生产字段集中映射、配方整体切换事务与多产品调度没有在本阶段实现。现场设备联调与应用工程师独立搭建完整工艺的验收仍须继续进行。

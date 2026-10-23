@@ -292,8 +292,10 @@ namespace AlphaRap.FlowProgramming
         {
             FlowMethod action = actions.FindMethod(step);
             if (action == null) return;
-            foreach (string field in actions.OutputNames(action))
-                list.Add(new FlowChoice { Id = module.Program.ModuleId + "/" + step.Id + "/" + Uri.EscapeDataString(field), Label = module.Form.Name + " / " + step.Caption + " / " + field + " (" + action.Outputs.Single(item => item.Name == field).Type.Name + ")" });
+            foreach (FlowField field in action.Outputs)
+                list.Add(new FlowChoice { Id = module.Program.ModuleId + "/" + step.Id + "/" + Uri.EscapeDataString(field.Name),
+                    Label = module.Form.Name + " / " + step.Caption + " / " + FlowMethods.FieldTitle(action.Id, field, true),
+                    ValueType = field.Type, ActionId = action.Id, FieldName = field.Name, TargetId = step.Target, Advanced = field.Advanced });
         }
     }
 

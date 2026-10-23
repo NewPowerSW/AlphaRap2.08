@@ -28,7 +28,6 @@ namespace AlphaRap.FlowProgramming
             filling = true;
             captionValue.Text = step.Caption;
             timeoutValue.Value = Math.Max(timeoutValue.Minimum, Math.Min(timeoutValue.Maximum, step.TimeoutMs));
-            SetSources(inputs, 1);
             categoryValue.DataSource = new[] { "flow", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data" }
                 .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
             categoryValue.DisplayMember = "Label"; categoryValue.ValueMember = "Id";
@@ -44,24 +43,15 @@ namespace AlphaRap.FlowProgramming
             categoryValue.SelectedIndexChanged += CategoryChanged;
             targetValue.SelectedIndexChanged += TargetChanged;
             actionValue.SelectedIndexChanged += ActionChanged;
-            inputs.CellContentClick += InputPick;
-            inputs.CellDoubleClick += InputPick;
-            inputs.CellFormatting += FormatReference;
-            inputs.CellBeginEdit += GuardReferenceEdit;
+            showAdvanced.CheckedChanged += (sender, args) => RefreshParameterLayout();
+            inputs.Resize += (sender, args) => ResizeInputs();
             addCase.Click += AddCase;
             branchPanel.Resize += (sender, args) => ResizeBranches();
             ResizeBranches();
             ok.Click += SaveNode;
         }
 
-        /// <summary>为来源列配置稳定代码和本地化显示。</summary>
-        private static void SetSources(DataGridView grid, int index)
-        {
-            DataGridViewComboBoxColumn column = (DataGridViewComboBoxColumn)grid.Columns[index];
-            column.DataSource = new[] { "Constant", "Parameter", "Output", "Result", "Context" }.Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
-            if (grid.Name == "inputs") column.DataSource = ((List<FlowChoice>)column.DataSource).Where(choice => choice.Id != "Result").ToList();
-            column.DisplayMember = "Label"; column.ValueMember = "Id";
-        }
+        private IEnumerable<FlowInputRow> InputRows { get { return inputs.Controls.OfType<FlowInputRow>(); } }
 
         /// <summary>用同一设计器模板绑定默认 NEXT 和按需添加的 CASE。</summary>
         private FlowBranchEditor AddBranchEditor(FlowBranch branch, string targetId)
@@ -151,20 +141,56 @@ namespace AlphaRap.FlowProgramming
             else if (!string.IsNullOrEmpty(selected)) actionValue.SelectedIndex = -1;
         }
 
-        /// <summary>为选定动作生成固定字段和可选择的输入来源。</summary>
+        /// <summary>按对象声明建立参数行，已有非默认高级值自动展开。</summary>
         private void FillInputs(List<FlowInput> previous)
         {
-            inputs.Rows.Clear();
+            foreach (Control control in inputs.Controls.Cast<Control>().ToArray()) control.Dispose();
             FlowMethod action = actionValue.SelectedItem as FlowMethod;
             if (action == null) { outputsValue.Text = ""; RefreshMethodHelp(); return; }
-            foreach (string name in catalog.InputNames(action))
+            inputs.SuspendLayout();
+            foreach (FlowField field in action.Inputs)
             {
-                FlowInput value = previous.SingleOrDefault(item => item.Name == name) ?? new FlowInput { Name = name, Reference = action.Inputs.Single(field => field.Name == name).DefaultValue };
-                inputs.Rows.Add(name, value.Source, value.Reference, "…");
+                FlowInput value = previous.SingleOrDefault(item => item.Name == field.Name) ?? new FlowInput {
+                    Name = field.Name, Source = string.IsNullOrEmpty(field.OutputSourceMethod) && string.IsNullOrEmpty(field.OutputSourceField) ? "Constant" : "Output", Reference = field.DefaultValue };
+                FlowInputRow row = new FlowInputRow { Name = "parameter_" + field.Name + "_dyn" };
+                row.Bind(value, field, catalog, action.Id);
+                row.BindRequested += PickInput;
+                inputs.Controls.Add(row);
             }
-            outputsValue.Text = string.Join("   ", action.Outputs.Select(field => field.Name + " (" + field.Type.Name + ")"));
+            inputs.ResumeLayout();
+            showAdvanced.Checked = InputRows.Any(row => row.IsAdvanced && row.HasCustomValue);
+            RefreshOutputTitles(action);
             RefreshMethodHelp();
             foreach (FlowBranchEditor editor in branchEditors) editor.Configure(catalog,action);
+        }
+
+        /// <summary>显示可供后续节点选择的业务输出，内部编号仅供高级绑定使用。</summary>
+        private void RefreshOutputTitles(FlowMethod action)
+        {
+            outputsValue.Text = action == null ? "" : string.Join("   ", action.Outputs.Where(field => !field.Advanced).Select(field => FlowMethods.FieldTitle(action.Id, field, true)));
+        }
+
+        /// <summary>根据参数数量和高级展开状态安排行控件，不改动输入数据。</summary>
+        private void RefreshParameterLayout()
+        {
+            FlowInputRow[] rows = InputRows.ToArray();
+            bool advanced = rows.Any(row => row.IsAdvanced);
+            showAdvanced.Visible = advanced;
+            inputLayout.RowStyles[1].Height = advanced ? 28 : 0;
+            foreach (FlowInputRow row in rows) row.Visible = !row.IsAdvanced || showAdvanced.Checked;
+            int visible = rows.Count(row => !row.IsAdvanced || showAdvanced.Checked);
+            bool help = methodHint.Text.Length > 0;
+            inputs.Visible = visible > 0;
+            int height = visible * 46 + 44 + (advanced ? 28 : 0) + (help ? 52 : 0);
+            root.RowStyles[2].Height = Math.Min(330, Math.Max(76, height));
+            ResizeInputs();
+        }
+
+        /// <summary>参数行填满可视区域，滚动条不遮挡绑定按钮。</summary>
+        private void ResizeInputs()
+        {
+            int width = Math.Max(360, inputs.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 8);
+            foreach (FlowInputRow row in InputRows) row.Width = width;
         }
 
         /// <summary>解释绑定点位、托盘计算及表值设置，无参数方法不显示空输入网格。</summary>
@@ -172,11 +198,8 @@ namespace AlphaRap.FlowProgramming
         {
             FlowMethod action = actionValue.SelectedItem as FlowMethod;
             methodHint.Text = "";
-            methodHint.Visible = false; inputLayout.RowStyles[1].Height = 0;
-            bool hasInputs = action != null && action.Inputs.Count > 0;
-            inputs.Visible = hasInputs;
-            root.RowStyles[2].Height = hasInputs ? 180 : 76;
-            if (action == null) return;
+            methodHint.Visible = false; inputLayout.RowStyles[2].Height = 0;
+            if (action == null) { RefreshParameterLayout(); return; }
             if (action.Inputs.Count == 0) methodHint.Text = FlowText.T("noInputs");
             if (action.Id == "constant.set") methodHint.Text = FlowText.T("constantSetHelp");
             FlowResource resource = catalog.FindResource(Convert.ToString(targetValue.SelectedValue));
@@ -190,7 +213,8 @@ namespace AlphaRap.FlowProgramming
             if (tray != null) methodHint.Text = string.Format(FlowText.T("trayHelp"),tray.Rows,tray.Columns,tray.RowPitch,tray.ColumnPitch,(long)tray.Rows*tray.Columns-1);
             bool hasHelp = methodHint.Text.Length > 0;
             methodHint.Visible = hasHelp;
-            inputLayout.RowStyles[1].Height = hasHelp ? 52 : 0;
+            inputLayout.RowStyles[2].Height = hasHelp ? 52 : 0;
+            RefreshParameterLayout();
         }
 
         /// <summary>刷新方法、类别和来源的显示语言，保留输入网格及尚未提交的编辑内容。</summary>
@@ -209,10 +233,12 @@ namespace AlphaRap.FlowProgramming
                     .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
                 categoryValue.SelectedValue = category;
                 FillTargets(target); FillActions(method == null ? null : method.Id);
+                if (method == null) actionValue.SelectedIndex = -1;
                 FillAlarms();
                 if (alarmCode != null) alarmValue.SelectedValue = alarmCode;
                 if (alarmValue.SelectedIndex < 0) alarmValue.Text = alarmText;
-                SetSources(inputs, 1);
+                foreach (FlowInputRow row in InputRows) row.RefreshLanguage();
+                RefreshOutputTitles(method);
                 foreach (FlowBranchEditor editor in branchEditors)
                 {
                     editor.RefreshDestinationLanguage();
@@ -239,70 +265,21 @@ namespace AlphaRap.FlowProgramming
         /// <summary>动作改变后重新生成该动作的输入定义。</summary>
         private void ActionChanged(object sender, EventArgs args) { if (!filling) FillInputs(new List<FlowInput>()); }
 
-        /// <summary>通过选择器编辑输入引用。</summary>
-        private void InputPick(object sender, DataGridViewCellEventArgs args)
+        /// <summary>用同一窗口选择固定值或类型匹配的数据，引用保存稳定身份。</summary>
+        private void PickInput(object sender, EventArgs args)
         {
-            if (args.RowIndex < 0 || (args.ColumnIndex != 2 && args.ColumnIndex != 3)) return;
-            Pick(inputs.Rows[args.RowIndex], 1, 2, Convert.ToString(inputs.Rows[args.RowIndex].Cells[0].Value));
-        }
-
-        /// <summary>提交单个来源引用，不要求工程师输入对象路径。</summary>
-        private void Pick(DataGridViewRow row, int sourceColumn, int referenceColumn, string field)
-        {
-            inputs.EndEdit();
-            string source = Convert.ToString(row.Cells[sourceColumn].Value);
+            FlowInputRow row = (FlowInputRow)sender;
             FlowMethod action = actionValue.SelectedItem as FlowMethod;
-            string description = field == "Index" && action != null && action.Id == "point.move" ? methodHint.Text : null;
-            using (FlowSourceForm dialog = new FlowSourceForm(source, Convert.ToString(row.Cells[referenceColumn].Value), catalog,
-                action, field, description))
-                if (dialog.ShowDialog(this) == DialogResult.OK) row.Cells[referenceColumn].Value = dialog.Reference;
-        }
-
-        /// <summary>引用以资源名称显示，底层仍保存稳定身份。</summary>
-        private void FormatReference(object sender, DataGridViewCellFormattingEventArgs args)
-        {
-            if (args.RowIndex < 0 || args.Value == null) return;
-            DataGridView grid = (DataGridView)sender;
-            if (grid == inputs && args.ColumnIndex == 0)
-            {
-                FlowMethod method = actionValue.SelectedItem as FlowMethod;
-                FlowField field = method == null ? null : method.Inputs.FirstOrDefault(item => item.Name == Convert.ToString(args.Value));
-                if (field != null) { args.Value = field.Name + " (" + field.Type.Name + ")"; args.FormattingApplied = true; }
-                return;
-            }
-            int sourceColumn = 1;
-            if (args.ColumnIndex != 2) return;
-            string source = Convert.ToString(grid.Rows[args.RowIndex].Cells[sourceColumn].Value);
-            string reference = Convert.ToString(args.Value);
-            if (grid == inputs && source == "Constant")
-            {
-                FlowMethod method = actionValue.SelectedItem as FlowMethod;
-                FlowField field = method == null ? null : method.Inputs.FirstOrDefault(item => item.Name == Convert.ToString(grid.Rows[args.RowIndex].Cells[0].Value));
-                FlowOption option = field == null ? null : field.Options.FirstOrDefault(item => item.Value == reference);
-                if (option != null) { args.Value = option.Label; args.FormattingApplied = true; }
-                return;
-            }
-            IEnumerable<FlowChoice> choices = source == "Parameter" ? catalog.Resources.ParameterChoices : source == "Output" ? FlowPrograms.OutputChoices(catalog) : new List<FlowChoice>();
-            FlowChoice choice = choices.FirstOrDefault(item => item.Id == reference);
-            if (choice != null) { args.Value = choice.Label; args.FormattingApplied = true; }
-        }
-
-        /// <summary>固定值可直接输入，对象和数据引用通过选择器修改。</summary>
-        private void GuardReferenceEdit(object sender, DataGridViewCellCancelEventArgs args)
-        {
-            DataGridView grid = (DataGridView)sender;
-            int sourceColumn = args.ColumnIndex == 2 ? 1 : -1;
-            if (sourceColumn >= 0 && Convert.ToString(grid.Rows[args.RowIndex].Cells[sourceColumn].Value) != "Constant") args.Cancel = true;
-            if (grid != inputs || args.ColumnIndex != 2) return;
-            FlowMethod method = actionValue.SelectedItem as FlowMethod;
-            string name = Convert.ToString(grid.Rows[args.RowIndex].Cells[0].Value);
-            if (method != null && method.Inputs.Any(field => field.Name == name && field.Options.Count > 0)) args.Cancel = true;
+            if (action == null) return;
+            FlowField field = action.Inputs.Single(item => item.Name == row.FieldName);
+            string description = field.Name == "Index" && action.Id == "point.move" ? methodHint.Text : null;
+            using (FlowSourceForm dialog = new FlowSourceForm(row.ReadInput(), catalog, action, field, description, Convert.ToString(targetValue.SelectedValue)))
+                if (dialog.ShowDialog(this) == DialogResult.OK) row.SetInput(dialog.Selection);
         }
 
         /// <summary>完成字段校验后一次更新原节点，失败保留编辑窗口。</summary>
         private void SaveNode(object sender, EventArgs args)
         {
-            inputs.EndEdit();
             try
             {
                 FlowPrograms.RequireIdle();
@@ -314,7 +291,7 @@ namespace AlphaRap.FlowProgramming
                 candidate.Target = Convert.ToString(targetValue.SelectedValue);
                 candidate.TimeoutMs = (int)timeoutValue.Value;
                 candidate.AlarmCode = alarmValue.SelectedIndex >= 0 ? Convert.ToString(alarmValue.SelectedValue) : alarmValue.Text.Trim();
-                candidate.Inputs = inputs.Rows.Cast<DataGridViewRow>().Where(row => !row.IsNewRow).Select(row => ReadInput(row, 1, 2, Convert.ToString(row.Cells[0].Value))).ToList();
+                candidate.Inputs = InputRows.Select(row => row.ReadInput()).ToList();
                 candidate.Conditions.Clear(); candidate.WaitForCondition = false; candidate.AnyCondition = false;
                 candidate.Branches = branchEditors.Select(editor => editor.ReadBranch()).ToList();
                 foreach (string code in new[] { "NEXT", "CASE1", "CASE2", "CASE3" }) candidate.SetTarget(code, null);
@@ -327,10 +304,5 @@ namespace AlphaRap.FlowProgramming
             catch (Exception error) { MessageBox.Show(string.Format(FlowText.T("error"), error.Message), FlowText.T("title")); }
         }
 
-        /// <summary>读取一个已经明确选择的来源。</summary>
-        private static FlowInput ReadInput(DataGridViewRow row, int source, int reference, string name)
-        {
-            return new FlowInput { Name = name, Source = Convert.ToString(row.Cells[source].Value), Reference = Convert.ToString(row.Cells[reference].Value) };
-        }
     }
 }

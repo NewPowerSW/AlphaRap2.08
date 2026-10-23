@@ -26,24 +26,32 @@ namespace AlphaRap.FlowProgramming
             if (!legacyPoint)
             {
                 yield return FlowMethods.Sync("axis.position", "读取编码器位置", "Read encoder position", "Leer posición del codificador", new FlowField[0],
-                    new[] { new FlowField("Position", typeof(double)) }, call => { RequireReady(false); return FlowCall.Result("Position", motor.GetEncPos()); });
+                    new[] { new FlowField("Position", typeof(double)) { DisplayName = new[] { "编码器位置", "Encoder position", "Posición del codificador" } } }, call => { RequireReady(false); return FlowCall.Result("Position", motor.GetEncPos()); });
                 yield return FlowMethods.Sync("axis.command", "读取指令位置", "Read command position", "Leer posición de comando", new FlowField[0],
-                    new[] { new FlowField("Position", typeof(double)) }, call => { RequireReady(false); return FlowCall.Result("Position", motor.GetPos()); });
-                yield return FlowMethods.Sync("axis.stop", "停止轴", "Stop axis", "Detener eje", new FlowField[0], new[] { new FlowField("Position", typeof(double)) },
+                    new[] { new FlowField("Position", typeof(double)) { DisplayName = new[] { "指令位置", "Command position", "Posición de comando" } } }, call => { RequireReady(false); return FlowCall.Result("Position", motor.GetPos()); });
+                yield return FlowMethods.Sync("axis.stop", "停止轴", "Stop axis", "Detener eje", new FlowField[0], new[] { new FlowField("Position", typeof(double)) { DisplayName = new[] { "停止位置", "Stop position", "Posición de parada" } } },
                     call => { RequireReady(false); motor.Stop(); return FlowCall.Result("Position", motor.GetEncPos()); });
                 FlowMethod home = FlowMethods.Sync("axis.home", "轴回零并等待完成", "Home axis and wait", "Referenciar eje y esperar", new FlowField[0],
-                    new[] { new FlowField("Position", typeof(double)) }, call => null);
+                    new[] { new FlowField("Position", typeof(double)) { DisplayName = new[] { "回零后位置", "Position after homing", "Posición tras referenciar" } } }, call => null);
                 home.Invoke = Home;
                 yield return home;
                 yield return FlowMethods.Sync("axis.reset", "复位轴报警", "Reset axis alarm", "Restablecer alarma de eje", new FlowField[0], new FlowField[0],
                     call => { RequireReady(true); motor.AlarmReset(); return new Dictionary<string, object>(); });
             }
             if (tables.Count == 0) yield break;
-            FlowField index = new FlowField("Index", typeof(int), "0");
+            FlowField index = new FlowField("Index", typeof(int), "0") {
+                DisplayName = new[] { "目标点位", "Target point", "Punto de destino" },
+                Help = new[] { "选择此轴页面绑定表中的点位，索引从 0 开始。", "Choose a point from this axis's bound table; indexes start at 0.", "Seleccione un punto de la tabla vinculada a este eje; los índices empiezan en 0." }
+            };
             if (tables.Count == 1) index.Options.AddRange(tables[0].Points.Select(point => new FlowOption { Value = point.Id, Label = point.Label }));
             FlowMethod move = FlowMethods.Sync("point.move", "移动到绑定表的点位", "Move to a bound table point", "Mover a un punto de la tabla vinculada",
-                new[] { index, new FlowField("Offset", typeof(double), "0"), new FlowField("Tolerance", typeof(double), "0.2") },
-                new[] { new FlowField("Index", typeof(int)), new FlowField("Position", typeof(double)) }, call => null);
+                new[] { index,
+                    new FlowField("Offset", typeof(double), "0") { DisplayName = new[] { "附加偏移", "Additional offset", "Desplazamiento adicional" }, Advanced = true,
+                        Help = new[] { "在选定点位上叠加偏移；采用该轴的位置单位。", "Add an offset to the selected point, using this axis's position units.", "Añade un desplazamiento al punto seleccionado en las unidades de posición de este eje." } },
+                    new FlowField("Tolerance", typeof(double), "0.2") { DisplayName = new[] { "到位允许误差", "Arrival tolerance", "Tolerancia de llegada" }, Advanced = true,
+                        Help = new[] { "停止后编码器位置与目标位置的最大允许差值，必须大于 0。", "Maximum allowed difference between encoder and target position after stopping; must be greater than 0.", "Diferencia máxima permitida entre la posición del codificador y el destino tras detenerse; debe ser mayor que 0." } } },
+                new[] { new FlowField("Index", typeof(int)) { DisplayName = new[] { "点位序号", "Point index", "Índice de punto" } },
+                    new FlowField("Position", typeof(double)) { DisplayName = new[] { "到位位置", "Arrival position", "Posición de llegada" } } }, call => null);
             move.Invoke = Move;
             move.Simulate = Move;
             move.ValidateInputs = ValidatePoint;
