@@ -47,14 +47,14 @@ namespace AlphaRap
 
                 RefreshTexts();
 
-                // 补偿限制表：编辑落到配置里（解析失败还原、Min&gt;Max 拉回），改完立刻落盘
+                // 补偿限制表只更新草稿；主界面统一保存。
                 gridComp.CellEndEdit += delegate(object s, DataGridViewCellEventArgs e)
                 {
                     if (Owner != null) Owner.SyncCompLimitFromGrid(gridComp, Vpp, e.RowIndex, e.ColumnIndex);
                     _editingItemCaption = null;
                 };
 
-                // 存图设置：四个勾 = 四个独立开关，改动即时落盘（不跟主页【保存】）
+                // 存图设置的独立开关均保留为配置草稿。
                 WireCheck(cbSaveImg, delegate { return Vpp.SaveImageEnabled; },
                                      delegate(bool v) { Vpp.SaveImageEnabled = v; LogSaveImage("存图", v ? "开" : "关"); });
                 WireCheck(cbOrig, delegate { return Vpp.SaveImageOriginal; },
@@ -67,12 +67,14 @@ namespace AlphaRap
                 tbSavePath.Text = (Vpp != null && Vpp.SaveImagePath != null) ? Vpp.SaveImagePath : "";
                 tbSavePath.TextChanged += delegate
                 {
-                    if (Vpp != null) Vpp.SaveImagePath = tbSavePath.Text.Trim();
+                    string path = tbSavePath.Text.Trim();
+                    if (Vpp == null || Vpp.SaveImagePath == path) return;
+                    Vpp.SaveImagePath = path;
+                    if (Owner != null) Owner.MarkVpConfigDraft();
                 };
-                // 路径在失焦时保存
+                // 失焦时记录已经更新的路径草稿。
                 tbSavePath.Leave += delegate
                 {
-                    if (Owner != null) Owner.SaveVpConfig();
                     LogSaveImage("路径", tbSavePath.Text.Trim());
                 };
 
@@ -87,14 +89,13 @@ namespace AlphaRap
                     }
                     if (Vpp == null || days == Vpp.SaveImageKeepDays) return;
                     Vpp.SaveImageKeepDays = days;
-                    if (Owner != null) Owner.SaveVpConfig();
+                    if (Owner != null) Owner.MarkVpConfigDraft();
                     LogSaveImage("保留天数", days.ToString());
                 };
 
                 // 操作按钮（「实时显示」为相机级，按钮在相机属性条上）
                 btnEditTb.Click += delegate { if (Owner != null) Owner.EditStation(Vpp); };
                 btnCapture.Click += delegate { if (Owner != null) Owner.RunStation(Vpp); };
-                btnSaveVpp.Click += delegate { if (Owner != null) Owner.SaveStation(Vpp); };
                 btnAddCompRow.Click += delegate { if (Owner != null) Owner.AddCompLimitRow(gridComp, Vpp); };
                 btnDelCompRow.Click += delegate { if (Owner != null) Owner.RemoveCompLimitRow(gridComp, Vpp); };
                 _productionCheck.CheckedChanged += delegate
@@ -178,7 +179,7 @@ namespace AlphaRap
             finally { _refreshingProduction = false; }
         }
 
-        /// <summary>把勾选框接到 VPP 的某个布尔配置上：勾选变化即写回 + 落盘（与补偿限制表同一口径）。</summary>
+        /// <summary>把勾选框接到 VPP 配置草稿，等待主界面统一保存。</summary>
         private void WireCheck(UiCheckBox box, Func<bool> getter, Action<bool> setter)
         {
             if (box == null) return;
@@ -187,7 +188,7 @@ namespace AlphaRap
             {
                 if (getter() == box.Checked) return;
                 setter(box.Checked);
-                if (Owner != null) Owner.SaveVpConfig();
+                if (Owner != null) Owner.MarkVpConfigDraft();
             };
         }
 

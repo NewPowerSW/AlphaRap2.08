@@ -4,6 +4,7 @@ using AlphaRapLibrary;
 using System.Drawing;
 using System.Data;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AlphaRap
 {
@@ -136,6 +137,7 @@ namespace AlphaRap
         /// <summary>检查生产工位、判据及调试采集是否就绪，供启动自动流程前调用。</summary>
         public bool CanStartProduction(out string error)
         {
+            if (_vpDirty || HasRecipeDraft) { error = FlowProgramming.FlowText.T("visionDraft"); return false; }
             VisionPostData data;
             if (!TryGetProductionVisionData(out data, out error)) return false;
             VpStation production;
@@ -162,7 +164,10 @@ namespace AlphaRap
             station = null;
             error = _vpLoadError;
             if (!string.IsNullOrEmpty(error)) return false;
-            return VpProductionBinding.TryResolve(_config, H1_VFiducial, SysPara.RecipeName, out station, out error);
+            if (!VpProductionBinding.TryResolve(_config, H1_VFiducial, SysPara.RecipeName, out station, out error)) return false;
+            if (!station.HasToolBlockDraft) return true;
+            error = FlowProgramming.FlowText.T("visionDraft");
+            return false;
         }
 
         /// <summary>本 VPP 是否被明确选为生产定位算法。</summary>
@@ -171,7 +176,7 @@ namespace AlphaRap
             return vpp != null && _config.ProductionVppId == vpp.Id;
         }
 
-        /// <summary>保存生产绑定；校验或写盘失败时恢复原绑定与原工位类型。</summary>
+        /// <summary>校验并保留生产绑定草稿，校验失败时恢复原绑定与工位类型。</summary>
         internal void SetProductionVpp(VpVppConfig vpp, bool enabled)
         {
             if (vpp == null || vpp.Station == null) return;
@@ -185,13 +190,14 @@ namespace AlphaRap
             _config.ProductionVppId = enabled ? vpp.Id : "";
             VpStation station;
             bool valid = !enabled || TryGetProductionStation(out station, out error);
-            if (valid && TrySaveVpConfig(out error))
+            if (valid)
             {
                 VpCameraConfig oldCamera;
                 VpVppConfig oldVpp = _config.FindVpp(previousId, out oldCamera);
                 if (oldVpp != null && oldVpp != vpp && oldVpp.Station != null) oldVpp.Station.TrySetKind(VpStationKind.Custom, out error);
                 OperationLog.Write("VPForm", "生产定位绑定：" + (enabled ? LogTag(vpp) : "内置工位"));
                 foreach (VpCameraConfig camera in _cameras) RefreshVppInfoTexts(camera);
+                MarkVpConfigDraft();
                 return;
             }
             _config.ProductionVppId = previousId;
@@ -319,6 +325,13 @@ namespace AlphaRap
 				return;
 			}
 
+            if (_vpDirty || HasRecipeDraft)
+            {
+                lbl.ForeColor = Color.FromArgb(176, 120, 32);
+                lbl.Text = MiddleLayer.LangMsg("VPForm", "vpHint_Draft", "视觉修改尚未保存，请使用主界面【保存】。", "Vision changes are not saved. Use Save in the main window.", "Los cambios de visión no están guardados. Use Guardar en la ventana principal.");
+                return;
+            }
+
 			// 扫描过但一台都没枚举到：告诉操作员下拉框为什么是空的
 			List<CogCameraDevice> scanned = CogCameraDevices.Cached;
 			if (scanned != null && scanned.Count == 0)
@@ -367,6 +380,7 @@ namespace AlphaRap
 			LoadConfigFromDisk();
 			ScanCamerasAtStartup();
 			BuildVpPages();
+			_savedConfig = VpConfigStore.Copy(_config);
 			UpdateVpHint();      // 读取失败 / 保存失败的原因立刻显示在工具条右侧
 		}
 
@@ -570,7 +584,7 @@ namespace AlphaRap
 			tabControl1.SelectedTab = page;
 
 			OperationLog.Write("VPForm", "添加相机：" + cam.Name);
-			SaveVpConfig();
+			MarkVpConfigDraft();
 		}
 
 		/// <summary>
@@ -837,14 +851,14 @@ namespace AlphaRap
 
 			OperationLog.Write("VPForm", "绑定相机：" + cam.Name + " → SN " + cam.CameraSN
 				+ (channel >= 0 ? "（采集通道 " + channel + "）" : "（当前机器上没有这台相机）"));
-			SaveVpConfig();
+			MarkVpConfigDraft();
 			UpdateVpHint();
 		}
 
-		/// <summary>提示"SN 已保存但当前机器上找不到这台相机"，相机接上后会按 SN 自动找到。</summary>
+		/// <summary>提示相机暂未连接，并说明 SN 绑定仍需主界面保存。</summary>
 		private void ShowCameraBindWarning(string error)
 		{
-			MessageBox.Show(error + MiddleLayer.LangMsg("VPForm", "vpMsg_SNSaved", "\r\n（SN 已保存；相机接上后会自动按 SN 找到它）", "\r\n(SN saved; the camera will be found by SN when connected.)", "\r\n(SN guardado; la cámara se localizará por SN al conectarse.)"),
+			MessageBox.Show(error + MiddleLayer.LangMsg("VPForm", "vpMsg_SNDraft", "\r\n（SN 绑定已保留为草稿，请使用主界面【保存】。相机接上后会按 SN 找到它。）", "\r\n(The SN binding is a draft. Use Save in the main window. The camera will be found by SN when connected.)", "\r\n(La vinculación SN es un borrador. Use Guardar en la ventana principal. La cámara se localizará por SN al conectarse.)"),
 				T("vpMsg_Title", "提示"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
@@ -892,7 +906,7 @@ namespace AlphaRap
 			cam.Exposure = exposure;
 
 			OperationLog.Write("VPForm", "修改默认曝光：" + cam.Name + " → " + exposure.ToString("F1"));
-			SaveVpConfig();
+			MarkVpConfigDraft();
 		}
 
 		/// <summary>把索引框与曝光框恢复成配置里的值（不触发编辑事件）。</summary>
@@ -1033,7 +1047,7 @@ namespace AlphaRap
 			SyncMainDisplays();
 
 			OperationLog.Write("VPForm", "相机改名：" + oldName + " → " + newName);
-			SaveVpConfig();
+			MarkVpConfigDraft();
 		}
 
 		/// <summary>
@@ -1144,7 +1158,6 @@ namespace AlphaRap
 			{
 				if (calib.Station != null)
 				{
-					try { calib.Station.SaveTB(); } catch (Exception) { }
 					VisionproInterface.VList.Remove(calib.Station);
 				}
 				_config.Calibrations.Remove(cam.Name);
@@ -1166,7 +1179,7 @@ namespace AlphaRap
 			SyncMainDisplays();
 
 			OperationLog.Write("VPForm", "删除相机：" + cam.Name);
-			SaveVpConfig();
+			MarkVpConfigDraft();
 		}
 
 		private VpCameraConfig CurrentCameraConfig()
@@ -1227,7 +1240,7 @@ namespace AlphaRap
 
 			MiddleLayer.RegisterLanguage(page, LangForm);   // 静态文案按控件名登记进语言表
 			OperationLog.Write("VPForm", "添加 VPP：" + cam.Name + " / " + vpp.Name);
-			SaveVpConfig();
+			MarkVpConfigDraft();
 		}
 
 		/// <summary>构建一个 VPP 页（布局见 <see cref="VpVppPage"/>），并挂接数据与编辑逻辑。</summary>
@@ -1335,7 +1348,7 @@ namespace AlphaRap
 			vpp.CompLimits.Add(it);
 			OperationLog.Write("VPForm", "补偿限制：添加行「" + name + "」（" + LogTag(vpp) + "）");
 			FillCompLimitGrid(grid, vpp);
-			SaveVpConfig();
+			MarkVpConfigDraft();
 
 			int idx = grid.Rows.Count - 1;
 			if (idx >= 0)
@@ -1360,7 +1373,7 @@ namespace AlphaRap
 			vpp.CompLimits.Remove(it);
 			OperationLog.Write("VPForm", "补偿限制：删除行「" + it.Item + "」（" + LogTag(vpp) + "）");
 			FillCompLimitGrid(grid, vpp);
-			SaveVpConfig();
+			MarkVpConfigDraft();
 		}
 
 		/// <summary>
@@ -1415,21 +1428,25 @@ namespace AlphaRap
 
 			OperationLog.Write("VPForm", "补偿配置：修改「" + it.Item + "」，补偿值=" + it.Compensation.ToString("R") + "，限制=["
 				+ it.Min.ToString("F3") + ", " + it.Max.ToString("F3") + "]（" + LogTag(vpp) + "）");
-			SaveVpConfig();
+			MarkVpConfigDraft();
 		}
 
 		/// <summary>创建视觉站（构造时自动登记到 VisionproInterface.VList，OpenVision 时按配方加载 vpp）。</summary>
 		private void CreateStation(VpCameraConfig cam, VpVppConfig vpp)
 		{
-			VpStation st = new VpStation(cam.Name, vpp.Name, IsProductionVpp(vpp) ? VpStationKind.Fiducial : VpStationKind.Custom);
+            bool created = vpp.Station == null;
+			VpStation st = vpp.Station ?? new VpStation(cam.Name, vpp.Name, IsProductionVpp(vpp) ? VpStationKind.Fiducial : VpStationKind.Custom);
 			st.SetOwner(cam.Name, vpp.Name, System.IO.Path.Combine(cam.StorageFolder, vpp.StorageFolder));
-			st.RunCompleted += OnStationRunCompleted;
+            st.Kind = IsProductionVpp(vpp) ? VpStationKind.Fiducial : VpStationKind.Custom;
+            if (created) st.RunCompleted += OnStationRunCompleted;
 			st.RunLiveCCDSN = cam.CameraSN;            // 相机绑定键（按 SN 绑定，见 CogCameraDevices）
 			st.RunLiveCCDIndex = ResolveChannel(cam);  // 采集通道由 SN 现场解析，没选 SN 时为 -1
 			st.RunExposure = vpp.Exposure;             // 本 VPP 的曝光
 			st.Config = vpp;                           // 配置引用（补偿限制从这里读取）
 			// 生产加载只读取已有文件；新算法由编辑入口显式创建。
-			st.LoadTB(st.GetVppPath(SysPara.RecipeName));
+            string path = st.GetVppPath(SysPara.RecipeName);
+			if (created || !st.IsLoadedFrom(path)) st.LoadTB(path);
+            if (!VisionproInterface.VList.Contains(st)) VisionproInterface.VList.Add(st);
 			vpp.Station = st;
 		}
 
@@ -1438,7 +1455,7 @@ namespace AlphaRap
 		{
 			foreach (VpVppConfig vpp in cam.Vpps)
             {
-                if (vpp.Station == null) CreateStation(cam, vpp);
+                CreateStation(cam, vpp);
                 vpp.Station.AcceptFlowConfiguration();
             }
 		}
@@ -1596,16 +1613,7 @@ namespace AlphaRap
 
 			vpp.Exposure = exposure;
 			if (vpp.Station != null) vpp.Station.RunExposure = exposure;
-			SaveVpConfig();
-		}
-
-		/// <summary>保存本站 VPP，写盘失败时显示原因。</summary>
-		internal void SaveStation(VpVppConfig vpp)
-		{
-			if (vpp == null || vpp.Station == null) return;
-			if (!EnsureIdle(T("vpAct_Save", "保存视觉算法"))) return;
-			string error;
-			if (!vpp.Station.TrySaveTB(out error)) MessageBox.Show(error, T("vpMsg_Title", "提示"));
+			MarkVpConfigDraft();
 		}
 
 		/// <summary>修改 VPP 显示名称并保留存储目录；名称不合法时还原输入框。</summary>
@@ -1644,7 +1652,7 @@ namespace AlphaRap
 				page.Text = newName;
 				page.Name = DynVppPrefix + cam.Name + "_" + newName;
 				info.Text = BuildVppInfoText(cam, vpp);
-				SaveVpConfig();
+				MarkVpConfigDraft();
 			}
 			catch (Exception) { }
 		}
@@ -1683,7 +1691,7 @@ namespace AlphaRap
 
 			OperationLog.Write("VPForm", "删除 VPP：" + LogTag(vpp));
 			RemoveVpp(cam, vpp, vppTabs);
-			SaveVpConfig();
+			MarkVpConfigDraft();
 		}
 
 		/// <summary>删除一个 VPP：停止实时显示、注销视觉站、移除界面页与配置。</summary>
@@ -1733,47 +1741,143 @@ namespace AlphaRap
 
 		// ---------------- 小工具 ----------------
 
-		/// <summary>把视觉配置立即写入 VPForm.Cameras.xml；写失败时把原因显示到工具条。</summary>
-		internal void SaveVpConfig()
+		/// <summary>保留页面配置草稿并刷新状态，文件由主界面统一保存。</summary>
+		internal void MarkVpConfigDraft()
 		{
-			string error;
-			if (!TrySaveVpConfig(out error)) UpdateVpHint();
+			_vpDirty = true;
+			UpdateVpHint();
 		}
 
-		/// <summary>配置完整加载后才允许写盘，返回实际保存结果。</summary>
-		private bool TrySaveVpConfig(out string error)
-		{
-			error = _vpLoadError;
-			if (!string.IsNullOrEmpty(error)) return false;
-			VpConfigStore.Save(_config);
-			error = VpConfigStore.LastSaveError;
-            if (!string.IsNullOrEmpty(error)) return false;
+        private bool _vpDirty;
+        private VpConfigFile _savedConfig = new VpConfigFile();
+        private PreparedVision _preparedVision;
+
+        private sealed class PreparedVision
+        {
+            internal VpConfigFile Config;
+            internal readonly Dictionary<VisionproInterface, VisionproInterface.ToolBlockSnapshot> Models = new Dictionary<VisionproInterface, VisionproInterface.ToolBlockSnapshot>();
+        }
+
+        /// <summary>当前配方存在算法草稿时，配方管理必须先保存或放弃，机器相机设置不在此范围。</summary>
+        public bool HasRecipeDraft { get { return StationsWithSavedReferences().Any(station => station.HasToolBlockDraft); } }
+
+        /// <summary>同时保留当前和待放弃删除的站引用，避免配方切换遗漏已从页面移除的算法草稿。</summary>
+        private IEnumerable<VisionproInterface> StationsWithSavedReferences()
+        {
+            return VisionproInterface.VList.Concat(_savedConfig.Cameras.SelectMany(camera => camera.Vpps).Select(vpp => vpp.Station))
+                .Concat(_savedConfig.Calibrations.Values.Select(calibration => calibration.Station)).Where(station => station != null).Distinct();
+        }
+
+        /// <summary>主保存前拒绝不完整配置及仍在运行、编辑或实时采集的视觉对象。</summary>
+        internal void ValidateVisionDraft()
+        {
+            if (!string.IsNullOrEmpty(_vpLoadError)) throw new InvalidOperationException(_vpLoadError);
+            _config.ValidateStationIds();
+            ValidateVisionAccess();
+        }
+
+        /// <summary>保存或放弃前检查视觉操作占用，放弃不受草稿内容是否合法的影响。</summary>
+        private void ValidateVisionAccess()
+        {
+            foreach (VisionproInterface station in VisionproInterface.VList)
+                if (station.IsBusy) throw new InvalidOperationException(MiddleLayer.LangMsg("VPForm", "vpError_StationBusy", "视觉工位尚未结束运行或编辑：", "Vision station is still running or being edited: ", "La estación de visión sigue ejecutándose o en edición: ") + station.StationName);
+            foreach (CameraEntry entry in _entries)
+                if (IsLiveRunning(entry)) throw new InvalidOperationException(MiddleLayer.LangMsg("VPForm", "vpError_StopLive", "请先停止相机实时显示：", "Stop camera live view first: ", "Detenga primero la vista en directo de la cámara: ") + entry.Key);
+        }
+
+        /// <summary>捕获视觉草稿并生成算法和配置的暂存任务，不替换文件或发布运行参数。</summary>
+        internal IEnumerable<Configuration.ProjectConfiguration.PendingFile> PrepareConfigurationSave()
+        {
+            ValidateVisionDraft();
+            PreparedVision prepared = new PreparedVision { Config = VpConfigStore.Copy(_config) };
+            List<Configuration.ProjectConfiguration.PendingFile> files = new List<Configuration.ProjectConfiguration.PendingFile>();
+            foreach (VisionproInterface station in VisionproInterface.VList.Distinct().Where(item => item.HasToolBlockDraft))
+            {
+                string target = System.IO.Path.GetFullPath(station.GetVppPath(SysPara.RecipeName));
+                if (!station.IsLoadedFrom(target)) throw new InvalidOperationException(MiddleLayer.LangMsg("VPForm", "vpError_DraftRecipe", "算法草稿不属于当前配方：", "Algorithm draft does not belong to the current recipe: ", "El borrador del algoritmo no pertenece a la receta actual: ") + station.StationName);
+                VisionproInterface.ToolBlockSnapshot model = station.CaptureToolBlockSnapshot();
+                model.Path = target;
+                prepared.Models.Add(station, model);
+                files.Add(new Configuration.ProjectConfiguration.PendingFile { Path = target, Write = path => VisionproInterface.WriteToolBlockSnapshot(model, path) });
+            }
+            files.Add(new Configuration.ProjectConfiguration.PendingFile { Path = VpConfigStore.FilePath, Write = path => {
+                CompleteCalibrationSnapshot(prepared);
+                VpConfigStore.Write(prepared.Config, path);
+            } });
+            _preparedVision = prepared;
+            return files;
+        }
+
+        /// <summary>根据已暂存算法的摘要完成标定发布快照，尚未保存的标记不写入正式配置。</summary>
+        private static void CompleteCalibrationSnapshot(PreparedVision prepared)
+        {
+            foreach (VpCameraConfig camera in prepared.Config.Cameras)
+            {
+                VpCalibration calibration = prepared.Config.GetCalibration(camera.Name);
+                if (calibration == null || !calibration.AppliedModels.Values.Any(value => value.StartsWith("draft:", StringComparison.Ordinal))) continue;
+                Dictionary<string, string> signatures = new Dictionary<string, string>(StringComparer.Ordinal);
+                foreach (VpVppConfig vpp in camera.Vpps)
+                {
+                    string expected;
+                    VisionproInterface.ToolBlockSnapshot model;
+                    if (vpp.Station == null || !prepared.Models.TryGetValue(vpp.Station, out model) ||
+                        !calibration.AppliedModels.TryGetValue(vpp.Id, out expected) || expected != "draft:" + model.Revision.ToString(System.Globalization.CultureInfo.InvariantCulture)) break;
+                    signatures.Add(vpp.Id, model.Signature);
+                }
+                if (signatures.Count != camera.Vpps.Count || calibration.AppliedSignature != calibration.ComputeSignature() || calibration.AppliedCameraSN != camera.CameraSN)
+                { calibration.AppliedSignature = "none"; calibration.AppliedModels.Clear(); continue; }
+                calibration.AppliedModels = signatures;
+            }
+        }
+
+        /// <summary>全部文件提交成功后接受已准备的视觉版本，不进行文件读写或重新加载。</summary>
+        internal void AcceptSaved()
+        {
+            PreparedVision prepared = _preparedVision;
+            if (prepared == null) return;
+            foreach (KeyValuePair<VisionproInterface, VisionproInterface.ToolBlockSnapshot> model in prepared.Models) model.Key.AcceptToolBlockSnapshot(model.Value);
+            foreach (KeyValuePair<string, VpCalibration> item in prepared.Config.Calibrations)
+            {
+                VpCalibration current = _config.GetCalibration(item.Key);
+                if (current == null) continue;
+                current.AppliedSignature = item.Value.AppliedSignature; current.AppliedRecipe = item.Value.AppliedRecipe; current.AppliedCameraSN = item.Value.AppliedCameraSN;
+                current.AppliedModels = new Dictionary<string, string>(item.Value.AppliedModels, StringComparer.Ordinal);
+            }
             foreach (VpCameraConfig camera in _cameras)
                 foreach (VpVppConfig vpp in camera.Vpps)
                     if (vpp.Station != null) vpp.Station.AcceptFlowConfiguration();
-			return true;
-		}
-
-		/// <summary>主界面【保存】选"是"时由 MainForm.SaveData() 调用：把相机 / VPP / 标定参数写入 VPForm.Cameras.xml。</summary>
-		public void CommitVpConfig()
-		{
-			SaveVpConfig();
-		}
+            _savedConfig = prepared.Config; _preparedVision = null; _vpDirty = false; VpConfigStore.LastSaveError = null;
+            UpdateVpHint();
+        }
 
 		/// <summary>
-		/// 主界面【保存】选"否"时调用：拆除界面、重新读取配置文件并重建，使界面与视觉工位状态和磁盘一致。
+		/// 主界面放弃修改时恢复最近已接受的配置与算法，重建页面并保留原视觉站实例。
 		/// </summary>
 		public void RevertVpConfig()
 		{
-			if (!EnsureIdle(T("vpAct_Reload", "重载视觉配置"))) return;
-			try
-			{
-				TeardownVpUi();
-				LoadConfigFromDisk();
-				BuildVpPages();
-				UpdateVpHint();
-			}
-			catch (Exception) { }
+            ValidateVisionAccess();
+            VpConfigFile restored = VpConfigStore.Copy(_savedConfig);
+            List<VisionproInterface> stations = StationsWithSavedReferences().Where(station => station.HasToolBlockDraft).ToList();
+            Dictionary<VisionproInterface, VisionproInterface.ToolBlockSnapshot> drafts = stations.ToDictionary(station => station, station => station.CaptureToolBlockSnapshot());
+            try
+            {
+                foreach (VisionproInterface station in stations)
+                {
+                    string error;
+                    if (!station.TryDiscardTBChanges(out error)) throw new InvalidOperationException(error);
+                }
+            }
+            catch
+            {
+                foreach (KeyValuePair<VisionproInterface, VisionproInterface.ToolBlockSnapshot> draft in drafts) draft.Key.RestoreToolBlockSnapshot(draft.Value);
+                throw;
+            }
+            TeardownVpUi();
+            _config.Cameras.Clear(); _config.Cameras.AddRange(restored.Cameras); _config.ProductionVppId = restored.ProductionVppId;
+            _config.Calibrations.Clear(); foreach (KeyValuePair<string, VpCalibration> item in restored.Calibrations) _config.Calibrations.Add(item.Key, item.Value);
+            _config.HiddenPages.Clear(); _config.HiddenPages.AddRange(restored.HiddenPages);
+            BuildVpPages(); _preparedVision = null; _vpDirty = false;
+            UpdateVpHint();
 		}
 
 		/// <summary>进入页面时按当前配方刷新界面上的 vpp 路径。</summary>
@@ -2049,11 +2153,12 @@ namespace AlphaRap
 		/// </summary>
 		private void EnsureCalibrationStation(CameraEntry entry, VpCalibration calib)
 		{
-			if (entry == null || entry.Config == null || calib == null || calib.Station != null) return;
+			if (entry == null || entry.Config == null || calib == null) return;
 
-			VpStation st = new VpStation(entry.Key, calib.FolderName, VpStationKind.Calibration);
+            bool created = calib.Station == null;
+			VpStation st = calib.Station ?? new VpStation(entry.Key, calib.FolderName, VpStationKind.Calibration);
 			st.SetOwner(entry.Key, calib.FolderName, System.IO.Path.Combine(entry.Config.StorageFolder, calib.FolderName));
-			st.RunCompleted += OnStationRunCompleted;
+			if (created) st.RunCompleted += OnStationRunCompleted;
 			if (entry.Config != null)
 			{
 				st.RunLiveCCDSN = entry.Config.CameraSN;
@@ -2062,7 +2167,9 @@ namespace AlphaRap
 			}
 
 			// 按当前配方加载；文件不存在时新建空 ToolBlock，已有标定不会被覆盖
-			st.LoadTB(st.GetVppPath(SysPara.RecipeName));
+            string path = st.GetVppPath(SysPara.RecipeName);
+			if (created || !st.IsLoadedFrom(path)) st.LoadTB(path);
+            if (!VisionproInterface.VList.Contains(st)) VisionproInterface.VList.Add(st);
 
 			RegisterDisplay(st, entry.Display);
 			calib.Station = st;
@@ -2133,7 +2240,7 @@ namespace AlphaRap
 			}
 
 			SyncPointsFromGrid(grid, c);
-			SaveVpConfig();
+			MarkVpConfigDraft();
 			RefreshCalibrationTexts(entry);      // 点位变了 → 标题显示"已修改，未应用"
 		}
 
@@ -2220,7 +2327,7 @@ namespace AlphaRap
 			// 创建标定站、按当前配方加载 vpp，并挂到相机共用的显示控件上
 			EnsureCalibrationStation(entry, calib);
 
-			SaveVpConfig();
+			MarkVpConfigDraft();
 			RefreshCalibrationCard(entry);
 			OperationLog.Write("VPForm", "添加标定：相机 " + entry.Key);
 		}
@@ -2260,7 +2367,7 @@ namespace AlphaRap
 					calib.Station.RunLiveCCDIndex = ResolveChannel(entry.Config);
 				}
 			}
-			SaveVpConfig();
+			MarkVpConfigDraft();
 		}
 
 		/// <summary>拍照：运行一次标定 ToolBlock，结果显示在本相机的共用显示控件上。</summary>
@@ -2301,7 +2408,7 @@ namespace AlphaRap
 			SyncPointsFromGrid(grid, calib);
 			calib.Points.Add(new VpCalibPoint(px, py, 0, 0));
 			FillCalibrationGrid(grid, calib);
-			SaveVpConfig();
+			MarkVpConfigDraft();
 			RefreshCalibrationTexts(entry);
 		}
 
@@ -2318,7 +2425,7 @@ namespace AlphaRap
 
 			calib.Points.RemoveAt(idx);
 			FillCalibrationGrid(grid, calib);
-			SaveVpConfig();
+			MarkVpConfigDraft();
 			RefreshCalibrationTexts(entry);
 		}
 
@@ -2327,7 +2434,7 @@ namespace AlphaRap
 
 		/// <summary>
 		/// 把标定点写入本相机下所有 VPP：先预检点位质量（残差 / 镜像 / 比例），
-		/// 再逐个写入，全部成功才记「已应用」。
+		/// 再逐个应用到算法草稿，全部成功后等待主界面统一保存发布记录。
 		/// </summary>
 		private void ApplyCalibration(CameraEntry entry, DataGridView grid)
 		{
@@ -2371,9 +2478,6 @@ namespace AlphaRap
 			}
 			if (!ConfirmCalibrationQuality(precheck)) return;
 			calib.AppliedSignature = "none";
-			string saveError;
-			if (!TrySaveVpConfig(out saveError))
-			{ MessageBox.Show(saveError, T("vpMsg_Title", "提示")); return; }
 
 			List<string> failures = new List<string>();
 			int okCount = PushCalibrationToTargets(entry, points, calib.ToolName, failures);
@@ -2382,11 +2486,11 @@ namespace AlphaRap
 			{
 				try
 				{
-					calib.MarkApplied(entry.Config, SysPara.RecipeName);
-					if (!TrySaveVpConfig(out saveError)) throw new InvalidOperationException(saveError);
+                    calib.MarkAppliedDraft(entry.Config, SysPara.RecipeName);
 				}
-				catch (Exception ex) { calib.AppliedSignature = "none"; failures.Add(MiddleLayer.LangMsg("VPForm", "vpMsg_PublishFailed", "标定发布记录未保存：", "Calibration publication record was not saved: ", "No se guardó el registro de publicación de calibración: ") + ex.Message); }
+				catch (Exception ex) { calib.AppliedSignature = "none"; failures.Add(MiddleLayer.LangMsg("VPForm", "vpMsg_CalibrationDraftFailed", "标定草稿记录失败：", "Could not record the calibration draft: ", "No se pudo registrar el borrador de calibración: ") + ex.Message); }
 			}
+            MarkVpConfigDraft();
 			RefreshCalibrationTexts(entry);
 
 			ReportCalibrationResult(entry, precheck, okCount, failures);
@@ -2441,7 +2545,7 @@ namespace AlphaRap
 				if (station == null) { failures.Add(MiddleLayer.LangMsg("VPForm", "vpMsg_EmptyStation", "?：工位为空", "?: station is missing", "?: falta la estación")); continue; }
 
 				CalibApplyInfo info;
-				if (station.SetCalibration(points, toolName, out info)) { okCount++; continue; }
+				if (station.SetCalibrationDraft(points, toolName, out info)) { okCount++; continue; }
 
 				failures.Add(station.VppSubFolder + "："
 					+ (string.IsNullOrEmpty(info.Error) ? T("vpMsg_UnknownReason", "未知原因") : info.Error));
@@ -2462,8 +2566,7 @@ namespace AlphaRap
 
 			if (failures.Count == 0)
 			{
-				MessageBox.Show(T("vpMsg_AppliedA", "标定已应用到本相机下 ") + okCount
-					+ T("vpMsg_AppliedB", " 个 VPP：\r\n") + TargetNames(entry) + quality,
+				MessageBox.Show(string.Format(MiddleLayer.LangMsg("VPForm", "vpMsg_AppliedDraft", "标定已应用到本相机下 {0} 个 VPP 的草稿。请使用主界面【保存】后再生产。\r\n{1}", "Calibration was applied to drafts for {0} VPPs on this camera. Use Save in the main window before production.\r\n{1}", "La calibración se aplicó a los borradores de {0} VPP de esta cámara. Use Guardar en la ventana principal antes de producir.\r\n{1}"), okCount, TargetNames(entry) + quality),
 					T("vpMsg_CalibrationTitle", "标定"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 				return;
 			}

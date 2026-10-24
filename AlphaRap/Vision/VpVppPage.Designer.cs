@@ -392,6 +392,7 @@ namespace AlphaRap
             this.btnSaveVpp.Size = new System.Drawing.Size(112, 30);
             this.btnSaveVpp.TabIndex = 2;
             this.btnSaveVpp.Text = "保存 VPP";
+            this.btnSaveVpp.Visible = false;
             // 
             // btnAddCompRow
             // 

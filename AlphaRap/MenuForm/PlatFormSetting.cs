@@ -426,13 +426,12 @@ namespace AlphaRap
 
         // ---------------------------------------------------------------- 原有点击/保存逻辑
 
-        /// <summary>离开页面时，若参数有修改则保存。</summary>
+        /// <summary>离开页面时由主界面确认保存；取消或失败保留未保存标记。</summary>
         private void PlatFormSetting_Leave(object sender, EventArgs e)
         {
             if (SysPara.items > 1)
             {
                 MiddleLayer.MainF.SaveData();
-                SysPara.items = 1;
             }
         }
 

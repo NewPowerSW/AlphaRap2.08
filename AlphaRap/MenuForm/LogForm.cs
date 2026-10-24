@@ -35,16 +35,13 @@ namespace AlphaRap
                 action.Invoke();
             }
         }
-        /// <summary>
-        /// 页面离开时执行的事件
-        /// </summary>
+        /// <summary>离开页面时由主界面确认保存；取消或失败保留未保存标记。</summary>
         private void MESForm_Leave(object sender, EventArgs e)
         {
             if (SysPara.items != 1)
             {
                 txtUser.Focus();
                 MiddleLayer.MainF.SaveData();
-                SysPara.items = 1;
             }
         }
 

@@ -54,6 +54,76 @@ namespace AlphaRap
         /// <summary>已加载或成功保存的算法文件摘要，用于确认标定应用到的实际算法版本。</summary>
         public string ModelSignature { get; private set; }
         public event Action<VisionRunResult> RunCompleted;
+        private bool _hasToolBlockDraft;
+        private bool _toolBlockWasSaved;
+        private long _toolBlockRevision;
+
+        internal sealed class ToolBlockSnapshot
+        {
+            internal CogToolBlock ToolBlock;
+            internal string Path, Signature;
+            internal bool Loaded, Dirty, WasSaved;
+            internal long Revision;
+        }
+
+        /// <summary>当前配方算法是否存在尚未由主保存接受的编辑。</summary>
+        internal bool HasToolBlockDraft { get { lock (_operationLock) return _hasToolBlockDraft; } }
+
+        /// <summary>内存算法的编辑版本，用于识别应用标定后是否再次修改算法。</summary>
+        internal long ToolBlockRevision { get { lock (_operationLock) return _toolBlockRevision; } }
+
+        /// <summary>复制算法草稿，供编辑取消和主保存暂存使用，不修改当前算法。</summary>
+        internal ToolBlockSnapshot CaptureToolBlockSnapshot()
+        {
+            lock (_operationLock)
+            {
+                if (!CanModifyToolBlock()) throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_BusySave", "工位正在运行或编辑，不能保存 VPP。", "Station is running or being edited; VPP cannot be saved.", "La estación está ejecutándose o en edición; no se puede guardar el VPP."));
+                return new ToolBlockSnapshot { ToolBlock = TB == null ? null : (CogToolBlock)CogSerializer.DeepCopyObject(TB), Path = TBPath,
+                    Signature = ModelSignature, Loaded = IsLoadTBOk, Dirty = _hasToolBlockDraft, WasSaved = _toolBlockWasSaved, Revision = _toolBlockRevision };
+            }
+        }
+
+        /// <summary>恢复进入编辑器前的内存算法，保留本站实例和此前尚未保存的草稿。</summary>
+        internal void RestoreToolBlockSnapshot(ToolBlockSnapshot snapshot)
+        {
+            lock (_operationLock)
+            {
+                if (!CanModifyToolBlock()) throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_BusyDiscard", "工位正在运行或编辑，不能放弃修改。", "Station is running or being edited; changes cannot be discarded.", "La estación está ejecutándose o en edición; no se pueden descartar los cambios."));
+                TB = snapshot.ToolBlock; TBPath = snapshot.Path; IsLoadTBOk = snapshot.Loaded;
+                ModelSignature = snapshot.Signature; _hasToolBlockDraft = snapshot.Dirty;
+                _toolBlockWasSaved = snapshot.WasSaved;
+                _toolBlockRevision = snapshot.Revision;
+                IsAccept = false; _lastRunResult = null; LastError = "";
+            }
+        }
+
+        /// <summary>将编辑结果保留为当前配方草稿，等待主界面统一保存。</summary>
+        internal void MarkToolBlockDraft()
+        {
+            lock (_operationLock)
+            {
+                _hasToolBlockDraft = true; ModelSignature = ""; IsAccept = false; _lastRunResult = null;
+                _toolBlockRevision++;
+            }
+        }
+
+        /// <summary>只把已捕获的算法写入事务暂存路径，文件摘要不发布到当前运行对象。</summary>
+        internal static void WriteToolBlockSnapshot(ToolBlockSnapshot snapshot, string path)
+        {
+            CogSerializer.SaveObjectToFile(snapshot.ToolBlock, path);
+            snapshot.Signature = ComputeFileSignature(path);
+        }
+
+        /// <summary>全部配置文件提交成功后接受算法摘要，不重新加载或替换实际算法对象。</summary>
+        internal void AcceptToolBlockSnapshot(ToolBlockSnapshot snapshot)
+        {
+            lock (_operationLock)
+            {
+                TBPath = snapshot.Path; ModelSignature = snapshot.Signature; _hasToolBlockDraft = false;
+                _toolBlockWasSaved = true;
+                IsAccept = false; _lastRunResult = null; LastError = "";
+            }
+        }
 
         /// <summary>确认当前内存算法来自指定文件，避免配方或目录变化后继续使用旧路径的算法。</summary>
         public bool IsLoadedFrom(string path)
@@ -157,11 +227,15 @@ namespace AlphaRap
                 CogToolBlock edited = TB;
                 bool wasLoaded = IsLoadTBOk;
                 string previousSignature = ModelSignature;
+                bool wasDirty = _hasToolBlockDraft;
+                bool wasSaved = _toolBlockWasSaved;
                 if (!File.Exists(TBPath))
                 {
+                    if (_toolBlockWasSaved) return FailOperation(MiddleLayer.LangMsg("Vision", "error_DiscardMissing", "已保存的 VPP 文件不存在或不可读，算法草稿已保留：", "The saved VPP file is missing or unreadable; the algorithm draft was preserved: ", "El archivo VPP guardado no existe o no se puede leer; se conservó el borrador del algoritmo: ") + TBPath, out error);
                     TB = null;
                     IsLoadTBOk = false;
                     ModelSignature = "";
+                    _hasToolBlockDraft = false;
                     IsAccept = false;
                     _lastRunResult = null;
                     LastError = error = "";
@@ -171,6 +245,8 @@ namespace AlphaRap
                 TB = edited;
                 IsLoadTBOk = wasLoaded;
                 ModelSignature = previousSignature;
+                _hasToolBlockDraft = wasDirty;
+                _toolBlockWasSaved = wasSaved;
                 return false;
             }
         }
@@ -185,6 +261,8 @@ namespace AlphaRap
                 TBPath = path;
                 IsLoadTBOk = false;
                 ModelSignature = "";
+                _hasToolBlockDraft = false;
+                _toolBlockWasSaved = false;
                 IsAccept = false;
                 _lastRunResult = null;
                 try
@@ -193,6 +271,8 @@ namespace AlphaRap
                     TB = CogSerializer.LoadObjectFromFile(path) as CogToolBlock;
                     if (TB == null) return FailOperation(MiddleLayer.LangMsg("Vision", "error_InvalidTB", "文件不是有效的 ToolBlock：", "File is not a valid ToolBlock: ", "El archivo no es un ToolBlock válido: ") + path, out error);
                     ModelSignature = ComputeFileSignature(path);
+                    _hasToolBlockDraft = false;
+                    _toolBlockWasSaved = true;
                     IsLoadTBOk = true;
                     LastError = error = "";
                     return true;
@@ -212,6 +292,8 @@ namespace AlphaRap
                 TBPath = path;
                 IsLoadTBOk = true;
                 ModelSignature = "";
+                _hasToolBlockDraft = true;
+                _toolBlockWasSaved = false;
                 IsAccept = false;
                 _lastRunResult = null;
                 LastError = error = "";
@@ -251,6 +333,8 @@ namespace AlphaRap
                     else File.Move(temp, fullPath);
                     TBPath = fullPath;
                     ModelSignature = signature;
+                    _hasToolBlockDraft = false;
+                    _toolBlockWasSaved = true;
                     IsAccept = false;
                     _lastRunResult = null;
                     LastError = error = "";
@@ -605,6 +689,18 @@ namespace AlphaRap
         /// <summary>把标定点写入 TB 里名为 ToolName 的标定工具并保存；失败时通过 info 返回具体原因。</summary>
         public bool SetCalibration(List<CalibrationData> CalibData, string ToolName, out CalibApplyInfo info)
         {
+            return ApplyCalibration(CalibData, ToolName, true, out info);
+        }
+
+        /// <summary>把标定结果应用到算法内存草稿，由主界面统一保存文件。</summary>
+        internal bool SetCalibrationDraft(List<CalibrationData> points, string toolName, out CalibApplyInfo info)
+        {
+            return ApplyCalibration(points, toolName, false, out info);
+        }
+
+        /// <summary>在副本上完成标定后替换算法，显式导出调用可同时写盘。</summary>
+        private bool ApplyCalibration(List<CalibrationData> CalibData, string ToolName, bool save, out CalibApplyInfo info)
+        {
             info = new CalibApplyInfo();
             if (CalibData != null) info.PointCount = CalibData.Count;
             if (CalibData == null || CalibData.Count < 3) { info.Error = MiddleLayer.LangMsg("Vision", "error_MinPoints", "标定点不足 3 个", "Fewer than 3 calibration points", "Hay menos de 3 puntos de calibración"); return false; }
@@ -625,7 +721,8 @@ namespace AlphaRap
                     if (!info.Calibrated) { info.Error = MiddleLayer.LangMsg("Vision", "error_InvalidCalibration", "标定点无效，未修改原算法。", "Invalid calibration points; original algorithm was preserved.", "Puntos de calibración no válidos; se conservó el algoritmo original."); return false; }
                     TB = candidate;
                     string error;
-                    if (!TrySaveTB(out error)) { TB = original; info.Error = error; return false; }
+                    if (save && !TrySaveTB(out error)) { TB = original; info.Error = error; return false; }
+                    if (!save) MarkToolBlockDraft();
                     IsAccept = false;
                     _lastRunResult = null;
                     info.Ok = true;

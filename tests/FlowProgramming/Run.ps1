@@ -26,6 +26,7 @@ $flowStartupExecutable = Join-Path $flowTestRoot 'FlowProgramming.StartupSmoke.e
 $flowStartupArguments = $flowArguments | Where-Object { $_ -notlike '/out:*' -and $_ -notlike '*Regression.cs' -and $_ -notlike '*ObjectMethods.cs' -and $_ -notlike '*Resources.cs' -and $_ -notlike '*Usability.cs' -and $_ -notlike '*ScriptRuntimeCases.cs' -and $_ -notlike '*ScriptUiCases.cs' }
 $flowStartupArguments += "/out:$flowStartupExecutable"
 $flowStartupArguments += Join-Path $PSScriptRoot 'StartupSmoke.cs'
+$flowStartupArguments += Join-Path $PSScriptRoot 'ConfigurationCases.cs'
 & $flowCompiler @flowStartupArguments
 if ($LASTEXITCODE -ne 0) { throw 'Startup smoke compilation failed.' }
 & $flowStartupExecutable $flowAssemblyRoot (Join-Path $flowRunRoot 'startup') $flowProjectRoot

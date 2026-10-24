@@ -33,6 +33,12 @@ namespace AlphaRap
                 return false;
             }
             string oldRecipeName = SysPara.RecipeName;
+            if (VPF != null && VPF.HasRecipeDraft)
+            {
+                MessageBox.Show(LangMsg("VPForm", "vpMsg_RecipeDraft", "视觉算法有未保存修改，请先使用主界面【保存】；选择否可放弃修改。", "Vision algorithms have unsaved changes. Use the main Save button first; choose No to discard.", "Hay algoritmos de visión sin guardar. Use Guardar principal; elija No para descartar."),
+                    LangMsg("MiddleLayer", "msg_RecipeTitle", "切换配方", "Change recipe", "Cambiar receta"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
             try
             {
                 SysPara.RecipeDataDirectory = Path.GetDirectoryName(RecipePath);

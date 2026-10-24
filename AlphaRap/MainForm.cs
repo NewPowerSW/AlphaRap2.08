@@ -1493,67 +1493,50 @@ int nheightEllipse
         {
             SaveData();
         }
-        /// <summary>确认后统一保存配置，放弃时恢复草稿，失败保留修改供重试。</summary>
+        private bool savingConfiguration;
+
+        /// <summary>确认后统一提交配置，取消或失败保留草稿；焦点变化不重复打开保存窗口。</summary>
         public void SaveData()
         {
-            try { FlowProgramming.FlowPrograms.RequireIdle(); }
-            catch (Exception error) { MessageBox.Show(error.Message, Configuration.ConstantText.T("title")); return; }
-            if (FlowProgramming.FlowPrograms.AnyRunning)
-            {
-                MessageBox.Show(FlowProgramming.FlowText.T("busy"), FlowProgramming.FlowText.T("title"));
-                return;
-            }
-            SysPara.items = 1;
-            SysPara.items2 = 1;
-            DialogResult dr;
-            MachineStatus.Focus();
-
-            OptionChoiceForm warning = new OptionChoiceForm();
-            warning.fnChangeButtonsText(
-                MiddleLayer.LangMsg("Common", "msg_Yes", "是", "Yes", "Sí"),
-                MiddleLayer.LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar"),
-                MiddleLayer.LangMsg("Common", "msg_No", "否", "No", "No"));
-            warning.fnSetMessageAndButtons(MiddleLayer.LangMsg("MainForm", "msg_SaveConfirm", "确认要保存吗？", "Are you sure to save it？", "¿Seguro que quieres guardar?"), true, false, true);
-            warning.ShowDialog();
-            dr = warning.dResult;
-            warning.Dispose();
-            if (dr == DialogResult.Abort) dr = DialogResult.No;
-            if (dr != DialogResult.Yes && dr != DialogResult.No) return;
+            if (savingConfiguration) return;
+            savingConfiguration = true;
             try
             {
-            if (dr == DialogResult.Yes)
-            {
+                FlowProgramming.FlowPrograms.RequireIdle();
+                MachineStatus.Focus();
+                DialogResult choice;
+                using (OptionChoiceForm warning = new OptionChoiceForm())
+                {
+                    warning.fnChangeButtonsText(
+                        MiddleLayer.LangMsg("Common", "msg_Yes", "是", "Yes", "Sí"),
+                        MiddleLayer.LangMsg("Common", "msg_Cancel", "取消", "Cancel", "Cancelar"),
+                        MiddleLayer.LangMsg("Common", "msg_No", "否", "No", "No"));
+                    warning.fnSetMessageAndButtons(MiddleLayer.LangMsg("MainForm", "msg_SaveConfirm", "确认要保存吗？", "Are you sure to save it？", "¿Seguro que quieres guardar?"), true, true, true);
+                    warning.ControlBox = true;
+                    warning.ShowDialog(this);
+                    choice = warning.dResult == DialogResult.Abort ? DialogResult.No : warning.dResult;
+                }
+                if (choice != DialogResult.Yes && choice != DialogResult.No) return;
+                if (choice == DialogResult.No)
+                {
+                    Configuration.ProjectConfiguration.Discard();
+                    SysPara.items = 1;
+                    SysPara.items2 = 1;
+                    OperationLog.Write("MainForm", "放弃保存，参数还原为上次保存值");
+                    return;
+                }
                 plMainShow.Focus();
                 foreach (Form form in MiddleLayer.lstForm) if (!EndConfigurationEdits(form)) throw new InvalidOperationException(MiddleLayer.LangMsg("MainForm","msg_FinishEdit","请完成或取消当前单元格编辑后保存。","Complete or cancel the current cell edit before saving.","Complete o cancele la edición de la celda antes de guardar."));
                 Configuration.ProjectConfiguration.Save();
-                if (MiddleLayer.AddF != null) MiddleLayer.AddF.WritePermission();
-
-                // 视觉参数单独保存在 ModuleData\SettingData\VPForm.Cameras.xml
-                if (MiddleLayer.VPF != null) MiddleLayer.VPF.CommitVpConfig();
-
-                // 设备控件（DeviceControl）的离线参数：ModuleData\SettingData\DeviceControl.xml
-                DeviceControl.SaveAll();
-
+                SysPara.items = 1;
+                SysPara.items2 = 1;
                 OperationLog.Write("MainForm", "保存系统参数（配方：" + SysPara.RecipeName + "）");
                 if (MiddleLayer.ProductF != null)
                     OperationLog.Write("ProductManagerForm",
                         "保存配方参数：" + MiddleLayer.ProductF.BuildParamSummary());
             }
-            else
-            {
-                Configuration.ProjectConfiguration.Discard();
-
-                // 选"否"：视觉参数恢复为上一次保存的值
-                if (MiddleLayer.VPF != null) MiddleLayer.VPF.RevertVpConfig();
-
-                // 选"否"：设备控件参数也回滚到上次保存的值
-                DeviceControl.ReloadAll();
-
-                OperationLog.Write("MainForm", "放弃保存，参数还原为上次保存值");
-            }
-            if (MiddleLayer.HardF != null) MiddleLayer.HardF.SaveHardData();
-            }
             catch (Exception error) { MessageBox.Show(error.Message,MiddleLayer.LangMsg("MainForm","msg_SaveFailed","保存失败","Save failed","Error al guardar")); }
+            finally { savingConfiguration = false; }
         }
 
         /// <summary>主保存时结束各页面表格的当前编辑，失败时保留编辑器供修正。</summary>

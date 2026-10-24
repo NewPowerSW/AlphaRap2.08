@@ -780,6 +780,16 @@ namespace AlphaRap
             AppliedSignature = ComputeSignature();
         }
 
+        /// <summary>记录本次应用的内存算法版本，主保存暂存成功后再替换成实际文件摘要。</summary>
+        internal void MarkAppliedDraft(VpCameraConfig camera, string recipe)
+        {
+            AppliedSignature = "none";
+            AppliedModels.Clear();
+            foreach (VpVppConfig vpp in camera.Vpps)
+                AppliedModels.Add(vpp.Id, "draft:" + vpp.Station.ToolBlockRevision.ToString(CultureInfo.InvariantCulture));
+            AppliedRecipe = recipe; AppliedCameraSN = camera.CameraSN; AppliedSignature = ComputeSignature();
+        }
+
         /// <summary>取当前点位指纹（工具名 + 每个点的四个坐标），用于判断点位是否改动过。</summary>
         public string ComputeSignature()
         {
@@ -1069,15 +1079,60 @@ namespace AlphaRap
             catch (Exception) { return null; }
         }
 
+        /// <summary>复制完整视觉配置与草稿值，保留实际视觉站引用供放弃修改时恢复。</summary>
+        internal static VpConfigFile Copy(VpConfigFile data)
+        {
+            VpConfigFile result = new VpConfigFile { ProductionVppId = data.ProductionVppId, HiddenPages = new List<string>(data.HiddenPages) };
+            foreach (VpCameraConfig camera in data.Cameras)
+            {
+                VpCameraConfig copy = new VpCameraConfig { Name = camera.Name, FolderName = camera.FolderName, CameraSN = camera.CameraSN, Exposure = camera.Exposure };
+                foreach (VpVppConfig vpp in camera.Vpps)
+                {
+                    VpVppConfig item = new VpVppConfig { Id = vpp.Id, Name = vpp.Name, FolderName = vpp.FolderName, Exposure = vpp.Exposure, Station = vpp.Station,
+                        SaveImageEnabled = vpp.SaveImageEnabled, SaveImagePath = vpp.SaveImagePath, SaveImageOriginal = vpp.SaveImageOriginal,
+                        SaveImageSnapshot = vpp.SaveImageSnapshot, SaveImageAutoDelete = vpp.SaveImageAutoDelete, SaveImageKeepDays = vpp.SaveImageKeepDays };
+                    foreach (VpCompLimitItem limit in vpp.CompLimits)
+                        item.CompLimits.Add(new VpCompLimitItem(limit.Item, limit.Min, limit.Max) { Compensation = limit.Compensation });
+                    copy.Vpps.Add(item);
+                }
+                result.Cameras.Add(copy);
+            }
+            foreach (KeyValuePair<string, VpCalibration> pair in data.Calibrations)
+            {
+                VpCalibration source = pair.Value;
+                VpCalibration copy = new VpCalibration { FolderName = source.FolderName, ToolName = source.ToolName, Exposure = source.Exposure, Station = source.Station,
+                    AppliedSignature = source.AppliedSignature, AppliedRecipe = source.AppliedRecipe, AppliedCameraSN = source.AppliedCameraSN,
+                    AppliedModels = new Dictionary<string, string>(source.AppliedModels, StringComparer.Ordinal) };
+                foreach (VpCalibPoint point in source.Points)
+                    copy.Points.Add(new VpCalibPoint { PixelX = point.PixelX, PixelY = point.PixelY, MotorPosX = point.MotorPosX, MotorPosY = point.MotorPosY });
+                result.Calibrations.Add(pair.Key, copy);
+            }
+            return result;
+        }
+
+        /// <summary>显式写入独立视觉配置文件；程序配置编辑由主保存事务调用 Write。</summary>
         public static void Save(VpConfigFile data)
         {
             if (data == null) return;
             LastSaveError = null;
-
             string path = FilePath;
-            string tmp = path + ".tmp";
+            string tmp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
             try
             {
+                Write(data, tmp);
+                ReplaceFile(tmp, path);
+            }
+            catch (Exception ex)
+            {
+                LastSaveError = MiddleLayer.LangMsg("Vision", "error_WriteA", "写入 ", "Write ", "Escribir ") + System.IO.Path.GetFileName(path) + MiddleLayer.LangMsg("Vision", "error_FileFailed", " 失败：", " failed: ", " falló: ") + ex.Message;
+                System.Diagnostics.Debug.WriteLine("[VPForm] " + LastSaveError);
+                try { if (System.IO.File.Exists(tmp)) System.IO.File.Delete(tmp); } catch (Exception) { }
+            }
+        }
+
+        /// <summary>只将指定配置快照写入暂存路径；失败直接抛出供主保存整体回滚。</summary>
+        internal static void Write(VpConfigFile data, string path)
+        {
                 data.ValidateStationIds();
                 string dir = System.IO.Path.GetDirectoryName(path);
                 if (!string.IsNullOrEmpty(dir) && !System.IO.Directory.Exists(dir))
@@ -1112,15 +1167,12 @@ namespace AlphaRap
                             ve.SetAttribute("Name", cam.Vpps[j].Name);
                             ve.SetAttribute("Folder", cam.Vpps[j].StorageFolder);
                             ve.SetAttribute("Exposure", cam.Vpps[j].Exposure.ToString("F3", CultureInfo.InvariantCulture));
-                            if (cam.Vpps[j].SaveImageEnabled)
-                            {
-                                ve.SetAttribute("SaveImage", "True");
+                                ve.SetAttribute("SaveImage", cam.Vpps[j].SaveImageEnabled.ToString());
                                 ve.SetAttribute("SaveImagePath", cam.Vpps[j].SaveImagePath ?? "");
                                 if (cam.Vpps[j].SaveImageOriginal) ve.SetAttribute("SaveImageOriginal", "True");
                                 if (cam.Vpps[j].SaveImageSnapshot) ve.SetAttribute("SaveImageSnapshot", "True");
                                 if (cam.Vpps[j].SaveImageAutoDelete) ve.SetAttribute("SaveImageAutoDelete", "True");
                                 ve.SetAttribute("SaveImageKeepDays", cam.Vpps[j].SaveImageKeepDays.ToString(CultureInfo.InvariantCulture));
-                            }
                             ce.AppendChild(ve);
 
                             // 视觉定位补偿限制（X / Y / Angle）
@@ -1187,21 +1239,12 @@ namespace AlphaRap
                         hideRoot.AppendChild(pe);
                     }
 
-                // 以 UTF-8 编码写入临时文件，成功后再替换正式文件（写一半断电不会毁掉原配置）
+                // 只写调用方提供的事务暂存文件，正式文件由主保存统一替换。
                 System.Xml.XmlWriterSettings ws = new System.Xml.XmlWriterSettings();
                 ws.Indent = true;
                 ws.Encoding = new System.Text.UTF8Encoding(false);
-                using (System.Xml.XmlWriter w = System.Xml.XmlWriter.Create(tmp, ws))
+                using (System.Xml.XmlWriter w = System.Xml.XmlWriter.Create(path, ws))
                     doc.Save(w);
-
-                ReplaceFile(tmp, path);
-            }
-            catch (Exception ex)
-            {
-                LastSaveError = MiddleLayer.LangMsg("Vision", "error_WriteA", "写入 ", "Write ", "Escribir ") + System.IO.Path.GetFileName(path) + MiddleLayer.LangMsg("Vision", "error_FileFailed", " 失败：", " failed: ", " falló: ") + ex.Message;
-                System.Diagnostics.Debug.WriteLine("[VPForm] " + LastSaveError);
-                try { if (System.IO.File.Exists(tmp)) System.IO.File.Delete(tmp); } catch (Exception) { }
-            }
         }
 
         /// <summary>用同目录临时文件替换正式文件；替换失败保留原配置并向调用方报告。</summary>

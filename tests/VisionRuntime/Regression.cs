@@ -108,7 +108,7 @@ internal static partial class Tests
         Run("three-language refresh preserves edited VPP data", VppLanguageRefresh);
         Run("compensation table is an independent configuration snapshot", CompensationTable);
         Run("compensation values persist and legacy values default to zero", CompensationConfig);
-        Run("compensation editor persists finite input without rounding other fields", CompensationEditor);
+        Run("compensation editor stages finite input until main save without rounding other fields", CompensationEditor);
         Run("localized angle editing preserves the business key across languages", CompensationItemEditing);
         Run("configured compensation is not automatically applied to vision", CompensationNotApplied);
         Run("site translations take priority over default text", SiteTranslation);
@@ -666,7 +666,7 @@ internal static partial class Tests
         }
     }
 
-    /// <summary>离线创建实际 VPP 页面，验证选项回填与切换保存，并渲染页面供布局检查。</summary>
+    /// <summary>离线创建实际 VPP 页面，验证绑定只改草稿、主保存任务提交后才重载新值，并渲染页面。</summary>
     private static void ProductionPage()
     {
         using (BindingFixture fixture = new BindingFixture())
@@ -676,6 +676,7 @@ internal static partial class Tests
             VpConfigFile config = (VpConfigFile)typeof(VPForm).GetField("_config", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);
             config.Cameras.Add(fixture.Camera);
             config.ProductionVppId = fixture.Vpp.Id;
+            CommitVisionDraft(owner);
             page.Owner = owner;
             page.Cam = fixture.Camera;
             page.Vpp = fixture.Vpp;
@@ -684,11 +685,17 @@ internal static partial class Tests
             page.RenameBox.Text = fixture.Vpp.Name;
             System.Windows.Forms.CheckBox choice = (System.Windows.Forms.CheckBox)page.Controls.Find("vpRow_Production", true)[0];
             Check(choice.Checked, "Saved production selection was not displayed.");
+            string before = File.ReadAllText(VpConfigStore.FilePath), error;
             choice.Checked = false;
             Check(config.ProductionVppId == "" && fixture.Station.Kind == VpStationKind.Custom, "Unbinding was not applied.");
+            Check(File.ReadAllText(VpConfigStore.FilePath) == before && VpConfigStore.Load(out error).ProductionVppId == fixture.Vpp.Id, "Unbinding bypassed Main Save.");
+            CommitVisionDraft(owner);
+            Check(VpConfigStore.Load(out error).ProductionVppId == "", "Main Save tasks did not persist unbinding.");
+            before = File.ReadAllText(VpConfigStore.FilePath);
             choice.Checked = true;
             Check(config.ProductionVppId == fixture.Vpp.Id && fixture.Station.Kind == VpStationKind.Fiducial, "Selection was not applied.");
-            string error;
+            Check(File.ReadAllText(VpConfigStore.FilePath) == before && VpConfigStore.Load(out error).ProductionVppId == "", "Production selection bypassed Main Save.");
+            CommitVisionDraft(owner);
             Check(VpConfigStore.Load(out error).ProductionVppId == fixture.Vpp.Id, "Selection was not saved.");
             page.Size = new System.Drawing.Size(900, 310);
             page.CreateControl();
@@ -809,7 +816,7 @@ internal static partial class Tests
         }
     }
 
-    /// <summary>表格编辑后即时保存补偿值，非法输入还原且不丢失其他列的精度。</summary>
+    /// <summary>表格编辑只保留补偿草稿，主保存任务提交后重载新值，非法输入不改变数值精度。</summary>
     private static void CompensationEditor()
     {
         using (BindingFixture fixture = new BindingFixture())
@@ -819,6 +826,8 @@ internal static partial class Tests
             VpConfigFile config = (VpConfigFile)typeof(VPForm).GetField("_config", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);
             config.Cameras.Add(fixture.Camera);
             fixture.Vpp.GetCompLimit("X").Min = -0.123456789;
+            CommitVisionDraft(owner);
+            string before = File.ReadAllText(VpConfigStore.FilePath);
             page.Owner = owner; page.Cam = fixture.Camera; page.Vpp = fixture.Vpp;
             page.Bind();
             Check(page.CompGrid.Columns.Count == 4, "Designer compensation column is missing.");
@@ -829,7 +838,10 @@ internal static partial class Tests
             double expected = fixture.Vpp.GetCompLimit("X").Compensation;
             Check(expected == -0.12345678901234567 && fixture.Vpp.GetCompLimit("X").Min == -0.123456789, "Editing compensation rounded another field.");
             string error;
+            Check(File.ReadAllText(VpConfigStore.FilePath) == before && VpConfigStore.Load(out error).Cameras[0].Vpps[0].GetCompLimit("X").Compensation == 0, "Compensation editing bypassed Main Save.");
+            CommitVisionDraft(owner);
             Check(VpConfigStore.Load(out error).Cameras[0].Vpps[0].GetCompLimit("X").Compensation == expected, "Edited compensation was not saved.");
+            before = File.ReadAllText(VpConfigStore.FilePath);
             page.CompGrid.Rows[0].Cells["cMin"].Value = "-0.5";
             sync.Invoke(owner, new object[] { page.CompGrid, fixture.Vpp, 0, page.CompGrid.Columns["cMin"].Index });
             Check(fixture.Vpp.GetCompLimit("X").Compensation == expected, "Editing a limit rounded the compensation value.");
@@ -839,7 +851,18 @@ internal static partial class Tests
                 sync.Invoke(owner, new object[] { page.CompGrid, fixture.Vpp, 0, cell.ColumnIndex });
                 Check(fixture.Vpp.GetCompLimit("X").Compensation == expected && Convert.ToDouble(cell.Value) == expected, "Invalid compensation was accepted or not restored.");
             }
+            Check(File.ReadAllText(VpConfigStore.FilePath) == before, "Later limit or invalid-input edits bypassed Main Save.");
         }
+    }
+
+    /// <summary>在离线视觉单元中执行真实主保存写盘引擎及视觉接受接口，不另写一套事务算法。</summary>
+    private static void CommitVisionDraft(VPForm owner)
+    {
+        MethodInfo prepare = typeof(VPForm).GetMethod("PrepareConfigurationSave", BindingFlags.Instance | BindingFlags.NonPublic);
+        object files = prepare.Invoke(owner, null);
+        Type configuration = typeof(VPForm).Assembly.GetType("AlphaRap.Configuration.ProjectConfiguration");
+        configuration.GetMethod("WriteFiles", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new[] { files });
+        typeof(VPForm).GetMethod("AcceptSaved", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(owner, null);
     }
 
     /// <summary>角度名称编辑期间切换语言，提交未改动译文仍保存原键；自定义名称保持原样。</summary>

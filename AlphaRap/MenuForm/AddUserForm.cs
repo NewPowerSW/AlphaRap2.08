@@ -1,9 +1,13 @@
 ﻿
 using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.Data;
+using System.Data.OleDb;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
+using AlphaRap.Configuration;
 
 namespace AlphaRap
 {
@@ -15,6 +19,10 @@ namespace AlphaRap
     {
         /// <summary>权限提示的基准文案，用于把保存结果清掉后恢复。</summary>
         private string _rightsHintText = "";
+        private DataTable _savedPermissions;
+        private DataTable _pendingPermissions;
+        private Exception _permissionLoadError;
+        private bool _bindingPermissions;
 
         public AddUserForm()
         {
@@ -96,6 +104,7 @@ namespace AlphaRap
 
         // ==================== 外观 ====================
 
+        /// <summary>为用户管理操作应用统一图标。</summary>
         private void ApplyIcons()
         {
             try
@@ -110,18 +119,20 @@ namespace AlphaRap
                 btnModifyPermission.Icon = AppIcons.Get(AppIcon.Edit, 18, UiKit.TextPrimary);
                 btnDeleteUser.Icon = AppIcons.Get(AppIcon.Trash, 18, Color.White);
                 btnAddUser.Icon = AppIcons.Get(AppIcon.Plus, 18, Color.White);
-                btnSaveRights.Icon = AppIcons.Get(AppIcon.Save, 18, Color.White);
             }
             catch { }
         }
 
+        /// <summary>刷新权限提示和角色显示文案，不重建或更改正在编辑的权限数据。</summary>
         private void ApplyLanguage()
         {
             try
             {
                 // 保存权限后用于还原的提示文字；静态文案见 LanguageData\*.xml 的 AddUserForm 段
-                _rightsHintText = MiddleLayer.LangMsg("AddUserForm", "msg_RightsHint",
-                    "勾选各权限允许的功能后点保存", "Tick the allowed functions, then save", "Marque las funciones permitidas y guarde");
+                _rightsHintText = MiddleLayer.LangMsg("AddUserForm", "msg_RightsMainSaveHint",
+                    "勾选各权限允许的功能后，使用主界面【保存】统一保存。",
+                    "Select the allowed functions, then use Save on the main window.",
+                    "Seleccione las funciones permitidas y use Guardar en la ventana principal.");
                 ResetRightsHint();
                 MiddleLayer.RefreshUserHeaders(dgvUserList);
                 MiddleLayer.RefreshUserHeaders(dgvRightsConfig);
@@ -355,20 +366,34 @@ namespace AlphaRap
 
         // ==================== 权限设置 ====================
 
-        /// <summary>读取权限表并铺到表格上；没有数据、或表格没能生成列时返回 false。</summary>
+        /// <summary>启动时读取权限表；读取失败保留错误并阻止主保存覆盖数据库。</summary>
         private bool ReadPermission()
         {
-            string strSQL = "select * from PermissionSetup";
-            bool Successful = false;
-            DataTable readData = DataBase.ReadData_Adapter(SysPara.MdbPath, strSQL, ref Successful);
-            if (!Successful || readData == null || readData.Rows.Count == 0) return false;
+            try
+            {
+                BindPermissionTable(ReadPermissionTable(PermissionDatabasePath));
+                _permissionLoadError = null;
+                return true;
+            }
+            catch (Exception error)
+            {
+                _permissionLoadError = error;
+                return false;
+            }
+        }
 
-            // 列由 DataSource 自动生成，以下一律按表格自己的列数遍历：
-            // 控件没挂进窗体（无 BindingContext）时不会生成列，拿 readData.Columns.Count 当下标上限就会越界。
+        /// <summary>绑定完整权限草稿并记录已保存快照，保留角色和列的稳定业务键。</summary>
+        private void BindPermissionTable(DataTable readData)
+        {
+            ValidatePermissionTable(readData);
             dgvRightsConfig.AutoGenerateColumns = true;
-            dgvRightsConfig.DataSource = readData;
-            if (dgvRightsConfig.Columns.Count == 0) return false;
-
+            _bindingPermissions = true;
+            try { dgvRightsConfig.DataSource = readData; }
+            finally { _bindingPermissions = false; }
+            _savedPermissions = readData.Copy();
+            _savedPermissions.AcceptChanges();
+            _pendingPermissions = null;
+            if (dgvRightsConfig.Columns.Count == 0) return;
             dgvRightsConfig.ClearSelection();
             dgvRightsConfig.Columns[0].ReadOnly = true;
             for (int i = 0; i < dgvRightsConfig.Columns.Count; i++)
@@ -380,58 +405,190 @@ namespace AlphaRap
                     dgvRightsConfig.Columns[i].Width = 160;
                 }
             }
+        }
 
+        /// <summary>权限与用户账户共用的机器数据库路径；权限保存不会单独另建数据库。</summary>
+        private static string PermissionDatabasePath
+        {
+            get { return Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SysPara.MdbPath)); }
+        }
+
+        /// <summary>读取权限映射；连接与适配器始终释放，文件损坏或表不可读时抛出具体错误。</summary>
+        private static DataTable ReadPermissionTable(string path)
+        {
+            if (!File.Exists(path)) throw new FileNotFoundException(PermissionText("msg_RightsDatabaseMissing",
+                "权限数据库不存在。", "The permissions database does not exist.", "La base de datos de permisos no existe."), path);
+            DataTable table = new DataTable("PermissionSetup");
+            using (OleDbConnection connection = OpenPermissionConnection(path))
+            using (OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [PermissionSetup]", connection))
+                adapter.Fill(table);
+            ValidatePermissionTable(table);
+            return table;
+        }
+
+        /// <summary>打开无连接池的短期 ACE 连接，关闭后允许事务替换或删除数据库文件。</summary>
+        private static OleDbConnection OpenPermissionConnection(string path)
+        {
+            OleDbConnectionStringBuilder settings = new OleDbConnectionStringBuilder();
+            settings.Provider = "Microsoft.ACE.OLEDB.12.0";
+            settings.DataSource = path;
+            settings["OLE DB Services"] = -2;
+            OleDbConnection connection = new OleDbConnection(settings.ConnectionString);
+            try { connection.Open(); return connection; }
+            catch { connection.Dispose(); throw; }
+        }
+
+        /// <summary>校验角色唯一且每个功能值均为布尔量，禁止把不完整权限草稿写入数据库。</summary>
+        private static void ValidatePermissionTable(DataTable table)
+        {
+            string invalid = PermissionText("msg_RightsInvalidTable", "权限表不完整或包含无效值。",
+                "The permissions table is incomplete or contains invalid values.", "La tabla de permisos está incompleta o contiene valores no válidos.");
+            if (table == null || table.Rows.Count == 0 || !table.Columns.Contains("Permission") || table.Columns.Count < 2)
+                throw new InvalidOperationException(invalid);
+            if (table.Columns["Permission"].DataType != typeof(string)) throw new InvalidOperationException(invalid);
+            foreach (DataColumn column in table.Columns)
+                if (column.ColumnName != "Permission" && column.DataType != typeof(bool)) throw new InvalidOperationException(invalid);
+            HashSet<string> roles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (DataRow row in table.Rows)
+            {
+                if (row.RowState == DataRowState.Deleted) throw new InvalidOperationException(invalid);
+                string role = Convert.ToString(row["Permission"]);
+                if (string.IsNullOrWhiteSpace(role) || !roles.Add(role)) throw new InvalidOperationException(invalid);
+                foreach (DataColumn column in table.Columns)
+                    if (row.IsNull(column)) throw new InvalidOperationException(invalid);
+            }
+        }
+
+        /// <summary>比较权限业务键及功能值，不把行序或显示语言变化视为配置修改。</summary>
+        private static bool PermissionsEqual(DataTable left, DataTable right)
+        {
+            if (left == null || right == null || left.Rows.Count != right.Rows.Count || left.Columns.Count != right.Columns.Count) return false;
+            Dictionary<string, DataRow> rows = new Dictionary<string, DataRow>(StringComparer.OrdinalIgnoreCase);
+            foreach (DataRow row in right.Rows) rows.Add(Convert.ToString(row["Permission"]), row);
+            foreach (DataRow row in left.Rows)
+            {
+                DataRow other;
+                if (!rows.TryGetValue(Convert.ToString(row["Permission"]), out other)) return false;
+                foreach (DataColumn column in left.Columns)
+                    if (!right.Columns.Contains(column.ColumnName) || !Equals(row[column], other[column.ColumnName])) return false;
+            }
             return true;
         }
 
-        public bool WritePermission()
+        /// <summary>捕获已结束编辑的权限草稿；只有映射确实变化时生成更新数据库副本的主保存任务。</summary>
+        internal ProjectConfiguration.PendingFile PreparePermissionSave()
         {
-            bool IsUserExist = false;
-            for (int row = 0; row < dgvRightsConfig.Rows.Count; row++)
-            {
-                string strSQL = "update PermissionSetup set ";
-                for (int column = 1; column < dgvRightsConfig.Columns.Count; column++)
-                    strSQL += String.Format("[{0}]={1}{2}", dgvRightsConfig.Columns[column].Name,
-                        dgvRightsConfig[column, row].Value, (column == (dgvRightsConfig.Columns.Count - 1)) ? "" : ",");
-                strSQL += " where [Permission]= '" + dgvRightsConfig[0, row].Value.ToString() + "'";
-                int result = DataBase.DataBaseExecute(SysPara.MdbPath, strSQL);
-                if (result != 0)
-                {
-                    IsUserExist = false;
-                    break;
-                }
-                else
-                {
-                    IsUserExist = true;
-                }
-            }
-            return IsUserExist;
+            _pendingPermissions = null;
+            if (_savedPermissions == null || _permissionLoadError != null)
+                throw new InvalidOperationException(PermissionText("msg_RightsNotLoaded", "权限表尚未成功加载，无法保存。",
+                    "The permissions table has not loaded successfully and cannot be saved.",
+                    "La tabla de permisos no se ha cargado correctamente y no se puede guardar."), _permissionLoadError);
+            if (!dgvRightsConfig.EndEdit()) throw new InvalidOperationException(PermissionText("msg_RightsInvalidEdit",
+                "请先完成权限表中正在编辑的值。", "Finish editing the permissions value first.", "Termine de editar el valor de permisos."));
+            DataTable table = dgvRightsConfig.DataSource as DataTable;
+            if (table != null) BindingContext[table].EndCurrentEdit();
+            ValidatePermissionTable(table);
+            DataTable snapshot = table.Copy();
+            if (PermissionsEqual(snapshot, _savedPermissions)) return null;
+            string source = PermissionDatabasePath;
+            _pendingPermissions = snapshot;
+            return new ProjectConfiguration.PendingFile { Path = source, Write = path => WritePermissionDraft(source, path, snapshot) };
         }
 
-        private void DataChange_Click(object sender, EventArgs e)
+        /// <summary>复制当前数据库后仅在副本的单个事务内更新权限映射，用户账户与其他表保持原内容。</summary>
+        private static void WritePermissionDraft(string source, string target, DataTable snapshot)
         {
+            try
+            {
+                File.Copy(source, target, false);
+                using (OleDbConnection connection = OpenPermissionConnection(target))
+                using (OleDbTransaction transaction = connection.BeginTransaction())
+                {
+                    foreach (DataRow row in snapshot.Rows) UpdatePermissionRow(connection, transaction, snapshot.Columns, row);
+                    transaction.Commit();
+                }
+            }
+            catch (Exception error)
+            {
+                throw new InvalidOperationException(PermissionText("msg_RightsStageFailed", "无法准备权限配置，正式数据库未更新。",
+                    "Cannot prepare the permissions configuration; the original database was not updated.",
+                    "No se puede preparar la configuración de permisos; la base de datos original no se ha actualizado."), error);
+            }
+        }
+
+        /// <summary>按稳定角色键参数化更新全部功能列；不存在或重复的角色记录使整个事务失败。</summary>
+        private static void UpdatePermissionRow(OleDbConnection connection, OleDbTransaction transaction, DataColumnCollection columns, DataRow row)
+        {
+            using (OleDbCommand command = connection.CreateCommand())
+            {
+                command.Transaction = transaction;
+                List<string> assignments = new List<string>();
+                foreach (DataColumn column in columns)
+                {
+                    if (column.ColumnName == "Permission") continue;
+                    assignments.Add("[" + column.ColumnName.Replace("]", "]]") + "] = ?");
+                    command.Parameters.Add("p" + command.Parameters.Count, OleDbType.Boolean).Value = row[column];
+                }
+                command.Parameters.Add("role", OleDbType.VarWChar, 255).Value = row["Permission"];
+                command.CommandText = "UPDATE [PermissionSetup] SET " + string.Join(", ", assignments) + " WHERE [Permission] = ?";
+                if (command.ExecuteNonQuery() != 1)
+                    throw new InvalidOperationException(PermissionText("msg_RightsRoleChanged", "权限角色不存在或出现重复，请重新加载权限表。",
+                        "A permissions role is missing or duplicated. Reload the permissions table.",
+                        "Falta un rol de permisos o está duplicado. Vuelva a cargar la tabla de permisos."));
+            }
+        }
+
+        /// <summary>主保存全部成功后接受已写入的权限快照；不执行数据库写入。</summary>
+        internal void AcceptPermissionSave()
+        {
+            if (_pendingPermissions == null) return;
+            _savedPermissions = _pendingPermissions.Copy();
+            _savedPermissions.AcceptChanges();
+            DataTable table = dgvRightsConfig.DataSource as DataTable;
+            if (table != null && PermissionsEqual(table, _savedPermissions)) table.AcceptChanges();
+            _pendingPermissions = null;
+            ResetRightsHint();
+        }
+
+        /// <summary>预读完整的已保存权限映射，返回只恢复内存草稿的动作；读取失败不改变当前表格。</summary>
+        internal Action PreparePermissionDiscard()
+        {
+            DataTable table = ReadPermissionTable(PermissionDatabasePath);
+            return delegate
+            {
+                BindPermissionTable(table);
+                _permissionLoadError = null;
+                ResetRightsHint();
+            };
+        }
+
+        /// <summary>获取权限配置提示的三语文案，业务角色与列名不参与翻译。</summary>
+        private static string PermissionText(string key, string chinese, string english, string spanish)
+        {
+            return MiddleLayer.LangMsg("AddUserForm", key, chinese, english, spanish);
+        }
+
+        /// <summary>记录权限编辑状态，配置由主界面保存或放弃。</summary>
+        private void PermissionValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (_bindingPermissions || _savedPermissions == null || e.RowIndex < 0 || e.ColumnIndex < 0) return;
             SysPara.items++;
             ResetRightsHint();
         }
 
-        /// <summary>保存权限表（离开页面或退出程序时也会通过 MainForm.SaveData() 保存）。</summary>
-        private void btnSaveRights_Click(object sender, EventArgs e)
+        /// <summary>及时提交勾选值以标记权限草稿；编辑过程中不写数据库。</summary>
+        private void PermissionCellDirtyChanged(object sender, EventArgs e)
         {
-            bool ok = WritePermission();
-            OperationLog.Write("AddUserForm", "保存权限表：" + (ok ? "成功" : "失败"));
-            // 运行时提示语走语言包（三语，可在 LanguageData\AddUserForm 段里改）
-            lblRightsHint.Text = ok
-                ? MiddleLayer.LangMsg("AddUserForm", "msg_RightsSaved", "权限已保存", "Permissions saved", "Permisos guardados")
-                : MiddleLayer.LangMsg("AddUserForm", "msg_RightsSaveFail", "保存失败，请检查数据库", "Save failed, check the database", "Error al guardar");
-            lblRightsHint.ForeColor = ok ? UiKit.Success : UiKit.Danger;
+            if (_bindingPermissions || !dgvRightsConfig.IsCurrentCellDirty) return;
+            dgvRightsConfig.CommitEdit(DataGridViewDataErrorContexts.Commit);
         }
 
+        /// <summary>离开权限编辑页时沿用主保存确认；失败或取消保留修改标记。</summary>
         private void AddUserForm_Leave(object sender, EventArgs e)
         {
             if (SysPara.items != 1)
             {
                 MiddleLayer.MainF.SaveData();
-                SysPara.items = 1;
             }
         }
     }

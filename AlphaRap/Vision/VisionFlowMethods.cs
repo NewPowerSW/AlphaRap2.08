@@ -36,6 +36,7 @@ namespace AlphaRap
                 }
             }
             run.Invoke = RunFlowVision;
+            if (!includeDraft) run.ValidateInputs = inputs => { if (HasToolBlockDraft) throw new InvalidOperationException(FlowText.T("visionDraft")); };
             yield return run;
             FlowField output = new FlowField("Output", typeof(string)) { DisplayName = new[] { "VPP 输出项目", "VPP output item", "Salida de VPP" } };
             output.Options.AddRange(run.Outputs.Where(field => field.Name.StartsWith("TB:")).Select(field => new FlowOption { Value = field.Name.Substring(3), Label = field.Name.Substring(3) }));
@@ -56,6 +57,7 @@ namespace AlphaRap
             long id;
             lock (_operationLock)
             {
+                if (HasToolBlockDraft) throw new InvalidOperationException(FlowText.T("visionDraft"));
                 if (IsBusy || !IsLoadTBOk || TB == null) throw new InvalidOperationException(FlowText.T("error.visionBusy") + StationName);
                 foreach (KeyValuePair<string, object> input in call.Inputs) TB.Inputs[input.Key.Substring(3)].Value = input.Value;
                 if (!TryRunTB(out id)) throw new InvalidOperationException(LastError);
@@ -118,6 +120,7 @@ namespace AlphaRap
         /// <summary>生产调用前拒绝未保存的相机绑定和 VPP 参数，避免编辑值直接进入运行。</summary>
         private void RequireSavedFlowConfiguration()
         {
+            if (HasToolBlockDraft) throw new InvalidOperationException(FlowText.T("visionDraft"));
             if (Config == null) return;
             VpVppConfig saved = flowSavedConfig;
             if (saved == null || flowSavedCamera != RunLiveCCDSN || flowSavedExposure != RunExposure || saved.Exposure != Config.Exposure ||

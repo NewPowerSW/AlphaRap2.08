@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Xml;
+using AlphaRap.Configuration;
 
 namespace AlphaRap
 {
@@ -650,6 +651,10 @@ namespace AlphaRap
 
         /// <summary>所有存活的 DeviceControl（MainForm 的【保存】按钮会遍历它们写入 / 还原）。</summary>
         private static readonly List<DeviceControl> LiveInstances = new List<DeviceControl>();
+        private static Exception _configurationLoadError;
+
+        /// <summary>最近一次设备配置加载失败；主保存不能用空设备清单覆盖该配置。</summary>
+        internal static Exception ConfigurationLoadError { get { return _configurationLoadError; } }
 
         /// <summary>
         /// 参数文件：{SettingDataDirectory}\DeviceControl.xml —— 机器级、离线可编辑（不依赖设备在线），
@@ -682,37 +687,57 @@ namespace AlphaRap
             }
         }
 
-        /// <summary>
-        /// 主界面【保存】选"是"时由 MainForm.SaveData() 调用：把所有 DeviceControl 的参数写入 XML。
-        /// 单设备面板（宿主动态增删的那种）会先把该窗体名下的旧节点整体清掉再逐面板重写 ——
-        /// 否则"删掉过的面板"会在 XML 里留下孤儿节点，下次启动又冒出来。
-        /// </summary>
-        public static void SaveAll()
+        /// <summary>捕获全部设备参数，生成只写暂存文件的主保存任务；读取或序列化失败时保留原配置。</summary>
+        internal static ProjectConfiguration.PendingFile PrepareConfigurationSave()
         {
-            try
+            if (_configurationLoadError != null)
+                throw new InvalidOperationException(L("err_ConfigurationNotLoaded", "设备配置未成功加载，请修复配置后重新加载。",
+                    "Device configuration did not load. Repair the configuration and reload it.",
+                    "No se ha cargado la configuración de dispositivos. Corríjala y vuelva a cargarla."), _configurationLoadError);
+            string path = Path.GetFullPath(XmlFilePath);
+            XmlDocument doc = ReadConfigurationDocument(path);
+            PurgeHostedFormNodes(doc);
+            HashSet<string> keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (DeviceControl panel in LiveInstances.ToArray())
             {
-                string path = XmlFilePath;
-                XmlDocument doc = new XmlDocument();
-                try { if (File.Exists(path)) doc.Load(path); }
-                catch (Exception) { doc = new XmlDocument(); }
-
-                if (doc.DocumentElement == null)
-                {
-                    doc = new XmlDocument();
-                    doc.AppendChild(doc.CreateElement("DeviceControl"));
-                }
-
-                PurgeHostedFormNodes(doc);
-
-                for (int i = 0; i < LiveInstances.Count; i++)
-                    LiveInstances[i].WriteToDoc(doc);
-
-                string dir = Path.GetDirectoryName(path);
-                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
-
-                doc.Save(path);
+                if (panel == null || panel.IsDisposed) continue;
+                if (!keys.Add(panel.XmlKey))
+                    throw new InvalidOperationException(string.Format(L("err_DuplicateConfigurationKey",
+                        "设备面板标识重复：{0}", "Duplicate device panel identity: {0}", "Identidad de panel duplicada: {0}"), panel.XmlKey));
+                panel.WriteToDoc(doc);
             }
-            catch (Exception) { }
+            return new ProjectConfiguration.PendingFile { Path = path, Write = doc.Save };
+        }
+
+        /// <summary>读取设备配置并校验根节点；不存在时创建空配置，损坏文件不会被替换为空文档。</summary>
+        private static XmlDocument ReadConfigurationDocument(string path)
+        {
+            XmlDocument doc = new XmlDocument();
+            if (!File.Exists(path))
+            {
+                doc.AppendChild(doc.CreateElement("DeviceControl"));
+                return doc;
+            }
+            try { doc.Load(path); }
+            catch (Exception error)
+            {
+                throw new InvalidOperationException(string.Format(L("err_ReadConfiguration",
+                    "无法读取设备配置：{0}", "Cannot read device configuration: {0}", "No se puede leer la configuración de dispositivos: {0}"), path), error);
+            }
+            if (doc.DocumentElement == null || doc.DocumentElement.Name != "DeviceControl")
+                throw new InvalidOperationException(string.Format(L("err_ConfigurationRoot",
+                    "设备配置格式不正确：{0}", "Invalid device configuration format: {0}", "Formato de configuración de dispositivos no válido: {0}"), path));
+            HashSet<string> keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (XmlNode child in doc.DocumentElement.ChildNodes)
+            {
+                XmlElement element = child as XmlElement;
+                if (element == null || element.Name != "Device") continue;
+                string key = element.GetAttribute("Key");
+                if (string.IsNullOrWhiteSpace(key) || !keys.Add(key))
+                    throw new InvalidOperationException(string.Format(L("err_ConfigurationPanelKey",
+                        "设备面板标识重复或为空：{0}", "Duplicate or empty device panel identity: {0}", "Identidad de panel duplicada o vacía: {0}"), key));
+            }
+            return doc;
         }
 
         /// <summary>
@@ -770,19 +795,35 @@ namespace AlphaRap
         /// <summary>宿主收到它就该按 XML 重建面板集合（"选否"回滚时也要把面板集合一起回滚）。</summary>
         public static event EventHandler ReloadPanelsRequested;
 
+        /// <summary>放弃前预读设备文件并验证全部离线参数；修复后的配置不受此前加载错误影响。</summary>
+        internal static void ValidateConfigurationReload()
+        {
+            XmlDocument doc = ReadConfigurationDocument(XmlFilePath);
+            List<Type> types = ScanDeviceTypes();
+            foreach (XmlNode child in doc.DocumentElement.ChildNodes)
+            {
+                XmlElement element = child as XmlElement;
+                if (element == null || element.Name != "Device") continue;
+                List<DeviceItem> devices = null;
+                try
+                {
+                    string selected;
+                    devices = ReadDevicesFrom(element, types, out selected);
+                }
+                finally { DisposePreparedDevices(devices); }
+            }
+        }
+
         /// <summary>主界面【保存】选"否"时由 MainForm.SaveData() 调用：把参数还原成 XML 里上次保存的值。</summary>
         public static void ReloadAll()
         {
-            // 先让宿主按 XML 重建面板（"加了没保存/删了没保存"的面板集合本身也要回滚）
+            ReadConfigurationDocument(XmlFilePath);
             EventHandler h = ReloadPanelsRequested;
-            if (h != null)
-            {
-                try { h(null, EventArgs.Empty); }
-                catch (Exception) { }
-            }
+            if (h != null) h(null, EventArgs.Empty);
 
-            for (int i = 0; i < LiveInstances.Count; i++)
-                LiveInstances[i].LoadFromXml();
+            foreach (DeviceControl panel in LiveInstances.ToArray())
+                if (panel != null && !panel.IsDisposed) panel.LoadFromXml();
+            _configurationLoadError = null;
         }
 
         /// <summary>
@@ -794,29 +835,24 @@ namespace AlphaRap
             List<string> names = new List<string>();
             if (string.IsNullOrEmpty(formName)) return names;
 
-            try
+            XmlDocument doc;
+            try { doc = ReadConfigurationDocument(XmlFilePath); }
+            catch (Exception error)
             {
-                string path = XmlFilePath;
-                if (!File.Exists(path)) return names;
-
-                XmlDocument doc = new XmlDocument();
-                doc.Load(path);
-                if (doc.DocumentElement == null) return names;
-
-                string prefix = formName + "_";
-                for (int i = 0; i < doc.DocumentElement.ChildNodes.Count; i++)
-                {
-                    XmlElement e = doc.DocumentElement.ChildNodes[i] as XmlElement;
-                    if (e == null || e.Name != "Device") continue;
-
-                    string key = e.GetAttribute("Key");
-                    if (!key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) continue;
-
-                    string ctl = key.Substring(prefix.Length);
-                    if (ctl.Length > 0) names.Add(ctl);
-                }
+                _configurationLoadError = error;
+                OperationLog.Write("DeviceControl", error.Message);
+                return names;
             }
-            catch (Exception) { }
+            string prefix = formName + "_";
+            foreach (XmlNode child in doc.DocumentElement.ChildNodes)
+            {
+                XmlElement element = child as XmlElement;
+                if (element == null || element.Name != "Device") continue;
+                string key = element.GetAttribute("Key");
+                if (!key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) continue;
+                string controlName = key.Substring(prefix.Length);
+                if (controlName.Length > 0) names.Add(controlName);
+            }
             return names;
         }
 
@@ -836,9 +872,14 @@ namespace AlphaRap
             node.RemoveAttribute("DeviceName");
             node.SetAttribute("Current", (_current == null) ? string.Empty : _current.Name);             // 记住上次选中的设备
 
+            HashSet<string> names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             for (int k = 0; k < _devices.Count; k++)
             {
                 DeviceItem it = _devices[k];
+                if (it == null || it.DeviceType == null || it.Instance == null || string.IsNullOrWhiteSpace(it.Name) || !names.Add(it.Name))
+                    throw new InvalidOperationException(L("err_InvalidDeviceConfiguration", "设备配置包含空名称、重复名称或无效实例。",
+                        "The device configuration contains an empty or duplicate name, or an invalid instance.",
+                        "La configuración contiene un nombre vacío o duplicado, o una instancia no válida."));
 
                 XmlElement itemNode = doc.CreateElement("Item");
                 itemNode.SetAttribute("Name", it.Name);
@@ -853,7 +894,12 @@ namespace AlphaRap
                         e.InnerText = ToInvariantString(v, p.PropertyType);
                         itemNode.AppendChild(e);
                     }
-                    catch (Exception) { }
+                    catch (Exception error)
+                    {
+                        throw new InvalidOperationException(string.Format(L("err_CaptureDeviceProperty",
+                            "无法保存设备 {0} 的参数 {1}。", "Cannot save parameter {1} of device {0}.",
+                            "No se puede guardar el parámetro {1} del dispositivo {0}."), it.Name, p.Name), error);
+                    }
                 }
                 node.AppendChild(itemNode);
             }
@@ -868,25 +914,18 @@ namespace AlphaRap
         {
             try
             {
+                string path = XmlFilePath;
+                XmlDocument doc = ReadConfigurationDocument(path);
+                XmlElement node = FindDeviceNode(doc, XmlKey);
+                if (_types.Count == 0) BuildTypeList();
+                string selected = null;
+                List<DeviceItem> devices = node == null ? new List<DeviceItem>() : ReadDevicesFrom(node, _types, out selected);
                 CloseSilently();
                 _devices.Clear();
+                _devices.AddRange(devices);
                 _current = null;
                 _device = null;
-                _pendingCurrent = null;
-
-                if (_types.Count == 0) BuildTypeList();     // 万一还没扫过设备类
-
-                string path = XmlFilePath;
-                if (File.Exists(path))
-                {
-                    XmlDocument doc = new XmlDocument();
-                    doc.Load(path);
-                    if (doc.DocumentElement != null)
-                    {
-                        XmlElement node = FindDeviceNode(doc, XmlKey);
-                        if (node != null) LoadDevicesFrom(node);
-                    }
-                }
+                _pendingCurrent = selected;
 
                 string want = _pendingCurrent;
                 if (FindDevice(want) == null) want = (_devices.Count > 0) ? _devices[0].Name : null;
@@ -900,44 +939,68 @@ namespace AlphaRap
                     + L("msg_LoadedN", " 载入 ", " - ", " - ") + _devices.Count
                     + L("msg_LoadedEnd", " 台设备", " device(s)", " dispositivo(s)"));
             }
-            catch (Exception) { }
+            catch (Exception error)
+            {
+                _configurationLoadError = new InvalidOperationException(string.Format(L("err_RestoreDeviceConfiguration",
+                    "无法恢复设备面板 {0} 的配置。", "Cannot restore configuration for device panel {0}.",
+                    "No se puede restaurar la configuración del panel {0}."), XmlKey), error);
+                throw _configurationLoadError;
+            }
         }
 
-        /// <summary>从一个 &lt;Device&gt; 节点读出设备列表（新格式优先，其次两种旧格式）。</summary>
-        private void LoadDevicesFrom(XmlElement node)
+        /// <summary>从设备节点生成离线候选列表；全部参数读取成功后，调用方才替换当前草稿。</summary>
+        private static List<DeviceItem> ReadDevicesFrom(XmlElement node, List<Type> types, out string selected)
         {
-            _pendingCurrent = node.GetAttribute("Current");
-            string savedName = node.GetAttribute("DeviceName");     // 旧格式里的设备名
-            string lastType = node.GetAttribute("LastType");        // 旧格式：上次用的设备类
-            string legacyType = node.GetAttribute("Type");          // 更旧的格式：类型写在 Device 属性上
-
-            // ① 新格式：每台设备一条 <Item Name="…" Type="…">
-            for (int i = 0; i < node.ChildNodes.Count; i++)
+            List<DeviceItem> devices = new List<DeviceItem>();
+            selected = node.GetAttribute("Current");
+            try
             {
-                XmlElement e = node.ChildNodes[i] as XmlElement;
-                if (e == null || e.Name != "Item") continue;
-                AddDeviceFromXml(e.GetAttribute("Type"), e.GetAttribute("Name"), e);
-            }
-            if (_devices.Count > 0) return;
+                string savedName = node.GetAttribute("DeviceName");
+                string lastType = node.GetAttribute("LastType");
+                string legacyType = node.GetAttribute("Type");
 
-            // ② 旧格式 A：<Type Name="X"> 按设备类分组（每类一条记录）
-            for (int i = 0; i < node.ChildNodes.Count; i++)
+                for (int i = 0; i < node.ChildNodes.Count; i++)
+                {
+                    XmlElement e = node.ChildNodes[i] as XmlElement;
+                    if (e == null || e.Name != "Item") continue;
+                    AddDeviceFromXml(devices, types, e.GetAttribute("Type"), e.GetAttribute("Name"), e);
+                }
+                if (devices.Count > 0) return devices;
+
+                for (int i = 0; i < node.ChildNodes.Count; i++)
+                {
+                    XmlElement e = node.ChildNodes[i] as XmlElement;
+                    if (e == null || e.Name != "Type") continue;
+
+                    string tn = e.GetAttribute("Name");
+                    bool isLast = string.Equals(tn, lastType, StringComparison.OrdinalIgnoreCase);
+                    string nm = (isLast && !string.IsNullOrEmpty(savedName)) ? savedName : tn;
+                    AddDeviceFromXml(devices, types, tn, nm, e);
+                    if (isLast) selected = nm;
+                }
+                if (devices.Count > 0) return devices;
+
+                if (!string.IsNullOrEmpty(legacyType))
+                    AddDeviceFromXml(devices, types, legacyType,
+                        string.IsNullOrEmpty(savedName) ? legacyType : savedName, node);
+                return devices;
+            }
+            catch
             {
-                XmlElement e = node.ChildNodes[i] as XmlElement;
-                if (e == null || e.Name != "Type") continue;
-
-                string tn = e.GetAttribute("Name");
-                bool isLast = string.Equals(tn, lastType, StringComparison.OrdinalIgnoreCase);
-                string nm = (isLast && !string.IsNullOrEmpty(savedName)) ? savedName : tn;
-                AddDeviceFromXml(tn, nm, e);
-                if (isLast) _pendingCurrent = nm;
+                DisposePreparedDevices(devices);
+                throw;
             }
-            if (_devices.Count > 0) return;
+        }
 
-            // ③ 旧格式 B：<Device Type="X"> 参数直接挂在 Device 下
-            if (!string.IsNullOrEmpty(legacyType))
-                AddDeviceFromXml(legacyType,
-                    string.IsNullOrEmpty(savedName) ? legacyType : savedName, node);
+        /// <summary>释放配置预检或失败解析创建的可释放候选实例，不连接设备。</summary>
+        private static void DisposePreparedDevices(IEnumerable<DeviceItem> devices)
+        {
+            if (devices == null) return;
+            foreach (DeviceItem device in devices)
+            {
+                IDisposable disposable = device.Instance as IDisposable;
+                if (disposable != null) disposable.Dispose();
+            }
         }
 
         /// <summary>读完 XML 后由调用方（或自身的 Load）通知一次"设备清单变了"。</summary>
@@ -947,21 +1010,22 @@ namespace AlphaRap
         }
 
         /// <summary>按类型名找到设备类 → 建实例 → 套 XML 里的参数 → 加入设备列表。</summary>
-        private void AddDeviceFromXml(string typeName, string name, XmlElement paramNode)
+        private static void AddDeviceFromXml(List<DeviceItem> devices, List<Type> types, string typeName, string name, XmlElement paramNode)
         {
-            if (string.IsNullOrEmpty(typeName)) return;
-
             Type t = null;
-            for (int i = 0; i < _types.Count; i++)
-                if (string.Equals(_types[i].Name, typeName, StringComparison.OrdinalIgnoreCase)) { t = _types[i]; break; }
-            if (t == null) return;                                   // 类被删/改名了 ⇒ 跳过这条（其余照常载入）
-
-            if (string.IsNullOrEmpty(name)) name = AutoDeviceName();
-            if (FindDevice(name) != null) name = AutoDeviceName();    // 重名就去重
-
-            AbstractDevice inst;
-            try { inst = NewDevice(t, name); }
-            catch (Exception) { return; }
+            for (int i = 0; i < types.Count; i++)
+                if (string.Equals(types[i].Name, typeName, StringComparison.OrdinalIgnoreCase)) { t = types[i]; break; }
+            if (t == null) throw new InvalidOperationException(string.Format(L("err_ConfigurationDeviceType",
+                "设备配置中的类型不存在：{0}", "Device type in the configuration was not found: {0}",
+                "No se encuentra el tipo de dispositivo configurado: {0}"), typeName));
+            if (string.IsNullOrEmpty(name)) name = "Device" + (devices.Count + 1);
+            foreach (DeviceItem existing in devices)
+                if (string.Equals(existing.Name, name, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException(string.Format(L("err_ConfigurationDeviceName",
+                        "设备名称重复：{0}", "Duplicate device name: {0}", "Nombre de dispositivo duplicado: {0}"), name));
+            AbstractDevice inst = NewDevice(t, name);
+            DeviceItem item = new DeviceItem { Name = name, DeviceType = t, Instance = inst };
+            devices.Add(item);
 
             if (paramNode != null)
             {
@@ -972,13 +1036,6 @@ namespace AlphaRap
                     ApplyOne(inst, c.Name, c.InnerText);
                 }
             }
-            else { }
-
-            DeviceItem item = new DeviceItem();
-            item.Name = name;
-            item.DeviceType = t;
-            item.Instance = inst;
-            _devices.Add(item);
         }
 
         /// <summary>取本控件在 XML 里的 &lt;Device&gt; 节点（找不到返回 null）。</summary>
@@ -1040,16 +1097,12 @@ namespace AlphaRap
         private static string ToInvariantString(object v, Type t)
         {
             if (v == null) return string.Empty;
-            try
-            {
-                TypeConverter tc = TypeDescriptor.GetConverter(t);
-                if (tc != null && tc.CanConvertTo(typeof(string))) return tc.ConvertToInvariantString(v);
-            }
-            catch (Exception) { }
-            return v.ToString();
+            TypeConverter tc = TypeDescriptor.GetConverter(t);
+            if (tc != null && tc.CanConvertTo(typeof(string))) return tc.ConvertToInvariantString(v);
+            return Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture);
         }
 
-        /// <summary>把 XML 里的字符串按属性类型转回来并写进设备实例；成功返回 true。</summary>
+        /// <summary>把已知属性的配置值写入离线候选实例；历史配置的未知属性跳过，无效值抛出错误。</summary>
         private static bool ApplyOne(AbstractDevice d, string propName, string text)
         {
             try
@@ -1065,12 +1118,17 @@ namespace AlphaRap
                     TypeConverter tc = TypeDescriptor.GetConverter(t);
                     v = (tc != null && tc.CanConvertFrom(typeof(string))) ? tc.ConvertFromInvariantString(text) : null;
                 }
-                if (v == null) return false;
+                if (v == null) throw new FormatException(propName);
 
                 p.SetValue(d, v, null);
                 return true;
             }
-            catch (Exception) { return false; }
+            catch (Exception error)
+            {
+                throw new InvalidOperationException(string.Format(L("err_DeviceParameterValue",
+                    "设备 {0} 的参数 {1} 无效。", "Parameter {1} of device {0} is invalid.",
+                    "El parámetro {1} del dispositivo {0} no es válido."), d.DeviceName, propName), error);
+            }
         }
 
         #endregion
@@ -1178,6 +1236,7 @@ namespace AlphaRap
             FitParamPanel();     // 宿主把控件压矮时，让【发送】行与记录框不被挤掉
         }
 
+        /// <summary>加载离线设备配置；损坏配置显示错误并阻止自动连接，页面保持可用。</summary>
         private void DeviceControl_Load(object sender, EventArgs e)
         {
             // 单设备模式：面板由宿主（Parameter）负责建好、绑定设备、再按 XML 套参数。
@@ -1185,7 +1244,12 @@ namespace AlphaRap
             // 而此刻宿主可能还没给面板命名/绑定设备类 —— 所以交给宿主决定何时载入。
             if (!_singleDevice)
             {
-                LoadFromXml();      // 离线参数：按 XML 上次保存的值套到设备实例上（此时才取得到窗体名做键）
+                try { LoadFromXml(); }
+                catch (Exception error)
+                {
+                    AppendLog(L("tag_Error", "错误", "Error", "Error"), error.Message);
+                    return;
+                }
                 RaiseDevicesChanged();
             }
 
@@ -1429,7 +1493,7 @@ namespace AlphaRap
 
         /// <summary>
         /// 参数表改过值就提示"要保存"——本控件的参数不会自动落盘，
-        /// 必须点主界面左侧【保存】并在确认框选"是"（见 MainForm.SaveData → DeviceControl.SaveAll）。
+        /// 必须点主界面左侧【保存】并在确认框选"是"。
         /// </summary>
         private void propGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {

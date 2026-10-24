@@ -49,6 +49,7 @@ internal static class StartupSmoke
         SysPara.RecipeDataDirectory = Path.Combine(root,"Recipes"); Directory.CreateDirectory(SysPara.RecipeDataDirectory);
         SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory,"Startup.xml"); SysPara.RecipeName = "Startup";
         SysPara.SystemMode = RunMode.IDLE; SysPara.Simulation = true;
+        ConfigurationCases.PrepareFixture(root,args[0],args[2]);
         File.WriteAllText(Path.Combine(SysPara.SettingDataDirectory,"SysSetting.xml"),"<NewDataSet><MSet /><PSet><DisScann>true</DisScann><UseTryRun>false</UseTryRun></PSet></NewDataSet>");
         Type host = typeof(SysPara).Assembly.GetType("AlphaRap.MiddleLayer");
         host.GetMethod("LoadAlarmTable",BindingFlags.Static|BindingFlags.NonPublic,null,Type.EmptyTypes,null).Invoke(null,null);
@@ -68,6 +69,7 @@ internal static class StartupSmoke
             using (Bitmap image = new Bitmap(main.Width,main.Height)) { main.DrawToBitmap(image,new Rectangle(Point.Empty,main.Size)); image.Save(Path.Combine(root,"startup-main.png")); }
             Console.WriteLine("PASS real startup form creation and main window with empty legacy MSet; hardware initialization and machine threads were not started.");
             VerifyMainSave(main,host,setting);
+            ConfigurationCases.Run(main,host,setting);
         }
         catch (Exception error) { runError = error; throw; }
         finally
@@ -160,7 +162,11 @@ internal static class StartupSmoke
         data.SetProductionDraft(new List<ProductionField> { new ProductionField { Name="DiscardedField" } });
         ChooseSave(main,"Button3_dyn");
         axis=(NP_AxisGroup)hardware.Resources.Entries.Single(entry=>entry.Definition.Id==definition.Id).Group;
-        if (axis.Points.DataSet1.Rows[0].Field<double>("Position")!=21 || hardware.Resources.Entries.Any(entry=>entry.Definition.Id==scratch.Id) || data.GetProductionDraft().Any(field=>field.Name=="DiscardedField") || !(bool)setting.Constants.Committed("Setting").Single(pair=>pair.Key=="Constants/Setting/MainSaveFlag").Value) throw new InvalidOperationException("Main Save No did not restore the saved configuration.");
+        double restoredPoint=axis.Points.DataSet1.Rows[0].Field<double>("Position");
+        bool scratchRemains=hardware.Resources.Entries.Any(entry=>entry.Definition.Id==scratch.Id);
+        bool discardedFieldRemains=data.GetProductionDraft().Any(field=>field.Name=="DiscardedField");
+        bool savedFlag=(bool)setting.Constants.Committed("Setting").Single(pair=>pair.Key=="Constants/Setting/MainSaveFlag").Value;
+        if (restoredPoint!=21 || scratchRemains || discardedFieldRemains || !savedFlag) throw new InvalidOperationException("Main Save No did not restore the saved configuration: point="+restoredPoint+", scratchRemains="+scratchRemains+", discardedFieldRemains="+discardedFieldRemains+", savedFlag="+savedFlag+", permission="+SysPara.UserPermission+", mode="+SysPara.SystemMode+".");
         Console.WriteLine("PASS MainForm Save No restores points, resource groups, constants, production fields and flow drafts.");
         string path=Path.Combine(ModuleManager.SettingDataDirectory,"SysSetting.xml"), before=File.ReadAllText(path), savedDirectory=SysPara.SettingDataDirectory;
         string blocker=Path.Combine(Environment.CurrentDirectory,"blocked-save"); File.WriteAllText(blocker,"fixture");

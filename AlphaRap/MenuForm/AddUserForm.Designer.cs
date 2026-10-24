@@ -596,7 +596,8 @@
             this.dgvRightsConfig.Size = new System.Drawing.Size(1292, 236);
             this.dgvRightsConfig.TabIndex = 1;
             this.dgvRightsConfig.TabStop = false;
-            this.dgvRightsConfig.Click += new System.EventHandler(this.DataChange_Click);
+            this.dgvRightsConfig.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.PermissionValueChanged);
+            this.dgvRightsConfig.CurrentCellDirtyStateChanged += new System.EventHandler(this.PermissionCellDirtyChanged);
             // 
             // pnlRightsBar
             // 
@@ -618,7 +619,7 @@
             this.lblRightsHint.Name = "lblRightsHint_dyn";
             this.lblRightsHint.Size = new System.Drawing.Size(1122, 50);
             this.lblRightsHint.TabIndex = 0;
-            this.lblRightsHint.Text = "勾选各权限允许的功能后点保存";
+            this.lblRightsHint.Text = "勾选各权限允许的功能后，使用主界面【保存】统一保存。";
             this.lblRightsHint.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btnSaveRights
@@ -641,7 +642,7 @@
             this.btnSaveRights.Text = "保存权限";
             this.btnSaveRights.TextColorOverride = null;
             this.btnSaveRights.Variant = AlphaRap.FlatButtonVariant.Success;
-            this.btnSaveRights.Click += new System.EventHandler(this.btnSaveRights_Click);
+            this.btnSaveRights.Visible = false;
             // 
             // lblRightsCaption
             // 
