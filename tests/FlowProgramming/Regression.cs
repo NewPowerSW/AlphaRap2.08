@@ -188,6 +188,8 @@ internal static partial class Cases
         Test("tray node explains the current layout and calculates the selected pocket", TrayNodeHelp);
         RegisterScriptRuntimeCases();
         RegisterScriptUiCases();
+        RegisterP0EntryRepairs();
+        Test("first Boolean CASE defaults to the opposite result and missing objects explain repair", BeginnerNodeDefaults);
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
         ExportP0FieldTexts();
         Console.WriteLine("RESULT: " + (count - failures) + "/" + count + " passed");
@@ -648,6 +650,8 @@ internal static partial class Cases
         using (FlowNodeForm dialog = new FlowNodeForm(editor, node))
         {
             dialog.Show(); Application.DoEvents();
+            TabControl tabs = (TabControl)dialog.Controls.Find("executionTabs", true)[0];
+            tabs.SelectedTab = tabs.TabPages["scriptRoutes"]; Application.DoEvents();
             FlowLayoutPanel panel = (FlowLayoutPanel)dialog.Controls.Find("branchPanel", true)[0];
             Assert(panel.Controls.OfType<FlowBranchEditor>().Select(branch => branch.Code).SequenceEqual(new[] { "NEXT" }), "A new node pre-created CASE exits.");
             Button add = (Button)dialog.Controls.Find("addCase", true)[0];
@@ -664,6 +668,46 @@ internal static partial class Cases
         }
         FlowStep saved = editor.Program.Steps.Single(step => step.Id == node.Id);
         Assert(saved.Branches.Count == 4 && saved.Case3 == measured.Id && saved.Branches.Single(branch => branch.Code == "CASE3").Conditions[0].Right.Reference == "3", "CASE3 condition or target was not persisted.");
+    }
+
+    /// <summary>Use the real CASE command and missing-object editor without executing hardware or changing original definitions.</summary>
+    private static void BeginnerNodeDefaults()
+    {
+        FlowStep boolean = new FlowStep { Caption = "Boolean routing", ExecutionMode = "Script", ScriptSource = "Outputs.Accepted = true;",
+            ScriptOutputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Accepted", Type = "Boolean" } }, Branches = FlowBranch.Default() };
+        using (FlowNodeForm dialog = new FlowNodeForm(editor, boolean))
+        {
+            dialog.Show(); TabControl tabs = (TabControl)dialog.Controls.Find("executionTabs", true)[0];
+            tabs.SelectedTab = tabs.TabPages["scriptRoutes"]; Application.DoEvents();
+            ((Button)dialog.Controls.Find("addCase", true)[0]).PerformClick();
+            FlowBranchEditor[] branches = dialog.Controls.Find("branchPanel", true)[0].Controls.OfType<FlowBranchEditor>().ToArray();
+            Assert(branches.Length == 2 && branches[0].ReadBranch().Conditions.Single().Right.Reference == "true"
+                && branches[1].ReadBranch().Conditions.Single().Right.Reference == "false", "NEXT and first CASE both accepted the same Boolean value.");
+        }
+        Assert(boolean.Branches.Count == 1, "Canceling CASE editing modified the original script node.");
+        boolean.Branches[0].Unconditional = false;
+        boolean.Branches[0].Conditions.Add(new FlowCondition { Left = new FlowInput { Source = "Result", Reference = "Accepted" }, Right = new FlowInput { Reference = "1" } });
+        using (FlowNodeForm dialog = new FlowNodeForm(editor, boolean))
+        {
+            dialog.Show(); TabControl tabs = (TabControl)dialog.Controls.Find("executionTabs", true)[0]; tabs.SelectedTab = tabs.TabPages["scriptRoutes"]; Application.DoEvents();
+            ((Button)dialog.Controls.Find("addCase", true)[0]).PerformClick();
+            FlowBranchEditor added = dialog.Controls.Find("branchPanel", true)[0].Controls.OfType<FlowBranchEditor>().Single(branch => branch.Code == "CASE1");
+            Assert(added.ReadBranch().Conditions.Single().Right.Reference == "false", "A legacy Boolean 1 condition produced a duplicate true CASE.");
+        }
+        Assert(boolean.Branches[0].Conditions.Single().Right.Reference == "1", "Editing CASE rewrote the original Boolean spelling.");
+        FlowStep missing = new FlowStep { Caption = "Missing axis", Target = "removed/axis", Action = "point.move", Branches = FlowBranch.Default() };
+        using (FlowNodeForm dialog = new FlowNodeForm(editor, missing))
+        {
+            dialog.Show(); Application.DoEvents();
+            ComboBox methods = (ComboBox)dialog.Controls.Find("actionValue", true)[0];
+            Label help = (Label)dialog.Controls.Find("methodHint_dyn", true)[0];
+            foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+            {
+                SwitchLanguage(language); Application.DoEvents();
+                Assert(methods.Items.Count == 0 && help.Text.Length > 30 && help.Visible, "A missing object exposed unrelated methods or hid its repair instructions.");
+            }
+        }
+        SwitchLanguage(LanguageType.Chinese);
     }
 
     /// <summary>Use a base form with both SDK pages and a small viewport, as in the actual host.</summary>
@@ -716,6 +760,7 @@ internal static partial class Cases
         using (FlowNodeForm dialog = new FlowNodeForm(editor, editor.Program.Steps.Single(step => step.Id == model.Id)))
         {
             dialog.Show(); Application.DoEvents();
+            TabControl tabs = (TabControl)dialog.Controls.Find("executionTabs", true)[0]; tabs.SelectedTab = tabs.TabPages["scriptRoutes"]; Application.DoEvents();
             FlowBranchEditor branch = (FlowBranchEditor)dialog.Controls.Find("branch_NEXT_dyn", true)[0];
             RadioButton all = (RadioButton)branch.Controls.Find("branchAll", true)[0];
             RadioButton any = (RadioButton)branch.Controls.Find("branchAny", true)[0];

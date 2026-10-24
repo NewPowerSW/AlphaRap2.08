@@ -15,7 +15,7 @@ namespace AlphaRap.FlowProgramming
         private readonly List<FlowBranchEditor> branchEditors = new List<FlowBranchEditor>();
 
         /// <summary>Build the fixed controls without loading application data.</summary>
-        public FlowNodeForm() { InitializeComponent(); }
+        public FlowNodeForm() { InitializeComponent(); scriptEditor.BindSettings(scriptSettings); }
 
         /// <summary>编辑节点副本，取消时不改变原工程和已有输入。</summary>
         public FlowNodeForm(FlowModuleEditor owner, FlowStep step) : this()
@@ -31,8 +31,7 @@ namespace AlphaRap.FlowProgramming
             categoryValue.DataSource = new[] { "flow", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data" }
                 .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
             categoryValue.DisplayMember = "Label"; categoryValue.ValueMember = "Id";
-            FillAlarms();
-            alarmValue.Text = string.IsNullOrEmpty(step.AlarmCode) ? "2019" : step.AlarmCode;
+            FillAlarms(string.IsNullOrEmpty(step.AlarmCode) ? "2019" : step.AlarmCode);
             FlowResource selectedResource = catalog.FindResource(step.Target);
             categoryValue.SelectedValue = selectedResource == null ? "flow" : selectedResource.Category;
             FillTargets(step.Target);
@@ -77,7 +76,18 @@ namespace AlphaRap.FlowProgramming
             string code = new[] { "CASE1", "CASE2", "CASE3" }.FirstOrDefault(value => branchEditors.All(editor => editor.Code != value));
             if (code == null) return;
             if (nextBranch.IsUnconditional) nextBranch.MakeConditional();
-            FlowBranchEditor added = AddBranchEditor(new FlowBranch { Code = code }, "");
+            FlowBranch branch = new FlowBranch { Code = code };
+            FlowBranch next = nextBranch.ReadBranch();
+            FlowCondition condition = next.Conditions.Count == 1 ? next.Conditions[0] : null;
+            if (code == "CASE1" && condition != null && condition.Operator == "==" && condition.Left.Source == "Result" && condition.Right.Source == "Constant")
+            {
+                FlowField field = CurrentMethod == null ? null : CurrentMethod.Outputs.FirstOrDefault(output => output.Name == condition.Left.Reference);
+                bool expected = condition.Right.Reference == "1";
+                bool known = condition.Right.Reference == "1" || condition.Right.Reference == "0" || bool.TryParse(condition.Right.Reference, out expected);
+                if (field != null && field.Type == typeof(bool) && known)
+                    branch.Conditions.Add(new FlowCondition { Left = new FlowInput { Source = "Result", Reference = field.Name }, Operator = "==", Right = new FlowInput { Reference = expected ? "false" : "true" } });
+            }
+            FlowBranchEditor added = AddBranchEditor(branch, "");
             added.MakeConditional();
             ResizeBranches();
             branchPanel.ScrollControlIntoView(added);
@@ -106,18 +116,23 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>报警条目来自与运行内核相同的目录和当前语言。</summary>
-        private void FillAlarms()
+        private void FillAlarms(string selected)
         {
-            List<FlowChoice> choices = new List<FlowChoice>();
+            alarmValue.BeginUpdate();
+            alarmValue.Items.Clear();
+            alarmValue.DisplayMember = "Label";
             foreach (System.Xml.Linq.XElement alarm in AlarmCatalog.RuntimeTable(SysPara.LanguageShow).Elements())
             {
                 string name = alarm.Name.LocalName;
                 if (!name.StartsWith("A")) continue;
-                choices.Add(new FlowChoice { Id = name.Substring(1), Label = name.Substring(1) + " · " + (string)alarm.Attribute("Content") });
+                alarmValue.Items.Add(new FlowChoice { Id = name.Substring(1), Label = name.Substring(1) + " · " + (string)alarm.Attribute("Content") });
             }
-            alarmValue.DisplayMember = "Label"; alarmValue.ValueMember = "Id"; alarmValue.DataSource = choices;
-            alarmValue.SelectedIndex = -1;
+            alarmValue.SelectedItem = alarmValue.Items.Cast<FlowChoice>().FirstOrDefault(choice => choice.Id == selected);
+            if (alarmValue.SelectedIndex < 0) alarmValue.Text = selected ?? "";
+            alarmValue.EndUpdate();
         }
+
+        private string SelectedAlarmCode { get { FlowChoice choice = alarmValue.SelectedItem as FlowChoice; return choice == null ? alarmValue.Text.Trim() : choice.Id; } }
 
         /// <summary>按类别展示真实配置对象，类别未配置时不伪造设备。</summary>
         private void FillTargets(string selected)
@@ -136,7 +151,8 @@ namespace AlphaRap.FlowProgramming
         {
             string category = Convert.ToString(categoryValue.SelectedValue);
             FlowResource resource = catalog.FindResource(Convert.ToString(targetValue.SelectedValue));
-            actionValue.DataSource = resource == null && category != "flow" ? new List<FlowMethod>() : catalog.MethodsFor(resource).ToList();
+            bool contextObject = category == "flow" && string.IsNullOrEmpty(Convert.ToString(targetValue.SelectedValue));
+            actionValue.DataSource = resource == null && !contextObject ? new List<FlowMethod>() : catalog.MethodsFor(resource).ToList();
             FlowMethod choice = ((List<FlowMethod>)actionValue.DataSource).SingleOrDefault(action => action.Id == selected);
             if (choice != null) actionValue.SelectedItem = choice;
             else if (!string.IsNullOrEmpty(selected)) actionValue.SelectedIndex = -1;
@@ -168,7 +184,9 @@ namespace AlphaRap.FlowProgramming
         /// <summary>显示可供后续节点选择的业务输出，内部编号仅供高级绑定使用。</summary>
         private void RefreshOutputTitles(FlowMethod action)
         {
-            outputsValue.Text = action == null ? "" : string.Join("   ", action.Outputs.Where(field => !field.Advanced).Select(field => FlowMethods.FieldTitle(action.Id, field, true)));
+            string[] titles = action == null ? new string[0] : action.Outputs.Where(field => !field.Advanced).Select(field => FlowMethods.FieldTitle(action.Id, field, true)).ToArray();
+            outputsValue.Visible = titles.Length > 0;
+            outputsValue.Text = titles.Length == 0 ? "" : string.Format(FlowText.T("nodeOutputs"), string.Join("   ", titles));
         }
 
         /// <summary>根据参数数量和高级展开状态安排行控件，不改动输入数据。</summary>
@@ -180,12 +198,9 @@ namespace AlphaRap.FlowProgramming
             inputLayout.RowStyles[1].Height = advanced ? 28 : 0;
             foreach (FlowInputRow row in rows) row.Visible = !row.IsAdvanced || showAdvanced.Checked;
             int visible = rows.Count(row => !row.IsAdvanced || showAdvanced.Checked);
-            bool help = methodHint.Text.Length > 0;
+            inputLayout.RowStyles[0].SizeType = visible > 0 ? SizeType.Percent : SizeType.Absolute;
+            inputLayout.RowStyles[0].Height = visible > 0 ? 100 : 0;
             inputs.Visible = visible > 0;
-            int height = visible * 46 + 44 + (advanced ? 28 : 0) + (help ? 52 : 0);
-            root.RowStyles[2].Height = Math.Min(330, Math.Max(76, height));
-            if (executionMode == "None") root.RowStyles[2].Height = 0;
-            if (executionMode == "Script") root.RowStyles[2].Height = 76;
             ResizeInputs();
         }
 
@@ -202,7 +217,12 @@ namespace AlphaRap.FlowProgramming
             FlowMethod action = CurrentMethod;
             methodHint.Text = "";
             methodHint.Visible = false; inputLayout.RowStyles[2].Height = 0;
-            if (action == null) { RefreshParameterLayout(); return; }
+            if (action == null)
+            {
+                methodHint.Text = MissingActionHelp();
+                methodHint.Visible = true; inputLayout.RowStyles[2].Height = 76;
+                RefreshParameterLayout(); return;
+            }
             if (action.Inputs.Count == 0) methodHint.Text = FlowText.T("noInputs");
             if (action.Id == "constant.set") methodHint.Text = FlowText.T("constantSetHelp");
             FlowResource resource = catalog.FindResource(Convert.ToString(targetValue.SelectedValue));
@@ -220,6 +240,23 @@ namespace AlphaRap.FlowProgramming
             RefreshParameterLayout();
         }
 
+        /// <summary>目录为空或旧对象失效时说明可执行的修复位置，不替换成另一对象。</summary>
+        private string MissingActionHelp()
+        {
+            string target = Convert.ToString(targetValue.SelectedValue);
+            if (!string.IsNullOrEmpty(target) && catalog.FindResource(target) == null) return FlowText.T("nodeMissingObjectHelp");
+            if (targetValue.Items.Count > 0) return FlowText.T("nodeChooseActionHelp");
+            switch (Convert.ToString(categoryValue.SelectedValue))
+            {
+                case "motion": return FlowText.T("nodeNoAxisHelp");
+                case "vision": return FlowText.T("nodeNoVisionHelp");
+                case "di": case "do": case "cylinder": return FlowText.T("nodeNoIoHelp");
+                case "constants": return FlowText.T("nodeNoConstantsHelp");
+                case "data": return FlowText.T("nodeNoDataHelp");
+                default: return FlowText.T("nodeNoObjectHelp");
+            }
+        }
+
         /// <summary>刷新方法、类别和来源的显示语言，保留输入网格及尚未提交的编辑内容。</summary>
         protected override void RefreshLanguageChoices()
         {
@@ -228,8 +265,7 @@ namespace AlphaRap.FlowProgramming
             string target = Convert.ToString(targetValue.SelectedValue);
             FlowMethod method = CurrentMethod;
             FlowMethod selectedAction = actionValue.SelectedItem as FlowMethod;
-            string alarmText = alarmValue.Text;
-            string alarmCode = alarmValue.SelectedIndex < 0 ? null : Convert.ToString(alarmValue.SelectedValue);
+            string alarmCode = SelectedAlarmCode;
             filling = true;
             try
             {
@@ -239,9 +275,7 @@ namespace AlphaRap.FlowProgramming
                 FillTargets(target); FillActions(selectedAction == null ? null : selectedAction.Id);
                 if (executionMode == "Action" && method == null) actionValue.SelectedIndex = -1;
                 FillExecutionChoices();
-                FillAlarms();
-                if (alarmCode != null) alarmValue.SelectedValue = alarmCode;
-                if (alarmValue.SelectedIndex < 0) alarmValue.Text = alarmText;
+                FillAlarms(alarmCode);
                 foreach (FlowInputRow row in InputRows) row.RefreshLanguage();
                 RefreshOutputTitles(method);
                 foreach (FlowBranchEditor editor in branchEditors)
@@ -295,7 +329,7 @@ namespace AlphaRap.FlowProgramming
                 candidate.Action = action.Id;
                 candidate.Target = executionMode == "Action" ? Convert.ToString(targetValue.SelectedValue) : "";
                 candidate.TimeoutMs = (int)timeoutValue.Value;
-                candidate.AlarmCode = alarmValue.SelectedIndex >= 0 ? Convert.ToString(alarmValue.SelectedValue) : alarmValue.Text.Trim();
+                candidate.AlarmCode = SelectedAlarmCode;
                 candidate.Inputs = InputRows.Select(row => row.ReadInput()).ToList();
                 ReadExecutionTo(candidate);
                 candidate.Conditions.Clear(); candidate.WaitForCondition = false; candidate.AnyCondition = false;

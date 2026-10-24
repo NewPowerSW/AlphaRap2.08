@@ -44,6 +44,7 @@ namespace AlphaRap.FlowProgramming
         private string targetId;
         private bool refreshing;
         private bool advancedExpanded;
+        private bool hasProducerChoice;
 
         public FlowInput Selection { get; private set; }
 
@@ -82,8 +83,6 @@ namespace AlphaRap.FlowProgramming
         protected override void RefreshLanguageChoices()
         {
             int start = value.SelectionStart, length = value.SelectionLength;
-            contextHint.Text = ContextDescription();
-            contextHint.Visible = !string.IsNullOrEmpty(contextHint.Text);
             RefreshTree();
             value.SelectionStart = Math.Min(start, value.Text.Length);
             value.SelectionLength = Math.Min(length, value.Text.Length - value.SelectionStart);
@@ -92,8 +91,9 @@ namespace AlphaRap.FlowProgramming
         /// <summary>从当前轴绑定重算点位说明，语言切换不缓存含业务值的格式化文案。</summary>
         private string ContextDescription()
         {
+            if (HasOutputConstraint) return FlowText.T(hasProducerChoice ? "bindingCapture" : "producerEmptyHelp");
             if (actions == null || method == null || method.Id != "point.move" || field == null || field.Name != "Index")
-                return description ?? (HasOutputConstraint ? FlowText.T("bindingCapture") : FlowText.T("bindingCompatible"));
+                return description ?? FlowText.T("bindingCompatible");
             FlowResource resource = actions.FindResource(targetId);
             FlowPointAxis points = resource == null || resource.BoundPoints == null ? null : resource.BoundPoints.Instance as FlowPointAxis;
             if (points == null) return description ?? FlowText.T("boundTable");
@@ -232,7 +232,11 @@ namespace AlphaRap.FlowProgramming
             tree.Nodes.Clear();
             string search = searchValue.Text.Trim();
             SourceChoice current = null;
-            foreach (SourceChoice choice in Choices())
+            List<SourceChoice> choices = Choices();
+            hasProducerChoice = choices.Any(choice => choice.Source == "Output" && !choice.Unavailable);
+            contextHint.Text = ContextDescription();
+            contextHint.Visible = !string.IsNullOrEmpty(contextHint.Text);
+            foreach (SourceChoice choice in choices)
             {
                 if (Matches(choice, pending)) current = choice;
                 if (!MatchesSearch(choice, search)) continue;
@@ -289,7 +293,15 @@ namespace AlphaRap.FlowProgramming
         {
             value.ReadOnly = choice == null || !choice.FreeLiteral;
             value.Text = choice == null ? pending.Reference ?? "" : choice.FreeLiteral ? literalDraft : choice.Source == "Constant" ? choice.Label : FlowText.T(choice.Group) + " / " + choice.Label;
-            statusHint.Text = choice != null && choice.Unavailable ? FlowText.T("bindingUnavailable") : HasOutputConstraint ? FlowText.T("bindingCapture") : FlowText.T("bindingCompatible");
+            bool valid = choice != null && !choice.Unavailable;
+            ok.Enabled = !HasOutputConstraint || valid;
+            if (HasOutputConstraint)
+            {
+                statusHint.Text = FlowText.T(!hasProducerChoice ? "producerEmptyHelp" : valid ? "bindingCapture" : "producerChooseRequired");
+                statusHint.ForeColor = valid ? SystemColors.GrayText : Color.Firebrick;
+                return;
+            }
+            statusHint.Text = choice != null && choice.Unavailable ? FlowText.T("bindingUnavailable") : FlowText.T("bindingCompatible");
             statusHint.ForeColor = choice != null && choice.Unavailable ? Color.Firebrick : SystemColors.GrayText;
         }
 
@@ -310,11 +322,16 @@ namespace AlphaRap.FlowProgramming
         /// <summary>确认一个有效来源；固定值按字段类型严格校验，缺失引用留在窗口供修正。</summary>
         private void AcceptReference()
         {
-            SourceChoice selected = Choices().FirstOrDefault(choice => Matches(choice, pending));
+            List<SourceChoice> choices = Choices();
+            SourceChoice selected = choices.FirstOrDefault(choice => Matches(choice, pending));
             if (selected == null || selected.Unavailable)
             {
-                statusHint.Text = FlowText.T(selected == null ? "bindingChoose" : "bindingUnavailable");
+                string key = selected == null ? "bindingChoose" : "bindingUnavailable";
+                if (HasOutputConstraint)
+                    key = choices.Any(choice => choice.Source == "Output" && !choice.Unavailable) ? "producerChooseRequired" : "producerEmptyHelp";
+                statusHint.Text = FlowText.T(key);
                 statusHint.ForeColor = Color.Firebrick;
+                if (HasOutputConstraint) ok.Enabled = false;
                 return;
             }
             if (pending.Source == "Constant" && field != null)

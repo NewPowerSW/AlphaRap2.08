@@ -70,11 +70,32 @@ namespace AlphaRap.FlowProgramming
             Dictionary<string, object> known = step.Inputs.Where(input => input.Source == "Constant" || input.Source == "Parameter")
                 .ToDictionary(input => input.Name, input => input.Source == "Constant" ? (object)input.Reference : Resources.Parameters[input.Reference]);
             if (method.ValidateInputs != null) method.ValidateInputs(known);
-            foreach (FlowCondition condition in FlowProgramFile.BranchesOf(step).Where(branch => !branch.Unconditional).SelectMany(branch => branch.Conditions))
+            foreach (FlowBranch branch in FlowProgramFile.BranchesOf(step).Where(branch => !branch.Unconditional))
+                ValidateConditions(branch, method);
+        }
+
+        /// <summary>校验每条出口的可见操作数；为空比较只使用左侧，不读取隐藏的右侧旧绑定。</summary>
+        private void ValidateConditions(FlowBranch branch, FlowMethod method)
+        {
+            foreach (FlowCondition condition in branch.Conditions)
             {
                 ValidateSource(condition.Left, true, method);
+                if (condition.Operator == "Empty") continue;
                 ValidateSource(condition.Right, true, method);
+                RequireComparisonValue(branch.Code, method, condition.Left, condition.Right);
+                RequireComparisonValue(branch.Code, method, condition.Right, condition.Left);
             }
+        }
+
+        /// <summary>当前动作的布尔或数值结果必须填写比较值，文本字段仍允许显式比较空字符串。</summary>
+        private static void RequireComparisonValue(string branch, FlowMethod method, FlowInput result, FlowInput value)
+        {
+            if (result.Source != "Result" || value.Source != "Constant" || !string.IsNullOrWhiteSpace(value.Reference)) return;
+            FlowField field = method.Outputs.FirstOrDefault(output => output.Name == result.Reference);
+            if (field == null || field.Type.IsEnum) return;
+            TypeCode type = Type.GetTypeCode(field.Type);
+            if (field.Type != typeof(bool) && (type < TypeCode.SByte || type > TypeCode.Decimal)) return;
+            throw new InvalidOperationException(string.Format(FlowText.T("conditionValueRequired"), branch, FlowMethods.FieldTitle(method.Id, field, true)));
         }
 
         /// <summary>具有来源约束的结果必须来自同一实际对象的指定动作，拒绝跨 VPP 冒用相同运行编号。</summary>

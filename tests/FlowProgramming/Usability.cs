@@ -71,7 +71,9 @@ internal static partial class Cases
         FlowStep step=BoundStep(input,"io.read");step.Caption="后门到位判断";
         using (FlowNodeForm dialog=new FlowNodeForm(editor,step))
         {
-            dialog.Show(); Application.DoEvents(); FlowBranchEditor branch=(FlowBranchEditor)dialog.Controls.Find("branch_NEXT_dyn",true)[0];
+            dialog.Show(); Application.DoEvents();
+            TabControl tabs = (TabControl)dialog.Controls.Find("executionTabs",true)[0]; tabs.SelectedTab = tabs.TabPages["scriptRoutes"]; Application.DoEvents();
+            FlowBranchEditor branch=(FlowBranchEditor)dialog.Controls.Find("branch_NEXT_dyn",true)[0];
             ((RadioButton)branch.Controls.Find("branchAll",true)[0]).Checked=true;
             FlowConditionRow row=branch.ConditionRows.Single(); ComboBox left=(ComboBox)row.Controls.Find("conditionLeft",true)[0], right=(ComboBox)row.Controls.Find("conditionRight",true)[0], comparison=(ComboBox)row.Controls.Find("conditionComparison",true)[0];
             Assert(row.ReadCondition().Left.Source=="Result" && row.ReadCondition().Right.Reference=="true","A boolean result did not default to a usable true condition.");

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using AlphaRap;
@@ -12,6 +13,139 @@ using NPSDK;
 
 internal static partial class Cases
 {
+    /// <summary>Register actionable validation and source-picker recovery checks for new application engineers.</summary>
+    public static void RegisterP0EntryRepairs()
+    {
+        Test("P0 typed conditions reject empty numeric and boolean comparisons and ignore hidden Empty operands", P0RequiredConditionValues);
+        Test("P0 constrained source pickers explain missing producer nodes and retain invalid bindings", P0ProducerEmptyRecovery);
+    }
+
+    /// <summary>Reject blank comparisons against known result types without changing valid text-empty or unary Empty semantics.</summary>
+    private static void P0RequiredConditionValues()
+    {
+        FlowMethod method = new FlowMethod("p0.condition.values", "P0 condition outputs", "P0 condition outputs", "P0 condition outputs") { UsesHardware = false };
+        FlowField[] fields = {
+            new FlowField("Ready", typeof(bool)) { DisplayName = new[] { "P0 readiness", "P0 readiness", "P0 readiness" } },
+            new FlowField("Count", typeof(long)) { DisplayName = new[] { "P0 count", "P0 count", "P0 count" } },
+            new FlowField("Distance", typeof(double)) { DisplayName = new[] { "P0 distance", "P0 distance", "P0 distance" } },
+            new FlowField("Text", typeof(string)) { DisplayName = new[] { "P0 text", "P0 text", "P0 text" } }
+        };
+        method.Outputs.AddRange(fields);
+        method.Invoke = call => Task.FromResult<IDictionary<string, object>>(new Dictionary<string, object>());
+        FlowActions actions = new FlowActions(FlowResources.Capture(true));
+        FlowResource resource = new FlowResource { Id = "p0/condition-values", Label = "P0 condition values", Kind = "device", Instance = new object(), Methods = new List<FlowMethod> { method } };
+        actions.Resources.Items.Add(resource.Id, resource);
+        FlowStep step = BoundStep(resource, method.Id);
+        step.Branches = new List<FlowBranch> {
+            new FlowBranch { Code = "NEXT", Conditions = new List<FlowCondition> { new FlowCondition { Left = new FlowInput { Source = "Result", Reference = "Ready" }, Right = new FlowInput { Reference = "true" } } } },
+            new FlowBranch { Code = "CASE1" }
+        };
+        try
+        {
+            foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+            {
+                SwitchLanguage(language);
+                foreach (FlowField field in fields.Take(3))
+                    P0CheckRequiredCondition(actions, step, field);
+            }
+            step.Branches[1].Conditions = new List<FlowCondition> { new FlowCondition { Left = new FlowInput { Source = "Result", Reference = "Text" }, Right = new FlowInput { Reference = "" } } };
+            actions.Validate(step);
+            foreach (string hiddenSource in new[] { "Output", "Parameter" })
+            {
+                FlowStep empty = new FlowStep { Caption = "P0 unary Empty", ExecutionMode = "None", TimeoutMs = 1000,
+                    Branches = new List<FlowBranch> { new FlowBranch { Conditions = new List<FlowCondition> { new FlowCondition {
+                        Left = new FlowInput { Reference = "" }, Operator = "Empty", Right = new FlowInput { Source = hiddenSource, Reference = "p0/removed/hidden-value" } } } } } };
+                actions.Validate(empty);
+                FlowResultHub hub = new FlowResultHub();
+                FlowExecutionContext context = new FlowExecutionContext { Hub = hub, RunId = hub.Epoch, CycleId = "P0-empty-product", ModuleId = "P0EmptyCondition", Parameters = actions.Resources.Parameters };
+                FlowProgramRuntime runtime = new FlowProgramRuntime { ExecuteAction = actions.Execute };
+                runtime.Start(new FlowProgram { ModuleId = context.ModuleId, Steps = new List<FlowStep> { empty } }, empty.Id, context);
+                Wait(runtime.Completion);
+                Assert(runtime.Error == null && !runtime.AlarmWasRaised, "A hidden stale " + hiddenSource + " operand changed unary Empty execution: " + runtime.Error);
+            }
+        }
+        finally { SwitchLanguage(LanguageType.Chinese); }
+    }
+
+    /// <summary>Check both operand directions and confirm the error identifies the real branch and business field.</summary>
+    private static void P0CheckRequiredCondition(FlowActions actions, FlowStep step, FlowField field)
+    {
+        foreach (bool reverse in new[] { false, true })
+        {
+            FlowInput result = new FlowInput { Source = "Result", Reference = field.Name };
+            FlowInput blank = new FlowInput { Reference = " \t " };
+            step.Branches[1].Conditions = new List<FlowCondition> { new FlowCondition { Left = reverse ? blank : result, Right = reverse ? result : blank } };
+            string message = null;
+            try { actions.Validate(step); } catch (InvalidOperationException error) { message = error.Message; }
+            Assert(message == string.Format(FlowText.T("conditionValueRequired"), "CASE1", field.DisplayName[0]), "An empty typed comparison was accepted or omitted its branch and business field.");
+            blank.Reference = field.Type == typeof(bool) ? "false" : "0";
+            actions.Validate(step);
+        }
+    }
+
+    /// <summary>Show a concrete producer-creation instruction when only another VPP or a missing old reference exists.</summary>
+    private static void P0ProducerEmptyRecovery()
+    {
+        FlowMethod capture = new FlowMethod("vision.run", "P0 capture", "P0 capture", "P0 capture") { UsesHardware = false };
+        capture.Outputs.Add(new FlowField("RunId", typeof(long)) { Advanced = true });
+        capture.Invoke = call => Task.FromResult(FlowCall.Result("RunId", 1L));
+        FlowMethod consumer = new FlowMethod("vision.output", "P0 read capture", "P0 read capture", "P0 read capture") { UsesHardware = false };
+        FlowField producer = new FlowField("RunId", typeof(long)) { OutputSourceMethod = "vision.run", OutputSourceField = "RunId" };
+        consumer.Inputs.Add(producer);
+        consumer.Invoke = call => Task.FromResult<IDictionary<string, object>>(new Dictionary<string, object>());
+        FlowActions actions = new FlowActions(FlowResources.Capture(true));
+        FlowResource cameraA = new FlowResource { Id = "vision/p0-empty/a", Label = "P0 camera A / VPP A", Kind = "vision", Instance = new object(), Methods = new List<FlowMethod> { capture, consumer } };
+        FlowResource cameraB = new FlowResource { Id = "vision/p0-empty/b", Label = "P0 camera B / VPP B", Kind = "vision", Instance = new object(), Methods = new List<FlowMethod> { capture, consumer } };
+        actions.Resources.Items.Add(cameraA.Id, cameraA); actions.Resources.Items.Add(cameraB.Id, cameraB);
+        FlowStep other = editor.AddNode(), matching = null;
+        other.Target = cameraB.Id; other.Action = capture.Id; other.Caption = "P0 another VPP capture";
+        try
+        {
+            foreach (string retained in new[] { "", "p0/removed/capture/RunId" })
+            {
+                FlowInput original = new FlowInput { Name = "RunId", Source = "Output", Reference = retained };
+                using (FlowSourceForm picker = new FlowSourceForm(original, actions, consumer, producer, null, cameraA.Id))
+                {
+                    picker.Show(); Application.DoEvents();
+                    TreeView tree = (TreeView)picker.Controls.Find("sources", true)[0];
+                    Button ok = (Button)picker.Controls.Find("ok", true)[0];
+                    TextBox value = (TextBox)picker.Controls.Find("referenceValue", true)[0];
+                    Control status = picker.Controls.Find("sourceStatus_dyn", true)[0];
+                    foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+                    {
+                        SwitchLanguage(language); Application.DoEvents();
+                        Assert(!ok.Enabled && value.ReadOnly && status.Text == FlowText.T("producerEmptyHelp"), "An empty constrained picker asked for a fixed value or accepted an unavailable producer.");
+                        Assert(picker.Controls.Find("sourceContext_dyn", true)[0].Text == FlowText.T("producerEmptyHelp"), "The producer empty-state header does not explain how to add a matching node.");
+                        Assert(!tree.Nodes.Cast<TreeNode>().Any(node => node.Name == "bindingOutputs" || node.Name == "bindingFixed"), "Another VPP or a fixed value was offered as a capture source.");
+                        Assert(picker.Selection.Reference == retained && original.Reference == retained, "Translation replaced the missing producer reference.");
+                        if (retained.Length == 0) Screenshot(picker, "p0-producer-empty-" + language);
+                    }
+                    typeof(FlowSourceForm).GetMethod("AcceptReference", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(picker, null);
+                    Assert(picker.DialogResult != DialogResult.OK && picker.Selection.Reference == retained && status.Text == FlowText.T("producerEmptyHelp"), "Confirming an unavailable producer accepted or rewrote its original reference.");
+                }
+            }
+            matching = editor.AddNode(); matching.Target = cameraA.Id; matching.Action = capture.Id; matching.Caption = "P0 matching VPP capture";
+            using (FlowSourceForm picker = new FlowSourceForm(new FlowInput { Name = "RunId", Source = "Output", Reference = "" }, actions, consumer, producer, null, cameraA.Id))
+            {
+                picker.Show(); Application.DoEvents();
+                Button ok = (Button)picker.Controls.Find("ok", true)[0];
+                Assert(!ok.Enabled && picker.Controls.Find("sourceStatus_dyn", true)[0].Text == FlowText.T("producerChooseRequired"), "The picker suggested a fixed value instead of selecting an available matching producer.");
+                string reference = editor.Program.ModuleId + "/" + matching.Id + "/RunId";
+                TreeView tree = (TreeView)picker.Controls.Find("sources", true)[0];
+                tree.SelectedNode = P0SourceNodes(tree.Nodes).Single(node => node.Name == "Output:" + reference);
+                Assert(ok.Enabled, "Selecting a real matching producer did not enable confirmation.");
+                ok.PerformClick();
+                Assert(picker.DialogResult == DialogResult.OK && picker.Selection.Source == "Output" && picker.Selection.Reference == reference, "The empty-source recovery did not retain the selected producer identity.");
+            }
+        }
+        finally
+        {
+            if (matching != null) editor.Delete(matching.Id);
+            editor.Delete(other.Id);
+            SwitchLanguage(LanguageType.Chinese);
+        }
+    }
+
     /// <summary>Export declared field translations without constructing connections or invoking any equipment action.</summary>
     private static void ExportP0FieldTexts()
     {
@@ -82,7 +216,7 @@ internal static partial class Cases
                     ComboBox objects = (ComboBox)dialog.Controls.Find("targetValue", true)[0];
                     TextBox caption = (TextBox)dialog.Controls.Find("captionValue", true)[0];
                     caption.Text = "P0 pending caption";
-                    Assert(action.Items.Count > 0 && action.SelectedIndex == -1, "An unavailable action was replaced while opening its node.");
+                    Assert(action.SelectedIndex == -1 && (target == configuredInput ? action.Items.Count > 0 : action.Items.Count == 0), "An unavailable object exposed unrelated methods or an unavailable action adopted a default.");
                     foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español, LanguageType.Chinese })
                     {
                         SwitchLanguage(language); Application.DoEvents();
@@ -114,6 +248,7 @@ internal static partial class Cases
             {
                 dialog.Show(); Application.DoEvents();
                 FlowBranchEditor branch = (FlowBranchEditor)dialog.Controls.Find("branch_NEXT_dyn", true)[0];
+                TabControl tabs = (TabControl)dialog.Controls.Find("executionTabs", true)[0]; tabs.SelectedTab = tabs.TabPages["scriptRoutes"]; Application.DoEvents();
                 ((RadioButton)branch.Controls.Find("branchAll", true)[0]).Checked = true;
                 FlowConditionRow row = branch.ConditionRows.Single();
                 ComboBox left = (ComboBox)row.Controls.Find("conditionLeft", true)[0];
