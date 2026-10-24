@@ -687,6 +687,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FlowProgramming\FlowScriptEditor.Appearance.cs"><DependentUpon>FlowScriptEditor.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowScriptSettings.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="FlowProgramming\FlowScriptSettings.Designer.cs"><DependentUpon>FlowScriptSettings.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowScripts.cs"></Compile>

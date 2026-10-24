@@ -31,6 +31,7 @@ namespace AlphaRap.FlowProgramming
             { "scriptCompiled", new[] { "编译通过；尚未保存。", "Compilation passed; not saved yet.", "Compilación correcta; aún no guardado." } },
             { "scriptSourcePath", new[] { "调试源码：{0}", "Debug source: {0}", "Código de depuración: {0}" } },
             { "scriptCode", new[] { "源码", "Source", "Código fuente" } },
+            { "scriptWordWrap", new[] { "自动换行", "Word wrap", "Ajuste de línea" } },
             { "scriptHelp", new[] { "用 Inputs.名称 读取绑定值，用 Outputs.名称 输出结果。流程跳转仍在 NEXT / CASE 设置。", "Read bindings with Inputs.Name and return results with Outputs.Name. Configure routes under NEXT / CASE.", "Lea vínculos con Inputs.Nombre y devuelva resultados con Outputs.Nombre. Configure rutas en NEXT / CASE." } },
             { "scriptDebugHelp", new[] { "节点断点可检查输入输出；C# 行级调试可使用 Visual Studio 附加到 AlphaRap。保存统一使用主界面 Save。", "Node breakpoints inspect inputs and outputs. Attach Visual Studio to AlphaRap for C# line debugging. Save with Main Save.", "Las pausas de nodo muestran entradas y salidas. Adjunte Visual Studio a AlphaRap para depurar líneas C#. Guarde con Save principal." } },
             { "scriptBoolean", new[] { "布尔", "Boolean", "Booleano" } },
@@ -43,7 +44,7 @@ namespace AlphaRap.FlowProgramming
             { "scriptRemovedObject", new[] { "已移除对象绑定；源码保持不变，请移除或替换其中的调用。", "Object binding removed. Source is retained; remove or replace its calls.", "Se eliminó el vínculo. Se conserva el código; elimine o sustituya sus llamadas." } },
             { "scriptChooseObject", new[] { "选择实际对象", "Select actual object", "Seleccione objeto real" } },
             { "scriptChooseMethod", new[] { "选择方法", "Select method", "Seleccione método" } },
-            { "scriptInsertHelp", new[] { "调用参数使用对象默认值；请按工艺把参数替换为 Inputs.名称。", "Calls use object defaults; replace arguments with Inputs.Name for your process.", "Las llamadas usan valores iniciales; sustituya argumentos por Inputs.Nombre según el proceso." } }
+            { "scriptInsertHelp", new[] { "已按对象、动作和参数分行插入；参数使用对象默认值，可替换为 Inputs.名称。", "Inserted with separate object, method, and argument lines. Defaults can be replaced with Inputs.Name.", "Se insertaron líneas separadas para objeto, método y argumentos. Puede sustituir valores iniciales por Inputs.Nombre." } }
         };
 
         /// <summary>沿用框架语言入口读取固定文案。</summary>

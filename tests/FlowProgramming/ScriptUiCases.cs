@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using AlphaRap;
 using AlphaRap.FlowProgramming;
@@ -17,6 +19,7 @@ internal static partial class Cases
         Test("script compile shows source mapping and diagnostics without committing the node", ScriptUiCompilation);
         Test("script node confirmation commits typed ports inputs breakpoints and native branches", ScriptUiConfirmation);
         Test("flat script tabs preserve runtime settings and give source editing room in three languages", ScriptUiFlatLayout);
+        Test("readable script editing keeps wrapping selection undo and safe insertion boundaries", ScriptUiSourceEditing);
     }
 
     /// <summary>Find a named control in the actual fixed editor layout.</summary>
@@ -53,6 +56,35 @@ internal static partial class Cases
         settings.GetType().GetMethod("ReadTo").Invoke(settings, new object[] { value });
         ScriptControl<FlowScriptEditor>(dialog, "scriptEditor").ReadTo(value);
         return value;
+    }
+
+    /// <summary>Compile and execute the actual editor draft using the same visible typed input rows as confirmation.</summary>
+    private static IDictionary<string, object> ScriptExecuteUiDraft(FlowNodeForm dialog)
+    {
+        FlowStep value = ScriptReadUiDraft(dialog);
+        value.Inputs = ScriptControl<FlowLayoutPanel>(dialog, "inputs").Controls.OfType<FlowInputRow>().Select(row => row.ReadInput()).ToList();
+        FlowScripts.Compile(value);
+        return ScriptExecute(new FlowActions(FlowResources.Capture()), value);
+    }
+
+    /// <summary>Select the existing in-memory application object and its real input-bearing capability.</summary>
+    private static FlowResource ScriptSelectProbeCall(FlowNodeForm dialog)
+    {
+        ScriptPage(dialog, "scriptParameters");
+        FlowResource resource = FlowResources.Capture().Items.Values.Single(item => ReferenceEquals(item.Instance, station.Capability));
+        UserControl settings = ScriptControl<UserControl>(dialog, "scriptSettings");
+        ScriptControl<ComboBox>(settings, "scriptObjectChoice").SelectedValue = resource.Id; Application.DoEvents();
+        ComboBox methods = ScriptControl<ComboBox>(settings, "scriptMethodChoice");
+        methods.SelectedItem = methods.Items.Cast<FlowMethod>().Single(method => method.Id == "probe.read");
+        return resource;
+    }
+
+    /// <summary>Insert the selected object through the real input/output-page command and return to source.</summary>
+    private static void ScriptInsertSelectedCall(FlowNodeForm dialog)
+    {
+        UserControl settings = ScriptControl<UserControl>(dialog, "scriptSettings");
+        ScriptControl<Button>(settings, "scriptInsert").PerformClick(); Application.DoEvents();
+        Assert(ScriptControl<TabControl>(dialog, "executionTabs").SelectedTab.Name == "scriptTab", "Inserting an object method did not return to the source page.");
     }
 
     /// <summary>Require the mode's exact peer pages and keep nested tab containers out of the node editor.</summary>
@@ -174,20 +206,29 @@ internal static partial class Cases
         {
             using (FlowNodeForm dialog = new FlowNodeForm(editor, step))
             {
-                dialog.Show(); ScriptMode(dialog, "Script"); ScriptPage(dialog, "scriptParameters");
+                dialog.Show(); ScriptMode(dialog, "Script");
                 FlowScriptEditor code = ScriptControl<FlowScriptEditor>(dialog, "scriptEditor");
-                UserControl settings = ScriptControl<UserControl>(dialog, "scriptSettings");
-                ComboBox objects = ScriptControl<ComboBox>(settings, "scriptObjectChoice");
-                string expected = "hardware/" + groupedInput.Id + "/input"; objects.SelectedValue = expected; Application.DoEvents();
-                ComboBox methods = ScriptControl<ComboBox>(settings, "scriptMethodChoice");
-                methods.SelectedItem = methods.Items.Cast<FlowMethod>().Single(method => method.Id == "io.read");
-                ScriptControl<Button>(settings, "scriptInsert").PerformClick(); Application.DoEvents();
-                Assert(ScriptControl<TabControl>(dialog, "executionTabs").SelectedTab.Name == "scriptTab", "Inserting an object method did not return to the source page.");
+                FlowResource resource = ScriptSelectProbeCall(dialog); string expected = resource.Id; int before = station.Capability.Calls;
+                ScriptInsertSelectedCall(dialog);
                 FlowStep read = ScriptReadUiDraft(dialog);
                 Assert(read.ScriptResources.SequenceEqual(new[] { expected }), "Inserting one call did not declare exactly the chosen actual object.");
-                Assert(read.ScriptSource.Contains("Context.CallAsync(\"" + expected + "\", \"io.read\"") && read.ScriptSource.Contains("Dictionary<string, object>"), "Generated source guessed a display name instead of the real identity and method.");
+                Assert(read.ScriptSource.Contains("targetId: \"" + expected + "\"") && read.ScriptSource.Contains("methodId: \"probe.read\"")
+                    && read.ScriptSource.Contains("inputs: new Dictionary<string, object>"), "Readable generated source changed the actual identity, method or named argument contract.");
+                string[] lines = read.ScriptSource.Split('\n');
+                Assert(lines.Any(line => line.TrimStart().StartsWith("//") && line.Contains(resource.Label))
+                    && lines.Any(line => line.Contains("{ \"Increment\", 2 }") && line.Contains("//")), "The object or its typed parameter is missing its separate business comment.");
+                Assert(station.Capability.Calls == before, "Inserting source executed an object method during editing.");
+                ScriptExecuteUiDraft(dialog);
+                Assert(station.Capability.Calls == before + 2, "Generated source did not call the selected instance with its actual typed default.");
+                ScriptSelectProbeCall(dialog); ScriptInsertSelectedCall(dialog);
+                read = ScriptReadUiDraft(dialog);
+                Assert(read.ScriptSource.Contains("var callResult1 =") && read.ScriptSource.Contains("var callResult2 ="), "Repeated insertion reused a local variable name.");
+                ScriptExecuteUiDraft(dialog);
+                Assert(station.Capability.Calls == before + 6, "Repeated generated calls failed compilation, changed parameters or invoked the wrong object.");
+                ScriptBuildCallContracts(code);
                 string originalCode = read.ScriptSource;
                 ScriptPage(dialog, "scriptParameters");
+                UserControl settings = ScriptControl<UserControl>(dialog, "scriptSettings");
                 ComboBox bindings = ScriptControl<ComboBox>(settings, "scriptBindings_dyn"); ((ToolStripMenuItem)bindings.ContextMenuStrip.Items[0]).PerformClick();
                 read = ScriptReadUiDraft(dialog);
                 Assert(read.ScriptResources.Count == 0 && read.ScriptSource == originalCode, "Removing an allowed-object binding silently rewrote the user's source.");
@@ -196,6 +237,46 @@ internal static partial class Cases
             Assert(step.ScriptResources.Count == 0 && step.ScriptSource == "", "Object insertion committed before node confirmation.");
         }
         finally { editor.Delete(step.Id); }
+    }
+
+    /// <summary>Compile generated zero- and multi-input calls and preserve typed defaults and escaped business text.</summary>
+    private static void ScriptBuildCallContracts(FlowScriptEditor code)
+    {
+        System.Reflection.MethodInfo build = typeof(FlowScriptEditor).GetMethod("BuildCall", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        string target = "fixture/quoted\"\r\nOutputs.Value = 999;\u0085\u2028\u2029";
+        string payload = "payload\"\\\r\n\t\0\u0085\u2028\u2029";
+        string title = "业务方法\r\nOutputs.Value = 999;\u0085\u2028\u2029";
+        FlowMethod multi = new FlowMethod("readability.multi", title, title, title);
+        multi.Inputs.Add(new FlowField("Enabled", typeof(bool), "true"));
+        multi.Inputs.Add(new FlowField("Count", typeof(long), "9007199254740993"));
+        multi.Inputs.Add(new FlowField("Distance", typeof(double), "12.5"));
+        multi.Inputs.Add(new FlowField("Payload", typeof(string), payload) { DisplayName = new[] { title, title, title } });
+        string generated = (string)build.Invoke(code, new object[] { target, multi, 41, "    " });
+        Assert(generated.Split('\n').Count(line => line.Contains("{ \"Enabled\"") || line.Contains("{ \"Count\"") || line.Contains("{ \"Distance\"") || line.Contains("{ \"Payload\"")) == 4,
+            "Multi-input generation combined or omitted typed parameter rows.");
+        Assert(!generated.Contains("\u0085") && !generated.Contains("\u2028") && !generated.Contains("\u2029"), "Business text escaped its generated line comment or string literal.");
+        ScriptRunGeneratedCall(generated, target, multi.Id, 1, values =>
+            values.Count == 4 && values["Enabled"] is bool && (bool)values["Enabled"] && values["Count"] is long
+            && (long)values["Count"] == 9007199254740993L && values["Distance"] is double && (double)values["Distance"] == 12.5
+            && (string)values["Payload"] == payload);
+        FlowMethod empty = new FlowMethod("readability.empty", "无参数方法", "No-input method", "Método sin entradas");
+        generated = (string)build.Invoke(code, new object[] { "fixture/empty", empty, 42, "" });
+        ScriptRunGeneratedCall(generated, "fixture/empty", empty.Id, 2, values => values.Count == 0);
+    }
+
+    /// <summary>Execute generated code through the actual script service and inspect exact target, method and dictionary values.</summary>
+    private static void ScriptRunGeneratedCall(string source, string target, string method, double expected, Func<IDictionary<string, object>, bool> inspect)
+    {
+        FlowStep step = ScriptNode("Outputs.Value = " + expected.ToString(System.Globalization.CultureInfo.InvariantCulture) + ";\n" + source, ScriptPort("Value", "Number"));
+        FlowCall call = new FlowCall { Step = step, Inputs = new Dictionary<string, object>(), Context = new FlowExecutionContext(), Token = CancellationToken.None };
+        int calls = 0;
+        FlowScriptContext context = new FlowScriptContext(call, (targetId, methodId, inputs, token) =>
+        {
+            Assert(targetId == target && methodId == method && inspect(inputs), "Readable generation altered a stable identity, type or escaped default.");
+            calls++; return Task.FromResult(FlowCall.Result("Unused", true));
+        });
+        Task<IDictionary<string, object>> result = FlowScripts.Execute(step, call, context); Wait(result, 10000);
+        Assert(calls == 1 && (double)result.Result["Value"] == expected, "Generated call failed execution or business comments injected executable source.");
     }
 
     /// <summary>Compilation is an offline check and reports user source mapping and compiler diagnostics in place.</summary>
@@ -338,6 +419,97 @@ internal static partial class Cases
             }
             Assert(step.ExecutionMode == "Action" && step.TimeoutMs == 4321 && step.AlarmCode == "2019" && step.Breakpoint
                 && step.ScriptSource == "" && step.ScriptInputs.Count == 0 && step.Inputs.Single().Reference == "original literal", "Closing the layout preview committed an editing draft.");
+        }
+        finally { editor.Delete(step.Id); SwitchLanguage(LanguageType.Chinese); }
+    }
+
+    /// <summary>Verify source layout changes preserve native handles, user selection and the existing undo operation.</summary>
+    private static void ScriptCheckWrapping(FlowScriptEditor code)
+    {
+        RichTextBox source = ScriptControl<RichTextBox>(code, "scriptSource");
+        CheckBox wrap = ScriptControl<CheckBox>(code, "scriptWordWrap");
+        Control numbers = ScriptControl<Control>(code, "scriptLineNumbers");
+        Assert(wrap.Checked && numbers.Visible && numbers.Width >= 25 && source.Font.Name == "Consolas" && Math.Abs(source.Font.SizeInPoints - 11F) < 0.2F,
+            "The readable source editor lost default wrapping, line numbers or its 11-point code font.");
+        source.Text = "if (true)\n{\n    Outputs.Value = Inputs.Value; // " + new string('x', 500) + "\n}\n";
+        string original = source.Text; int edit = original.IndexOf("Inputs.Value", StringComparison.Ordinal);
+        source.Select(edit, "Inputs.Value".Length); source.SelectedText = "Inputs.Value + 2";
+        string changed = source.Text; source.Select(edit, "Inputs.Value".Length);
+        int selection = source.SelectionStart, length = source.SelectionLength;
+        IntPtr handle = source.Handle; int start = changed.IndexOf("// ", StringComparison.Ordinal), end = changed.IndexOf('\n', start) - 1;
+        Application.DoEvents();
+        Assert(source.GetPositionFromCharIndex(end).Y > source.GetPositionFromCharIndex(start).Y, "Default wrapping did not lay out the actual long source line.");
+        wrap.Checked = false; Application.DoEvents();
+        Assert(source.GetPositionFromCharIndex(end).Y == source.GetPositionFromCharIndex(start).Y, "Disabling wrapping left the native long line wrapped.");
+        Assert(source.Handle == handle && source.Text == changed && source.SelectionStart == selection && source.SelectionLength == length,
+            "Disabling wrapping recreated the editor or lost text and selection.");
+        wrap.Checked = true; Application.DoEvents();
+        Assert(source.GetPositionFromCharIndex(end).Y > source.GetPositionFromCharIndex(start).Y && source.Handle == handle
+            && source.Text == changed && source.SelectionStart == selection && source.SelectionLength == length, "Re-enabling wrapping changed source state or did not reflow the long line.");
+        Assert(source.CanUndo, "Wrapping changes cleared the user's pending undo."); source.Undo();
+        Assert(source.Text == original, "Undo after changing wrapping did not restore the user's previous text.");
+    }
+
+    /// <summary>Keep selected source and indentation intact while inserting at a logical line boundary and file end.</summary>
+    private static void ScriptCheckInsertionEditing(FlowNodeForm dialog)
+    {
+        RichTextBox source = ScriptControl<RichTextBox>(dialog, "scriptSource");
+        source.Text = "if (true)\n{\n    Outputs.Value = Inputs.Value;\n}\n";
+        string original = source.Text; int selection = original.IndexOf("Inputs.Value", StringComparison.Ordinal), line = original.LastIndexOf('\n', selection) + 1;
+        source.Select(selection, "Inputs.Value".Length); ScriptSelectProbeCall(dialog); ScriptInsertSelectedCall(dialog);
+        string inserted = source.Text, prefix = original.Substring(0, line), suffix = original.Substring(line);
+        Assert(inserted.StartsWith(prefix, StringComparison.Ordinal) && inserted.EndsWith(suffix, StringComparison.Ordinal), "Call insertion replaced selected business code or changed surrounding lines.");
+        string block = inserted.Substring(prefix.Length, inserted.Length - prefix.Length - suffix.Length);
+        Assert(block.Split('\n').Where(value => value.Trim().Length > 0).All(value => value.StartsWith("    ", StringComparison.Ordinal)) && block.EndsWith("\n", StringComparison.Ordinal),
+            "Generated call did not reuse indentation and isolate itself from the preserved source line.");
+        Assert(source.SelectionLength == 0 && source.SelectionStart == inserted.Length - suffix.Length, "Insertion left the caret inside preserved source instead of after its code block.");
+        Assert(source.CanUndo, "Insertion was not added to the ordinary editor undo stack."); source.Undo();
+        Assert(source.Text == original, "One undo did not remove the whole generated block while preserving selected code.");
+        source.Text = "Outputs.Value = Inputs.Value;"; original = source.Text; source.Select(source.TextLength, 0);
+        ScriptSelectProbeCall(dialog); ScriptInsertSelectedCall(dialog);
+        Assert(source.Text.StartsWith(original + "\n", StringComparison.Ordinal) && source.SelectionStart == source.TextLength,
+            "Appending at file end merged the call into a statement or misplaced the caret.");
+        ScriptExecuteUiDraft(dialog);
+    }
+
+    /// <summary>Insert outside multi-line string and comment tokens, preserving their contents while calling the real object.</summary>
+    private static void ScriptCheckMultiLineTokens(FlowNodeForm dialog)
+    {
+        RichTextBox source = ScriptControl<RichTextBox>(dialog, "scriptSource");
+        foreach (string token in new[] { "var text = @\"first\ninside token\nlast\";", "/* first\ninside token\nlast */" })
+        {
+            source.Text = "Outputs.Value = Inputs.Value;\n" + token + "\n";
+            string originalToken = token; source.Select(source.Text.IndexOf("inside token", StringComparison.Ordinal) + 3, 0);
+            int before = station.Capability.Calls; ScriptSelectProbeCall(dialog); ScriptInsertSelectedCall(dialog);
+            Assert(source.Text.Contains(originalToken), "Insertion altered an existing multi-line token.");
+            ScriptExecuteUiDraft(dialog);
+            Assert(station.Capability.Calls == before + 2, "Insertion stayed inside a string or comment instead of executing the selected real object call.");
+        }
+    }
+
+    /// <summary>Exercise readable source editing without losing drafts, caret state, undo or language-independent code.</summary>
+    private static void ScriptUiSourceEditing()
+    {
+        FlowStep step = ScriptUiNode();
+        try
+        {
+            using (FlowNodeForm dialog = new FlowNodeForm(editor, step))
+            {
+                dialog.Show(); ScriptMode(dialog, "Script");
+                FlowScriptEditor code = ScriptControl<FlowScriptEditor>(dialog, "scriptEditor");
+                ScriptCheckWrapping(code); ScriptCheckInsertionEditing(dialog); ScriptCheckMultiLineTokens(dialog);
+                RichTextBox source = ScriptControl<RichTextBox>(code, "scriptSource");
+                string original = source.Text; int start = original.IndexOf("targetId:", StringComparison.Ordinal);
+                source.Select(start, "targetId".Length); int length = source.SelectionLength;
+                foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+                {
+                    SwitchLanguage(language); Application.DoEvents();
+                    Assert(source.Text == original && source.SelectionStart == start && source.SelectionLength == length, "Language switching rewrote generated source or moved the editor selection.");
+                    Screenshot(dialog, "script-readable-" + language);
+                }
+                ScriptControl<Button>(dialog, "cancel").PerformClick();
+            }
+            Assert(step.ExecutionMode == "Action" && step.ScriptSource == "", "Editing readability options or generated calls committed the node before confirmation.");
         }
         finally { editor.Delete(step.Id); SwitchLanguage(LanguageType.Chinese); }
     }

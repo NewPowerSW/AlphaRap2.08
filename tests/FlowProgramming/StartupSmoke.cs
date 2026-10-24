@@ -34,13 +34,13 @@ internal static class StartupSmoke
         catch (Exception error) { Console.WriteLine("FAIL startup: " + error); return 1; }
     }
 
-    /// <summary>Load a historical empty MSet and open the real main window in an isolated configuration directory.</summary>
+    /// <summary>Open the real main window in an isolated directory and release installed hooks before disposing forms.</summary>
     private static void Run(string[] args)
     {
         Application.EnableVisualStyles();
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
         string root = Path.GetFullPath(args[1]); Directory.CreateDirectory(root); Environment.CurrentDirectory = root;
-        SysPara.SettingDataDirectory = Path.Combine(root,"Settings"); Directory.CreateDirectory(SysPara.SettingDataDirectory);
+        SysPara.SettingDataDirectory = StartupSettingDirectory(root); Directory.CreateDirectory(SysPara.SettingDataDirectory);
         ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
         SysPara.LanguageDataDirectory = Path.Combine(root,"LanguageData");
         SysPara.AlarmTableDirectory = Path.Combine(root,"AlarmTable");
@@ -58,16 +58,75 @@ internal static class StartupSmoke
         host.GetField("alarmRunTask",BindingFlags.Static|BindingFlags.Public).SetValue(null,System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(AlarmRunTask)));
         SystemSetting setting = (SystemSetting)host.GetField("SystemS",BindingFlags.Static|BindingFlags.Public).GetValue(null);
         if (setting.Constants.Table("Setting").Select("Key <> ''").Length!=8 || !(bool)setting.GetSettingValue("PSet","DisScann")) throw new InvalidOperationException("Legacy settings migration changed the original flag.");
-        Form main = (Form)host.GetField("MainF",BindingFlags.Static|BindingFlags.Public).GetValue(null);
+        MainForm main = (MainForm)host.GetField("MainF",BindingFlags.Static|BindingFlags.Public).GetValue(null);
+        Exception runError = null;
         try
         {
             main.Show(); Application.DoEvents();
+            ReleaseStartupHooks(main);
             if (!main.Visible || !main.IsHandleCreated) throw new InvalidOperationException("Main window did not open.");
             using (Bitmap image = new Bitmap(main.Width,main.Height)) { main.DrawToBitmap(image,new Rectangle(Point.Empty,main.Size)); image.Save(Path.Combine(root,"startup-main.png")); }
             Console.WriteLine("PASS real startup form creation and main window with empty legacy MSet; hardware initialization and machine threads were not started.");
-            VerifyMainSave((MainForm)main,host,setting);
+            VerifyMainSave(main,host,setting);
         }
-        finally { foreach (Form form in Application.OpenForms.Cast<Form>().ToArray()) form.Dispose(); }
+        catch (Exception error) { runError = error; throw; }
+        finally
+        {
+            try { ReleaseStartupForms(main); }
+            catch (Exception cleanupError)
+            {
+                if (runError == null) throw;
+                throw new AggregateException("Startup execution and cleanup both failed.", runError, cleanupError);
+            }
+        }
+    }
+
+    /// <summary>Use a deep settings directory to exercise transaction staging together with atomic flow-file writes.</summary>
+    private static string StartupSettingDirectory(string root)
+    {
+        string directory = Path.Combine(root,"Settings");
+        return directory.Length >= 170 ? directory : Path.Combine(directory,new string('s',Math.Max(1,169-directory.Length)));
+    }
+
+    /// <summary>Remove desktop input hooks and stop the actual auto-logout timer before testing configuration operations.</summary>
+    private static void ReleaseStartupHooks(MainForm main)
+    {
+        List<Exception> errors = new List<Exception>();
+        if (main.mh != null)
+        {
+            try { main.mh.UnHook(); }
+            catch (Exception error) { errors.Add(new InvalidOperationException("Startup cleanup could not remove the main-window mouse hook.", error)); }
+        }
+        if (main.k_hook != null)
+        {
+            try { main.k_hook.Stop(); }
+            catch (Exception error) { errors.Add(new InvalidOperationException("Startup cleanup could not remove the main-window keyboard hook.", error)); }
+        }
+        try
+        {
+            FieldInfo timerField = typeof(MainForm).GetField("LoginOutTime", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (timerField == null) throw new MissingFieldException(typeof(MainForm).FullName, "LoginOutTime");
+            Timer logout = (Timer)timerField.GetValue(main);
+            if (logout == null) throw new InvalidOperationException("The main-window auto-logout timer was not initialized.");
+            logout.Stop();
+            if (logout.Enabled) throw new InvalidOperationException("The main-window auto-logout timer remained enabled.");
+        }
+        catch (Exception error) { errors.Add(new InvalidOperationException("Startup cleanup could not stop the main-window auto-logout timer.", error)); }
+        if (errors.Count > 0) throw new AggregateException("Startup input isolation failed.", errors);
+    }
+
+    /// <summary>Release hooks again before disposing open forms and report every cleanup failure without closing the application.</summary>
+    private static void ReleaseStartupForms(MainForm main)
+    {
+        List<Exception> errors = new List<Exception>();
+        try { ReleaseStartupHooks(main); }
+        catch (Exception error) { errors.Add(error); }
+        foreach (Form form in Application.OpenForms.Cast<Form>().ToArray())
+        {
+            try { form.Dispose(); }
+            catch (Exception error) { errors.Add(new InvalidOperationException("Startup cleanup could not dispose form: " + form.Name, error)); }
+        }
+        if (errors.Count > 0) throw new AggregateException("Startup cleanup failed.", errors);
     }
 
     /// <summary>Save and discard through the real MainForm entry, then verify failed staging preserves disk and committed snapshots.</summary>
@@ -86,7 +145,13 @@ internal static class StartupSmoke
         FlowModuleEditor flow = FlowPrograms.Attach(FlowPrograms.AddModule("Main save flow")); FlowStep step = flow.AddNode(); flow.Program.Mode="Program"; flow.Program.AutoEntry=step.Id;
         if (FlowResources.Capture().Parameters.ContainsKey("Constants/Setting/MainSaveFlag") || !FlowResources.Capture(true).Parameters.ContainsKey("Constants/Setting/MainSaveFlag")) throw new InvalidOperationException("Draft and production snapshots are mixed.");
         ChooseSave(main,"Button1_dyn");
-        if (hardware.Resources.IsDirty || !HardwareResources.Load(hardware.Resources.PathName).Resources.Any(item=>item.Id==definition.Id) || !data.GetProductionSchema().Any(field=>field.Name=="MainValue") || !flow.IsProgram) throw new InvalidOperationException("Main Save did not commit all new configuration.");
+        bool dirty = hardware.Resources.IsDirty;
+        bool resourceExists = HardwareResources.Load(hardware.Resources.PathName).Resources.Any(item=>item.Id==definition.Id);
+        bool schema = data.GetProductionSchema().Any(field=>field.Name=="MainValue");
+        bool flowIsProgram = flow.IsProgram;
+        if (dirty || !resourceExists || !schema || !flowIsProgram)
+            throw new InvalidOperationException("Main Save did not commit all new configuration: IsDirty=" + dirty + ", resourceExists=" + resourceExists
+                + ", schema=" + schema + ", flowIsProgram=" + flowIsProgram + ", permission=" + SysPara.UserPermission + ", mode=" + SysPara.SystemMode + ".");
         if (main.Controls.Find("save",true).Length>0 || hardware.Controls.Find("resourceSave",true).Length>0 || setting.Controls.Find("constantSave",true).Length>0) throw new InvalidOperationException("A separate configuration Save button remains.");
         Console.WriteLine("PASS MainForm Save persists axis definitions, recipe points/constants, Setting constants, production fields and the published flow.");
         axis.Points.DataSet1.Rows[0]["Position"]=22;

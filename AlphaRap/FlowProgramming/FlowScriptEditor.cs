@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using NPSDK;
 
@@ -20,6 +21,7 @@ namespace AlphaRap.FlowProgramming
         public FlowScriptEditor()
         {
             InitializeComponent();
+            InitializeAppearance();
             compile.Click += CompileSource;
             errors.TextChanged += (sender, args) => UpdateDiagnostics();
             source.TextChanged += (sender, args) => ShowError("");
@@ -126,14 +128,113 @@ namespace AlphaRap.FlowProgramming
         /// <summary>插入由设置控件选定的对象方法，并通知宿主回到源码页。</summary>
         private void InsertCall(string target, FlowMethod method)
         {
-            string arguments = string.Join(", ", method.Inputs.Select(field => "{ " + Quote(field.Name) + ", " + DefaultLiteral(field) + " }"));
             int suffix = 1;
             while (source.Text.Contains("callResult" + suffix)) suffix++;
-            source.SelectedText = "var callResult" + suffix + " = await Context.CallAsync(" + Quote(target) + ", " + Quote(method.Id) + ", new Dictionary<string, object> { " + arguments + " });" + Environment.NewLine;
+            string text = source.Text;
+            int caret = source.SelectionStart;
+            bool appendAllowed;
+            int start = FindInsertionLine(text, caret, out appendAllowed);
+            int end = start;
+            while (end < text.Length && (text[end] == ' ' || text[end] == '\t')) end++;
+            string indent = text.Substring(start, end - start);
+            bool append = appendAllowed && caret == text.Length && caret > end;
+            int insertion = append ? caret : start;
+            string code = (append ? Environment.NewLine : "") + BuildCall(target, method, suffix, indent);
+            source.Select(insertion, 0);
+            source.SelectedText = code;
+            source.Select(insertion + source.TextLength - text.Length, 0);
             ShowError(FlowScriptUiText.T("scriptInsertHelp"));
             EventHandler handler = SourceRequested;
             if (handler != null) handler(this, EventArgs.Empty);
             source.Focus();
+            source.ScrollToCaret();
+        }
+
+        /// <summary>定位普通语句插入行；多行字符串或注释内的行退回该标记起始行，仅普通代码末尾允许追加。</summary>
+        private static int FindInsertionLine(string text, int caret, out bool appendAllowed)
+        {
+            const int Code = 0, LineComment = 1, BlockComment = 2, String = 3, VerbatimString = 4, Character = 5;
+            int lineStart = caret == 0 ? 0 : text.LastIndexOfAny(new[] { '\r', '\n', '\u0085', '\u2028', '\u2029' }, caret - 1) + 1;
+            int state = Code, currentLine = 0, tokenLine = 0, safeLine = lineStart;
+            for (int index = 0; index < caret; index++)
+            {
+                if (index == lineStart && (state == BlockComment || state == VerbatimString)) safeLine = tokenLine;
+                char value = text[index], next = index + 1 < caret ? text[index + 1] : '\0';
+                if (value == '\r' || value == '\n' || value == '\u0085' || value == '\u2028' || value == '\u2029')
+                {
+                    currentLine = index + 1;
+                    if (state == LineComment) state = Code;
+                    continue;
+                }
+                if (state == LineComment) continue;
+                if (state == BlockComment)
+                {
+                    if (value == '*' && next == '/') { state = Code; index++; }
+                    continue;
+                }
+                if (state == VerbatimString)
+                {
+                    if (value != '"') continue;
+                    if (next == '"') { index++; continue; }
+                    state = Code;
+                    continue;
+                }
+                if (state == String || state == Character)
+                {
+                    if (value == '\\') { index++; continue; }
+                    if (value == (state == String ? '"' : '\'')) state = Code;
+                    continue;
+                }
+                if (value == '/' && next == '/')
+                {
+                    state = LineComment; index++;
+                    continue;
+                }
+                if (value == '/' && next == '*')
+                {
+                    state = BlockComment; tokenLine = currentLine; index++;
+                    continue;
+                }
+                if (value == '@' && next == '"')
+                {
+                    state = VerbatimString; tokenLine = currentLine; index++;
+                    continue;
+                }
+                if (value == '"') { state = String; continue; }
+                if (value == '\'') state = Character;
+            }
+            if (caret == lineStart && (state == BlockComment || state == VerbatimString)) safeLine = tokenLine;
+            appendAllowed = state == Code && safeLine == lineStart;
+            return safeLine;
+        }
+
+        /// <summary>按对象和参数的业务标题生成独立代码块；稳定身份及参数键仍用于实际调用。</summary>
+        private string BuildCall(string target, FlowMethod method, int suffix, string indent)
+        {
+            FlowResource resource = catalog == null ? null : catalog.FindResource(target);
+            string label = resource == null ? target : resource.Label;
+            StringBuilder code = new StringBuilder();
+            code.AppendLine(indent + "// " + CommentText(label) + " · " + CommentText(FlowMethods.Title(method)));
+            code.AppendLine(indent + "var callResult" + suffix + " = await Context.CallAsync(");
+            code.AppendLine(indent + "    targetId: " + Quote(target) + ",");
+            code.AppendLine(indent + "    methodId: " + Quote(method.Id) + ",");
+            code.AppendLine(indent + "    inputs: new Dictionary<string, object>");
+            code.AppendLine(indent + "    {");
+            for (int index = 0; index < method.Inputs.Count; index++)
+            {
+                FlowField field = method.Inputs[index];
+                string separator = index + 1 < method.Inputs.Count ? "," : "";
+                code.AppendLine(indent + "        { " + Quote(field.Name) + ", " + DefaultLiteral(field) + " }" + separator
+                    + " // " + CommentText(FlowMethods.FieldTitle(method.Id, field)));
+            }
+            code.AppendLine(indent + "    });");
+            return code.ToString();
+        }
+
+        /// <summary>将业务说明限制在单行注释内，避免名称中的换行成为可执行源码。</summary>
+        private static string CommentText(string text)
+        {
+            return (text ?? "").Replace('\r', ' ').Replace('\n', ' ').Replace('\u0085', ' ').Replace('\u2028', ' ').Replace('\u2029', ' ');
         }
 
         /// <summary>根据对象字段默认值生成 C# 字面值，真实类型仍由调用服务校验。</summary>
@@ -155,7 +256,11 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>将对象身份和字段键转换为安全的 C# 字符串。</summary>
-        private static string Quote(string text) { return "\"" + (text ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "\\r").Replace("\n", "\\n") + "\""; }
+        private static string Quote(string text)
+        {
+            return "\"" + (text ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "\\r").Replace("\n", "\\n")
+                .Replace("\t", "\\t").Replace("\0", "\\0").Replace("\u0085", "\\u0085").Replace("\u2028", "\\u2028").Replace("\u2029", "\\u2029") + "\"";
+        }
 
         /// <summary>切换固定标题，源码、光标和已有诊断保持原值。</summary>
         private void RefreshLanguage(object sender, EventArgs args) { FlowLanguageForm.ApplyTexts(this); }
@@ -165,6 +270,7 @@ namespace AlphaRap.FlowProgramming
         {
             if (disposing)
             {
+                DisposeAppearance();
                 if (!UiTheme.IsDesignTime) MiddleLayer.LanguageChanged -= RefreshLanguage;
                 if (settings != null)
                 {

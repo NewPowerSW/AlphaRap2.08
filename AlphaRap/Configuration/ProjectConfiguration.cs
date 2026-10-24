@@ -82,12 +82,13 @@ namespace AlphaRap.Configuration
             finally { foreach (PendingFile file in files) if (file.Temporary!=null && File.Exists(file.Temporary)) File.Delete(file.Temporary); }
         }
 
-        /// <summary>创建同目录暂存文件并记录旧内容，不提交 DataSet 版本。</summary>
+        /// <summary>使用同目录短名称暂存文件并记录旧内容，不提交 DataSet 版本。</summary>
         private static void StageFile(PendingFile file)
         {
-            Directory.CreateDirectory(System.IO.Path.GetDirectoryName(file.Path));
+            string directory = System.IO.Path.GetDirectoryName(file.Path);
+            Directory.CreateDirectory(directory);
             file.Original = File.Exists(file.Path) ? File.ReadAllBytes(file.Path) : null;
-            file.Temporary = file.Path+"."+Guid.NewGuid().ToString("N")+".pending";
+            file.Temporary = System.IO.Path.Combine(directory,Guid.NewGuid().ToString("N")+".pending");
             file.Write(file.Temporary);
         }
 
