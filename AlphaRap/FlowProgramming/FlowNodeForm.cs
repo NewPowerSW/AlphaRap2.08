@@ -37,6 +37,7 @@ namespace AlphaRap.FlowProgramming
             categoryValue.SelectedValue = selectedResource == null ? "flow" : selectedResource.Category;
             FillTargets(step.Target);
             FillActions(step.Action);
+            InitializeExecution(step);
             FillInputs(step.Inputs);
             foreach (FlowBranch branch in FlowProgramFile.BranchesOf(step)) AddBranchEditor(branch, step.TargetOf(branch.Code));
             filling = false;
@@ -58,7 +59,7 @@ namespace AlphaRap.FlowProgramming
         {
             FlowBranchEditor editor = branch.Code == "NEXT" ? nextBranch : new FlowBranchEditor();
             editor.Name = "branch_" + branch.Code + "_dyn";
-            editor.Configure(catalog,actionValue.SelectedItem as FlowMethod);
+            editor.Configure(catalog,CurrentMethod);
             List<FlowChoice> targets = new List<FlowChoice> { new FlowChoice { Id = "", Label = FlowText.T("end") } };
             targets.AddRange(module.Program.Steps.Where(step => step.Id != original.Id).Select(step => new FlowChoice { Id = step.Id, Label = step.Caption }));
             editor.Bind(branch, targetId, targets);
@@ -145,7 +146,7 @@ namespace AlphaRap.FlowProgramming
         private void FillInputs(List<FlowInput> previous)
         {
             foreach (Control control in inputs.Controls.Cast<Control>().ToArray()) control.Dispose();
-            FlowMethod action = actionValue.SelectedItem as FlowMethod;
+            FlowMethod action = CurrentMethod;
             if (action == null) { outputsValue.Text = ""; RefreshMethodHelp(); return; }
             inputs.SuspendLayout();
             foreach (FlowField field in action.Inputs)
@@ -183,6 +184,8 @@ namespace AlphaRap.FlowProgramming
             inputs.Visible = visible > 0;
             int height = visible * 46 + 44 + (advanced ? 28 : 0) + (help ? 52 : 0);
             root.RowStyles[2].Height = Math.Min(330, Math.Max(76, height));
+            if (executionMode == "None") root.RowStyles[2].Height = 0;
+            if (executionMode == "Script") root.RowStyles[2].Height = 76;
             ResizeInputs();
         }
 
@@ -196,7 +199,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>解释绑定点位、托盘计算及表值设置，无参数方法不显示空输入网格。</summary>
         private void RefreshMethodHelp()
         {
-            FlowMethod action = actionValue.SelectedItem as FlowMethod;
+            FlowMethod action = CurrentMethod;
             methodHint.Text = "";
             methodHint.Visible = false; inputLayout.RowStyles[2].Height = 0;
             if (action == null) { RefreshParameterLayout(); return; }
@@ -223,7 +226,8 @@ namespace AlphaRap.FlowProgramming
             if (catalog == null) return;
             string category = Convert.ToString(categoryValue.SelectedValue);
             string target = Convert.ToString(targetValue.SelectedValue);
-            FlowMethod method = actionValue.SelectedItem as FlowMethod;
+            FlowMethod method = CurrentMethod;
+            FlowMethod selectedAction = actionValue.SelectedItem as FlowMethod;
             string alarmText = alarmValue.Text;
             string alarmCode = alarmValue.SelectedIndex < 0 ? null : Convert.ToString(alarmValue.SelectedValue);
             filling = true;
@@ -232,8 +236,9 @@ namespace AlphaRap.FlowProgramming
                 categoryValue.DataSource = new[] { "flow", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data" }
                     .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
                 categoryValue.SelectedValue = category;
-                FillTargets(target); FillActions(method == null ? null : method.Id);
-                if (method == null) actionValue.SelectedIndex = -1;
+                FillTargets(target); FillActions(selectedAction == null ? null : selectedAction.Id);
+                if (executionMode == "Action" && method == null) actionValue.SelectedIndex = -1;
+                FillExecutionChoices();
                 FillAlarms();
                 if (alarmCode != null) alarmValue.SelectedValue = alarmCode;
                 if (alarmValue.SelectedIndex < 0) alarmValue.Text = alarmText;
@@ -269,7 +274,7 @@ namespace AlphaRap.FlowProgramming
         private void PickInput(object sender, EventArgs args)
         {
             FlowInputRow row = (FlowInputRow)sender;
-            FlowMethod action = actionValue.SelectedItem as FlowMethod;
+            FlowMethod action = CurrentMethod;
             if (action == null) return;
             FlowField field = action.Inputs.Single(item => item.Name == row.FieldName);
             string description = field.Name == "Index" && action.Id == "point.move" ? methodHint.Text : null;
@@ -283,15 +288,16 @@ namespace AlphaRap.FlowProgramming
             try
             {
                 FlowPrograms.RequireIdle();
-                FlowMethod action = actionValue.SelectedItem as FlowMethod;
+                FlowMethod action = CurrentMethod;
                 if (action == null || string.IsNullOrWhiteSpace(captionValue.Text)) throw new InvalidOperationException(FlowText.T("selectNode"));
                 FlowStep candidate = FlowProgramFile.Snapshot(new FlowProgram { Steps = new List<FlowStep> { original } }).Steps[0];
                 candidate.Caption = captionValue.Text;
                 candidate.Action = action.Id;
-                candidate.Target = Convert.ToString(targetValue.SelectedValue);
+                candidate.Target = executionMode == "Action" ? Convert.ToString(targetValue.SelectedValue) : "";
                 candidate.TimeoutMs = (int)timeoutValue.Value;
                 candidate.AlarmCode = alarmValue.SelectedIndex >= 0 ? Convert.ToString(alarmValue.SelectedValue) : alarmValue.Text.Trim();
                 candidate.Inputs = InputRows.Select(row => row.ReadInput()).ToList();
+                ReadExecutionTo(candidate);
                 candidate.Conditions.Clear(); candidate.WaitForCondition = false; candidate.AnyCondition = false;
                 candidate.Branches = branchEditors.Select(editor => editor.ReadBranch()).ToList();
                 foreach (string code in new[] { "NEXT", "CASE1", "CASE2", "CASE3" }) candidate.SetTarget(code, null);

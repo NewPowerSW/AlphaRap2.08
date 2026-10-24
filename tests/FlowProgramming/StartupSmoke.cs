@@ -115,6 +115,39 @@ internal static class StartupSmoke
         Console.WriteLine("PASS late unified-save replacement failure rolls back earlier configuration files and retains drafts.");
         ChooseSave(main,"Button3_dyn");
         VerifyFlowTableSave(main,setting);
+        VerifyScriptMainSave(main);
+    }
+
+    /// <summary>Publish scripts through Main Save and retain the old executable source after compile failure or discard.</summary>
+    private static void VerifyScriptMainSave(MainForm main)
+    {
+        FlowModuleEditor module = FlowPrograms.Attach(FlowPrograms.AddModule("Saved script flow"));
+        FlowStep step = module.AddNode();
+        step.ExecutionMode = "Script"; step.Action = "script.execute"; step.Target = "";
+        step.ScriptSource = "Outputs.Value = Inputs.Value + 1;"; step.Breakpoint = true;
+        step.ScriptInputs.Add(new FlowScriptPort { Name = "Value", Type = "Number", DefaultValue = "2" });
+        step.ScriptOutputs.Add(new FlowScriptPort { Name = "Value", Type = "Number" });
+        step.Inputs = new List<FlowInput> { new FlowInput { Name = "Value", Reference = "2" } };
+        module.Program.Mode = "Program"; module.Program.AutoEntry = step.Id;
+        ChooseSave(main,"Button1_dyn");
+        FlowStep saved = FlowProgramFile.Load(FlowPrograms.FilePath).Modules.Single(item => item.ModuleId == module.Program.ModuleId).Steps.Single();
+        if (saved.ScriptSource != step.ScriptSource || saved.ExecutionMode != "Script" || !saved.Breakpoint || saved.ScriptInputs[0].Type != "Number" || saved.Inputs[0].Reference != "2")
+            throw new InvalidOperationException("Main Save did not persist the complete script node.");
+        string before = File.ReadAllText(FlowPrograms.FilePath), validSource = step.ScriptSource;
+        step.ScriptSource = "Outputs.Value = MissingMainSaveIdentifier;";
+        bool rejected = false;
+        try { ProjectConfiguration.Save(); } catch (InvalidOperationException error) { rejected = error.Message.Contains("CS0103"); }
+        if (!rejected || File.ReadAllText(FlowPrograms.FilePath) != before || !step.ScriptSource.Contains("MissingMainSaveIdentifier"))
+            throw new InvalidOperationException("Compile failure overwrote the saved flow or discarded the script draft.");
+        module.Start(step.Id, true, false, true);
+        DateTime limit = DateTime.UtcNow.AddSeconds(5);
+        while (!module.Runtime.Completion.IsCompleted && DateTime.UtcNow < limit) { Application.DoEvents(); System.Threading.Thread.Sleep(5); }
+        if (!module.Runtime.Completion.IsCompleted || module.Runtime.Error != null || (double)FlowPrograms.Results.Read(FlowPrograms.Results.Epoch, "batch", module.Program.ModuleId + "/" + step.Id, "Value") != 3)
+            throw new InvalidOperationException("Production execution did not use the last saved script version.");
+        ChooseSave(main,"Button3_dyn");
+        if (module.Program.Steps.Single().ScriptSource != validSource || !module.Program.Steps.Single().Breakpoint)
+            throw new InvalidOperationException("Main Save No failed to restore saved script source and breakpoint.");
+        Console.WriteLine("PASS Main Save persists script ports bindings and breakpoints; compile failure retains drafts and the published version; discard restores saved source.");
     }
 
     /// <summary>Write actual Setting and Recipe rows from flow nodes, then exercise real main Save, reload, failure and discard.</summary>

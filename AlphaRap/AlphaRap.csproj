@@ -687,6 +687,17 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FlowProgramming\FlowScripts.cs"></Compile>
+    <Compile Include="FlowProgramming\FlowScriptContext.cs"></Compile>
+    <Compile Include="FlowProgramming\FlowScriptUiText.cs"></Compile>
+    <Compile Include="FlowProgramming\FlowScriptText.cs"></Compile>
+    <Compile Include="FlowProgramming\FlowDebugText.cs"></Compile>
+    <Compile Include="FlowProgramming\FlowScriptEditor.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowScriptEditor.Designer.cs"><DependentUpon>FlowScriptEditor.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowDebugPanel.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowDebugPanel.Designer.cs"><DependentUpon>FlowDebugPanel.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowNodeForm.Script.cs"><DependentUpon>FlowNodeForm.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowModuleEditor.Debug.cs"><DependentUpon>FlowPrograms.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowInputRow.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="FlowProgramming\FlowInputRow.Designer.cs"><DependentUpon>FlowInputRow.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowConditionRow.cs"><SubType>UserControl</SubType></Compile>

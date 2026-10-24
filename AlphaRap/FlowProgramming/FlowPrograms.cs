@@ -17,6 +17,7 @@ namespace AlphaRap.FlowProgramming
         private static Exception loadError;
         private static bool installed;
         public static readonly FlowResultHub Results = new FlowResultHub();
+        public static bool DebugEnabled { get; set; }
         public static bool AnyRunning { get { return modules.Values.Any(module => module.Runtime.IsRunning); } }
         public static bool AnyEditing { get { return modules.Values.Any(module => module.IsEditing); } }
         public static bool HasPrograms { get { return modules.Values.Any(module => module.IsProgram || module.IsRemovedPublished); } }
@@ -225,6 +226,12 @@ namespace AlphaRap.FlowProgramming
         /// <summary>常量表读取节点按作用域和业务键保护引用，动态键读取时保护该表的键。</summary>
         private static bool ReadsConstant(FlowStep step, string reference)
         {
+            if (step.ExecutionMode == "Script" && (reference ?? "").StartsWith("Constants/", StringComparison.Ordinal))
+            {
+                string scope = reference.Substring("Constants/".Length).Split('/')[0];
+                if (step.ScriptResources.Contains("constants/" + scope)) return true;
+            }
+            if (step.ExecutionMode != "Action") return false;
             if ((step.Action != "constant.read" && step.Action != "constant.set") || !(reference ?? "").StartsWith("Constants/", StringComparison.Ordinal)) return false;
             int separator = reference.IndexOf('/', "Constants/".Length);
             if (separator < 0 || step.Target != "constants/" + reference.Substring("Constants/".Length, separator - "Constants/".Length)) return false;
@@ -246,7 +253,8 @@ namespace AlphaRap.FlowProgramming
                 {
                     IEnumerable<FlowCondition> conditions = step.Conditions.Concat(step.Branches.SelectMany(branch=>branch.Conditions));
                     IEnumerable<FlowInput> inputs = step.Inputs.Concat(conditions.SelectMany(condition=>new[]{condition.Left,condition.Right}));
-                    if ((step.Target??"").StartsWith(targetPrefix,StringComparison.Ordinal) || inputs.Any(input=>input.Source=="Parameter" && (input.Reference??"").StartsWith(parameterPrefix,StringComparison.Ordinal))) users.Add(module.ModuleId+" / "+step.Caption);
+                    bool scriptUsesResource = step.ExecutionMode == "Script" && step.ScriptResources.Any(target => target.StartsWith(targetPrefix, StringComparison.Ordinal));
+                    if (scriptUsesResource || (step.ExecutionMode == "Action" && (step.Target??"").StartsWith(targetPrefix,StringComparison.Ordinal)) || inputs.Any(input=>input.Source=="Parameter" && (input.Reference??"").StartsWith(parameterPrefix,StringComparison.Ordinal))) users.Add(module.ModuleId+" / "+step.Caption);
                 }
             }
             if (users.Count>0) throw new InvalidOperationException(string.Format(Configuration.HardwareText.T("referenced"),string.Join(Environment.NewLine,users)));
@@ -255,6 +263,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>检查生产入口，显式阻止旧回调与配置流程混合控制同一设备。</summary>
         public static bool CanStartMachine(bool initialize)
         {
+            if (DebugEnabled && !CanEdit) { MessageBox.Show(FlowText.T("permission"), FlowText.T("title")); return false; }
             try { if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) MiddleLayer.HardF.Resources.ValidateStart(!initialize && !SysPara.Simulation); }
             catch (Exception error) { MessageBox.Show(error.Message,Configuration.HardwareText.T("title")); return false; }
             if (!installed) return true;
@@ -290,7 +299,9 @@ namespace AlphaRap.FlowProgramming
         /// <summary>从动作描述及真实 VPP 字段生成一个节点的输出选项。</summary>
         private static void AddOutputChoices(List<FlowChoice> list, FlowActions actions, FlowModuleEditor module, FlowStep step)
         {
-            FlowMethod action = actions.FindMethod(step);
+            FlowMethod action;
+            try { action = actions.FindMethod(step); }
+            catch (InvalidOperationException) { return; }
             if (action == null) return;
             foreach (FlowField field in action.Outputs)
                 list.Add(new FlowChoice { Id = module.Program.ModuleId + "/" + step.Id + "/" + Uri.EscapeDataString(field.Name),
@@ -299,7 +310,7 @@ namespace AlphaRap.FlowProgramming
         }
     }
 
-    public sealed class FlowModuleEditor : IFlowProgramController
+    public sealed partial class FlowModuleEditor : IFlowProgramController
     {
         private readonly Dictionary<string, Flow_Chart> nodes = new Dictionary<string, Flow_Chart>();
         private bool paused;
@@ -327,6 +338,7 @@ namespace AlphaRap.FlowProgramming
             Restore(program);
             Publish();
             Runtime.StateChanged += DisplayState;
+            Runtime.DebugChanged += CaptureDebug;
             Runtime.AlarmRequested += code => { if (!simulating) Alarm.Show(string.IsNullOrWhiteSpace(code) ? "2019" : code); };
             Runtime.Finished += Finish;
         }
@@ -388,6 +400,7 @@ namespace AlphaRap.FlowProgramming
                 node.ConfigurationRequested += Configure;
                 node.EnableProgramEditor(editing);
                 node.ProgramManaged = IsEnabled;
+                node.ProgramBreakpoint = step.Breakpoint;
                 node.BringToFront();
             }
             ImportLegacyLinks();
@@ -458,6 +471,7 @@ namespace AlphaRap.FlowProgramming
                 node.Casse2 = Node(step.Case2);
                 node.Casse3 = Node(step.Case3);
                 node.ProgramManaged = IsEnabled;
+                node.ProgramBreakpoint = step.Breakpoint;
             }
             Form.Invalidate(true);
         }
@@ -605,13 +619,19 @@ namespace AlphaRap.FlowProgramming
             if (command == FlowProgramCommand.Pause) { Runtime.Pause(); paused = true; return true; }
             if (command == FlowProgramCommand.Resume || (command == FlowProgramCommand.Start && paused && Runtime.IsRunning)) { Runtime.Resume(); paused = false; return true; }
             if (published.Mode == "Disabled") { Form.InitialStatus = true; Form.RunningStatus = false; return true; }
-            Action start = () => Start(command == FlowProgramCommand.Initialize ? published.InitialEntry : published.AutoEntry, SysPara.Simulation, command == FlowProgramCommand.Initialize, true);
+            Action start = () => StartCore(command == FlowProgramCommand.Initialize ? published.InitialEntry : published.AutoEntry, SysPara.Simulation, command == FlowProgramCommand.Initialize, true, FlowPrograms.DebugEnabled);
             if (MiddleLayer.MainF != null && MiddleLayer.MainF.InvokeRequired) MiddleLayer.MainF.Invoke(start); else start();
             return true;
         }
 
         /// <summary>用不可变参数及点位快照执行选定入口。</summary>
         public void Start(string entry, bool simulate, bool initializing, bool production = false)
+        {
+            StartCore(entry, simulate, initializing, production, false);
+        }
+
+        /// <summary>使用同一已校验运行计划，可选在节点执行前进入调试等待。</summary>
+        private void StartCore(string entry, bool simulate, bool initializing, bool production, bool debug)
         {
             if (Runtime.IsRunning) throw new InvalidOperationException(FlowText.T("busy"));
             SetEditing(false);
@@ -625,13 +645,15 @@ namespace AlphaRap.FlowProgramming
             isInitializing = initializing;
             isProduction = production;
             Runtime.ExecuteAction = actions.Execute;
+            DebugSnapshot = null;
+            PrepareDebugPlan(plan, entry, actions, debug);
             Form.RunningStatus = true;
             if (initializing) Form.InitialStatus = false;
             Form.StopStatus = false;
             paused = false;
             foreach (Flow_Chart node in nodes.Values) node.ProgramManaged = true;
             Runtime.Start(plan, entry, new FlowExecutionContext { Hub = FlowPrograms.Results, RunId = FlowPrograms.Results.Epoch,
-                CycleId = "batch", ModuleId = plan.ModuleId, RecipeName = resources.RecipeName, Parameters = resources.Parameters });
+                CycleId = "batch", ModuleId = plan.ModuleId, RecipeName = resources.RecipeName, Parameters = resources.Parameters }, debug);
         }
 
         /// <summary>执行任务完成前更新模块状态，避免旧回调覆盖下一次启动。</summary>
@@ -649,7 +671,7 @@ namespace AlphaRap.FlowProgramming
         {
             Flow_Chart node = Node(step.Id);
             if (node == null) return;
-            Color color = state == "Running" ? Color.LightGreen : state == "Completed" ? Color.White : state == "Waiting" ? Color.LightYellow : Color.MistyRose;
+            Color color = state == "DebugPaused" ? Color.LightSalmon : state == "Running" ? Color.LightGreen : state == "Completed" ? Color.White : state == "Waiting" ? Color.LightYellow : Color.MistyRose;
             node.SetProgramState(FlowText.T(state), color);
         }
 

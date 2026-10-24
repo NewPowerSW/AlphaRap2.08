@@ -34,6 +34,12 @@ namespace AlphaRap.FlowProgramming
         private FlowLayoutPanel buttons;
         private Button ok;
         private Button cancel;
+        private ComboBox executionValue;
+        private CheckBox breakpointValue;
+        private Label executionLabel;
+        private TabControl executionTabs;
+        private TabPage parameterPage, scriptPage, branchPage;
+        private FlowScriptEditor scriptEditor;
         /// <summary>Build fixed inputs, independent timeout and the reusable NEXT branch template.</summary>
         private void InitializeComponent()
         {
@@ -103,7 +109,7 @@ namespace AlphaRap.FlowProgramming
             root.Padding = new Padding(10);
             root.ColumnCount = 1;
             root.RowCount = 7;
-            root.RowStyles.Add(new RowStyle(SizeType.Absolute, 96F));
+            root.RowStyles.Add(new RowStyle(SizeType.Absolute, 138F));
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 180F));
             root.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -112,13 +118,14 @@ namespace AlphaRap.FlowProgramming
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 42F));
             header.Dock = DockStyle.Fill;
             header.ColumnCount = 4;
-            header.RowCount = 2;
+            header.RowCount = 3;
             header.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110F));
             header.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             header.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110F));
             header.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            header.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            header.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            header.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
+            header.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
+            header.RowStyles.Add(new RowStyle(SizeType.Percent, 33.34F));
             routes.Dock = DockStyle.Fill;
             routes.ColumnCount = 4;
             routes.RowCount = 1;
@@ -168,6 +175,10 @@ namespace AlphaRap.FlowProgramming
             header.Controls.Add(targetValue, 1, 1);
             header.Controls.Add(actionLabel, 2, 1);
             header.Controls.Add(actionValue, 3, 1);
+            executionLabel = new Label { Name = "scriptMode", Tag = "scriptMode", Text = "执行方式", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft };
+            executionValue = new ComboBox { Name = "executionValue_dyn", DropDownStyle = ComboBoxStyle.DropDownList, Anchor = AnchorStyles.Left | AnchorStyles.Right };
+            breakpointValue = new CheckBox { Name = "scriptBreakpoint", Tag = "scriptBreakpoint", Text = "执行前断点", Dock = DockStyle.Fill, AutoSize = true };
+            header.Controls.Add(executionLabel, 0, 2); header.Controls.Add(executionValue, 1, 2); header.Controls.Add(breakpointValue, 3, 2);
             routes.Controls.Add(timeoutLabel, 0, 0);
             routes.Controls.Add(timeoutValue, 1, 0);
             routes.Controls.Add(alarmLabel, 2, 0);
@@ -230,7 +241,14 @@ namespace AlphaRap.FlowProgramming
             CancelButton = cancel;
             root.Controls.Add(header, 0, 0);
             root.Controls.Add(routes, 0, 1);
-            root.Controls.Add(inputsGroup, 0, 2);
+            executionTabs = new TabControl { Name = "executionTabs", Dock = DockStyle.Fill };
+            parameterPage = new TabPage { Name = "scriptParameters", Tag = "scriptParameters", Text = "输入绑定", Padding = new Padding(0) };
+            scriptPage = new TabPage { Name = "scriptTab", Tag = "scriptTab", Text = "C# 脚本", Padding = new Padding(0) };
+            branchPage = new TabPage { Name = "scriptRoutes", Tag = "scriptRoutes", Text = "NEXT / CASE 条件", Padding = new Padding(0) };
+            scriptEditor = new FlowScriptEditor { Name = "scriptEditor", Dock = DockStyle.Fill };
+            parameterPage.Controls.Add(inputsGroup); scriptPage.Controls.Add(scriptEditor);
+            executionTabs.TabPages.Add(parameterPage); executionTabs.TabPages.Add(scriptPage);
+            root.Controls.Add(executionTabs, 0, 2);
             root.Controls.Add(branchesGroup, 0, 3);
             root.Controls.Add(outputsValue, 0, 4);
             root.Controls.Add(hint, 0, 5);

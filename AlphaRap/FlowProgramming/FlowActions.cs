@@ -31,6 +31,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>按对象身份和方法身份联合解析，禁止用其他对象的同名方法补位。</summary>
         public FlowMethod FindMethod(FlowStep step)
         {
+            if (step.ExecutionMode == "Script" || step.ExecutionMode == "None") return FlowScripts.Define(step);
             FlowResource resource = FindResource(step.Target);
             if (!string.IsNullOrEmpty(step.Target) && resource == null) return null;
             return MethodsFor(resource).SingleOrDefault(method => method.Id == step.Action);
@@ -50,6 +51,12 @@ namespace AlphaRap.FlowProgramming
             if (errors.Count > 0) throw new InvalidOperationException(string.Join(Environment.NewLine, errors));
             FlowMethod method = FindMethod(step);
             if (method == null) throw new InvalidOperationException(FlowText.T("methodMissing") + " " + step.Caption + " / " + step.Target + " / " + step.Action);
+            if (step.ExecutionMode == "Script")
+            {
+                foreach (string target in step.ScriptResources)
+                    if (FindResource(target) == null) throw new InvalidOperationException(FlowText.T("scriptObjectMissing") + " " + target);
+                FlowScripts.Compile(step);
+            }
             if (step.Inputs.Count != method.Inputs.Count || method.Inputs.Any(field => step.Inputs.Count(input => input.Name == field.Name) != 1))
                 throw new InvalidOperationException(FlowText.T("fieldsChanged") + " " + step.Caption);
             foreach (FlowInput input in step.Inputs)
@@ -123,26 +130,61 @@ namespace AlphaRap.FlowProgramming
             FlowMethod method = FindMethod(step);
             Dictionary<string, object> input = method.Inputs.ToDictionary(field => field.Name,
                 field => ValidateValue(field, context.Resolve(step.Inputs.Single(item => item.Name == field.Name))));
-            FlowCall call = new FlowCall { Step = step, Context = context, Inputs = input, Token = token, Simulation = Simulate, RequestInput = RequestInput };
-            FlowResource resource = FindResource(step.Target);
+            FlowCall call = new FlowCall { Step = step, Context = context, InvocationId = context.ExecutionId, Inputs = input, Token = token, Simulation = Simulate, RequestInput = RequestInput };
+            FlowResource resource = step.ExecutionMode == "Action" ? FindResource(step.Target) : null;
             if (method.ValidateInputs != null) method.ValidateInputs(input);
             using (FlowResourceGate.Lease lease = await FlowResourceGate.Acquire(ResourceLocks(resource == null ? null : resource.Instance), token).ConfigureAwait(false))
                 return await lease.Run(() => Invoke(method, call)).ConfigureAwait(false);
         }
 
         /// <summary>模拟硬件必须使用明确的模拟实现；实际方法返回后检查输出契约。</summary>
-        private static async Task<IDictionary<string, object>> Invoke(FlowMethod method, FlowCall call)
+        private async Task<IDictionary<string, object>> Invoke(FlowMethod method, FlowCall call)
         {
             call.Token.ThrowIfCancellationRequested();
+            if (call.Step.ExecutionMode == "Script")
+            {
+                FlowScriptContext script = new FlowScriptContext(call, call.Context.Debugging && call.Step.Breakpoint,
+                    (target, action, input, token) => ExecuteScriptObject(call, target, action, input, token));
+                IDictionary<string, object> result = await FlowScripts.Execute(call.Step, call, script).ConfigureAwait(false);
+                call.Token.ThrowIfCancellationRequested();
+                return ValidateOutputs(method, result);
+            }
             Func<FlowCall, Task<IDictionary<string, object>>> invoke = call.Simulation && method.UsesHardware ? method.Simulate : method.Invoke;
             if (invoke == null) throw new InvalidOperationException(FlowText.T("noSimulation") + " " + method.Id);
             IDictionary<string, object> output = await invoke(call).ConfigureAwait(false);
             call.Token.ThrowIfCancellationRequested();
+            return ValidateOutputs(method, output);
+        }
+
+        /// <summary>对象与脚本输出使用同一契约，拒绝缺失字段和无效数值。</summary>
+        private static IDictionary<string, object> ValidateOutputs(FlowMethod method, IDictionary<string, object> output)
+        {
             if (output == null || method.Outputs.Any(field => !output.ContainsKey(field.Name)))
                 throw new InvalidOperationException(FlowText.T("outputMissing") + " " + method.Id);
             foreach (FlowField field in method.Outputs)
                 if (output[field.Name] != null) output[field.Name] = ValidateValue(field, output[field.Name]);
             return output;
+        }
+
+        /// <summary>只调用脚本已声明的实际对象；逐次获取同一资源租约并沿用类型校验、模拟和取消规则。</summary>
+        private async Task<IDictionary<string, object>> ExecuteScriptObject(FlowCall parent, string target, string action,
+            IDictionary<string, object> values, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            if (!parent.Step.ScriptResources.Contains(target ?? ""))
+                throw new InvalidOperationException(FlowText.T("scriptObjectNotBound") + " " + target);
+            FlowResource resource = FindResource(target);
+            if (resource == null) throw new InvalidOperationException(FlowText.T("scriptObjectMissing") + " " + target);
+            FlowMethod method = resource.Methods.SingleOrDefault(item => item.Id == action);
+            if (method == null) throw new InvalidOperationException(FlowText.T("methodMissing") + " " + resource.Label + " / " + action);
+            if (values == null || values.Count != method.Inputs.Count || method.Inputs.Any(field => !values.ContainsKey(field.Name)))
+                throw new InvalidOperationException(FlowText.T("fieldsChanged") + " " + resource.Label + " / " + action);
+            Dictionary<string, object> input = method.Inputs.ToDictionary(field => field.Name, field => ValidateValue(field, values[field.Name]));
+            if (method.ValidateInputs != null) method.ValidateInputs(input);
+            FlowCall call = new FlowCall { Step = new FlowStep { Target = target, Action = action, Caption = parent.Step.Caption },
+                Context = parent.Context, InvocationId = Guid.NewGuid().ToString("N"), Inputs = input, Token = token, Simulation = parent.Simulation, RequestInput = parent.RequestInput };
+            using (FlowResourceGate.Lease lease = await FlowResourceGate.Acquire(ResourceLocks(resource.Instance), token).ConfigureAwait(false))
+                return await lease.Run(() => Invoke(method, call)).ConfigureAwait(false);
         }
 
         /// <summary>绑定表与轴共用资源，气缸占用实际输出，相机按采集通道互斥。</summary>

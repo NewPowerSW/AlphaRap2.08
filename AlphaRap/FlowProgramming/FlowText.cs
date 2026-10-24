@@ -167,6 +167,9 @@ namespace AlphaRap.FlowProgramming
         {
             foreach (KeyValuePair<string, string[]> item in FlowInputRow.TextDefaults) Defaults[item.Key] = item.Value;
             foreach (KeyValuePair<string, string[]> item in FlowSourceForm.TextDefaults) Defaults[item.Key] = item.Value;
+            foreach (KeyValuePair<string, string[]> item in FlowDebugText.Defaults) Defaults[item.Key] = item.Value;
+            foreach (KeyValuePair<string, string[]> item in FlowScriptUiText.Defaults) Defaults[item.Key] = item.Value;
+            foreach (KeyValuePair<string, string[]> item in FlowScriptText.Defaults) Defaults[item.Key] = item.Value;
         }
 
         /// <summary>读取三语文案，设计期不触发宿主静态初始化。</summary>

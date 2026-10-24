@@ -23,6 +23,9 @@ namespace AlphaRap
         private ContextMenuStrip moduleMenu;
         private ToolStripMenuItem moduleDelete;
         private ToolStripMenuItem nodeDelete, nodeProperties;
+        private ToolStripMenuItem nodeBreakpoint;
+        private CheckBox debugMode;
+        private FlowProgramming.FlowDebugPanel debugPanel;
         private Button reload;
         private Button validate;
         private Button pause;
@@ -71,7 +74,8 @@ namespace AlphaRap
             nodeDelete.Name = "nodeDelete";
             nodeDelete.Text = "删除节点";
             nodeProperties = new ToolStripMenuItem { Name = "nodeProperties", Text = "属性编辑" };
-            nodeMenu.Items.AddRange(new ToolStripItem[] { nodeProperties, new ToolStripSeparator(), nodeDelete });
+            nodeBreakpoint = new ToolStripMenuItem { Name = "nodeBreakpoint", Tag = "nodeBreakpoint", Text = "设置 / 取消断点" };
+            nodeMenu.Items.AddRange(new ToolStripItem[] { nodeProperties, nodeBreakpoint, new ToolStripSeparator(), nodeDelete });
             moduleMenu = new ContextMenuStrip { Name = "moduleMenu" };
             moduleDelete = new ToolStripMenuItem { Name = "moduleDelete", Text = "删除流程模块" };
             moduleMenu.Items.Add(moduleDelete);
@@ -125,6 +129,9 @@ namespace AlphaRap
             schema.Text = "生产表字段";
             schema.AutoSize = true;
             toolbar.Controls.Add(schema);
+            debugMode = new CheckBox { Name = "debugMode", Tag = "debugMode", Text = "节点调试", AutoSize = true, Margin = new Padding(12, 6, 3, 3) };
+            toolbar.Controls.Add(debugMode);
+            debugPanel = new FlowProgramming.FlowDebugPanel { Name = "debugPanel", Dock = DockStyle.Bottom, Height = 235, Visible = false };
             modeValue.DropDownStyle = ComboBoxStyle.DropDownList;
             modeValue.Width = 220;
             modeEntryLabel = new Label();
@@ -169,6 +176,7 @@ namespace AlphaRap
             Controls.Add(tabControl1);
             Controls.Add(entries);
             Controls.Add(toolbar);
+            Controls.Add(debugPanel);
             Controls.Add(status);
             Controls.Add(hint);
             Name = "Flow";

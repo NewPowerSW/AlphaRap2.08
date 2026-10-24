@@ -186,6 +186,8 @@ internal static partial class Cases
         Test("vision selection contains only configured VPPs without unused Camera1 fields", ConfiguredVisionCatalog);
         Test("DI DO and cylinder categories each list their own actual objects", IoCategorySelection);
         Test("tray node explains the current layout and calculates the selected pocket", TrayNodeHelp);
+        RegisterScriptRuntimeCases();
+        RegisterScriptUiCases();
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
         ExportP0FieldTexts();
         Console.WriteLine("RESULT: " + (count - failures) + "/" + count + " passed");
@@ -1213,12 +1215,55 @@ internal static partial class Cases
             SwitchLanguage(LanguageType.English);
             Assert(menu.Items["nodeDelete"].Text == "Delete node" && menu.Items["nodeProperties"].Text == "Edit properties", "Context menu did not follow the framework language switch."); SwitchLanguage(LanguageType.Chinese);
             VerifyNodeProperties(menu, surface);
+            menu.Show(surface, new Point(5, 5)); Application.DoEvents();
+            menu.Items["nodeBreakpoint"].PerformClick(); menu.Close();
+            Assert(editor.Program.Steps.Single(item => item.Id == model.Id).Breakpoint && visible.ProgramBreakpoint, "Node context breakpoint did not update its model and red marker.");
+            menu.Show(surface, new Point(5, 5)); menu.Items["nodeBreakpoint"].PerformClick(); menu.Close();
+            VerifyDebugCommands(page, FlowPrograms.Attach(created), tabs);
             FlowPrograms.DeleteModule(FlowPrograms.Attach(created)); page.AddFlowChart();
             Application.DoEvents();
             Assert(!tabs.TabPages.Cast<TabPage>().Any(tab => tab.Text == "Configured module") && !created.IsDisposed, "Deleted module remains visible or lost reload support.");
             Assert(visible.Visible && station.Visible, "Removing another module hid the remaining module.");
             using (Bitmap bitmap = new Bitmap(page.Width, page.Height)) { page.DrawToBitmap(bitmap, new Rectangle(Point.Empty, page.Size)); bitmap.Save(Path.Combine(root, "flow-page.png")); }
             page.Close();
+        }
+    }
+
+    /// <summary>Exercise the actual flow-page debugging controls and observe script output in three languages.</summary>
+    private static void VerifyDebugCommands(Flow page, FlowModuleEditor module, TabControl tabs)
+    {
+        FlowStep step = module.AddNode(); step.ExecutionMode = "Script"; step.Action = "script.execute";
+        step.ScriptSource = "Outputs.Value = Inputs.Value + 1;";
+        step.ScriptInputs.Add(new FlowScriptPort { Name = "Value", Type = "Number", DefaultValue = "4.25" });
+        step.ScriptOutputs.Add(new FlowScriptPort { Name = "Value", Type = "Number" });
+        step.Inputs = new List<FlowInput> { new FlowInput { Name = "Value", Reference = "4.25" } };
+        CheckBox debug = (CheckBox)page.Controls.Find("debugMode", true)[0];
+        try
+        {
+            tabs.SelectedTab = tabs.TabPages.Cast<TabPage>().Single(tab => ReferenceEquals(tab.Tag, module));
+            debug.Checked = true; Application.DoEvents();
+            Assert(FlowPrograms.DebugEnabled, "The flow debug switch did not configure the shared start path.");
+            module.StartDebug(step.Id, true);
+            ScriptUntil(() => module.Runtime.IsDebugPaused, "Flow-page debug never stopped at its entry.");
+            typeof(Flow).GetMethod("RefreshRuntime", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(page, new object[] { null, EventArgs.Empty });
+            Control panel = page.Controls.Find("debugPanel", true)[0];
+            Assert(panel.Visible, "The flow-page input/output observer is hidden during debugging.");
+            DataGridView grid = (DataGridView)panel.Controls.Find("debugValues", true)[0];
+            Assert(grid.Rows.Cast<DataGridViewRow>().Any(row => Convert.ToString(row.Cells[2].Value) == "4.25"), "The paused node did not show its prepared input value.");
+            ((Button)panel.Controls.Find("debugStep", true)[0]).PerformClick(); Wait(module.Runtime.Completion);
+            foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+            {
+                SwitchLanguage(language); Application.DoEvents();
+                typeof(Flow).GetMethod("RefreshRuntime", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(page, new object[] { null, EventArgs.Empty });
+                Assert(grid.Rows.Cast<DataGridViewRow>().Any(row => Convert.ToString(row.Cells[2].Value) == "5.25"), "Language refresh lost the completed script output.");
+                Screenshot(page, "script-debug-page-" + language);
+            }
+        }
+        finally
+        {
+            module.Runtime.Stop(); Wait(module.Runtime.Completion); debug.Checked = false;
+            FlowPrograms.DebugEnabled = false; module.Delete(step.Id); SwitchLanguage(LanguageType.Chinese);
+            tabs.SelectedIndex = 0;
         }
     }
 }

@@ -40,6 +40,16 @@ namespace AlphaRap
             nodeMenu.Opening += OpenNodeMenu;
             nodeDelete.Click += (sender, args) => Execute(() => DeleteNode(contextModule, contextNodeId));
             nodeProperties.Click += (sender, args) => Execute(() => { if (contextModule != null) contextModule.EditNode(contextNodeId); });
+            nodeBreakpoint.Click += (sender, args) => Execute(() => { if (contextModule != null) contextModule.ToggleBreakpoint(contextNodeId); });
+            debugMode.CheckedChanged += (sender, args) =>
+            {
+                if (filling) return;
+                Execute(() => { FlowPrograms.RequireIdle(); FlowPrograms.DebugEnabled = debugMode.Checked; });
+                filling = true; debugMode.Checked = FlowPrograms.DebugEnabled; filling = false;
+                RefreshRuntime(null, EventArgs.Empty);
+            };
+            debugPanel.ContinueRequested += (sender, args) => Execute(() => { if (FlowPrograms.CanEdit && tabControl1.SelectedTab != null) Current().Runtime.ContinueDebug(); });
+            debugPanel.StepRequested += (sender, args) => Execute(() => { if (FlowPrograms.CanEdit && tabControl1.SelectedTab != null) Current().Runtime.StepDebug(); });
             tabControl1.MouseDown += OpenModuleMenu;
             moduleDelete.Click += (sender, args) => Execute(() => DeleteModule(contextPage));
             ApplyLanguage(null, EventArgs.Empty);
@@ -150,6 +160,8 @@ namespace AlphaRap
             if (contextModule != null) contextNodeId = contextModule.IdOf((Flow_Chart)source);
             nodeDelete.Enabled = contextNodeId != null && FlowPrograms.CanEdit && !FlowPrograms.AnyRunning && SysPara.SystemMode == RunMode.IDLE && !Flow_Module.Module_GetRunningStatus;
             nodeProperties.Enabled = nodeDelete.Enabled && contextModule.IsEditing;
+            nodeBreakpoint.Enabled = nodeDelete.Enabled;
+            nodeBreakpoint.Checked = contextModule != null && contextModule.Program.Steps.Any(step => step.Id == contextNodeId && step.Breakpoint);
         }
 
         /// <summary>确认后删除指定节点，统一清理入口和 NEXT / CASE 连接。</summary>
@@ -193,15 +205,21 @@ namespace AlphaRap
             bool busy = FlowPrograms.AnyRunning;
             bool canEdit = FlowPrograms.CanEdit;
             bool hasModule = tabControl1.SelectedTab != null;
+            debugMode.Enabled = !busy && canEdit && hasModule && SysPara.SystemMode == RunMode.IDLE;
             foreach (Control control in new Control[] { addModule, reload, schema }) control.Enabled = !busy && canEdit;
             foreach (Control control in new Control[] { edit, modeValue, initialValue, autoValue, add, validate }) control.Enabled = !busy && canEdit && hasModule;
             if (!canEdit)
             {
                 foreach (FlowModuleEditor module in FlowPrograms.Modules.Where(module => module.IsEditing)) module.SetEditing(false);
                 filling = true; edit.Checked = false; filling = false;
+                if (!busy) FlowPrograms.DebugEnabled = false;
             }
             if (!canEdit) status.Text = FlowText.T("permission");
             pause.Enabled = hasModule && Current().Runtime.IsRunning; stop.Enabled = hasModule && Current().Runtime.IsRunning;
+            filling = true; debugMode.Checked = FlowPrograms.DebugEnabled; filling = false;
+            debugPanel.Visible = canEdit && (FlowPrograms.DebugEnabled || hasModule && Current().Runtime.IsDebugging);
+            debugPanel.Bind(hasModule ? Current() : null);
+            if (hasModule && Current().Runtime.IsDebugPaused) pause.Enabled = false;
             if (!hasModule) return;
             if (Current().Runtime.Error != null) status.Text = string.Format(FlowText.T("error"), Current().Runtime.Error);
         }
@@ -215,6 +233,9 @@ namespace AlphaRap
             nodeProperties.Text = MiddleLayer.LangMsg("Flow", "nodeProperties", words[0], words[1], words[2]);
             words = FlowText.Defaults["deleteModule"];
             moduleDelete.Text = MiddleLayer.LangMsg("Flow", "moduleDelete", words[0], words[1], words[2]);
+            words = FlowText.Defaults["nodeBreakpoint"];
+            nodeBreakpoint.Text = MiddleLayer.LangMsg("Flow", "nodeBreakpoint", words[0], words[1], words[2]);
+            debugPanel.RefreshLanguage();
         }
         /// <summary>Keep the draft available when an engineering operation fails.</summary>
         private void Execute(Action action)
