@@ -52,12 +52,12 @@ namespace AlphaRap.FlowProgramming
                     case "input": return "di";
                     case "output": return "do";
                     case "cylinder": return Kind;
-                    case "vision": case "data": case "tray": case "constants": return Kind;
+                    case "vision": case "data": case "tray": case "constants": case "code": return Kind;
                     default: return "device";
                 }
             }
         }
-        public bool Selectable { get { return Kind != "point"; } }
+        public bool Selectable { get { return Kind != "point" && Kind != "code"; } }
     }
 
     public sealed class FlowPointAxis
@@ -102,6 +102,16 @@ namespace AlphaRap.FlowProgramming
                 catalog.AddControls(form, form.Name); catalog.AddObjectFields(form);
             }
             foreach (HardForm form in forms.OfType<HardForm>()) catalog.AddHardwareGroups(form);
+            foreach (FlowExternalResources.Entry entry in FlowExternalResources.Capture())
+            {
+                FlowResource resource = catalog.Add(entry.Id, entry.Name, entry.Kind, entry.Instance);
+                if (entry.Points == null) continue;
+                catalog.AddPointTable(entry.Id + "/points", entry.Points);
+                resource.BoundPoints = catalog.Items.Values.SingleOrDefault(item => item.Kind == "point" && item.Id.StartsWith(entry.Id + "/points/", StringComparison.Ordinal)
+                    && ReferenceEquals(((FlowPointAxis)item.Instance).Motor, entry.Instance));
+            }
+            foreach (FlowCodeDefinition definition in FlowToolboxCatalog.Definitions)
+                catalog.Add("code/" + definition.Id, definition.Title[0], "code", definition);
             foreach (ModuleBaseForm module in ModuleManager.ModuleList.ToArray())
             {
                 catalog.AddParameters(module.Name, "Recipe", module.RecipeData);
@@ -144,6 +154,8 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowResource resource in Items.Values)
             {
                 IFlowObject provider = resource.Instance as IFlowObject;
+                FlowCodeDefinition code = resource.Instance as FlowCodeDefinition;
+                if (code != null) { resource.Methods = new List<FlowMethod> { FlowResourceAccess.CreateMethod(code, new FlowStep(), this) }; continue; }
                 NP_Motor motor = resource.Instance as NP_Motor;
                 if (motor != null)
                 {

@@ -39,9 +39,10 @@ namespace AlphaRap.FlowProgramming
             categoryValue.DisplayMember = "Label"; categoryValue.ValueMember = "Id";
             FillAlarms(string.IsNullOrEmpty(step.AlarmCode) ? "2019" : step.AlarmCode);
             FlowResource selectedResource = catalog.FindResource(step.Target);
-            categoryValue.SelectedValue = selectedResource == null ? "flow" : selectedResource.Category;
-            FillTargets(step.Target);
-            FillActions(step.Action);
+            bool codeNode = !string.IsNullOrEmpty(step.CodeModuleId);
+            categoryValue.SelectedValue = codeNode || selectedResource == null ? "flow" : selectedResource.Category;
+            FillTargets(codeNode ? "" : step.Target);
+            FillActions(codeNode ? "value" : step.Action);
             InitializeExecution(step);
             FillInputs(step.Inputs);
             foreach (FlowBranch branch in FlowProgramFile.BranchesOf(step)) AddBranchEditor(branch, step.TargetOf(branch.Code));
@@ -318,7 +319,7 @@ namespace AlphaRap.FlowProgramming
             if (action == null) return;
             FlowField field = action.Inputs.Single(item => item.Name == row.FieldName);
             string description = field.Name == "Index" && action.Id == "point.move" ? methodHint.Text : null;
-            using (FlowSourceForm dialog = new FlowSourceForm(row.ReadInput(), catalog, action, field, description, Convert.ToString(targetValue.SelectedValue)))
+            using (FlowSourceForm dialog = new FlowSourceForm(row.ReadInput(), catalog, action, field, description, codeEditing ? "code/" + codeId : Convert.ToString(targetValue.SelectedValue)))
                 if (dialog.ShowDialog(this) == DialogResult.OK) row.SetInput(dialog.Selection);
         }
 
@@ -339,9 +340,13 @@ namespace AlphaRap.FlowProgramming
                 candidate.Inputs = InputRows.Select(row => row.ReadInput()).ToList();
                 ReadExecutionTo(candidate);
                 candidate.Conditions.Clear(); candidate.WaitForCondition = false; candidate.AnyCondition = false;
-                candidate.Branches = branchEditors.Select(editor => editor.ReadBranch()).ToList();
-                foreach (string code in new[] { "NEXT", "CASE1", "CASE2", "CASE3" }) candidate.SetTarget(code, null);
-                foreach (FlowBranchEditor editor in branchEditors) candidate.SetTarget(editor.Code, editor.TargetId);
+                if (codeEditing) codeRoutes.ReadTo(candidate);
+                else
+                {
+                    candidate.Branches = branchEditors.Select(editor => editor.ReadBranch()).ToList();
+                    foreach (string code in new[] { "NEXT", "CASE1", "CASE2", "CASE3" }) candidate.SetTarget(code, null);
+                    foreach (FlowBranchEditor editor in branchEditors) candidate.SetTarget(editor.Code, editor.TargetId);
+                }
                 catalog.Validate(candidate);
                 int index = module.Program.Steps.IndexOf(original);
                 module.Program.Steps[index] = candidate;

@@ -15,6 +15,8 @@ $flowArguments += Join-Path $PSScriptRoot 'Usability.cs'
 $flowArguments += Join-Path $PSScriptRoot 'P0Usability.cs'
 $flowArguments += Join-Path $PSScriptRoot 'ScriptRuntimeCases.cs'
 $flowArguments += Join-Path $PSScriptRoot 'ScriptUiCases.cs'
+$flowArguments += Join-Path $PSScriptRoot 'ToolboxUiCases.cs'
+$flowArguments += Join-Path $PSScriptRoot 'ToolboxRuntimeCases.cs'
 foreach ($flowCognexAssembly in @('Cognex.VisionPro.dll','Cognex.VisionPro.Core.dll','Cognex.VisionPro.ToolGroup.dll')) { $flowArguments += '/r:C:/Program Files/Cognex/VisionPro/ReferencedAssemblies/' + $flowCognexAssembly }
 & $flowCompiler @flowArguments
 if ($LASTEXITCODE -ne 0) { throw 'Flow regression compilation failed.' }
@@ -23,10 +25,12 @@ $flowRunRoot = Join-Path $flowTestRoot ([Guid]::NewGuid().ToString('N'))
 if ($LASTEXITCODE -ne 0) { throw 'Flow regressions failed.' }
 Write-Output "Flow UI screenshots: $flowRunRoot"
 $flowStartupExecutable = Join-Path $flowTestRoot 'FlowProgramming.StartupSmoke.exe'
-$flowStartupArguments = $flowArguments | Where-Object { $_ -notlike '/out:*' -and $_ -notlike '*Regression.cs' -and $_ -notlike '*ObjectMethods.cs' -and $_ -notlike '*Resources.cs' -and $_ -notlike '*Usability.cs' -and $_ -notlike '*ScriptRuntimeCases.cs' -and $_ -notlike '*ScriptUiCases.cs' }
+$flowStartupArguments = $flowArguments | Where-Object { $_ -notlike '/out:*' -and $_ -notlike '*Regression.cs' -and $_ -notlike '*ObjectMethods.cs' -and $_ -notlike '*Resources.cs' -and $_ -notlike '*Usability.cs' -and $_ -notlike '*ScriptRuntimeCases.cs' -and $_ -notlike '*ScriptUiCases.cs' -and $_ -notlike '*ToolboxUiCases.cs' -and $_ -notlike '*ToolboxRuntimeCases.cs' }
 $flowStartupArguments += "/out:$flowStartupExecutable"
 $flowStartupArguments += Join-Path $PSScriptRoot 'StartupSmoke.cs'
 $flowStartupArguments += Join-Path $PSScriptRoot 'ConfigurationCases.cs'
+$flowStartupArguments += Join-Path $PSScriptRoot 'SourceGenerationCases.cs'
+$flowStartupArguments += '/r:Microsoft.CSharp.dll'
 & $flowCompiler @flowStartupArguments
 if ($LASTEXITCODE -ne 0) { throw 'Startup smoke compilation failed.' }
 & $flowStartupExecutable $flowAssemblyRoot (Join-Path $flowRunRoot 'startup') $flowProjectRoot

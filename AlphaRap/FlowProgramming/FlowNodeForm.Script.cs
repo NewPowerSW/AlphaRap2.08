@@ -12,14 +12,18 @@ namespace AlphaRap.FlowProgramming
         private FlowMethod executionMethod;
         private readonly Dictionary<string, List<FlowInput>> modeInputs = new Dictionary<string, List<FlowInput>>();
 
-        private FlowMethod CurrentMethod { get { return executionMode == "Action" ? actionValue.SelectedItem as FlowMethod : executionMethod; } }
+        private FlowMethod CurrentMethod { get { return executionMode == "Action" && !codeEditing ? actionValue.SelectedItem as FlowMethod : executionMethod; } }
 
         /// <summary>为三种执行方式建立独立内存草稿，所有修改在确定节点之前保持局部。</summary>
         private void InitializeExecution(FlowStep step)
         {
             editingStep = FlowProgramFile.Snapshot(new FlowProgram { Steps = new List<FlowStep> { step } }).Steps[0];
             executionMode = string.IsNullOrEmpty(step.ExecutionMode) ? "Action" : step.ExecutionMode;
-            modeInputs[executionMode] = CopyInputs(step.Inputs);
+            codeEditing = !string.IsNullOrEmpty(step.CodeModuleId);
+            codeId = codeEditing ? step.CodeModuleId : "";
+            if (codeEditing) codeDrafts[codeId] = FlowProgramFile.Snapshot(new FlowProgram { Steps = new List<FlowStep> { step } }).Steps[0];
+            FillCodeChoices(); BindCodeDraft();
+            modeInputs[InputModeKey] = CopyInputs(step.Inputs);
             scriptEditor.Bind(editingStep); scriptEditor.BindObjects(catalog);
             breakpointValue.Checked = step.Breakpoint;
             FillExecutionChoices();
@@ -30,6 +34,9 @@ namespace AlphaRap.FlowProgramming
             actionMode.CheckedChanged += ExecutionChanged;
             scriptMode.CheckedChanged += ExecutionChanged;
             conditionMode.CheckedChanged += ExecutionChanged;
+            codeMode.CheckedChanged += ExecutionChanged;
+            codeChoice.SelectedIndexChanged += CodeChanged;
+            codeBindings.BindingsChanged += CodeBindingsChanged;
             scriptEditor.DefinitionChanged += ScriptDefinitionChanged;
             scriptEditor.SourceRequested += (sender, args) => executionTabs.SelectedTab = scriptPage;
         }
@@ -39,9 +46,11 @@ namespace AlphaRap.FlowProgramming
         {
             bool previous = filling;
             filling = true;
-            actionMode.Checked = executionMode == "Action";
+            actionMode.Checked = executionMode == "Action" && !codeEditing;
+            codeMode.Checked = codeEditing;
             scriptMode.Checked = executionMode == "Script";
             conditionMode.Checked = executionMode == "None";
+            FillCodeChoices();
             filling = previous;
         }
 
@@ -54,15 +63,16 @@ namespace AlphaRap.FlowProgramming
         /// <summary>保存当前参数行到本模式草稿；被暂时移除的脚本端口仍保留最后绑定。</summary>
         private void CaptureModeInputs()
         {
-            if (executionMode == "Action")
+            CaptureCodeDraft();
+            if (executionMode == "Action" && !codeEditing)
             {
                 FlowMethod selected = actionValue.SelectedItem as FlowMethod;
                 if (selected != null) editingStep.Action = selected.Id;
                 editingStep.Target = Convert.ToString(targetValue.SelectedValue);
             }
             List<FlowInput> values;
-            if (!modeInputs.TryGetValue(executionMode, out values)) values = new List<FlowInput>();
-            modeInputs[executionMode] = values.Concat(InputRows.Select(row => row.ReadInput())).GroupBy(input => input.Name).Select(group => group.Last()).ToList();
+            if (!modeInputs.TryGetValue(InputModeKey, out values)) values = new List<FlowInput>();
+            modeInputs[InputModeKey] = values.Concat(InputRows.Select(row => row.ReadInput())).GroupBy(input => input.Name).Select(group => group.Last()).ToList();
         }
 
         /// <summary>切换节点执行方式，仅变换本窗口草稿与对应参数界面。</summary>
@@ -70,13 +80,13 @@ namespace AlphaRap.FlowProgramming
         {
             if (filling || !((System.Windows.Forms.RadioButton)sender).Checked) return;
             CaptureModeInputs(); scriptEditor.ReadTo(editingStep);
+            codeEditing = sender == codeMode;
             executionMode = sender == scriptMode ? "Script" : sender == conditionMode ? "None" : "Action";
             filling = true;
             try
             {
                 ApplyExecutionLayout(); RefreshExecutionMethod();
-                List<FlowInput> previous;
-                FillInputs(modeInputs.TryGetValue(executionMode, out previous) ? previous : new List<FlowInput>());
+                RestoreModeInputs();
             }
             catch (Exception error) { scriptEditor.ShowError(error.Message); }
             finally { filling = false; }
@@ -86,6 +96,13 @@ namespace AlphaRap.FlowProgramming
         private void RefreshExecutionMethod()
         {
             editingStep.ExecutionMode = executionMode;
+            if (codeEditing)
+            {
+                FlowCodeDefinition definition = FlowToolboxCatalog.Find(codeId);
+                executionMethod = definition == null ? null : FlowResourceAccess.CreateMethod(definition, CodeDraft(), catalog.Resources);
+                return;
+            }
+            editingStep.CodeModuleId = ""; editingStep.CodeModuleVersion = 0;
             if (executionMode == "Action") { executionMethod = null; return; }
             executionMethod = null;
             scriptEditor.ReadTo(editingStep);
@@ -106,12 +123,15 @@ namespace AlphaRap.FlowProgramming
         /// <summary>只显示本模式适用的同级任务页，源码和下一步不相互挤占空间。</summary>
         private void ApplyExecutionLayout()
         {
-            bool action = executionMode == "Action";
+            bool action = executionMode == "Action" && !codeEditing;
             categoryValue.Enabled = action; targetValue.Enabled = action; actionValue.Enabled = action;
             actionSettings.Visible = action;
+            codeSettings.Visible = codeEditing; codeRoutes.Visible = codeEditing;
+            branchPanel.Visible = !codeEditing; addCase.Visible = !codeEditing; hint.Visible = !codeEditing;
             scriptSettings.Visible = executionMode == "Script";
-            parameterPage.Name = action ? "scriptActionPage" : "scriptParameters";
-            parameterPage.Tag = action ? "nodeActionPage" : "nodeDataPage";
+            parameterPage.Name = codeEditing ? "codeModulePage" : action ? "scriptActionPage" : "scriptParameters";
+            parameterPage.Tag = codeEditing ? null : action ? "nodeActionPage" : "nodeDataPage";
+            if (codeEditing) parameterPage.Text = FlowCodeUiText.T("codeMode");
             executionTabs.SuspendLayout();
             executionTabs.TabPages.Clear();
             if (executionMode == "Script")
@@ -119,7 +139,7 @@ namespace AlphaRap.FlowProgramming
                 executionTabs.TabPages.Add(scriptPage);
                 executionTabs.TabPages.Add(parameterPage);
             }
-            if (action) executionTabs.TabPages.Add(parameterPage);
+            if (action || codeEditing) executionTabs.TabPages.Add(parameterPage);
             executionTabs.TabPages.Add(branchPage);
             executionTabs.TabPages.Add(settingsPage);
             executionTabs.SelectedIndex = 0;
@@ -133,6 +153,7 @@ namespace AlphaRap.FlowProgramming
             scriptEditor.ReadTo(candidate);
             candidate.ExecutionMode = executionMode;
             candidate.Breakpoint = breakpointValue.Checked;
+            ReadCodeTo(candidate);
             if (executionMode == "Script") FlowScripts.Compile(candidate);
         }
 

@@ -70,6 +70,7 @@ internal static class StartupSmoke
             Console.WriteLine("PASS real startup form creation and main window with empty legacy MSet; hardware initialization and machine threads were not started.");
             VerifyMainSave(main,host,setting);
             ConfigurationCases.Run(main,host,setting);
+            SourceGenerationCases.Run(root);
         }
         catch (Exception error) { runError = error; throw; }
         finally

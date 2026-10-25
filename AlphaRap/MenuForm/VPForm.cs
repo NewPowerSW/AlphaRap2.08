@@ -1136,10 +1136,12 @@ namespace AlphaRap
 			}
 		}
 
+		/// <summary>删除相机前校验其全部 VPP 依赖，再移除界面及配置草稿。</summary>
 		private void DeleteCamera(VpCameraConfig cam)
 		{
 			if (cam == null) return;
 			if (!EnsureIdle(T("vpAct_DeleteCamera", "删除相机"))) return;
+			if (!CanRemoveFlowVpps(cam.Vpps)) return;
 			if (cam.Vpps.Exists(IsProductionVpp))
 			{ MessageBox.Show(MiddleLayer.LangMsg(LangForm, "vpMsg_UnbindCamera", "请先解除或更换此相机的生产定位绑定。", "Remove or change this camera's production binding first.", "Primero quite o cambie la vinculación de producción de esta cámara."), T("vpMsg_Title", "提示")); return; }
 
@@ -1667,6 +1669,7 @@ namespace AlphaRap
 				MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK;
 		}
 
+		/// <summary>删除当前 VPP 前检查运行状态、生产绑定和流程引用。</summary>
 		private void DeleteCurrentVpp()
 		{
 			VpCameraConfig cam = CurrentCameraConfig();
@@ -1687,6 +1690,7 @@ namespace AlphaRap
 			if (!EnsureIdle(T("vpAct_DeleteVpp", "删除 VPP"))) return;
 			if (IsProductionVpp(vpp))
 			{ MessageBox.Show(MiddleLayer.LangMsg(LangForm, "vpMsg_UnbindVpp", "请先解除或更换此 VPP 的生产定位绑定。", "Remove or change this VPP's production binding first.", "Primero quite o cambie la vinculación de producción de este VPP."), T("vpMsg_Title", "提示")); return; }
+			if (!CanRemoveFlowVpps(new[] { vpp })) return;
 			if (!ConfirmDeleteVpp(vpp)) return;
 
 			OperationLog.Write("VPForm", "删除 VPP：" + LogTag(vpp));
@@ -1694,10 +1698,26 @@ namespace AlphaRap
 			MarkVpConfigDraft();
 		}
 
+		/// <summary>预检全部待删 VPP，引用失败时只提示，不局部删除相机内容。</summary>
+		private bool CanRemoveFlowVpps(IEnumerable<VpVppConfig> vpps)
+		{
+			try
+			{
+				foreach (VpVppConfig vpp in vpps) FlowProgramming.FlowPrograms.RequireResourceUnused("vision/vpp/" + vpp.Id);
+				return true;
+			}
+			catch (Exception error)
+			{
+				MessageBox.Show(error.Message, T("vpMsg_Title", "提示"));
+				return false;
+			}
+		}
+
 		/// <summary>删除一个 VPP：停止实时显示、注销视觉站、移除界面页与配置。</summary>
 		private void RemoveVpp(VpCameraConfig cam, VpVppConfig vpp, TabControl vppTabs)
 		{
 			if (cam == null || vpp == null) return;
+			FlowProgramming.FlowPrograms.RequireResourceUnused("vision/vpp/" + vpp.Id);
 
 			string vppName = vpp.Name;
 

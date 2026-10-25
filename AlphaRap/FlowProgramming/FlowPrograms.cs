@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -85,6 +85,25 @@ namespace AlphaRap.FlowProgramming
         {
             ValidateForSave();
             FlowProgramFile.Save(path, project);
+        }
+
+        /// <summary>捕获本次主保存使用的完整独立工程，源码与 XML 使用同一快照。</summary>
+        internal static FlowProject CaptureForSave()
+        {
+            ValidateForSave();
+            return new FlowProject { Version = 3, Modules = project.Modules.Select(FlowProgramFile.Snapshot).ToList() };
+        }
+
+        /// <summary>所有文件成功提交后发布同一保存快照，不重新采样未保存的编辑值。</summary>
+        public static void PublishSaved(FlowProject snapshot)
+        {
+            foreach (FlowModuleEditor editor in modules.Values)
+            {
+                FlowProgram saved = snapshot.Modules.Single(item => item.ModuleId == editor.Program.ModuleId);
+                editor.Publish(saved);
+            }
+            project.Version = snapshot.Version;
+            OperationLog.Write("Flow", "Save flow project: " + FilePath);
         }
 
         /// <summary>主保存全部落盘成功后发布流程运行版本。</summary>
@@ -254,10 +273,23 @@ namespace AlphaRap.FlowProgramming
                     IEnumerable<FlowCondition> conditions = step.Conditions.Concat(step.Branches.SelectMany(branch=>branch.Conditions));
                     IEnumerable<FlowInput> inputs = step.Inputs.Concat(conditions.SelectMany(condition=>new[]{condition.Left,condition.Right}));
                     bool scriptUsesResource = step.ExecutionMode == "Script" && step.ScriptResources.Any(target => target.StartsWith(targetPrefix, StringComparison.Ordinal));
-                    if (scriptUsesResource || (step.ExecutionMode == "Action" && (step.Target??"").StartsWith(targetPrefix,StringComparison.Ordinal)) || inputs.Any(input=>input.Source=="Parameter" && (input.Reference??"").StartsWith(parameterPrefix,StringComparison.Ordinal))) users.Add(module.ModuleId+" / "+step.Caption);
+                    bool codeUsesResource = step.ResourceBindings.Any(binding => (binding.Target ?? "").StartsWith(targetPrefix, StringComparison.Ordinal));
+                    if (codeUsesResource || scriptUsesResource || (step.ExecutionMode == "Action" && (step.Target??"").StartsWith(targetPrefix,StringComparison.Ordinal)) || inputs.Any(input=>input.Source=="Parameter" && (input.Reference??"").StartsWith(parameterPrefix,StringComparison.Ordinal))) users.Add(module.ModuleId+" / "+step.Caption);
                 }
             }
             if (users.Count>0) throw new InvalidOperationException(string.Format(Configuration.HardwareText.T("referenced"),string.Join(Environment.NewLine,users)));
+        }
+
+        /// <summary>删除外部对象或 VPP 前反查动作、脚本及代码模块的全部资源角色。</summary>
+        public static void RequireResourceUnused(string resourceId)
+        {
+            Install();
+            RequireIdle();
+            if (loadError != null) throw new InvalidDataException("Restore the flow project before deleting resources.", loadError);
+            List<string> users = project.Modules.SelectMany(module => module.Steps
+                .Where(step => step.Target == resourceId || step.ScriptResources.Contains(resourceId) || step.ResourceBindings.Any(binding => binding.Target == resourceId))
+                .Select(step => module.ModuleId + " / " + step.Caption)).ToList();
+            if (users.Count != 0) throw new InvalidOperationException(string.Format(FlowCodeText.T("resourceUsed"), string.Join(Environment.NewLine, users)));
         }
 
         /// <summary>检查生产入口，显式阻止旧回调与配置流程混合控制同一设备。</summary>
@@ -488,21 +520,72 @@ namespace AlphaRap.FlowProgramming
             foreach (Flow_Chart node in nodes.Values) node.EnableProgramEditor(value);
         }
 
-        /// <summary>添加一个可配置节点，不生成应用 C# 回调。</summary>
+        /// <summary>在当前画布添加普通节点，保存时同步生成所属窗体的流程代码。</summary>
         public FlowStep AddNode()
+        {
+            Control parent = Enumerate(Form).Where(item => item.Visible && item.Parent != Form).Select(item => item.Parent).FirstOrDefault();
+            if (parent == null) parent = (Control)Form.FlowChartTable.SelectedTab ?? Form;
+            Point offset = parent is ScrollableControl ? ((ScrollableControl)parent).AutoScrollPosition : Point.Empty;
+            int y = nodes.Values.Where(existing => existing.Parent == parent).Select(existing => existing.Bottom - offset.Y + 40).DefaultIfEmpty(40).Max();
+            FlowStep step = NewStep();
+            step.Action = "value";
+            step.Inputs.Add(new FlowInput { Name = "Value", Reference = "" });
+            return AddNodeCore(step, parent, new Point(40, y));
+        }
+
+        /// <summary>从工具箱创建代码模块节点，资源角色在双击窗口中显式绑定。</summary>
+        public FlowStep AddNode(string definitionId, Control canvas, Point logicalLocation)
+        {
+            FlowCodeDefinition definition = FlowToolboxCatalog.Find(definitionId);
+            if (definition == null) throw new InvalidOperationException(string.Format(FlowCodeText.T("moduleMissing"), definitionId));
+            FlowStep step = NewStep();
+            step.Caption = MiddleLayer.LangMsg("EquipmentFlow", "module." + definition.Id, definition.Title[0], definition.Title[1], definition.Title[2]);
+            step.Target = "code/" + definition.Id;
+            step.Action = "code.execute";
+            step.CodeModuleId = definition.Id;
+            step.CodeModuleVersion = definition.Version;
+            step.Branches = definition.Exits.Select(code => new FlowBranch { Code = code, Unconditional = true }).ToList();
+            foreach (FlowField input in definition.Inputs) step.Inputs.Add(new FlowInput { Name = input.Name, Source = string.IsNullOrEmpty(input.OutputSourceMethod) ? "Constant" : "Output", Reference = input.DefaultValue });
+            foreach (FlowCodeResourceSlot slot in definition.ResourceSlots) step.ResourceBindings.Add(new FlowResourceBinding { Slot = slot.Name });
+            return AddNodeCore(step, canvas, logicalLocation);
+        }
+
+        /// <summary>拖入实际对象已经声明的动作，绑定该对象身份和默认参数。</summary>
+        public FlowStep AddNode(string targetId, string actionId, Control canvas, Point logicalLocation)
+        {
+            FlowActions actions = new FlowActions(FlowResources.Capture(true));
+            FlowResource resource = actions.FindResource(targetId);
+            if (resource == null && !string.IsNullOrEmpty(targetId)) throw new InvalidOperationException(FlowText.T("methodMissing"));
+            FlowMethod method = actions.MethodsFor(resource).Single(item => item.Id == actionId);
+            FlowStep step = NewStep();
+            step.Caption = resource == null ? FlowMethods.Title(method) : resource.Label + " · " + FlowMethods.Title(method);
+            step.Target = targetId;
+            step.Action = actionId;
+            foreach (FlowField input in method.Inputs) step.Inputs.Add(new FlowInput { Name = input.Name, Source = string.IsNullOrEmpty(input.OutputSourceMethod) ? "Constant" : "Output", Reference = input.DefaultValue });
+            return AddNodeCore(step, canvas, logicalLocation);
+        }
+
+        /// <summary>建立独立节点身份，默认只有 NEXT，入口沿用原工位页面。</summary>
+        private FlowStep NewStep()
+        {
+            return new FlowStep { ControlName = "flow_" + Guid.NewGuid().ToString("N"), Caption = "Step " + (Program.Steps.Count + 1),
+                AlarmCode = "2019", Branches = FlowBranch.Default() };
+        }
+
+        /// <summary>统一落点、滚动坐标、入口和配置事件，不重复构造运行器。</summary>
+        private FlowStep AddNodeCore(FlowStep step, Control parent, Point location)
         {
             FlowPrograms.RequireIdle();
             if (Program.Removed) throw new InvalidOperationException(FlowText.T("moduleMissing"));
-            Control parent = Enumerate(Form).Where(item => item.Visible && item.Parent != Form).Select(item => item.Parent).FirstOrDefault();
-            if (parent == null) parent = (Control)Form.FlowChartTable.SelectedTab ?? Form;
-            string parentPath = ParentPath(parent);
-            Point scrollOffset = parent is ScrollableControl ? ((ScrollableControl)parent).AutoScrollPosition : Point.Empty;
-            int y = nodes.Values.Where(existing => existing.Parent == parent).Select(existing => existing.Bottom - scrollOffset.Y + 40).DefaultIfEmpty(40).Max();
-            FlowStep step = new FlowStep { ControlName = "flow_" + Guid.NewGuid().ToString("N"), Caption = "Step " + (Program.Steps.Count + 1), Action = "value", ParentPath = parentPath, X = 40, Y = y, AlarmCode = "2019", Branches = FlowBranch.Default() };
-            step.Inputs.Add(new FlowInput { Name = "Value", Reference = "" });
+            if (parent == null || (parent != Form && !Form.Contains(parent)) || parent is Flow_Chart)
+                throw new ArgumentException("The drop target is not a flow canvas.");
+            step.ParentPath = ParentPath(parent);
+            step.X = Math.Max(0, location.X);
+            step.Y = Math.Max(0, location.Y);
             Program.Steps.Add(step);
-            if (parent == Form.InitialPage && string.IsNullOrEmpty(Program.InitialEntry)) Program.InitialEntry = step.Id;
-            if (parent != Form.InitialPage && string.IsNullOrEmpty(Program.AutoEntry)) Program.AutoEntry = step.Id;
+            bool initial = parent == Form.InitialPage || Form.InitialPage.Contains(parent);
+            if (initial && string.IsNullOrEmpty(Program.InitialEntry)) Program.InitialEntry = step.Id;
+            if (!initial && string.IsNullOrEmpty(Program.AutoEntry)) Program.AutoEntry = step.Id;
             Flow_Chart node = CreateNode(step);
             nodes.Add(step.Id, node);
             node.ConfigurationRequested += Configure;
@@ -514,9 +597,10 @@ namespace AlphaRap.FlowProgramming
                 Point scroll = canvas.AutoScrollPosition;
                 node.Location = new Point(step.X + scroll.X, step.Y + scroll.Y);
                 canvas.AutoScroll = true;
-                canvas.AutoScrollMinSize = new Size(500, step.Y + node.Height + 40);
+                canvas.AutoScrollMinSize = new Size(Math.Max(500, step.X + node.Width + 40), step.Y + node.Height + 40);
                 canvas.ScrollControlIntoView(node);
             }
+            if (Changed != null) Changed(this, EventArgs.Empty);
             return step;
         }
 
@@ -645,6 +729,7 @@ namespace AlphaRap.FlowProgramming
             isInitializing = initializing;
             isProduction = production;
             Runtime.ExecuteAction = actions.Execute;
+            Runtime.ExecuteStep = actions.ExecuteStep;
             DebugSnapshot = null;
             PrepareDebugPlan(plan, entry, actions, debug);
             Form.RunningStatus = true;
@@ -680,6 +765,9 @@ namespace AlphaRap.FlowProgramming
 
         /// <summary>工程成功落盘后固定生产版本，草稿仅供工程测试。</summary>
         public void Publish() { published = FlowProgramFile.Snapshot(Program); ApplyLinks(); }
+
+        /// <summary>发布主保存已经提交的独立定义，当前编辑画布继续使用原草稿对象。</summary>
+        internal void Publish(FlowProgram saved) { published = FlowProgramFile.Snapshot(saved); ApplyLinks(); }
 
         /// <summary>生产启动前检查最后保存版本。</summary>
         public void ValidatePublished() { ValidatePlan(published, null); }

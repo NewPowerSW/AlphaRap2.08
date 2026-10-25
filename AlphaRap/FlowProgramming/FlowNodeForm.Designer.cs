@@ -46,375 +46,698 @@ namespace AlphaRap.FlowProgramming
         private System.Windows.Forms.TabPage settingsPage;
         private FlowScriptSettings scriptSettings;
         private FlowScriptEditor scriptEditor;
+        private System.Windows.Forms.RadioButton codeMode;
+        private System.Windows.Forms.TableLayoutPanel codeSettings;
+        private System.Windows.Forms.Label codeChoiceLabel;
+        private System.Windows.Forms.ComboBox codeChoice;
+        private FlowCodeBindingsControl codeBindings;
+        private FlowCodeRoutesControl codeRoutes;
         /// <summary>按执行内容、数据、下一步和运行设置建立同级任务页，设计期不加载设备。</summary>
         private void InitializeComponent()
         {
-            this.SuspendLayout();
+            this.components = new System.ComponentModel.Container();
+            this.codeMode = new System.Windows.Forms.RadioButton();
+            this.codeSettings = new System.Windows.Forms.TableLayoutPanel();
+            this.codeChoiceLabel = new System.Windows.Forms.Label();
+            this.codeChoice = new System.Windows.Forms.ComboBox();
+            this.codeBindings = new AlphaRap.FlowProgramming.FlowCodeBindingsControl();
+            this.codeRoutes = new AlphaRap.FlowProgramming.FlowCodeRoutesControl();
+            this.codeSettings.SuspendLayout();
             this.root = new System.Windows.Forms.TableLayoutPanel();
-            this.root.SuspendLayout();
-            this.root.Name = "root";
             this.header = new System.Windows.Forms.TableLayoutPanel();
-            this.header.SuspendLayout();
-            this.header.Name = "header";
-            this.routes = new System.Windows.Forms.TableLayoutPanel();
-            this.routes.SuspendLayout();
-            this.routes.Name = "routes";
-            this.captionValue = new System.Windows.Forms.TextBox();
-            this.captionValue.Name = "captionValue";
-            this.categoryValue = new System.Windows.Forms.ComboBox();
-            this.categoryValue.Name = "categoryValue";
-            this.targetValue = new System.Windows.Forms.ComboBox();
-            this.targetValue.Name = "targetValue";
-            this.actionValue = new System.Windows.Forms.ComboBox();
-            this.actionValue.Name = "actionValue";
-            this.timeoutValue = new System.Windows.Forms.NumericUpDown();
-            ((System.ComponentModel.ISupportInitialize)(this.timeoutValue)).BeginInit();
-            this.timeoutValue.Name = "timeoutValue";
-            this.alarmValue = new System.Windows.Forms.ComboBox();
-            this.alarmValue.Name = "alarmValue";
             this.captionLabel = new System.Windows.Forms.Label();
-            this.captionLabel.Name = "captionLabel";
-            this.categoryLabel = new System.Windows.Forms.Label();
-            this.categoryLabel.Name = "categoryLabel";
-            this.targetLabel = new System.Windows.Forms.Label();
-            this.targetLabel.Name = "targetLabel";
-            this.actionLabel = new System.Windows.Forms.Label();
-            this.actionLabel.Name = "actionLabel";
-            this.timeoutLabel = new System.Windows.Forms.Label();
-            this.timeoutLabel.Name = "timeoutLabel";
-            this.alarmLabel = new System.Windows.Forms.Label();
-            this.alarmLabel.Name = "alarmLabel";
+            this.captionValue = new System.Windows.Forms.TextBox();
+            this.executionLabel = new System.Windows.Forms.Label();
+            this.executionModes = new System.Windows.Forms.TableLayoutPanel();
+            this.actionMode = new System.Windows.Forms.RadioButton();
+            this.scriptMode = new System.Windows.Forms.RadioButton();
+            this.conditionMode = new System.Windows.Forms.RadioButton();
+            this.executionTabs = new System.Windows.Forms.TabControl();
+            this.parameterPage = new System.Windows.Forms.TabPage();
             this.inputsGroup = new System.Windows.Forms.Panel();
-            this.inputsGroup.SuspendLayout();
-            this.inputsGroup.Name = "inputsGroup";
-            this.branchesGroup = new System.Windows.Forms.Panel();
-            this.branchesGroup.SuspendLayout();
-            this.branchesGroup.Name = "branchesGroup";
+            this.inputLayout = new System.Windows.Forms.TableLayoutPanel();
             this.inputs = new System.Windows.Forms.FlowLayoutPanel();
-            this.inputs.SuspendLayout();
-            this.inputs.Name = "inputs";
+            this.inputPreview = new AlphaRap.FlowProgramming.FlowInputRow();
             this.showAdvanced = new System.Windows.Forms.CheckBox();
-            this.showAdvanced.Name = "showAdvanced";
-            this.showAdvanced.Tag = "showAdvanced";
-            this.showAdvanced.Text = "显示高级参数";
-            this.showAdvanced.AutoSize = true;
-            this.showAdvanced.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.inputPreview = new FlowInputRow();
-            this.inputPreview.Name = "inputPreview";
-            this.inputPreview.Width = 930;
-            this.branchPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.branchPanel.SuspendLayout();
-            this.branchPanel.Name = "branchPanel";
-            this.addCase = new System.Windows.Forms.Button();
-            this.addCase.Name = "addCase";
-            this.nextBranch = new FlowBranchEditor();
-            this.nextBranch.Name = "nextBranch";
+            this.methodHint = new System.Windows.Forms.Label();
             this.outputsValue = new System.Windows.Forms.TextBox();
-            this.outputsValue.Name = "outputsValue";
+            this.scriptSettings = new AlphaRap.FlowProgramming.FlowScriptSettings();
+            this.actionSettings = new System.Windows.Forms.TableLayoutPanel();
+            this.categoryLabel = new System.Windows.Forms.Label();
+            this.categoryValue = new System.Windows.Forms.ComboBox();
+            this.targetLabel = new System.Windows.Forms.Label();
+            this.targetValue = new System.Windows.Forms.ComboBox();
+            this.actionLabel = new System.Windows.Forms.Label();
+            this.actionValue = new System.Windows.Forms.ComboBox();
+            this.scriptPage = new System.Windows.Forms.TabPage();
+            this.scriptEditor = new AlphaRap.FlowProgramming.FlowScriptEditor();
+            this.branchPage = new System.Windows.Forms.TabPage();
+            this.branchesGroup = new System.Windows.Forms.Panel();
+            this.branchPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.nextBranch = new AlphaRap.FlowProgramming.FlowBranchEditor();
+            this.addCase = new System.Windows.Forms.Button();
             this.hint = new System.Windows.Forms.Label();
-            this.hint.Name = "hint";
+            this.settingsPage = new System.Windows.Forms.TabPage();
+            this.routes = new System.Windows.Forms.TableLayoutPanel();
+            this.breakpointValue = new System.Windows.Forms.CheckBox();
+            this.timeoutLabel = new System.Windows.Forms.Label();
+            this.timeoutValue = new System.Windows.Forms.NumericUpDown();
+            this.alarmLabel = new System.Windows.Forms.Label();
+            this.alarmValue = new System.Windows.Forms.ComboBox();
             this.buttons = new System.Windows.Forms.FlowLayoutPanel();
-            this.buttons.SuspendLayout();
-            this.buttons.Name = "buttons";
-            this.ok = new System.Windows.Forms.Button();
-            this.ok.Name = "ok";
             this.cancel = new System.Windows.Forms.Button();
-            this.cancel.Name = "cancel";
-            this.root.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.root.Padding = new System.Windows.Forms.Padding(10);
+            this.ok = new System.Windows.Forms.Button();
+            this.root.SuspendLayout();
+            this.header.SuspendLayout();
+            this.executionModes.SuspendLayout();
+            this.executionTabs.SuspendLayout();
+            this.parameterPage.SuspendLayout();
+            this.inputsGroup.SuspendLayout();
+            this.inputLayout.SuspendLayout();
+            this.inputs.SuspendLayout();
+            this.actionSettings.SuspendLayout();
+            this.scriptPage.SuspendLayout();
+            this.branchPage.SuspendLayout();
+            this.branchesGroup.SuspendLayout();
+            this.branchPanel.SuspendLayout();
+            this.settingsPage.SuspendLayout();
+            this.routes.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.timeoutValue)).BeginInit();
+            this.buttons.SuspendLayout();
+            this.SuspendLayout();
+            //
+            // root
+            //
             this.root.ColumnCount = 1;
+            this.root.Controls.Add(this.header, 0, 0);
+            this.root.Controls.Add(this.executionTabs, 0, 1);
+            this.root.Controls.Add(this.buttons, 0, 2);
+            this.root.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.root.Location = new System.Drawing.Point(0, 0);
+            this.root.Name = "root";
+            this.root.Padding = new System.Windows.Forms.Padding(10);
             this.root.RowCount = 3;
             this.root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 96F));
             this.root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 42F));
-            this.header.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.root.Size = new System.Drawing.Size(1000, 780);
+            this.root.TabIndex = 0;
+            //
+            // header
+            //
             this.header.ColumnCount = 2;
-            this.header.RowCount = 2;
             this.header.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
             this.header.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.header.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.header.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.routes.Dock = System.Windows.Forms.DockStyle.Top;
-            this.routes.Height = 104;
-            this.routes.ColumnCount = 4;
-            this.routes.RowCount = 2;
-            this.routes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
-            this.routes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.routes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
-            this.routes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.routes.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
-            this.routes.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.captionLabel.Tag = "caption";
-            this.captionLabel.Text = "节点名称";
-            this.captionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.captionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.categoryLabel.Tag = "category";
-            this.categoryLabel.Text = "功能类别";
-            this.categoryLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.categoryLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.targetLabel.Tag = "target";
-            this.targetLabel.Text = "实际对象";
-            this.targetLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.targetLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.actionLabel.Tag = "method";
-            this.actionLabel.Text = "对象方法";
-            this.actionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.timeoutLabel.Tag = "timeout";
-            this.timeoutLabel.Text = "超时 (ms)";
-            this.timeoutLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.timeoutLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.alarmLabel.Tag = "alarm";
-            this.alarmLabel.Text = "异常报警号";
-            this.alarmLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.alarmLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.captionValue.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            this.categoryValue.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            this.targetValue.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            this.actionValue.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            this.timeoutValue.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            this.alarmValue.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            this.categoryValue.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.targetValue.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.actionValue.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.header.Controls.Add(this.captionLabel, 0, 0);
             this.header.Controls.Add(this.captionValue, 1, 0);
-            this.executionLabel = new System.Windows.Forms.Label();
+            this.header.Controls.Add(this.executionLabel, 0, 1);
+            this.header.Controls.Add(this.executionModes, 1, 1);
+            this.header.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.header.Location = new System.Drawing.Point(13, 13);
+            this.header.Name = "header";
+            this.header.RowCount = 2;
+            this.header.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.header.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.header.Size = new System.Drawing.Size(974, 90);
+            this.header.TabIndex = 0;
+            //
+            // captionLabel
+            //
+            this.captionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.captionLabel.Location = new System.Drawing.Point(3, 0);
+            this.captionLabel.Name = "captionLabel";
+            this.captionLabel.Size = new System.Drawing.Size(104, 40);
+            this.captionLabel.TabIndex = 0;
+            this.captionLabel.Tag = "caption";
+            this.captionLabel.Text = "节点名称";
+            this.captionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // captionValue
+            //
+            this.captionValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.captionValue.Location = new System.Drawing.Point(113, 8);
+            this.captionValue.Name = "captionValue";
+            this.captionValue.Size = new System.Drawing.Size(858, 23);
+            this.captionValue.TabIndex = 1;
+            //
+            // executionLabel
+            //
+            this.executionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.executionLabel.Location = new System.Drawing.Point(3, 40);
             this.executionLabel.Name = "scriptMode";
+            this.executionLabel.Size = new System.Drawing.Size(104, 50);
+            this.executionLabel.TabIndex = 2;
             this.executionLabel.Tag = "scriptMode";
             this.executionLabel.Text = "执行方式";
-            this.executionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.executionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.executionModes = new System.Windows.Forms.TableLayoutPanel();
-            this.executionModes.SuspendLayout();
-            this.executionModes.Name = "executionModes";
-            this.executionModes.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.executionModes.ColumnCount = 3;
-            this.executionModes.RowCount = 1;
-            this.executionModes.Padding = new System.Windows.Forms.Padding(0, 2, 0, 5);
-            this.executionModes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
-            this.executionModes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
-            this.executionModes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.34F));
-            this.executionModes.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.actionMode = new System.Windows.Forms.RadioButton();
-            this.actionMode.Name = "scriptAction";
-            this.actionMode.Tag = "scriptAction";
-            this.actionMode.Text = "现有功能";
-            this.actionMode.Appearance = System.Windows.Forms.Appearance.Button;
-            this.actionMode.Checked = true;
-            this.actionMode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actionMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.scriptMode = new System.Windows.Forms.RadioButton();
-            this.scriptMode.Name = "scriptCustom";
-            this.scriptMode.Tag = "scriptCustom";
-            this.scriptMode.Text = "自定义 C#";
-            this.scriptMode.Appearance = System.Windows.Forms.Appearance.Button;
-            this.scriptMode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.scriptMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.conditionMode = new System.Windows.Forms.RadioButton();
-            this.conditionMode.Name = "scriptNone";
-            this.conditionMode.Tag = "scriptNone";
-            this.conditionMode.Text = "仅判断条件";
-            this.conditionMode.Appearance = System.Windows.Forms.Appearance.Button;
-            this.conditionMode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.conditionMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            //
+            // executionModes
+            //
+            this.executionModes.ColumnCount = 4;
+            this.executionModes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.executionModes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.executionModes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.executionModes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.executionModes.Controls.Add(this.actionMode, 0, 0);
             this.executionModes.Controls.Add(this.scriptMode, 1, 0);
             this.executionModes.Controls.Add(this.conditionMode, 2, 0);
-            this.header.Controls.Add(this.executionLabel, 0, 1);
-            this.header.Controls.Add(this.executionModes, 1, 1);
-            this.actionSettings = new System.Windows.Forms.TableLayoutPanel();
-            this.actionSettings.SuspendLayout();
-            this.actionSettings.Name = "actionSettings";
-            this.actionSettings.Dock = System.Windows.Forms.DockStyle.Top;
-            this.actionSettings.Height = 90;
+            this.executionModes.Controls.Add(this.codeMode, 3, 0);
+            this.codeMode.Name = "codeModuleMode";
+            this.codeMode.Text = "代码模块";
+            this.codeMode.Appearance = System.Windows.Forms.Appearance.Button;
+            this.codeMode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.codeMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.codeMode.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.codeMode.AutoSize = false;
+            this.executionModes.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.executionModes.Location = new System.Drawing.Point(113, 43);
+            this.executionModes.Name = "executionModes";
+            this.executionModes.Padding = new System.Windows.Forms.Padding(0, 2, 0, 5);
+            this.executionModes.RowCount = 1;
+            this.executionModes.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.executionModes.Size = new System.Drawing.Size(858, 44);
+            this.executionModes.TabIndex = 3;
+            //
+            // actionMode
+            //
+            this.actionMode.Appearance = System.Windows.Forms.Appearance.Button;
+            this.actionMode.Checked = true;
+            this.actionMode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actionMode.Location = new System.Drawing.Point(3, 5);
+            this.actionMode.Name = "scriptAction";
+            this.actionMode.Size = new System.Drawing.Size(279, 31);
+            this.actionMode.TabIndex = 0;
+            this.actionMode.TabStop = true;
+            this.actionMode.Tag = "scriptAction";
+            this.actionMode.Text = "现有功能";
+            this.actionMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            //
+            // scriptMode
+            //
+            this.scriptMode.Appearance = System.Windows.Forms.Appearance.Button;
+            this.scriptMode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.scriptMode.Location = new System.Drawing.Point(288, 5);
+            this.scriptMode.Name = "scriptCustom";
+            this.scriptMode.Size = new System.Drawing.Size(279, 31);
+            this.scriptMode.TabIndex = 1;
+            this.scriptMode.Tag = "scriptCustom";
+            this.scriptMode.Text = "自定义 C#";
+            this.scriptMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            //
+            // conditionMode
+            //
+            this.conditionMode.Appearance = System.Windows.Forms.Appearance.Button;
+            this.conditionMode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.conditionMode.Location = new System.Drawing.Point(573, 5);
+            this.conditionMode.Name = "scriptNone";
+            this.conditionMode.Size = new System.Drawing.Size(282, 31);
+            this.conditionMode.TabIndex = 2;
+            this.conditionMode.Tag = "scriptNone";
+            this.conditionMode.Text = "仅判断条件";
+            this.conditionMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            //
+            // executionTabs
+            //
+            this.executionTabs.Controls.Add(this.parameterPage);
+            this.executionTabs.Controls.Add(this.scriptPage);
+            this.executionTabs.Controls.Add(this.branchPage);
+            this.executionTabs.Controls.Add(this.settingsPage);
+            this.executionTabs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.executionTabs.Location = new System.Drawing.Point(13, 109);
+            this.executionTabs.Name = "executionTabs";
+            this.executionTabs.SelectedIndex = 0;
+            this.executionTabs.Size = new System.Drawing.Size(974, 616);
+            this.executionTabs.TabIndex = 1;
+            //
+            // parameterPage
+            //
+            this.parameterPage.Controls.Add(this.inputsGroup);
+            this.parameterPage.Controls.Add(this.codeSettings);
+            this.codeSettings.Name = "codeSettings";
+            this.codeSettings.Dock = System.Windows.Forms.DockStyle.Top;
+            this.codeSettings.Height = 180;
+            this.codeSettings.Visible = false;
+            this.codeSettings.ColumnCount = 2;
+            this.codeSettings.RowCount = 2;
+            this.codeSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
+            this.codeSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.codeSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 36F));
+            this.codeSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.codeSettings.Controls.Add(this.codeChoiceLabel, 0, 0);
+            this.codeSettings.Controls.Add(this.codeChoice, 1, 0);
+            this.codeSettings.Controls.Add(this.codeBindings, 0, 1);
+            this.codeSettings.SetColumnSpan(this.codeBindings, 2);
+            this.codeChoiceLabel.Name = "codeChoiceLabel";
+            this.codeChoiceLabel.Text = "选择模块";
+            this.codeChoiceLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.codeChoiceLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.codeChoice.Name = "codeModuleChoice";
+            this.codeChoice.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.codeChoice.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.codeBindings.Name = "codeResourceBindings";
+            this.codeBindings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.parameterPage.Controls.Add(this.outputsValue);
+            this.parameterPage.Controls.Add(this.scriptSettings);
+            this.parameterPage.Controls.Add(this.actionSettings);
+            this.parameterPage.Location = new System.Drawing.Point(4, 26);
+            this.parameterPage.Name = "scriptActionPage";
+            this.parameterPage.Padding = new System.Windows.Forms.Padding(6);
+            this.parameterPage.Size = new System.Drawing.Size(966, 586);
+            this.parameterPage.TabIndex = 0;
+            this.parameterPage.Tag = "nodeActionPage";
+            this.parameterPage.Text = "动作设置";
+            //
+            // inputsGroup
+            //
+            this.inputsGroup.Controls.Add(this.inputLayout);
+            this.inputsGroup.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.inputsGroup.Location = new System.Drawing.Point(6, 356);
+            this.inputsGroup.Name = "inputsGroup";
+            this.inputsGroup.Size = new System.Drawing.Size(954, 201);
+            this.inputsGroup.TabIndex = 0;
+            //
+            // inputLayout
+            //
+            this.inputLayout.ColumnCount = 1;
+            this.inputLayout.Controls.Add(this.inputs, 0, 0);
+            this.inputLayout.Controls.Add(this.showAdvanced, 0, 1);
+            this.inputLayout.Controls.Add(this.methodHint, 0, 2);
+            this.inputLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.inputLayout.Location = new System.Drawing.Point(0, 0);
+            this.inputLayout.Name = "inputLayout";
+            this.inputLayout.RowCount = 3;
+            this.inputLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.inputLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
+            this.inputLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
+            this.inputLayout.Size = new System.Drawing.Size(954, 201);
+            this.inputLayout.TabIndex = 0;
+            //
+            // inputs
+            //
+            this.inputs.AutoScroll = true;
+            this.inputs.Controls.Add(this.inputPreview);
+            this.inputs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.inputs.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.inputs.Location = new System.Drawing.Point(3, 3);
+            this.inputs.Name = "inputs";
+            this.inputs.Size = new System.Drawing.Size(948, 167);
+            this.inputs.TabIndex = 0;
+            this.inputs.WrapContents = false;
+            //
+            // inputPreview
+            //
+            this.inputPreview.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.inputPreview.Location = new System.Drawing.Point(0, 1);
+            this.inputPreview.Margin = new System.Windows.Forms.Padding(0, 1, 0, 1);
+            this.inputPreview.MinimumSize = new System.Drawing.Size(560, 44);
+            this.inputPreview.Name = "inputPreview";
+            this.inputPreview.Size = new System.Drawing.Size(930, 44);
+            this.inputPreview.TabIndex = 0;
+            //
+            // showAdvanced
+            //
+            this.showAdvanced.AutoSize = true;
+            this.showAdvanced.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.showAdvanced.Location = new System.Drawing.Point(3, 176);
+            this.showAdvanced.Name = "showAdvanced";
+            this.showAdvanced.Size = new System.Drawing.Size(948, 22);
+            this.showAdvanced.TabIndex = 1;
+            this.showAdvanced.Tag = "showAdvanced";
+            this.showAdvanced.Text = "显示高级参数";
+            //
+            // methodHint
+            //
+            this.methodHint.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.methodHint.Location = new System.Drawing.Point(3, 201);
+            this.methodHint.Name = "methodHint_dyn";
+            this.methodHint.Padding = new System.Windows.Forms.Padding(4);
+            this.methodHint.Size = new System.Drawing.Size(948, 1);
+            this.methodHint.TabIndex = 2;
+            this.methodHint.Visible = false;
+            //
+            // outputsValue
+            //
+            this.outputsValue.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.outputsValue.Location = new System.Drawing.Point(6, 557);
+            this.outputsValue.Name = "outputsValue_dyn";
+            this.outputsValue.ReadOnly = true;
+            this.outputsValue.Size = new System.Drawing.Size(954, 23);
+            this.outputsValue.TabIndex = 1;
+            //
+            // scriptSettings
+            //
+            this.scriptSettings.Dock = System.Windows.Forms.DockStyle.Top;
+            this.scriptSettings.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.scriptSettings.Location = new System.Drawing.Point(6, 96);
+            this.scriptSettings.MinimumSize = new System.Drawing.Size(600, 240);
+            this.scriptSettings.Name = "scriptSettings";
+            this.scriptSettings.Size = new System.Drawing.Size(954, 260);
+            this.scriptSettings.TabIndex = 2;
+            this.scriptSettings.Visible = false;
+            //
+            // actionSettings
+            //
             this.actionSettings.ColumnCount = 4;
-            this.actionSettings.RowCount = 2;
             this.actionSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
             this.actionSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.actionSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
             this.actionSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.actionSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.actionSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.actionSettings.Controls.Add(this.categoryLabel, 0, 0);
             this.actionSettings.Controls.Add(this.categoryValue, 1, 0);
             this.actionSettings.Controls.Add(this.targetLabel, 2, 0);
             this.actionSettings.Controls.Add(this.targetValue, 3, 0);
             this.actionSettings.Controls.Add(this.actionLabel, 0, 1);
             this.actionSettings.Controls.Add(this.actionValue, 1, 1);
+            this.actionSettings.Dock = System.Windows.Forms.DockStyle.Top;
+            this.actionSettings.Location = new System.Drawing.Point(6, 6);
+            this.actionSettings.Name = "actionSettings";
+            this.actionSettings.RowCount = 2;
+            this.actionSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.actionSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.actionSettings.Size = new System.Drawing.Size(954, 90);
+            this.actionSettings.TabIndex = 3;
+            //
+            // categoryLabel
+            //
+            this.categoryLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.categoryLabel.Location = new System.Drawing.Point(3, 0);
+            this.categoryLabel.Name = "categoryLabel";
+            this.categoryLabel.Size = new System.Drawing.Size(104, 45);
+            this.categoryLabel.TabIndex = 0;
+            this.categoryLabel.Tag = "category";
+            this.categoryLabel.Text = "功能类别";
+            this.categoryLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // categoryValue
+            //
+            this.categoryValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.categoryValue.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.categoryValue.Location = new System.Drawing.Point(113, 12);
+            this.categoryValue.Name = "categoryValue";
+            this.categoryValue.Size = new System.Drawing.Size(361, 25);
+            this.categoryValue.TabIndex = 1;
+            //
+            // targetLabel
+            //
+            this.targetLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.targetLabel.Location = new System.Drawing.Point(480, 0);
+            this.targetLabel.Name = "targetLabel";
+            this.targetLabel.Size = new System.Drawing.Size(104, 45);
+            this.targetLabel.TabIndex = 2;
+            this.targetLabel.Tag = "target";
+            this.targetLabel.Text = "实际对象";
+            this.targetLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // targetValue
+            //
+            this.targetValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.targetValue.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.targetValue.Location = new System.Drawing.Point(590, 12);
+            this.targetValue.Name = "targetValue";
+            this.targetValue.Size = new System.Drawing.Size(361, 25);
+            this.targetValue.TabIndex = 3;
+            //
+            // actionLabel
+            //
+            this.actionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actionLabel.Location = new System.Drawing.Point(3, 45);
+            this.actionLabel.Name = "actionLabel";
+            this.actionLabel.Size = new System.Drawing.Size(104, 45);
+            this.actionLabel.TabIndex = 4;
+            this.actionLabel.Tag = "method";
+            this.actionLabel.Text = "对象方法";
+            this.actionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // actionValue
+            //
+            this.actionValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.actionSettings.SetColumnSpan(this.actionValue, 3);
-            this.breakpointValue = new System.Windows.Forms.CheckBox();
-            this.breakpointValue.Name = "scriptBreakpoint";
-            this.breakpointValue.Tag = "scriptBreakpoint";
-            this.breakpointValue.Text = "执行前断点";
-            this.breakpointValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.breakpointValue.AutoSize = true;
+            this.actionValue.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.actionValue.Location = new System.Drawing.Point(113, 57);
+            this.actionValue.Name = "actionValue";
+            this.actionValue.Size = new System.Drawing.Size(838, 25);
+            this.actionValue.TabIndex = 5;
+            //
+            // scriptPage
+            //
+            this.scriptPage.Controls.Add(this.scriptEditor);
+            this.scriptPage.Location = new System.Drawing.Point(4, 26);
+            this.scriptPage.Name = "scriptTab";
+            this.scriptPage.Size = new System.Drawing.Size(192, 0);
+            this.scriptPage.TabIndex = 1;
+            this.scriptPage.Tag = "scriptTab";
+            this.scriptPage.Text = "C# 脚本";
+            //
+            // scriptEditor
+            //
+            this.scriptEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.scriptEditor.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.scriptEditor.Location = new System.Drawing.Point(0, 0);
+            this.scriptEditor.MinimumSize = new System.Drawing.Size(500, 220);
+            this.scriptEditor.Name = "scriptEditor";
+            this.scriptEditor.Size = new System.Drawing.Size(500, 220);
+            this.scriptEditor.TabIndex = 0;
+            //
+            // branchPage
+            //
+            this.branchPage.Controls.Add(this.branchesGroup);
+            this.branchPage.Location = new System.Drawing.Point(4, 26);
+            this.branchPage.Name = "scriptRoutes";
+            this.branchPage.Padding = new System.Windows.Forms.Padding(6);
+            this.branchPage.Size = new System.Drawing.Size(192, 0);
+            this.branchPage.TabIndex = 2;
+            this.branchPage.Tag = "nodeNextPage";
+            this.branchPage.Text = "下一步";
+            //
+            // branchesGroup
+            //
+            this.branchesGroup.Controls.Add(this.branchPanel);
+            this.branchesGroup.Controls.Add(this.codeRoutes);
+            this.codeRoutes.Name = "codeExitTargets";
+            this.codeRoutes.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.codeRoutes.Visible = false;
+            this.branchesGroup.Controls.Add(this.addCase);
+            this.branchesGroup.Controls.Add(this.hint);
+            this.branchesGroup.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.branchesGroup.Location = new System.Drawing.Point(6, 6);
+            this.branchesGroup.Name = "branchesGroup";
+            this.branchesGroup.Size = new System.Drawing.Size(180, 0);
+            this.branchesGroup.TabIndex = 0;
+            //
+            // branchPanel
+            //
+            this.branchPanel.AutoScroll = true;
+            this.branchPanel.Controls.Add(this.nextBranch);
+            this.branchPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.branchPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.branchPanel.Location = new System.Drawing.Point(0, 28);
+            this.branchPanel.Name = "branchPanel";
+            this.branchPanel.Size = new System.Drawing.Size(180, 0);
+            this.branchPanel.TabIndex = 0;
+            this.branchPanel.WrapContents = false;
+            //
+            // nextBranch
+            //
+            this.nextBranch.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.nextBranch.Location = new System.Drawing.Point(0, 3);
+            this.nextBranch.Margin = new System.Windows.Forms.Padding(0, 3, 0, 8);
+            this.nextBranch.MinimumSize = new System.Drawing.Size(600, 40);
+            this.nextBranch.Name = "branch_NEXT_dyn";
+            this.nextBranch.Padding = new System.Windows.Forms.Padding(4);
+            this.nextBranch.Size = new System.Drawing.Size(930, 40);
+            this.nextBranch.TabIndex = 0;
+            //
+            // addCase
+            //
+            this.addCase.Dock = System.Windows.Forms.DockStyle.Top;
+            this.addCase.Location = new System.Drawing.Point(0, 0);
+            this.addCase.Name = "addCase";
+            this.addCase.Size = new System.Drawing.Size(180, 28);
+            this.addCase.TabIndex = 1;
+            this.addCase.Tag = "addCase";
+            this.addCase.Text = "添加 CASE";
+            //
+            // hint
+            //
+            this.hint.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.hint.Location = new System.Drawing.Point(0, -46);
+            this.hint.Name = "branchHint";
+            this.hint.Size = new System.Drawing.Size(180, 46);
+            this.hint.TabIndex = 2;
+            this.hint.Tag = "branchHint";
+            this.hint.Text = "默认 NEXT，按需添加 CASE。每条出口独立判定，超时直接报警。";
+            //
+            // settingsPage
+            //
+            this.settingsPage.Controls.Add(this.routes);
+            this.settingsPage.Location = new System.Drawing.Point(4, 26);
+            this.settingsPage.Name = "scriptRunSettings";
+            this.settingsPage.Padding = new System.Windows.Forms.Padding(10);
+            this.settingsPage.Size = new System.Drawing.Size(192, 0);
+            this.settingsPage.TabIndex = 3;
+            this.settingsPage.Tag = "nodeRunSettings";
+            this.settingsPage.Text = "超时与调试";
+            //
+            // routes
+            //
+            this.routes.ColumnCount = 4;
+            this.routes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
+            this.routes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.routes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
+            this.routes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.routes.Controls.Add(this.breakpointValue, 1, 1);
-            this.routes.SetColumnSpan(this.breakpointValue, 3);
             this.routes.Controls.Add(this.timeoutLabel, 0, 0);
             this.routes.Controls.Add(this.timeoutValue, 1, 0);
             this.routes.Controls.Add(this.alarmLabel, 2, 0);
             this.routes.Controls.Add(this.alarmValue, 3, 0);
-            this.timeoutValue.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            this.timeoutValue.Maximum = new decimal(new int[] { 86400000, 0, 0, 0 });
-            this.timeoutValue.Value = new decimal(new int[] { 10000, 0, 0, 0 });
-            this.inputsGroup.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.branchesGroup.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.inputs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.inputs.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.inputs.WrapContents = false;
-            this.inputs.AutoScroll = true;
-            this.inputs.Controls.Add(this.inputPreview);
-            this.inputLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.inputLayout.SuspendLayout();
-            this.inputLayout.Name = "inputLayout";
-            this.inputLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.inputLayout.ColumnCount = 1;
-            this.inputLayout.RowCount = 3;
-            this.inputLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent,100F));
-            this.inputLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute,28F));
-            this.inputLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute,0F));
-            this.methodHint = new System.Windows.Forms.Label();
-            this.methodHint.Name = "methodHint_dyn";
-            this.methodHint.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.methodHint.Padding = new System.Windows.Forms.Padding(4);
-            this.methodHint.Visible = false;
-            this.inputLayout.Controls.Add(this.inputs,0,0);
-            this.inputLayout.Controls.Add(this.showAdvanced,0,1);
-            this.inputLayout.Controls.Add(this.methodHint,0,2);
-            this.inputsGroup.Controls.Add(this.inputLayout);
-            this.branchPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.branchPanel.AutoScroll = true;
-            this.branchPanel.WrapContents = false;
-            this.branchPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.nextBranch.Name = "branch_NEXT_dyn";
-            this.nextBranch.Size = new System.Drawing.Size(930, 210);
-            this.branchPanel.Controls.Add(this.nextBranch);
-            this.addCase.Tag = "addCase";
-            this.addCase.Text = "添加 CASE";
-            this.addCase.Dock = System.Windows.Forms.DockStyle.Top;
-            this.addCase.Height = 28;
-            this.branchesGroup.Controls.Add(this.branchPanel);
-            this.branchesGroup.Controls.Add(this.addCase);
-            this.outputsValue.Name = "outputsValue_dyn";
-            this.outputsValue.ReadOnly = true;
-            this.outputsValue.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.outputsValue.Height = 26;
-            this.hint.Tag = "branchHint";
-            this.hint.Name = "branchHint";
-            this.hint.Text = "默认 NEXT，按需添加 CASE。每条出口独立判定，超时直接报警。";
-            this.hint.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.hint.Height = 46;
-            this.buttons.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttons.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.ok.Tag = "ok";
-            this.ok.Text = "确定";
-            this.ok.AutoSize = true;
-            this.cancel.Tag = "cancel";
-            this.cancel.Text = "取消";
-            this.cancel.AutoSize = true;
-            this.cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.routes.Dock = System.Windows.Forms.DockStyle.Top;
+            this.routes.Location = new System.Drawing.Point(10, 10);
+            this.routes.Name = "routes";
+            this.routes.RowCount = 2;
+            this.routes.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
+            this.routes.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.routes.Size = new System.Drawing.Size(172, 104);
+            this.routes.TabIndex = 0;
+            //
+            // breakpointValue
+            //
+            this.breakpointValue.AutoSize = true;
+            this.routes.SetColumnSpan(this.breakpointValue, 3);
+            this.breakpointValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.breakpointValue.Location = new System.Drawing.Point(113, 51);
+            this.breakpointValue.Name = "scriptBreakpoint";
+            this.breakpointValue.Size = new System.Drawing.Size(56, 50);
+            this.breakpointValue.TabIndex = 0;
+            this.breakpointValue.Tag = "scriptBreakpoint";
+            this.breakpointValue.Text = "执行前断点";
+            //
+            // timeoutLabel
+            //
+            this.timeoutLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.timeoutLabel.Location = new System.Drawing.Point(3, 0);
+            this.timeoutLabel.Name = "timeoutLabel";
+            this.timeoutLabel.Size = new System.Drawing.Size(104, 48);
+            this.timeoutLabel.TabIndex = 1;
+            this.timeoutLabel.Tag = "timeout";
+            this.timeoutLabel.Text = "超时 (ms)";
+            this.timeoutLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // timeoutValue
+            //
+            this.timeoutValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.timeoutValue.Location = new System.Drawing.Point(113, 12);
+            this.timeoutValue.Maximum = new decimal(new int[] {
+            86400000,
+            0,
+            0,
+            0});
+            this.timeoutValue.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.timeoutValue.Name = "timeoutValue";
+            this.timeoutValue.Size = new System.Drawing.Size(1, 23);
+            this.timeoutValue.TabIndex = 2;
+            this.timeoutValue.Value = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            //
+            // alarmLabel
+            //
+            this.alarmLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.alarmLabel.Location = new System.Drawing.Point(89, 0);
+            this.alarmLabel.Name = "alarmLabel";
+            this.alarmLabel.Size = new System.Drawing.Size(104, 48);
+            this.alarmLabel.TabIndex = 3;
+            this.alarmLabel.Tag = "alarm";
+            this.alarmLabel.Text = "异常报警号";
+            this.alarmLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // alarmValue
+            //
+            this.alarmValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.alarmValue.Location = new System.Drawing.Point(199, 14);
+            this.alarmValue.Name = "alarmValue";
+            this.alarmValue.Size = new System.Drawing.Size(1, 25);
+            this.alarmValue.TabIndex = 4;
+            //
+            // buttons
+            //
             this.buttons.Controls.Add(this.cancel);
             this.buttons.Controls.Add(this.ok);
+            this.buttons.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttons.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.buttons.Location = new System.Drawing.Point(13, 731);
+            this.buttons.Name = "buttons";
+            this.buttons.Size = new System.Drawing.Size(974, 36);
+            this.buttons.TabIndex = 2;
+            //
+            // cancel
+            //
+            this.cancel.AutoSize = true;
+            this.cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.cancel.Location = new System.Drawing.Point(896, 3);
+            this.cancel.Name = "cancel";
+            this.cancel.Size = new System.Drawing.Size(75, 27);
+            this.cancel.TabIndex = 0;
+            this.cancel.Tag = "cancel";
+            this.cancel.Text = "取消";
+            //
+            // ok
+            //
+            this.ok.AutoSize = true;
+            this.ok.Location = new System.Drawing.Point(815, 3);
+            this.ok.Name = "ok";
+            this.ok.Size = new System.Drawing.Size(75, 27);
+            this.ok.TabIndex = 1;
+            this.ok.Tag = "ok";
+            this.ok.Text = "确定";
+            //
+            // FlowNodeForm
+            //
             this.AcceptButton = this.ok;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.CancelButton = this.cancel;
-            this.root.Controls.Add(this.header, 0, 0);
-            this.executionTabs = new System.Windows.Forms.TabControl();
-            this.executionTabs.SuspendLayout();
-            this.executionTabs.Name = "executionTabs";
-            this.executionTabs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.parameterPage = new System.Windows.Forms.TabPage();
-            this.parameterPage.SuspendLayout();
-            this.parameterPage.Name = "scriptActionPage";
-            this.parameterPage.Tag = "nodeActionPage";
-            this.parameterPage.Text = "动作设置";
-            this.parameterPage.Padding = new System.Windows.Forms.Padding(6);
-            this.parameterPage.BindingContext = new System.Windows.Forms.BindingContext();
-            this.scriptPage = new System.Windows.Forms.TabPage();
-            this.scriptPage.SuspendLayout();
-            this.scriptPage.Name = "scriptTab";
-            this.scriptPage.Tag = "scriptTab";
-            this.scriptPage.Text = "C# 脚本";
-            this.scriptPage.Padding = new System.Windows.Forms.Padding(0);
-            this.branchPage = new System.Windows.Forms.TabPage();
-            this.branchPage.SuspendLayout();
-            this.branchPage.Name = "scriptRoutes";
-            this.branchPage.Tag = "nodeNextPage";
-            this.branchPage.Text = "下一步";
-            this.branchPage.Padding = new System.Windows.Forms.Padding(6);
-            this.settingsPage = new System.Windows.Forms.TabPage();
-            this.settingsPage.SuspendLayout();
-            this.settingsPage.Name = "scriptRunSettings";
-            this.settingsPage.Tag = "nodeRunSettings";
-            this.settingsPage.Text = "超时与调试";
-            this.settingsPage.Padding = new System.Windows.Forms.Padding(10);
-            this.settingsPage.BindingContext = new System.Windows.Forms.BindingContext();
-            this.scriptEditor = new FlowScriptEditor();
-            this.scriptEditor.Name = "scriptEditor";
-            this.scriptEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.scriptSettings = new FlowScriptSettings();
-            this.scriptSettings.Name = "scriptSettings";
-            this.scriptSettings.Dock = System.Windows.Forms.DockStyle.Top;
-            this.scriptSettings.Height = 260;
-            this.scriptSettings.Visible = false;
-            this.parameterPage.Controls.Add(this.inputsGroup);
-            this.parameterPage.Controls.Add(this.outputsValue);
-            this.parameterPage.Controls.Add(this.scriptSettings);
-            this.parameterPage.Controls.Add(this.actionSettings);
-            this.scriptPage.Controls.Add(this.scriptEditor);
-            this.branchesGroup.Controls.Add(this.hint);
-            this.branchPage.Controls.Add(this.branchesGroup);
-            this.settingsPage.Controls.Add(this.routes);
-            this.executionTabs.TabPages.Add(this.parameterPage);
-            this.executionTabs.TabPages.Add(this.scriptPage);
-            this.executionTabs.TabPages.Add(this.branchPage);
-            this.executionTabs.TabPages.Add(this.settingsPage);
-            this.root.Controls.Add(this.executionTabs, 0, 1);
-            this.root.Controls.Add(this.buttons, 0, 2);
+            this.ClientSize = new System.Drawing.Size(1000, 780);
             this.Controls.Add(this.root);
+            this.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.MinimumSize = new System.Drawing.Size(900, 720);
             this.Name = "FlowNodeForm";
+            this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Tag = "title";
             this.Text = "流程工程";
-            this.Font = new System.Drawing.Font("Microsoft YaHei", 9F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(1000, 780);
-            this.MinimumSize = new System.Drawing.Size(900, 720);
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.ShowInTaskbar = false;
             this.root.ResumeLayout(false);
-            this.root.PerformLayout();
             this.header.ResumeLayout(false);
             this.header.PerformLayout();
-            this.routes.ResumeLayout(false);
-            this.routes.PerformLayout();
-            this.inputsGroup.ResumeLayout(false);
-            this.inputsGroup.PerformLayout();
-            this.branchesGroup.ResumeLayout(false);
-            this.branchesGroup.PerformLayout();
-            this.inputs.ResumeLayout(false);
-            this.inputs.PerformLayout();
-            this.branchPanel.ResumeLayout(false);
-            this.branchPanel.PerformLayout();
-            this.buttons.ResumeLayout(false);
-            this.buttons.PerformLayout();
             this.executionModes.ResumeLayout(false);
-            this.executionModes.PerformLayout();
-            this.actionSettings.ResumeLayout(false);
-            this.actionSettings.PerformLayout();
-            this.inputLayout.ResumeLayout(false);
-            this.inputLayout.PerformLayout();
             this.executionTabs.ResumeLayout(false);
-            this.executionTabs.PerformLayout();
             this.parameterPage.ResumeLayout(false);
             this.parameterPage.PerformLayout();
+            this.inputsGroup.ResumeLayout(false);
+            this.inputLayout.ResumeLayout(false);
+            this.inputLayout.PerformLayout();
+            this.inputs.ResumeLayout(false);
+            this.actionSettings.ResumeLayout(false);
             this.scriptPage.ResumeLayout(false);
-            this.scriptPage.PerformLayout();
             this.branchPage.ResumeLayout(false);
-            this.branchPage.PerformLayout();
+            this.branchesGroup.ResumeLayout(false);
+            this.branchPanel.ResumeLayout(false);
             this.settingsPage.ResumeLayout(false);
-            this.settingsPage.PerformLayout();
+            this.routes.ResumeLayout(false);
+            this.routes.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.timeoutValue)).EndInit();
+            this.buttons.ResumeLayout(false);
+            this.buttons.PerformLayout();
             this.ResumeLayout(false);
+            this.codeSettings.ResumeLayout(false);
+
         }
+
+        private System.ComponentModel.IContainer components;
     }
 }

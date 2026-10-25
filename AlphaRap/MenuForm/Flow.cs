@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Drawing;
 using System.Windows.Forms;
 using AlphaRap.FlowProgramming;
 using NPSDK;
@@ -13,6 +14,7 @@ namespace AlphaRap
         private FlowModuleEditor contextModule;
         private string contextNodeId;
         private FlowModuleEditor contextPage;
+        private Control activeCanvas;
         private readonly Dictionary<Flow_BaseForm, TabPage> pages = new Dictionary<Flow_BaseForm, TabPage>();
         /// <summary>Bind the engineering commands to all registered base-form instances.</summary>
         public Flow()
@@ -58,6 +60,8 @@ namespace AlphaRap
             stop.Click += (sender, args) => { if (tabControl1.SelectedTab != null) Current().Runtime.Stop(); };
             pause.Click += (sender, args) => { if (tabControl1.SelectedTab != null) Current().TogglePause(); };
             schema.Click += (sender, args) => Execute(() => { FlowPrograms.RequireIdle(); using (FlowSchemaForm dialog = new FlowSchemaForm(MiddleLayer.DataF)) dialog.ShowDialog(this); });
+            toolbox.InsertRequested += entry => Execute(() => InsertToolboxEntry(entry, KeyboardCanvas(), null));
+            viewSources.Click += (sender, args) => Execute(ViewGeneratedSources);
             timer.Tick += RefreshRuntime;
         }
         /// <summary>Host every Flow_BaseForm subclass without a station-name allowlist.</summary>
@@ -86,7 +90,86 @@ namespace AlphaRap
                 editor.Changed += ModuleChanged;
                 form.Show();
             }
-            foreach (Flow_BaseForm form in pages.Keys) BindNodeMenus(form);
+            foreach (Flow_BaseForm form in pages.Keys) { BindNodeMenus(form); BindDropTargets(form); }
+            RefreshToolbox();
+        }
+
+        /// <summary>刷新已注册模块和实际动作，工具箱自行保留搜索草稿。</summary>
+        private void RefreshToolbox()
+        {
+            toolbox.BindDefinitions(FlowToolboxCatalog.Definitions);
+            string[] errors = FlowToolboxCatalog.Diagnostics;
+            if (errors.Length > 0) status.Text = string.Format(FlowCodeText.T("catalogErrors"), string.Join(Environment.NewLine, errors));
+            toolbox.BindActions(new FlowActions(FlowResources.Capture(true)));
+        }
+
+        /// <summary>为所有实际基类页面中的容器接入同一工具箱拖放入口。</summary>
+        private void BindDropTargets(Control parent)
+        {
+            if (parent is Flow_Chart) return;
+            if (parent is ScrollableControl && !(parent is ToolStrip))
+            {
+                parent.AllowDrop = true;
+                parent.DragEnter -= ToolboxDragOver; parent.DragEnter += ToolboxDragOver;
+                parent.DragOver -= ToolboxDragOver; parent.DragOver += ToolboxDragOver;
+                parent.DragDrop -= ToolboxDrop; parent.DragDrop += ToolboxDrop;
+                parent.MouseDown -= RememberCanvas; parent.MouseDown += RememberCanvas;
+            }
+            foreach (Control child in parent.Controls) BindDropTargets(child);
+        }
+
+        /// <summary>记录最近点击的有效画布，供双击工具箱和键盘新增使用。</summary>
+        private void RememberCanvas(object sender, MouseEventArgs args) { activeCanvas = (Control)sender; }
+
+        /// <summary>键盘新增使用当前选中的流程页，不依赖工具箱获取焦点后的 ActiveControl。</summary>
+        private Control KeyboardCanvas()
+        {
+            Flow_BaseForm form = Current().Form;
+            if (activeCanvas != null && !activeCanvas.IsDisposed && activeCanvas.Visible && (activeCanvas == form || form.Contains(activeCanvas))) return activeCanvas;
+            return (Control)form.FlowChartTable.SelectedTab ?? form;
+        }
+
+        /// <summary>仅在空闲编辑的实际画布接受工具箱条目。</summary>
+        private void ToolboxDragOver(object sender, DragEventArgs args)
+        {
+            Control canvas = (Control)sender;
+            FlowModuleEditor module = FlowPrograms.Modules.FirstOrDefault(item => canvas == item.Form || item.Form.Contains(canvas));
+            args.Effect = args.Data.GetDataPresent(FlowToolboxControl.DragFormat) && module != null && module.IsEditing && !module.Program.Removed && FlowPrograms.CanEdit && !FlowPrograms.AnyRunning && SysPara.SystemMode == RunMode.IDLE ? DragDropEffects.Copy : DragDropEffects.None;
+        }
+
+        /// <summary>将屏幕落点换算成该容器的逻辑坐标，滚动后仍落在鼠标处。</summary>
+        private void ToolboxDrop(object sender, DragEventArgs args)
+        {
+            if (args.Effect != DragDropEffects.Copy) return;
+            FlowToolboxEntry entry = args.Data.GetData(FlowToolboxControl.DragFormat) as FlowToolboxEntry;
+            if (entry == null) return;
+            Control canvas = (Control)sender;
+            Point point = canvas.PointToClient(new Point(args.X, args.Y));
+            ScrollableControl scrolling = canvas as ScrollableControl;
+            if (scrolling != null) point.Offset(-scrolling.AutoScrollPosition.X, -scrolling.AutoScrollPosition.Y);
+            Execute(() => InsertToolboxEntry(entry, canvas, point));
+        }
+
+        /// <summary>拖放和键盘共用模块新增校验，不创建替身硬件对象。</summary>
+        private void InsertToolboxEntry(FlowToolboxEntry entry, Control canvas, Point? requested)
+        {
+            FlowModuleEditor module = FlowPrograms.Modules.FirstOrDefault(item => canvas == item.Form || item.Form.Contains(canvas));
+            if (module == null || !module.IsEditing) throw new InvalidOperationException(FlowText.T("edit"));
+            Point scroll = canvas is ScrollableControl ? ((ScrollableControl)canvas).AutoScrollPosition : Point.Empty;
+            int bottom = canvas.Controls.OfType<Flow_Chart>().Select(node => node.Bottom - scroll.Y + 35).DefaultIfEmpty(40).Max();
+            Point point = requested ?? new Point(40, bottom);
+            point = new Point(Math.Max(0, point.X), Math.Max(0, point.Y));
+            if (!string.IsNullOrEmpty(entry.DefinitionId)) module.AddNode(entry.DefinitionId, canvas, point);
+            else module.AddNode(entry.TargetId, entry.ActionId, canvas, point);
+            activeCanvas = canvas; BindNodeMenus(module.Form); RefreshSelection();
+        }
+
+        /// <summary>查看已生成的模块源码目录，不添加保存入口或生成现场配置。</summary>
+        private void ViewGeneratedSources()
+        {
+            string directory = FlowSourceGenerator.OutputDirectory;
+            if (!System.IO.Directory.Exists(directory)) { MessageBox.Show(string.Format(FlowCodeUiText.T("sourceDirectoryMissing"), directory), FlowCodeUiText.T("sourceDirectory")); return; }
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = directory, UseShellExecute = true });
         }
 
         /// <summary>复用节点右键菜单，覆盖 Flow_Chart 内部按钮的鼠标表面。</summary>
@@ -100,7 +183,7 @@ namespace AlphaRap
         }
 
         /// <summary>节点编辑完成后刷新列表及新节点的右键入口。</summary>
-        private void ModuleChanged(object sender, EventArgs args) { RefreshSelection(); }
+        private void ModuleChanged(object sender, EventArgs args) { RefreshSelection(); RefreshToolbox(); foreach (Flow_BaseForm form in pages.Keys) BindDropTargets(form); }
         /// <summary>Resolve the active module controller.</summary>
         private FlowModuleEditor Current()
         {
@@ -208,6 +291,7 @@ namespace AlphaRap
             debugMode.Enabled = !busy && canEdit && hasModule && SysPara.SystemMode == RunMode.IDLE;
             foreach (Control control in new Control[] { addModule, reload, schema }) control.Enabled = !busy && canEdit;
             foreach (Control control in new Control[] { edit, modeValue, initialValue, autoValue, add, validate }) control.Enabled = !busy && canEdit && hasModule;
+            toolbox.Enabled = !busy && canEdit && hasModule && Current().IsEditing && SysPara.SystemMode == RunMode.IDLE;
             if (!canEdit)
             {
                 foreach (FlowModuleEditor module in FlowPrograms.Modules.Where(module => module.IsEditing)) module.SetEditing(false);
@@ -236,6 +320,10 @@ namespace AlphaRap
             words = FlowText.Defaults["nodeBreakpoint"];
             nodeBreakpoint.Text = MiddleLayer.LangMsg("Flow", "nodeBreakpoint", words[0], words[1], words[2]);
             debugPanel.RefreshLanguage();
+            viewSources.Text = FlowCodeUiText.Fixed(viewSources, "sourceDirectory");
+            sourceHint.SetToolTip(viewSources, FlowSourceGenerator.ModeDescription);
+            viewSources.AccessibleDescription = FlowSourceGenerator.ModeDescription;
+            toolbox.RefreshLanguage();
         }
         /// <summary>Keep the draft available when an engineering operation fails.</summary>
         private void Execute(Action action)

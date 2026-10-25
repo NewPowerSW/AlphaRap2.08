@@ -189,6 +189,8 @@ internal static partial class Cases
         RegisterScriptRuntimeCases();
         RegisterScriptUiCases();
         RegisterP0EntryRepairs();
+        RegisterToolboxUiCases();
+        RegisterToolboxRuntimeCases();
         Test("first Boolean CASE defaults to the opposite result and missing objects explain repair", BeginnerNodeDefaults);
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
         ExportP0FieldTexts();
@@ -431,12 +433,12 @@ internal static partial class Cases
         string path = Path.Combine(root, "legacy-exits.xml");
         File.WriteAllText(path, "<FlowProject><Version>1</Version><Modules><FlowProgram><ModuleId>test</ModuleId><Steps><FlowStep><Action>value</Action><Otherwise>one</Otherwise><Failure>two</Failure><Third>three</Third></FlowStep></Steps></FlowProgram></Modules></FlowProject>");
         FlowProject project = FlowProgramFile.Load(path); FlowStep step = project.Modules[0].Steps[0];
-        Assert(project.Version == 2 && step.Case1 == "one" && step.Case2 == "two" && step.Case3 == "three", "Legacy connections were lost.");
+        Assert(project.Version == 1 && step.Case1 == "one" && step.Case2 == "two" && step.Case3 == "three", "Legacy version or connections were lost before a successful save.");
         Assert(FlowProgramFile.RequiresBranchReview(step), "Old exception routing was silently accepted.");
         step.Branches = new[] { "NEXT", "CASE1", "CASE2", "CASE3" }.Select((code, i) => EqualBranch(code, i.ToString())).ToList();
         FlowProgramFile.Save(path, project);
         string xml = File.ReadAllText(path);
-        Assert(!xml.Contains("<Failure>") && xml.Contains("<Case3>three</Case3>") && FlowProgramFile.Load(path).Modules[0].Steps[0].Branches.Count == 4, "Native branch persistence duplicated or renamed exits.");
+        Assert(project.Version == 3 && !xml.Contains("<Failure>") && xml.Contains("<Case3>three</Case3>") && FlowProgramFile.Load(path).Modules[0].Steps[0].Branches.Count == 4, "Native branch persistence duplicated or renamed exits.");
     }
 
     /// <summary>Load model files through the existing ProductManagerForm recipe entry point.</summary>
@@ -1269,6 +1271,7 @@ internal static partial class Cases
             Application.DoEvents();
             Assert(!tabs.TabPages.Cast<TabPage>().Any(tab => tab.Text == "Configured module") && !created.IsDisposed, "Deleted module remains visible or lost reload support.");
             Assert(visible.Visible && station.Visible, "Removing another module hid the remaining module.");
+            VerifyToolboxDrops(page);
             using (Bitmap bitmap = new Bitmap(page.Width, page.Height)) { page.DrawToBitmap(bitmap, new Rectangle(Point.Empty, page.Size)); bitmap.Save(Path.Combine(root, "flow-page.png")); }
             page.Close();
         }
