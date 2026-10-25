@@ -22,6 +22,7 @@ namespace AlphaRap.FlowProgramming
         public FlowBranchEditor()
         {
             InitializeComponent();
+            if (UiTheme.IsDesignTime) return;
             unconditional.CheckedChanged += ModeChanged;
             remove.Click += (sender,args) => { if (RemoveRequested != null) RemoveRequested(this,EventArgs.Empty); };
             addCondition.Click += (sender,args) => AddCondition(DefaultCondition());

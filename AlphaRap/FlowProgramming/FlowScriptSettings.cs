@@ -18,6 +18,7 @@ namespace AlphaRap.FlowProgramming
 
         private FlowActions catalog;
         private bool filling;
+        private bool languageSubscribed;
         private DataGridView contextGrid;
         private int contextIndex = -1;
         private readonly List<string> scriptResources = new List<string>();
@@ -29,7 +30,10 @@ namespace AlphaRap.FlowProgramming
         public FlowScriptSettings()
         {
             InitializeComponent();
+            if (UiTheme.IsDesignTime) return;
             ConfigureGrid(inputPorts); ConfigureGrid(outputPorts);
+            inputPorts.Rows.Add("Value", "Number", "0");
+            outputPorts.Rows.Add("Value", "Number", "0");
             addInput.Click += (sender, args) => AddPort(inputPorts, "Input");
             addOutput.Click += (sender, args) => AddPort(outputPorts, "Output");
             portMenu.Opening += OpenPortMenu;
@@ -40,7 +44,8 @@ namespace AlphaRap.FlowProgramming
             insertCall.Click += RequestInsert;
             removeBinding.Click += RemoveBinding;
             bindingMenu.Opening += (sender, args) => args.Cancel = resourceBindings.SelectedIndex < 0;
-            if (!UiTheme.IsDesignTime) MiddleLayer.LanguageChanged += RefreshLanguage;
+            MiddleLayer.LanguageChanged += RefreshLanguage;
+            languageSubscribed = true;
         }
 
         /// <summary>为端口列绑定稳定类型，编辑结束后通知宿主刷新元数据。</summary>
@@ -225,7 +230,11 @@ namespace AlphaRap.FlowProgramming
         /// <summary>解除语言事件，源码编辑器拥有的事件由它自行解除。</summary>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && !UiTheme.IsDesignTime) MiddleLayer.LanguageChanged -= RefreshLanguage;
+            if (disposing)
+            {
+                if (languageSubscribed) { MiddleLayer.LanguageChanged -= RefreshLanguage; languageSubscribed = false; }
+                if (components != null) components.Dispose();
+            }
             base.Dispose(disposing);
         }
     }

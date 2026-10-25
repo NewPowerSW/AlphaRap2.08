@@ -11,6 +11,8 @@ namespace AlphaRap
 {
     public partial class SystemSetting : ModuleBaseForm
     {
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ConstantStore Constants { get; private set; }
         private string contextKey, contextScope;
         private string Scope { get { return scopes.SelectedTab == settingPage ? "Setting" : "Recipe"; } }
@@ -19,8 +21,9 @@ namespace AlphaRap
         public SystemSetting()
         {
             InitializeComponent();
-            Constants = new ConstantStore(this);
+            InitializeConfigurationSchema();
             if (UiTheme.IsDesignTime) return;
+            Constants = new ConstantStore(this);
             ConstantText.Apply(this);
             MiddleLayer.RegisterAndApplyLanguage(this, Name);
             MiddleLayer.LanguageChanged += ApplyLanguage;
@@ -38,6 +41,20 @@ namespace AlphaRap
             VisibleChanged += (sender, args) => { if (Visible) { BindScope(); RefreshPermission(); } };
             permissionTimer.Tick += (sender, args) => RefreshPermission();
             permissionTimer.Start();
+        }
+
+        /// <summary>建立机器设置、兼容开关和配方常量的独立内存表，不读取现场配置。</summary>
+        private void InitializeConfigurationSchema()
+        {
+            DataTable marker = new DataTable("MSet");
+            marker.Columns.Add("ConstantsInitialized", typeof(bool)).DefaultValue = false;
+            DataTable legacy = new DataTable("PSet");
+            legacy.Columns.Add("DisScann", typeof(bool)).DefaultValue = false;
+            legacy.Columns.Add("UseTryRun", typeof(bool)).DefaultValue = false;
+            SettingData.Tables.Add(marker);
+            SettingData.Tables.Add(legacy);
+            SettingData.Tables.Add(ConstantStore.CreateTable());
+            RecipeData.Tables.Add(ConstantStore.CreateTable());
         }
 
         /// <summary>沿用模块生命周期加载 Setting 并迁移现有开关，配方仍由统一入口加载。</summary>

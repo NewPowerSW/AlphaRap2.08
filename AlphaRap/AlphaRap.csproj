@@ -713,7 +713,7 @@
     <Compile Include="FlowProgramming\FlowUtilityObject.cs" />
     <Compile Include="FlowProgramming\FlowIoObject.cs" />
     <Compile Include="FlowProgramming\FlowAxisObject.cs" />
-    <Compile Include="FlowProgramming\FlowDataMethods.cs" />
+    <Compile Include="FlowProgramming\FlowDataMethods.cs"><SubType>Code</SubType></Compile>
     <Compile Include="FlowProgramming\FlowTrayMethods.cs" />
     <Compile Include="Tasks\AlarmRunTask.cs" />
     <Compile Include="Tasks\AlwaysRunTask.cs" />

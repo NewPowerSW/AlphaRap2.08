@@ -14,12 +14,18 @@ namespace AlphaRap.FlowProgramming
         private bool filling;
         private readonly List<FlowBranchEditor> branchEditors = new List<FlowBranchEditor>();
 
-        /// <summary>Build the fixed controls without loading application data.</summary>
-        public FlowNodeForm() { InitializeComponent(); scriptEditor.BindSettings(scriptSettings); }
+        /// <summary>建立固定节点编辑布局；设计期不关联运行服务或加载工程。</summary>
+        public FlowNodeForm()
+        {
+            InitializeComponent();
+            if (UiTheme.IsDesignTime) return;
+            scriptEditor.BindSettings(scriptSettings);
+        }
 
         /// <summary>编辑节点副本，取消时不改变原工程和已有输入。</summary>
         public FlowNodeForm(FlowModuleEditor owner, FlowStep step) : this()
         {
+            if (UiTheme.IsDesignTime) return;
             module = owner;
             original = step;
             catalog = new FlowActions(FlowResources.Capture(true));

@@ -14,6 +14,7 @@ namespace AlphaRap.FlowProgramming
         private FlowStep bound;
         private FlowActions catalog;
         private FlowScriptSettings settings;
+        private bool languageSubscribed;
         public event EventHandler DefinitionChanged;
         internal event EventHandler SourceRequested;
 
@@ -21,11 +22,13 @@ namespace AlphaRap.FlowProgramming
         public FlowScriptEditor()
         {
             InitializeComponent();
+            if (UiTheme.IsDesignTime) return;
             InitializeAppearance();
             compile.Click += CompileSource;
             errors.TextChanged += (sender, args) => UpdateDiagnostics();
             source.TextChanged += (sender, args) => ShowError("");
-            if (!UiTheme.IsDesignTime) MiddleLayer.LanguageChanged += RefreshLanguage;
+            MiddleLayer.LanguageChanged += RefreshLanguage;
+            languageSubscribed = true;
         }
 
         /// <summary>关联同级输入输出设置；旧控件只解除事件，不由编辑器释放。</summary>
@@ -271,7 +274,7 @@ namespace AlphaRap.FlowProgramming
             if (disposing)
             {
                 DisposeAppearance();
-                if (!UiTheme.IsDesignTime) MiddleLayer.LanguageChanged -= RefreshLanguage;
+                if (languageSubscribed) { MiddleLayer.LanguageChanged -= RefreshLanguage; languageSubscribed = false; }
                 if (settings != null)
                 {
                     settings.DefinitionChanged -= SettingsChanged;
@@ -279,6 +282,7 @@ namespace AlphaRap.FlowProgramming
                     settings.MessageRequested -= ShowError;
                     settings = null;
                 }
+                if (components != null) components.Dispose();
             }
             base.Dispose(disposing);
         }

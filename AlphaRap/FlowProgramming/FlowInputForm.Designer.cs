@@ -1,64 +1,66 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
 namespace AlphaRap.FlowProgramming
 {
     partial class FlowInputForm
     {
-        private Label prompt;
-        private TextBox value;
-        private Button ok;
-        private Button cancel;
-        private FlowLayoutPanel buttons;
-        /// <summary>Build the fixed layout shared by designer preview and runtime.</summary>
+        private System.Windows.Forms.Label prompt;
+        private System.Windows.Forms.TextBox value;
+        private System.Windows.Forms.Button ok;
+        private System.Windows.Forms.Button cancel;
+        private System.Windows.Forms.FlowLayoutPanel buttons;
+        /// <summary>创建设计器与运行时共用的操作员输入布局。</summary>
         private void InitializeComponent()
         {
-            SuspendLayout();
-            prompt = new Label();
-            prompt.Name = "prompt_dyn";
-            prompt.Text = "输入产品信息";
-            prompt.Dock = DockStyle.Top;
-            prompt.Height = 56;
-            prompt.Padding = new Padding(12);
-            value = new TextBox();
-            value.Name = "operatorValue";
-            value.Dock = DockStyle.Top;
-            value.Margin = new Padding(12);
-            buttons = new FlowLayoutPanel();
-            buttons.Name = "buttons";
-            buttons.Dock = DockStyle.Bottom;
-            buttons.Height = 44;
-            buttons.FlowDirection = FlowDirection.RightToLeft;
-            buttons.Padding = new Padding(6);
-            ok = new Button();
-            ok.Name = "ok";
-            ok.Tag = "ok";
-            ok.Text = "确定";
-            ok.AutoSize = true;
-            cancel = new Button();
-            cancel.Name = "cancel";
-            cancel.Tag = "cancel";
-            cancel.Text = "取消";
-            cancel.AutoSize = true;
-            cancel.DialogResult = DialogResult.Cancel;
-            AcceptButton = ok;
-            CancelButton = cancel;
-            ok.DialogResult = DialogResult.OK;
-            buttons.Controls.Add(cancel);
-            buttons.Controls.Add(ok);
-            Controls.Add(value);
-            Controls.Add(prompt);
-            Controls.Add(buttons);
-            Name = "FlowInputForm";
-            Tag = "title";
-            Text = "流程工程";
-            Font = new Font("Microsoft YaHei", 9F);
-            AutoScaleMode = AutoScaleMode.Dpi;
-            ClientSize = new Size(640, 190);
-            MinimumSize = new Size(640, 190);
-            StartPosition = FormStartPosition.CenterParent;
-            ShowInTaskbar = false;
-            MaximizeBox = false;
-            ResumeLayout(false);
+            this.SuspendLayout();
+            this.prompt = new System.Windows.Forms.Label();
+            this.prompt.Name = "prompt_dyn";
+            this.prompt.Text = "输入产品信息";
+            this.prompt.Dock = System.Windows.Forms.DockStyle.Top;
+            this.prompt.Height = 56;
+            this.prompt.Padding = new System.Windows.Forms.Padding(12);
+            this.value = new System.Windows.Forms.TextBox();
+            this.value.Name = "operatorValue";
+            this.value.Dock = System.Windows.Forms.DockStyle.Top;
+            this.value.Margin = new System.Windows.Forms.Padding(12);
+            this.buttons = new System.Windows.Forms.FlowLayoutPanel();
+            this.buttons.SuspendLayout();
+            this.buttons.Name = "buttons";
+            this.buttons.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.buttons.Height = 44;
+            this.buttons.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.buttons.Padding = new System.Windows.Forms.Padding(6);
+            this.ok = new System.Windows.Forms.Button();
+            this.ok.Name = "ok";
+            this.ok.Tag = "ok";
+            this.ok.Text = "确定";
+            this.ok.AutoSize = true;
+            this.cancel = new System.Windows.Forms.Button();
+            this.cancel.Name = "cancel";
+            this.cancel.Tag = "cancel";
+            this.cancel.Text = "取消";
+            this.cancel.AutoSize = true;
+            this.cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.AcceptButton = this.ok;
+            this.CancelButton = this.cancel;
+            this.ok.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.buttons.Controls.Add(this.cancel);
+            this.buttons.Controls.Add(this.ok);
+            this.Controls.Add(this.value);
+            this.Controls.Add(this.prompt);
+            this.Controls.Add(this.buttons);
+            this.Name = "FlowInputForm";
+            this.Tag = "title";
+            this.Text = "流程工程";
+            this.Font = new System.Drawing.Font("Microsoft YaHei", 9F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(640, 190);
+            this.MinimumSize = new System.Drawing.Size(640, 190);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.ShowInTaskbar = false;
+            this.MaximizeBox = false;
+            this.buttons.ResumeLayout(false);
+            this.buttons.PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
         }
     }
 }

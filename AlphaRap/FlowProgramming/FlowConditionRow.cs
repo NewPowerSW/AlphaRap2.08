@@ -25,6 +25,7 @@ namespace AlphaRap.FlowProgramming
         public FlowConditionRow()
         {
             InitializeComponent();
+            if (UiTheme.IsDesignTime) return;
             comparisonValue.SelectedIndexChanged += (sender,args) => rightValue.Enabled = Convert.ToString(comparisonValue.SelectedValue) != "Empty";
             leftValue.SelectedIndexChanged += LeftChanged;
             leftValue.TextChanged += LeftChanged;

@@ -5,11 +5,14 @@ namespace AlphaRap.FlowProgramming
 {
     public class FlowLanguageForm : Form
     {
+        private bool languageSubscribed;
+
         /// <summary>初始化统一窗口外观，设计期不接触宿主和设备。</summary>
         public FlowLanguageForm()
         {
             if (UiTheme.IsDesignTime) return;
             MiddleLayer.LanguageChanged += LanguageChanged;
+            languageSubscribed = true;
         }
 
         /// <summary>按稳定名称登记窗口及表头。</summary>
@@ -57,7 +60,11 @@ namespace AlphaRap.FlowProgramming
         /// <summary>释放窗口时解除静态语言事件。</summary>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && !UiTheme.IsDesignTime) MiddleLayer.LanguageChanged -= LanguageChanged;
+            if (disposing && languageSubscribed)
+            {
+                MiddleLayer.LanguageChanged -= LanguageChanged;
+                languageSubscribed = false;
+            }
             base.Dispose(disposing);
         }
     }

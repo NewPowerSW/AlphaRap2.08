@@ -18,6 +18,7 @@ namespace AlphaRap.FlowProgramming
         public FlowDebugPanel()
         {
             InitializeComponent();
+            if (UiTheme.IsDesignTime) return;
             debugContinue.Click += (sender, args) => { if (ContinueRequested != null) ContinueRequested(this, EventArgs.Empty); };
             debugStep.Click += (sender, args) => { if (StepRequested != null) StepRequested(this, EventArgs.Empty); };
         }

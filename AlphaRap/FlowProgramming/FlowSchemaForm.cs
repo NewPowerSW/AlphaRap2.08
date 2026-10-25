@@ -9,10 +9,11 @@ namespace AlphaRap.FlowProgramming
     {
         private readonly DataForm data;
         private DataGridViewRow contextField;
-        /// <summary>Build the fixed controls without loading application data.</summary>
+        /// <summary>建立固定生产字段布局，设计期不绑定运行数据或编辑事件。</summary>
         public FlowSchemaForm()
         {
             InitializeComponent();
+            if (UiTheme.IsDesignTime) return;
             fields.MouseDown += SelectField;
             fieldMenu.Opening += (sender, args) => args.Cancel = contextField == null || contextField.IsNewRow;
             fieldDelete.Click += (sender, args) => { if (contextField != null && !contextField.IsNewRow && contextField.DataGridView == fields) fields.Rows.Remove(contextField); contextField = null; };
@@ -31,6 +32,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>从 DataForm 读取生产表结构，编辑副本不影响运行数据。</summary>
         public FlowSchemaForm(DataForm owner) : this()
         {
+            if (UiTheme.IsDesignTime) return;
             data = owner;
             foreach (ProductionField field in data.GetProductionDraft()) fields.Rows.Add(field.Name, field.Type);
             fields.DefaultValuesNeeded += (sender, args) => args.Row.Cells[1].Value = "Text";

@@ -52,6 +52,7 @@ namespace AlphaRap.FlowProgramming
         public FlowSourceForm()
         {
             InitializeComponent();
+            if (UiTheme.IsDesignTime) return;
             searchValue.TextChanged += (sender, args) => RefreshTree();
             value.TextChanged += LiteralChanged;
             tree.AfterSelect += SourceSelected;
@@ -64,6 +65,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>在同一窗口选择固定值、机器设置、当前配方或类型匹配的节点结果。</summary>
         public FlowSourceForm(FlowInput current, FlowActions catalog, FlowMethod action, FlowField parameter, string description = null, string targetId = null) : this()
         {
+            if (UiTheme.IsDesignTime) return;
             actions = catalog;
             method = action;
             field = parameter;

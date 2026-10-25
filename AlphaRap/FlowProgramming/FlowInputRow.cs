@@ -59,6 +59,7 @@ namespace AlphaRap.FlowProgramming
         public FlowInputRow()
         {
             InitializeComponent();
+            if (UiTheme.IsDesignTime) return;
             literalValue.TextChanged += LiteralChanged;
             optionValue.SelectedIndexChanged += OptionChanged;
             bindData.Click += RequestBinding;

@@ -8,12 +8,13 @@ namespace AlphaRap.FlowProgramming
     public partial class FlowInputForm : FlowLanguageForm
     {
         public string InputValue { get { return value.Text; } }
-        /// <summary>Build the fixed controls without loading application data.</summary>
+        /// <summary>建立固定操作员输入布局，不读取工程数据或设备。</summary>
         public FlowInputForm() { InitializeComponent(); }
 
         /// <summary>显示业务提示并等待操作员明确提交，关闭表示取消。</summary>
         public FlowInputForm(string message) : this()
         {
+            if (UiTheme.IsDesignTime) return;
             prompt.Text = message;
         }
 

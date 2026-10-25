@@ -29,7 +29,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>连接行号和换行显示事件；不修改文本、选择区或撤销栈。</summary>
         private void InitializeAppearance()
         {
-            if (appearanceInitialized) return;
+            if (appearanceInitialized || UiTheme.IsDesignTime) return;
             appearanceInitialized = true;
             lineNumbers.Paint += PaintSourceLines;
             source.TextChanged += SourceLinesChanged;
