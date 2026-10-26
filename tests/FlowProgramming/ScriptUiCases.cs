@@ -31,7 +31,8 @@ internal static partial class Cases
     /// <summary>Select an always-visible execution mode through its actual button-style radio control.</summary>
     private static void ScriptMode(FlowNodeForm dialog, string mode)
     {
-        string name = mode == "Action" ? "scriptAction" : mode == "Script" ? "scriptCustom" : "scriptNone";
+        Assert(mode == "Script" || mode == "None", "The test requested a retired execution mode.");
+        string name = mode == "Script" ? "scriptCustom" : "scriptNone";
         RadioButton button = ScriptControl<RadioButton>(dialog, name);
         Assert(button.Visible && button.Appearance == Appearance.Button, "The execution mode entry is hidden or still requires a dropdown.");
         button.Checked = true; Application.DoEvents();
@@ -108,10 +109,12 @@ internal static partial class Cases
         }
     }
 
-    /// <summary>Create a valid fixed-value action to exercise transitions to script and empty modes.</summary>
+    /// <summary>Keep an explicit retired action fixture to prove conversion remains local until confirmation.</summary>
     private static FlowStep ScriptUiNode()
     {
         FlowStep step = editor.AddNode(); step.Caption = "Script UI fixture"; step.Action = "value"; step.Target = "";
+        step.ExecutionMode = "Action"; step.ScriptSource = "";
+        step.ScriptInputs.Clear(); step.ScriptOutputs.Clear(); step.ScriptResources.Clear();
         step.Inputs = new List<FlowInput> { new FlowInput { Name = "Value", Reference = "original literal" } };
         return step;
     }
@@ -131,8 +134,10 @@ internal static partial class Cases
             using (FlowNodeForm dialog = new FlowNodeForm(editor, step))
             {
                 dialog.Show(); Application.DoEvents();
-                ScriptMode(dialog, "Action");
-                ScriptInput(dialog, "Value").SetInput(new FlowInput { Name = "Value", Reference = "action draft" });
+                Assert(!ScriptControl<RadioButton>(dialog, "scriptCustom").Checked && !ScriptControl<RadioButton>(dialog, "scriptNone").Checked,
+                    "Opening a retired node silently chose a replacement execution mode.");
+                Assert(dialog.Controls.Find("scriptAction", true).Length == 0 && dialog.Controls.Find("codeMode", true).Length == 0,
+                    "The retired Action or Code module mode remains in the editor.");
                 ScriptMode(dialog, "Script");
                 FlowScriptEditor code = ScriptControl<FlowScriptEditor>(dialog, "scriptEditor");
                 string sourceText = "Outputs.Value = Inputs.Value + 3; // pending source";
@@ -154,9 +159,6 @@ internal static partial class Cases
                 Assert(ScriptControl<TabControl>(dialog, "executionTabs").SelectedTab.Name == "scriptTab", "Entering script mode did not open its source page.");
                 ScriptPage(dialog, "scriptParameters");
                 Assert(ScriptInput(dialog, "Value").ReadInput().Reference == "CycleId" && ScriptControl<RichTextBox>(code, "scriptSource").Text == sourceText, "A mode round trip lost the script draft.");
-                ScriptMode(dialog, "Action");
-                ScriptAssertPages(dialog, "scriptActionPage", "scriptRoutes", "scriptRunSettings");
-                Assert(ScriptInput(dialog, "Value").ReadInput().Reference == "action draft", "Script mode replaced the action's independent parameter draft.");
                 ScriptPage(dialog, "scriptRunSettings");
                 ScriptControl<CheckBox>(dialog, "scriptBreakpoint").Checked = true;
                 ScriptControl<Button>(dialog, "cancel").PerformClick();
@@ -374,16 +376,14 @@ internal static partial class Cases
                 foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
                 {
                     SwitchLanguage(language); Application.DoEvents();
-                    foreach (string name in new[] { "scriptAction", "scriptCustom", "scriptNone" })
+                    foreach (string name in new[] { "scriptCustom", "scriptNone" })
                     {
                         RadioButton mode = ScriptControl<RadioButton>(dialog, name);
                         Assert(mode.Visible && mode.Appearance == Appearance.Button, "An execution-mode button disappeared during language switching.");
                     }
-                    ScriptMode(dialog, "Action");
-                    ScriptAssertPages(dialog, "scriptActionPage", "scriptRoutes", "scriptRunSettings");
-                    Assert(ScriptControl<TabControl>(dialog, "executionTabs").SelectedTab.Name == "scriptActionPage", "Entering action mode did not select its action page.");
-                    Screenshot(dialog, "script-flat-action-" + language);
-                    ScriptAssertRunSettings(dialog, 4321, "2019", true);
+                    Assert(dialog.Controls.Find("scriptAction", true).Length == 0 && dialog.Controls.Find("codeMode", true).Length == 0,
+                        "A retired execution mode reappeared after language switching.");
+                    ScriptMode(dialog, "None");
                     ScriptMode(dialog, "Script");
                     ScriptAssertPages(dialog, "scriptTab", "scriptParameters", "scriptRoutes", "scriptRunSettings");
                     Assert(ScriptControl<TabControl>(dialog, "executionTabs").SelectedTab.Name == "scriptTab", "Entering script mode did not select its source page.");
@@ -412,7 +412,7 @@ internal static partial class Cases
                 }
                 ComboBox customAlarm = ScriptControl<ComboBox>(dialog, "alarmValue");
                 customAlarm.SelectedIndex = -1; customAlarm.Text = "999991";
-                ScriptMode(dialog, "Action"); ScriptMode(dialog, "Script");
+                ScriptMode(dialog, "None"); ScriptMode(dialog, "Script");
                 SwitchLanguage(LanguageType.Chinese); Application.DoEvents();
                 ScriptAssertRunSettings(dialog, 4321, "999991", true);
                 ScriptControl<Button>(dialog, "cancel").PerformClick();

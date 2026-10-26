@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -22,7 +22,7 @@ namespace AlphaRap.FlowProgramming
             string name = owner == null ? "FlowDefinition_" + suffix : owner.Name;
             StringBuilder output = new StringBuilder();
             output.AppendLine(Header);
-            output.AppendLine("// Main Save owns this file. Place handwritten changes in a separate Custom.cs or code module.");
+            output.AppendLine("// Main Save owns this file. Place handwritten changes in a separate Custom.cs or condition.");
             output.AppendLine("// Include GeneratedFlows sources in the host project and rebuild before use; the existing flow runtime schedules execution.");
             output.AppendLine("// Module: " + Comment(program.ModuleId));
             output.AppendLine("// Linked source: " + (owner == null ? "standalone provider; no source Form mapping" : Comment(owner.Namespace + "." + owner.Name)));

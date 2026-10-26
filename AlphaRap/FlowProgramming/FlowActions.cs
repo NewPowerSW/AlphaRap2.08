@@ -10,10 +10,9 @@ using NPSDK.Motion;
 namespace AlphaRap.FlowProgramming
 {
     /// <summary>校验和调用对象已声明的方法，不维护具体设备动作或协议分支。</summary>
-    public sealed partial class FlowActions
+    public sealed class FlowActions
     {
         public readonly FlowResources Resources;
-        private readonly List<FlowMethod> utility;
         public bool Simulate;
         public Func<string, CancellationToken, Task<string>> RequestInput;
 
@@ -21,25 +20,19 @@ namespace AlphaRap.FlowProgramming
         public FlowActions(FlowResources resources)
         {
             Resources = resources;
-            utility = new FlowUtilityObject().GetFlowMethods().ToList();
-            foreach (FlowMethod method in utility) method.ValidateDefinition();
         }
-
-        /// <summary>读取选中对象自己的方法；空目标只提供流程上下文方法。</summary>
-        public List<FlowMethod> MethodsFor(FlowResource resource) { return resource == null ? utility : resource.Methods; }
 
         /// <summary>按对象身份和方法身份联合解析，禁止用其他对象的同名方法补位。</summary>
         public FlowMethod FindMethod(FlowStep step)
         {
-            if (!string.IsNullOrEmpty(step.CodeModuleId))
-            {
-                FlowCodeDefinition code = FlowToolboxCatalog.Find(step.CodeModuleId);
-                return code != null && step.Target == "code/" + code.Id && step.Action == "code.execute" ? FlowResourceAccess.CreateMethod(code, step, Resources) : null;
-            }
-            if (step.ExecutionMode == "Script" || step.ExecutionMode == "None") return FlowScripts.Define(step);
-            FlowResource resource = FindResource(step.Target);
-            if (!string.IsNullOrEmpty(step.Target) && resource == null) return null;
-            return MethodsFor(resource).SingleOrDefault(method => method.Id == step.Action);
+            return IsSupported(step) ? FlowScripts.Define(step) : null;
+        }
+
+        /// <summary>仅允许脚本与条件节点；旧动作及代码模块保留定义供人工修复。</summary>
+        public static bool IsSupported(FlowStep step)
+        {
+            return step != null && string.IsNullOrEmpty(step.CodeModuleId)
+                && (step.ExecutionMode == "Script" || step.ExecutionMode == "None");
         }
 
         /// <summary>从选定方法声明读取输入字段。</summary>
@@ -51,12 +44,12 @@ namespace AlphaRap.FlowProgramming
         /// <summary>校验方法、输入类型及数据来源，失效的对象或端口必须先修复。</summary>
         public void Validate(FlowStep step)
         {
+            if (!IsSupported(step)) throw new InvalidOperationException(string.Format(FlowText.T("retiredNode"), step == null ? "" : step.Caption));
             if (FlowProgramFile.RequiresBranchReview(step)) throw new InvalidOperationException(FlowText.T("reviewBranches") + " " + step.Caption);
             List<string> errors = FlowProgramFile.ValidateBranches(step);
             if (errors.Count > 0) throw new InvalidOperationException(string.Join(Environment.NewLine, errors));
             FlowMethod method = FindMethod(step);
             if (method == null) throw new InvalidOperationException(FlowText.T("methodMissing") + " " + step.Caption + " / " + step.Target + " / " + step.Action);
-            if (!string.IsNullOrEmpty(step.CodeModuleId)) ValidateCode(step);
             if (step.ExecutionMode == "Script")
             {
                 foreach (string target in step.ScriptResources)
@@ -69,7 +62,6 @@ namespace AlphaRap.FlowProgramming
             {
                 ValidateSource(input, false, method);
                 FlowField field = method.Inputs.Single(item => item.Name == input.Name);
-                ValidateProducer(input, field, step);
                 if (input.Source == "Constant") ValidateValue(field, input.Reference ?? "");
                 if (input.Source == "Parameter") ValidateValue(field, Resources.Parameters[input.Reference]);
             }
@@ -102,20 +94,6 @@ namespace AlphaRap.FlowProgramming
             TypeCode type = Type.GetTypeCode(field.Type);
             if (field.Type != typeof(bool) && (type < TypeCode.SByte || type > TypeCode.Decimal)) return;
             throw new InvalidOperationException(string.Format(FlowText.T("conditionValueRequired"), branch, FlowMethods.FieldTitle(method.Id, field, true)));
-        }
-
-        /// <summary>具有来源约束的结果必须来自同一实际对象的指定动作，拒绝跨 VPP 冒用相同运行编号。</summary>
-        private void ValidateProducer(FlowInput input, FlowField field, FlowStep step)
-        {
-            if (string.IsNullOrEmpty(field.OutputSourceMethod) && string.IsNullOrEmpty(field.OutputSourceField)) return;
-            if (input.Source == "Constant") return;
-            if (input.Source != "Output")
-                throw new InvalidOperationException(string.Format(FlowText.T("producerMismatch"), step.Caption, FlowMethods.FieldTitle(step.Action, field)));
-            FlowChoice source = FlowPrograms.OutputChoices(this).Single(item => item.Id == input.Reference);
-            bool methodMatches = string.IsNullOrEmpty(field.OutputSourceMethod) || source.ActionId == field.OutputSourceMethod;
-            bool fieldMatches = string.IsNullOrEmpty(field.OutputSourceField) || source.FieldName == field.OutputSourceField;
-            if (source.TargetId == step.Target && methodMatches && fieldMatches) return;
-            throw new InvalidOperationException(string.Format(FlowText.T("producerMismatch"), step.Caption, FlowMethods.FieldTitle(step.Action, field)));
         }
 
         /// <summary>固定值和可静态读取的参数在保存时就按真实方法类型校验。</summary>
@@ -153,16 +131,13 @@ namespace AlphaRap.FlowProgramming
         /// <summary>解析类型化输入后持有实际资源租约，调用该对象自己的实现。</summary>
         public async Task<IDictionary<string, object>> Execute(FlowStep step, FlowExecutionContext context, CancellationToken token)
         {
-            if (!string.IsNullOrEmpty(step.CodeModuleId)) return (await ExecuteStep(step, context, token).ConfigureAwait(false)).Outputs;
             Validate(step);
             FlowMethod method = FindMethod(step);
             Dictionary<string, object> input = method.Inputs.ToDictionary(field => field.Name,
                 field => ValidateValue(field, context.Resolve(step.Inputs.Single(item => item.Name == field.Name))));
             FlowCall call = new FlowCall { Step = step, Context = context, InvocationId = context.ExecutionId, Inputs = input, Token = token, Simulation = Simulate, RequestInput = RequestInput };
-            FlowResource resource = step.ExecutionMode == "Action" ? FindResource(step.Target) : null;
             if (method.ValidateInputs != null) method.ValidateInputs(input);
-            using (FlowResourceGate.Lease lease = await FlowResourceGate.Acquire(ResourceLocks(resource == null ? null : resource.Instance), token).ConfigureAwait(false))
-                return await lease.Run(() => Invoke(method, call)).ConfigureAwait(false);
+            return await Invoke(method, call).ConfigureAwait(false);
         }
 
         /// <summary>模拟硬件必须使用明确的模拟实现；实际方法返回后检查输出契约。</summary>
@@ -203,19 +178,18 @@ namespace AlphaRap.FlowProgramming
                 throw new InvalidOperationException(FlowText.T("scriptObjectNotBound") + " " + target);
             FlowResource resource = FindResource(target);
             if (resource == null) throw new InvalidOperationException(FlowText.T("scriptObjectMissing") + " " + target);
-            return await ExecuteResource(parent, resource, action, values, token, false).ConfigureAwait(false);
+            return await ExecuteResource(parent, resource, action, values, token).ConfigureAwait(false);
         }
 
-        /// <summary>脚本和代码模块共用真实对象的类型检查、资源互斥及取消完成边界。</summary>
+        /// <summary>脚本调用真实对象时检查类型、资源互斥及取消完成边界。</summary>
         private async Task<IDictionary<string, object>> ExecuteResource(FlowCall parent, FlowResource resource, string action,
-            IDictionary<string, object> values, CancellationToken token, bool useDefaults)
+            IDictionary<string, object> values, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
             FlowMethod method = resource.Methods.SingleOrDefault(item => item.Id == action);
             if (method == null) throw new InvalidOperationException(FlowText.T("methodMissing") + " " + resource.Label + " / " + action);
-            if (resource.Kind == "code") throw new InvalidOperationException(FlowText.T("methodMissing") + " " + resource.Label);
             values = values ?? new Dictionary<string, object>();
-            if (values.Keys.Any(name => method.Inputs.All(field => field.Name != name)) || (!useDefaults && method.Inputs.Any(field => !values.ContainsKey(field.Name))))
+            if (values.Keys.Any(name => method.Inputs.All(field => field.Name != name)) || method.Inputs.Any(field => !values.ContainsKey(field.Name)))
                 throw new InvalidOperationException(FlowText.T("fieldsChanged") + " " + resource.Label + " / " + action);
             Dictionary<string, object> input = method.Inputs.ToDictionary(field => field.Name,
                 field => ValidateValue(field, values.ContainsKey(field.Name) ? values[field.Name] : field.DefaultValue));

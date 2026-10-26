@@ -91,7 +91,7 @@ internal static class SourceGenerationCases
         finally { SysPara.SettingDataDirectory = previousSettings; }
     }
 
-    /// <summary>Build a realistic mixed snapshot including scripts, independent conditions and dynamic resource identities.</summary>
+    /// <summary>Build supported scripts plus historical definitions for export fidelity; Action and Code are not executable host fixtures.</summary>
     private static FlowProject Model()
     {
         FlowStep first = new FlowStep { Caption = "移动到取料点 <A>\r\n\"quoted\"", Target = "hardware/axis-stable-id/axis", Action = "axis.point", ParentPath = "/tabControl1/Auto", AlarmCode = "2019", X = 35, Y = 77 };
@@ -117,7 +117,7 @@ internal static class SourceGenerationCases
         return project;
     }
 
-    /// <summary>Include current SDK code-resource fields without coupling the harness to intermediate SDK compilation order.</summary>
+    /// <summary>Retain historical SDK code-resource fields in the source round-trip test without registering or executing a module.</summary>
     private static void AddCodeBinding(FlowStep step)
     {
         FieldInfo module = typeof(FlowStep).GetField("CodeModuleId");

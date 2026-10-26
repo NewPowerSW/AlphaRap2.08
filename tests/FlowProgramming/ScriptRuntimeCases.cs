@@ -122,14 +122,13 @@ internal static partial class Cases
         script.Branches[0].Unconditional = false;
         script.Branches[0].Conditions.Add(new FlowCondition { Left = new FlowInput { Source = "Result", Reference = "Pass" }, Right = new FlowInput { Reference = "true" } });
         FlowActions actions = new FlowActions(FlowResources.Capture()) { Simulate = true };
-        FlowStep storage = BoundStep(actions.FindResource("data/Production"), "data.save");
-        storage.Caption = "Save script result"; storage.Branches = FlowBranch.Default();
-        foreach (FlowInput input in storage.Inputs)
-        {
-            if (input.Name == "Product") { input.Source = "Output"; input.Reference = editor.Program.ModuleId + "/" + script.Id + "/Product"; }
-            else if (input.Name == "Measurement") { input.Source = "Output"; input.Reference = editor.Program.ModuleId + "/" + script.Id + "/Measurement"; }
-            else input.Reference = "0";
-        }
+        FlowStep storage = ScriptNode("var saved = await Context.CallAsync(\"data/Production\", \"data.save\", new Dictionary<string, object> { { \"Product\", Inputs.Product }, { \"Measurement\", Inputs.Measurement } });\nOutputs.Path = (string)saved[\"Path\"];", ScriptPort("Path", "Text"));
+        storage.Caption = "Save script result";
+        storage.ScriptResources.Add("data/Production");
+        storage.ScriptInputs.AddRange(new[] { ScriptPort("Product", "Text"), ScriptPort("Measurement", "Number") });
+        storage.Inputs.AddRange(new[] {
+            new FlowInput { Name = "Product", Source = "Output", Reference = editor.Program.ModuleId + "/" + script.Id + "/Product" },
+            new FlowInput { Name = "Measurement", Source = "Output", Reference = editor.Program.ModuleId + "/" + script.Id + "/Measurement" } });
         script.Next = storage.Id;
         editor.Program.Steps.Add(script); editor.Program.Steps.Add(storage);
         try
@@ -271,7 +270,9 @@ internal static partial class Cases
         {
             using (CancellationTokenSource waiting = new CancellationTokenSource())
             {
-                Task<IDictionary<string, object>> competitor = actions.Execute(BoundStep(resource, "script.probe"), ScriptContext(actions), waiting.Token);
+                FlowStep competitorStep = FlowProgramFile.Snapshot(new FlowProgram { Steps = new List<FlowStep> { script } }).Steps.Single();
+                competitorStep.Id = Guid.NewGuid().ToString("N");
+                Task<IDictionary<string, object>> competitor = actions.Execute(competitorStep, ScriptContext(actions), waiting.Token);
                 Assert(!competitor.IsCompleted && probe.Calls == 1, "A competing action bypassed the actual object lease.");
                 waiting.Cancel();
                 bool cancelled = false; try { Wait(competitor); } catch (OperationCanceledException) { cancelled = true; }

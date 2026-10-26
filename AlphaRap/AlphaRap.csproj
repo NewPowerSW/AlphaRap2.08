@@ -687,6 +687,8 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FlowProgramming\FlowToolboxText.cs" />
+    <Compile Include="FlowProgramming\FlowExternalResources.cs" />
     <Compile Include="FlowProgramming\FlowScriptEditor.Appearance.cs"><DependentUpon>FlowScriptEditor.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowScriptSettings.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="FlowProgramming\FlowScriptSettings.Designer.cs"><DependentUpon>FlowScriptSettings.cs</DependentUpon></Compile>
@@ -710,7 +712,6 @@
     <Compile Include="Vision\VisionFlowMethods.cs" />
     <Compile Include="PLC\PlcFlowMethods.cs" />
     <Compile Include="FlowProgramming\FlowMethods.cs" />
-    <Compile Include="FlowProgramming\FlowUtilityObject.cs" />
     <Compile Include="FlowProgramming\FlowIoObject.cs" />
     <Compile Include="FlowProgramming\FlowAxisObject.cs" />
     <Compile Include="FlowProgramming\FlowDataMethods.cs"><SubType>Code</SubType></Compile>
@@ -1390,22 +1391,11 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 
   <ItemGroup>
-    <Compile Include="FlowProgramming\FlowNodeForm.Code.cs"><SubType>Code</SubType><DependentUpon>FlowNodeForm.cs</DependentUpon></Compile>
-    <Compile Include="FlowProgramming\FlowActions.Code.cs"><SubType>Code</SubType></Compile>
-    <Compile Include="FlowProgramming\FlowToolboxCatalog.cs"><SubType>Code</SubType></Compile>
-    <Compile Include="FlowProgramming\FlowResourceAccess.cs"><SubType>Code</SubType></Compile>
     <Compile Include="FlowProgramming\FlowSourceGenerator.cs"><SubType>Code</SubType></Compile>
     <Compile Include="FlowProgramming\FlowSourceGenerator.Mapping.cs"><SubType>Code</SubType></Compile>
     <Compile Include="FlowProgramming\FlowSourceGenerator.Render.cs"><SubType>Code</SubType></Compile>
-    <Compile Include="FlowProgramming\FlowCodeUiText.cs"><SubType>Code</SubType></Compile>
-    <Compile Include="FlowProgramming\Modules\WeightCheck.cs"><SubType>Code</SubType></Compile>
-    <Compile Include="FlowProgramming\Modules\InspectAtPoint.cs"><SubType>Code</SubType></Compile>
     <Compile Include="FlowProgramming\FlowToolboxControl.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="FlowProgramming\FlowToolboxControl.Designer.cs"><DependentUpon>FlowToolboxControl.cs</DependentUpon></Compile>
-    <Compile Include="FlowProgramming\FlowCodeBindingsControl.cs"><SubType>UserControl</SubType></Compile>
-    <Compile Include="FlowProgramming\FlowCodeBindingsControl.Designer.cs"><DependentUpon>FlowCodeBindingsControl.cs</DependentUpon></Compile>
-    <Compile Include="FlowProgramming\FlowCodeRoutesControl.cs"><SubType>UserControl</SubType></Compile>
-    <Compile Include="FlowProgramming\FlowCodeRoutesControl.Designer.cs"><DependentUpon>FlowCodeRoutesControl.cs</DependentUpon></Compile>
     <Compile Include="GeneratedFlows\**\*.cs"><SubType>Code</SubType></Compile>
   </ItemGroup>
 </Project>

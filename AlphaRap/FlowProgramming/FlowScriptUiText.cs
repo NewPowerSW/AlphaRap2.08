@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace AlphaRap.FlowProgramming
 {
@@ -10,7 +10,6 @@ namespace AlphaRap.FlowProgramming
             { "scriptMode", new[] { "执行方式", "Execution", "Ejecución" } },
             { "scriptObjectLabel", new[] { "对象", "Object", "Objeto" } },
             { "scriptMethodLabel", new[] { "方法", "Method", "Método" } },
-            { "scriptAction", new[] { "现有功能", "Existing function", "Función existente" } },
             { "scriptCustom", new[] { "C# 脚本", "C# script", "Script C#" } },
             { "scriptNone", new[] { "仅判断条件", "Conditions only", "Solo condiciones" } },
             { "scriptBreakpoint", new[] { "执行前断点", "Break before execution", "Pausa antes de ejecutar" } },

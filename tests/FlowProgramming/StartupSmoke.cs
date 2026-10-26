@@ -144,7 +144,7 @@ internal static class StartupSmoke
         setting.Constants.Put("Recipe",null,new ConstantValue { Key="MainRecipeNumber",Type="Number",Value="12.5" });
         data.SetProductionDraft(new List<ProductionField> { new ProductionField { Name="Barcode" },new ProductionField { Name="Result" },new ProductionField { Name="MainValue",Type="Number" } });
         FlowActions draftActions = new FlowActions(FlowResources.Capture(true)), liveActions = new FlowActions(FlowResources.Capture());
-        if (!draftActions.InputNames(draftActions.MethodsFor(draftActions.FindResource("data/Production")).Single(action=>action.Id=="data.save")).Contains("MainValue") || liveActions.InputNames(liveActions.MethodsFor(liveActions.FindResource("data/Production")).Single(action=>action.Id=="data.save")).Contains("MainValue")) throw new InvalidOperationException("Production field drafts leaked into runtime or were unavailable in the designer.");
+        if (!draftActions.InputNames(draftActions.FindResource("data/Production").Methods.Single(action=>action.Id=="data.save")).Contains("MainValue") || liveActions.InputNames(liveActions.FindResource("data/Production").Methods.Single(action=>action.Id=="data.save")).Contains("MainValue")) throw new InvalidOperationException("Production field drafts leaked into runtime or were unavailable in the designer.");
         FlowModuleEditor flow = FlowPrograms.Attach(FlowPrograms.AddModule("Main save flow")); FlowStep step = flow.AddNode(); flow.Program.Mode="Program"; flow.Program.AutoEntry=step.Id;
         if (FlowResources.Capture().Parameters.ContainsKey("Constants/Setting/MainSaveFlag") || !FlowResources.Capture(true).Parameters.ContainsKey("Constants/Setting/MainSaveFlag")) throw new InvalidOperationException("Draft and production snapshots are mixed.");
         ChooseSave(main,"Button1_dyn");
@@ -197,13 +197,16 @@ internal static class StartupSmoke
         FlowStep step = module.AddNode();
         step.ExecutionMode = "Script"; step.Action = "script.execute"; step.Target = "";
         step.ScriptSource = "Outputs.Value = Inputs.Value + 1;"; step.Breakpoint = true;
-        step.ScriptInputs.Add(new FlowScriptPort { Name = "Value", Type = "Number", DefaultValue = "2" });
-        step.ScriptOutputs.Add(new FlowScriptPort { Name = "Value", Type = "Number" });
+        step.ScriptInputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Value", Type = "Number", DefaultValue = "2" } };
+        step.ScriptOutputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Value", Type = "Number" } };
         step.Inputs = new List<FlowInput> { new FlowInput { Name = "Value", Reference = "2" } };
         module.Program.Mode = "Program"; module.Program.AutoEntry = step.Id;
         ChooseSave(main,"Button1_dyn");
         FlowStep saved = FlowProgramFile.Load(FlowPrograms.FilePath).Modules.Single(item => item.ModuleId == module.Program.ModuleId).Steps.Single();
-        if (saved.ScriptSource != step.ScriptSource || saved.ExecutionMode != "Script" || !saved.Breakpoint || saved.ScriptInputs[0].Type != "Number" || saved.Inputs[0].Reference != "2")
+        if (saved.ScriptSource != step.ScriptSource || saved.ExecutionMode != "Script" || !saved.Breakpoint
+            || saved.ScriptInputs.Count != 1 || saved.ScriptOutputs.Count != 1 || saved.Inputs.Count != 1
+            || saved.ScriptInputs[0].Name != "Value" || saved.ScriptInputs[0].Type != "Number" || saved.ScriptInputs[0].DefaultValue != "2"
+            || saved.ScriptOutputs[0].Name != "Value" || saved.ScriptOutputs[0].Type != "Number" || saved.Inputs[0].Reference != "2")
             throw new InvalidOperationException("Main Save did not persist the complete script node.");
         string before = File.ReadAllText(FlowPrograms.FilePath), validSource = step.ScriptSource;
         step.ScriptSource = "Outputs.Value = MissingMainSaveIdentifier;";
@@ -242,14 +245,32 @@ internal static class StartupSmoke
         Console.WriteLine("PASS flow writes update real Setting/Recipe rows and legacy switches; Main Save, failed Save, discard and reload preserve the correct versions.");
     }
 
-    /// <summary>Execute the table setter through the same typed object method used by a configured node.</summary>
+    /// <summary>Execute a declared table object through the real script pipeline and typed constant setter.</summary>
     private static void SetTableFromNode(string scope,string key,string value)
     {
-        FlowActions actions=new FlowActions(FlowResources.Capture()); FlowResource resource=actions.FindResource("constants/"+scope);
-        FlowMethod method=resource.Methods.Single(item=>item.Id=="constant.set");
-        FlowStep step=new FlowStep {Action=method.Id,Target=resource.Id,Inputs=method.Inputs.Select(field=>new FlowInput{Name=field.Name,Reference=field.Name=="Key"?key:value}).ToList()};
-        FlowResultHub hub=new FlowResultHub();FlowExecutionContext context=new FlowExecutionContext{Hub=hub,RunId=hub.Epoch,Parameters=actions.Resources.Parameters};
-        actions.Execute(step,context,System.Threading.CancellationToken.None).GetAwaiter().GetResult();
+        FlowActions actions = new FlowActions(FlowResources.Capture());
+        FlowResource resource = actions.FindResource("constants/" + scope);
+        if (resource == null) throw new InvalidOperationException("The script fixture could not resolve the constant scope: " + scope);
+        FlowStep step = new FlowStep
+        {
+            ExecutionMode = "Script", Action = "script.execute", Target = "", Branches = FlowBranch.Default(),
+            ScriptSource = "await Context.CallAsync(\"" + resource.Id + "\", \"constant.set\", new Dictionary<string, object> { { \"Key\", Inputs.Key }, { \"Value\", Inputs.Value } });",
+            ScriptResources = new List<string> { resource.Id },
+            ScriptInputs = new List<FlowScriptPort>
+            {
+                new FlowScriptPort { Name = "Key", Type = "Text" },
+                new FlowScriptPort { Name = "Value", Type = "Text" }
+            },
+            ScriptOutputs = new List<FlowScriptPort>(),
+            Inputs = new List<FlowInput>
+            {
+                new FlowInput { Name = "Key", Source = "Constant", Reference = key },
+                new FlowInput { Name = "Value", Source = "Constant", Reference = value }
+            }
+        };
+        FlowResultHub hub = new FlowResultHub();
+        FlowExecutionContext context = new FlowExecutionContext { Hub = hub, RunId = hub.Epoch, Parameters = actions.Resources.Parameters };
+        actions.Execute(step, context, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
     }
 
     /// <summary>Complete the real main-save confirmation using its visible button event in the isolated fixture.</summary>

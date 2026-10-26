@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -280,7 +280,7 @@ namespace AlphaRap.FlowProgramming
             if (users.Count>0) throw new InvalidOperationException(string.Format(Configuration.HardwareText.T("referenced"),string.Join(Environment.NewLine,users)));
         }
 
-        /// <summary>删除外部对象或 VPP 前反查动作、脚本及代码模块的全部资源角色。</summary>
+        /// <summary>删除外部对象或 VPP 前反查脚本与尚未处理的旧定义引用。</summary>
         public static void RequireResourceUnused(string resourceId)
         {
             Install();
@@ -289,7 +289,7 @@ namespace AlphaRap.FlowProgramming
             List<string> users = project.Modules.SelectMany(module => module.Steps
                 .Where(step => step.Target == resourceId || step.ScriptResources.Contains(resourceId) || step.ResourceBindings.Any(binding => binding.Target == resourceId))
                 .Select(step => module.ModuleId + " / " + step.Caption)).ToList();
-            if (users.Count != 0) throw new InvalidOperationException(string.Format(FlowCodeText.T("resourceUsed"), string.Join(Environment.NewLine, users)));
+            if (users.Count != 0) throw new InvalidOperationException(string.Format(FlowResourceText.T("resourceUsed"), string.Join(Environment.NewLine, users)));
         }
 
         /// <summary>检查生产入口，显式阻止旧回调与配置流程混合控制同一设备。</summary>
@@ -528,41 +528,30 @@ namespace AlphaRap.FlowProgramming
             Point offset = parent is ScrollableControl ? ((ScrollableControl)parent).AutoScrollPosition : Point.Empty;
             int y = nodes.Values.Where(existing => existing.Parent == parent).Select(existing => existing.Bottom - offset.Y + 40).DefaultIfEmpty(40).Max();
             FlowStep step = NewStep();
-            step.Action = "value";
-            step.Inputs.Add(new FlowInput { Name = "Value", Reference = "" });
+            InitializeScript(step);
             return AddNodeCore(step, parent, new Point(40, y));
         }
 
-        /// <summary>从工具箱创建代码模块节点，资源角色在双击窗口中显式绑定。</summary>
-        public FlowStep AddNode(string definitionId, Control canvas, Point logicalLocation)
+        /// <summary>工具箱只接受脚本或条件类型，拒绝旧拖放载荷。</summary>
+        public FlowStep AddNode(string mode, Control canvas, Point logicalLocation)
         {
-            FlowCodeDefinition definition = FlowToolboxCatalog.Find(definitionId);
-            if (definition == null) throw new InvalidOperationException(string.Format(FlowCodeText.T("moduleMissing"), definitionId));
+            if (mode != "Script" && mode != "None") throw new InvalidOperationException(FlowText.T("retiredNodeChoice"));
             FlowStep step = NewStep();
-            step.Caption = MiddleLayer.LangMsg("EquipmentFlow", "module." + definition.Id, definition.Title[0], definition.Title[1], definition.Title[2]);
-            step.Target = "code/" + definition.Id;
-            step.Action = "code.execute";
-            step.CodeModuleId = definition.Id;
-            step.CodeModuleVersion = definition.Version;
-            step.Branches = definition.Exits.Select(code => new FlowBranch { Code = code, Unconditional = true }).ToList();
-            foreach (FlowField input in definition.Inputs) step.Inputs.Add(new FlowInput { Name = input.Name, Source = string.IsNullOrEmpty(input.OutputSourceMethod) ? "Constant" : "Output", Reference = input.DefaultValue });
-            foreach (FlowCodeResourceSlot slot in definition.ResourceSlots) step.ResourceBindings.Add(new FlowResourceBinding { Slot = slot.Name });
+            step.ExecutionMode = mode;
+            if (mode == "Script") InitializeScript(step);
+            else step.Action = "flow.none";
             return AddNodeCore(step, canvas, logicalLocation);
         }
 
-        /// <summary>拖入实际对象已经声明的动作，绑定该对象身份和默认参数。</summary>
-        public FlowStep AddNode(string targetId, string actionId, Control canvas, Point logicalLocation)
+        /// <summary>新节点默认使用可编译的数值传递脚本，端口和输入绑定一并建立。</summary>
+        private static void InitializeScript(FlowStep step)
         {
-            FlowActions actions = new FlowActions(FlowResources.Capture(true));
-            FlowResource resource = actions.FindResource(targetId);
-            if (resource == null && !string.IsNullOrEmpty(targetId)) throw new InvalidOperationException(FlowText.T("methodMissing"));
-            FlowMethod method = actions.MethodsFor(resource).Single(item => item.Id == actionId);
-            FlowStep step = NewStep();
-            step.Caption = resource == null ? FlowMethods.Title(method) : resource.Label + " · " + FlowMethods.Title(method);
-            step.Target = targetId;
-            step.Action = actionId;
-            foreach (FlowField input in method.Inputs) step.Inputs.Add(new FlowInput { Name = input.Name, Source = string.IsNullOrEmpty(input.OutputSourceMethod) ? "Constant" : "Output", Reference = input.DefaultValue });
-            return AddNodeCore(step, canvas, logicalLocation);
+            step.ExecutionMode = "Script";
+            step.Action = "script.execute";
+            step.ScriptSource = "Outputs.Value = Inputs.Value;";
+            step.ScriptInputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Value", Type = "Number", DefaultValue = "0" } };
+            step.ScriptOutputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Value", Type = "Number" } };
+            step.Inputs = new List<FlowInput> { new FlowInput { Name = "Value", Reference = "0" } };
         }
 
         /// <summary>建立独立节点身份，默认只有 NEXT，入口沿用原工位页面。</summary>
@@ -729,7 +718,7 @@ namespace AlphaRap.FlowProgramming
             isInitializing = initializing;
             isProduction = production;
             Runtime.ExecuteAction = actions.Execute;
-            Runtime.ExecuteStep = actions.ExecuteStep;
+            Runtime.ExecuteStep = null;
             DebugSnapshot = null;
             PrepareDebugPlan(plan, entry, actions, debug);
             Form.RunningStatus = true;

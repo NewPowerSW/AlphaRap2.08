@@ -111,10 +111,10 @@ internal static partial class Cases
         Test("recipe snapshot excludes uncommitted edits", RecipeSnapshot);
         Test("point table resolves ParameterSet when WorkMotor is null", PointBinding);
         Test("configured scanner instance is reused without opening it", DeviceInstance);
+        Test("new nodes are valid scripts while imported callbacks retain their explicit migration boundary", ScriptOnlyDefaults);
         Test("named results flow through decisions into the real DataForm storage", ProductionChain);
         Test("production retry does not duplicate a saved record", DuplicateRecord);
         Test("new fields expand today's header without dropping previous data", SchemaEvolution);
-        Test("point simulation checks actual index and explicit offset", PointSimulation);
         Test("ProductManagerForm recipe loading changes parameters and points together", ProductManagerRecipe);
         Test("timeout alarms once without taking CASE2 or resending the action", Timeout);
         Test("NEXT CASE1 CASE2 CASE3 each use their own condition and target", NativeBranches);
@@ -132,8 +132,6 @@ internal static partial class Cases
         Test("main start button uses configured module initialization state", MainStartReady);
         Test("save/reload restores nodes, layout, links and deleted original nodes", Persistence);
         Test("damaged project does not overwrite the active design", CorruptLoad);
-        Test("three-language node editor retains pending values", EditorLanguages);
-        Test("node category object and action changes rebuild the correct input fields", NodeSelections);
         Test("editor defaults to NEXT and manually adds independent CASE conditions", NativeBranchEditor);
         Test("condition modes are exclusive and retain edits across language changes and reload", BranchConditionModes);
         Test("node drag captures the mouse and preserves double-click configuration", MouseEditing);
@@ -158,40 +156,19 @@ internal static partial class Cases
         Test("axis and IO pages create resources through the actual add and confirm buttons", HardwareAddUi);
         Test("resource constant and point menus target the actual right-click object", ContextTargets);
         Test("CASE condition and production-field drafts delete through context menus", DraftMenus);
-        Test("new object methods are discovered and invoked without changing the designer catalog", ObjectContract);
-        Test("axis methods bind only their own point tables and use typed fields", AxisMethodBindings);
-        Test("Goto false means movement in progress and Home follows the driver state machine", AxisDriverSemantics);
-        Test("cancelling an axis method stops the real instance before releasing its lease", AxisMethodCancellation);
-        Test("VPP methods expose actual terminals and allow NEXT CASE conditions to handle NG", VisionObjectMethods);
-        Test("vision result consumers reject another run and compensation follows the main save snapshot", VisionMethodSnapshots);
-        Test("object method language changes retain unfinished input and selected identities", ObjectMethodLanguage);
         Test("axis vendors and IO fields match real driver capabilities", HardwareCapabilityFields);
         Test("changing IO vendor preserves pending text and shows only relevant properties", HardwareVendorEditor);
         Test("IO group and resource labels follow the original control Text without changing IDs", IoDisplayNames);
-        Test("axis menus exclude trays and movement uses only the page-bound point table", AxisBoundPointChoices);
         Test("resource property context menus edit the clicked instance as a draft", ResourceProperties);
-        Test("Setting and Recipe constant tables are selectable objects with saved typed values", ConstantTableObjects);
-        Test("constant read nodes protect referenced keys and types", ConstantReadReferences);
         Test("compact IO cards reuse the original instance and guard manual toggles", CompactIoCards);
-        Test("direct condition rows preserve references literals operators and languages", DirectConditionEditing);
-        Test("constant setters update actual table rows and preserve main-save boundaries", ConstantRuntimeWrites);
-        Test("constant table writes use the UI thread and reject cancelled queued actions", ConstantTableWriteDispatch);
-        Test("axis point picker includes every valid row with table context in three languages", AxisMultiplePointChoices);
-        Test("P0 axis parameter editing exposes business points and preserves advanced drafts", P0AxisParameterEditing);
-        Test("P0 language changes retain unavailable objects and methods without adopting defaults", P0MissingMethodLanguage);
         Test("P0 Empty conditions preserve hidden right bindings and typed candidate filtering", P0ConditionEmptyDrafts);
         Test("P0 typed rows retain boolean spellings missing options and structured sources", P0TypedParameterRows);
         Test("P0 unified binding filters searches and preserves source identity across languages", P0UnifiedSourcePicker);
-        Test("P0 image sources bind the selected VPP capture node without numeric run IDs", P0VisionProducerBindings);
         Test("vision selection contains only configured VPPs without unused Camera1 fields", ConfiguredVisionCatalog);
-        Test("DI DO and cylinder categories each list their own actual objects", IoCategorySelection);
-        Test("tray node explains the current layout and calculates the selected pocket", TrayNodeHelp);
         RegisterScriptRuntimeCases();
         RegisterScriptUiCases();
-        RegisterP0EntryRepairs();
-        RegisterToolboxUiCases();
-        RegisterToolboxRuntimeCases();
-        Test("first Boolean CASE defaults to the opposite result and missing objects explain repair", BeginnerNodeDefaults);
+        RegisterScriptOnlyCases();
+        Test("first Boolean CASE defaults to the opposite script result", BeginnerNodeDefaults);
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
         ExportP0FieldTexts();
         Console.WriteLine("RESULT: " + (count - failures) + "/" + count + " passed");
@@ -300,13 +277,18 @@ internal static partial class Cases
     /// <summary>Exercise actual parameter capture, output resolution, branch selection and production save.</summary>
     private static void ProductionChain()
     {
-        model = Step("value", "Value", ""); model.Caption = "Read model";
+        model = editor.AddNode(); model.Caption = "Read model";
+        model.ScriptInputs[0].Type = "Text"; model.ScriptOutputs[0].Type = "Text";
         model.Inputs[0] = new FlowInput { Name = "Value", Source = "Parameter", Reference = "Recipe/ProductManagerForm/ProductSetting/0/PRODUCTID" };
-        measured = Step("value", "Value", "2.5"); measured.Caption = "Measurement";
+        measured = editor.AddNode(); measured.Inputs[0].Reference = "2.5"; measured.Caption = "Measurement";
         measured.Branches[0].Unconditional = false;
         measured.Branches[0].Conditions.Add(new FlowCondition { Left = new FlowInput { Source = "Result", Reference = "Value" }, Operator = "<=", Right = new FlowInput { Reference = "3" } });
-        save = Step("data.save"); save.Caption = "Save production"; save.Target = "data/Production";
-        save.Inputs.Add(Output("Product", model, "Value")); save.Inputs.Add(Output("Measurement", measured, "Value"));
+        save = editor.AddNode(); save.Caption = "Save production";
+        save.ScriptInputs = new List<FlowScriptPort> { ScriptPort("Product", "Text"), ScriptPort("Measurement", "Number") };
+        save.ScriptOutputs = new List<FlowScriptPort> { ScriptPort("RecordId", "Text") };
+        save.ScriptResources.Add("data/Production");
+        save.ScriptSource = "var stored = await Context.CallAsync(\"data/Production\", \"data.save\", new Dictionary<string, object> { { \"Product\", Inputs.Product }, { \"Measurement\", Inputs.Measurement } });\nOutputs.RecordId = (string)stored[\"RecordId\"];";
+        save.Inputs = new List<FlowInput> { Output("Product", model, "Value"), Output("Measurement", measured, "Value") };
         model.Next = measured.Id; measured.Next = save.Id; editor.Program.AutoEntry = model.Id; editor.Program.Mode = "Program";
         FlowPrograms.BeginBatch(); editor.Start(model.Id, true, false); Wait(editor.Runtime.Completion);
         Assert(editor.Runtime.Error == null, editor.Runtime.Error);
@@ -672,7 +654,7 @@ internal static partial class Cases
         Assert(saved.Branches.Count == 4 && saved.Case3 == measured.Id && saved.Branches.Single(branch => branch.Code == "CASE3").Conditions[0].Right.Reference == "3", "CASE3 condition or target was not persisted.");
     }
 
-    /// <summary>Use the real CASE command and missing-object editor without executing hardware or changing original definitions.</summary>
+    /// <summary>Use the real CASE command without executing hardware or changing original script definitions.</summary>
     private static void BeginnerNodeDefaults()
     {
         FlowStep boolean = new FlowStep { Caption = "Boolean routing", ExecutionMode = "Script", ScriptSource = "Outputs.Accepted = true;",
@@ -697,18 +679,6 @@ internal static partial class Cases
             Assert(added.ReadBranch().Conditions.Single().Right.Reference == "false", "A legacy Boolean 1 condition produced a duplicate true CASE.");
         }
         Assert(boolean.Branches[0].Conditions.Single().Right.Reference == "1", "Editing CASE rewrote the original Boolean spelling.");
-        FlowStep missing = new FlowStep { Caption = "Missing axis", Target = "removed/axis", Action = "point.move", Branches = FlowBranch.Default() };
-        using (FlowNodeForm dialog = new FlowNodeForm(editor, missing))
-        {
-            dialog.Show(); Application.DoEvents();
-            ComboBox methods = (ComboBox)dialog.Controls.Find("actionValue", true)[0];
-            Label help = (Label)dialog.Controls.Find("methodHint_dyn", true)[0];
-            foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
-            {
-                SwitchLanguage(language); Application.DoEvents();
-                Assert(methods.Items.Count == 0 && help.Text.Length > 30 && help.Visible, "A missing object exposed unrelated methods or hid its repair instructions.");
-            }
-        }
         SwitchLanguage(LanguageType.Chinese);
     }
 
@@ -1062,9 +1032,9 @@ internal static partial class Cases
         using (Flow_BaseForm form = FlowPrograms.AddModule("Hardware consumer"))
         {
             FlowModuleEditor module = FlowPrograms.Attach(form); FlowStep node = module.AddNode();
-            node.Target = "hardware/"+groupedAxis.Id+"/axis";
+            node.ScriptResources.Add("hardware/"+groupedAxis.Id+"/axis");
             bool blocked = false; try { hardware.Resources.Delete(groupedAxis.Id); } catch (InvalidOperationException) { blocked = true; } Assert(blocked,"A hardware action target was deleted.");
-            node.Target = ""; node.Inputs[0].Source = "Parameter"; node.Inputs[0].Reference = "Recipe/HardForm/"+HardwareResources.PointsName(groupedAxis.Id)+"/0/Position";
+            node.ScriptResources.Clear(); node.Inputs[0].Source = "Parameter"; node.Inputs[0].Reference = "Recipe/HardForm/"+HardwareResources.PointsName(groupedAxis.Id)+"/0/Position";
             blocked = false; try { hardware.Resources.Delete(groupedAxis.Id); } catch (InvalidOperationException) { blocked = true; } Assert(blocked,"Referenced point data did not block deletion.");
             module.Delete(node.Id); FlowPrograms.DeleteModule(module);
         }
@@ -1282,8 +1252,8 @@ internal static partial class Cases
     {
         FlowStep step = module.AddNode(); step.ExecutionMode = "Script"; step.Action = "script.execute";
         step.ScriptSource = "Outputs.Value = Inputs.Value + 1;";
-        step.ScriptInputs.Add(new FlowScriptPort { Name = "Value", Type = "Number", DefaultValue = "4.25" });
-        step.ScriptOutputs.Add(new FlowScriptPort { Name = "Value", Type = "Number" });
+        step.ScriptInputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Value", Type = "Number", DefaultValue = "4.25" } };
+        step.ScriptOutputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Value", Type = "Number" } };
         step.Inputs = new List<FlowInput> { new FlowInput { Name = "Value", Reference = "4.25" } };
         CheckBox debug = (CheckBox)page.Controls.Find("debugMode", true)[0];
         try

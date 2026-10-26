@@ -110,8 +110,6 @@ namespace AlphaRap.FlowProgramming
                 resource.BoundPoints = catalog.Items.Values.SingleOrDefault(item => item.Kind == "point" && item.Id.StartsWith(entry.Id + "/points/", StringComparison.Ordinal)
                     && ReferenceEquals(((FlowPointAxis)item.Instance).Motor, entry.Instance));
             }
-            foreach (FlowCodeDefinition definition in FlowToolboxCatalog.Definitions)
-                catalog.Add("code/" + definition.Id, definition.Title[0], "code", definition);
             foreach (ModuleBaseForm module in ModuleManager.ModuleList.ToArray())
             {
                 catalog.AddParameters(module.Name, "Recipe", module.RecipeData);
@@ -154,8 +152,6 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowResource resource in Items.Values)
             {
                 IFlowObject provider = resource.Instance as IFlowObject;
-                FlowCodeDefinition code = resource.Instance as FlowCodeDefinition;
-                if (code != null) { resource.Methods = new List<FlowMethod> { FlowResourceAccess.CreateMethod(code, new FlowStep(), this) }; continue; }
                 NP_Motor motor = resource.Instance as NP_Motor;
                 if (motor != null)
                 {

@@ -94,14 +94,8 @@ namespace AlphaRap
             RefreshToolbox();
         }
 
-        /// <summary>刷新已注册模块和实际动作，工具箱自行保留搜索草稿。</summary>
-        private void RefreshToolbox()
-        {
-            toolbox.BindDefinitions(FlowToolboxCatalog.Definitions);
-            string[] errors = FlowToolboxCatalog.Diagnostics;
-            if (errors.Length > 0) status.Text = string.Format(FlowCodeText.T("catalogErrors"), string.Join(Environment.NewLine, errors));
-            toolbox.BindActions(new FlowActions(FlowResources.Capture(true)));
-        }
+        /// <summary>刷新脚本与条件节点标题，保留工具箱搜索草稿。</summary>
+        private void RefreshToolbox() { toolbox.RefreshLanguage(); }
 
         /// <summary>为所有实际基类页面中的容器接入同一工具箱拖放入口。</summary>
         private void BindDropTargets(Control parent)
@@ -159,8 +153,7 @@ namespace AlphaRap
             int bottom = canvas.Controls.OfType<Flow_Chart>().Select(node => node.Bottom - scroll.Y + 35).DefaultIfEmpty(40).Max();
             Point point = requested ?? new Point(40, bottom);
             point = new Point(Math.Max(0, point.X), Math.Max(0, point.Y));
-            if (!string.IsNullOrEmpty(entry.DefinitionId)) module.AddNode(entry.DefinitionId, canvas, point);
-            else module.AddNode(entry.TargetId, entry.ActionId, canvas, point);
+            module.AddNode(entry.ExecutionMode, canvas, point);
             activeCanvas = canvas; BindNodeMenus(module.Form); RefreshSelection();
         }
 
@@ -168,7 +161,7 @@ namespace AlphaRap
         private void ViewGeneratedSources()
         {
             string directory = FlowSourceGenerator.OutputDirectory;
-            if (!System.IO.Directory.Exists(directory)) { MessageBox.Show(string.Format(FlowCodeUiText.T("sourceDirectoryMissing"), directory), FlowCodeUiText.T("sourceDirectory")); return; }
+            if (!System.IO.Directory.Exists(directory)) { MessageBox.Show(string.Format(FlowToolboxText.T("sourceDirectoryMissing"), directory), FlowToolboxText.T("sourceDirectory")); return; }
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = directory, UseShellExecute = true });
         }
 
@@ -320,7 +313,7 @@ namespace AlphaRap
             words = FlowText.Defaults["nodeBreakpoint"];
             nodeBreakpoint.Text = MiddleLayer.LangMsg("Flow", "nodeBreakpoint", words[0], words[1], words[2]);
             debugPanel.RefreshLanguage();
-            viewSources.Text = FlowCodeUiText.Fixed(viewSources, "sourceDirectory");
+            viewSources.Text = FlowToolboxText.Fixed(viewSources, "sourceDirectory");
             sourceHint.SetToolTip(viewSources, FlowSourceGenerator.ModeDescription);
             viewSources.AccessibleDescription = FlowSourceGenerator.ModeDescription;
             toolbox.RefreshLanguage();

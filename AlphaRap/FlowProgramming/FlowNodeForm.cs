@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -29,27 +29,14 @@ namespace AlphaRap.FlowProgramming
             module = owner;
             original = step;
             catalog = new FlowActions(FlowResources.Capture(true));
-            actionValue.FormattingEnabled = true;
-            actionValue.Format += (sender, args) => { FlowMethod method = args.ListItem as FlowMethod; if (method != null) args.Value = FlowMethods.Title(method); };
             filling = true;
             captionValue.Text = step.Caption;
             timeoutValue.Value = Math.Max(timeoutValue.Minimum, Math.Min(timeoutValue.Maximum, step.TimeoutMs));
-            categoryValue.DataSource = new[] { "flow", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data" }
-                .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
-            categoryValue.DisplayMember = "Label"; categoryValue.ValueMember = "Id";
             FillAlarms(string.IsNullOrEmpty(step.AlarmCode) ? "2019" : step.AlarmCode);
-            FlowResource selectedResource = catalog.FindResource(step.Target);
-            bool codeNode = !string.IsNullOrEmpty(step.CodeModuleId);
-            categoryValue.SelectedValue = codeNode || selectedResource == null ? "flow" : selectedResource.Category;
-            FillTargets(codeNode ? "" : step.Target);
-            FillActions(codeNode ? "value" : step.Action);
             InitializeExecution(step);
-            FillInputs(step.Inputs);
+            RestoreModeInputs();
             foreach (FlowBranch branch in FlowProgramFile.BranchesOf(step)) AddBranchEditor(branch, step.TargetOf(branch.Code));
             filling = false;
-            categoryValue.SelectedIndexChanged += CategoryChanged;
-            targetValue.SelectedIndexChanged += TargetChanged;
-            actionValue.SelectedIndexChanged += ActionChanged;
             showAdvanced.CheckedChanged += (sender, args) => RefreshParameterLayout();
             inputs.Resize += (sender, args) => ResizeInputs();
             addCase.Click += AddCase;
@@ -141,36 +128,12 @@ namespace AlphaRap.FlowProgramming
 
         private string SelectedAlarmCode { get { FlowChoice choice = alarmValue.SelectedItem as FlowChoice; return choice == null ? alarmValue.Text.Trim() : choice.Id; } }
 
-        /// <summary>按类别展示真实配置对象，类别未配置时不伪造设备。</summary>
-        private void FillTargets(string selected)
-        {
-            string category = Convert.ToString(categoryValue.SelectedValue);
-            IEnumerable<FlowResource> resources = catalog.Resources.Items.Values.Where(resource => resource.Selectable && resource.Category == category && resource.Methods.Count > 0);
-            List<FlowChoice> choices = resources.Select(resource => new FlowChoice { Id = resource.Id, Label = resource.Label }).ToList();
-            if (category == "flow") choices.Insert(0, new FlowChoice { Id = "", Label = FlowText.T("flow") });
-            if (!string.IsNullOrEmpty(selected) && choices.All(choice => choice.Id != selected)) choices.Add(new FlowChoice { Id = selected, Label = catalog.FindResource(selected) == null ? FlowText.T("methodMissing") + " " + selected : catalog.FindResource(selected).Label });
-            targetValue.DisplayMember = "Label"; targetValue.ValueMember = "Id"; targetValue.DataSource = choices;
-            if (selected != null) targetValue.SelectedValue = selected;
-        }
-
-        /// <summary>按对象能力筛选动作，保留已有动作选择。</summary>
-        private void FillActions(string selected)
-        {
-            string category = Convert.ToString(categoryValue.SelectedValue);
-            FlowResource resource = catalog.FindResource(Convert.ToString(targetValue.SelectedValue));
-            bool contextObject = category == "flow" && string.IsNullOrEmpty(Convert.ToString(targetValue.SelectedValue));
-            actionValue.DataSource = resource == null && !contextObject ? new List<FlowMethod>() : catalog.MethodsFor(resource).ToList();
-            FlowMethod choice = ((List<FlowMethod>)actionValue.DataSource).SingleOrDefault(action => action.Id == selected);
-            if (choice != null) actionValue.SelectedItem = choice;
-            else if (!string.IsNullOrEmpty(selected)) actionValue.SelectedIndex = -1;
-        }
-
         /// <summary>按对象声明建立参数行，已有非默认高级值自动展开。</summary>
         private void FillInputs(List<FlowInput> previous)
         {
             foreach (Control control in inputs.Controls.Cast<Control>().ToArray()) control.Dispose();
             FlowMethod action = CurrentMethod;
-            if (action == null) { outputsValue.Text = ""; RefreshMethodHelp(); return; }
+            if (action == null) { RefreshOutputTitles(null); RefreshMethodHelp(); return; }
             inputs.SuspendLayout();
             foreach (FlowField field in action.Inputs)
             {
@@ -218,69 +181,27 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowInputRow row in InputRows) row.Width = width;
         }
 
-        /// <summary>解释绑定点位、托盘计算及表值设置，无参数方法不显示空输入网格。</summary>
+        /// <summary>无输入端口时收起空参数区域，并显示简短说明。</summary>
         private void RefreshMethodHelp()
         {
             FlowMethod action = CurrentMethod;
-            methodHint.Text = "";
-            methodHint.Visible = false; inputLayout.RowStyles[2].Height = 0;
-            if (action == null)
-            {
-                methodHint.Text = MissingActionHelp();
-                methodHint.Visible = true; inputLayout.RowStyles[2].Height = 76;
-                RefreshParameterLayout(); return;
-            }
-            if (action.Inputs.Count == 0) methodHint.Text = FlowText.T("noInputs");
-            if (action.Id == "constant.set") methodHint.Text = FlowText.T("constantSetHelp");
-            FlowResource resource = catalog.FindResource(Convert.ToString(targetValue.SelectedValue));
-            if (action.Id == "point.move" && resource != null && resource.BoundPoints != null)
-            {
-                FlowPointAxis points = (FlowPointAxis)resource.BoundPoints.Instance;
-                string table = points.TableName.StartsWith("AxisPoints_", StringComparison.Ordinal) ? resource.Label : points.TableName;
-                methodHint.Text = string.Format(FlowText.T("axisPointsHelp"), resource.Label, table, points.RowCount, points.Positions.Count);
-            }
-            FlowTray tray = resource == null ? null : resource.Instance as FlowTray;
-            if (tray != null) methodHint.Text = string.Format(FlowText.T("trayHelp"),tray.Rows,tray.Columns,tray.RowPitch,tray.ColumnPitch,(long)tray.Rows*tray.Columns-1);
+            methodHint.Text = action != null && action.Inputs.Count == 0 ? FlowText.T("noInputs") : "";
             bool hasHelp = methodHint.Text.Length > 0;
             methodHint.Visible = hasHelp;
             inputLayout.RowStyles[2].Height = hasHelp ? 52 : 0;
             RefreshParameterLayout();
         }
 
-        /// <summary>目录为空或旧对象失效时说明可执行的修复位置，不替换成另一对象。</summary>
-        private string MissingActionHelp()
-        {
-            string target = Convert.ToString(targetValue.SelectedValue);
-            if (!string.IsNullOrEmpty(target) && catalog.FindResource(target) == null) return FlowText.T("nodeMissingObjectHelp");
-            if (targetValue.Items.Count > 0) return FlowText.T("nodeChooseActionHelp");
-            switch (Convert.ToString(categoryValue.SelectedValue))
-            {
-                case "motion": return FlowText.T("nodeNoAxisHelp");
-                case "vision": return FlowText.T("nodeNoVisionHelp");
-                case "di": case "do": case "cylinder": return FlowText.T("nodeNoIoHelp");
-                case "constants": return FlowText.T("nodeNoConstantsHelp");
-                case "data": return FlowText.T("nodeNoDataHelp");
-                default: return FlowText.T("nodeNoObjectHelp");
-            }
-        }
-
-        /// <summary>刷新方法、类别和来源的显示语言，保留输入网格及尚未提交的编辑内容。</summary>
+        /// <summary>刷新执行方式和来源的显示语言，保留输入绑定及未提交草稿。</summary>
         protected override void RefreshLanguageChoices()
         {
             if (catalog == null) return;
-            string category = Convert.ToString(categoryValue.SelectedValue);
-            string target = Convert.ToString(targetValue.SelectedValue);
             FlowMethod method = CurrentMethod;
-            FlowMethod selectedAction = actionValue.SelectedItem as FlowMethod;
             string alarmCode = SelectedAlarmCode;
+            bool previous = filling;
             filling = true;
             try
             {
-                categoryValue.DataSource = new[] { "flow", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data" }
-                    .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
-                categoryValue.SelectedValue = category;
-                FillTargets(target); FillActions(selectedAction == null ? null : selectedAction.Id);
-                if (executionMode == "Action" && method == null) actionValue.SelectedIndex = -1;
                 FillExecutionChoices();
                 FillAlarms(alarmCode);
                 foreach (FlowInputRow row in InputRows) row.RefreshLanguage();
@@ -290,26 +211,10 @@ namespace AlphaRap.FlowProgramming
                     editor.RefreshDestinationLanguage();
                 }
                 RefreshMethodHelp();
+                RefreshRetirementNotice();
             }
-            finally { filling = false; }
+            finally { filling = previous; }
         }
-
-        /// <summary>切换类别后刷新对象及动作，不覆盖其他节点。</summary>
-        private void CategoryChanged(object sender, EventArgs args)
-        {
-            if (filling) return;
-            filling = true; FillTargets(null); FillActions(null); FillInputs(new List<FlowInput>()); filling = false;
-        }
-
-        /// <summary>对象改变后使用该对象的真实动作和字段。</summary>
-        private void TargetChanged(object sender, EventArgs args)
-        {
-            if (filling) return;
-            filling = true; FillActions(null); FillInputs(new List<FlowInput>()); filling = false;
-        }
-
-        /// <summary>动作改变后重新生成该动作的输入定义。</summary>
-        private void ActionChanged(object sender, EventArgs args) { if (!filling) FillInputs(new List<FlowInput>()); }
 
         /// <summary>用同一窗口选择固定值或类型匹配的数据，引用保存稳定身份。</summary>
         private void PickInput(object sender, EventArgs args)
@@ -318,8 +223,7 @@ namespace AlphaRap.FlowProgramming
             FlowMethod action = CurrentMethod;
             if (action == null) return;
             FlowField field = action.Inputs.Single(item => item.Name == row.FieldName);
-            string description = field.Name == "Index" && action.Id == "point.move" ? methodHint.Text : null;
-            using (FlowSourceForm dialog = new FlowSourceForm(row.ReadInput(), catalog, action, field, description, codeEditing ? "code/" + codeId : Convert.ToString(targetValue.SelectedValue)))
+            using (FlowSourceForm dialog = new FlowSourceForm(row.ReadInput(), catalog, action, field))
                 if (dialog.ShowDialog(this) == DialogResult.OK) row.SetInput(dialog.Selection);
         }
 
@@ -329,24 +233,21 @@ namespace AlphaRap.FlowProgramming
             try
             {
                 FlowPrograms.RequireIdle();
+                if (retiredAwaitingChoice) throw new InvalidOperationException(FlowText.T("retiredModeChoose"));
                 FlowMethod action = CurrentMethod;
                 if (action == null || string.IsNullOrWhiteSpace(captionValue.Text)) throw new InvalidOperationException(FlowText.T("selectNode"));
                 FlowStep candidate = FlowProgramFile.Snapshot(new FlowProgram { Steps = new List<FlowStep> { original } }).Steps[0];
                 candidate.Caption = captionValue.Text;
                 candidate.Action = action.Id;
-                candidate.Target = executionMode == "Action" ? Convert.ToString(targetValue.SelectedValue) : "";
+                candidate.Target = "";
                 candidate.TimeoutMs = (int)timeoutValue.Value;
                 candidate.AlarmCode = SelectedAlarmCode;
                 candidate.Inputs = InputRows.Select(row => row.ReadInput()).ToList();
                 ReadExecutionTo(candidate);
                 candidate.Conditions.Clear(); candidate.WaitForCondition = false; candidate.AnyCondition = false;
-                if (codeEditing) codeRoutes.ReadTo(candidate);
-                else
-                {
-                    candidate.Branches = branchEditors.Select(editor => editor.ReadBranch()).ToList();
-                    foreach (string code in new[] { "NEXT", "CASE1", "CASE2", "CASE3" }) candidate.SetTarget(code, null);
-                    foreach (FlowBranchEditor editor in branchEditors) candidate.SetTarget(editor.Code, editor.TargetId);
-                }
+                candidate.Branches = branchEditors.Select(editor => editor.ReadBranch()).ToList();
+                foreach (string code in new[] { "NEXT", "CASE1", "CASE2", "CASE3" }) candidate.SetTarget(code, null);
+                foreach (FlowBranchEditor editor in branchEditors) candidate.SetTarget(editor.Code, editor.TargetId);
                 catalog.Validate(candidate);
                 int index = module.Program.Steps.IndexOf(original);
                 module.Program.Steps[index] = candidate;
