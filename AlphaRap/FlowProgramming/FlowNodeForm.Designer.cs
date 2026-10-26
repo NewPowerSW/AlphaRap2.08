@@ -11,6 +11,13 @@ namespace AlphaRap.FlowProgramming
         private System.Windows.Forms.Label captionLabel;
         private System.Windows.Forms.Label timeoutLabel;
         private System.Windows.Forms.Label alarmLabel;
+        private System.Windows.Forms.TableLayoutPanel actionSettings;
+        private System.Windows.Forms.ComboBox categoryValue;
+        private System.Windows.Forms.ComboBox targetValue;
+        private System.Windows.Forms.ComboBox actionValue;
+        private System.Windows.Forms.Label categoryLabel;
+        private System.Windows.Forms.Label targetLabel;
+        private System.Windows.Forms.Label actionLabel;
         private System.Windows.Forms.Panel inputsGroup;
         private System.Windows.Forms.Panel branchesGroup;
         private System.Windows.Forms.FlowLayoutPanel inputs;
@@ -27,18 +34,15 @@ namespace AlphaRap.FlowProgramming
         private System.Windows.Forms.Button ok;
         private System.Windows.Forms.Button cancel;
         private System.Windows.Forms.TableLayoutPanel executionModes;
-        private System.Windows.Forms.RadioButton scriptMode;
+        private System.Windows.Forms.RadioButton actionMode;
         private System.Windows.Forms.RadioButton conditionMode;
         private System.Windows.Forms.CheckBox breakpointValue;
         private System.Windows.Forms.Label executionLabel;
         private System.Windows.Forms.Label retiredNotice;
         private System.Windows.Forms.TabControl executionTabs;
         private System.Windows.Forms.TabPage parameterPage;
-        private System.Windows.Forms.TabPage scriptPage;
         private System.Windows.Forms.TabPage branchPage;
         private System.Windows.Forms.TabPage settingsPage;
-        private FlowScriptSettings scriptSettings;
-        private FlowScriptEditor scriptEditor;
         /// <summary>按执行内容、数据、下一步和运行设置建立同级任务页，设计期不加载设备。</summary>
         private void InitializeComponent()
         {
@@ -50,10 +54,17 @@ namespace AlphaRap.FlowProgramming
             this.executionLabel = new System.Windows.Forms.Label();
             this.retiredNotice = new System.Windows.Forms.Label();
             this.executionModes = new System.Windows.Forms.TableLayoutPanel();
-            this.scriptMode = new System.Windows.Forms.RadioButton();
+            this.actionMode = new System.Windows.Forms.RadioButton();
             this.conditionMode = new System.Windows.Forms.RadioButton();
             this.executionTabs = new System.Windows.Forms.TabControl();
             this.parameterPage = new System.Windows.Forms.TabPage();
+            this.actionSettings = new System.Windows.Forms.TableLayoutPanel();
+            this.categoryValue = new System.Windows.Forms.ComboBox();
+            this.targetValue = new System.Windows.Forms.ComboBox();
+            this.actionValue = new System.Windows.Forms.ComboBox();
+            this.categoryLabel = new System.Windows.Forms.Label();
+            this.targetLabel = new System.Windows.Forms.Label();
+            this.actionLabel = new System.Windows.Forms.Label();
             this.inputsGroup = new System.Windows.Forms.Panel();
             this.inputLayout = new System.Windows.Forms.TableLayoutPanel();
             this.inputs = new System.Windows.Forms.FlowLayoutPanel();
@@ -61,9 +72,6 @@ namespace AlphaRap.FlowProgramming
             this.showAdvanced = new System.Windows.Forms.CheckBox();
             this.methodHint = new System.Windows.Forms.Label();
             this.outputsValue = new System.Windows.Forms.TextBox();
-            this.scriptSettings = new AlphaRap.FlowProgramming.FlowScriptSettings();
-            this.scriptPage = new System.Windows.Forms.TabPage();
-            this.scriptEditor = new AlphaRap.FlowProgramming.FlowScriptEditor();
             this.branchPage = new System.Windows.Forms.TabPage();
             this.branchesGroup = new System.Windows.Forms.Panel();
             this.branchPanel = new System.Windows.Forms.FlowLayoutPanel();
@@ -85,10 +93,10 @@ namespace AlphaRap.FlowProgramming
             this.executionModes.SuspendLayout();
             this.executionTabs.SuspendLayout();
             this.parameterPage.SuspendLayout();
+            this.actionSettings.SuspendLayout();
             this.inputsGroup.SuspendLayout();
             this.inputLayout.SuspendLayout();
             this.inputs.SuspendLayout();
-            this.scriptPage.SuspendLayout();
             this.branchPage.SuspendLayout();
             this.branchesGroup.SuspendLayout();
             this.branchPanel.SuspendLayout();
@@ -170,7 +178,7 @@ namespace AlphaRap.FlowProgramming
             this.executionModes.ColumnCount = 2;
             this.executionModes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.executionModes.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.executionModes.Controls.Add(this.scriptMode, 0, 0);
+            this.executionModes.Controls.Add(this.actionMode, 0, 0);
             this.executionModes.Controls.Add(this.conditionMode, 1, 0);
             this.executionModes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.executionModes.Location = new System.Drawing.Point(113, 43);
@@ -181,19 +189,19 @@ namespace AlphaRap.FlowProgramming
             this.executionModes.Size = new System.Drawing.Size(858, 44);
             this.executionModes.TabIndex = 3;
             //
-            // scriptMode
+            // actionMode
             //
-            this.scriptMode.Appearance = System.Windows.Forms.Appearance.Button;
-            this.scriptMode.Checked = true;
-            this.scriptMode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.scriptMode.Location = new System.Drawing.Point(3, 5);
-            this.scriptMode.Name = "scriptCustom";
-            this.scriptMode.Size = new System.Drawing.Size(423, 31);
-            this.scriptMode.TabIndex = 0;
-            this.scriptMode.TabStop = true;
-            this.scriptMode.Tag = "scriptCustom";
-            this.scriptMode.Text = "C# 脚本";
-            this.scriptMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.actionMode.Appearance = System.Windows.Forms.Appearance.Button;
+            this.actionMode.Checked = true;
+            this.actionMode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actionMode.Location = new System.Drawing.Point(3, 5);
+            this.actionMode.Name = "scriptAction";
+            this.actionMode.Size = new System.Drawing.Size(423, 31);
+            this.actionMode.TabIndex = 0;
+            this.actionMode.TabStop = true;
+            this.actionMode.Tag = "scriptAction";
+            this.actionMode.Text = "现有功能";
+            this.actionMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             //
             // conditionMode
             //
@@ -219,13 +227,12 @@ namespace AlphaRap.FlowProgramming
             this.retiredNotice.Size = new System.Drawing.Size(974, 0);
             this.retiredNotice.TabIndex = 3;
             this.retiredNotice.Tag = "retiredModeNotice";
-            this.retiredNotice.Text = "旧执行方式已停用。请选择 C# 脚本或仅判断条件后重新配置；原条件、出口与断点保留，取消不改变原节点。";
+            this.retiredNotice.Text = "C# 脚本和代码模块已停用。请选择现有功能或仅判断条件后重新配置；原条件、出口与断点保留，取消不改变原节点。";
             this.retiredNotice.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.retiredNotice.Visible = false;
             //
             // executionTabs
             //
-            this.executionTabs.Controls.Add(this.scriptPage);
             this.executionTabs.Controls.Add(this.parameterPage);
             this.executionTabs.Controls.Add(this.branchPage);
             this.executionTabs.Controls.Add(this.settingsPage);
@@ -240,22 +247,22 @@ namespace AlphaRap.FlowProgramming
             //
             this.parameterPage.Controls.Add(this.inputsGroup);
             this.parameterPage.Controls.Add(this.outputsValue);
-            this.parameterPage.Controls.Add(this.scriptSettings);
+            this.parameterPage.Controls.Add(this.actionSettings);
             this.parameterPage.Location = new System.Drawing.Point(4, 26);
-            this.parameterPage.Name = "scriptParameters";
+            this.parameterPage.Name = "scriptActionPage";
             this.parameterPage.Padding = new System.Windows.Forms.Padding(6);
             this.parameterPage.Size = new System.Drawing.Size(966, 586);
             this.parameterPage.TabIndex = 0;
-            this.parameterPage.Tag = "nodeDataPage";
-            this.parameterPage.Text = "输入输出";
+            this.parameterPage.Tag = "nodeActionPage";
+            this.parameterPage.Text = "动作设置";
             //
             // inputsGroup
             //
             this.inputsGroup.Controls.Add(this.inputLayout);
             this.inputsGroup.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.inputsGroup.Location = new System.Drawing.Point(6, 266);
+            this.inputsGroup.Location = new System.Drawing.Point(6, 96);
             this.inputsGroup.Name = "inputsGroup";
-            this.inputsGroup.Size = new System.Drawing.Size(954, 291);
+            this.inputsGroup.Size = new System.Drawing.Size(954, 461);
             this.inputsGroup.TabIndex = 0;
             //
             // inputLayout
@@ -271,7 +278,7 @@ namespace AlphaRap.FlowProgramming
             this.inputLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.inputLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.inputLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
-            this.inputLayout.Size = new System.Drawing.Size(954, 201);
+            this.inputLayout.Size = new System.Drawing.Size(954, 461);
             this.inputLayout.TabIndex = 0;
             //
             // inputs
@@ -326,36 +333,88 @@ namespace AlphaRap.FlowProgramming
             this.outputsValue.Size = new System.Drawing.Size(954, 23);
             this.outputsValue.TabIndex = 1;
             //
-            // scriptSettings
+            // actionSettings
             //
-            this.scriptSettings.Dock = System.Windows.Forms.DockStyle.Top;
-            this.scriptSettings.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.scriptSettings.Location = new System.Drawing.Point(6, 6);
-            this.scriptSettings.MinimumSize = new System.Drawing.Size(600, 240);
-            this.scriptSettings.Name = "scriptSettings";
-            this.scriptSettings.Size = new System.Drawing.Size(954, 260);
-            this.scriptSettings.TabIndex = 2;
-            this.scriptSettings.Visible = true;
+            this.actionSettings.ColumnCount = 4;
+            this.actionSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
+            this.actionSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.actionSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
+            this.actionSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.actionSettings.Controls.Add(this.categoryLabel, 0, 0);
+            this.actionSettings.Controls.Add(this.categoryValue, 1, 0);
+            this.actionSettings.Controls.Add(this.targetLabel, 2, 0);
+            this.actionSettings.Controls.Add(this.targetValue, 3, 0);
+            this.actionSettings.Controls.Add(this.actionLabel, 0, 1);
+            this.actionSettings.Controls.Add(this.actionValue, 1, 1);
+            this.actionSettings.Dock = System.Windows.Forms.DockStyle.Top;
+            this.actionSettings.Location = new System.Drawing.Point(6, 6);
+            this.actionSettings.Name = "actionSettings";
+            this.actionSettings.RowCount = 2;
+            this.actionSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.actionSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.actionSettings.Size = new System.Drawing.Size(954, 90);
+            this.actionSettings.TabIndex = 3;
             //
-            // scriptPage
+            // categoryLabel
             //
-            this.scriptPage.Controls.Add(this.scriptEditor);
-            this.scriptPage.Location = new System.Drawing.Point(4, 26);
-            this.scriptPage.Name = "scriptTab";
-            this.scriptPage.Size = new System.Drawing.Size(192, 0);
-            this.scriptPage.TabIndex = 1;
-            this.scriptPage.Tag = "scriptTab";
-            this.scriptPage.Text = "C# 脚本";
+            this.categoryLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.categoryLabel.Location = new System.Drawing.Point(3, 0);
+            this.categoryLabel.Name = "categoryLabel";
+            this.categoryLabel.Size = new System.Drawing.Size(104, 45);
+            this.categoryLabel.TabIndex = 0;
+            this.categoryLabel.Tag = "category";
+            this.categoryLabel.Text = "功能类别";
+            this.categoryLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             //
-            // scriptEditor
+            // categoryValue
             //
-            this.scriptEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.scriptEditor.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.scriptEditor.Location = new System.Drawing.Point(0, 0);
-            this.scriptEditor.MinimumSize = new System.Drawing.Size(500, 220);
-            this.scriptEditor.Name = "scriptEditor";
-            this.scriptEditor.Size = new System.Drawing.Size(500, 220);
-            this.scriptEditor.TabIndex = 0;
+            this.categoryValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.categoryValue.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.categoryValue.Location = new System.Drawing.Point(113, 12);
+            this.categoryValue.Name = "categoryValue";
+            this.categoryValue.Size = new System.Drawing.Size(361, 25);
+            this.categoryValue.TabIndex = 1;
+            //
+            // targetLabel
+            //
+            this.targetLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.targetLabel.Location = new System.Drawing.Point(480, 0);
+            this.targetLabel.Name = "targetLabel";
+            this.targetLabel.Size = new System.Drawing.Size(104, 45);
+            this.targetLabel.TabIndex = 2;
+            this.targetLabel.Tag = "target";
+            this.targetLabel.Text = "实际对象";
+            this.targetLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // targetValue
+            //
+            this.targetValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.targetValue.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.targetValue.Location = new System.Drawing.Point(590, 12);
+            this.targetValue.Name = "targetValue";
+            this.targetValue.Size = new System.Drawing.Size(361, 25);
+            this.targetValue.TabIndex = 3;
+            //
+            // actionLabel
+            //
+            this.actionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actionLabel.Location = new System.Drawing.Point(3, 45);
+            this.actionLabel.Name = "actionLabel";
+            this.actionLabel.Size = new System.Drawing.Size(104, 45);
+            this.actionLabel.TabIndex = 4;
+            this.actionLabel.Tag = "method";
+            this.actionLabel.Text = "对象方法";
+            this.actionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // actionValue
+            //
+            this.actionValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.actionSettings.SetColumnSpan(this.actionValue, 3);
+            this.actionValue.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.actionValue.Location = new System.Drawing.Point(113, 57);
+            this.actionValue.Name = "actionValue";
+            this.actionValue.Size = new System.Drawing.Size(838, 25);
+            this.actionValue.TabIndex = 5;
             //
             // branchPage
             //
@@ -573,11 +632,11 @@ namespace AlphaRap.FlowProgramming
             this.executionTabs.ResumeLayout(false);
             this.parameterPage.ResumeLayout(false);
             this.parameterPage.PerformLayout();
+            this.actionSettings.ResumeLayout(false);
             this.inputsGroup.ResumeLayout(false);
             this.inputLayout.ResumeLayout(false);
             this.inputLayout.PerformLayout();
             this.inputs.ResumeLayout(false);
-            this.scriptPage.ResumeLayout(false);
             this.branchPage.ResumeLayout(false);
             this.branchesGroup.ResumeLayout(false);
             this.branchPanel.ResumeLayout(false);

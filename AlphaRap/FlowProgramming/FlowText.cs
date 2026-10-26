@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace AlphaRap.FlowProgramming
 {
@@ -6,10 +6,23 @@ namespace AlphaRap.FlowProgramming
     {
         public static readonly Dictionary<string, string[]> Defaults = new Dictionary<string, string[]>
         {
-            { "retiredNode", new[] { "节点“{0}”使用已移除的现有功能或代码模块。请改为 C# 脚本或仅判断条件后保存。", "Node '{0}' uses a removed action or code module. Configure it as a C# script or condition node before saving.", "El nodo «{0}» usa una acción o módulo de código eliminado. Configúrelo como script C# o condición antes de guardar." } },
-            { "retiredNodeChoice", new[] { "只能添加 C# 脚本或仅判断条件节点。", "Only C# script and condition nodes can be added.", "Solo se pueden añadir nodos de script C# y condición." } },
-            { "retiredModeNotice", new[] { "旧执行方式已停用。请选择 C# 脚本或仅判断条件后重新配置；原条件、出口与断点保留，取消不改变原节点。", "This execution mode was removed. Select C# script or condition and reconfigure it. Conditions, destinations and breakpoints are retained; Cancel keeps the original node.", "Se eliminó este modo de ejecución. Seleccione script C# o condición y reconfigúrelo. Se conservan condiciones, destinos y puntos de interrupción; Cancelar mantiene el nodo original." } },
-            { "retiredModeChoose", new[] { "请明确选择 C# 脚本或仅判断条件，再确认节点。", "Select C# script or condition before confirming this node.", "Seleccione script C# o condición antes de confirmar el nodo." } },
+            { "retiredNode", new[] { "节点“{0}”使用已移除的 C# 脚本或代码模块。请选择现有功能或仅判断条件并重新配置后保存。", "Node '{0}' uses a removed C# script or code module. Configure it as an existing action or conditions only before saving.", "El nodo «{0}» usa un script C# o módulo de código eliminado. Configúrelo como acción existente o solo condiciones antes de guardar." } },
+            { "retiredNodeChoice", new[] { "只能添加现有功能或仅判断条件节点。", "Only existing action and condition nodes can be added.", "Solo se pueden añadir nodos de acciones existentes o condiciones." } },
+            { "retiredModeNotice", new[] { "C# 脚本和代码模块已移除。请选择现有功能或仅判断条件后重新配置；原条件、出口与断点保留，取消不改变原节点。", "C# scripts and code modules were removed. Select an existing action or conditions only and reconfigure. Conditions, destinations and breakpoints are retained; Cancel keeps the original node.", "Se eliminaron los scripts C# y módulos de código. Seleccione acción existente o solo condiciones y reconfigure. Se conservan condiciones, destinos y puntos de interrupción; Cancelar mantiene el nodo original." } },
+            { "retiredModeChoose", new[] { "请明确选择现有功能或仅判断条件，再确认节点。", "Select an existing action or conditions only before confirming this node.", "Seleccione acción existente o solo condiciones antes de confirmar el nodo." } },
+            { "scriptMode", new[] { "执行方式", "Execution", "Ejecución" } },
+            { "scriptAction", new[] { "现有功能", "Existing action", "Acción existente" } },
+            { "scriptNone", new[] { "仅判断条件", "Conditions only", "Solo condiciones" } },
+            { "scriptBreakpoint", new[] { "执行前断点", "Break before execution", "Pausa antes de ejecutar" } },
+            { "nodeActionPage", new[] { "动作设置", "Action setup", "Configurar acción" } },
+            { "nodeMissingObjectHelp", new[] { "原绑定对象已不存在。请在对应页面恢复对象，或在这里明确选择替代对象和动作；不会自动换成其它对象。", "The bound object is missing. Restore it on its page, or explicitly select a replacement object and action here.", "Falta el objeto vinculado. Restáurelo en su página o elija aquí un objeto y una acción de reemplazo." } },
+            { "nodeChooseActionHelp", new[] { "请选择此对象实际支持的动作。原动作失效时需重新选择，已有绑定保留供修正。", "Select an action supported by this object. Reselect a missing action; existing bindings are retained for repair.", "Elija una acción del objeto. Vuelva a elegir una acción ausente; se conservan los vínculos para corregirlos." } },
+            { "nodeNoAxisHelp", new[] { "此处还没有可用轴。先到【轴页面】新增轴、配置参数并添加点位，再回到此节点选择。", "No axis is available. Add an axis, configure it and add points on the Axis page, then return to this node.", "No hay ejes disponibles. Añada y configure un eje y sus puntos en la página Ejes y vuelva a este nodo." } },
+            { "nodeNoVisionHelp", new[] { "此处还没有可用 VPP。先到【视觉】新增相机和 VPP，再回到此节点选择；已有草稿不受影响。", "No VPP is available. Add a camera and VPP on the Vision page, then return to this node. Your draft is retained.", "No hay VPP disponibles. Añada una cámara y un VPP en Visión y vuelva a este nodo. Se conserva el borrador." } },
+            { "nodeNoIoHelp", new[] { "此类别还没有对象。先到【IO 页面】新增并配置相应输入、输出或气缸，再回到此节点选择。", "This category has no objects. Add and configure the required input, output or cylinder on the IO page, then return here.", "Esta categoría no tiene objetos. Añada y configure la entrada, salida o cilindro en E/S y vuelva aquí." } },
+            { "nodeNoConstantsHelp", new[] { "先到【常量表】添加 Setting 或 Recipe 参数；型号差异使用原配方管理切换，再回到这里绑定。", "Add Setting or Recipe parameters in Constant tables, then return to bind them. Use the existing recipe manager for model changes.", "Añada parámetros Setting o Recipe en Tablas de constantes y vuelva a vincularlos. Use el gestor de recetas existente." } },
+            { "nodeNoDataHelp", new[] { "先到【数据保存】配置生产记录字段，再回到此节点选择保存动作并绑定每个字段。", "Configure production fields on the Data saving page, then return to select the save action and bind its fields.", "Configure los campos de producción en Guardar datos y vuelva para elegir la acción y vincular sus campos." } },
+            { "nodeNoObjectHelp", new[] { "此类别尚无可用对象。先在对应功能页面配置实际对象，再回到流程选择。", "No object is available in this category. Configure an actual object on its page, then return here.", "No hay objetos en esta categoría. Configure un objeto real en su página y vuelva aquí." } },
             { "nodeDataPage", new[] { "输入输出", "Inputs / outputs", "Entradas / salidas" } },
             { "nodeNextPage", new[] { "下一步", "Next step", "Siguiente paso" } },
             { "nodeOutputs", new[] { "本步输出（后续节点可绑定）：{0}", "Outputs available to later nodes: {0}", "Salidas disponibles para nodos siguientes: {0}" } },
@@ -179,8 +192,6 @@ namespace AlphaRap.FlowProgramming
             foreach (KeyValuePair<string, string[]> item in FlowInputRow.TextDefaults) Defaults[item.Key] = item.Value;
             foreach (KeyValuePair<string, string[]> item in FlowSourceForm.TextDefaults) Defaults[item.Key] = item.Value;
             foreach (KeyValuePair<string, string[]> item in FlowDebugText.Defaults) Defaults[item.Key] = item.Value;
-            foreach (KeyValuePair<string, string[]> item in FlowScriptUiText.Defaults) Defaults[item.Key] = item.Value;
-            foreach (KeyValuePair<string, string[]> item in FlowScriptText.Defaults) Defaults[item.Key] = item.Value;
         }
 
         /// <summary>读取三语文案，设计期不触发宿主静态初始化。</summary>

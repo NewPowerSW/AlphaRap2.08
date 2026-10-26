@@ -91,7 +91,7 @@ internal static class SourceGenerationCases
         finally { SysPara.SettingDataDirectory = previousSettings; }
     }
 
-    /// <summary>Build supported scripts plus historical definitions for export fidelity; Action and Code are not executable host fixtures.</summary>
+    /// <summary>Build configured actions plus historical script and module definitions solely to verify export fidelity.</summary>
     private static FlowProject Model()
     {
         FlowStep first = new FlowStep { Caption = "移动到取料点 <A>\r\n\"quoted\"", Target = "hardware/axis-stable-id/axis", Action = "axis.point", ParentPath = "/tabControl1/Auto", AlarmCode = "2019", X = 35, Y = 77 };

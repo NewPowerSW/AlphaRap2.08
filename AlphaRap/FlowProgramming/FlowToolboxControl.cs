@@ -8,13 +8,14 @@ namespace AlphaRap.FlowProgramming
 {
     public sealed class FlowToolboxEntry
     {
-        public string Id, ExecutionMode, Category, Title;
+        public string Id, ExecutionMode, TargetId, ActionId, Category, Title;
     }
 
-    /// <summary>仅提供脚本和条件节点，拖放和键盘添加使用同一稳定条目。</summary>
+    /// <summary>显示真实对象动作及条件节点，拖放和键盘使用同一稳定条目。</summary>
     public partial class FlowToolboxControl : UserControl
     {
         public const string DragFormat = "AlphaRap.FlowToolboxEntry";
+        private FlowActions actions;
         private bool languageSubscribed;
         public event Action<FlowToolboxEntry> InsertRequested;
 
@@ -32,13 +33,23 @@ namespace AlphaRap.FlowProgramming
             RefreshLanguage();
         }
 
-        /// <summary>提供允许创建的两种节点，不扫描设备或模块程序集。</summary>
+        /// <summary>绑定当前对象动作目录，保留工具箱查询文字。</summary>
+        public void BindActions(FlowActions value) { actions = value; RefreshTree(); }
+
+        /// <summary>从实际对象和流程基础能力建立条目，不发现脚本或代码模块。</summary>
         private List<FlowToolboxEntry> Choices()
         {
-            return new List<FlowToolboxEntry> {
-                new FlowToolboxEntry { Id = "Script", ExecutionMode = "Script", Category = "flow", Title = FlowToolboxText.T("scriptEntry") },
+            List<FlowToolboxEntry> result = new List<FlowToolboxEntry> {
                 new FlowToolboxEntry { Id = "None", ExecutionMode = "None", Category = "flow", Title = FlowToolboxText.T("noneEntry") }
             };
+            if (actions == null) return result;
+            foreach (FlowResource resource in actions.Resources.Items.Values.Where(item => item.Selectable))
+                foreach (FlowMethod method in resource.Methods)
+                    result.Add(new FlowToolboxEntry { Id = "action/" + Uri.EscapeDataString(resource.Id) + "/" + Uri.EscapeDataString(method.Id), ExecutionMode = "Action",
+                        TargetId = resource.Id, ActionId = method.Id, Category = resource.Category, Title = resource.Label + " · " + FlowMethods.Title(method) });
+            foreach (FlowMethod method in actions.MethodsFor(null))
+                result.Add(new FlowToolboxEntry { Id = "flow/" + method.Id, ExecutionMode = "Action", TargetId = "", ActionId = method.Id, Category = "flow", Title = FlowMethods.Title(method) });
+            return result;
         }
 
         /// <summary>按分组和搜索重建标题，保留已选条目身份和搜索草稿。</summary>

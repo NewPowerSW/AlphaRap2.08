@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using AlphaRap;
+using AlphaRap.FlowProgramming;
 using AlphaRapLibrary;
 using NPSDK;
 
@@ -77,7 +78,8 @@ internal static class Cases
     /// <summary>Require every discovered concrete visual component to remain available to the project designer without business arguments.</summary>
     private static void ProjectMetadata()
     {
-        Check(visualTypes.Length >= 12, "A known FlowProgramming visual class or SystemSetting was omitted from discovery.");
+        Check(new[] { typeof(FlowNodeForm), typeof(FlowToolboxControl), typeof(FlowBranchEditor), typeof(FlowInputRow), typeof(FlowSourceForm), typeof(SystemSetting) }
+            .All(type => visualTypes.Contains(type)), "A supported FlowProgramming editor or SystemSetting was omitted from discovery.");
         XDocument project = XDocument.Load(Path.Combine(projectRoot, "AlphaRap", "AlphaRap.csproj"));
         XNamespace ns = project.Root.Name.Namespace;
         foreach (Type type in visualTypes)

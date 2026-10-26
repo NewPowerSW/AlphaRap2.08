@@ -144,7 +144,7 @@ internal static class StartupSmoke
         setting.Constants.Put("Recipe",null,new ConstantValue { Key="MainRecipeNumber",Type="Number",Value="12.5" });
         data.SetProductionDraft(new List<ProductionField> { new ProductionField { Name="Barcode" },new ProductionField { Name="Result" },new ProductionField { Name="MainValue",Type="Number" } });
         FlowActions draftActions = new FlowActions(FlowResources.Capture(true)), liveActions = new FlowActions(FlowResources.Capture());
-        if (!draftActions.InputNames(draftActions.FindResource("data/Production").Methods.Single(action=>action.Id=="data.save")).Contains("MainValue") || liveActions.InputNames(liveActions.FindResource("data/Production").Methods.Single(action=>action.Id=="data.save")).Contains("MainValue")) throw new InvalidOperationException("Production field drafts leaked into runtime or were unavailable in the designer.");
+        if (!draftActions.InputNames(draftActions.MethodsFor(draftActions.FindResource("data/Production")).Single(action=>action.Id=="data.save")).Contains("MainValue") || liveActions.InputNames(liveActions.MethodsFor(liveActions.FindResource("data/Production")).Single(action=>action.Id=="data.save")).Contains("MainValue")) throw new InvalidOperationException("Production field drafts leaked into runtime or were unavailable in the designer.");
         FlowModuleEditor flow = FlowPrograms.Attach(FlowPrograms.AddModule("Main save flow")); FlowStep step = flow.AddNode(); flow.Program.Mode="Program"; flow.Program.AutoEntry=step.Id;
         if (FlowResources.Capture().Parameters.ContainsKey("Constants/Setting/MainSaveFlag") || !FlowResources.Capture(true).Parameters.ContainsKey("Constants/Setting/MainSaveFlag")) throw new InvalidOperationException("Draft and production snapshots are mixed.");
         ChooseSave(main,"Button1_dyn");
@@ -187,42 +187,36 @@ internal static class StartupSmoke
         Console.WriteLine("PASS late unified-save replacement failure rolls back earlier configuration files and retains drafts.");
         ChooseSave(main,"Button3_dyn");
         VerifyFlowTableSave(main,setting);
-        VerifyScriptMainSave(main);
+        VerifyActionMainSave(main);
     }
 
-    /// <summary>Publish scripts through Main Save and retain the old executable source after compile failure or discard.</summary>
-    private static void VerifyScriptMainSave(MainForm main)
+    /// <summary>Publish typed action nodes through Main Save and preserve the published version after invalid drafts and discard.</summary>
+    private static void VerifyActionMainSave(MainForm main)
     {
-        FlowModuleEditor module = FlowPrograms.Attach(FlowPrograms.AddModule("Saved script flow"));
+        FlowModuleEditor module = FlowPrograms.Attach(FlowPrograms.AddModule("Saved action flow"));
         FlowStep step = module.AddNode();
-        step.ExecutionMode = "Script"; step.Action = "script.execute"; step.Target = "";
-        step.ScriptSource = "Outputs.Value = Inputs.Value + 1;"; step.Breakpoint = true;
-        step.ScriptInputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Value", Type = "Number", DefaultValue = "2" } };
-        step.ScriptOutputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Value", Type = "Number" } };
+        step.ExecutionMode = "Action"; step.Action = "value"; step.Target = ""; step.Breakpoint = true;
         step.Inputs = new List<FlowInput> { new FlowInput { Name = "Value", Reference = "2" } };
         module.Program.Mode = "Program"; module.Program.AutoEntry = step.Id;
         ChooseSave(main,"Button1_dyn");
         FlowStep saved = FlowProgramFile.Load(FlowPrograms.FilePath).Modules.Single(item => item.ModuleId == module.Program.ModuleId).Steps.Single();
-        if (saved.ScriptSource != step.ScriptSource || saved.ExecutionMode != "Script" || !saved.Breakpoint
-            || saved.ScriptInputs.Count != 1 || saved.ScriptOutputs.Count != 1 || saved.Inputs.Count != 1
-            || saved.ScriptInputs[0].Name != "Value" || saved.ScriptInputs[0].Type != "Number" || saved.ScriptInputs[0].DefaultValue != "2"
-            || saved.ScriptOutputs[0].Name != "Value" || saved.ScriptOutputs[0].Type != "Number" || saved.Inputs[0].Reference != "2")
-            throw new InvalidOperationException("Main Save did not persist the complete script node.");
-        string before = File.ReadAllText(FlowPrograms.FilePath), validSource = step.ScriptSource;
-        step.ScriptSource = "Outputs.Value = MissingMainSaveIdentifier;";
+        if (saved.ExecutionMode != "Action" || saved.Action != "value" || !saved.Breakpoint || saved.Inputs.Single().Reference != "2")
+            throw new InvalidOperationException("Main Save did not persist the complete action node.");
+        string before = File.ReadAllText(FlowPrograms.FilePath);
+        step.Action = "missing.action";
         bool rejected = false;
-        try { ProjectConfiguration.Save(); } catch (InvalidOperationException error) { rejected = error.Message.Contains("CS0103"); }
-        if (!rejected || File.ReadAllText(FlowPrograms.FilePath) != before || !step.ScriptSource.Contains("MissingMainSaveIdentifier"))
-            throw new InvalidOperationException("Compile failure overwrote the saved flow or discarded the script draft.");
+        try { ProjectConfiguration.Save(); } catch (InvalidOperationException) { rejected = true; }
+        if (!rejected || File.ReadAllText(FlowPrograms.FilePath) != before || step.Action != "missing.action")
+            throw new InvalidOperationException("Action validation failure overwrote the saved flow or discarded the draft.");
         module.Start(step.Id, true, false, true);
         DateTime limit = DateTime.UtcNow.AddSeconds(5);
         while (!module.Runtime.Completion.IsCompleted && DateTime.UtcNow < limit) { Application.DoEvents(); System.Threading.Thread.Sleep(5); }
-        if (!module.Runtime.Completion.IsCompleted || module.Runtime.Error != null || (double)FlowPrograms.Results.Read(FlowPrograms.Results.Epoch, "batch", module.Program.ModuleId + "/" + step.Id, "Value") != 3)
-            throw new InvalidOperationException("Production execution did not use the last saved script version.");
+        if (!module.Runtime.Completion.IsCompleted || module.Runtime.Error != null || Convert.ToDouble(FlowPrograms.Results.Read(FlowPrograms.Results.Epoch, "batch", module.Program.ModuleId + "/" + step.Id, "Value")) != 2)
+            throw new InvalidOperationException("Production execution did not use the last saved action version.");
         ChooseSave(main,"Button3_dyn");
-        if (module.Program.Steps.Single().ScriptSource != validSource || !module.Program.Steps.Single().Breakpoint)
-            throw new InvalidOperationException("Main Save No failed to restore saved script source and breakpoint.");
-        Console.WriteLine("PASS Main Save persists script ports bindings and breakpoints; compile failure retains drafts and the published version; discard restores saved source.");
+        if (module.Program.Steps.Single().Action != "value" || !module.Program.Steps.Single().Breakpoint)
+            throw new InvalidOperationException("Main Save No failed to restore saved action and breakpoint.");
+        Console.WriteLine("PASS Main Save persists action bindings and breakpoints; invalid actions retain drafts and the published version; discard restores saved action.");
     }
 
     /// <summary>Write actual Setting and Recipe rows from flow nodes, then exercise real main Save, reload, failure and discard.</summary>
@@ -245,28 +239,17 @@ internal static class StartupSmoke
         Console.WriteLine("PASS flow writes update real Setting/Recipe rows and legacy switches; Main Save, failed Save, discard and reload preserve the correct versions.");
     }
 
-    /// <summary>Execute a declared table object through the real script pipeline and typed constant setter.</summary>
+    /// <summary>Execute the table setter through the same typed object method used by a configured node.</summary>
     private static void SetTableFromNode(string scope,string key,string value)
     {
         FlowActions actions = new FlowActions(FlowResources.Capture());
         FlowResource resource = actions.FindResource("constants/" + scope);
-        if (resource == null) throw new InvalidOperationException("The script fixture could not resolve the constant scope: " + scope);
+        FlowMethod method = resource.Methods.Single(item => item.Id == "constant.set");
         FlowStep step = new FlowStep
         {
-            ExecutionMode = "Script", Action = "script.execute", Target = "", Branches = FlowBranch.Default(),
-            ScriptSource = "await Context.CallAsync(\"" + resource.Id + "\", \"constant.set\", new Dictionary<string, object> { { \"Key\", Inputs.Key }, { \"Value\", Inputs.Value } });",
-            ScriptResources = new List<string> { resource.Id },
-            ScriptInputs = new List<FlowScriptPort>
-            {
-                new FlowScriptPort { Name = "Key", Type = "Text" },
-                new FlowScriptPort { Name = "Value", Type = "Text" }
-            },
-            ScriptOutputs = new List<FlowScriptPort>(),
-            Inputs = new List<FlowInput>
-            {
-                new FlowInput { Name = "Key", Source = "Constant", Reference = key },
-                new FlowInput { Name = "Value", Source = "Constant", Reference = value }
-            }
+            Action = method.Id,
+            Target = resource.Id,
+            Inputs = method.Inputs.Select(field => new FlowInput { Name = field.Name, Reference = field.Name == "Key" ? key : value }).ToList()
         };
         FlowResultHub hub = new FlowResultHub();
         FlowExecutionContext context = new FlowExecutionContext { Hub = hub, RunId = hub.Epoch, Parameters = actions.Resources.Parameters };

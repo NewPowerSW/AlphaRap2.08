@@ -94,8 +94,8 @@ namespace AlphaRap
             RefreshToolbox();
         }
 
-        /// <summary>刷新脚本与条件节点标题，保留工具箱搜索草稿。</summary>
-        private void RefreshToolbox() { toolbox.RefreshLanguage(); }
+        /// <summary>刷新真实对象动作目录，保留工具箱搜索草稿。</summary>
+        private void RefreshToolbox() { toolbox.BindActions(new FlowActions(FlowResources.Capture(true))); }
 
         /// <summary>为所有实际基类页面中的容器接入同一工具箱拖放入口。</summary>
         private void BindDropTargets(Control parent)
@@ -153,7 +153,9 @@ namespace AlphaRap
             int bottom = canvas.Controls.OfType<Flow_Chart>().Select(node => node.Bottom - scroll.Y + 35).DefaultIfEmpty(40).Max();
             Point point = requested ?? new Point(40, bottom);
             point = new Point(Math.Max(0, point.X), Math.Max(0, point.Y));
-            module.AddNode(entry.ExecutionMode, canvas, point);
+            if (entry.ExecutionMode == "None") module.AddNode("None", canvas, point);
+            else if (entry.ExecutionMode == "Action") module.AddNode(entry.TargetId, entry.ActionId, canvas, point);
+            else throw new InvalidOperationException(FlowText.T("retiredNodeChoice"));
             activeCanvas = canvas; BindNodeMenus(module.Form); RefreshSelection();
         }
 

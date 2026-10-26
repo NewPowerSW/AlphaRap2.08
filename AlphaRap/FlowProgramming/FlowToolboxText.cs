@@ -13,7 +13,7 @@ namespace AlphaRap.FlowProgramming
             { "search", new[] { "搜索", "Search", "Buscar" } },
             { "toolboxHint", new[] { "拖到画布；也可双击或按 Enter 添加。", "Drag onto the canvas, double-click, or press Enter to add.", "Arrastre al lienzo, haga doble clic o pulse Intro para agregar." } },
             { "toolboxEmpty", new[] { "没有匹配的节点。", "No matching nodes.", "No hay nodos coincidentes." } },
-            { "scriptEntry", new[] { "C# 脚本", "C# script", "Script C#" } },
+            { "actionEntry", new[] { "现有功能", "Existing action", "Acción existente" } },
             { "noneEntry", new[] { "条件节点", "Condition node", "Nodo de condición" } },
             { "sourceDirectory", new[] { "查看生成源码", "View generated sources", "Ver código generado" } },
             { "sourceDirectoryMissing", new[] { "源码目录尚未生成：{0}", "The source directory has not been generated: {0}", "Aún no se ha generado el directorio de código: {0}" } }

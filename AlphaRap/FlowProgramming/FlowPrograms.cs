@@ -528,30 +528,43 @@ namespace AlphaRap.FlowProgramming
             Point offset = parent is ScrollableControl ? ((ScrollableControl)parent).AutoScrollPosition : Point.Empty;
             int y = nodes.Values.Where(existing => existing.Parent == parent).Select(existing => existing.Bottom - offset.Y + 40).DefaultIfEmpty(40).Max();
             FlowStep step = NewStep();
-            InitializeScript(step);
+            InitializeAction(step);
             return AddNodeCore(step, parent, new Point(40, y));
         }
 
-        /// <summary>工具箱只接受脚本或条件类型，拒绝旧拖放载荷。</summary>
+        /// <summary>只创建对象动作或条件节点，拒绝已移除的执行方式。</summary>
         public FlowStep AddNode(string mode, Control canvas, Point logicalLocation)
         {
-            if (mode != "Script" && mode != "None") throw new InvalidOperationException(FlowText.T("retiredNodeChoice"));
+            if (mode != "Action" && mode != "None") throw new InvalidOperationException(FlowText.T("retiredNodeChoice"));
             FlowStep step = NewStep();
             step.ExecutionMode = mode;
-            if (mode == "Script") InitializeScript(step);
+            if (mode == "Action") InitializeAction(step);
             else step.Action = "flow.none";
             return AddNodeCore(step, canvas, logicalLocation);
         }
 
-        /// <summary>新节点默认使用可编译的数值传递脚本，端口和输入绑定一并建立。</summary>
-        private static void InitializeScript(FlowStep step)
+        /// <summary>新动作节点默认传递一个值，再由编辑器选择实际对象和方法。</summary>
+        private static void InitializeAction(FlowStep step)
         {
-            step.ExecutionMode = "Script";
-            step.Action = "script.execute";
-            step.ScriptSource = "Outputs.Value = Inputs.Value;";
-            step.ScriptInputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Value", Type = "Number", DefaultValue = "0" } };
-            step.ScriptOutputs = new List<FlowScriptPort> { new FlowScriptPort { Name = "Value", Type = "Number" } };
-            step.Inputs = new List<FlowInput> { new FlowInput { Name = "Value", Reference = "0" } };
+            step.ExecutionMode = "Action";
+            step.Action = "value";
+            step.Inputs = new List<FlowInput> { new FlowInput { Name = "Value", Reference = "" } };
+        }
+
+        /// <summary>从工具箱绑定真实对象的方法，保留对象身份及方法声明的默认输入。</summary>
+        public FlowStep AddNode(string targetId, string actionId, Control canvas, Point logicalLocation)
+        {
+            FlowActions actions = new FlowActions(FlowResources.Capture(true));
+            FlowResource resource = actions.FindResource(targetId);
+            if (resource == null && !string.IsNullOrEmpty(targetId)) throw new InvalidOperationException(FlowText.T("methodMissing"));
+            FlowMethod method = actions.MethodsFor(resource).Single(item => item.Id == actionId);
+            FlowStep step = NewStep();
+            step.ExecutionMode = "Action";
+            step.Caption = resource == null ? FlowMethods.Title(method) : resource.Label + " · " + FlowMethods.Title(method);
+            step.Target = targetId;
+            step.Action = actionId;
+            step.Inputs = method.Inputs.Select(field => new FlowInput { Name = field.Name, Source = string.IsNullOrEmpty(field.OutputSourceMethod) ? "Constant" : "Output", Reference = field.DefaultValue }).ToList();
+            return AddNodeCore(step, canvas, logicalLocation);
         }
 
         /// <summary>建立独立节点身份，默认只有 NEXT，入口沿用原工位页面。</summary>

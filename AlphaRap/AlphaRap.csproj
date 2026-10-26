@@ -689,19 +689,9 @@
   <ItemGroup>
     <Compile Include="FlowProgramming\FlowToolboxText.cs" />
     <Compile Include="FlowProgramming\FlowExternalResources.cs" />
-    <Compile Include="FlowProgramming\FlowScriptEditor.Appearance.cs"><DependentUpon>FlowScriptEditor.cs</DependentUpon></Compile>
-    <Compile Include="FlowProgramming\FlowScriptSettings.cs"><SubType>UserControl</SubType></Compile>
-    <Compile Include="FlowProgramming\FlowScriptSettings.Designer.cs"><DependentUpon>FlowScriptSettings.cs</DependentUpon></Compile>
-    <Compile Include="FlowProgramming\FlowScripts.cs"></Compile>
-    <Compile Include="FlowProgramming\FlowScriptContext.cs"></Compile>
-    <Compile Include="FlowProgramming\FlowScriptUiText.cs"></Compile>
-    <Compile Include="FlowProgramming\FlowScriptText.cs"></Compile>
     <Compile Include="FlowProgramming\FlowDebugText.cs"></Compile>
-    <Compile Include="FlowProgramming\FlowScriptEditor.cs"><SubType>UserControl</SubType></Compile>
-    <Compile Include="FlowProgramming\FlowScriptEditor.Designer.cs"><DependentUpon>FlowScriptEditor.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowDebugPanel.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="FlowProgramming\FlowDebugPanel.Designer.cs"><DependentUpon>FlowDebugPanel.cs</DependentUpon></Compile>
-    <Compile Include="FlowProgramming\FlowNodeForm.Script.cs"><DependentUpon>FlowNodeForm.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowModuleEditor.Debug.cs"><DependentUpon>FlowPrograms.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowInputRow.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="FlowProgramming\FlowInputRow.Designer.cs"><DependentUpon>FlowInputRow.cs</DependentUpon></Compile>
@@ -997,6 +987,8 @@
     <Compile Include="Configuration\ConstantEditForm.Designer.cs"><DependentUpon>ConstantEditForm.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowBranchEditor.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="FlowProgramming\FlowBranchEditor.Designer.cs"><DependentUpon>FlowBranchEditor.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowUtilityObject.cs" />
+    <Compile Include="FlowProgramming\FlowNodeForm.Execution.cs"><DependentUpon>FlowNodeForm.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowActions.cs" />
     <Compile Include="FlowProgramming\FlowInputForm.cs"><SubType>Form</SubType></Compile>
     <Compile Include="FlowProgramming\FlowInputForm.Designer.cs"><DependentUpon>FlowInputForm.cs</DependentUpon></Compile>

@@ -150,7 +150,7 @@ internal static partial class Cases
     private static void ExportP0FieldTexts()
     {
         FlowActions catalog = new FlowActions(FlowResources.Capture(true));
-        List<FlowMethod> methods = catalog.Resources.Items.Values.SelectMany(resource => resource.Methods).ToList();
+        List<FlowMethod> methods = catalog.Resources.Items.Values.SelectMany(resource => resource.Methods).Concat(catalog.MethodsFor(null)).ToList();
         methods.AddRange(new FlowTray { Rows = 1, Columns = 1 }.GetFlowMethods(true));
         FlowVisionProbe vision = new FlowVisionProbe();
         try
@@ -242,7 +242,8 @@ internal static partial class Cases
         store.Put("Setting", null, new ConstantValue { Key = barcode, Type = "Text", Value = "Product B" });
         try
         {
-            FlowStep step = ScriptNode("Outputs.Value = true;", ScriptPort("Value", "Boolean"));
+            FlowResource input = FlowResources.Capture(true).Items["hardware/" + groupedInput.Id + "/input"];
+            FlowStep step = BoundStep(input, "io.read");
             using (FlowNodeForm dialog = new FlowNodeForm(editor, step))
             {
                 dialog.Show(); Application.DoEvents();

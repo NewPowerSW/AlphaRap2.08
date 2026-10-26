@@ -53,7 +53,7 @@ internal static partial class ConfigurationCases
         module = FlowPrograms.Attach(FlowPrograms.AddModule("Transaction fixture"));
         FlowStep step = module.AddNode();
         step.ExecutionMode = "None"; step.Action = "flow.none"; step.Target = "";
-        step.ScriptSource = ""; step.ScriptInputs.Clear(); step.ScriptOutputs.Clear(); step.ScriptResources.Clear(); step.Inputs.Clear();
+        step.Inputs.Clear();
         module.Program.Mode = "Program"; module.Program.AutoEntry = step.Id;
         RegisterCoreParticipant();
         RegisterAdditionalParticipants(participants, main, host);
