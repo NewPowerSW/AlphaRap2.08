@@ -152,6 +152,7 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowResource resource in Items.Values)
             {
                 IFlowObject provider = resource.Instance as IFlowObject;
+                List<FlowMethod> declared = provider == null ? new List<FlowMethod>() : provider.GetFlowMethods(includeDraft).ToList();
                 NP_Motor motor = resource.Instance as NP_Motor;
                 if (motor != null)
                 {
@@ -163,8 +164,10 @@ namespace AlphaRap.FlowProgramming
                 }
                 if (resource.Kind == "point") provider = new FlowAxisObject(((FlowPointAxis)resource.Instance).Motor, new[] { resource }, true);
                 if (resource.Kind == "input" || resource.Kind == "output" || resource.Kind == "cylinder") provider = new FlowIoObject(resource.Instance);
-                if (provider == null) continue;
-                resource.Methods = provider.GetFlowMethods(includeDraft).ToList();
+                List<FlowMethod> standard = provider == null || ReferenceEquals(provider, resource.Instance)
+                    ? new List<FlowMethod>() : provider.GetFlowMethods(includeDraft).ToList();
+                resource.Methods = standard.Concat(declared).ToList();
+                if (!(resource.Instance is AbstractDevice)) resource.Methods.AddRange(FlowInheritedMethods.Discover(resource.Instance));
                 foreach (FlowMethod method in resource.Methods) method.ValidateDefinition();
                 if (resource.Methods.GroupBy(method => method.Id).Any(group => group.Count() > 1)) throw new InvalidOperationException("Duplicate method: " + resource.Id);
             }

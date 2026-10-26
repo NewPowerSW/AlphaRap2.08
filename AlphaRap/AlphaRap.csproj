@@ -975,6 +975,7 @@
     <Compile Include="Core\MiddleLayer.cs" />
     <Compile Include="Configuration\ProjectConfiguration.cs" />
     <Compile Include="Configuration\HardwareDefinition.cs"></Compile>
+    <Compile Include="Configuration\HardwareControlTypes.cs" />
     <Compile Include="Configuration\HardwareResources.cs"></Compile>
     <Compile Include="Configuration\HardwareText.cs"></Compile>
     <Compile Include="Configuration\HardwareEditForm.cs"><SubType>Form</SubType></Compile>
@@ -989,6 +990,7 @@
     <Compile Include="FlowProgramming\FlowBranchEditor.Designer.cs"><DependentUpon>FlowBranchEditor.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowUtilityObject.cs" />
     <Compile Include="FlowProgramming\FlowNodeForm.Execution.cs"><DependentUpon>FlowNodeForm.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowInheritedMethods.cs" />
     <Compile Include="FlowProgramming\FlowActions.cs" />
     <Compile Include="FlowProgramming\FlowInputForm.cs"><SubType>Form</SubType></Compile>
     <Compile Include="FlowProgramming\FlowInputForm.Designer.cs"><DependentUpon>FlowInputForm.cs</DependentUpon></Compile>

@@ -107,6 +107,8 @@ namespace AlphaRap.Configuration
             {
                 if (definition.Kind != current.Definition.Kind) throw new InvalidOperationException(HardwareText.T("invalid"));
                 if (!FlowResourceGate.CanAccess(current.Device) || (current.Group is NP_AxisGroup && ((NP_AxisGroup)current.Group).IsManualRunning)) throw new InvalidOperationException(FlowText.T("busy"));
+                if (HardwareControlTypes.Resolve(definition.Kind,definition.ControlType) != HardwareControlTypes.Resolve(current.Definition.Kind,current.Definition.ControlType))
+                    FlowPrograms.RequireHardwareUnused(definition.Id,PointsName(definition.Id));
                 if (Ready(current.Device))
                 {
                     RequiresRestart |= current.Definition.Fields().Union(definition.Fields()).Where(name => name != "Name")
@@ -116,9 +118,10 @@ namespace AlphaRap.Configuration
                     if (axis != null) axis.AxisCaption = definition.Name;
                     IsDirty = true; if (Changed != null) Changed(this,EventArgs.Empty); return current;
                 }
-                RemoveGroup(current);
             }
-            HardwareEntry created = Create(definition.Copy());
+            HardwareEntry created = BuildEntry(definition.Copy());
+            if (current != null) RemoveGroup(current);
+            MountEntry(created);
             IsDirty = true;
             if (Changed != null) Changed(this,EventArgs.Empty);
             return created;
@@ -221,15 +224,37 @@ namespace AlphaRap.Configuration
         /// <summary>创建一个资源组合和其真实驱动对象，名称及点位表身份来自稳定 ID。</summary>
         private HardwareEntry Create(HardwareDefinition definition)
         {
+            HardwareEntry entry = BuildEntry(definition);
+            MountEntry(entry);
+            return entry;
+        }
+
+        /// <summary>先完整创建候选控件，构造或参数赋值失败不移除现有资源。</summary>
+        private HardwareEntry BuildEntry(HardwareDefinition definition)
+        {
             HardwareEntry entry = new HardwareEntry { Definition = definition };
-            if (definition.Kind == "Axis") CreateAxis(entry);
-            else CreateIo(entry);
+            try
+            {
+                if (definition.Kind == "Axis") CreateAxis(entry);
+                else CreateIo(entry);
+            }
+            catch
+            {
+                if (entry.Group != null) entry.Group.Dispose();
+                throw;
+            }
             entry.Group.Name = "resource_" + definition.Id; entry.Group.Tag = definition;
             entry.Device.InitializeWithSdk = false;
+            return entry;
+        }
+
+        /// <summary>候选资源创建成功后加入所属页面及稳定身份目录。</summary>
+        private void MountEntry(HardwareEntry entry)
+        {
+            HardwareDefinition definition = entry.Definition;
             FlowLayoutPanel host = definition.Kind=="Axis" ? canvas : ioCanvas;
             (host??canvas).Controls.Add(entry.Group); entry.Group.Visible = host!=null;
             entries.Add(definition.Id,entry);
-            return entry;
         }
 
         /// <summary>轴模板绑定独立的当前配方点位表，内部字段不进入通用扫描路径。</summary>
@@ -237,6 +262,15 @@ namespace AlphaRap.Configuration
         {
             HardwareDefinition definition = entry.Definition;
             NP_AxisGroup group = new NP_AxisGroup { AxisCaption = definition.Name, LowLimit = definition.LowLimit, HighLimit = definition.HighLimit };
+            entry.Group = group;
+            Type type = HardwareControlTypes.Resolve(definition.Kind,definition.ControlType);
+            if (type != typeof(NP_Motor))
+            {
+                NP_Motor motor = (NP_Motor)Activator.CreateInstance(type);
+                motor.Visible = false;
+                group.BindMotor(motor);
+                group.Controls.Add(motor);
+            }
             group.Motor.Name = "Axis_" + definition.Id; group.Motor.Text = definition.Name;
             CopyProperties(definition,group.Motor,definition.Fields());
             DataTable table = owner.RecipeData.Tables[PointsName(definition.Id)];
@@ -255,6 +289,14 @@ namespace AlphaRap.Configuration
         {
             HardwareDefinition definition = entry.Definition;
             NP_IoGroup group = definition.Kind == "Output" ? (NP_IoGroup)new NP_OutputGroup() : new NP_InputGroup();
+            entry.Group = group;
+            Type type = HardwareControlTypes.Resolve(definition.Kind,definition.ControlType);
+            Type basis = definition.Kind == "Output" ? typeof(NP_Output) : typeof(NP_Input);
+            if (type != basis)
+            {
+                ControlBaseInterface signal = (ControlBaseInterface)Activator.CreateInstance(type);
+                group.BindIO(signal);
+            }
             group.SignalCaption = definition.Name; group.IO.Name = "IO_" + definition.Id;
             CopyProperties(definition,group.IO,definition.Fields());
             group.CanOperate = () => CanOperate() && !RequiresRestart;
@@ -264,7 +306,7 @@ namespace AlphaRap.Configuration
         /// <summary>仅拷贝 DTO 中预先列出的可配置属性，不执行任意动态对象方法。</summary>
         private static void CopyProperties(HardwareDefinition definition, object target, IEnumerable<string> fields)
         {
-            foreach (string field in fields.Where(name=>name!="Name"))
+            foreach (string field in fields.Where(name=>name!="Name" && name!="ControlType"))
             {
                 System.Reflection.PropertyInfo property = target.GetType().GetProperty(field);
                 if (property != null && property.CanWrite) property.SetValue(target,typeof(HardwareDefinition).GetField(field).GetValue(definition),null);
@@ -300,7 +342,7 @@ namespace AlphaRap.Configuration
                 string kind = device is NP_Motor ? "Axis" : device is NP_Input ? "Input" : device is NP_Output ? "Output" : null;
                 if (kind != definition.Kind) continue;
                 HardwareDefinition existing = new HardwareDefinition { Kind = kind };
-                foreach (string field in HardwareDefinition.CommonFields.Concat(kind == "Axis" ? new string[0] : HardwareDefinition.IoFields).Where(name=>name!="Name"))
+                foreach (string field in HardwareDefinition.CommonFields.Concat(kind == "Axis" ? new string[0] : HardwareDefinition.IoFields).Where(name=>name!="Name" && name!="ControlType"))
                 {
                     System.Reflection.PropertyInfo property = device.GetType().GetProperty(field);
                     if (property != null) typeof(HardwareDefinition).GetField(field).SetValue(existing,property.GetValue(device,null));

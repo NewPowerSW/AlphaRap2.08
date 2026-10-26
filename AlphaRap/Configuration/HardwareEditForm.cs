@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace AlphaRap.Configuration
@@ -12,6 +13,12 @@ namespace AlphaRap.Configuration
         private readonly Dictionary<string, string> edited = new Dictionary<string, string>();
         private bool filling;
 
+        private sealed class TypeChoice
+        {
+            public string Value { get; set; }
+            public string Text { get { return string.IsNullOrEmpty(Value) ? HardwareText.T("controlTypeDefault") : Value.Substring(Value.IndexOf('|') + 1); } }
+        }
+
         /// <summary>建立固定资源参数编辑模板。</summary>
         public HardwareEditForm() { InitializeComponent(); }
 
@@ -22,7 +29,16 @@ namespace AlphaRap.Configuration
             FillFields();
             ok.Click += Save;
             parameters.CellFormatting += (sender,args) => {
-                if (args.ColumnIndex != 0 || args.RowIndex < 0) return;
+                if (args.RowIndex < 0) return;
+                string fieldName = Convert.ToString(parameters.Rows[args.RowIndex].Cells[0].Value);
+                if (args.ColumnIndex == 1 && fieldName == "ControlType")
+                {
+                    string identity = Convert.ToString(args.Value);
+                    args.Value = identity.Length == 0 ? HardwareText.T("controlTypeDefault") : identity.Substring(identity.IndexOf('|') + 1);
+                    args.FormattingApplied = true;
+                    return;
+                }
+                if (args.ColumnIndex != 0) return;
                 string name = Convert.ToString(args.Value);
                 args.Value = HardwareText.T(name == "Port" ? draft.Kind == "Axis" ? "AxisPort" : "IoPort" : name); args.FormattingApplied = true;
             };
@@ -41,6 +57,15 @@ namespace AlphaRap.Configuration
             if (!edited.TryGetValue(name, out value)) value = Convert.ToString(field.GetValue(draft), CultureInfo.InvariantCulture);
             int row = parameters.Rows.Add(name, value);
             DataGridViewComboBoxCell choices = null;
+            if (name == "ControlType")
+            {
+                List<TypeChoice> types = new List<TypeChoice> { new TypeChoice { Value="" } };
+                types.AddRange(HardwareControlTypes.Available(draft.Kind)
+                    .Where(type => type != HardwareControlTypes.Resolve(draft.Kind,""))
+                    .Select(type => new TypeChoice { Value=HardwareControlTypes.Identity(type) }));
+                if (!types.Any(type => type.Value == value)) types.Add(new TypeChoice { Value=value });
+                choices = new DataGridViewComboBoxCell { DataSource=types, DisplayMember="Text", ValueMember="Value" };
+            }
             if (field.FieldType.IsEnum) { choices = new DataGridViewComboBoxCell(); foreach (string item in name == "Vendor" ? draft.Vendors() : Enum.GetNames(field.FieldType)) choices.Items.Add(item); }
             if (field.FieldType == typeof(bool)) { choices = new DataGridViewComboBoxCell(); choices.Items.AddRange("True","False"); }
             if (choices == null) return;

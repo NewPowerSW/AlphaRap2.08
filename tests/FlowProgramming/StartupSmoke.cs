@@ -13,6 +13,12 @@ using NPSDK.Motion;
 using NPSDK;
 using System.Collections.Generic;
 
+public sealed class StartupDerivedAxis : NP_Motor
+{
+    /// <summary>Expose one inherited tool on the actual axis persisted by Main Save.</summary>
+    public double CheckOffset(double value) { return value + 1; }
+}
+
 internal static class StartupSmoke
 {
     /// <summary>Resolve installed UI dependencies, then exercise the real form creation sequence without starting hardware.</summary>
@@ -139,6 +145,7 @@ internal static class StartupSmoke
         HardForm hardware = (HardForm)host.GetField("HardF",BindingFlags.Static|BindingFlags.Public).GetValue(null);
         DataForm data = (DataForm)host.GetField("DataF",BindingFlags.Static|BindingFlags.Public).GetValue(null);
         HardwareDefinition definition = hardware.Resources.NewDefinition("Axis");
+        definition.ControlType = HardwareControlTypes.Identity(typeof(StartupDerivedAxis));
         NP_AxisGroup axis = (NP_AxisGroup)hardware.Resources.Put(definition).Group; axis.Points.DataSet1.Rows.Add(21,"Main save point");
         setting.Constants.Put("Setting",null,new ConstantValue { Key="MainSaveFlag",Type="Boolean",Value="True" });
         setting.Constants.Put("Recipe",null,new ConstantValue { Key="MainRecipeNumber",Type="Number",Value="12.5" });
@@ -150,6 +157,8 @@ internal static class StartupSmoke
         ChooseSave(main,"Button1_dyn");
         bool dirty = hardware.Resources.IsDirty;
         bool resourceExists = HardwareResources.Load(hardware.Resources.PathName).Resources.Any(item=>item.Id==definition.Id);
+        if (HardwareResources.Load(hardware.Resources.PathName).Resources.Single(item => item.Id == definition.Id).ControlType != definition.ControlType)
+            throw new InvalidOperationException("Main Save did not persist the selected inherited axis type.");
         bool schema = data.GetProductionSchema().Any(field=>field.Name=="MainValue");
         bool flowIsProgram = flow.IsProgram;
         if (dirty || !resourceExists || !schema || !flowIsProgram)
@@ -163,6 +172,9 @@ internal static class StartupSmoke
         data.SetProductionDraft(new List<ProductionField> { new ProductionField { Name="DiscardedField" } });
         ChooseSave(main,"Button3_dyn");
         axis=(NP_AxisGroup)hardware.Resources.Entries.Single(entry=>entry.Definition.Id==definition.Id).Group;
+        if (!(axis.Motor is StartupDerivedAxis)
+            || !FlowResources.Capture().Items.Values.Single(item => ReferenceEquals(item.Instance, axis.Motor)).Methods.Any(method => method.Id.StartsWith("auto.CheckOffset.", StringComparison.Ordinal)))
+            throw new InvalidOperationException("Main Save No lost the saved inherited axis type or its automatic tools.");
         double restoredPoint=axis.Points.DataSet1.Rows[0].Field<double>("Position");
         bool scratchRemains=hardware.Resources.Entries.Any(entry=>entry.Definition.Id==scratch.Id);
         bool discardedFieldRemains=data.GetProductionDraft().Any(field=>field.Name=="DiscardedField");

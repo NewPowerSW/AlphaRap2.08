@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Data;
 using System.Drawing;
@@ -32,7 +32,7 @@ internal static partial class Cases
         HardwareDefinition axis = new HardwareDefinition();
         Assert(axis.Vendors().SequenceEqual(new[] { "Adlink", "Leadshine" }) && NPControlBase.CreateAxis(NPVendor.Omron) == null && NPControlBase.CreateAxis(NPVendor.Keyence) == null, "Unsupported PLC brands were offered as motion drivers.");
         HardwareDefinition io = new HardwareDefinition { Kind = "Input", Port = "00100", PlcIp = "unused", PlcPort = -1, OmronPort = -1, Address = -1 };
-        io.Validate(); Assert(io.Fields().SequenceEqual(new[] { "Name", "Vendor", "Port", "ReverseState" }), "Leadshine reads unused PLC properties.");
+        io.Validate(); Assert(io.Fields().SequenceEqual(new[] { "Name", "ControlType", "Vendor", "Port", "ReverseState" }), "Leadshine reads unused PLC properties.");
         using (HardwareEditForm dialog = new HardwareEditForm(axis, value => { }))
         {
             DataGridView grid = (DataGridView)dialog.Controls.Find("hardwareParameters", true)[0];
@@ -48,9 +48,9 @@ internal static partial class Cases
         {
             dialog.Show(); Application.DoEvents();
             DataGridView grid = (DataGridView)dialog.Controls.Find("hardwareParameters", true)[0];
-            AssertFields(grid, "Name", "Vendor", "Port", "ReverseState");
+            AssertFields(grid, "Name", "ControlType", "Vendor", "Port", "ReverseState");
             PropertyRow(grid, "Vendor").Cells[1].Value = "Keyence"; Application.DoEvents();
-            AssertFields(grid, "Name", "Vendor", "PlcIp", "PlcPort", "DeviceType", "DataFormat", "Address", "ReverseState");
+            AssertFields(grid, "Name", "ControlType", "Vendor", "PlcIp", "PlcPort", "DeviceType", "DataFormat", "Address", "ReverseState");
             PropertyRow(grid, "Address").Cells[1].Value = "8";
             grid.CurrentCell = PropertyRow(grid, "PlcIp").Cells[1]; grid.BeginEdit(false); ((TextBox)grid.EditingControl).Text = "10.9.8.";
             foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
@@ -60,10 +60,10 @@ internal static partial class Cases
             }
             ((TextBox)grid.EditingControl).Text = "10.9.8.7"; grid.EndEdit();
             PropertyRow(grid, "Vendor").Cells[1].Value = "Omron"; Application.DoEvents();
-            AssertFields(grid, "Name", "Vendor", "PlcIp", "OmronAddress", "OmronPort", "ReverseState");
+            AssertFields(grid, "Name", "ControlType", "Vendor", "PlcIp", "OmronAddress", "OmronPort", "ReverseState");
             PropertyRow(grid, "OmronAddress").Cells[1].Value = "I04[0]";
             PropertyRow(grid, "Vendor").Cells[1].Value = "Leadshine"; Application.DoEvents();
-            AssertFields(grid, "Name", "Vendor", "Port", "ReverseState");
+            AssertFields(grid, "Name", "ControlType", "Vendor", "Port", "ReverseState");
             PropertyRow(grid, "Vendor").Cells[1].Value = "Keyence"; Application.DoEvents();
             Assert(Convert.ToString(PropertyRow(grid, "PlcIp").Cells[1].Value) == "10.9.8.7" && Convert.ToString(PropertyRow(grid, "Address").Cells[1].Value) == "8", "Switching vendor replaced the retained parameter text.");
             using (Bitmap image = new Bitmap(dialog.Width, dialog.Height)) { dialog.DrawToBitmap(image, new Rectangle(Point.Empty, dialog.Size)); image.Save(Path.Combine(root, "keyence-properties.png")); }
