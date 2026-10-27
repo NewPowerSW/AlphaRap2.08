@@ -193,7 +193,7 @@ internal static partial class Cases
         Test("native IDLE polling shares one deadline and undeclared exits report one alarm", NativeEventFailures);
         Test("native simulation uses the declared preview and rejects undeclared hardware execution", NativeEventSimulation);
         Test("actual flow page selection refreshes native tools and native editor exposes targets without duplicate conditions", NativePageAndEditor);
-        Test("native double clicks leave code nodes unchanged while dragging and explicit properties remain available", NativeDoubleClickPolicy);
+        Test("native nodes block double clicks and property edits while preserving other node editors dragging and breakpoints", NativeDoubleClickPolicy);
         Test("unified flow imports native page roots and original links without invoking legacy lifecycle methods", NativeUnifiedImport);
         Test("saved Legacy definitions migrate to one mixed flow while preserving explicit entries positions and native identities", NativeUnifiedReload);
         Test("ambiguous native page roots block validation and starting until an entry is selected", NativeUnifiedAmbiguousEntry);
@@ -812,8 +812,39 @@ internal static partial class Cases
                 Flow_Chart control = page.Canvas.Controls.OfType<Flow_Chart>().Single(node => node.Name == editable.ControlName);
                 Assert(NativeEditorCount(() => NativeDoubleClick(control)) == 1, "A function or condition node lost its double-click editor.");
             }
-            Assert(NativeEditorCount(() => owner.EditNode(native.Id)) == 1 && ActionNodeXml(native) == before,
-                "Explicit code-node properties were blocked or cancelling them changed the node.");
+            Assert(NativeEditorCount(() => owner.EditNode(native.Id)) == 0 && ActionNodeXml(native) == before,
+                "The direct property entry opened a code-node editor or changed its binding.");
+            using (Flow view = new Flow())
+            {
+                typeof(Flow).GetMethod("BindNodeMenus", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(view, new object[] { page });
+                foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+                {
+                    SwitchLanguage(language);
+                    foreach (Flow_Chart code in new[] { nativeControl, page.BoundNode })
+                    {
+                        Control codeSurface = code.Controls.Find("button1", true).Single();
+                        ContextMenuStrip menu = codeSurface.ContextMenuStrip;
+                        menu.Show(codeSurface, new Point(5, 5)); Application.DoEvents();
+                        Assert(!menu.Items["nodeProperties"].Available && !menu.Items["nodeProperties"].Enabled
+                            && menu.Items["nodeBreakpoint"].Enabled && menu.Items["nodeDelete"].Enabled,
+                            "A new or imported code node retained its property entry or lost breakpoint/delete commands.");
+                        Assert(NativeEditorCount(() => menu.Items["nodeProperties"].PerformClick()) == 0, "A hidden code-node property command opened an editor.");
+                        menu.Close();
+                    }
+                    foreach (FlowStep editable in new[] { action, condition })
+                    {
+                        Flow_Chart control = page.Canvas.Controls.OfType<Flow_Chart>().Single(node => node.Name == editable.ControlName);
+                        Control editableSurface = control.Controls.Find("button1", true).Single();
+                        ContextMenuStrip menu = editableSurface.ContextMenuStrip;
+                        menu.Show(editableSurface, new Point(5, 5)); Application.DoEvents();
+                        Assert(menu.Items["nodeProperties"].Available && menu.Items["nodeProperties"].Enabled,
+                            "Switching from a code node hid another node's property command.");
+                        Assert(NativeEditorCount(() => menu.Items["nodeProperties"].PerformClick()) == 1, "An ordinary node lost its property editor.");
+                        menu.Close();
+                    }
+                }
+            }
+            Assert(ActionNodeXml(native) == before, "Inspecting code-node menus modified its saved definition.");
             Point location = nativeControl.Location;
             Control surface = nativeControl.Controls.Find("button1", true).Single();
             RaiseMouse(surface, "OnMouseDown", new MouseEventArgs(MouseButtons.Left, 1, 8, 8, 0));

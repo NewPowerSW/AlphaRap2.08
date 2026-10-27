@@ -743,7 +743,7 @@ namespace AlphaRap.FlowProgramming
             }
         }
 
-        /// <summary>双击仅配置功能和条件节点，代码节点通过右键属性维护流程设置。</summary>
+        /// <summary>双击仅配置功能和条件节点，代码节点保持只读绑定。</summary>
         private void Configure(object sender, EventArgs args)
         {
             if (!editing) return;
@@ -754,13 +754,14 @@ namespace AlphaRap.FlowProgramming
             catch (Exception error) { MessageBox.Show(string.Format(FlowText.T("error"), error.Message), FlowText.T("title")); }
         }
 
-        /// <summary>双击和右键属性共用一个节点编辑入口，确定后仅提交内存草稿。</summary>
+        /// <summary>功能和条件节点共用编辑入口；代码节点不打开属性窗口。</summary>
         public void EditNode(string id)
         {
             FlowPrograms.RequireIdle();
             if (!editing) throw new InvalidOperationException(FlowText.T("enableEditing"));
             FlowStep step = Program.Steps.SingleOrDefault(item => item.Id == id);
             if (step == null) throw new InvalidOperationException(FlowText.T("methodMissing"));
+            if (step.UsesFlowResult) return;
             using (FlowNodeForm dialog = new FlowNodeForm(this, step))
                 if (dialog.ShowDialog(Form) == DialogResult.OK) { ApplyLinks(); if (Changed != null) Changed(this, EventArgs.Empty); }
         }

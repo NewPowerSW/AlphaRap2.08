@@ -257,10 +257,12 @@ namespace AlphaRap
             if (source == null) { args.Cancel = true; return; }
             contextModule = FlowPrograms.Modules.FirstOrDefault(module => module.Form.Contains(source) && !module.Program.Removed);
             if (contextModule != null) contextNodeId = contextModule.IdOf((Flow_Chart)source);
+            FlowStep step = contextModule == null ? null : contextModule.Program.Steps.SingleOrDefault(item => item.Id == contextNodeId);
             nodeDelete.Enabled = contextNodeId != null && FlowPrograms.CanEdit && !FlowPrograms.AnyRunning && SysPara.SystemMode == RunMode.IDLE && !Flow_Module.Module_GetRunningStatus;
-            nodeProperties.Enabled = nodeDelete.Enabled && contextModule.IsEditing;
+            nodeProperties.Available = step != null && !step.UsesFlowResult;
+            nodeProperties.Enabled = nodeProperties.Available && nodeDelete.Enabled && contextModule.IsEditing;
             nodeBreakpoint.Enabled = nodeDelete.Enabled;
-            nodeBreakpoint.Checked = contextModule != null && contextModule.Program.Steps.Any(step => step.Id == contextNodeId && step.Breakpoint);
+            nodeBreakpoint.Checked = step != null && step.Breakpoint;
         }
 
         /// <summary>确认后删除指定节点，统一清理入口和 NEXT / CASE 连接。</summary>
