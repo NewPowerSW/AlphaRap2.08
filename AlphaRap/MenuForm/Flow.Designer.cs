@@ -4,14 +4,13 @@ namespace AlphaRap
 {
     partial class Flow
     {
-        private Label modeEntryLabel;
         private Label initialEntryEntryLabel;
         private Label autoEntryEntryLabel;
         private TabControl tabControl1;
         private FlowLayoutPanel toolbar;
         private FlowLayoutPanel entries;
         private CheckBox edit;
-        private ComboBox modeValue;
+        private CheckBox moduleEnabled;
         private ComboBox initialValue;
         private ComboBox autoValue;
         private Label status;
@@ -66,8 +65,13 @@ namespace AlphaRap
             this.entries.Name = "entries";
             this.edit = new CheckBox();
             this.edit.Name = "edit";
-            this.modeValue = new ComboBox();
-            this.modeValue.Name = "modeValue";
+            this.moduleEnabled = new CheckBox();
+            this.moduleEnabled.Name = "moduleEnabled";
+            this.moduleEnabled.Tag = "moduleEnabled";
+            this.moduleEnabled.Text = "启用流程";
+            this.moduleEnabled.AutoSize = true;
+            this.moduleEnabled.Checked = true;
+            this.moduleEnabled.Margin = new Padding(3, 6, 16, 3);
             this.initialValue = new ComboBox();
             this.initialValue.Name = "initialValue";
             this.autoValue = new ComboBox();
@@ -116,11 +120,13 @@ namespace AlphaRap
             this.schema = new Button();
             this.schema.Name = "schema";
             this.toolbar.Dock = DockStyle.Top;
-            this.toolbar.Height = 78;
+            this.toolbar.AutoSize = true;
+            this.toolbar.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             this.toolbar.WrapContents = true;
             this.toolbar.Padding = new Padding(6);
             this.entries.Dock = DockStyle.Top;
-            this.entries.Height = 72;
+            this.entries.AutoSize = true;
+            this.entries.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             this.entries.WrapContents = true;
             this.entries.Padding = new Padding(6);
             this.edit.Tag = "edit";
@@ -168,16 +174,7 @@ namespace AlphaRap
             this.debugPanel.Dock = DockStyle.Bottom;
             this.debugPanel.Height = 235;
             this.debugPanel.Visible = false;
-            this.modeValue.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.modeValue.Width = 220;
-            this.modeEntryLabel = new Label();
-            this.modeEntryLabel.Name = "modeEntryLabel";
-            this.modeEntryLabel.Tag = "mode";
-            this.modeEntryLabel.Text = "运行模式";
-            this.modeEntryLabel.AutoSize = true;
-            this.modeEntryLabel.Padding = new Padding(0, 6, 0, 0);
-            this.entries.Controls.Add(this.modeEntryLabel);
-            this.entries.Controls.Add(this.modeValue);
+            this.entries.Controls.Add(this.moduleEnabled);
             this.initialValue.DropDownStyle = ComboBoxStyle.DropDownList;
             this.initialValue.Width = 220;
             this.initialEntryEntryLabel = new Label();
@@ -200,14 +197,15 @@ namespace AlphaRap
             this.entries.Controls.Add(this.autoValue);
             this.tabControl1.Dock = DockStyle.Fill;
             this.tabControl1.Font = new Font("Microsoft YaHei", 10F);
-            this.hint.Name = "flowHint";
-            this.hint.Tag = "hint";
-            this.hint.Text = "编辑模式下拖动、双击节点。配置统一使用主界面【保存】；退出编辑后使用主界面初始化 / 启动，运行模式取机器 Simulation 设置。";
+            this.hint.Name = "flowHelp";
+            this.hint.Tag = "compactHint";
+            this.hint.Text = "拖入节点 → 右键配置 → 主界面保存。代码节点双击不编辑。";
             this.hint.Dock = DockStyle.Bottom;
-            this.hint.Height = 40;
+            this.hint.Height = 28;
+            this.hint.AutoEllipsis = true;
             this.status.Name = "flowStatus_dyn";
             this.status.Dock = DockStyle.Bottom;
-            this.status.Height = 28;
+            this.status.Height = 22;
             this.status.AutoEllipsis = true;
             this.workspace.Name = "flowWorkspace";
             this.workspace.Dock = System.Windows.Forms.DockStyle.Fill;

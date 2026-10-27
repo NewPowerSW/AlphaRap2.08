@@ -113,7 +113,8 @@ internal static partial class Cases
         using (FlowToolboxControl toolbox = new FlowToolboxControl { Dock = DockStyle.Fill })
         {
             form.Controls.Add(toolbox); form.Show(); Application.DoEvents();
-            toolbox.BindActions(new FlowActions(FlowResources.Capture(true)));
+            FlowResources catalogue = FlowResources.Capture(true);
+            toolbox.BindActions(new FlowActions(catalogue));
             TreeView tree = ActionControl<TreeView>(toolbox, "toolboxEntries");
             TextBox search = ActionControl<TextBox>(toolbox, "toolboxSearch");
             string[] chinese = null;
@@ -136,8 +137,29 @@ internal static partial class Cases
                 toolbox.RefreshLanguage(); Assert(search.Text == "flow/value", "Language refresh cleared the toolbox search.");
                 Screenshot(form, "action-only-toolbox-" + language); search.Clear();
             }
+            ActionLeaseProbe probe = new ActionLeaseProbe();
+            catalogue.Items.Add("probe/rebind", new FlowResource { Id = "probe/rebind", Kind = "device", Label = "Rebind probe", Instance = probe, Methods = probe.GetFlowMethods().ToList() });
+            FlowActions rebound = new FlowActions(catalogue);
+            search.Text = "probe/rebind";
+            Assert(tree.Nodes.Count == 0, "A search rebuilt the catalogue before it was rebound.");
+            toolbox.BindActions(rebound);
+            Assert(search.Text == "probe/rebind" && tree.Nodes.Count == 1 && tree.Nodes[0].Nodes.Count == 1
+                && ((FlowToolboxEntry)tree.Nodes[0].Nodes[0].Tag).TargetId == "probe/rebind", "Rebinding did not refresh the actual catalogue or retained the wrong target.");
+            SwitchLanguage(LanguageType.English); Application.DoEvents();
+            Assert(search.Text == "probe/rebind" && tree.Nodes.Count == 1, "A language switch cleared the search or lost its matching tool.");
+            catalogue.Items.Remove("probe/rebind");
+            toolbox.BindActions(rebound);
+            Assert(tree.Nodes.Count == 0 && search.Text == "probe/rebind" && probe.Calls == 0 && probe.Simulations == 0,
+                "Rebinding retained a deleted target or invoked the real method while browsing.");
+            search.Clear();
             FlowToolboxEntry inserted = null; toolbox.InsertRequested += value => inserted = value;
             tree.SelectedNode = tree.Nodes.Cast<TreeNode>().SelectMany(group => group.Nodes.Cast<TreeNode>()).Single(node => ((FlowToolboxEntry)node.Tag).ExecutionMode == "None");
+            string selectedId = ((FlowToolboxEntry)tree.SelectedNode.Tag).Id;
+            search.Text = "missing-tool-" + Guid.NewGuid().ToString("N");
+            Assert(tree.Nodes.Count == 0 && ActionControl<Label>(toolbox, "toolboxEmpty").Visible, "An empty search did not show the no-results state.");
+            search.Clear();
+            Assert(tree.SelectedNode != null && ((FlowToolboxEntry)tree.SelectedNode.Tag).Id == selectedId,
+                "Clearing a temporary filter lost the previously selected tool.");
             typeof(Control).GetMethod("OnKeyDown", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(tree, new object[] { new KeyEventArgs(Keys.Enter) });
             Assert(inserted != null && inserted.ExecutionMode == "None", "Enter did not request the selected condition node.");
         }

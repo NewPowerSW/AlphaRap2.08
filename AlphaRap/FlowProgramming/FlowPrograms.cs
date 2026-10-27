@@ -20,7 +20,7 @@ namespace AlphaRap.FlowProgramming
         public static bool DebugEnabled { get; set; }
         public static bool AnyRunning { get { return modules.Values.Any(module => module.Runtime.IsRunning); } }
         public static bool AnyEditing { get { return modules.Values.Any(module => module.IsEditing); } }
-        public static bool HasPrograms { get { return modules.Values.Any(module => module.IsProgram || module.IsRemovedPublished); } }
+        public static bool HasPrograms { get { return modules.Count > 0; } }
         public static bool IsInitialized { get { return HasPrograms && modules.Values.All(module => module.IsEnabled && module.Form.InitialStatus); } }
         public static bool CanEdit { get { return SysPara.UserPermission == PermissionType.Administrator || SysPara.UserPermission == PermissionType.Maintenance; } }
         public static IEnumerable<FlowModuleEditor> Modules { get { return modules.Values.ToArray(); } }
@@ -117,7 +117,7 @@ namespace AlphaRap.FlowProgramming
         public static void ValidateForSave()
         {
             RequireIdle();
-            if (loadError != null) throw new InvalidDataException("Reload or restore the project backup first.", loadError);
+            RequireLoaded();
             foreach (FlowModuleEditor editor in modules.Values) { editor.CaptureLayout(); editor.Validate(null); }
         }
 
@@ -127,6 +127,12 @@ namespace AlphaRap.FlowProgramming
             if (System.IO.File.Exists(FilePath)) { Reload(); return; }
             foreach (FlowModuleEditor editor in modules.Values) editor.RestorePublished();
             project.Modules = modules.Values.Select(editor=>editor.Program).ToList();
+        }
+
+        /// <summary>首次加载失败时禁止保存或生产执行，修复后重新加载才能恢复。</summary>
+        internal static void RequireLoaded()
+        {
+            if (loadError != null) throw new InvalidDataException(FlowText.T("projectReloadRequired"), loadError);
         }
 
         /// <summary>先完整读取并验证，再替换内存工程；失败时保留当前设计。</summary>
@@ -292,7 +298,7 @@ namespace AlphaRap.FlowProgramming
             if (users.Count != 0) throw new InvalidOperationException(string.Format(FlowResourceText.T("resourceUsed"), string.Join(Environment.NewLine, users)));
         }
 
-        /// <summary>检查生产入口，显式阻止旧回调与配置流程混合控制同一设备。</summary>
+        /// <summary>检查统一流程的生产入口、初始化状态及已保存定义。</summary>
         public static bool CanStartMachine(bool initialize)
         {
             if (DebugEnabled && !CanEdit) { MessageBox.Show(FlowText.T("permission"), FlowText.T("title")); return false; }
@@ -308,9 +314,9 @@ namespace AlphaRap.FlowProgramming
             if (!HasPrograms) return true;
             try
             {
+                RequireLoaded();
                 foreach (FlowModuleEditor module in modules.Values)
                 {
-                    if (!module.IsEnabled) throw new InvalidOperationException("Set every flow module to Program or Disabled before machine execution: " + module.Form.Name);
                     if (!initialize && !module.Form.InitialStatus) throw new InvalidOperationException("Initialize the module first: " + module.Form.Name);
                     module.ValidatePublished();
                 }
@@ -319,12 +325,13 @@ namespace AlphaRap.FlowProgramming
             catch (Exception error) { MessageBox.Show(string.Format(FlowText.T("error"), error.Message), FlowText.T("title")); return false; }
         }
 
-        /// <summary>向源选择器提供全部模块的具名输出，引用使用稳定节点身份。</summary>
+        /// <summary>按草稿或已发布计划提供全部模块的具名输出，引用使用稳定节点身份。</summary>
         public static List<FlowChoice> OutputChoices(FlowActions actions)
         {
             List<FlowChoice> result = new List<FlowChoice>();
             foreach (FlowModuleEditor editor in modules.Values)
-                foreach (FlowStep step in editor.Program.Steps) AddOutputChoices(result, actions, editor, step);
+                foreach (FlowStep step in (actions.UsePublishedOutputs ? editor.PublishedProgram : editor.Program).Steps)
+                    AddOutputChoices(result, actions, editor, step);
             return result;
         }
 
@@ -362,7 +369,8 @@ namespace AlphaRap.FlowProgramming
         public readonly FlowProgramRuntime Runtime = new FlowProgramRuntime();
         public FlowProgram Program { get; private set; }
         private FlowProgram published;
-        public bool IsEnabled { get { return published != null && published.Mode != "Legacy"; } }
+        internal FlowProgram PublishedProgram { get { return published; } }
+        public bool IsEnabled { get { return true; } }
         public bool IsProgram { get { return published != null && published.Mode == "Program"; } }
         public bool IsRemovedPublished { get { return published != null && published.Removed; } }
         public bool IsEditing { get { return editing; } }
@@ -380,7 +388,17 @@ namespace AlphaRap.FlowProgramming
             Runtime.AlarmRequested += code => { if (!simulating) Alarm.Show(string.IsNullOrWhiteSpace(code) ? "2019" : code); };
             Runtime.Finished += Finish;
             MiddleLayer.LanguageChanged += RefreshBindingHints;
-            Form.Disposed += (sender, args) => { MiddleLayer.LanguageChanged -= RefreshBindingHints; bindingHints.Dispose(); };
+            Form.Disposed += DisposeEditor;
+        }
+
+        /// <summary>释放编辑器提示和为撤销暂存的脱离画布节点。</summary>
+        private void DisposeEditor(object sender, EventArgs args)
+        {
+            MiddleLayer.LanguageChanged -= RefreshBindingHints;
+            bindingHints.Dispose();
+            foreach (Flow_Chart node in removedNodes.Values)
+                if (node.Parent == null) node.Dispose();
+            removedNodes.Clear();
         }
 
         /// <summary>递归枚举节点及其父容器，保留现有窗体布局。</summary>
@@ -399,6 +417,8 @@ namespace AlphaRap.FlowProgramming
         {
             if (Runtime.IsRunning) throw new InvalidOperationException(FlowText.T("busy"));
             ValidateLayout(program);
+            bool importing = program.Mode == "Legacy";
+            if (importing) program.Mode = "Program";
             foreach (ScrollableControl canvas in program.Steps.Select(step => FindParent(step.ParentPath)).OfType<ScrollableControl>().Distinct()) canvas.AutoScrollPosition = Point.Empty;
             foreach (Flow_Chart node in nodes.Values) node.ConfigurationRequested -= Configure;
             nodes.Clear();
@@ -445,6 +465,11 @@ namespace AlphaRap.FlowProgramming
             }
             ImportLegacyLinks();
             foreach (FlowStep step in Program.Steps) FlowNativeMethods.BindExisting(Form, nodes[step.Id], step);
+            if (importing)
+            {
+                if (string.IsNullOrEmpty(program.InitialEntry)) program.InitialEntry = ImportedEntry(Form.InitialPage);
+                if (string.IsNullOrEmpty(program.AutoEntry)) program.AutoEntry = ImportedEntry(Form.AutoPage);
+            }
             ApplyLinks();
             foreach (ScrollableControl canvas in nodes.Values.Select(node => node.Parent).OfType<ScrollableControl>().Distinct()) UpdateCanvasBounds(canvas);
         }
@@ -470,6 +495,16 @@ namespace AlphaRap.FlowProgramming
                 if (step.Case2 == null) step.Case2 = IdOf(node.Casse2);
                 if (step.Case3 == null) step.Case3 = IdOf(node.Casse3);
             }
+        }
+
+        /// <summary>首次导入仅采用所在页唯一的无入边原节点，多个流程入口由工程师明确选择。</summary>
+        private string ImportedEntry(Control page)
+        {
+            FlowStep[] steps = Program.Steps.Where(step => originalControls.Contains(step.ControlName)
+                && page.Contains(nodes[step.Id])).ToArray();
+            HashSet<string> destinations = new HashSet<string>(steps.SelectMany(step => new[] { step.Next, step.Case1, step.Case2, step.Case3 }).Where(id => id != null));
+            FlowStep[] roots = steps.Where(step => !destinations.Contains(step.Id)).ToArray();
+            return roots.Length == 1 ? roots[0].Id : null;
         }
 
         /// <summary>取得节点稳定身份。</summary>
@@ -539,7 +574,6 @@ namespace AlphaRap.FlowProgramming
                     description = string.Format(FlowNativeText.T("nativeBinding"), Form.Name, method);
                 }
                 else description = string.Format(FlowNativeText.T("actionBinding"), step.Target ?? "", step.Action ?? "");
-                if (published != null && published.Mode == "Legacy") description = string.Format(FlowNativeText.T("legacyBinding"), description);
                 node.AccessibleDescription = description;
                 BindHint(node, description);
             }
@@ -734,7 +768,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>检查工程结构及已选择入口的真实资源、参数和动作。</summary>
         public void Validate(string entry)
         {
-            ValidatePlan(Program, entry, true);
+            ValidatePlan(Program, entry, new FlowActions(FlowResources.Capture(true), Form));
         }
 
         /// <summary>恢复当前模块已发布的初始或保存快照。</summary>
@@ -745,23 +779,33 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>校验固定的执行计划，生产执行只使用已保存版本。</summary>
-        private void ValidatePlan(FlowProgram plan, string entry, bool includeDraft = false)
+        private void ValidatePlan(FlowProgram plan, string entry, FlowActions actions)
         {
             List<string> errors = FlowProgramFile.Validate(plan);
             if (errors.Count > 0) throw new InvalidDataException(string.Join(Environment.NewLine, errors));
-            if (plan.Mode != "Program" && entry == null) return;
-            if (plan.Mode == "Program" && string.IsNullOrEmpty(plan.AutoEntry)) throw new InvalidDataException("Select an automatic entry: " + Form.Name);
-            FlowActions actions = new FlowActions(FlowResources.Capture(includeDraft), Form);
+            if (plan.Mode == "Disabled" || plan.Removed) return;
+            if (plan.Mode != "Program") throw new InvalidDataException(FlowText.T("invalidFlowMode") + " " + Form.Name);
+            if (entry == null) ValidateEntries(plan);
             IEnumerable<FlowStep> reachable = entry == null
                 ? FlowProgramFile.Reachable(plan, plan.InitialEntry).Concat(FlowProgramFile.Reachable(plan, plan.AutoEntry))
                 : FlowProgramFile.Reachable(plan, entry);
             foreach (FlowStep step in reachable) actions.Validate(step);
         }
 
+        /// <summary>有节点的流程页必须明确指定入口，空模块允许保留为待编排页面。</summary>
+        private void ValidateEntries(FlowProgram plan)
+        {
+            bool initialNodes = plan.Steps.Any(step => Form.InitialPage.Contains(Node(step.Id)));
+            bool autoNodes = plan.Steps.Any(step => Form.AutoPage.Contains(Node(step.Id)));
+            if (initialNodes && string.IsNullOrEmpty(plan.InitialEntry)) throw new InvalidDataException(FlowText.T("initialEntryRequired") + " " + Form.Name);
+            if (autoNodes && string.IsNullOrEmpty(plan.AutoEntry)) throw new InvalidDataException(FlowText.T("autoEntryRequired") + " " + Form.Name);
+            if (plan.Steps.Count > 0 && string.IsNullOrEmpty(plan.InitialEntry) && string.IsNullOrEmpty(plan.AutoEntry))
+                throw new InvalidDataException(FlowText.T("flowEntryRequired") + " " + Form.Name);
+        }
+
         /// <summary>通过同一控制器处理所有派生窗体的生命周期。</summary>
         public bool Handle(FlowProgramCommand command)
         {
-            if (!IsEnabled) return false;
             if (command == FlowProgramCommand.Stop) { Runtime.Stop(); return true; }
             if (command == FlowProgramCommand.Pause) { Runtime.Pause(); paused = true; return true; }
             if (command == FlowProgramCommand.Resume || (command == FlowProgramCommand.Start && paused && Runtime.IsRunning)) { Runtime.Resume(); paused = false; return true; }
@@ -781,13 +825,14 @@ namespace AlphaRap.FlowProgramming
         private void StartCore(string entry, bool simulate, bool initializing, bool production, bool debug)
         {
             if (Runtime.IsRunning) throw new InvalidOperationException(FlowText.T("busy"));
+            if (production) FlowPrograms.RequireLoaded();
             SetEditing(false);
             FlowProgram plan = production ? published : Program;
             if (plan.Removed) throw new InvalidOperationException(FlowText.T("moduleMissing"));
-            ValidatePlan(plan, entry);
-            if (string.IsNullOrEmpty(entry)) { Form.InitialStatus = true; Form.RunningStatus = false; return; }
             FlowResources resources = FlowResources.Capture();
-            FlowActions actions = new FlowActions(resources, Form) { Simulate = simulate, RequestInput = FlowInputForm.Request };
+            FlowActions actions = new FlowActions(resources, Form) { Simulate = simulate, RequestInput = FlowInputForm.Request, UsePublishedOutputs = production };
+            ValidatePlan(plan, entry, actions);
+            if (string.IsNullOrEmpty(entry)) { Form.InitialStatus = true; Form.RunningStatus = false; return; }
             simulating = simulate;
             isInitializing = initializing;
             isProduction = production;
@@ -833,6 +878,10 @@ namespace AlphaRap.FlowProgramming
         internal void Publish(FlowProgram saved) { published = FlowProgramFile.Snapshot(saved); ApplyLinks(); }
 
         /// <summary>生产启动前检查最后保存版本。</summary>
-        public void ValidatePublished() { ValidatePlan(published, null); }
+        public void ValidatePublished()
+        {
+            FlowPrograms.RequireLoaded();
+            ValidatePlan(published, null, new FlowActions(FlowResources.Capture(), Form) { UsePublishedOutputs = true });
+        }
     }
 }

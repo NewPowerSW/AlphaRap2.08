@@ -22,6 +22,8 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 
 当前 Form 的原生无参 FlowChartRun 方法属于普通动作，自动进入本页【代码流程】工具箱。FlowMethod／FlowStep.UsesFlowResult 明确表示函数返回值直接决定出口；原运行器在同一超时期限内处理 IDLE 轮询、暂停、停止、断点及 NEXT／CASE／End。GetFlowChartHandlers 仅提供原事件快照供旧节点精确导入。使用见 [原生代码 FlowChat](../docs/NativeFlowEvents.md)。
 
+宿主统一使用混合节点流程，加载旧 Legacy 定义时保留布局、连接和可识别的事件绑定，入口有歧义时要求明确选择。界面通过【启用流程】控制模块参与运行，停用模块也不回退旧生命周期；SDK 文件格式仍可读取旧模式供宿主迁移。节点及参数草稿不改变已发布运行版本。
+
 ## 配置与运行
 
 - 配置保存统一使用 MainForm Save；节点确定只接受内存草稿。

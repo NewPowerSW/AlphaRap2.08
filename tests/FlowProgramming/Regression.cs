@@ -233,7 +233,10 @@ internal static partial class Cases
         Assert(editor != null && editor.Program.Steps.Count == 1, "The subclass was not automatically attached.");
         Assert(editor.Program.Steps[0].ParentPath == "/canvas", "Nested canvas identity was lost.");
         data = new DataForm(); SetHost("DataF", data); RegisterForm(data);
-        data.SaveProductionSchema(new List<ProductionField> { new ProductionField { Name = "Product" }, new ProductionField { Name = "Measurement", Type = "Number" } });
+        data.SetProductionDraft(new List<ProductionField> { new ProductionField { Name = "Product" }, new ProductionField { Name = "Measurement", Type = "Number" } });
+        Directory.CreateDirectory(SysPara.SettingDataDirectory);
+        data.WriteProductionDraft(Path.Combine(SysPara.SettingDataDirectory, "DataForm.Production.xml"));
+        data.AcceptProductionDraft();
     }
 
     /// <summary>Verify original recipe values rather than pending editor values.</summary>
@@ -535,9 +538,9 @@ internal static partial class Cases
     /// <summary>Only saved definitions change production dispatch.</summary>
     private static void PublishedDraft()
     {
-        Assert(!editor.IsEnabled, "Draft mode unexpectedly changed production dispatch.");
+        Assert(editor.IsEnabled && editor.IsProgram, "The unified controller did not own production dispatch.");
         FlowPrograms.Save(); Assert(editor.IsEnabled, "Saved program did not publish.");
-        editor.Program.Mode = "Legacy"; Assert(editor.IsEnabled, "Unsaved draft changed the active mode."); editor.Program.Mode = "Program";
+        editor.Program.Mode = "Disabled"; Assert(editor.IsProgram, "Unsaved draft disabled the published flow."); editor.Program.Mode = "Program";
     }
 
     /// <summary>Exercise the base-form controller entry used by the machine lifecycle.</summary>
@@ -639,7 +642,7 @@ internal static partial class Cases
             action.SelectedItem = ((IList<FlowMethod>)action.DataSource).Single(item => item.Id == "point.move"); Application.DoEvents();
             Assert(inputs.Controls.OfType<FlowInputRow>().Select(row => row.FieldName).SequenceEqual(new[] { "Index", "Offset", "Tolerance" }), "Axis-bound point inputs did not refresh.");
             category.SelectedValue = "data"; Application.DoEvents();
-            Assert((action.SelectedItem as FlowMethod).Id == "data.save" && inputs.Controls.OfType<FlowInputRow>().Count() == data.GetProductionFields().Length, "DataForm fields did not refresh.");
+            Assert((action.SelectedItem as FlowMethod).Id == "data.save" && inputs.Controls.OfType<FlowInputRow>().Count() == data.GetProductionSchema().Count, "DataForm fields did not refresh.");
             category.SelectedValue = "flow"; action.SelectedItem = ((IList<FlowMethod>)action.DataSource).Single(item => item.Id == "delay"); Application.DoEvents();
             Assert(inputs.Controls.OfType<FlowInputRow>().Count() == 1 && inputs.Controls.OfType<FlowInputRow>().Single().FieldName == "Milliseconds", "Changing actions retained another action's fields.");
             dialog.Close();
@@ -1274,9 +1277,39 @@ internal static partial class Cases
             Assert(!tabs.TabPages.Cast<TabPage>().Any(tab => tab.Text == "Configured module") && !created.IsDisposed, "Deleted module remains visible or lost reload support.");
             Assert(visible.Visible && station.Visible, "Removing another module hid the remaining module.");
             VerifyToolboxDrops(page);
+            VerifyCompactFlowPage(page);
             using (Bitmap bitmap = new Bitmap(page.Width, page.Height)) { page.DrawToBitmap(bitmap, new Rectangle(Point.Empty, page.Size)); bitmap.Save(Path.Combine(root, "flow-page.png")); }
             page.Close();
         }
+    }
+
+    /// <summary>Keep the unified flow controls reachable at normal and narrow widths in every supported language.</summary>
+    private static void VerifyCompactFlowPage(Flow page)
+    {
+        Assert(page.Controls.Find("modeValue", true).Length == 0 && page.Controls.Find("modeEntryLabel", true).Length == 0,
+            "The obsolete Legacy/Program execution-mode selector is still visible.");
+        CheckBox enabled = (CheckBox)page.Controls.Find("moduleEnabled", true).Single();
+        FlowModuleEditor current = (FlowModuleEditor)((TabControl)page.Controls.Find("tabControl1", true).Single()).SelectedTab.Tag;
+        enabled.Checked = false; Assert(current.Program.Mode == "Disabled", "The flow enable switch did not update its draft.");
+        enabled.Checked = true; Assert(current.Program.Mode == "Program", "The flow enable switch restored an obsolete mode.");
+        foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+        {
+            SwitchLanguage(language);
+            foreach (int width in new[] { 1280, 900 })
+            {
+                page.ClientSize = new Size(width, 700); Application.DoEvents();
+                foreach (string name in new[] { "toolbar", "entries" })
+                {
+                    FlowLayoutPanel row = (FlowLayoutPanel)page.Controls.Find(name, true).Single();
+                    Assert(row.AutoSize && row.Controls.Cast<Control>().Where(control => control.Visible).All(control => row.ClientRectangle.Contains(control.Bounds)),
+                        "A compact flow command or entry was clipped: " + name + " / " + language + " / " + width);
+                }
+                Control workspace = page.Controls.Find("flowWorkspace", true).Single();
+                Assert(workspace.Top < 180 && workspace.Height > 300, "Fixed toolbar whitespace squeezed the flow canvas.");
+                Screenshot(page, "flow-compact-" + language + "-" + width);
+            }
+        }
+        SwitchLanguage(LanguageType.Chinese); page.ClientSize = new Size(1280, 700);
     }
 
     /// <summary>Exercise the actual flow-page debugging controls and observe action output in three languages.</summary>

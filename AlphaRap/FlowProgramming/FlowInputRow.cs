@@ -135,8 +135,9 @@ namespace AlphaRap.FlowProgramming
             literalValue.Text = current.Reference ?? "";
             if (options) FillOptions();
             if (!reference) return;
-            referenceValue.Text = ReferenceLabel();
-            referenceValue.ForeColor = IsMissingReference() ? SystemColors.GrayText : SystemColors.ControlText;
+            FlowChoice choice = current.Source == "Context" ? null : ReferenceChoice();
+            referenceValue.Text = ReferenceLabel(choice);
+            referenceValue.ForeColor = IsMissingReference(choice) ? SystemColors.GrayText : SystemColors.ControlText;
             helpTip.SetToolTip(referenceValue, referenceValue.Text);
         }
 
@@ -174,11 +175,10 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>按真实目录生成可读引用；生产节点来源省略内部结果身份字段。</summary>
-        private string ReferenceLabel()
+        private string ReferenceLabel(FlowChoice choice)
         {
             if (string.IsNullOrEmpty(current.Reference)) return TextOf(RequiresProducer() ? "inputProducerEmpty" : "inputEmptyReference");
             if (current.Source == "Context") return ContextLabel();
-            FlowChoice choice = ReferenceChoice();
             if (choice == null) return string.Format(TextOf("inputMissingReference"), current.Reference);
             if (!RequiresProducer()) return choice.Label;
             int separator = choice.Label.LastIndexOf(" / ", StringComparison.Ordinal);
@@ -208,11 +208,11 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>标记空引用或不在当前目录中的引用，保留原值供宿主修复。</summary>
-        private bool IsMissingReference()
+        private bool IsMissingReference(FlowChoice choice)
         {
             if (string.IsNullOrEmpty(current.Reference)) return true;
             if (current.Source == "Context") return !new[] { "CycleId", "RunId", "RecipeName", "ExecutionId" }.Contains(current.Reference);
-            return ReferenceChoice() == null;
+            return choice == null;
         }
 
         /// <summary>来源节点参数由宿主选择生产节点，不提供内部运行编号的固定编辑框。</summary>

@@ -31,8 +31,8 @@ namespace AlphaRap.FlowProgramming
             this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
             this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 36F));
-            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 55F));
+            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 42F));
             this.title.Name = "toolboxTitle";
             this.title.Text = "功能工具箱";
             this.title.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -56,6 +56,9 @@ namespace AlphaRap.FlowProgramming
             this.emptyHint.Name = "toolboxEmpty";
             this.emptyHint.Text = "没有匹配的已注册功能。";
             this.emptyHint.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.emptyHint.AutoSize = true;
+            this.emptyHint.Padding = new System.Windows.Forms.Padding(0, 6, 0, 6);
+            this.emptyHint.Visible = false;
             this.emptyHint.AutoEllipsis = true;
             this.layout.Controls.Add(this.title, 0, 0);
             this.layout.Controls.Add(this.searchLabel, 0, 1);

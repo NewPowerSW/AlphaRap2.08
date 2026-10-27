@@ -295,7 +295,7 @@ namespace AlphaRap.FlowProgramming
             {
                 string key = scope + "/" + module + "/" + table.TableName + "/" + rowIndex + "/" + column.ColumnName;
                 Parameters.Add(key, row[column, version]);
-                ParameterChoices.Add(new FlowChoice { Id = key, Label = scope + " / " + module + " / " + table.TableName + " / " + (rowIndex + 1) + " / " + column.ColumnName, ValueType = column.DataType, Advanced = scope == "Setting" });
+                ParameterChoices.Add(new FlowChoice { Id = key, Label = scope + " / " + module + " / " + table.TableName + " / " + (rowIndex + 1) + " / " + column.ColumnName, ValueType = column.DataType, Advanced = scope == "Machine" });
             }
         }
 

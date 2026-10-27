@@ -16,6 +16,8 @@ namespace AlphaRap.FlowProgramming
     {
         public const string DragFormat = "AlphaRap.FlowToolboxEntry";
         private FlowActions actions;
+        private List<FlowToolboxEntry> choices = new List<FlowToolboxEntry>();
+        private string selectedEntryId;
         private bool languageSubscribed;
         public event Action<FlowToolboxEntry> InsertRequested;
 
@@ -25,6 +27,11 @@ namespace AlphaRap.FlowProgramming
             InitializeComponent();
             if (UiTheme.IsDesignTime) return;
             search.TextChanged += (sender, args) => RefreshTree();
+            entries.AfterSelect += (sender, args) =>
+            {
+                FlowToolboxEntry entry = args.Node.Tag as FlowToolboxEntry;
+                if (entry != null) selectedEntryId = entry.Id;
+            };
             entries.ItemDrag += DragEntry;
             entries.NodeMouseDoubleClick += (sender, args) => Insert(args.Node);
             entries.KeyDown += InsertWithKeyboard;
@@ -34,7 +41,12 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>绑定当前对象动作目录，保留工具箱查询文字。</summary>
-        public void BindActions(FlowActions value) { actions = value; RefreshTree(); }
+        public void BindActions(FlowActions value)
+        {
+            actions = value;
+            choices = Choices();
+            RefreshTree();
+        }
 
         /// <summary>从实际对象和流程基础能力建立条目，不发现脚本或代码模块。</summary>
         private List<FlowToolboxEntry> Choices()
@@ -44,9 +56,10 @@ namespace AlphaRap.FlowProgramming
             };
             if (actions == null) return result;
             foreach (FlowResource resource in actions.Resources.Items.Values.Where(actions.CanSelectResource))
-                foreach (FlowMethod method in resource.Methods)
+                foreach (FlowMethod method in actions.MethodsFor(resource))
                     result.Add(new FlowToolboxEntry { Id = "action/" + Uri.EscapeDataString(resource.Id) + "/" + Uri.EscapeDataString(method.Id), ExecutionMode = "Action",
-                        TargetId = resource.Id, ActionId = method.Id, Category = resource.Category, Title = resource.Label + " · " + FlowMethods.Title(method) });
+                        TargetId = resource.Id, ActionId = method.Id, Category = resource.Category,
+                        Title = resource.Kind == "native" ? FlowMethods.Title(method) : resource.Label + " · " + FlowMethods.Title(method) });
             foreach (FlowMethod method in actions.MethodsFor(null))
                 result.Add(new FlowToolboxEntry { Id = "flow/" + method.Id, ExecutionMode = "Action", TargetId = "", ActionId = method.Id, Category = "flow", Title = FlowMethods.Title(method) });
             return result;
@@ -55,22 +68,36 @@ namespace AlphaRap.FlowProgramming
         /// <summary>按分组和搜索重建标题，保留已选条目身份和搜索草稿。</summary>
         private void RefreshTree()
         {
-            string selected = entries.SelectedNode == null ? null : (entries.SelectedNode.Tag as FlowToolboxEntry)?.Id;
             string filter = search.Text.Trim();
             entries.BeginUpdate();
-            entries.Nodes.Clear();
-            foreach (IGrouping<string, FlowToolboxEntry> group in Choices().Where(item => filter.Length == 0 || item.Title.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0 || item.Id.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0).GroupBy(item => item.Category).OrderBy(group => FlowText.T(group.Key)))
+            try
             {
-                TreeNode category = entries.Nodes.Add(group.Key, group.Key == "native" ? FlowNativeText.T("category") : FlowText.T(group.Key));
-                foreach (FlowToolboxEntry entry in group.OrderBy(item => item.Title))
+                entries.Nodes.Clear();
+                IEnumerable<FlowToolboxEntry> visible = choices.Where(item => filter.Length == 0
+                    || item.Title.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0
+                    || item.Id.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0
+                    || (item.TargetId ?? "").IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0
+                    || (item.ActionId ?? "").IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
+                foreach (IGrouping<string, FlowToolboxEntry> group in visible.GroupBy(item => item.Category).OrderBy(group => CategoryTitle(group.Key)))
                 {
-                    TreeNode node = category.Nodes.Add(entry.Id, entry.Title); node.Tag = entry;
-                    if (entry.Id == selected) entries.SelectedNode = node;
+                    TreeNode category = entries.Nodes.Add(group.Key, CategoryTitle(group.Key));
+                    foreach (FlowToolboxEntry entry in group.OrderBy(item => item.Title))
+                    {
+                        TreeNode node = category.Nodes.Add(entry.Id, entry.Title);
+                        node.Tag = entry;
+                        if (entry.Id == selectedEntryId) entries.SelectedNode = node;
+                    }
+                    category.Expand();
                 }
-                category.Expand();
             }
-            entries.EndUpdate();
+            finally { entries.EndUpdate(); }
             emptyHint.Visible = entries.Nodes.Count == 0;
+        }
+
+        /// <summary>分组排序和显示使用相同的当前语言标题。</summary>
+        private static string CategoryTitle(string category)
+        {
+            return category == "native" ? FlowNativeText.T("category") : FlowText.T(category);
         }
 
         /// <summary>只允许实际功能条目开始拖放，不拖动分组标题。</summary>
@@ -102,6 +129,7 @@ namespace AlphaRap.FlowProgramming
             title.Text = FlowToolboxText.Fixed(title, "toolbox"); searchLabel.Text = FlowToolboxText.Fixed(searchLabel, "search");
             help.Text = FlowToolboxText.Fixed(help, "toolboxHint"); emptyHint.Text = FlowToolboxText.Fixed(emptyHint, "toolboxEmpty");
             search.AccessibleName = searchLabel.Text; entries.AccessibleName = title.Text;
+            choices = Choices();
             RefreshTree();
         }
 

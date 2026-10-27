@@ -16,6 +16,7 @@ namespace AlphaRap.FlowProgramming
         public readonly Flow_BaseForm Owner;
         private readonly List<FlowMethod> utility;
         public bool Simulate;
+        internal bool UsePublishedOutputs;
         public Func<string, CancellationToken, Task<string>> RequestInput;
 
         /// <summary>使用已捕获的实际对象与配方快照。</summary>
@@ -30,7 +31,9 @@ namespace AlphaRap.FlowProgramming
         /// <summary>读取选中对象自己的方法；空目标只提供流程上下文方法。</summary>
         public List<FlowMethod> MethodsFor(FlowResource resource)
         {
-            return resource == null ? utility : resource.Kind == "native" && !ReferenceEquals(resource.Instance, Owner) ? new List<FlowMethod>() : resource.Methods;
+            if (resource == null) return utility;
+            if (resource.Kind == "native" && !ReferenceEquals(resource.Instance, Owner)) return new List<FlowMethod>();
+            return resource.Methods;
         }
 
         /// <summary>代码流程只提供给所属实际窗体，其余对象继续使用原资源目录。</summary>
@@ -64,15 +67,10 @@ namespace AlphaRap.FlowProgramming
             return method;
         }
 
-        /// <summary>从选定方法声明读取输入字段。</summary>
-        public string[] InputNames(FlowMethod method) { return method.Inputs.Select(field => field.Name).ToArray(); }
-
-        /// <summary>从选定对象方法声明读取具名输出。</summary>
-        public string[] OutputNames(FlowMethod method) { return method.Outputs.Select(field => field.Name).ToArray(); }
-
         /// <summary>校验方法、输入类型及数据来源，失效的对象或端口必须先修复。</summary>
         public void Validate(FlowStep step)
         {
+            Lazy<List<FlowChoice>> outputs = new Lazy<List<FlowChoice>>(() => FlowPrograms.OutputChoices(this));
             if (!IsSupported(step)) throw new InvalidOperationException(string.Format(FlowText.T("retiredNode"), step == null ? "" : step.Caption));
             FlowNativeMethods.ValidateLegacy(Owner, step);
             if (FlowProgramFile.RequiresBranchReview(step)) throw new InvalidOperationException(FlowText.T("reviewBranches") + " " + step.Caption);
@@ -86,9 +84,9 @@ namespace AlphaRap.FlowProgramming
                 throw new InvalidOperationException(FlowText.T("fieldsChanged") + " " + step.Caption);
             foreach (FlowInput input in step.Inputs)
             {
-                ValidateSource(input, false, method);
+                ValidateSource(input, false, method, outputs);
                 FlowField field = method.Inputs.Single(item => item.Name == input.Name);
-                ValidateProducer(input, field, step);
+                ValidateProducer(input, field, step, outputs);
                 if (input.Source == "Constant") ValidateValue(field, input.Reference ?? "");
                 if (input.Source == "Parameter") ValidateValue(field, Resources.Parameters[input.Reference]);
             }
@@ -96,17 +94,17 @@ namespace AlphaRap.FlowProgramming
                 .ToDictionary(input => input.Name, input => input.Source == "Constant" ? (object)input.Reference : Resources.Parameters[input.Reference]);
             if (method.ValidateInputs != null) method.ValidateInputs(known);
             foreach (FlowBranch branch in FlowProgramFile.BranchesOf(step).Where(branch => !branch.Unconditional))
-                ValidateConditions(branch, method);
+                ValidateConditions(branch, method, outputs);
         }
 
         /// <summary>校验每条出口的可见操作数；为空比较只使用左侧，不读取隐藏的右侧旧绑定。</summary>
-        private void ValidateConditions(FlowBranch branch, FlowMethod method)
+        private void ValidateConditions(FlowBranch branch, FlowMethod method, Lazy<List<FlowChoice>> outputs)
         {
             foreach (FlowCondition condition in branch.Conditions)
             {
-                ValidateSource(condition.Left, true, method);
+                ValidateSource(condition.Left, true, method, outputs);
                 if (condition.Operator == "Empty") continue;
-                ValidateSource(condition.Right, true, method);
+                ValidateSource(condition.Right, true, method, outputs);
                 RequireComparisonValue(branch.Code, method, condition.Left, condition.Right);
                 RequireComparisonValue(branch.Code, method, condition.Right, condition.Left);
             }
@@ -124,13 +122,13 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>具有来源约束的结果必须来自同一实际对象的指定动作，拒绝跨 VPP 冒用相同运行编号。</summary>
-        private void ValidateProducer(FlowInput input, FlowField field, FlowStep step)
+        private void ValidateProducer(FlowInput input, FlowField field, FlowStep step, Lazy<List<FlowChoice>> outputs)
         {
             if (string.IsNullOrEmpty(field.OutputSourceMethod) && string.IsNullOrEmpty(field.OutputSourceField)) return;
             if (input.Source == "Constant") return;
             if (input.Source != "Output")
                 throw new InvalidOperationException(string.Format(FlowText.T("producerMismatch"), step.Caption, FlowMethods.FieldTitle(step.Action, field)));
-            FlowChoice source = FlowPrograms.OutputChoices(this).Single(item => item.Id == input.Reference);
+            FlowChoice source = outputs.Value.Single(item => item.Id == input.Reference);
             bool methodMatches = string.IsNullOrEmpty(field.OutputSourceMethod) || source.ActionId == field.OutputSourceMethod;
             bool fieldMatches = string.IsNullOrEmpty(field.OutputSourceField) || source.FieldName == field.OutputSourceField;
             if (source.TargetId == step.Target && methodMatches && fieldMatches) return;
@@ -152,13 +150,13 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>结果来源只允许用于动作后的条件；其他节点输出必须存在于当前工程。</summary>
-        private void ValidateSource(FlowInput input, bool condition, FlowMethod method)
+        private void ValidateSource(FlowInput input, bool condition, FlowMethod method, Lazy<List<FlowChoice>> outputs)
         {
             if (input.Source == "Constant") return;
             if (input.Source == "Parameter" && Resources.Parameters.ContainsKey(input.Reference ?? "")) return;
             if (input.Source == "Context" && new[] { "CycleId", "RunId", "RecipeName", "ExecutionId" }.Contains(input.Reference)) return;
-            if (input.Source == "Result" && condition && OutputNames(method).Contains(input.Reference)) return;
-            if (input.Source == "Output" && FlowPrograms.OutputChoices(this).Any(choice => choice.Id == input.Reference)) return;
+            if (input.Source == "Result" && condition && method.Outputs.Any(field => field.Name == input.Reference)) return;
+            if (input.Source == "Output" && outputs.Value.Any(choice => choice.Id == input.Reference)) return;
             throw new InvalidOperationException(FlowText.T("sourceMissing") + " " + input.Name + " / " + input.Reference);
         }
 

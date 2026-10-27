@@ -11,6 +11,7 @@ namespace AlphaRap
     public partial class Flow : Form
     {
         private bool filling;
+        private bool permissionNotice;
         private FlowModuleEditor contextModule;
         private string contextNodeId;
         private FlowModuleEditor contextPage;
@@ -24,21 +25,21 @@ namespace AlphaRap
             FlowLanguageForm.ApplyTexts(this);
             MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
-            Load += (sender, args) => { AddFlowChart(); RefreshSelection(); timer.Start(); };
+            Load += (sender, args) => { AddFlowChart(); timer.Start(); };
             VisibleChanged += (sender, args) => { if (Visible && IsHandleCreated) AddFlowChart(); };
             MiddleLayer.LanguageChanged += ApplyLanguage;
             Disposed += (sender, args) => MiddleLayer.LanguageChanged -= ApplyLanguage;
             tabControl1.SelectedIndexChanged += (sender, args) => RefreshSelection();
             edit.CheckedChanged += ToggleEditing;
-            modeValue.SelectedIndexChanged += UpdateDefinition;
+            moduleEnabled.CheckedChanged += UpdateDefinition;
             initialValue.SelectedIndexChanged += UpdateDefinition;
             autoValue.SelectedIndexChanged += UpdateDefinition;
             addModule.Click += (sender, args) => Execute(() =>
             {
                 using (FlowInputForm dialog = new FlowInputForm(FlowText.T("moduleName")))
-                    if (dialog.ShowDialog(this) == DialogResult.OK) { FlowPrograms.AddModule(dialog.InputValue); AddFlowChart(); RefreshSelection(); }
+                    if (dialog.ShowDialog(this) == DialogResult.OK) { FlowPrograms.AddModule(dialog.InputValue); AddFlowChart(); }
             });
-            add.Click += (sender, args) => Execute(() => { Current().AddNode(); RefreshSelection(); });
+            add.Click += (sender, args) => Execute(() => Current().AddNode());
             nodeMenu.Opening += OpenNodeMenu;
             nodeDelete.Click += (sender, args) => Execute(() => DeleteNode(contextModule, contextNodeId));
             nodeProperties.Click += (sender, args) => Execute(() => { if (contextModule != null) contextModule.EditNode(contextNodeId); });
@@ -55,7 +56,7 @@ namespace AlphaRap
             tabControl1.MouseDown += OpenModuleMenu;
             moduleDelete.Click += (sender, args) => Execute(() => DeleteModule(contextPage));
             ApplyLanguage(null, EventArgs.Empty);
-            reload.Click += (sender, args) => Execute(() => { if (MessageBox.Show(FlowText.T("discard"), FlowText.T("title"), MessageBoxButtons.OKCancel) == DialogResult.OK) { FlowPrograms.Reload(); AddFlowChart(); RefreshSelection(); } });
+            reload.Click += (sender, args) => Execute(() => { if (MessageBox.Show(FlowText.T("discard"), FlowText.T("title"), MessageBoxButtons.OKCancel) == DialogResult.OK) { FlowPrograms.Reload(); AddFlowChart(); } });
             validate.Click += (sender, args) => Execute(() => { Current().Validate(null); status.Text = FlowText.T("valid"); });
             stop.Click += (sender, args) => { if (tabControl1.SelectedTab != null) Current().Runtime.Stop(); };
             pause.Click += (sender, args) => { if (tabControl1.SelectedTab != null) Current().TogglePause(); };
@@ -68,30 +69,36 @@ namespace AlphaRap
         public void AddFlowChart()
         {
             FlowPrograms.Install();
-            foreach (KeyValuePair<Flow_BaseForm, TabPage> item in pages.ToArray())
+            filling = true;
+            tabControl1.SuspendLayout();
+            try
             {
-                FlowModuleEditor editor = (FlowModuleEditor)item.Value.Tag;
-                if (!item.Key.IsDisposed && !editor.Program.Removed) continue;
-                item.Key.Hide();
-                item.Value.Controls.Remove(item.Key);
-                tabControl1.TabPages.Remove(item.Value);
-                item.Value.Dispose();
-                pages.Remove(item.Key);
+                foreach (KeyValuePair<Flow_BaseForm, TabPage> item in pages.ToArray())
+                {
+                    FlowModuleEditor editor = (FlowModuleEditor)item.Value.Tag;
+                    if (!item.Key.IsDisposed && !editor.Program.Removed) continue;
+                    item.Key.Hide();
+                    item.Value.Controls.Remove(item.Key);
+                    tabControl1.TabPages.Remove(item.Value);
+                    item.Value.Dispose();
+                    pages.Remove(item.Key);
+                }
+                foreach (Flow_BaseForm form in Flow_Module.FlowChart_ModuleList.ToArray())
+                {
+                    if (form.IsDisposed || pages.ContainsKey(form)) continue;
+                    FlowModuleEditor editor = FlowPrograms.Attach(form);
+                    if (editor.Program.Removed) continue;
+                    TabPage page = new TabPage(form.Name) { Name = "flowModule_" + pages.Count + "_dyn", Tag = editor, AutoScroll = true };
+                    form.TopLevel = false; form.FormBorderStyle = FormBorderStyle.None; form.Dock = DockStyle.Fill; form.AutoScroll = true;
+                    page.Controls.Add(form); tabControl1.TabPages.Add(page); pages.Add(form, page);
+                    editor.Changed -= ModuleChanged;
+                    editor.Changed += ModuleChanged;
+                    form.Show();
+                }
+                foreach (Flow_BaseForm form in pages.Keys) { BindNodeMenus(form); BindDropTargets(form); }
             }
-            foreach (Flow_BaseForm form in Flow_Module.FlowChart_ModuleList.ToArray())
-            {
-                if (form.IsDisposed || pages.ContainsKey(form)) continue;
-                FlowModuleEditor editor = FlowPrograms.Attach(form);
-                if (editor.Program.Removed) continue;
-                TabPage page = new TabPage(form.Name) { Name = "flowModule_" + pages.Count + "_dyn", Tag = editor, AutoScroll = true };
-                form.TopLevel = false; form.FormBorderStyle = FormBorderStyle.None; form.Dock = DockStyle.Fill; form.AutoScroll = true;
-                page.Controls.Add(form); tabControl1.TabPages.Add(page); pages.Add(form, page);
-                editor.Changed -= ModuleChanged;
-                editor.Changed += ModuleChanged;
-                form.Show();
-            }
-            foreach (Flow_BaseForm form in pages.Keys) { BindNodeMenus(form); BindDropTargets(form); }
-            RefreshToolbox();
+            finally { filling = false; tabControl1.ResumeLayout(); }
+            RefreshSelection();
         }
 
         /// <summary>刷新真实对象动作目录，保留工具箱搜索草稿。</summary>
@@ -156,7 +163,7 @@ namespace AlphaRap
             if (entry.ExecutionMode == "None") module.AddNode("None", canvas, point);
             else if (entry.ExecutionMode == "Action") module.AddNode(entry.TargetId, entry.ActionId, canvas, point);
             else throw new InvalidOperationException(FlowText.T("retiredNodeChoice"));
-            activeCanvas = canvas; BindNodeMenus(module.Form); RefreshSelection();
+            activeCanvas = canvas;
         }
 
         /// <summary>查看已生成的模块源码目录，不添加保存入口或生成现场配置。</summary>
@@ -178,7 +185,12 @@ namespace AlphaRap
         }
 
         /// <summary>节点编辑完成后刷新列表及新节点的右键入口。</summary>
-        private void ModuleChanged(object sender, EventArgs args) { RefreshSelection(); foreach (Flow_BaseForm form in pages.Keys) BindDropTargets(form); }
+        private void ModuleChanged(object sender, EventArgs args)
+        {
+            FlowModuleEditor module = (FlowModuleEditor)sender;
+            BindNodeMenus(module.Form);
+            if (tabControl1.SelectedTab != null && ReferenceEquals(Current(), module)) RefreshSelection(false);
+        }
         /// <summary>Resolve the active module controller.</summary>
         private FlowModuleEditor Current()
         {
@@ -186,23 +198,23 @@ namespace AlphaRap
             return (FlowModuleEditor)tabControl1.SelectedTab.Tag;
         }
         /// <summary>Refresh node and entry pickers while keeping business identifiers stable.</summary>
-        private void RefreshSelection()
+        private void RefreshSelection(bool refreshTools = true)
         {
+            if (filling) return;
             if (tabControl1.SelectedTab == null)
             {
                 filling = true;
-                foreach (ComboBox combo in new[] { modeValue, initialValue, autoValue }) combo.DataSource = null;
+                foreach (ComboBox combo in new[] { initialValue, autoValue }) combo.DataSource = null;
+                moduleEnabled.Checked = false;
                 edit.Checked = false;
                 filling = false;
                 RefreshRuntime(null, EventArgs.Empty);
-                RefreshToolbox();
+                if (refreshTools) RefreshToolbox();
                 return;
             }
             filling = true;
             FlowModuleEditor module = Current();
-            modeValue.DisplayMember = "Label"; modeValue.ValueMember = "Id";
-            modeValue.DataSource = new[] { "Legacy", "Program", "Disabled" }.Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
-            modeValue.SelectedValue = module.Program.Mode;
+            moduleEnabled.Checked = module.Program.Mode != "Disabled";
             foreach (ComboBox combo in new[] { initialValue, autoValue })
             {
                 combo.DisplayMember = "Label"; combo.ValueMember = "Id";
@@ -214,13 +226,20 @@ namespace AlphaRap
             BindNodeMenus(module.Form);
             filling = false;
             RefreshRuntime(null, EventArgs.Empty);
-            RefreshToolbox();
+            if (refreshTools) RefreshToolbox();
         }
         /// <summary>Update the engineering draft; production uses only the saved definition.</summary>
         private void UpdateDefinition(object sender, EventArgs args)
         {
             if (filling || tabControl1.SelectedTab == null) return;
-            Execute(() => { FlowPrograms.RequireIdle(); Current().Program.Mode = Convert.ToString(modeValue.SelectedValue); Current().Program.InitialEntry = Convert.ToString(initialValue.SelectedValue); Current().Program.AutoEntry = Convert.ToString(autoValue.SelectedValue); });
+            Execute(() =>
+            {
+                FlowPrograms.RequireIdle();
+                FlowProgram program = Current().Program;
+                program.Mode = moduleEnabled.Checked ? "Program" : "Disabled";
+                program.InitialEntry = Convert.ToString(initialValue.SelectedValue);
+                program.AutoEntry = Convert.ToString(autoValue.SelectedValue);
+            });
         }
         /// <summary>Enable dragging and configuration for the active module.</summary>
         private void ToggleEditing(object sender, EventArgs args)
@@ -261,7 +280,7 @@ namespace AlphaRap
             FlowPrograms.ValidateModuleDeletion(module);
             if (MessageBox.Show(string.Format(FlowText.T("removeModule"), module.Form.Name), FlowText.T("title"), MessageBoxButtons.OKCancel) != DialogResult.OK) return;
             FlowPrograms.DeleteModule(module);
-            AddFlowChart(); RefreshSelection();
+            AddFlowChart();
         }
         /// <summary>右键页签按命中位置定位模块，空白处不显示删除入口。</summary>
         private void OpenModuleMenu(object sender, MouseEventArgs args)
@@ -284,25 +303,27 @@ namespace AlphaRap
         {
             bool busy = FlowPrograms.AnyRunning;
             bool canEdit = FlowPrograms.CanEdit;
-            bool hasModule = tabControl1.SelectedTab != null;
+            FlowModuleEditor module = tabControl1.SelectedTab == null ? null : Current();
+            bool hasModule = module != null;
             debugMode.Enabled = !busy && canEdit && hasModule && SysPara.SystemMode == RunMode.IDLE;
             foreach (Control control in new Control[] { addModule, reload, schema }) control.Enabled = !busy && canEdit;
-            foreach (Control control in new Control[] { edit, modeValue, initialValue, autoValue, add, validate }) control.Enabled = !busy && canEdit && hasModule;
-            toolbox.Enabled = !busy && canEdit && hasModule && Current().IsEditing && SysPara.SystemMode == RunMode.IDLE;
+            foreach (Control control in new Control[] { edit, moduleEnabled, initialValue, autoValue, add, validate }) control.Enabled = !busy && canEdit && hasModule;
+            toolbox.Enabled = !busy && canEdit && hasModule && module.IsEditing && SysPara.SystemMode == RunMode.IDLE;
             if (!canEdit)
             {
-                foreach (FlowModuleEditor module in FlowPrograms.Modules.Where(module => module.IsEditing)) module.SetEditing(false);
+                foreach (FlowModuleEditor editingModule in FlowPrograms.Modules.Where(item => item.IsEditing)) editingModule.SetEditing(false);
                 filling = true; edit.Checked = false; filling = false;
                 if (!busy) FlowPrograms.DebugEnabled = false;
             }
-            if (!canEdit) status.Text = FlowText.T("permission");
-            pause.Enabled = hasModule && Current().Runtime.IsRunning; stop.Enabled = hasModule && Current().Runtime.IsRunning;
+            if (!canEdit) { status.Text = FlowText.T("permission"); permissionNotice = true; }
+            else if (permissionNotice) { status.Text = ""; permissionNotice = false; }
+            pause.Enabled = stop.Enabled = hasModule && module.Runtime.IsRunning;
             filling = true; debugMode.Checked = FlowPrograms.DebugEnabled; filling = false;
-            debugPanel.Visible = canEdit && (FlowPrograms.DebugEnabled || hasModule && Current().Runtime.IsDebugging);
-            debugPanel.Bind(hasModule ? Current() : null);
-            if (hasModule && Current().Runtime.IsDebugPaused) pause.Enabled = false;
+            debugPanel.Visible = canEdit && (FlowPrograms.DebugEnabled || hasModule && module.Runtime.IsDebugging);
+            debugPanel.Bind(module);
+            if (hasModule && module.Runtime.IsDebugPaused) pause.Enabled = false;
             if (!hasModule) return;
-            if (Current().Runtime.Error != null) status.Text = string.Format(FlowText.T("error"), Current().Runtime.Error);
+            if (module.Runtime.Error != null) status.Text = string.Format(FlowText.T("error"), module.Runtime.Error);
         }
         /// <summary>Translate labels without changing names or selected data references.</summary>
         private void ApplyLanguage(object sender, EventArgs args)
@@ -320,7 +341,7 @@ namespace AlphaRap
             viewSources.Text = FlowToolboxText.Fixed(viewSources, "sourceDirectory");
             sourceHint.SetToolTip(viewSources, FlowSourceGenerator.ModeDescription);
             viewSources.AccessibleDescription = FlowSourceGenerator.ModeDescription;
-            toolbox.RefreshLanguage();
+            RefreshSelection(false);
         }
         /// <summary>Keep the draft available when an engineering operation fails.</summary>
         private void Execute(Action action)

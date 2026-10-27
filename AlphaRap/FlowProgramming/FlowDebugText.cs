@@ -26,8 +26,6 @@ namespace AlphaRap.FlowProgramming
             { "debugFinished", new[] { "调试已结束", "Debug session finished", "Depuración finalizada" } },
             { "debugUnavailable", new[] { "尚不可读取：{0}", "Not available yet: {0}", "Aún no disponible: {0}" } },
             { "debugHelp", new[] { "继续到下一个断点；单步执行一个节点。节点前暂停不计超时；停止沿用原停止按钮。", "Continue to the next breakpoint or execute one node. Pausing before a node does not consume its timeout. Use the existing Stop button.", "Continúe al siguiente punto o ejecute un nodo. La pausa previa no consume su tiempo límite. Use Detener existente." } },
-            { "scriptObjectMissing", new[] { "脚本绑定的对象已不存在：", "A script-bound object is missing: ", "Falta un objeto vinculado al script: " } },
-            { "scriptObjectNotBound", new[] { "请先在脚本编辑器中绑定该对象：", "Bind this object in the script editor first: ", "Vincule primero este objeto en el editor de scripts: " } }
         };
     }
 }

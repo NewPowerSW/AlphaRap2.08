@@ -98,28 +98,6 @@ namespace AlphaRap
             return existing.Where(name => !IsProductionMetadata(name)).Select(name => new FlowProgramming.ProductionField { Name = name }).ToList();
         }
 
-        /// <summary>获取保存动作需要绑定的业务字段，时间与记录身份由框架填写。</summary>
-        public string[] GetProductionFields() { return GetProductionSchema().Select(field => field.Name).ToArray(); }
-
-        /// <summary>校验并原子保存生产表定义，字段键保持业务原值。</summary>
-        public void SaveProductionSchema(List<FlowProgramming.ProductionField> fields)
-        {
-            ValidateFields(fields);
-            lock (productionSync)
-            {
-                string path = ProductionSchemaPath;
-                Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path)));
-                string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-                try
-                {
-                    using (FileStream stream = File.Create(temporary)) new XmlSerializer(typeof(List<FlowProgramming.ProductionField>)).Serialize(stream, fields);
-                    if (File.Exists(path)) File.Replace(temporary, path, path + ".bak"); else File.Move(temporary, path);
-                    productionFields = CopyFields(fields); productionDraft=null;
-                }
-                finally { if (File.Exists(temporary)) File.Delete(temporary); }
-            }
-        }
-
         /// <summary>校验生产表键、唯一性、保留字段及类型。</summary>
         private static void ValidateFields(List<FlowProgramming.ProductionField> fields)
         {

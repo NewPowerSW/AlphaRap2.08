@@ -20,6 +20,69 @@ internal abstract class NativeEventParent : Flow_BaseForm
     private Flow_Chart.ResultType Parent_FlowChartRun() { ParentCalls++; return Flow_Chart.ResultType.NEXT; }
 }
 
+internal sealed class NativeUnifiedPage : Flow_BaseForm
+{
+    internal readonly Flow_Chart InitialFirst = new Flow_Chart { Name = "unifiedInitialFirst", text = "Initialize first", Location = new Point(45, 35) };
+    internal readonly Flow_Chart InitialLast = new Flow_Chart { Name = "unifiedInitialLast", text = "Initialize last", Location = new Point(45, 115) };
+    internal readonly Flow_Chart AutoFirst = new Flow_Chart { Name = "unifiedAutoFirst", text = "Automatic first", Location = new Point(75, 55) };
+    internal readonly Flow_Chart AutoLast = new Flow_Chart { Name = "unifiedAutoLast", text = "Automatic last", Location = new Point(75, 155) };
+    internal readonly List<string> Calls = new List<string>();
+    internal int LegacyCalls;
+
+    /// <summary>Create original native chains on the SDK initialization and automatic pages.</summary>
+    internal NativeUnifiedPage(string name, bool ambiguous = false, bool empty = false)
+    {
+        Name = name;
+        if (empty)
+        {
+            foreach (Flow_Chart node in new[] { InitialFirst, InitialLast, AutoFirst, AutoLast }) node.Dispose();
+            return;
+        }
+        InitialFirst.FlowChartRun += InitializeFirst;
+        InitialLast.FlowChartRun += InitializeLast;
+        AutoFirst.FlowChartRun += AutomaticFirst;
+        AutoLast.FlowChartRun += AutomaticLast;
+        InitialFirst.Next = InitialLast;
+        if (!ambiguous) AutoFirst.Next = AutoLast;
+        InitialPage.Controls.AddRange(new Control[] { InitialFirst, InitialLast });
+        AutoPage.Controls.AddRange(new Control[] { AutoFirst, AutoLast });
+    }
+
+    /// <summary>Record the original initialization entry without physical hardware.</summary>
+    private Flow_Chart.ResultType InitializeFirst() { Calls.Add("initial.first"); return Flow_Chart.ResultType.NEXT; }
+
+    /// <summary>Record the second original initialization function.</summary>
+    private Flow_Chart.ResultType InitializeLast() { Calls.Add("initial.last"); return Flow_Chart.ResultType.NEXT; }
+
+    /// <summary>Record the original automatic entry without physical hardware.</summary>
+    private Flow_Chart.ResultType AutomaticFirst() { Calls.Add("auto.first"); return Flow_Chart.ResultType.NEXT; }
+
+    /// <summary>Record the second original automatic function.</summary>
+    private Flow_Chart.ResultType AutomaticLast() { Calls.Add("auto.last"); return Flow_Chart.ResultType.NEXT; }
+
+    /// <summary>Detect any initialization fallback outside the unified controller.</summary>
+    public override void Initial() { LegacyCalls++; }
+
+    /// <summary>Detect any automatic fallback outside the unified controller.</summary>
+    public override void StartRun() { LegacyCalls++; }
+
+    /// <summary>Detect any pause fallback outside the unified controller.</summary>
+    public override void PauseRun() { LegacyCalls++; }
+
+    /// <summary>Detect any resume fallback outside the unified controller.</summary>
+    public override void ContinusAftePause() { LegacyCalls++; }
+
+    /// <summary>Detect any stop fallback outside the unified controller.</summary>
+    public override void StopRun() { LegacyCalls++; }
+
+    /// <summary>Release an isolated page without leaving it in the SDK module catalogue.</summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) Flow_Module.FlowChart_ModuleList.Remove(this);
+        base.Dispose(disposing);
+    }
+}
+
 internal sealed class NativeEventPage : NativeEventParent
 {
     internal int Calls, Polls, BoundCalls, OtherBoundCalls, GetterReads, SimulationCalls;
@@ -131,6 +194,228 @@ internal static partial class Cases
         Test("native simulation uses the declared preview and rejects undeclared hardware execution", NativeEventSimulation);
         Test("actual flow page selection refreshes native tools and native editor exposes targets without duplicate conditions", NativePageAndEditor);
         Test("native double clicks leave code nodes unchanged while dragging and explicit properties remain available", NativeDoubleClickPolicy);
+        Test("unified flow imports native page roots and original links without invoking legacy lifecycle methods", NativeUnifiedImport);
+        Test("saved Legacy definitions migrate to one mixed flow while preserving explicit entries positions and native identities", NativeUnifiedReload);
+        Test("ambiguous native page roots block validation and starting until an entry is selected", NativeUnifiedAmbiguousEntry);
+        Test("disabled and empty unified modules consume lifecycle commands without legacy fallbacks", NativeUnifiedDisabledAndEmpty);
+        Test("published output bindings stay isolated from unsaved producer method and output changes", NativePublishedOutputIsolation);
+        Test("removed original controls survive discard and are released with their owning form", NativeRemovedControlDisposal);
+        Test("a failed project load cannot dispatch native production or publish a replacement project", NativeFailedProjectLoad);
+    }
+
+    /// <summary>Build one isolated editor without replacing the global regression project or saved machine configuration.</summary>
+    private static void WithUnifiedNativePage(Action<NativeUnifiedPage, FlowModuleEditor> test, bool ambiguous = false, bool empty = false)
+    {
+        bool simulation = SysPara.Simulation;
+        SysPara.Simulation = false;
+        try
+        {
+            using (NativeUnifiedPage page = new NativeUnifiedPage("NativeUnified_" + Guid.NewGuid().ToString("N"), ambiguous, empty))
+            {
+                FlowProgram plan = new FlowProgram { ModuleId = page.GetType().FullName + "/" + page.Name, Mode = "Legacy" };
+                FlowModuleEditor owner = new FlowModuleEditor(page, plan);
+                page.ProgramController = owner;
+                try { test(page, owner); }
+                finally { owner.Runtime.Stop(); Wait(owner.Runtime.Completion); }
+            }
+        }
+        finally { SysPara.Simulation = simulation; }
+    }
+
+    /// <summary>Reject production and saving after an initial project-load error without falling back to native lifecycle code.</summary>
+    private static void NativeFailedProjectLoad()
+    {
+        WithNativeEvents((page, owner, actions) =>
+        {
+            FlowStep native = NativeNode(page, owner, actions, "Start_FlowChartRun");
+            owner.Publish();
+            FieldInfo errorField = typeof(FlowPrograms).GetField("loadError", BindingFlags.Static | BindingFlags.NonPublic);
+            object previous = errorField.GetValue(null);
+            try
+            {
+                errorField.SetValue(null, new InvalidDataException("Broken project fixture"));
+                foreach (Action operation in new Action[] { () => owner.ValidatePublished(), () => owner.Start(native.Id, false, false, true), () => FlowPrograms.ValidateForSave() })
+                {
+                    bool rejected = false;
+                    try { operation(); } catch (InvalidDataException) { rejected = true; }
+                    Assert(rejected && page.Calls == 0 && !owner.Runtime.IsRunning, "An invalid project load allowed production or replacement saving.");
+                }
+            }
+            finally { errorField.SetValue(null, previous); }
+        });
+    }
+
+    /// <summary>Keep removed original nodes for undo only while the actual page remains alive.</summary>
+    private static void NativeRemovedControlDisposal()
+    {
+        NativeEventPage page = new NativeEventPage("NativeDisposal_" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            FlowModuleEditor owner = FlowPrograms.Attach(page);
+            FlowProgram before = FlowProgramFile.Snapshot(owner.Program);
+            FlowStep step = owner.Program.Steps.Single(item => item.ControlName == page.BoundNode.Name);
+            owner.Delete(step.Id);
+            Assert(!page.BoundNode.IsDisposed && page.BoundNode.Parent == null, "Removing an original node destroyed its undo state.");
+            owner.Restore(before);
+            Assert(!page.BoundNode.IsDisposed && ReferenceEquals(page.BoundNode.Parent, page.Canvas), "Discard did not restore the original node instance.");
+            owner.Delete(step.Id); page.Dispose();
+            Assert(page.BoundNode.IsDisposed, "Closing the actual form leaked a removed original node.");
+        }
+        finally { page.Dispose(); }
+    }
+
+    /// <summary>Use the same controller-first command routing as the SDK machine lifecycle.</summary>
+    private static bool DispatchUnifiedNative(NativeUnifiedPage page, FlowProgramCommand command)
+    {
+        if (page.TryProgramCommand(command)) return true;
+        if (command == FlowProgramCommand.Initialize) page.Initial();
+        if (command == FlowProgramCommand.Start) page.StartRun();
+        if (command == FlowProgramCommand.Pause) page.PauseRun();
+        if (command == FlowProgramCommand.Resume) page.ContinusAftePause();
+        if (command == FlowProgramCommand.Stop) page.StopRun();
+        return false;
+    }
+
+    /// <summary>Import initialization and automatic roots independently and run their actual original native handlers.</summary>
+    private static void NativeUnifiedImport()
+    {
+        WithUnifiedNativePage((page, owner) =>
+        {
+            FlowStep initial = owner.Program.Steps.Single(step => step.ControlName == page.InitialFirst.Name);
+            FlowStep initialLast = owner.Program.Steps.Single(step => step.ControlName == page.InitialLast.Name);
+            FlowStep automatic = owner.Program.Steps.Single(step => step.ControlName == page.AutoFirst.Name);
+            FlowStep autoLast = owner.Program.Steps.Single(step => step.ControlName == page.AutoLast.Name);
+            Assert(owner.Program.Mode == "Program" && owner.IsEnabled && owner.IsProgram,
+                "A newly imported native page retained the old execution mode or left its controller disabled.");
+            Assert(owner.Program.InitialEntry == initial.Id && owner.Program.AutoEntry == automatic.Id
+                && initial.Next == initialLast.Id && automatic.Next == autoLast.Id,
+                "Unique original roots were not inferred independently or original native links were changed.");
+            Assert(owner.Program.Steps.All(step => step.UsesFlowResult) && page.Calls.Count == 0 && page.LegacyCalls == 0,
+                "Importing a native page executed a callback or omitted its native return contract.");
+            owner.Validate(null);
+            Assert(DispatchUnifiedNative(page, FlowProgramCommand.Initialize), "Initialization fell back to the original lifecycle override.");
+            Wait(owner.Runtime.Completion);
+            Assert(DispatchUnifiedNative(page, FlowProgramCommand.Start), "Automatic execution fell back to the original lifecycle override.");
+            Wait(owner.Runtime.Completion);
+            Assert(owner.Runtime.Error == null && page.Calls.SequenceEqual(new[] { "initial.first", "initial.last", "auto.first", "auto.last" })
+                && page.LegacyCalls == 0, "Unified lifecycle execution skipped, repeated or replaced an original native callback.");
+        });
+    }
+
+    /// <summary>Deserialize an old mode without changing saved bindings, logical layout, links or explicit entry selections.</summary>
+    private static void NativeUnifiedReload()
+    {
+        WithUnifiedNativePage((page, owner) =>
+        {
+            FlowStep initialFirst = owner.Program.Steps.Single(step => step.ControlName == page.InitialFirst.Name);
+            FlowStep initialLast = owner.Program.Steps.Single(step => step.ControlName == page.InitialLast.Name);
+            FlowStep automaticFirst = owner.Program.Steps.Single(step => step.ControlName == page.AutoFirst.Name);
+            FlowStep automaticLast = owner.Program.Steps.Single(step => step.ControlName == page.AutoLast.Name);
+            owner.AddNode("", "value", page.AutoPage, new Point(450, 55)).Inputs[0].Reference = "Separate draft node";
+            page.AutoFirst.Location = new Point(320, 410);
+            owner.CaptureLayout();
+            FlowProgram legacy = FlowProgramFile.Snapshot(owner.Program);
+            legacy.Mode = "Legacy";
+            legacy.InitialEntry = null;
+            legacy.AutoEntry = null;
+            string identities = string.Join("|", legacy.Steps.Select(step => step.Id + ":" + step.Target + ":" + step.Action));
+            string file = Path.Combine(root, "native-unified-legacy-" + Guid.NewGuid().ToString("N") + ".xml");
+            FlowProgramFile.Save(file, new FlowProject { Modules = new List<FlowProgram> { legacy } });
+            FlowProgram loaded = FlowProgramFile.Load(file).Modules.Single();
+            owner.Restore(loaded); owner.Publish();
+            FlowStep moved = owner.Program.Steps.Single(step => step.ControlName == page.AutoFirst.Name);
+            Assert(owner.Program.Mode == "Program" && owner.Program.InitialEntry == initialFirst.Id && owner.Program.AutoEntry == automaticFirst.Id,
+                "Loading a Legacy definition retained the old mode or included unrelated draft nodes when inferring original page roots.");
+            Assert(new Point(moved.X, moved.Y) == new Point(320, 410) && page.AutoFirst.Location == new Point(320, 410)
+                && ReferenceEquals(page.AutoFirst.Next, page.AutoLast) && owner.Program.Steps.Count(step => step.UsesFlowResult) == 4
+                && string.Join("|", owner.Program.Steps.Select(step => step.Id + ":" + step.Target + ":" + step.Action)) == identities,
+                "Legacy migration changed saved node positions, native identities, SDK return contracts or original connections.");
+            FlowProgram explicitEntries = FlowProgramFile.Snapshot(owner.Program);
+            explicitEntries.Mode = "Legacy"; explicitEntries.InitialEntry = initialLast.Id; explicitEntries.AutoEntry = automaticLast.Id;
+            owner.Restore(explicitEntries); owner.Publish();
+            Assert(owner.Program.InitialEntry == initialLast.Id && owner.Program.AutoEntry == automaticLast.Id,
+                "Legacy migration replaced explicitly saved initialization or automatic entry choices.");
+            owner.Validate(null);
+            Assert(page.Calls.Count == 0 && page.LegacyCalls == 0, "Loading or validating a Legacy file executed application logic.");
+        });
+    }
+
+    /// <summary>Reject multiple original roots before executing any handler, then honor the engineer's explicit selection.</summary>
+    private static void NativeUnifiedAmbiguousEntry()
+    {
+        WithUnifiedNativePage((page, owner) =>
+        {
+            Assert(!string.IsNullOrEmpty(owner.Program.InitialEntry) && string.IsNullOrEmpty(owner.Program.AutoEntry),
+                "An ambiguous automatic page guessed its entry or prevented independent initialization-root inference.");
+            bool invalid = false;
+            try { owner.Validate(null); } catch (InvalidDataException) { invalid = true; }
+            Assert(invalid, "A page with multiple automatic roots passed validation without an explicit entry.");
+            bool startBlocked = false;
+            try { DispatchUnifiedNative(page, FlowProgramCommand.Start); } catch (InvalidDataException) { startBlocked = true; }
+            Assert(startBlocked && !owner.Runtime.IsRunning && page.Calls.Count == 0 && page.LegacyCalls == 0,
+                "Ambiguous automatic execution started a native node or fell back to the original lifecycle code.");
+            owner.Program.AutoEntry = owner.Program.Steps.Single(step => step.ControlName == page.AutoLast.Name).Id;
+            owner.Validate(null); owner.Publish();
+            Assert(DispatchUnifiedNative(page, FlowProgramCommand.Start), "An explicitly repaired entry was not owned by the unified controller.");
+            Wait(owner.Runtime.Completion);
+            Assert(owner.Runtime.Error == null && page.Calls.SequenceEqual(new[] { "auto.last" }) && page.LegacyCalls == 0,
+                "Explicit entry repair executed another root or invoked the old lifecycle override.");
+        }, true);
+    }
+
+    /// <summary>Keep disabled and empty modules under the same controller so SDK command dispatch cannot reactivate old code.</summary>
+    private static void NativeUnifiedDisabledAndEmpty()
+    {
+        WithUnifiedNativePage((page, owner) =>
+        {
+            owner.Program.Mode = "Disabled"; owner.Publish(); owner.Validate(null);
+            Assert(owner.IsEnabled && !owner.IsProgram, "Disabling a module detached its controller and allowed legacy fallback.");
+            foreach (FlowProgramCommand command in new[] { FlowProgramCommand.Initialize, FlowProgramCommand.Start, FlowProgramCommand.Pause, FlowProgramCommand.Resume, FlowProgramCommand.Stop })
+                Assert(DispatchUnifiedNative(page, command), "A disabled module did not consume its lifecycle command: " + command);
+            Assert(page.Calls.Count == 0 && page.LegacyCalls == 0 && !owner.Runtime.IsRunning && !page.RunningStatus,
+                "A disabled unified module invoked a native callback, started a runtime or fell back to old lifecycle code.");
+        });
+        WithUnifiedNativePage((page, owner) =>
+        {
+            Assert(owner.Program.Mode == "Program" && owner.IsEnabled && owner.Program.Steps.Count == 0
+                && string.IsNullOrEmpty(owner.Program.InitialEntry) && string.IsNullOrEmpty(owner.Program.AutoEntry),
+                "An empty unified module invented entries or retained the old execution mode.");
+            owner.Validate(null);
+            Assert(DispatchUnifiedNative(page, FlowProgramCommand.Initialize) && DispatchUnifiedNative(page, FlowProgramCommand.Start)
+                && page.LegacyCalls == 0 && !owner.Runtime.IsRunning, "An empty module required an entry or fell back to the original lifecycle code.");
+        }, false, true);
+    }
+
+    /// <summary>Validate and run the saved producer contract while the designer holds an incompatible unsaved method.</summary>
+    private static void NativePublishedOutputIsolation()
+    {
+        WithNativeEvents((page, owner, actions) =>
+        {
+            FlowStep producer = owner.AddNode("", "value", page.Canvas, new Point(30, 80));
+            producer.Inputs[0].Reference = "published-value";
+            FlowStep consumer = owner.AddNode("", "value", page.Canvas, new Point(30, 160));
+            consumer.Inputs[0].Source = "Output";
+            consumer.Inputs[0].Reference = owner.Program.ModuleId + "/" + producer.Id + "/Value";
+            producer.Next = consumer.Id;
+            owner.Program.AutoEntry = producer.Id;
+            owner.Validate(null);
+            owner.Publish();
+
+            producer.Action = "delay";
+            producer.Inputs = new List<FlowInput> { new FlowInput { Name = "Milliseconds", Reference = "0" } };
+            bool draftRejected = false;
+            try { owner.Validate(null); }
+            catch (InvalidOperationException) { draftRejected = true; }
+            Assert(draftRejected, "An unsaved producer method with no Value output passed draft validation.");
+            owner.ValidatePublished();
+
+            FlowPrograms.BeginBatch();
+            owner.Start(producer.Id, false, false, true);
+            Wait(owner.Runtime.Completion);
+            Assert(owner.Runtime.Error == null && Convert.ToString(FlowPrograms.Results.Read(FlowPrograms.Results.Epoch, "batch",
+                owner.Program.ModuleId + "/" + consumer.Id, "Value")) == "published-value",
+                "Published validation or execution resolved the saved consumer against an unsaved producer output contract: " + owner.Runtime.Error);
+        });
     }
 
     /// <summary>Create and release an independent current-form editor through the real framework attachment path.</summary>
