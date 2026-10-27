@@ -114,6 +114,8 @@ namespace AlphaRap
 
 自动发现针对业务派生层的 `public` 实例方法，包括中间业务父类的方法。方法重载按参数签名区分，重写同一方法不会产生一串重复工具。
 
+已有显式 `GetFlowMethods` 的同一类也可继续添加普通业务方法；标准包装和配置辅助方法通过 `[FlowToolIgnore]` 精确排除。DataForm 和 INOVANCE PLC 的派生业务方法遵守同一规则，保留标准数据保存及 PLC 读写动作。
+
 - 标量、枚举、一维标量／枚举数组参数：按原参数名生成输入；有默认值时保留默认值。数组输入需绑定实际数组数据，不能用固定值文本代替数组。
 - 普通标量、枚举或数组返回值：生成 `Value` 输出，类型与方法返回值一致。数组不会自动拆成多个命名通道。
 - `void`：没有返回值输出。它表示方法正常返回，不会自动生成业务合格结果。
@@ -178,3 +180,5 @@ public void ResetInternalCache()
 这里覆盖的是 `AbstractDevice` 与 NP 业务控件的派生方法。`MotorBaseInterface`／`IOBaseInterface` 厂商驱动由控件内部持有，驱动新增的方法尚不会自动穿透为控件工具。SDK 的 IO 组合支持公开绑定派生信号，并沿用手动输出权限及资源占用检查；框架没有将所有程序集内的任意类或 Form 公共方法暴露为流程节点。
 
 使用入口和应用工程师操作顺序见 [FlowChat 功能工具箱](FlowToolboxUsage.md) 和 [设备流程设计器使用说明](FlowProgrammingUsage.md)。
+
+复杂工位逻辑可以直接实现原生事件方法并进入本页工具箱，见 [原生代码 FlowChat](NativeFlowEvents.md)。

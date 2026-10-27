@@ -34,7 +34,7 @@ namespace AlphaRap.FlowProgramming
     [AttributeUsage(AttributeTargets.Method, Inherited = true)]
     public sealed class FlowToolIgnoreAttribute : Attribute { }
 
-    /// <summary>将设备、轴和 IO 的派生业务方法转换为统一工具，不建立或登记第二份实例。</summary>
+    /// <summary>将已知业务父类的派生方法转换为统一工具，不建立或登记第二份实例。</summary>
     internal static class FlowInheritedMethods
     {
         private static readonly ConcurrentDictionary<Type, MethodInfo[]> methods = new ConcurrentDictionary<Type, MethodInfo[]>();
@@ -47,7 +47,7 @@ namespace AlphaRap.FlowProgramming
                 yield return Describe(instance, method);
         }
 
-        /// <summary>限定设备业务继承层，已有显式方法目录的层继续使用其原有声明。</summary>
+        /// <summary>限定业务继承层；显式能力和普通方法可以共存，已包装方法由方法级忽略声明排除。</summary>
         private static MethodInfo[] FindMethods(Type type)
         {
             Type root = RootType(type);
@@ -55,8 +55,6 @@ namespace AlphaRap.FlowProgramming
             List<MethodInfo> candidates = new List<MethodInfo>();
             for (Type owner = type; owner != null && owner != root; owner = owner.BaseType)
             {
-                if (owner.GetMethod("GetFlowMethods", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance,
-                    null, new[] { typeof(bool) }, null) != null) continue;
                 candidates.AddRange(owner.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                     .Where(method => CanDescribe(method, root)));
             }
@@ -69,7 +67,8 @@ namespace AlphaRap.FlowProgramming
         /// <summary>只从框架支持的实际对象继承层提取方法，排除 WinForms 生命周期。</summary>
         private static Type RootType(Type type)
         {
-            return new[] { typeof(AbstractDevice), typeof(NP_Motor), typeof(NP_Input), typeof(NP_Output), typeof(NP_Cylinder), typeof(VisionproInterface) }
+            return new[] { typeof(AbstractDevice), typeof(NP_Motor), typeof(NP_Input), typeof(NP_Output), typeof(NP_Cylinder),
+                    typeof(VisionproInterface), typeof(DataForm), typeof(PLC.INOVANCE) }
                 .FirstOrDefault(root => root.IsAssignableFrom(type));
         }
 

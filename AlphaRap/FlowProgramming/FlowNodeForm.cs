@@ -26,7 +26,7 @@ namespace AlphaRap.FlowProgramming
             if (UiTheme.IsDesignTime) return;
             module = owner;
             original = step;
-            catalog = new FlowActions(FlowResources.Capture(true));
+            catalog = new FlowActions(FlowResources.Capture(true), owner.Form);
             actionValue.FormattingEnabled = true;
             actionValue.Format += FormatMethod;
             filling = true;
@@ -77,8 +77,9 @@ namespace AlphaRap.FlowProgramming
         {
             string code = new[] { "CASE1", "CASE2", "CASE3" }.FirstOrDefault(value => branchEditors.All(editor => editor.Code != value));
             if (code == null) return;
-            if (nextBranch.IsUnconditional) nextBranch.MakeConditional();
-            FlowBranch branch = new FlowBranch { Code = code };
+            bool native = CurrentMethod != null && CurrentMethod.UsesFlowResult;
+            if (!native && nextBranch.IsUnconditional) nextBranch.MakeConditional();
+            FlowBranch branch = new FlowBranch { Code = code, Unconditional = native };
             FlowBranch next = nextBranch.ReadBranch();
             FlowCondition condition = next.Conditions.Count == 1 ? next.Conditions[0] : null;
             if (code == "CASE1" && condition != null && condition.Operator == "==" && condition.Left.Source == "Result" && condition.Right.Source == "Constant")
@@ -141,15 +142,16 @@ namespace AlphaRap.FlowProgramming
         {
             categoryValue.DisplayMember = "Label";
             categoryValue.ValueMember = "Id";
-            categoryValue.DataSource = new[] { "flow", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data" }
-                .Select(id => new FlowChoice { Id = id, Label = FlowText.T(id) }).ToList();
+            categoryValue.DataSource = new[] { "flow", "native", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data" }
+                .Where(id => id != "native" || catalog.Resources.Items.Values.Any(resource => resource.Kind == "native" && catalog.CanSelectResource(resource)))
+                .Select(id => new FlowChoice { Id = id, Label = id == "native" ? FlowNativeText.T("category") : FlowText.T(id) }).ToList();
         }
 
         /// <summary>按类别展示真实配置对象，已有失效引用保留并显示缺失提示。</summary>
         private void FillTargets(string selected)
         {
             string category = Convert.ToString(categoryValue.SelectedValue);
-            IEnumerable<FlowResource> resources = catalog.Resources.Items.Values.Where(resource => resource.Selectable && resource.Category == category && resource.Methods.Count > 0);
+            IEnumerable<FlowResource> resources = catalog.Resources.Items.Values.Where(resource => catalog.CanSelectResource(resource) && resource.Category == category && resource.Methods.Count > 0);
             List<FlowChoice> choices = resources.Select(resource => new FlowChoice { Id = resource.Id, Label = resource.Label }).ToList();
             if (category == "flow") choices.Insert(0, new FlowChoice { Id = "", Label = FlowText.T("flow") });
             if (!string.IsNullOrEmpty(selected) && choices.All(choice => choice.Id != selected))
@@ -248,6 +250,8 @@ namespace AlphaRap.FlowProgramming
             if (!retiredAwaitingChoice && executionMode == "Action" && action == null) methodHint.Text = MissingActionHelp();
             if (action != null && action.Inputs.Count == 0) methodHint.Text = FlowText.T("noInputs");
             if (action != null && action.Id == "constant.set") methodHint.Text = FlowText.T("constantSetHelp");
+            if (action != null && action.UsesFlowResult) methodHint.Text = FlowNativeText.T("help");
+            hint.Text = action != null && action.UsesFlowResult ? FlowNativeText.T("routes") : FlowText.T("branchHint");
             FlowResource resource = catalog.FindResource(Convert.ToString(targetValue.SelectedValue));
             FlowPointAxis points = resource == null || resource.BoundPoints == null ? null : resource.BoundPoints.Instance as FlowPointAxis;
             if (action != null && action.Id == "point.move" && points != null)
@@ -361,6 +365,7 @@ namespace AlphaRap.FlowProgramming
                 FlowStep candidate = FlowProgramFile.Snapshot(new FlowProgram { Steps = new List<FlowStep> { original } }).Steps[0];
                 candidate.Caption = captionValue.Text;
                 candidate.Action = action.Id;
+                candidate.UsesFlowResult = action.UsesFlowResult;
                 candidate.Target = executionMode == "Action" ? Convert.ToString(targetValue.SelectedValue) : "";
                 candidate.TimeoutMs = (int)timeoutValue.Value;
                 candidate.AlarmCode = SelectedAlarmCode;

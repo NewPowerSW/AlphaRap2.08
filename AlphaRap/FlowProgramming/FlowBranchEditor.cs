@@ -11,12 +11,13 @@ namespace AlphaRap.FlowProgramming
         public string Code { get; private set; }
         public IEnumerable<FlowConditionRow> ConditionRows { get { return conditions.Controls.OfType<FlowConditionRow>(); } }
         public string TargetId { get { return Convert.ToString(target.SelectedValue); } }
-        public bool IsUnconditional { get { return unconditional.Checked; } }
+        public bool IsUnconditional { get { return UsesNativeRoutes || unconditional.Checked; } }
         public event EventHandler RemoveRequested;
         private FlowActions catalog;
         private FlowMethod method;
         private FlowConditionRow contextCondition;
         private bool binding;
+        private bool UsesNativeRoutes { get { return method != null && method.UsesFlowResult; } }
 
         /// <summary>同一出口模板用于默认 NEXT 和按需添加的 CASE。</summary>
         public FlowBranchEditor()
@@ -36,7 +37,9 @@ namespace AlphaRap.FlowProgramming
         internal void Configure(FlowActions actions,FlowMethod selectedMethod)
         {
             catalog = actions; method = selectedMethod;
-            foreach (FlowConditionRow row in ConditionRows) row.RefreshChoices(catalog,method);
+            if (!UsesNativeRoutes)
+                foreach (FlowConditionRow row in ConditionRows) row.RefreshChoices(catalog,method);
+            ResizeRows();
         }
 
         /// <summary>绑定出口目标与条件副本，加载过程不自动增加条件。</summary>
@@ -54,7 +57,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>进入条件模式时给出一条可直接修改的默认条件。</summary>
         private void ModeChanged(object sender,EventArgs args)
         {
-            if (!binding && !unconditional.Checked && !ConditionRows.Any()) AddCondition(DefaultCondition());
+            if (!UsesNativeRoutes && !binding && !unconditional.Checked && !ConditionRows.Any()) AddCondition(DefaultCondition());
             ResizeRows();
         }
 
@@ -86,39 +89,55 @@ namespace AlphaRap.FlowProgramming
             Control source = conditionMenu.SourceControl;
             while (source != null && !(source is FlowConditionRow)) source = source.Parent;
             contextCondition = source as FlowConditionRow;
-            args.Cancel = contextCondition == null || !conditions.Controls.Contains(contextCondition);
+            args.Cancel = UsesNativeRoutes || contextCondition == null || !conditions.Controls.Contains(contextCondition);
         }
 
-        /// <summary>无条件出口收起空白，条件行随出口宽度排列。</summary>
+        /// <summary>原生事件只编辑返回值的跳转目标，普通动作按原条件模式排列且保留草稿。</summary>
         private void ResizeRows()
         {
-            conditions.Visible = !unconditional.Checked; conditions.Enabled = !unconditional.Checked;
-            addCondition.Visible = !unconditional.Checked; conditionHint.Visible = !unconditional.Checked;
-            layout.RowStyles[2].Height = unconditional.Checked ? 0 : 34; layout.RowStyles[3].Height = unconditional.Checked ? 0 : 32;
+            bool native = UsesNativeRoutes;
+            bool showConditions = !native && !unconditional.Checked;
+            unconditional.Visible = !native; all.Visible = !native; any.Visible = !native;
+            conditions.Visible = showConditions; conditions.Enabled = showConditions;
+            addCondition.Visible = showConditions; conditionHint.Visible = showConditions;
+            if (!native) FlowLanguageForm.ApplyTexts(conditionHint);
+            layout.RowStyles[1].SizeType = showConditions ? SizeType.AutoSize : SizeType.Absolute;
+            layout.RowStyles[1].Height = 0;
+            layout.RowStyles[2].Height = showConditions ? 34 : 0;
+            layout.RowStyles[3].Height = showConditions ? 32 : 0;
             int headerHeight = Math.Max(32,header.GetPreferredSize(new System.Drawing.Size(Math.Max(1,ClientSize.Width-Padding.Horizontal),0)).Height);
             layout.RowStyles[0].Height = headerHeight;
             foreach (FlowConditionRow row in ConditionRows) row.Width = Math.Max(row.MinimumSize.Width,ClientSize.Width-Padding.Horizontal-8);
-            Height = headerHeight + Padding.Vertical + (unconditional.Checked ? 0 : 70 + ConditionRows.Count()*40);
+            int contentHeight = 0;
+            if (showConditions) contentHeight = 70 + ConditionRows.Count()*40;
+            Height = headerHeight + Padding.Vertical + contentHeight;
         }
 
         /// <summary>添加 CASE 时默认 NEXT 转为条件模式，保留已填写的条件。</summary>
-        public void MakeConditional() { all.Checked = true; if (!ConditionRows.Any()) AddCondition(DefaultCondition()); }
+        public void MakeConditional()
+        {
+            if (UsesNativeRoutes) return;
+            all.Checked = true;
+            if (!ConditionRows.Any()) AddCondition(DefaultCondition());
+        }
 
         /// <summary>刷新翻译及字段文案，业务引用和正在输入的文本保持不变。</summary>
         internal void RefreshDestinationLanguage()
         {
             List<FlowChoice> choices = target.DataSource as List<FlowChoice>;
-            if (choices == null) return;
+            if (choices == null) { ResizeRows(); return; }
             string selected = TargetId; FlowChoice end = choices.FirstOrDefault(choice => string.IsNullOrEmpty(choice.Id));
             if (end != null) end.Label = FlowText.T("end");
             target.DataSource = choices.ToList(); target.SelectedValue = selected;
-            foreach (FlowConditionRow row in ConditionRows) row.RefreshChoices(catalog,method);
+            if (!UsesNativeRoutes)
+                foreach (FlowConditionRow row in ConditionRows) row.RefreshChoices(catalog,method);
             ResizeRows();
         }
 
         /// <summary>只返回条件副本，确定窗口之前不修改节点定义。</summary>
         public FlowBranch ReadBranch()
         {
+            if (UsesNativeRoutes) return new FlowBranch { Code = Code, Unconditional = true, AnyCondition = false, Conditions = new List<FlowCondition>() };
             return new FlowBranch { Code = Code, Unconditional = unconditional.Checked, AnyCondition = any.Checked, Conditions = ConditionRows.Select(row => row.ReadCondition()).ToList() };
         }
     }

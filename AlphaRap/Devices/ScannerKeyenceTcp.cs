@@ -200,6 +200,7 @@ namespace AlphaRap
         /// 主要功能：方法：扫码一次
         /// </summary>
         /// <returns>如果扫码成功，返回扫到的条码；如果扫码失败，停止扫码并返回 ERROR</returns>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public string ScanOnce()
         {
             //如果扫码枪已连接

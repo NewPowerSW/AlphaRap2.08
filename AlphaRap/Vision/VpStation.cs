@@ -356,6 +356,7 @@ namespace AlphaRap
         /// 拍照并等待完成（异步的 <see cref="VisionproInterface.RunTB"/> + 轮询结果）。
         /// 返回 true 表示在 timeoutMs 内完成且 ToolBlock 结果为 Accept；启用存图时成功后自动存图并清理过期照片。
         /// </summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public bool RunAndWait(int timeoutMs)
         {
             if (timeoutMs <= 0) throw new ArgumentOutOfRangeException("timeoutMs");
@@ -378,6 +379,7 @@ namespace AlphaRap
         }
 
         /// <summary>按行名（补偿限制表"项目"列）取本 VPP 的补偿限制；没有该行返回 false。</summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public bool TryGetCompLimit(string item, out double min, out double max)
         {
             min = 0; max = 0;
@@ -392,6 +394,7 @@ namespace AlphaRap
         /// 单轴补偿夹取：把 value 夹到该行的 [Min, Max]。返回 true 表示超限（value 已设为边界值，reason 如 "X&gt;Max"）；
         /// 未超限或没有该行时返回 false。OK/NG 判定由调用方决定。
         /// </summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public bool ClampComp(string item, ref double value, out string reason)
         {
             reason = "";
@@ -407,6 +410,7 @@ namespace AlphaRap
         /// 原图为采集根记录，截图为主界面显示的子记录（<see cref="VisionproInterface.VisionRunDisplayIndex"/>）；
         /// 保存后按保留天数清理旧照片。
         /// </summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public string SaveLastImage() { return SaveLastImage(Config); }
 
         /// <summary>按已捕获的存图设置保存最近图像，不读取其他节点的设置或覆盖页面草稿。</summary>
@@ -486,6 +490,7 @@ namespace AlphaRap
         }
 
         /// <summary>把另一个 CogRecordDisplay 绑定到本站，拍照和实时画面也会显示到它上面（按引用去重）。</summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public void BindDisplay(Cognex.VisionPro.CogRecordDisplay crd)
         {
             if (crd == null) return;
@@ -564,6 +569,7 @@ namespace AlphaRap
         }
 
         /// <summary>空闲时调整工位的输出契约；生产定位必须读取 x、y、A。</summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public bool TrySetKind(VpStationKind kind, out string error)
         {
             lock (_operationLock)
@@ -578,6 +584,7 @@ namespace AlphaRap
         }
 
         /// <summary>检查生产定位算法是否声明数值类型的 x、y、A 输出。</summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public bool ValidateFiducialOutputs(out string error)
         {
             lock (_operationLock)
@@ -601,6 +608,7 @@ namespace AlphaRap
         }
 
         /// <summary>指定 vpp 目录名。</summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public void SetVppFolder(string folderName)
         {
             VppFolderName = folderName ?? "";
@@ -608,6 +616,7 @@ namespace AlphaRap
         }
 
         /// <summary>更新显示归属；指定存储目录时，改名保持原算法路径。</summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public void SetOwner(string cameraName, string vppName, string storageFolder = null)
         {
             CameraName = cameraName ?? "";

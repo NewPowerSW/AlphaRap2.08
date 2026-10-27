@@ -175,6 +175,7 @@ internal class AutoDeclaredOutput : NP_Output, IFlowObject
     }
 
     /// <summary>Implement the method already represented by the explicit capability declaration.</summary>
+    [FlowToolIgnore]
     public int Published(int value) { return value + 20; }
 }
 

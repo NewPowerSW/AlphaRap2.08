@@ -19,6 +19,14 @@ public sealed class StartupDerivedAxis : NP_Motor
     public double CheckOffset(double value) { return value + 1; }
 }
 
+public sealed class StartupNativePage : Flow_BaseForm
+{
+    public int Calls;
+
+    /// <summary>Run a native event through Main Save without accessing equipment.</summary>
+    private Flow_Chart.ResultType Saved_FlowChartRun() { Calls++; return Flow_Chart.ResultType.NEXT; }
+}
+
 internal static class StartupSmoke
 {
     /// <summary>Resolve installed UI dependencies, then exercise the real form creation sequence without starting hardware.</summary>
@@ -200,6 +208,40 @@ internal static class StartupSmoke
         ChooseSave(main,"Button3_dyn");
         VerifyFlowTableSave(main,setting);
         VerifyActionMainSave(main);
+        VerifyNativeMainSave(main);
+    }
+
+    /// <summary>Persist native identity and routing through the real main Save, failed save, published run and discard.</summary>
+    private static void VerifyNativeMainSave(MainForm main)
+    {
+        using (StartupNativePage page = new StartupNativePage { Name = "Saved native flow" })
+        {
+            FlowModuleEditor module = FlowPrograms.Attach(page);
+            FlowActions actions = new FlowActions(FlowResources.Capture(true), page);
+            FlowResource resource = actions.Resources.Items.Values.Single(item => item.Kind == "native" && ReferenceEquals(item.Instance, page));
+            FlowMethod method = resource.Methods.Single();
+            FlowStep step = module.AddNode(resource.Id, method.Id, page, new System.Drawing.Point(20, 30));
+            step.Breakpoint = true; module.Program.Mode = "Program"; module.Program.AutoEntry = step.Id;
+            ChooseSave(main, "Button1_dyn");
+            FlowStep saved = FlowProgramFile.Load(FlowPrograms.FilePath).Modules.Single(item => item.ModuleId == module.Program.ModuleId).Steps.Single();
+            if (!saved.UsesFlowResult || saved.Action != method.Id || saved.Target != resource.Id || !saved.Breakpoint || page.Calls != 0)
+                throw new InvalidOperationException("Main Save lost native identity, routing or breakpoint, or executed code.");
+            string before = File.ReadAllText(FlowPrograms.FilePath);
+            step.UsesFlowResult = false;
+            bool rejected = false;
+            try { ProjectConfiguration.Save(); } catch (InvalidOperationException) { rejected = true; }
+            if (!rejected || File.ReadAllText(FlowPrograms.FilePath) != before || step.UsesFlowResult)
+                throw new InvalidOperationException("A mismatched native contract overwrote the saved plan or discarded the draft.");
+            module.Start(step.Id, false, false, true);
+            DateTime limit = DateTime.UtcNow.AddSeconds(5);
+            while (!module.Runtime.Completion.IsCompleted && DateTime.UtcNow < limit) { Application.DoEvents(); System.Threading.Thread.Sleep(5); }
+            if (!module.Runtime.Completion.IsCompleted || module.Runtime.Error != null || page.Calls != 1)
+                throw new InvalidOperationException("The published native plan did not invoke the real current form.");
+            ChooseSave(main, "Button3_dyn");
+            if (!module.Program.Steps.Single().UsesFlowResult || module.Program.Steps.Single().Action != method.Id || !module.Program.Steps.Single().Breakpoint)
+                throw new InvalidOperationException("Main Save No did not restore the complete native node.");
+            Console.WriteLine("PASS Main Save persists native event identity routing and breakpoints; failed save and discard retain the correct versions.");
+        }
     }
 
     /// <summary>Publish typed action nodes through Main Save and preserve the published version after invalid drafts and discard.</summary>

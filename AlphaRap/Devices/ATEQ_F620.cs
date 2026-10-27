@@ -117,6 +117,7 @@ namespace AlaphaRap
         /// <param name="parity">校验位</param>
         /// <param name="dataBits">数据位</param>
         /// <param name="stopBits">停止位</param>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public void Connect(string portName, int baudRate, int parity, int dataBits, int stopBits)
         {
             Parity par = Parity.Even;
@@ -186,6 +187,7 @@ namespace AlaphaRap
         /// <summary>
         /// 主要功能：读取数据
         /// </summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public string Readdata()
         {
             bool status = _SP.IsOpen;

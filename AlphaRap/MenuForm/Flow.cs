@@ -95,7 +95,7 @@ namespace AlphaRap
         }
 
         /// <summary>刷新真实对象动作目录，保留工具箱搜索草稿。</summary>
-        private void RefreshToolbox() { toolbox.BindActions(new FlowActions(FlowResources.Capture(true))); }
+        private void RefreshToolbox() { toolbox.BindActions(new FlowActions(FlowResources.Capture(true), tabControl1.SelectedTab == null ? null : Current().Form)); }
 
         /// <summary>为所有实际基类页面中的容器接入同一工具箱拖放入口。</summary>
         private void BindDropTargets(Control parent)
@@ -178,7 +178,7 @@ namespace AlphaRap
         }
 
         /// <summary>节点编辑完成后刷新列表及新节点的右键入口。</summary>
-        private void ModuleChanged(object sender, EventArgs args) { RefreshSelection(); RefreshToolbox(); foreach (Flow_BaseForm form in pages.Keys) BindDropTargets(form); }
+        private void ModuleChanged(object sender, EventArgs args) { RefreshSelection(); foreach (Flow_BaseForm form in pages.Keys) BindDropTargets(form); }
         /// <summary>Resolve the active module controller.</summary>
         private FlowModuleEditor Current()
         {
@@ -195,6 +195,7 @@ namespace AlphaRap
                 edit.Checked = false;
                 filling = false;
                 RefreshRuntime(null, EventArgs.Empty);
+                RefreshToolbox();
                 return;
             }
             filling = true;
@@ -213,6 +214,7 @@ namespace AlphaRap
             BindNodeMenus(module.Form);
             filling = false;
             RefreshRuntime(null, EventArgs.Empty);
+            RefreshToolbox();
         }
         /// <summary>Update the engineering draft; production uses only the saved definition.</summary>
         private void UpdateDefinition(object sender, EventArgs args)

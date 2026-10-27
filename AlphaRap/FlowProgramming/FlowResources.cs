@@ -52,7 +52,7 @@ namespace AlphaRap.FlowProgramming
                     case "input": return "di";
                     case "output": return "do";
                     case "cylinder": return Kind;
-                    case "vision": case "data": case "tray": case "constants": case "code": return Kind;
+                    case "vision": case "data": case "tray": case "constants": case "code": case "native": return Kind;
                     default: return "device";
                 }
             }
@@ -98,6 +98,12 @@ namespace AlphaRap.FlowProgramming
             List<Form> forms = MiddleLayer.lstForm.OfType<Form>().Concat(Flow_Module.FlowChart_ModuleList).Distinct().ToList();
             foreach (Form form in forms)
             {
+                Flow_BaseForm flow = form as Flow_BaseForm;
+                if (flow != null)
+                {
+                    List<FlowMethod> methods = FlowNativeMethods.Discover(flow);
+                    if (methods.Count > 0) catalog.Add(FlowNativeMethods.ResourceId(flow), flow.Name, "native", flow).Methods = methods;
+                }
                 if (form is IFlowObject && !(form is DataForm)) catalog.Add("module/" + form.GetType().FullName + "/" + form.Name, form.Name, "object", form);
                 catalog.AddControls(form, form.Name); catalog.AddObjectFields(form);
             }
@@ -151,6 +157,7 @@ namespace AlphaRap.FlowProgramming
         {
             foreach (FlowResource resource in Items.Values)
             {
+                if (resource.Kind == "native") { foreach (FlowMethod method in resource.Methods) method.ValidateDefinition(); continue; }
                 IFlowObject provider = resource.Instance as IFlowObject;
                 List<FlowMethod> declared = provider == null ? new List<FlowMethod>() : provider.GetFlowMethods(includeDraft).ToList();
                 NP_Motor motor = resource.Instance as NP_Motor;

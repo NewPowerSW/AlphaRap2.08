@@ -332,7 +332,12 @@ namespace AlphaRap.FlowProgramming
         private static void AddOutputChoices(List<FlowChoice> list, FlowActions actions, FlowModuleEditor module, FlowStep step)
         {
             FlowMethod action;
-            try { action = actions.FindMethod(step); }
+            try
+            {
+                FlowResource source = actions.FindResource(step.Target);
+                action = step.UsesFlowResult && source != null && source.Kind == "native"
+                    ? source.Methods.SingleOrDefault(method => method.Id == step.Action && method.UsesFlowResult) : actions.FindMethod(step);
+            }
             catch (InvalidOperationException) { return; }
             if (action == null) return;
             foreach (FlowField field in action.Outputs)
@@ -345,6 +350,7 @@ namespace AlphaRap.FlowProgramming
     public sealed partial class FlowModuleEditor : IFlowProgramController
     {
         private readonly Dictionary<string, Flow_Chart> nodes = new Dictionary<string, Flow_Chart>();
+        private readonly ToolTip bindingHints = new ToolTip { AutoPopDelay = 15000, InitialDelay = 350, ReshowDelay = 100 };
         private bool paused;
         private bool editing;
         private bool simulating;
@@ -373,6 +379,8 @@ namespace AlphaRap.FlowProgramming
             Runtime.DebugChanged += CaptureDebug;
             Runtime.AlarmRequested += code => { if (!simulating) Alarm.Show(string.IsNullOrWhiteSpace(code) ? "2019" : code); };
             Runtime.Finished += Finish;
+            MiddleLayer.LanguageChanged += RefreshBindingHints;
+            Form.Disposed += (sender, args) => { MiddleLayer.LanguageChanged -= RefreshBindingHints; bindingHints.Dispose(); };
         }
 
         /// <summary>递归枚举节点及其父容器，保留现有窗体布局。</summary>
@@ -436,7 +444,9 @@ namespace AlphaRap.FlowProgramming
                 node.BringToFront();
             }
             ImportLegacyLinks();
+            foreach (FlowStep step in Program.Steps) FlowNativeMethods.BindExisting(Form, nodes[step.Id], step);
             ApplyLinks();
+            foreach (ScrollableControl canvas in nodes.Values.Select(node => node.Parent).OfType<ScrollableControl>().Distinct()) UpdateCanvasBounds(canvas);
         }
 
         /// <summary>先检查全部节点和父容器，避免无效布局加载到一半破坏当前工程。</summary>
@@ -505,7 +515,41 @@ namespace AlphaRap.FlowProgramming
                 node.ProgramManaged = IsEnabled;
                 node.ProgramBreakpoint = step.Breakpoint;
             }
+            RefreshBindingHints(null, EventArgs.Empty);
             Form.Invalidate(true);
+        }
+
+        /// <summary>节点独立标示功能、代码或条件，显示绑定详情且不修改业务标题。</summary>
+        private void RefreshBindingHints(object sender, EventArgs args)
+        {
+            foreach (FlowStep step in Program.Steps)
+            {
+                Flow_Chart node = Node(step.Id);
+                if (node == null || node.IsDisposed) continue;
+                string key = step.ExecutionMode == "None" ? "badgeCondition" : step.UsesFlowResult ? "badgeNative" : step.Action == "legacy" ? "badgePending" : "badgeAction";
+                node.ProgramBindingLabel = FlowNativeText.T(key);
+                string description;
+                if (step.ExecutionMode == "None") description = FlowNativeText.T("conditionBinding");
+                else if (step.UsesFlowResult)
+                {
+                    string method = step.Action ?? "";
+                    int signature = method.LastIndexOf('.');
+                    if (method.StartsWith("native.", StringComparison.Ordinal) && signature > "native.".Length)
+                        method = method.Substring("native.".Length, signature - "native.".Length) + "()";
+                    description = string.Format(FlowNativeText.T("nativeBinding"), Form.Name, method);
+                }
+                else description = string.Format(FlowNativeText.T("actionBinding"), step.Target ?? "", step.Action ?? "");
+                if (published != null && published.Mode == "Legacy") description = string.Format(FlowNativeText.T("legacyBinding"), description);
+                node.AccessibleDescription = description;
+                BindHint(node, description);
+            }
+        }
+
+        /// <summary>鼠标经过节点的任意原有表面时均可看到同一执行绑定。</summary>
+        private void BindHint(Control control, string description)
+        {
+            bindingHints.SetToolTip(control, description);
+            foreach (Control child in control.Controls) BindHint(child, description);
         }
 
         /// <summary>安全解析可空的连接终点。</summary>
@@ -554,7 +598,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>从工具箱绑定真实对象的方法，保留对象身份及方法声明的默认输入。</summary>
         public FlowStep AddNode(string targetId, string actionId, Control canvas, Point logicalLocation)
         {
-            FlowActions actions = new FlowActions(FlowResources.Capture(true));
+            FlowActions actions = new FlowActions(FlowResources.Capture(true), Form);
             FlowResource resource = actions.FindResource(targetId);
             if (resource == null && !string.IsNullOrEmpty(targetId)) throw new InvalidOperationException(FlowText.T("methodMissing"));
             FlowMethod method = actions.MethodsFor(resource).Single(item => item.Id == actionId);
@@ -563,6 +607,7 @@ namespace AlphaRap.FlowProgramming
             step.Caption = resource == null ? FlowMethods.Title(method) : resource.Label + " · " + FlowMethods.Title(method);
             step.Target = targetId;
             step.Action = actionId;
+            step.UsesFlowResult = method.UsesFlowResult;
             step.Inputs = method.Inputs.Select(field => new FlowInput { Name = field.Name, Source = string.IsNullOrEmpty(field.OutputSourceMethod) ? "Constant" : "Output", Reference = field.DefaultValue }).ToList();
             return AddNodeCore(step, canvas, logicalLocation);
         }
@@ -598,12 +643,23 @@ namespace AlphaRap.FlowProgramming
             {
                 Point scroll = canvas.AutoScrollPosition;
                 node.Location = new Point(step.X + scroll.X, step.Y + scroll.Y);
-                canvas.AutoScroll = true;
-                canvas.AutoScrollMinSize = new Size(Math.Max(500, step.X + node.Width + 40), step.Y + node.Height + 40);
+                UpdateCanvasBounds(canvas);
                 canvas.ScrollControlIntoView(node);
             }
+            RefreshBindingHints(null, EventArgs.Empty);
             if (Changed != null) Changed(this, EventArgs.Empty);
             return step;
+        }
+
+        /// <summary>按全部节点的逻辑位置恢复画布滚动范围，保留现有节点布局。</summary>
+        private void UpdateCanvasBounds(ScrollableControl canvas)
+        {
+            Point scroll = canvas.AutoScrollPosition;
+            Flow_Chart[] children = nodes.Values.Where(node => node.Parent == canvas).ToArray();
+            int right = children.Select(node => node.Right - scroll.X + 40).DefaultIfEmpty(0).Max();
+            int bottom = children.Select(node => node.Bottom - scroll.Y + 40).DefaultIfEmpty(0).Max();
+            canvas.AutoScroll = true;
+            canvas.AutoScrollMinSize = new Size(right, bottom);
         }
 
         /// <summary>删除选中节点并清理全部入口及连接。</summary>
@@ -613,6 +669,7 @@ namespace AlphaRap.FlowProgramming
             Flow_Chart node = Node(id);
             if (node == null) return;
             FlowPrograms.ValidateNodeDeletion(this, id);
+            ScrollableControl canvas = node.Parent as ScrollableControl;
             node.ConfigurationRequested -= Configure;
             Program.RemovedControls.Add(node.Name);
             RemoveControl(node);
@@ -628,6 +685,7 @@ namespace AlphaRap.FlowProgramming
             if (Program.InitialEntry == id) Program.InitialEntry = null;
             if (Program.AutoEntry == id) Program.AutoEntry = null;
             ApplyLinks();
+            if (canvas != null) UpdateCanvasBounds(canvas);
         }
 
         /// <summary>保留原控件及回调，重新加载旧版本时可恢复；移出全局运行列表。</summary>
@@ -690,7 +748,7 @@ namespace AlphaRap.FlowProgramming
             if (errors.Count > 0) throw new InvalidDataException(string.Join(Environment.NewLine, errors));
             if (plan.Mode != "Program" && entry == null) return;
             if (plan.Mode == "Program" && string.IsNullOrEmpty(plan.AutoEntry)) throw new InvalidDataException("Select an automatic entry: " + Form.Name);
-            FlowActions actions = new FlowActions(FlowResources.Capture(includeDraft));
+            FlowActions actions = new FlowActions(FlowResources.Capture(includeDraft), Form);
             IEnumerable<FlowStep> reachable = entry == null
                 ? FlowProgramFile.Reachable(plan, plan.InitialEntry).Concat(FlowProgramFile.Reachable(plan, plan.AutoEntry))
                 : FlowProgramFile.Reachable(plan, entry);
@@ -726,12 +784,12 @@ namespace AlphaRap.FlowProgramming
             ValidatePlan(plan, entry);
             if (string.IsNullOrEmpty(entry)) { Form.InitialStatus = true; Form.RunningStatus = false; return; }
             FlowResources resources = FlowResources.Capture();
-            FlowActions actions = new FlowActions(resources) { Simulate = simulate, RequestInput = FlowInputForm.Request };
+            FlowActions actions = new FlowActions(resources, Form) { Simulate = simulate, RequestInput = FlowInputForm.Request };
             simulating = simulate;
             isInitializing = initializing;
             isProduction = production;
             Runtime.ExecuteAction = actions.Execute;
-            Runtime.ExecuteStep = null;
+            Runtime.ExecuteStep = actions.ExecuteOutcome;
             DebugSnapshot = null;
             PrepareDebugPlan(plan, entry, actions, debug);
             Form.RunningStatus = true;

@@ -13,20 +13,31 @@ namespace AlphaRap.FlowProgramming
     public sealed class FlowActions
     {
         public readonly FlowResources Resources;
+        public readonly Flow_BaseForm Owner;
         private readonly List<FlowMethod> utility;
         public bool Simulate;
         public Func<string, CancellationToken, Task<string>> RequestInput;
 
         /// <summary>使用已捕获的实际对象与配方快照。</summary>
-        public FlowActions(FlowResources resources)
+        public FlowActions(FlowResources resources, Flow_BaseForm owner = null)
         {
             Resources = resources;
+            Owner = owner;
             utility = new FlowUtilityObject().GetFlowMethods().ToList();
             foreach (FlowMethod method in utility) method.ValidateDefinition();
         }
 
         /// <summary>读取选中对象自己的方法；空目标只提供流程上下文方法。</summary>
-        public List<FlowMethod> MethodsFor(FlowResource resource) { return resource == null ? utility : resource.Methods; }
+        public List<FlowMethod> MethodsFor(FlowResource resource)
+        {
+            return resource == null ? utility : resource.Kind == "native" && !ReferenceEquals(resource.Instance, Owner) ? new List<FlowMethod>() : resource.Methods;
+        }
+
+        /// <summary>代码流程只提供给所属实际窗体，其余对象继续使用原资源目录。</summary>
+        public bool CanSelectResource(FlowResource resource)
+        {
+            return resource.Selectable && (resource.Kind != "native" || ReferenceEquals(resource.Instance, Owner));
+        }
 
         /// <summary>按对象身份和方法身份联合解析，禁止用其他对象的同名方法补位。</summary>
         public FlowMethod FindMethod(FlowStep step)
@@ -63,11 +74,14 @@ namespace AlphaRap.FlowProgramming
         public void Validate(FlowStep step)
         {
             if (!IsSupported(step)) throw new InvalidOperationException(string.Format(FlowText.T("retiredNode"), step == null ? "" : step.Caption));
+            FlowNativeMethods.ValidateLegacy(Owner, step);
             if (FlowProgramFile.RequiresBranchReview(step)) throw new InvalidOperationException(FlowText.T("reviewBranches") + " " + step.Caption);
             List<string> errors = FlowProgramFile.ValidateBranches(step);
             if (errors.Count > 0) throw new InvalidOperationException(string.Join(Environment.NewLine, errors));
             FlowMethod method = FindMethod(step);
             if (method == null) throw new InvalidOperationException(FlowText.T("methodMissing") + " " + step.Caption + " / " + step.Target + " / " + step.Action);
+            if (step.UsesFlowResult != method.UsesFlowResult)
+                throw new InvalidOperationException(string.Format(FlowNativeText.T("contract"), step.Caption));
             if (step.Inputs.Count != method.Inputs.Count || method.Inputs.Any(field => step.Inputs.Count(input => input.Name == field.Name) != 1))
                 throw new InvalidOperationException(FlowText.T("fieldsChanged") + " " + step.Caption);
             foreach (FlowInput input in step.Inputs)
@@ -169,6 +183,13 @@ namespace AlphaRap.FlowProgramming
                 return await lease.Run(() => Invoke(method, call)).ConfigureAwait(false);
         }
 
+        /// <summary>普通动作沿用条件出口；原生事件把自身返回值交给同一运行器处理。</summary>
+        public async Task<FlowActionOutcome> ExecuteOutcome(FlowStep step, FlowExecutionContext context, CancellationToken token)
+        {
+            IDictionary<string, object> output = await Execute(step, context, token).ConfigureAwait(false);
+            return new FlowActionOutcome { Outputs = output, BranchCode = step.UsesFlowResult ? ((Flow_Chart.ResultType)output["Result"]).ToString() : null };
+        }
+
         /// <summary>模拟硬件必须使用明确的模拟实现；实际方法返回后检查输出契约。</summary>
         private async Task<IDictionary<string, object>> Invoke(FlowMethod method, FlowCall call)
         {
@@ -191,8 +212,16 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>绑定表与轴共用资源，气缸占用实际输出，相机按采集通道互斥。</summary>
-        private static List<object> ResourceLocks(object instance)
+        private List<object> ResourceLocks(object instance)
         {
+            Flow_BaseForm form = instance as Flow_BaseForm;
+            if (form != null)
+            {
+                List<object> local = new List<object> { form };
+                foreach (FlowResource resource in Resources.Items.Values.Where(item => !ReferenceEquals(item.Instance, form) && item.Id.StartsWith(form.Name + "/", StringComparison.Ordinal)))
+                    local.AddRange(ResourceLocks(resource.Instance));
+                return local.Distinct().ToList();
+            }
             FlowPointAxis point = instance as FlowPointAxis;
             if (point != null) return new List<object> { point.Motor };
             NP_Cylinder cylinder = instance as NP_Cylinder;

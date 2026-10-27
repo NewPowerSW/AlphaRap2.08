@@ -43,7 +43,7 @@ namespace AlphaRap.FlowProgramming
                 new FlowToolboxEntry { Id = "None", ExecutionMode = "None", Category = "flow", Title = FlowToolboxText.T("noneEntry") }
             };
             if (actions == null) return result;
-            foreach (FlowResource resource in actions.Resources.Items.Values.Where(item => item.Selectable))
+            foreach (FlowResource resource in actions.Resources.Items.Values.Where(actions.CanSelectResource))
                 foreach (FlowMethod method in resource.Methods)
                     result.Add(new FlowToolboxEntry { Id = "action/" + Uri.EscapeDataString(resource.Id) + "/" + Uri.EscapeDataString(method.Id), ExecutionMode = "Action",
                         TargetId = resource.Id, ActionId = method.Id, Category = resource.Category, Title = resource.Label + " · " + FlowMethods.Title(method) });
@@ -61,7 +61,7 @@ namespace AlphaRap.FlowProgramming
             entries.Nodes.Clear();
             foreach (IGrouping<string, FlowToolboxEntry> group in Choices().Where(item => filter.Length == 0 || item.Title.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0 || item.Id.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0).GroupBy(item => item.Category).OrderBy(group => FlowText.T(group.Key)))
             {
-                TreeNode category = entries.Nodes.Add(group.Key, FlowText.T(group.Key));
+                TreeNode category = entries.Nodes.Add(group.Key, group.Key == "native" ? FlowNativeText.T("category") : FlowText.T(group.Key));
                 foreach (FlowToolboxEntry entry in group.OrderBy(item => item.Title))
                 {
                     TreeNode node = category.Nodes.Add(entry.Id, entry.Title); node.Tag = entry;

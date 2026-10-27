@@ -16,6 +16,8 @@ $flowArguments += Join-Path $PSScriptRoot 'P0Usability.cs'
 $flowArguments += Join-Path $PSScriptRoot 'ActionOnlyCases.cs'
 $flowArguments += Join-Path $PSScriptRoot 'AutoMethodCases.cs'
 $flowArguments += Join-Path $PSScriptRoot 'HardwareDerivedTypeCases.cs'
+$flowArguments += Join-Path $PSScriptRoot 'FrameworkInheritanceCases.cs'
+$flowArguments += Join-Path $PSScriptRoot 'NativeEventCases.cs'
 foreach ($flowCognexAssembly in @('Cognex.VisionPro.dll','Cognex.VisionPro.Core.dll','Cognex.VisionPro.ToolGroup.dll')) { $flowArguments += '/r:C:/Program Files/Cognex/VisionPro/ReferencedAssemblies/' + $flowCognexAssembly }
 & $flowCompiler @flowArguments
 if ($LASTEXITCODE -ne 0) { throw 'Flow regression compilation failed.' }
@@ -24,7 +26,7 @@ $flowRunRoot = Join-Path $flowTestRoot ([Guid]::NewGuid().ToString('N'))
 if ($LASTEXITCODE -ne 0) { throw 'Flow regressions failed.' }
 Write-Output "Flow UI screenshots: $flowRunRoot"
 $flowStartupExecutable = Join-Path $flowTestRoot 'FlowProgramming.StartupSmoke.exe'
-$flowStartupArguments = $flowArguments | Where-Object { $_ -notlike '/out:*' -and $_ -notlike '*Regression.cs' -and $_ -notlike '*ObjectMethods.cs' -and $_ -notlike '*Resources.cs' -and $_ -notlike '*Usability.cs' -and $_ -notlike '*ActionOnlyCases.cs' -and $_ -notlike '*AutoMethodCases.cs' -and $_ -notlike '*HardwareDerivedTypeCases.cs' }
+$flowStartupArguments = $flowArguments | Where-Object { $_ -notlike '/out:*' -and $_ -notlike '*Regression.cs' -and $_ -notlike '*ObjectMethods.cs' -and $_ -notlike '*Resources.cs' -and $_ -notlike '*Usability.cs' -and $_ -notlike '*ActionOnlyCases.cs' -and $_ -notlike '*AutoMethodCases.cs' -and $_ -notlike '*HardwareDerivedTypeCases.cs' -and $_ -notlike '*FrameworkInheritanceCases.cs' -and $_ -notlike '*NativeEventCases.cs' }
 $flowStartupArguments += "/out:$flowStartupExecutable"
 $flowStartupArguments += Join-Path $PSScriptRoot 'StartupSmoke.cs'
 $flowStartupArguments += Join-Path $PSScriptRoot 'ConfigurationCases.cs'

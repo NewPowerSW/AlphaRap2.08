@@ -211,6 +211,7 @@ namespace AlphaRap
         /// 主要功能：3D运行成功返回扫到的高度失败则返回Error
         /// </summary>
         /// <param name="Position">位置</param>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public string Triger3D(int Position)
         {
             string Heightstring = "";
@@ -293,6 +294,7 @@ namespace AlphaRap
         /// 主要功能：切换位置，在运行Triger3D先要切换到相应的位置
         /// </summary>
         /// <param name="Position">第几个位置</param>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public string Change3D(int Position)
         {
             string Heightstring = "";

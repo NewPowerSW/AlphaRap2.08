@@ -142,6 +142,7 @@ namespace AlphaRap
         /// <param name="strResult">串口返回的结果字符串</param>
         /// <param name="bLengthOK">集合长度是否等于设定的通道数</param>
         /// <returns>返回的结果集合</returns>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public List<double> GetFinalResult(ref bool bLengthOK)
         {
             listResult.Clear();
@@ -163,6 +164,7 @@ namespace AlphaRap
         /// <summary>
         /// 发送指令的方法
         /// </summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
         public bool Write(string Command)
         {
             try
