@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
-using System.Drawing.Drawing2D;
 using System.Threading;
 
 namespace AlphaRap
@@ -12,6 +11,7 @@ namespace AlphaRap
 	public partial class HomeForm : Form
 	{
 		public Classes.RFIDOperation RFIDOper = new Classes.RFIDOperation();
+        private string[] infoHeaders = new string[0];
 
 		public HomeForm()
 		{
@@ -30,7 +30,7 @@ namespace AlphaRap
                 return;
             }
 
-			// 底部设备状态条：按 Parameter 里的设备清单动态生成（增 / 删 / 改名 / 连接状态都会跟着变）
+			// 设备连接列表跟随现有设备配置更新。
 			_devicesChangedHandler = delegate { RefreshDeviceStatusSafe(); };
 			DeviceControl.DevicesChanged += _devicesChangedHandler;
 			this.Disposed += delegate { DeviceControl.DevicesChanged -= _devicesChangedHandler; };
@@ -69,6 +69,20 @@ namespace AlphaRap
                 grdInfo.AllowUserToDeleteRows = false;
                 grdInfo.AllowUserToResizeRows = false;
                 grdInfo.RowHeadersVisible = false;
+                grdInfo.CellBorderStyle = DataGridViewCellBorderStyle.None;
+                grdInfo.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+                grdInfo.GridColor = Color.FromArgb(226, 235, 244);
+                grdInfo.DefaultCellStyle.Font = UiKit.Regular(9f);
+                grdInfo.DefaultCellStyle.ForeColor = Color.FromArgb(40, 59, 83);
+                grdInfo.DefaultCellStyle.SelectionBackColor = Color.FromArgb(225, 241, 252);
+                grdInfo.DefaultCellStyle.SelectionForeColor = Color.FromArgb(20, 36, 59);
+                grdInfo.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 254);
+                grdInfo.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(246, 249, 252);
+                grdInfo.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(99, 119, 143);
+                grdInfo.ColumnHeadersDefaultCellStyle.Font = UiKit.Regular(9f);
+                grdInfo.ColumnHeadersHeight = UiTheme.Dpi(32);
+                grdInfo.RowTemplate.Height = UiTheme.Dpi(30);
+                grdInfo.CellFormatting += FormatProductionCell;
                 // 表头内边距收窄，长列名才放得下
                 grdInfo.ColumnHeadersDefaultCellStyle.Padding = UiTheme.Dpi(new Padding(4, 0, 4, 0));
                 // 列宽等分卡片宽度：永远不出横向滚动条；列多时表头靠 tooltip 看全
@@ -96,6 +110,7 @@ namespace AlphaRap
                 }
                 BuildInfoColumns(cols);
                 grdInfo.Rows.Clear();
+                RefreshRecordCount();
             }
             catch { }
         }
@@ -135,6 +150,7 @@ namespace AlphaRap
                 ProductionDataStore.SetColumns(cols);
                 BuildInfoColumns(cols);
                 grdInfo.Rows.Clear();
+                RefreshRecordCount();
             }
             catch { }
         }
@@ -179,6 +195,7 @@ namespace AlphaRap
             try
             {
                 grdInfo.Rows.Clear();
+                RefreshRecordCount();
                 if (rows == null) return;
                 for (int i = 0; i < rows.Count; i++) AddInfoRowCore(rows[i]);
                 grdInfo.ClearSelection();
@@ -186,6 +203,7 @@ namespace AlphaRap
             catch { }
         }
 
+        /// <summary>向只读生产记录追加一行，并刷新显示计数。</summary>
         private void AddInfoRowCore(string[] values)
         {
             if (grdInfo == null || grdInfo.Columns.Count == 0) return;
@@ -193,6 +211,7 @@ namespace AlphaRap
             for (int i = 0; i < cells.Length; i++)
                 cells[i] = (values != null && i < values.Length) ? (object)(values[i] ?? "") : "";
             grdInfo.Rows.Add(cells);
+            RefreshRecordCount();
         }
 
         /// <summary>清空界面上的数据行（保留表头，**不动已落盘的文件**）。</summary>
@@ -203,6 +222,7 @@ namespace AlphaRap
             {
                 grdInfo.Rows.Clear();
                 grdInfo.ClearSelection();
+                RefreshRecordCount();
             }
             catch { }
         }
@@ -219,9 +239,11 @@ namespace AlphaRap
             if (grdInfo == null || headers == null || headers.Count == 0) return;
             try
             {
+                infoHeaders = new string[headers.Count];
                 grdInfo.Columns.Clear();
                 for (int i = 0; i < headers.Count; i++)
                 {
+                    infoHeaders[i] = headers[i] ?? "";
                     DataGridViewTextBoxColumn c = new DataGridViewTextBoxColumn();
                     c.Name = "infoCol" + i;
                     c.HeaderText = headers[i] ?? "";
@@ -235,26 +257,26 @@ namespace AlphaRap
             catch { }
         }
 
-		/// <summary>把控件裁剪为圆角胶囊（状态指示块用）。</summary>
-		private static void ApplyPillRegion(Control c, int radius)
-		{
-			if (c == null || c.Width <= 0 || c.Height <= 0) return;
-			try
-			{
-				int d = Math.Max(2, Math.Min(radius * 2, Math.Min(c.Width, c.Height)));
-				using (var path = new GraphicsPath())
-				{
-					path.AddArc(0, 0, d, d, 180, 90);
-					path.AddArc(c.Width - d, 0, d, d, 270, 90);
-					path.AddArc(c.Width - d, c.Height - d, d, d, 0, 90);
-					path.AddArc(0, c.Height - d, d, d, 90, 90);
-					path.CloseFigure();
-					if (c.Region != null) c.Region.Dispose();
-					c.Region = new Region(path);
-				}
-			}
-			catch { }
-		}
+        /// <summary>生产字段是业务定义；切换语言时恢复原始表头而不重建列和数据行。</summary>
+        private void RestoreInfoHeaders()
+        {
+            if (grdInfo == null) return;
+            for (int i = 0; i < infoHeaders.Length && i < grdInfo.Columns.Count; i++)
+                grdInfo.Columns[i].HeaderText = infoHeaders[i];
+        }
+
+        /// <summary>按结果字段的原始值强调合格与不合格，其他生产字段保持原值和默认样式。</summary>
+        private void FormatProductionCell(object sender, DataGridViewCellFormattingEventArgs args)
+        {
+            if (args.ColumnIndex < 0 || args.ColumnIndex >= infoHeaders.Length) return;
+            string header = infoHeaders[args.ColumnIndex];
+            if (!string.Equals(header, "Result", StringComparison.OrdinalIgnoreCase) && header != "结果") return;
+            string result = Convert.ToString(args.Value).Trim();
+            if (string.Equals(result, "OK", StringComparison.OrdinalIgnoreCase) || string.Equals(result, "PASS", StringComparison.OrdinalIgnoreCase) || result == "合格")
+                args.CellStyle.ForeColor = Color.FromArgb(0, 151, 102);
+            if (string.Equals(result, "NG", StringComparison.OrdinalIgnoreCase) || string.Equals(result, "FAIL", StringComparison.OrdinalIgnoreCase) || result == "不合格")
+                args.CellStyle.ForeColor = Color.FromArgb(239, 68, 78);
+        }
 
 		private static readonly Color DeviceOnline = Color.FromArgb(34, 150, 83);
 		private static readonly Color DeviceOffline = Color.FromArgb(214, 69, 69);
@@ -343,110 +365,142 @@ namespace AlphaRap
 			}
 		}
 
-		#region 设备状态条（按 Parameter 的设备清单动态生成）
+        #region 设备连接状态
 
-		/// <summary>设备清单 / 连接状态变化时由 DeviceControl 广播过来。</summary>
-		private EventHandler _devicesChangedHandler;
+        private EventHandler _devicesChangedHandler;
+        private readonly List<Label> _deviceDots = new List<Label>();
+        private readonly List<Label> _deviceNames = new List<Label>();
+        private readonly List<Label> _deviceStates = new List<Label>();
+        private bool _rebuildingDevStatus;
 
-		/// <summary>状态条上的圆点（下标与设备顺序一一对应，用来只刷颜色不重建）。</summary>
-		private readonly List<Label> _deviceDots = new List<Label>();
+        /// <summary>把设备清单变更转到页面线程；设计期不加载设备配置。</summary>
+        private void RefreshDeviceStatusSafe()
+        {
+            if (IsDisposed || UiTheme.IsDesignTime) return;
+            if (!InvokeRequired) { RebuildDeviceStatus(); return; }
+            if (!IsHandleCreated) return;
+            try { BeginInvoke((MethodInvoker)RebuildDeviceStatus); }
+            catch (InvalidOperationException) { }
+        }
 
-		/// <summary>防重入：EnsureParameterBuilt() 会同步广播一次，嵌套进来时直接返回，外面那层会建好。</summary>
-		private bool _rebuildingDevStatus;
+        /// <summary>从已有设备清单重建连接状态列表，不连接设备或执行生产动作。</summary>
+        private void RebuildDeviceStatus()
+        {
+            if (connLayout == null || IsDisposed || UiTheme.IsDesignTime || _rebuildingDevStatus) return;
+            _rebuildingDevStatus = true;
+            try
+            {
+                EnsureParameterBuilt();
+                BindDeviceStatuses(DeviceControl.GetDeviceStatuses());
+            }
+            finally { _rebuildingDevStatus = false; }
+        }
 
-		/// <summary>可能在非 UI 线程被通知，统一转到 UI 线程再重建。</summary>
-		private void RefreshDeviceStatusSafe()
-		{
-			if (IsDisposed) return;
-			if (InvokeRequired)
-			{
-				try { BeginInvoke((MethodInvoker)RebuildDeviceStatus); } catch (Exception) { }
-				return;
-			}
-			RebuildDeviceStatus();
-		}
+        /// <summary>将设备名称和连接状态绑定到可滚动列表，并释放旧列表控件。</summary>
+        private void BindDeviceStatuses(IList<DeviceControl.DeviceStatus> devices)
+        {
+            connLayout.SuspendLayout();
+            try
+            {
+                while (connLayout.Controls.Count > 0) connLayout.Controls[0].Dispose();
+                connLayout.RowStyles.Clear();
+                _deviceDots.Clear();
+                _deviceNames.Clear();
+                _deviceStates.Clear();
+                connLayout.RowCount = Math.Max(1, devices.Count);
+                for (int i = 0; i < devices.Count; i++) AddDeviceStatusRow(devices[i], i);
+                lblDeviceEmpty.Visible = devices.Count == 0;
+                connLayout.Visible = devices.Count > 0;
+                RefreshDeviceTexts();
+            }
+            finally { connLayout.ResumeLayout(true); }
+        }
 
-		/// <summary>
-		/// 重建底部设备状态条：**一台设备一组**「状态圆点 + 设备名」，顺序与 Parameter 的页签一致。
-		/// 内容全部来自 Parameter 的设备清单（DeviceControl.GetDeviceStatuses），
-		/// 所以设备**改名 / 删除 / 新增**后这里自动跟着变；圆点颜色 = 该设备的连接状态。
-		/// </summary>
-		private void RebuildDeviceStatus()
-		{
-			if (connLayout == null || IsDisposed || _rebuildingDevStatus) return;
-			_rebuildingDevStatus = true;
-			try
-			{
-				EnsureParameterBuilt();      // 没进过 Parameter 页时先把设备清单按 XML 读出来（否则这里是空的）
+        /// <summary>添加一行真实设备状态，名称按设备配置显示，连接文案由语言入口提供。</summary>
+        private void AddDeviceStatusRow(DeviceControl.DeviceStatus device, int index)
+        {
+            connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, UiTheme.Dpi(40)));
+            UiLabel dot = new UiLabel();
+            dot.Name = "deviceDot" + index + "_dyn";
+            dot.Text = "●";
+            dot.Dock = DockStyle.Fill;
+            dot.Margin = new Padding(0);
+            dot.TextAlign = ContentAlignment.MiddleLeft;
+            dot.Font = UiTheme.Body;
+            UiLabel name = new UiLabel();
+            name.Name = "deviceName" + index + "_dyn";
+            name.Text = DeviceName(device);
+            name.Dock = DockStyle.Fill;
+            name.Margin = new Padding(0, 0, 4, 0);
+            name.TextAlign = ContentAlignment.MiddleLeft;
+            name.AutoEllipsis = true;
+            name.Font = UiTheme.Body;
+            name.ForeColor = Color.FromArgb(40, 59, 83);
+            UiLabel state = new UiLabel();
+            state.Name = "deviceState" + index + "_dyn";
+            state.Dock = DockStyle.Fill;
+            state.Margin = new Padding(0);
+            state.AutoEllipsis = true;
+            state.TextAlign = ContentAlignment.MiddleRight;
+            state.Font = UiTheme.Body;
+            state.Tag = device.IsConnected;
+            connLayout.Controls.Add(dot, 0, index);
+            connLayout.Controls.Add(name, 1, index);
+            connLayout.Controls.Add(state, 2, index);
+            _deviceDots.Add(dot);
+            _deviceNames.Add(name);
+            _deviceStates.Add(state);
+        }
 
-				List<DeviceControl.DeviceStatus> list = DeviceControl.GetDeviceStatuses();
+        /// <summary>显示设备配置名称；未命名时显示其真实类型名。</summary>
+        private static string DeviceName(DeviceControl.DeviceStatus device)
+        {
+            return string.IsNullOrWhiteSpace(device.Name) ? device.TypeName : device.Name;
+        }
 
-				connLayout.SuspendLayout();
-				connLayout.Controls.Clear();
-				_deviceDots.Clear();
+        /// <summary>只刷新连接颜色和文案；设备数量、名称变更时重新绑定列表。</summary>
+        private void RefreshDeviceStatusColors()
+        {
+            if (UiTheme.IsDesignTime || IsDisposed) return;
+            List<DeviceControl.DeviceStatus> devices = DeviceControl.GetDeviceStatuses();
+            if (devices.Count != _deviceStates.Count) { RebuildDeviceStatus(); return; }
+            for (int i = 0; i < devices.Count; i++)
+            {
+                if (_deviceNames[i].Text != DeviceName(devices[i])) { RebuildDeviceStatus(); return; }
+                _deviceStates[i].Tag = devices[i].IsConnected;
+            }
+            RefreshDeviceTexts();
+        }
 
-				for (int i = 0; i < list.Count; i++)
-				{
-					// 状态圆点（12x12 胶囊：已连接绿 / 未连接红）
-					UiLabel dot = new UiLabel();
-					dot.Name = "devDot" + (i + 1);
-					dot.AutoSize = false;
-					dot.Size = new Size(12, 12);            // 96 DPI 设计尺寸，添加时由 ApplyDpi 的钩子放大
-					dot.Margin = new Padding(0, 9, 6, 0);
-					dot.BackColor = list[i].IsConnected ? DeviceOnline : DeviceOffline;
-					dot.Resize += (s, ev) => ApplyPillRegion((Control)s, 6);
-					connLayout.Controls.Add(dot);
-					ApplyPillRegion(dot, 6);
-					_deviceDots.Add(dot);
+        /// <summary>按当前语言更新设备总数、在线及离线文案，不更改设备状态。</summary>
+        private void RefreshDeviceTexts()
+        {
+            if (lblDeviceCount == null) return;
+            string online = UiTheme.T("HomeForm", "devices_Online", "在线", "Online", "En línea");
+            string offline = UiTheme.T("HomeForm", "devices_Offline", "离线", "Offline", "Sin conexión");
+            SetText(lblDeviceCount, string.Format(UiTheme.T("HomeForm", "devices_Count", "{0} 台", "{0} devices", "{0} equipos"), _deviceStates.Count));
+            for (int i = 0; i < _deviceStates.Count; i++)
+            {
+                bool connected = _deviceStates[i].Tag is bool && (bool)_deviceStates[i].Tag;
+                Color color = connected ? DeviceOnline : DeviceOffline;
+                _deviceDots[i].ForeColor = color;
+                _deviceStates[i].ForeColor = color;
+                SetText(_deviceStates[i], connected ? online : offline);
+            }
+        }
 
-					// 设备名：直接显示 Parameter 里的"设备名"（数据、不接语言包，改名后这里跟着改）
-					UiLabel name = new UiLabel();
-					name.Name = "devName" + (i + 1) + MiddleLayer.DynTextSuffix;
-					name.AutoSize = true;
-					name.Font = UiTheme.Body;
-					name.ForeColor = UiKit.TextPrimary;
-					name.Margin = new Padding(0, 5, 22, 0);
-					name.Text = string.IsNullOrEmpty(list[i].Name) ? list[i].TypeName : list[i].Name;
-					connLayout.Controls.Add(name);
-				}
-			}
-			catch (Exception) { }
-			finally
-			{
-				try { connLayout.ResumeLayout(true); } catch (Exception) { }
-				_rebuildingDevStatus = false;
-			}
-		}
+        /// <summary>确保现有参数页面已加载设备清单。</summary>
+        private static void EnsureParameterBuilt()
+        {
+            if (MiddleLayer.ParF != null) MiddleLayer.ParF.EnsurePanelsBuilt();
+        }
 
-		/// <summary>定时刷新圆点颜色（每秒一次；数量对不上说明清单变了，直接整体重建）。</summary>
-		private void RefreshDeviceStatusColors()
-		{
-			try
-			{
-				List<DeviceControl.DeviceStatus> list = DeviceControl.GetDeviceStatuses();
-				if (list.Count != _deviceDots.Count) { RebuildDeviceStatus(); return; }
-
-				for (int i = 0; i < list.Count; i++)
-				{
-					Color c = list[i].IsConnected ? DeviceOnline : DeviceOffline;
-					if (_deviceDots[i].BackColor != c) _deviceDots[i].BackColor = c;
-				}
-			}
-			catch (Exception) { }
-		}
-
-		/// <summary>确保 Parameter 的设备清单已经按 XML 建好（不依赖用户有没有打开过那一页）。</summary>
-		private static void EnsureParameterBuilt()
-		{
-			try { if (MiddleLayer.ParF != null) MiddleLayer.ParF.EnsurePanelsBuilt(); }
-			catch (Exception) { }
-		}
-
-		#endregion
+        #endregion
 
 		#region 1.2 初始化加载点位事件
 		private void HomeForm_Load(object sender, EventArgs e)
 		{
+			if (UiTheme.IsDesignTime) return;
 			timer1.Enabled = true;
 
 			

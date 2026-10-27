@@ -1,76 +1,86 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace AlphaRap
 {
-    /// <summary>首页外观：KPI 卡片、每小时产量图、生产信息卡片的文字与数值显示。</summary>
+    /// <summary>生产监控页的三语文案与实时指标显示。</summary>
     public partial class HomeForm
     {
+        private double displayedOk, displayedNg, displayedHourOk, displayedHourNg;
+        private string displayedCycleTime = "";
+
+        /// <summary>使用现有语言入口初始化首页文案。</summary>
         private void ApplyPageStyle()
         {
             RefreshPageTexts();
         }
 
-        /// <summary>按当前语言设置首页标题与说明文字（语言切换后再次调用）。</summary>
+        /// <summary>刷新标题与动态文案，保留生产数据、列定义和设备名称。</summary>
         private void RefreshPageTexts()
         {
+            lblKpiOkTitle.Text = UiTheme.T("HomeForm", "kpi_GoodOutput", "良品产出", "Good output", "Producción OK");
             lblKpiInputTitle.Text = UiTheme.T("HomeForm", "kpi_Input", "投入", "Input", "Entrada");
-            lblKpiOkTitle.Text = UiTheme.T("HomeForm", "kpi_Ok", "良品", "OK", "OK");
             lblKpiNgTitle.Text = UiTheme.T("HomeForm", "kpi_Ng", "不良", "NG", "NG");
-            lblKpiYieldTitle.Text = UiTheme.T("HomeForm", "kpi_Yield", "良率", "Yield", "Rendimiento");
             lblKpiCtTitle.Text = UiTheme.T("HomeForm", "kpi_Ct", "节拍", "Cycle time", "Tiempo de ciclo");
-
-            lblChartTitle.Text = UiTheme.T("HomeForm", "chart_Title", "今日每小时产量", "Hourly output today", "Producción por hora (hoy)");
+            lblKpiYieldTitle.Text = UiTheme.T("HomeForm", "kpi_Yield", "良率", "Yield", "Rendimiento");
+            lblChartTitle.Text = UiTheme.T("HomeForm", "chart_TrendToday", "产量趋势 · 今日", "Output trend · Today", "Producción · Hoy");
             hourlyChart.OkLegend = UiTheme.T("HomeForm", "chart_Ok", "良品", "OK", "OK");
             hourlyChart.NgLegend = UiTheme.T("HomeForm", "chart_Ng", "不良", "NG", "NG");
             hourlyChart.EmptyText = UiTheme.T("HomeForm", "chart_Empty", "暂无数据", "No data yet", "Sin datos");
             hourlyChart.Invalidate();
-
-            lblInfoTitle.Text = UiTheme.T("HomeForm", "info_Title", "生产信息", "Production info", "Información de producción");
-            if (btnInfoQuery != null)
-                btnInfoQuery.Text = UiTheme.T("HomeForm", "info_Query", "查询", "Query", "Consultar");
-
-            lblHourTitle.Text = UiTheme.T("HomeForm", "hour_Title", "本小时", "This hour", "Esta hora");
-            lblHourInput.Text = UiTheme.T("HomeForm", "hour_Input", "投入", "Input", "Entrada");
-            lblHourOutput.Text = UiTheme.T("HomeForm", "hour_Output", "产出", "Output", "Salida");
-            lblHourReject.Text = UiTheme.T("HomeForm", "hour_Reject", "不良", "NG", "NG");
-            lblHourYield.Text = UiTheme.T("HomeForm", "hour_Yield", "良率", "Yield", "Rendimiento");
-
-            // 底部设备状态条的文字是设备名（数据、不接语言包），由 RebuildDeviceStatus() 动态生成
-            RefreshDeviceStatusSafe();
+            lblDeviceTitle.Text = UiTheme.T("HomeForm", "lblDeviceTitle", "设备状态", "Devices", "Dispositivos");
+            lblDeviceEmpty.Text = UiTheme.T("HomeForm", "lblDeviceEmpty", "尚未配置设备", "No devices configured", "Sin dispositivos configurados");
+            lblInfoTitle.Text = UiTheme.T("HomeForm", "records_Title", "生产记录", "Production records", "Registros de producción");
+            btnInfoQuery.Text = UiTheme.T("HomeForm", "info_Query", "查询", "Query", "Consultar");
+            RefreshKpiTexts();
+            RefreshRecordCount();
+            RestoreInfoHeaders();
+            RefreshDeviceTexts();
         }
 
-        /// <summary>
-        /// 显示生产数据。ok / ng 为累计数量；cycleTime 为节拍（秒），无效时显示 "--"；
-        /// hourlyOk / hourlyNg 为当天 0–23 点每小时数量。
-        /// </summary>
+        /// <summary>显示累计数量、节拍及当天每小时产量；不修改生产记录和配置。</summary>
         internal void ShowValues(double ok, double ng, string cycleTime, double[] hourlyOk, double[] hourlyNg, int hour)
         {
-            double input = ok + ng;
-            SetText(lblKpiInputValue, input.ToString("0"));
-            SetText(lblKpiOkValue, ok.ToString("0"));
-            SetText(lblKpiNgValue, ng.ToString("0"));
-            SetText(lblKpiYieldValue, input > 0 ? (ok * 100.0 / input).ToString("0.0") + "%" : "--");
-
-            double ct;
-            bool hasCt = double.TryParse(cycleTime, out ct) && ct > 0;
-            SetText(lblKpiCtValue, hasCt ? ct.ToString("0.0") + " s" : "-- s");
-
+            displayedOk = ok;
+            displayedNg = ng;
+            displayedCycleTime = cycleTime;
+            displayedHourOk = hourlyOk != null && hour >= 0 && hour < hourlyOk.Length ? hourlyOk[hour] : 0;
+            displayedHourNg = hourlyNg != null && hour >= 0 && hour < hourlyNg.Length ? hourlyNg[hour] : 0;
+            RefreshKpiTexts();
             hourlyChart.SetData(hourlyOk, hourlyNg, hour);
-
-            double hOk = (hourlyOk != null && hour >= 0 && hour < hourlyOk.Length) ? hourlyOk[hour] : 0;
-            double hNg = (hourlyNg != null && hour >= 0 && hour < hourlyNg.Length) ? hourlyNg[hour] : 0;
-            double hIn = hOk + hNg;
-            SetText(tHourlyInput, hIn.ToString("0"));
-            SetText(tHourlyOutput, hOk.ToString("0"));
-            SetText(tHourlyReject, hNg.ToString("0"));
-            SetText(tHourlyYield, hIn > 0 ? (hOk * 100.0 / hIn).ToString("0.0") + "%" : "--");
         }
 
-        /// <summary>只在文字变化时赋值，避免定时刷新造成闪烁。</summary>
-        private static void SetText(Control c, string text)
+        /// <summary>从最近一次指标快照刷新数值，语言切换不会把数值替换为语言表占位符。</summary>
+        private void RefreshKpiTexts()
         {
-            if (c.Text != text) c.Text = text;
+            double input = displayedOk + displayedNg;
+            double hourlyInput = displayedHourOk + displayedHourNg;
+            SetText(lblKpiOkValue, displayedOk.ToString("N0"));
+            SetText(lblKpiInputValue, input.ToString("N0"));
+            SetText(lblKpiNgValue, displayedNg.ToString("N0"));
+            SetText(lblKpiYieldValue, input > 0 ? (displayedOk * 100.0 / input).ToString("0.0") + "%" : "--");
+            double cycle;
+            bool hasCycle = double.TryParse(displayedCycleTime, out cycle) && cycle > 0 && !double.IsInfinity(cycle);
+            SetText(lblKpiCtValue, hasCycle ? cycle.ToString("0.0") + " s" : "-- s");
+            string hourFormat = UiTheme.T("HomeForm", "kpi_ThisHourValue", "本小时 {0}", "This hour {0}", "Esta hora {0}");
+            SetText(lblKpiOkHint, string.Format(hourFormat, displayedHourOk.ToString("N0")));
+            SetText(lblKpiInputHint, string.Format(hourFormat, hourlyInput.ToString("N0")));
+            SetText(lblKpiNgHint, string.Format(hourFormat, displayedHourNg.ToString("N0")));
+            SetText(lblKpiYieldHint, string.Format(hourFormat, hourlyInput > 0 ? (displayedHourOk * 100.0 / hourlyInput).ToString("0.0") + "%" : "--"));
+            SetText(lblKpiCtHint, UiTheme.T("HomeForm", "kpi_CurrentCycle", "当前生产节拍", "Current cycle", "Ciclo actual"));
+        }
+
+        /// <summary>显示当前页面记录数，不把显示行数当作生产计数。</summary>
+        private void RefreshRecordCount()
+        {
+            if (lblInfoCount == null || grdInfo == null) return;
+            SetText(lblInfoCount, string.Format(UiTheme.T("HomeForm", "records_Count", "{0} 条记录", "{0} records", "{0} registros"), grdInfo.Rows.Count));
+        }
+
+        /// <summary>只在文字变化时赋值，避免每秒刷新导致闪烁。</summary>
+        private static void SetText(Control control, string text)
+        {
+            if (control.Text != text) control.Text = text;
         }
     }
 }

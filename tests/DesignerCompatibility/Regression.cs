@@ -62,6 +62,7 @@ internal static class Cases
         SysPara.RecipeName = "DesignerProbe"; SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, "DesignerProbe.xml");
         visualTypes = typeof(SystemSetting).Assembly.GetTypes().Where(type => !type.IsAbstract && !type.IsNested && typeof(Control).IsAssignableFrom(type)
             && type.Namespace == "AlphaRap.FlowProgramming").Concat(new[] { typeof(SystemSetting) }).OrderBy(type => type.FullName).ToArray();
+        Test("every flow source is included once and compiled sources exist", ProjectSources);
         Test("visual classes have complete project metadata and public parameterless constructors", ProjectMetadata);
         Test("InitializeComponent contains only explicit designer-supported UI initialization", DesignerSource);
         foreach (Type type in visualTypes)
@@ -73,6 +74,25 @@ internal static class Cases
         Console.WriteLine("RESULT: " + passed + "/" + (passed + failed) + " passed");
         Console.WriteLine("This probe does not replace Visual Studio's C# source designer loading.");
         return failed == 0 ? 0 : 1;
+    }
+
+    /// <summary>Check the current source tree against the project, so a previously built assembly cannot hide missing or stale flow files.</summary>
+    private static void ProjectSources()
+    {
+        string root = Path.Combine(projectRoot, "AlphaRap");
+        XDocument project = XDocument.Load(Path.Combine(root, "AlphaRap.csproj"));
+        XNamespace ns = project.Root.Name.Namespace;
+        string[] sources = project.Descendants(ns + "Compile").Select(item => (string)item.Attribute("Include"))
+            .Where(path => path != null && path.StartsWith("FlowProgramming\\", StringComparison.OrdinalIgnoreCase)).ToArray();
+        string[] files = Directory.GetFiles(Path.Combine(root, "FlowProgramming"), "*.cs")
+            .Select(path => "FlowProgramming\\" + Path.GetFileName(path)).ToArray();
+        string[] missing = files.Except(sources, StringComparer.OrdinalIgnoreCase).ToArray();
+        string[] stale = sources.Except(files, StringComparer.OrdinalIgnoreCase).ToArray();
+        string[] duplicates = sources.GroupBy(path => path, StringComparer.OrdinalIgnoreCase)
+            .Where(group => group.Count() != 1).Select(group => group.Key).ToArray();
+        Check(missing.Length == 0 && stale.Length == 0 && duplicates.Length == 0,
+            "Flow source/project mismatch. Missing Compile entries: " + string.Join(", ", missing)
+            + "; missing files: " + string.Join(", ", stale) + "; duplicate entries: " + string.Join(", ", duplicates));
     }
 
     /// <summary>Require every discovered concrete visual component to remain available to the project designer without business arguments.</summary>

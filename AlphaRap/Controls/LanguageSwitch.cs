@@ -41,6 +41,7 @@ namespace AlphaRap
             TabStop = false;
             Cursor = Cursors.Hand;
             BackColor = Color.FromArgb(4, 108, 182);     // 与顶栏同色，保证底色干净
+            ForeColor = Color.White;
             Font = new Font("微软雅黑", 10.5F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(134)));
         }
 
@@ -82,17 +83,17 @@ namespace AlphaRap
             int cy = Height / 2;
 
             // 地球图标
-            DrawGlobe(g, new Rectangle(x, cy - IconSize / 2, IconSize, IconSize), Color.White);
+            DrawGlobe(g, new Rectangle(x, cy - IconSize / 2, IconSize, IconSize), ForeColor);
             x += IconSize + GapIconText;
 
             // 语言代码
             TextRenderer.DrawText(g, code, Font,
                 new Rectangle(x, cy - textSize.Height / 2, textSize.Width + 2, textSize.Height),
-                Color.White, TextFormatFlags.NoPadding | TextFormatFlags.Left);
+                ForeColor, TextFormatFlags.NoPadding | TextFormatFlags.Left);
             x += textSize.Width + GapTextArrow;
 
             // 下拉箭头
-            DrawChevron(g, x, cy - 2, ArrowWidth, ArrowHeight, Color.White);
+            DrawChevron(g, x, cy - 2, ArrowWidth, ArrowHeight, ForeColor);
         }
 
         /// <summary>画一个地球：外圆 + 一条经线 + 两条纬线。18~20px 下辨识度最好。</summary>

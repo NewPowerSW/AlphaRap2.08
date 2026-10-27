@@ -793,7 +793,7 @@
     </Compile>
     <Compile Include="MenuForm\ManualForm.Style.cs">
       <DependentUpon>ManualForm.cs</DependentUpon>
-      <SubType>Form</SubType>
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="MenuForm\ManualForm.cs">
       <SubType>Form</SubType>
@@ -879,11 +879,11 @@
     </Compile>
     <Compile Include="MainForm.Frame.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
-      <SubType>Form</SubType>
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="MainForm.Vision.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
-      <SubType>Form</SubType>
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -946,7 +946,7 @@
     </Compile>
     <Compile Include="MenuForm\HomeForm.Style.cs">
       <DependentUpon>HomeForm.cs</DependentUpon>
-      <SubType>Form</SubType>
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="MenuForm\HomeForm.cs">
       <SubType>Form</SubType>
@@ -989,7 +989,7 @@
     <Compile Include="FlowProgramming\FlowBranchEditor.cs"><SubType>UserControl</SubType></Compile>
     <Compile Include="FlowProgramming\FlowBranchEditor.Designer.cs"><DependentUpon>FlowBranchEditor.cs</DependentUpon></Compile>
     <Compile Include="FlowProgramming\FlowUtilityObject.cs" />
-    <Compile Include="FlowProgramming\FlowNodeForm.Execution.cs"><DependentUpon>FlowNodeForm.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowNodeForm.Execution.cs"><DependentUpon>FlowNodeForm.cs</DependentUpon><SubType>Code</SubType></Compile>
     <Compile Include="FlowProgramming\FlowInheritedMethods.cs" />
     <Compile Include="FlowProgramming\FlowNativeMethods.cs" />
     <Compile Include="FlowProgramming\FlowActions.cs" />

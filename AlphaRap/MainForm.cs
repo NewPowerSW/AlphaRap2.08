@@ -74,7 +74,12 @@ int nheightEllipse
             ApplyFrameStyle();
 
             // 以下设置圆角区域和鼠标转发，仅在运行时执行
-            if (InDesigner) return;
+            if (InDesigner)
+            {
+                timer1.Stop();
+                LoginOutTime.Stop();
+                return;
+            }
 
             UpdateWindowRegion();
 
@@ -281,7 +286,6 @@ int nheightEllipse
         private void MainForm_Load(object sender, EventArgs e)
         {
             ApplyInitialWindowSize();
-            ApplyRoundedMenuRegions();
 
             // 顶栏机器状态徽章：圆角胶囊，尺寸变化时重算
             MachineStatus.Resize += (s, ev) => ApplyPillRegion(MachineStatus, 12);
@@ -363,8 +367,8 @@ int nheightEllipse
             TopLeft, TopRight, BottomLeft, BottomRight
         }
 
-        private const int InitialWindowWidth = 1440;
-        private const int InitialWindowHeight = 900;
+        private const int InitialWindowWidth = 1600;
+        private const int InitialWindowHeight = 1000;
 
         /// <summary>窗口四周可拖拽缩放的感应厚度（物理像素，进程为 System DPI Aware）</summary>
         private const int ResizeGrip = 10;
@@ -394,9 +398,9 @@ int nheightEllipse
                 Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
                 string ver = "Version " + v.Major + "." + v.Minor + "." + v.Build;
 
-                // 高 DPI 诊断：一眼看出进程是否真按 DPI 渲染（DPI 100% = 没生效，界面会被 Windows 拉伸发虚）
                 Rectangle wa = Screen.FromControl(this).WorkingArea;
-                toolStripStatusLabel4.Text = ver + string.Format(
+                toolStripStatusLabel4.Text = ver;
+                toolStripStatusLabel4.ToolTipText = string.Format(
                     "   DPI {0:0}%   winDPI {1}   aware {2}/{3}   mon {4} sys {5}   {6}x{7} -> {8}x{9}",
                     UiTheme.Scale * 100f, UiTheme.DpiOfWindow(this),
                     UiTheme.AwareAtInit ? "Y" : "N", UiTheme.DpiPath,
@@ -404,7 +408,8 @@ int nheightEllipse
                     wa.Width, wa.Height, Width, Height);
 
                 DateTime built = File.GetLastWriteTime(Application.ExecutablePath);
-                toolStripStatusLabel3.Text = " AlphaRap-SRM  Build " + built.ToString("yyyy/MM/dd HH:mm");
+                toolStripStatusLabel3.Text = "AlphaRap-SRM";
+                toolStripStatusLabel4.ToolTipText += "\nBuild " + built.ToString("yyyy/MM/dd HH:mm");
             }
             catch (Exception ex)
             {
@@ -502,8 +507,8 @@ int nheightEllipse
         /// </summary>
         private bool IsInTitleBarStrip(Point clientPoint)
         {
-            if (panel1 == null || !panel1.IsHandleCreated) return false;
-            Rectangle strip = panel1.RectangleToScreen(new Rectangle(Point.Empty, panel1.Size));
+            if (panel_PictureShowDown == null || !panel_PictureShowDown.IsHandleCreated) return false;
+            Rectangle strip = panel_PictureShowDown.RectangleToScreen(new Rectangle(Point.Empty, panel_PictureShowDown.Size));
             Point screenPoint = PointToScreen(clientPoint);
             return screenPoint.Y >= strip.Top && screenPoint.Y <= strip.Bottom;
         }
@@ -923,9 +928,9 @@ int nheightEllipse
             {
                 if (picVirtualKeyboard == null) return;
 
-                picVirtualKeyboard.Image = AppIcons.Get(AppIcon.Keyboard, 24, AppIconColor.OnDarkBar);  // 深蓝底 → 白色图标
-                picVirtualKeyboard.MouseEnter += delegate { picVirtualKeyboard.BackColor = Color.FromArgb(30, 132, 200); };
-                picVirtualKeyboard.MouseLeave += delegate { picVirtualKeyboard.BackColor = Color.FromArgb(4, 108, 182); };
+                picVirtualKeyboard.Image = AppIcons.Get(AppIcon.Keyboard, UiTheme.Dpi(18), ShellInk);
+                picVirtualKeyboard.MouseEnter += delegate { picVirtualKeyboard.BackColor = ToolbarHover; };
+                picVirtualKeyboard.MouseLeave += delegate { picVirtualKeyboard.BackColor = Color.White; };
                 picVirtualKeyboard.Click += delegate { ToggleVirtualKeyboard(); };
             }
             catch { }
@@ -1154,9 +1159,9 @@ int nheightEllipse
         private static readonly Color StatusWhiteInk = Color.White;
 
         /// <summary>徽章左右内边距（96 DPI 设计值）——决定胶囊比文字宽多少。</summary>
-        private const int StatusPadX = 30;
+        private const int StatusPadX = 12;
         /// <summary>徽章最小宽度（96 DPI 设计值），短文案也别缩成一小块。</summary>
-        private const int StatusMinWidth = 150;
+        private const int StatusMinWidth = 106;
         /// <summary>当前填充色（MachineStatus_Paint 画描边时用）。</summary>
         private Color _statusFill = StatusIdleFill;
 
@@ -1234,7 +1239,7 @@ int nheightEllipse
             {
                 int need = TextRenderer.MeasureText(text ?? "", MachineStatus.Font).Width
                            + UiTheme.Dpi(StatusPadX * 2);
-                if (need > w) w = need;
+                if (need > w) w = Math.Min(need, UiTheme.Dpi(200));
             }
             catch { }
             if (MachineStatus.Width != w) MachineStatus.Width = w;
@@ -1291,13 +1296,17 @@ int nheightEllipse
         }
         #endregion
 
-        /// <summary>显示当前用户名、权限译文和登录时刻，保留实际账号与权限代码。</summary>
+        /// <summary>在导航栏底部显示实际账号和权限译文；登录时间由悬停提示提供。</summary>
         private void RefreshLoginChipText()
         {
-            string loginAt = SysPara.UserLoginTime ?? "";
-            DateTime loginTime;
-            if (DateTime.TryParse(loginAt, out loginTime)) loginAt = loginTime.ToString("HH:mm");
-            LoginText.Text = SysPara.UserName + " · " + MiddleLayer.PermissionText(SysPara.UserPermission) + " · " + loginAt;
+            LoginText.Text = SysPara.UserName + Environment.NewLine + MiddleLayer.PermissionText(SysPara.UserPermission);
+        }
+
+        /// <summary>从设备状态打开原报警列表，保留现有筛选与报警处理接口。</summary>
+        private void DashboardAlarm_Click(object sender, EventArgs e)
+        {
+            SwitchMainPage(MENU_PageType.Home);
+            uiTabControl1.SelectedTab = tabAlarms;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -1315,7 +1324,8 @@ int nheightEllipse
             #endregion
 
             #region  RecipeName
-            toolStripStatusLabel5.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            toolStripStatusLabel5.Text = DateTime.Now.ToString("HH:mm");
+            toolStripStatusLabel5.ToolTipText = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             // 右上角登录芯片：用户名 · 权限 · 登录时刻（完整日期见悬停提示；芯片宽度有限，只显示到分钟）
             RefreshLoginChipText();
             lbRecipeName.Text = _lblRecipe + MiddleLayer.ProductF.CurrentModel.Text;

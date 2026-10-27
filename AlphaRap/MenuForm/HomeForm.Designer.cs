@@ -2,762 +2,559 @@
 {
     partial class HomeForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+
+        /// <summary>释放组件容器及页面资源。</summary>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && components != null) components.Dispose();
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
+        /// <summary>建立生产监控页的固定卡片、图表、设备状态和记录布局。</summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.rootLayout = new System.Windows.Forms.TableLayoutPanel();
             this.kpiLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.kpiInputCard = new AlphaRap.CardPanel();
-            this.lblKpiInputValue = new AlphaRap.UiLabel();
-            this.lblKpiInputTitle = new AlphaRap.UiLabel();
             this.kpiOkCard = new AlphaRap.CardPanel();
-            this.lblKpiOkValue = new AlphaRap.UiLabel();
             this.lblKpiOkTitle = new AlphaRap.UiLabel();
+            this.lblKpiOkValue = new AlphaRap.UiLabel();
+            this.lblKpiOkHint = new AlphaRap.UiLabel();
+            this.kpiInputCard = new AlphaRap.CardPanel();
+            this.lblKpiInputTitle = new AlphaRap.UiLabel();
+            this.lblKpiInputValue = new AlphaRap.UiLabel();
+            this.lblKpiInputHint = new AlphaRap.UiLabel();
             this.kpiNgCard = new AlphaRap.CardPanel();
-            this.lblKpiNgValue = new AlphaRap.UiLabel();
             this.lblKpiNgTitle = new AlphaRap.UiLabel();
-            this.kpiYieldCard = new AlphaRap.CardPanel();
-            this.lblKpiYieldValue = new AlphaRap.UiLabel();
-            this.lblKpiYieldTitle = new AlphaRap.UiLabel();
+            this.lblKpiNgValue = new AlphaRap.UiLabel();
+            this.lblKpiNgHint = new AlphaRap.UiLabel();
             this.kpiCtCard = new AlphaRap.CardPanel();
-            this.lblKpiCtValue = new AlphaRap.UiLabel();
             this.lblKpiCtTitle = new AlphaRap.UiLabel();
+            this.lblKpiCtValue = new AlphaRap.UiLabel();
+            this.lblKpiCtHint = new AlphaRap.UiLabel();
+            this.kpiYieldCard = new AlphaRap.CardPanel();
+            this.lblKpiYieldTitle = new AlphaRap.UiLabel();
+            this.lblKpiYieldValue = new AlphaRap.UiLabel();
+            this.lblKpiYieldHint = new AlphaRap.UiLabel();
             this.bodyLayout = new System.Windows.Forms.TableLayoutPanel();
             this.chartCard = new AlphaRap.CardPanel();
+            this.deviceCard = new AlphaRap.CardPanel();
+            this.infoCard = new AlphaRap.CardPanel();
             this.hourlyChart = new AlphaRap.HourlyChart();
             this.lblChartTitle = new AlphaRap.UiLabel();
-            this.infoCard = new AlphaRap.CardPanel();
-            this.infoLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.deviceHeader = new System.Windows.Forms.TableLayoutPanel();
+            this.lblDeviceTitle = new AlphaRap.UiLabel();
+            this.lblDeviceCount = new AlphaRap.UiLabel();
+            this.deviceBody = new System.Windows.Forms.Panel();
+            this.connLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.lblDeviceEmpty = new AlphaRap.UiLabel();
+            this.infoHeader = new System.Windows.Forms.TableLayoutPanel();
             this.lblInfoTitle = new AlphaRap.UiLabel();
+            this.lblInfoCount = new AlphaRap.UiLabel();
             this.btnInfoQuery = new AlphaRap.FlatButton();
             this.grdInfo = new System.Windows.Forms.DataGridView();
-            this.lblHourTitle = new AlphaRap.UiLabel();
-            this.hourLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.lblHourInput = new AlphaRap.UiLabel();
-            this.tHourlyInput = new System.Windows.Forms.TextBox();
-            this.lblHourOutput = new AlphaRap.UiLabel();
-            this.tHourlyOutput = new System.Windows.Forms.TextBox();
-            this.lblHourReject = new AlphaRap.UiLabel();
-            this.tHourlyReject = new System.Windows.Forms.TextBox();
-            this.lblHourYield = new AlphaRap.UiLabel();
-            this.tHourlyYield = new System.Windows.Forms.TextBox();
-            this.connLayout = new System.Windows.Forms.FlowLayoutPanel();
-            this.timer1 = new System.Windows.Forms.Timer();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.rootLayout.SuspendLayout();
             this.kpiLayout.SuspendLayout();
-            this.kpiInputCard.SuspendLayout();
             this.kpiOkCard.SuspendLayout();
+            this.kpiInputCard.SuspendLayout();
             this.kpiNgCard.SuspendLayout();
-            this.kpiYieldCard.SuspendLayout();
             this.kpiCtCard.SuspendLayout();
+            this.kpiYieldCard.SuspendLayout();
             this.bodyLayout.SuspendLayout();
             this.chartCard.SuspendLayout();
+            this.deviceCard.SuspendLayout();
             this.infoCard.SuspendLayout();
-            this.infoLayout.SuspendLayout();
+            this.deviceHeader.SuspendLayout();
+            this.deviceBody.SuspendLayout();
+            this.connLayout.SuspendLayout();
+            this.infoHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grdInfo)).BeginInit();
-            this.hourLayout.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // rootLayout
-            // 
-            this.rootLayout.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(248)))));
+            this.rootLayout.Name = "rootLayout";
+            this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rootLayout.Margin = new System.Windows.Forms.Padding(0);
             this.rootLayout.ColumnCount = 1;
+            this.rootLayout.RowCount = 3;
             this.rootLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 154F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 48F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 52F));
+            this.rootLayout.Padding = new System.Windows.Forms.Padding(0, 8, 0, 0);
+            this.rootLayout.BackColor = System.Drawing.Color.FromArgb(229, 237, 244);
+            this.rootLayout.Size = new System.Drawing.Size(1328, 806);
             this.rootLayout.Controls.Add(this.kpiLayout, 0, 0);
             this.rootLayout.Controls.Add(this.bodyLayout, 0, 1);
-            this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rootLayout.Location = new System.Drawing.Point(0, 0);
-            this.rootLayout.Margin = new System.Windows.Forms.Padding(0);
-            this.rootLayout.Name = "rootLayout";
-            this.rootLayout.Padding = new System.Windows.Forms.Padding(16);
-            this.rootLayout.RowCount = 2;
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 112F));
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootLayout.Size = new System.Drawing.Size(1924, 825);
-            this.rootLayout.TabIndex = 0;
-            // 
-            // kpiLayout
-            // 
-            this.kpiLayout.ColumnCount = 5;
-            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.kpiLayout.Controls.Add(this.kpiInputCard, 0, 0);
-            this.kpiLayout.Controls.Add(this.kpiOkCard, 1, 0);
-            this.kpiLayout.Controls.Add(this.kpiNgCard, 2, 0);
-            this.kpiLayout.Controls.Add(this.kpiYieldCard, 3, 0);
-            this.kpiLayout.Controls.Add(this.kpiCtCard, 4, 0);
-            this.kpiLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.kpiLayout.Location = new System.Drawing.Point(16, 16);
-            this.kpiLayout.Margin = new System.Windows.Forms.Padding(0, 0, 0, 12);
+            this.rootLayout.Controls.Add(this.infoCard, 0, 2);
             this.kpiLayout.Name = "kpiLayout";
+            this.kpiLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiLayout.ColumnCount = 5;
             this.kpiLayout.RowCount = 1;
+            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28F));
+            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 18F));
+            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 18F));
+            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 18F));
+            this.kpiLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 18F));
             this.kpiLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.kpiLayout.Size = new System.Drawing.Size(1892, 100);
-            this.kpiLayout.TabIndex = 0;
-            // 
-            // kpiInputCard
-            // 
-            this.kpiInputCard.BackColor = System.Drawing.Color.White;
-            this.kpiInputCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
-            this.kpiInputCard.Controls.Add(this.lblKpiInputValue);
-            this.kpiInputCard.Controls.Add(this.lblKpiInputTitle);
-            this.kpiInputCard.CornerRadius = 10;
-            this.kpiInputCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.kpiInputCard.FillColor = System.Drawing.Color.White;
-            this.kpiInputCard.Location = new System.Drawing.Point(0, 0);
-            this.kpiInputCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
-            this.kpiInputCard.Name = "kpiInputCard";
-            this.kpiInputCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
-            this.kpiInputCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
-            this.kpiInputCard.ShowBorder = true;
-            this.kpiInputCard.ShowShadow = true;
-            this.kpiInputCard.Size = new System.Drawing.Size(366, 100);
-            this.kpiInputCard.TabIndex = 0;
-            // 
-            // lblKpiInputValue
-            // 
-            this.lblKpiInputValue.AutoEllipsis = true;
-            this.lblKpiInputValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblKpiInputValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiInputValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.lblKpiInputValue.Location = new System.Drawing.Point(18, 34);
-            this.lblKpiInputValue.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiInputValue.Name = "lblKpiInputValue_dyn";
-            this.lblKpiInputValue.Size = new System.Drawing.Size(332, 56);
-            this.lblKpiInputValue.TabIndex = 0;
-            this.lblKpiInputValue.Text = "0";
-            this.lblKpiInputValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lblKpiInputTitle
-            // 
-            this.lblKpiInputTitle.AutoEllipsis = true;
-            this.lblKpiInputTitle.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiInputTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiInputTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblKpiInputTitle.Location = new System.Drawing.Point(18, 10);
-            this.lblKpiInputTitle.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiInputTitle.Name = "lblKpiInputTitle";
-            this.lblKpiInputTitle.Size = new System.Drawing.Size(332, 24);
-            this.lblKpiInputTitle.TabIndex = 1;
-            this.lblKpiInputTitle.Text = "投入";
-            this.lblKpiInputTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // kpiOkCard
-            // 
-            this.kpiOkCard.BackColor = System.Drawing.Color.White;
-            this.kpiOkCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
-            this.kpiOkCard.Controls.Add(this.lblKpiOkValue);
-            this.kpiOkCard.Controls.Add(this.lblKpiOkTitle);
-            this.kpiOkCard.CornerRadius = 10;
-            this.kpiOkCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.kpiOkCard.FillColor = System.Drawing.Color.White;
-            this.kpiOkCard.Location = new System.Drawing.Point(378, 0);
-            this.kpiOkCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.kpiLayout.Margin = new System.Windows.Forms.Padding(0, 0, 0, 14);
             this.kpiOkCard.Name = "kpiOkCard";
-            this.kpiOkCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
-            this.kpiOkCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
-            this.kpiOkCard.ShowBorder = true;
-            this.kpiOkCard.ShowShadow = true;
-            this.kpiOkCard.Size = new System.Drawing.Size(366, 100);
-            this.kpiOkCard.TabIndex = 1;
-            // 
-            // lblKpiOkValue
-            // 
-            this.lblKpiOkValue.AutoEllipsis = true;
-            this.lblKpiOkValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblKpiOkValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiOkValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(150)))), ((int)(((byte)(67)))));
-            this.lblKpiOkValue.Location = new System.Drawing.Point(18, 34);
+            this.kpiOkCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiOkCard.BackColor = System.Drawing.Color.FromArgb(14, 29, 48);
+            this.kpiOkCard.FillColor = System.Drawing.Color.FromArgb(14, 29, 48);
+            this.kpiOkCard.BorderColor = System.Drawing.Color.FromArgb(214, 226, 239);
+            this.kpiOkCard.ShowBorder = false;
+            this.kpiOkCard.ShowShadow = false;
+            this.kpiOkCard.CornerRadius = 16;
+            this.kpiOkCard.Padding = new System.Windows.Forms.Padding(18);
+            this.kpiOkCard.Margin = new System.Windows.Forms.Padding(0, 0, 14, 0);
+            this.kpiLayout.Controls.Add(this.kpiOkCard, 0, 0);
+            this.kpiOkCard.Controls.Add(this.lblKpiOkValue);
+            this.kpiOkCard.Controls.Add(this.lblKpiOkHint);
+            this.kpiOkCard.Controls.Add(this.lblKpiOkTitle);
+            this.lblKpiOkTitle.Name = "lblKpiOkTitle";
+            this.lblKpiOkTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiOkTitle.AutoEllipsis = true;
+            this.lblKpiOkTitle.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiOkTitle.ForeColor = System.Drawing.Color.FromArgb(154, 174, 197);
+            this.lblKpiOkTitle.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiOkTitle.Text = "良品产出";
+            this.lblKpiOkTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiOkTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblKpiOkTitle.Height = 26;
+            this.lblKpiOkValue.Name = "lblKpiOkValue";
             this.lblKpiOkValue.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiOkValue.Name = "lblKpiOkValue_dyn";
-            this.lblKpiOkValue.Size = new System.Drawing.Size(332, 56);
-            this.lblKpiOkValue.TabIndex = 0;
+            this.lblKpiOkValue.AutoEllipsis = true;
+            this.lblKpiOkValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiOkValue.ForeColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.lblKpiOkValue.BackColor = System.Drawing.Color.Transparent;
             this.lblKpiOkValue.Text = "0";
             this.lblKpiOkValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lblKpiOkTitle
-            // 
-            this.lblKpiOkTitle.AutoEllipsis = true;
-            this.lblKpiOkTitle.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiOkTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiOkTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblKpiOkTitle.Location = new System.Drawing.Point(18, 10);
-            this.lblKpiOkTitle.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiOkTitle.Name = "lblKpiOkTitle";
-            this.lblKpiOkTitle.Size = new System.Drawing.Size(332, 24);
-            this.lblKpiOkTitle.TabIndex = 1;
-            this.lblKpiOkTitle.Text = "良品";
-            this.lblKpiOkTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // kpiNgCard
-            // 
-            this.kpiNgCard.BackColor = System.Drawing.Color.White;
-            this.kpiNgCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
-            this.kpiNgCard.Controls.Add(this.lblKpiNgValue);
-            this.kpiNgCard.Controls.Add(this.lblKpiNgTitle);
-            this.kpiNgCard.CornerRadius = 10;
-            this.kpiNgCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.kpiNgCard.FillColor = System.Drawing.Color.White;
-            this.kpiNgCard.Location = new System.Drawing.Point(756, 0);
-            this.kpiNgCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.lblKpiOkValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblKpiOkHint.Name = "lblKpiOkHint_dyn";
+            this.lblKpiOkHint.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiOkHint.AutoEllipsis = true;
+            this.lblKpiOkHint.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiOkHint.ForeColor = System.Drawing.Color.FromArgb(78, 202, 251);
+            this.lblKpiOkHint.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiOkHint.Text = "本小时 0";
+            this.lblKpiOkHint.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiOkHint.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lblKpiOkHint.Height = 24;
+            this.kpiInputCard.Name = "kpiInputCard";
+            this.kpiInputCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiInputCard.BackColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.kpiInputCard.FillColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.kpiInputCard.BorderColor = System.Drawing.Color.FromArgb(214, 226, 239);
+            this.kpiInputCard.ShowBorder = false;
+            this.kpiInputCard.ShowShadow = false;
+            this.kpiInputCard.CornerRadius = 16;
+            this.kpiInputCard.Padding = new System.Windows.Forms.Padding(18);
+            this.kpiInputCard.Margin = new System.Windows.Forms.Padding(0, 0, 14, 0);
+            this.kpiLayout.Controls.Add(this.kpiInputCard, 1, 0);
+            this.kpiInputCard.Controls.Add(this.lblKpiInputValue);
+            this.kpiInputCard.Controls.Add(this.lblKpiInputHint);
+            this.kpiInputCard.Controls.Add(this.lblKpiInputTitle);
+            this.lblKpiInputTitle.Name = "lblKpiInputTitle";
+            this.lblKpiInputTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiInputTitle.AutoEllipsis = true;
+            this.lblKpiInputTitle.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiInputTitle.ForeColor = System.Drawing.Color.FromArgb(124, 143, 168);
+            this.lblKpiInputTitle.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiInputTitle.Text = "投入";
+            this.lblKpiInputTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiInputTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblKpiInputTitle.Height = 26;
+            this.lblKpiInputValue.Name = "lblKpiInputValue";
+            this.lblKpiInputValue.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiInputValue.AutoEllipsis = true;
+            this.lblKpiInputValue.Font = new System.Drawing.Font("微软雅黑", 27F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiInputValue.ForeColor = System.Drawing.Color.FromArgb(20, 36, 59);
+            this.lblKpiInputValue.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiInputValue.Text = "0";
+            this.lblKpiInputValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiInputValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblKpiInputHint.Name = "lblKpiInputHint_dyn";
+            this.lblKpiInputHint.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiInputHint.AutoEllipsis = true;
+            this.lblKpiInputHint.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiInputHint.ForeColor = System.Drawing.Color.FromArgb(124, 143, 168);
+            this.lblKpiInputHint.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiInputHint.Text = "本小时 0";
+            this.lblKpiInputHint.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiInputHint.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lblKpiInputHint.Height = 24;
             this.kpiNgCard.Name = "kpiNgCard";
-            this.kpiNgCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
-            this.kpiNgCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
-            this.kpiNgCard.ShowBorder = true;
-            this.kpiNgCard.ShowShadow = true;
-            this.kpiNgCard.Size = new System.Drawing.Size(366, 100);
-            this.kpiNgCard.TabIndex = 2;
-            // 
-            // lblKpiNgValue
-            // 
-            this.lblKpiNgValue.AutoEllipsis = true;
-            this.lblKpiNgValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblKpiNgValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiNgValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(206)))), ((int)(((byte)(62)))), ((int)(((byte)(62)))));
-            this.lblKpiNgValue.Location = new System.Drawing.Point(18, 34);
-            this.lblKpiNgValue.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiNgValue.Name = "lblKpiNgValue_dyn";
-            this.lblKpiNgValue.Size = new System.Drawing.Size(332, 56);
-            this.lblKpiNgValue.TabIndex = 0;
-            this.lblKpiNgValue.Text = "0";
-            this.lblKpiNgValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lblKpiNgTitle
-            // 
-            this.lblKpiNgTitle.AutoEllipsis = true;
-            this.lblKpiNgTitle.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiNgTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiNgTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblKpiNgTitle.Location = new System.Drawing.Point(18, 10);
-            this.lblKpiNgTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.kpiNgCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiNgCard.BackColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.kpiNgCard.FillColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.kpiNgCard.BorderColor = System.Drawing.Color.FromArgb(214, 226, 239);
+            this.kpiNgCard.ShowBorder = false;
+            this.kpiNgCard.ShowShadow = false;
+            this.kpiNgCard.CornerRadius = 16;
+            this.kpiNgCard.Padding = new System.Windows.Forms.Padding(18);
+            this.kpiNgCard.Margin = new System.Windows.Forms.Padding(0, 0, 14, 0);
+            this.kpiLayout.Controls.Add(this.kpiNgCard, 2, 0);
+            this.kpiNgCard.Controls.Add(this.lblKpiNgValue);
+            this.kpiNgCard.Controls.Add(this.lblKpiNgHint);
+            this.kpiNgCard.Controls.Add(this.lblKpiNgTitle);
             this.lblKpiNgTitle.Name = "lblKpiNgTitle";
-            this.lblKpiNgTitle.Size = new System.Drawing.Size(332, 24);
-            this.lblKpiNgTitle.TabIndex = 1;
+            this.lblKpiNgTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiNgTitle.AutoEllipsis = true;
+            this.lblKpiNgTitle.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiNgTitle.ForeColor = System.Drawing.Color.FromArgb(124, 143, 168);
+            this.lblKpiNgTitle.BackColor = System.Drawing.Color.Transparent;
             this.lblKpiNgTitle.Text = "不良";
             this.lblKpiNgTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // kpiYieldCard
-            // 
-            this.kpiYieldCard.BackColor = System.Drawing.Color.White;
-            this.kpiYieldCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
-            this.kpiYieldCard.Controls.Add(this.lblKpiYieldValue);
-            this.kpiYieldCard.Controls.Add(this.lblKpiYieldTitle);
-            this.kpiYieldCard.CornerRadius = 10;
-            this.kpiYieldCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.kpiYieldCard.FillColor = System.Drawing.Color.White;
-            this.kpiYieldCard.Location = new System.Drawing.Point(1134, 0);
-            this.kpiYieldCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
-            this.kpiYieldCard.Name = "kpiYieldCard";
-            this.kpiYieldCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
-            this.kpiYieldCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
-            this.kpiYieldCard.ShowBorder = true;
-            this.kpiYieldCard.ShowShadow = true;
-            this.kpiYieldCard.Size = new System.Drawing.Size(366, 100);
-            this.kpiYieldCard.TabIndex = 3;
-            // 
-            // lblKpiYieldValue
-            // 
-            this.lblKpiYieldValue.AutoEllipsis = true;
-            this.lblKpiYieldValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblKpiYieldValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiYieldValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.lblKpiYieldValue.Location = new System.Drawing.Point(18, 34);
-            this.lblKpiYieldValue.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiYieldValue.Name = "lblKpiYieldValue_dyn";
-            this.lblKpiYieldValue.Size = new System.Drawing.Size(332, 56);
-            this.lblKpiYieldValue.TabIndex = 0;
-            this.lblKpiYieldValue.Text = "0";
-            this.lblKpiYieldValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lblKpiYieldTitle
-            // 
-            this.lblKpiYieldTitle.AutoEllipsis = true;
-            this.lblKpiYieldTitle.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiYieldTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiYieldTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblKpiYieldTitle.Location = new System.Drawing.Point(18, 10);
-            this.lblKpiYieldTitle.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiYieldTitle.Name = "lblKpiYieldTitle";
-            this.lblKpiYieldTitle.Size = new System.Drawing.Size(332, 24);
-            this.lblKpiYieldTitle.TabIndex = 1;
-            this.lblKpiYieldTitle.Text = "良率";
-            this.lblKpiYieldTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // kpiCtCard
-            // 
-            this.kpiCtCard.BackColor = System.Drawing.Color.White;
-            this.kpiCtCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
-            this.kpiCtCard.Controls.Add(this.lblKpiCtValue);
-            this.kpiCtCard.Controls.Add(this.lblKpiCtTitle);
-            this.kpiCtCard.CornerRadius = 10;
-            this.kpiCtCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.kpiCtCard.FillColor = System.Drawing.Color.White;
-            this.kpiCtCard.Location = new System.Drawing.Point(1512, 0);
-            this.kpiCtCard.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiNgTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblKpiNgTitle.Height = 26;
+            this.lblKpiNgValue.Name = "lblKpiNgValue";
+            this.lblKpiNgValue.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiNgValue.AutoEllipsis = true;
+            this.lblKpiNgValue.Font = new System.Drawing.Font("微软雅黑", 27F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiNgValue.ForeColor = System.Drawing.Color.FromArgb(239, 68, 78);
+            this.lblKpiNgValue.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiNgValue.Text = "0";
+            this.lblKpiNgValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiNgValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblKpiNgHint.Name = "lblKpiNgHint_dyn";
+            this.lblKpiNgHint.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiNgHint.AutoEllipsis = true;
+            this.lblKpiNgHint.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiNgHint.ForeColor = System.Drawing.Color.FromArgb(124, 143, 168);
+            this.lblKpiNgHint.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiNgHint.Text = "本小时 0";
+            this.lblKpiNgHint.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiNgHint.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lblKpiNgHint.Height = 24;
             this.kpiCtCard.Name = "kpiCtCard";
-            this.kpiCtCard.Padding = new System.Windows.Forms.Padding(18, 10, 16, 10);
-            this.kpiCtCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
-            this.kpiCtCard.ShowBorder = true;
-            this.kpiCtCard.ShowShadow = true;
-            this.kpiCtCard.Size = new System.Drawing.Size(380, 100);
-            this.kpiCtCard.TabIndex = 4;
-            // 
-            // lblKpiCtValue
-            // 
-            this.lblKpiCtValue.AutoEllipsis = true;
-            this.lblKpiCtValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblKpiCtValue.Font = new System.Drawing.Font("微软雅黑", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiCtValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.lblKpiCtValue.Location = new System.Drawing.Point(18, 34);
-            this.lblKpiCtValue.Margin = new System.Windows.Forms.Padding(0);
-            this.lblKpiCtValue.Name = "lblKpiCtValue_dyn";
-            this.lblKpiCtValue.Size = new System.Drawing.Size(346, 56);
-            this.lblKpiCtValue.TabIndex = 0;
-            this.lblKpiCtValue.Text = "0";
-            this.lblKpiCtValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lblKpiCtTitle
-            // 
-            this.lblKpiCtTitle.AutoEllipsis = true;
-            this.lblKpiCtTitle.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiCtTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiCtTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblKpiCtTitle.Location = new System.Drawing.Point(18, 10);
-            this.lblKpiCtTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.kpiCtCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiCtCard.BackColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.kpiCtCard.FillColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.kpiCtCard.BorderColor = System.Drawing.Color.FromArgb(214, 226, 239);
+            this.kpiCtCard.ShowBorder = false;
+            this.kpiCtCard.ShowShadow = false;
+            this.kpiCtCard.CornerRadius = 16;
+            this.kpiCtCard.Padding = new System.Windows.Forms.Padding(18);
+            this.kpiCtCard.Margin = new System.Windows.Forms.Padding(0, 0, 14, 0);
+            this.kpiLayout.Controls.Add(this.kpiCtCard, 3, 0);
+            this.kpiCtCard.Controls.Add(this.lblKpiCtValue);
+            this.kpiCtCard.Controls.Add(this.lblKpiCtHint);
+            this.kpiCtCard.Controls.Add(this.lblKpiCtTitle);
             this.lblKpiCtTitle.Name = "lblKpiCtTitle";
-            this.lblKpiCtTitle.Size = new System.Drawing.Size(346, 24);
-            this.lblKpiCtTitle.TabIndex = 1;
+            this.lblKpiCtTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiCtTitle.AutoEllipsis = true;
+            this.lblKpiCtTitle.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiCtTitle.ForeColor = System.Drawing.Color.FromArgb(124, 143, 168);
+            this.lblKpiCtTitle.BackColor = System.Drawing.Color.Transparent;
             this.lblKpiCtTitle.Text = "节拍";
             this.lblKpiCtTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // bodyLayout
-            // 
-            this.bodyLayout.ColumnCount = 2;
-            this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
-            this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
-            this.bodyLayout.Controls.Add(this.chartCard, 0, 0);
-            this.bodyLayout.Controls.Add(this.infoCard, 1, 0);
-            this.bodyLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bodyLayout.Location = new System.Drawing.Point(16, 128);
-            this.bodyLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiCtTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblKpiCtTitle.Height = 26;
+            this.lblKpiCtValue.Name = "lblKpiCtValue";
+            this.lblKpiCtValue.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiCtValue.AutoEllipsis = true;
+            this.lblKpiCtValue.Font = new System.Drawing.Font("微软雅黑", 27F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiCtValue.ForeColor = System.Drawing.Color.FromArgb(20, 36, 59);
+            this.lblKpiCtValue.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiCtValue.Text = "-- s";
+            this.lblKpiCtValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiCtValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblKpiCtHint.Name = "lblKpiCtHint_dyn";
+            this.lblKpiCtHint.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiCtHint.AutoEllipsis = true;
+            this.lblKpiCtHint.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiCtHint.ForeColor = System.Drawing.Color.FromArgb(124, 143, 168);
+            this.lblKpiCtHint.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiCtHint.Text = "当前生产节拍";
+            this.lblKpiCtHint.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiCtHint.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lblKpiCtHint.Height = 24;
+            this.kpiYieldCard.Name = "kpiYieldCard";
+            this.kpiYieldCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.kpiYieldCard.BackColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.kpiYieldCard.FillColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.kpiYieldCard.BorderColor = System.Drawing.Color.FromArgb(214, 226, 239);
+            this.kpiYieldCard.ShowBorder = false;
+            this.kpiYieldCard.ShowShadow = false;
+            this.kpiYieldCard.CornerRadius = 16;
+            this.kpiYieldCard.Padding = new System.Windows.Forms.Padding(18);
+            this.kpiYieldCard.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
+            this.kpiLayout.Controls.Add(this.kpiYieldCard, 4, 0);
+            this.kpiYieldCard.Controls.Add(this.lblKpiYieldValue);
+            this.kpiYieldCard.Controls.Add(this.lblKpiYieldHint);
+            this.kpiYieldCard.Controls.Add(this.lblKpiYieldTitle);
+            this.lblKpiYieldTitle.Name = "lblKpiYieldTitle";
+            this.lblKpiYieldTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiYieldTitle.AutoEllipsis = true;
+            this.lblKpiYieldTitle.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiYieldTitle.ForeColor = System.Drawing.Color.FromArgb(124, 143, 168);
+            this.lblKpiYieldTitle.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiYieldTitle.Text = "良率";
+            this.lblKpiYieldTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiYieldTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblKpiYieldTitle.Height = 26;
+            this.lblKpiYieldValue.Name = "lblKpiYieldValue";
+            this.lblKpiYieldValue.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiYieldValue.AutoEllipsis = true;
+            this.lblKpiYieldValue.Font = new System.Drawing.Font("微软雅黑", 27F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiYieldValue.ForeColor = System.Drawing.Color.FromArgb(20, 36, 59);
+            this.lblKpiYieldValue.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiYieldValue.Text = "--";
+            this.lblKpiYieldValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiYieldValue.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblKpiYieldHint.Name = "lblKpiYieldHint_dyn";
+            this.lblKpiYieldHint.Margin = new System.Windows.Forms.Padding(0);
+            this.lblKpiYieldHint.AutoEllipsis = true;
+            this.lblKpiYieldHint.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblKpiYieldHint.ForeColor = System.Drawing.Color.FromArgb(124, 143, 168);
+            this.lblKpiYieldHint.BackColor = System.Drawing.Color.Transparent;
+            this.lblKpiYieldHint.Text = "本小时 0";
+            this.lblKpiYieldHint.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblKpiYieldHint.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lblKpiYieldHint.Height = 24;
             this.bodyLayout.Name = "bodyLayout";
+            this.bodyLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.bodyLayout.ColumnCount = 2;
             this.bodyLayout.RowCount = 1;
+            this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 68F));
+            this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 32F));
             this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.bodyLayout.Size = new System.Drawing.Size(1892, 681);
-            this.bodyLayout.TabIndex = 1;
-            // 
-            // chartCard
-            // 
-            this.chartCard.BackColor = System.Drawing.Color.White;
-            this.chartCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
+            this.bodyLayout.Margin = new System.Windows.Forms.Padding(0, 0, 0, 14);
+            this.bodyLayout.Controls.Add(this.chartCard, 0, 0);
+            this.bodyLayout.Controls.Add(this.deviceCard, 1, 0);
+            this.chartCard.Name = "chartCard";
+            this.chartCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chartCard.BackColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.chartCard.FillColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.chartCard.BorderColor = System.Drawing.Color.FromArgb(214, 226, 239);
+            this.chartCard.ShowBorder = false;
+            this.chartCard.ShowShadow = false;
+            this.chartCard.CornerRadius = 16;
+            this.chartCard.Padding = new System.Windows.Forms.Padding(20);
+            this.chartCard.Margin = new System.Windows.Forms.Padding(0, 0, 14, 0);
             this.chartCard.Controls.Add(this.hourlyChart);
             this.chartCard.Controls.Add(this.lblChartTitle);
-            this.chartCard.CornerRadius = 10;
-            this.chartCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chartCard.FillColor = System.Drawing.Color.White;
-            this.chartCard.Location = new System.Drawing.Point(0, 0);
-            this.chartCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
-            this.chartCard.Name = "chartCard";
-            this.chartCard.Padding = new System.Windows.Forms.Padding(16, 12, 16, 12);
-            this.chartCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
-            this.chartCard.ShowBorder = true;
-            this.chartCard.ShowShadow = true;
-            this.chartCard.Size = new System.Drawing.Size(744, 681);
-            this.chartCard.TabIndex = 0;
-            // 
-            // hourlyChart
-            // 
-            this.hourlyChart.BackColor = System.Drawing.Color.White;
-            this.hourlyChart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hourlyChart.EmptyText = "暂无数据";
-            this.hourlyChart.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.hourlyChart.Location = new System.Drawing.Point(16, 42);
-            this.hourlyChart.Name = "hourlyChart";
-            this.hourlyChart.NgColor = System.Drawing.Color.FromArgb(((int)(((byte)(206)))), ((int)(((byte)(62)))), ((int)(((byte)(62)))));
-            this.hourlyChart.NgLegend = "不良";
-            this.hourlyChart.OkColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
-            this.hourlyChart.OkLegend = "良品";
-            this.hourlyChart.Size = new System.Drawing.Size(712, 627);
-            this.hourlyChart.TabIndex = 0;
-            // 
-            // lblChartTitle
-            // 
-            this.lblChartTitle.AutoEllipsis = true;
-            this.lblChartTitle.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblChartTitle.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblChartTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.lblChartTitle.Location = new System.Drawing.Point(16, 12);
-            this.lblChartTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblChartTitle.Name = "lblChartTitle";
-            this.lblChartTitle.Size = new System.Drawing.Size(712, 30);
-            this.lblChartTitle.TabIndex = 1;
-            this.lblChartTitle.Text = "今日每小时产量";
+            this.lblChartTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblChartTitle.AutoEllipsis = true;
+            this.lblChartTitle.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblChartTitle.ForeColor = System.Drawing.Color.FromArgb(20, 36, 59);
+            this.lblChartTitle.BackColor = System.Drawing.Color.Transparent;
+            this.lblChartTitle.Text = "产量趋势 · 今日";
             this.lblChartTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // infoCard
-            // 
-            this.infoCard.BackColor = System.Drawing.Color.White;
-            this.infoCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
-            this.infoCard.Controls.Add(this.infoLayout);
-            this.infoCard.CornerRadius = 10;
-            this.infoCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.infoCard.FillColor = System.Drawing.Color.White;
-            this.infoCard.Location = new System.Drawing.Point(756, 0);
-            this.infoCard.Margin = new System.Windows.Forms.Padding(0);
-            this.infoCard.Name = "infoCard";
-            this.infoCard.Padding = new System.Windows.Forms.Padding(16, 12, 16, 12);
-            this.infoCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
-            this.infoCard.ShowBorder = true;
-            this.infoCard.ShowShadow = true;
-            this.infoCard.Size = new System.Drawing.Size(1136, 681);
-            this.infoCard.TabIndex = 1;
-            // 
-            // infoLayout
-            // 
-            this.infoLayout.BackColor = System.Drawing.Color.White;
-            this.infoLayout.ColumnCount = 2;
-            this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.infoLayout.Controls.Add(this.lblInfoTitle, 0, 0);
-            this.infoLayout.Controls.Add(this.btnInfoQuery, 1, 0);
-            this.infoLayout.Controls.Add(this.grdInfo, 0, 1);
-            this.infoLayout.Controls.Add(this.lblHourTitle, 0, 3);
-            this.infoLayout.Controls.Add(this.hourLayout, 0, 4);
-            this.infoLayout.Controls.Add(this.connLayout, 0, 5);
-            this.infoLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.infoLayout.Location = new System.Drawing.Point(16, 12);
-            this.infoLayout.Margin = new System.Windows.Forms.Padding(0);
-            this.infoLayout.Name = "infoLayout";
-            this.infoLayout.RowCount = 6;
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 14F));
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 56F));
-            this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.infoLayout.Size = new System.Drawing.Size(1104, 657);
-            this.infoLayout.TabIndex = 0;
-            // 
-            // lblInfoTitle
-            // 
-            this.lblInfoTitle.AutoEllipsis = true;
-            this.lblInfoTitle.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblInfoTitle.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblInfoTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.lblInfoTitle.Location = new System.Drawing.Point(0, 0);
-            this.lblInfoTitle.Margin = new System.Windows.Forms.Padding(0);
-            this.lblInfoTitle.Name = "lblInfoTitle";
-            this.lblInfoTitle.Size = new System.Drawing.Size(100, 32);
-            this.lblInfoTitle.TabIndex = 0;
-            this.lblInfoTitle.Text = "生产信息";
-            this.lblInfoTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // btnInfoQuery
-            // 
-            this.btnInfoQuery.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnInfoQuery.BackColor = System.Drawing.Color.Transparent;
-            this.btnInfoQuery.CornerRadius = 8;
-            this.btnInfoQuery.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnInfoQuery.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btnInfoQuery.Icon = null;
-            this.btnInfoQuery.IconGap = 6;
-            this.btnInfoQuery.IconSize = 14;
-            this.btnInfoQuery.Location = new System.Drawing.Point(1008, 3);
-            this.btnInfoQuery.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-            this.btnInfoQuery.Name = "btnInfoQuery";
-            this.btnInfoQuery.Selectable = false;
-            this.btnInfoQuery.Size = new System.Drawing.Size(96, 26);
-            this.btnInfoQuery.TabIndex = 1;
-            this.btnInfoQuery.TabStop = false;
-            this.btnInfoQuery.Text = "查询";
-            this.btnInfoQuery.TextColorOverride = null;
-            this.btnInfoQuery.Variant = AlphaRap.FlatButtonVariant.Surface;
-            // 
-            // grdInfo
-            // 
-            this.grdInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this.infoLayout.SetColumnSpan(this.grdInfo, 2);
-            this.grdInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grdInfo.Location = new System.Drawing.Point(0, 32);
-            this.grdInfo.Margin = new System.Windows.Forms.Padding(0);
-            this.grdInfo.Name = "grdInfo";
-            this.grdInfo.RowHeadersVisible = false;
-            this.grdInfo.Size = new System.Drawing.Size(1104, 497);
-            this.grdInfo.TabIndex = 2;
-            // 
-            // lblHourTitle
-            // 
-            this.lblHourTitle.AutoEllipsis = true;
-            this.infoLayout.SetColumnSpan(this.lblHourTitle, 2);
-            this.lblHourTitle.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblHourTitle.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblHourTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.lblHourTitle.Location = new System.Drawing.Point(0, 543);
-            this.lblHourTitle.Margin = new System.Windows.Forms.Padding(0);
-            this.lblHourTitle.Name = "lblHourTitle";
-            this.lblHourTitle.Size = new System.Drawing.Size(1104, 28);
-            this.lblHourTitle.TabIndex = 9;
-            this.lblHourTitle.Text = "本小时";
-            this.lblHourTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // hourLayout
-            // 
-            this.hourLayout.ColumnCount = 4;
-            this.infoLayout.SetColumnSpan(this.hourLayout, 2);
-            this.hourLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.hourLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.hourLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.hourLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.hourLayout.Controls.Add(this.lblHourInput, 0, 0);
-            this.hourLayout.Controls.Add(this.tHourlyInput, 0, 1);
-            this.hourLayout.Controls.Add(this.lblHourOutput, 1, 0);
-            this.hourLayout.Controls.Add(this.tHourlyOutput, 1, 1);
-            this.hourLayout.Controls.Add(this.lblHourReject, 2, 0);
-            this.hourLayout.Controls.Add(this.tHourlyReject, 2, 1);
-            this.hourLayout.Controls.Add(this.lblHourYield, 3, 0);
-            this.hourLayout.Controls.Add(this.tHourlyYield, 3, 1);
-            this.hourLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hourLayout.Location = new System.Drawing.Point(0, 571);
-            this.hourLayout.Margin = new System.Windows.Forms.Padding(0);
-            this.hourLayout.Name = "hourLayout";
-            this.hourLayout.RowCount = 2;
-            this.hourLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
-            this.hourLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.hourLayout.Size = new System.Drawing.Size(1104, 56);
-            this.hourLayout.TabIndex = 10;
-            // 
-            // lblHourInput
-            // 
-            this.lblHourInput.AutoEllipsis = true;
-            this.lblHourInput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblHourInput.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblHourInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblHourInput.Location = new System.Drawing.Point(0, 0);
-            this.lblHourInput.Margin = new System.Windows.Forms.Padding(0);
-            this.lblHourInput.Name = "lblHourInput";
-            this.lblHourInput.Size = new System.Drawing.Size(276, 22);
-            this.lblHourInput.TabIndex = 0;
-            this.lblHourInput.Text = "投入";
-            this.lblHourInput.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // tHourlyInput
-            // 
-            this.tHourlyInput.BackColor = System.Drawing.Color.White;
-            this.tHourlyInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tHourlyInput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tHourlyInput.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tHourlyInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.tHourlyInput.Location = new System.Drawing.Point(0, 24);
-            this.tHourlyInput.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
-            this.tHourlyInput.Name = "tHourlyInput_dyn";
-            this.tHourlyInput.ReadOnly = true;
-            this.tHourlyInput.Size = new System.Drawing.Size(268, 29);
-            this.tHourlyInput.TabIndex = 1;
-            this.tHourlyInput.TabStop = false;
-            this.tHourlyInput.Text = "0";
-            // 
-            // lblHourOutput
-            // 
-            this.lblHourOutput.AutoEllipsis = true;
-            this.lblHourOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblHourOutput.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblHourOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblHourOutput.Location = new System.Drawing.Point(276, 0);
-            this.lblHourOutput.Margin = new System.Windows.Forms.Padding(0);
-            this.lblHourOutput.Name = "lblHourOutput";
-            this.lblHourOutput.Size = new System.Drawing.Size(276, 22);
-            this.lblHourOutput.TabIndex = 2;
-            this.lblHourOutput.Text = "产出";
-            this.lblHourOutput.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // tHourlyOutput
-            // 
-            this.tHourlyOutput.BackColor = System.Drawing.Color.White;
-            this.tHourlyOutput.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tHourlyOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tHourlyOutput.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tHourlyOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.tHourlyOutput.Location = new System.Drawing.Point(276, 24);
-            this.tHourlyOutput.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
-            this.tHourlyOutput.Name = "tHourlyOutput_dyn";
-            this.tHourlyOutput.ReadOnly = true;
-            this.tHourlyOutput.Size = new System.Drawing.Size(268, 29);
-            this.tHourlyOutput.TabIndex = 3;
-            this.tHourlyOutput.TabStop = false;
-            this.tHourlyOutput.Text = "0";
-            // 
-            // lblHourReject
-            // 
-            this.lblHourReject.AutoEllipsis = true;
-            this.lblHourReject.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblHourReject.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblHourReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblHourReject.Location = new System.Drawing.Point(552, 0);
-            this.lblHourReject.Margin = new System.Windows.Forms.Padding(0);
-            this.lblHourReject.Name = "lblHourReject";
-            this.lblHourReject.Size = new System.Drawing.Size(276, 22);
-            this.lblHourReject.TabIndex = 4;
-            this.lblHourReject.Text = "不良";
-            this.lblHourReject.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // tHourlyReject
-            // 
-            this.tHourlyReject.BackColor = System.Drawing.Color.White;
-            this.tHourlyReject.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tHourlyReject.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tHourlyReject.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tHourlyReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.tHourlyReject.Location = new System.Drawing.Point(552, 24);
-            this.tHourlyReject.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
-            this.tHourlyReject.Name = "tHourlyReject_dyn";
-            this.tHourlyReject.ReadOnly = true;
-            this.tHourlyReject.Size = new System.Drawing.Size(268, 29);
-            this.tHourlyReject.TabIndex = 5;
-            this.tHourlyReject.TabStop = false;
-            this.tHourlyReject.Text = "0";
-            // 
-            // lblHourYield
-            // 
-            this.lblHourYield.AutoEllipsis = true;
-            this.lblHourYield.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblHourYield.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblHourYield.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
-            this.lblHourYield.Location = new System.Drawing.Point(828, 0);
-            this.lblHourYield.Margin = new System.Windows.Forms.Padding(0);
-            this.lblHourYield.Name = "lblHourYield";
-            this.lblHourYield.Size = new System.Drawing.Size(276, 22);
-            this.lblHourYield.TabIndex = 6;
-            this.lblHourYield.Text = "良率";
-            this.lblHourYield.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // tHourlyYield
-            // 
-            this.tHourlyYield.BackColor = System.Drawing.Color.White;
-            this.tHourlyYield.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tHourlyYield.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tHourlyYield.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tHourlyYield.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
-            this.tHourlyYield.Location = new System.Drawing.Point(828, 24);
-            this.tHourlyYield.Margin = new System.Windows.Forms.Padding(0, 2, 8, 0);
-            this.tHourlyYield.Name = "tHourlyYield_dyn";
-            this.tHourlyYield.ReadOnly = true;
-            this.tHourlyYield.Size = new System.Drawing.Size(268, 29);
-            this.tHourlyYield.TabIndex = 7;
-            this.tHourlyYield.TabStop = false;
-            this.tHourlyYield.Text = "0";
-            // 
-            // connLayout
-            // 
-            this.infoLayout.SetColumnSpan(this.connLayout, 2);
-            this.connLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.connLayout.Location = new System.Drawing.Point(0, 627);
-            this.connLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.lblChartTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblChartTitle.Height = 32;
+            this.hourlyChart.Name = "hourlyChart";
+            this.hourlyChart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hourlyChart.Margin = new System.Windows.Forms.Padding(0);
+            this.hourlyChart.BackColor = System.Drawing.Color.White;
+            this.hourlyChart.OkColor = System.Drawing.Color.FromArgb(18, 185, 125);
+            this.hourlyChart.NgColor = System.Drawing.Color.FromArgb(239, 68, 78);
+            this.hourlyChart.OkLegend = "良品";
+            this.hourlyChart.NgLegend = "不良";
+            this.hourlyChart.EmptyText = "暂无生产数据";
+            this.hourlyChart.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.deviceCard.Name = "deviceCard";
+            this.deviceCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.deviceCard.Margin = new System.Windows.Forms.Padding(0);
+            this.deviceCard.BackColor = System.Drawing.Color.FromArgb(237, 244, 250);
+            this.deviceCard.FillColor = System.Drawing.Color.FromArgb(237, 244, 250);
+            this.deviceCard.BorderColor = System.Drawing.Color.FromArgb(214, 226, 239);
+            this.deviceCard.ShowShadow = false;
+            this.deviceCard.CornerRadius = 16;
+            this.deviceCard.Padding = new System.Windows.Forms.Padding(20);
+            this.deviceCard.ShowBorder = true;
+            this.deviceCard.Controls.Add(this.deviceBody);
+            this.deviceCard.Controls.Add(this.deviceHeader);
+            this.deviceHeader.Name = "deviceHeader";
+            this.deviceHeader.Margin = new System.Windows.Forms.Padding(0);
+            this.deviceHeader.ColumnCount = 2;
+            this.deviceHeader.RowCount = 1;
+            this.deviceHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
+            this.deviceHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.deviceHeader.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.deviceHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.deviceHeader.Height = 32;
+            this.deviceHeader.Controls.Add(this.lblDeviceTitle, 0, 0);
+            this.deviceHeader.Controls.Add(this.lblDeviceCount, 1, 0);
+            this.lblDeviceTitle.Name = "lblDeviceTitle";
+            this.lblDeviceTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblDeviceTitle.AutoEllipsis = true;
+            this.lblDeviceTitle.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblDeviceTitle.ForeColor = System.Drawing.Color.FromArgb(20, 36, 59);
+            this.lblDeviceTitle.BackColor = System.Drawing.Color.Transparent;
+            this.lblDeviceTitle.Text = "设备状态";
+            this.lblDeviceTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblDeviceTitle.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblDeviceCount.Name = "lblDeviceCount_dyn";
+            this.lblDeviceCount.Margin = new System.Windows.Forms.Padding(0);
+            this.lblDeviceCount.AutoEllipsis = true;
+            this.lblDeviceCount.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblDeviceCount.ForeColor = System.Drawing.Color.FromArgb(0, 145, 100);
+            this.lblDeviceCount.BackColor = System.Drawing.Color.Transparent;
+            this.lblDeviceCount.Text = "0 台";
+            this.lblDeviceCount.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblDeviceCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.deviceBody.Name = "deviceBody";
+            this.deviceBody.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.deviceBody.Margin = new System.Windows.Forms.Padding(0);
+            this.deviceBody.Controls.Add(this.connLayout);
+            this.deviceBody.Controls.Add(this.lblDeviceEmpty);
             this.connLayout.Name = "connLayout";
-            this.connLayout.Size = new System.Drawing.Size(1104, 30);
-            this.connLayout.TabIndex = 11;
-            this.connLayout.WrapContents = false;
-            // 
-            // timer1
-            // 
+            this.connLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.connLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.connLayout.ColumnCount = 3;
+            this.connLayout.RowCount = 1;
+            this.connLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.connLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.connLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 104F));
+            this.connLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.connLayout.AutoScroll = true;
+            this.connLayout.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows;
+            this.lblDeviceEmpty.Name = "lblDeviceEmpty";
+            this.lblDeviceEmpty.Margin = new System.Windows.Forms.Padding(0);
+            this.lblDeviceEmpty.AutoEllipsis = true;
+            this.lblDeviceEmpty.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblDeviceEmpty.ForeColor = System.Drawing.Color.FromArgb(124, 143, 168);
+            this.lblDeviceEmpty.BackColor = System.Drawing.Color.Transparent;
+            this.lblDeviceEmpty.Text = "尚未配置设备";
+            this.lblDeviceEmpty.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblDeviceEmpty.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.infoCard.Name = "infoCard";
+            this.infoCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.infoCard.Margin = new System.Windows.Forms.Padding(0);
+            this.infoCard.BackColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.infoCard.FillColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            this.infoCard.BorderColor = System.Drawing.Color.FromArgb(214, 226, 239);
+            this.infoCard.ShowBorder = false;
+            this.infoCard.ShowShadow = false;
+            this.infoCard.CornerRadius = 16;
+            this.infoCard.Padding = new System.Windows.Forms.Padding(18);
+            this.infoCard.Controls.Add(this.grdInfo);
+            this.infoCard.Controls.Add(this.infoHeader);
+            this.infoHeader.Name = "infoHeader";
+            this.infoHeader.Margin = new System.Windows.Forms.Padding(0);
+            this.infoHeader.ColumnCount = 3;
+            this.infoHeader.RowCount = 1;
+            this.infoHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 55F));
+            this.infoHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 45F));
+            this.infoHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 112F));
+            this.infoHeader.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.infoHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.infoHeader.Height = 38;
+            this.infoHeader.Controls.Add(this.lblInfoTitle, 0, 0);
+            this.infoHeader.Controls.Add(this.lblInfoCount, 1, 0);
+            this.infoHeader.Controls.Add(this.btnInfoQuery, 2, 0);
+            this.lblInfoTitle.Name = "lblInfoTitle";
+            this.lblInfoTitle.Margin = new System.Windows.Forms.Padding(0);
+            this.lblInfoTitle.AutoEllipsis = true;
+            this.lblInfoTitle.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblInfoTitle.ForeColor = System.Drawing.Color.FromArgb(20, 36, 59);
+            this.lblInfoTitle.BackColor = System.Drawing.Color.Transparent;
+            this.lblInfoTitle.Text = "生产记录";
+            this.lblInfoTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblInfoTitle.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblInfoCount.Name = "lblInfoCount_dyn";
+            this.lblInfoCount.Margin = new System.Windows.Forms.Padding(0);
+            this.lblInfoCount.AutoEllipsis = true;
+            this.lblInfoCount.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblInfoCount.ForeColor = System.Drawing.Color.FromArgb(124, 143, 168);
+            this.lblInfoCount.BackColor = System.Drawing.Color.Transparent;
+            this.lblInfoCount.Text = "0 条记录";
+            this.lblInfoCount.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblInfoCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnInfoQuery.Name = "btnInfoQuery";
+            this.btnInfoQuery.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnInfoQuery.Margin = new System.Windows.Forms.Padding(8, 2, 0, 6);
+            this.btnInfoQuery.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnInfoQuery.Text = "查询";
+            this.btnInfoQuery.Variant = AlphaRap.FlatButtonVariant.Surface;
+            this.btnInfoQuery.CornerRadius = 6;
+            this.grdInfo.Name = "grdInfo";
+            this.grdInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grdInfo.Margin = new System.Windows.Forms.Padding(0);
+            this.grdInfo.BackgroundColor = System.Drawing.Color.White;
+            this.grdInfo.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.grdInfo.ReadOnly = true;
+            this.grdInfo.RowHeadersVisible = false;
+            this.grdInfo.AllowUserToAddRows = false;
+            this.grdInfo.AllowUserToDeleteRows = false;
+            this.grdInfo.AllowUserToResizeRows = false;
+            this.grdInfo.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.grdInfo.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // HomeForm
-            // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(248)))));
-            this.ClientSize = new System.Drawing.Size(1924, 825);
-            this.ControlBox = false;
+            this.BackColor = System.Drawing.Color.FromArgb(229, 237, 244);
+            this.ClientSize = new System.Drawing.Size(1328, 806);
             this.Controls.Add(this.rootLayout);
-            this.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "HomeForm";
+            this.Text = "HomeForm";
+            this.ControlBox = false;
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
-            this.Text = "HomeForm";
             this.Load += new System.EventHandler(this.HomeForm_Load);
             this.rootLayout.ResumeLayout(false);
             this.kpiLayout.ResumeLayout(false);
-            this.kpiInputCard.ResumeLayout(false);
             this.kpiOkCard.ResumeLayout(false);
+            this.kpiInputCard.ResumeLayout(false);
             this.kpiNgCard.ResumeLayout(false);
-            this.kpiYieldCard.ResumeLayout(false);
             this.kpiCtCard.ResumeLayout(false);
+            this.kpiYieldCard.ResumeLayout(false);
             this.bodyLayout.ResumeLayout(false);
             this.chartCard.ResumeLayout(false);
+            this.deviceCard.ResumeLayout(false);
             this.infoCard.ResumeLayout(false);
-            this.infoLayout.ResumeLayout(false);
+            this.deviceHeader.ResumeLayout(false);
+            this.deviceBody.ResumeLayout(false);
+            this.connLayout.ResumeLayout(false);
+            this.infoHeader.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grdInfo)).EndInit();
-            this.hourLayout.ResumeLayout(false);
-            this.hourLayout.PerformLayout();
             this.ResumeLayout(false);
-
         }
-
-        #endregion
 
         private System.Windows.Forms.TableLayoutPanel rootLayout;
         private System.Windows.Forms.TableLayoutPanel kpiLayout;
-        private AlphaRap.CardPanel kpiInputCard;
-        private AlphaRap.UiLabel lblKpiInputValue;
-        private AlphaRap.UiLabel lblKpiInputTitle;
         private AlphaRap.CardPanel kpiOkCard;
-        private AlphaRap.UiLabel lblKpiOkValue;
         private AlphaRap.UiLabel lblKpiOkTitle;
+        private AlphaRap.UiLabel lblKpiOkValue;
+        private AlphaRap.UiLabel lblKpiOkHint;
+        private AlphaRap.CardPanel kpiInputCard;
+        private AlphaRap.UiLabel lblKpiInputTitle;
+        private AlphaRap.UiLabel lblKpiInputValue;
+        private AlphaRap.UiLabel lblKpiInputHint;
         private AlphaRap.CardPanel kpiNgCard;
-        private AlphaRap.UiLabel lblKpiNgValue;
         private AlphaRap.UiLabel lblKpiNgTitle;
-        private AlphaRap.CardPanel kpiYieldCard;
-        private AlphaRap.UiLabel lblKpiYieldValue;
-        private AlphaRap.UiLabel lblKpiYieldTitle;
+        private AlphaRap.UiLabel lblKpiNgValue;
+        private AlphaRap.UiLabel lblKpiNgHint;
         private AlphaRap.CardPanel kpiCtCard;
-        private AlphaRap.UiLabel lblKpiCtValue;
         private AlphaRap.UiLabel lblKpiCtTitle;
+        private AlphaRap.UiLabel lblKpiCtValue;
+        private AlphaRap.UiLabel lblKpiCtHint;
+        private AlphaRap.CardPanel kpiYieldCard;
+        private AlphaRap.UiLabel lblKpiYieldTitle;
+        private AlphaRap.UiLabel lblKpiYieldValue;
+        private AlphaRap.UiLabel lblKpiYieldHint;
         private System.Windows.Forms.TableLayoutPanel bodyLayout;
         private AlphaRap.CardPanel chartCard;
+        private AlphaRap.CardPanel deviceCard;
+        private AlphaRap.CardPanel infoCard;
         private AlphaRap.HourlyChart hourlyChart;
         private AlphaRap.UiLabel lblChartTitle;
-        private AlphaRap.CardPanel infoCard;
-        private System.Windows.Forms.TableLayoutPanel infoLayout;
-        private System.Windows.Forms.DataGridView grdInfo;
-        private AlphaRap.FlatButton btnInfoQuery;
+        private System.Windows.Forms.TableLayoutPanel deviceHeader;
+        private AlphaRap.UiLabel lblDeviceTitle;
+        private AlphaRap.UiLabel lblDeviceCount;
+        private System.Windows.Forms.Panel deviceBody;
+        private System.Windows.Forms.TableLayoutPanel connLayout;
+        private AlphaRap.UiLabel lblDeviceEmpty;
+        private System.Windows.Forms.TableLayoutPanel infoHeader;
         private AlphaRap.UiLabel lblInfoTitle;
-        private AlphaRap.UiLabel lblHourTitle;
-        private System.Windows.Forms.TableLayoutPanel hourLayout;
-        private AlphaRap.UiLabel lblHourInput;
-        private System.Windows.Forms.TextBox tHourlyInput;
-        private AlphaRap.UiLabel lblHourOutput;
-        private System.Windows.Forms.TextBox tHourlyOutput;
-        private AlphaRap.UiLabel lblHourReject;
-        public System.Windows.Forms.TextBox tHourlyReject;
-        private AlphaRap.UiLabel lblHourYield;
-        private System.Windows.Forms.TextBox tHourlyYield;
-        private System.Windows.Forms.FlowLayoutPanel connLayout;
+        private AlphaRap.UiLabel lblInfoCount;
+        private AlphaRap.FlatButton btnInfoQuery;
+        private System.Windows.Forms.DataGridView grdInfo;
         private System.Windows.Forms.Timer timer1;
     }
 }

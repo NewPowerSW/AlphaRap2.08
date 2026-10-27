@@ -8,6 +8,7 @@
 
 检查内容：
 
+- 当前 FlowProgramming 源文件与项目 Compile 清单一一对应，防止旧构建产物掩盖漏加或残留源码。
 - 可视类具有公开无参构造函数，项目中的 SubType 和 Designer 依赖正确；业务 partial 不作为独立窗体打开。
 - `InitializeComponent` 仅使用显式字段创建、属性赋值、明确类型数组和常规布局/集合调用。配置表、默认业务行和运行绑定放在对应的业务源码中。
 - 使用 `LicenseUsageMode.Designtime` 构造每个窗口/控件，创建句柄、布局并输出截图。设计期不写配置、不登记硬件、不启动系统设置权限计时器。

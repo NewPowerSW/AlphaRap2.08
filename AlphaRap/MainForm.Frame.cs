@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace AlphaRap
 {
     /// <summary>
-    /// 主框架的外观：顶栏、左侧导航、底部工具栏、报警栏、状态栏。
+    /// 主框架的外观：深色导航、顶部操作、内容页签与底部状态。
     /// 只包含界面样式，不涉及设备逻辑。
     /// </summary>
     public partial class MainForm
@@ -45,13 +45,19 @@ namespace AlphaRap
 
         // ---------------- 尺寸 ----------------
 
-        private static readonly Size NavButtonSize = new Size(88, 54);
-        private const int NavIconSize = 24;
-        private static readonly Size ToolButtonSize = new Size(92, 58);
-        private const int ToolIconSize = 26;
+        private static readonly Size NavButtonSize = new Size(200, 42);
+        private const int NavIconSize = 20;
+        private static readonly Size ToolButtonSize = new Size(88, 40);
+        private const int ToolIconSize = 16;
 
         /// <summary>工具栏按钮悬停时的底色。</summary>
-        private static readonly Color ToolbarHover = UiTheme.Selected;
+        private static readonly Color ShellNav = Color.FromArgb(12, 27, 43);
+        private static readonly Color ShellCanvas = Color.FromArgb(229, 237, 244);
+        private static readonly Color ShellInk = Color.FromArgb(20, 36, 59);
+        private static readonly Color ShellMuted = Color.FromArgb(150, 169, 190);
+        private static readonly Color ShellAccent = Color.FromArgb(0, 152, 220);
+        private static readonly Color ShellSelected = Color.FromArgb(24, 46, 70);
+        private static readonly Color ToolbarHover = Color.FromArgb(230, 240, 248);
 
         /// <summary>当前鼠标悬停的工具栏按钮。</summary>
         private PictureBox _hoverToolbarButton;
@@ -65,12 +71,12 @@ namespace AlphaRap
             MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_AddUser, MENU_Rapid, MENU_Log, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Pause, MENU_Stop, MENU_Exit, MENU_Run, MENU_Mes };
 
             // 底色层次：框架浅灰蓝 → 内容区更浅 → 卡片白
-            tableLayoutPanel_Main.BackColor = UiTheme.FrameBg;
-            panel_Second.BackColor = UiTheme.FrameBg;
-            panel2.BackColor = UiTheme.FrameBg;
-            plMainShow.BackColor = UiKit.PageBg;
+            tableLayoutPanel_Main.BackColor = ShellCanvas;
+            panel_Second.BackColor = ShellCanvas;
+            panel2.BackColor = ShellCanvas;
+            plMainShow.BackColor = ShellCanvas;
 
-            StyleTopBar();
+            StyleIdentityArea();
             StyleNavigation();
             StyleToolbar();
             StyleContentTabs();
@@ -81,42 +87,39 @@ namespace AlphaRap
             PrewarmFrameIcons();      // 先把矢量图标一次性画好，下面的按钮图片全部走缓存
             RefreshButtonIcons();
             RefreshMenuBackcolor();
+            ApplyRoundedMenuRegions();
         }
 
         // ---------------- 顶栏 ----------------
 
         /// <summary>登录芯片常态底色（比顶栏品牌蓝略亮，形成"可点"的层次）。</summary>
-        private static readonly Color LoginChipBack = Color.FromArgb(28, 126, 200);
+        private static readonly Color LoginChipBack = ShellNav;
 
         /// <summary>登录芯片悬停底色。</summary>
-        private static readonly Color LoginChipHoverBack = Color.FromArgb(52, 148, 218);
+        private static readonly Color LoginChipHoverBack = ShellSelected;
 
-        private void StyleTopBar()
+        /// <summary>设置配方、设备状态和登录区域的样式。</summary>
+        private void StyleIdentityArea()
         {
-            lbRecipeName.Font = UiKit.Bold(11f);
-            lbRecipeName.ForeColor = Color.White;
-
-            // 右上角登录芯片：圆角胶囊（登录图标 + 用户名·权限·登录时间），整块可点开登录页
+            lbRecipeName.Font = UiKit.Regular(9f);
+            lbRecipeName.ForeColor = Color.FromArgb(0, 118, 177);
+            lbRecipeName.AutoEllipsis = true;
             panelLogin.BackColor = LoginChipBack;
             panelLogin.Cursor = Cursors.Hand;
-            panelLogin.Resize += (s, ev) => ApplyPillRegion(panelLogin, 11);
-            ApplyPillRegion(panelLogin, 11);
-            LoginText.Font = UiKit.Bold(10f);
+            LoginText.Font = UiKit.Regular(9f);
             LoginText.ForeColor = Color.White;
             LoginText.Cursor = Cursors.Hand;
             LoginText.AutoEllipsis = true;
-
-            // 设备状态徽章：顶栏正中央；整块填状态色 + 22pt 粗字（宽度由 SetStatusLook 按文字算）
-            MachineStatus.Font = UiKit.Bold(22f);
+            MachineStatus.Font = UiKit.Bold(9f);
             MachineStatus.TextAlign = ContentAlignment.MiddleCenter;
-            MachineStatus.AutoSize = false;      // 宽度在运行期按文字量算，见 SetStatusLook
-            MachineStatus.AutoEllipsis = false;  // 宽度够，不截断
-            // 缺省按"待机"上色：设计视图里也就和运行时一致（运行期每 tick 由 UpdateMachineStatus 覆盖）
-            MachineStatus.BackColor = StatusIdleFill;
-            MachineStatus.ForeColor = StatusDarkInk;
+            MachineStatus.AutoSize = false;
+            MachineStatus.AutoEllipsis = true;
+            MachineStatus.BackColor = Color.FromArgb(232, 240, 247);
+            MachineStatus.ForeColor = ShellInk;
             MachineStatus.Paint -= MachineStatus_Paint;
             MachineStatus.Paint += MachineStatus_Paint;
-
+            languageSwitch.ForeColor = Color.FromArgb(83, 102, 125);
+            languageSwitch.BackColor = Color.White;
             InitLoginChip();
         }
 
@@ -139,11 +142,13 @@ namespace AlphaRap
             UpdateLoginChipTip();
         }
 
+        /// <summary>高亮登录区域。</summary>
         private void LoginChip_MouseEnter(object sender, EventArgs e)
         {
             SetLoginChipHover(true);
         }
 
+        /// <summary>鼠标离开完整登录区域后清除高亮。</summary>
         private void LoginChip_MouseLeave(object sender, EventArgs e)
         {
             try
@@ -155,6 +160,7 @@ namespace AlphaRap
             SetLoginChipHover(false);
         }
 
+        /// <summary>更新登录区域悬停底色。</summary>
         private void SetLoginChipHover(bool on)
         {
             Color c = on ? LoginChipHoverBack : LoginChipBack;
@@ -166,6 +172,7 @@ namespace AlphaRap
 
         internal void UpdateLoginChipTip()
         {
+            if (UiTheme.IsDesignTime) return;
             try
             {
                 if (panelLogin == null) return;
@@ -181,35 +188,36 @@ namespace AlphaRap
 
         // ---------------- 左侧导航 ----------------
 
+        /// <summary>设置导航分组和横向图标按钮的尺寸。</summary>
         private void StyleNavigation()
         {
-            panel4.GradientTop = UiTheme.NavBg;
-            panel4.GradientBottom = UiTheme.NavBg;
+            panel4.GradientTop = ShellNav;
+            panel4.GradientBottom = ShellNav;
             panel4.Paint -= Nav_Paint;
             panel4.Paint += Nav_Paint;
-
             foreach (FlowLayoutPanel flow in new[] { Panl_PictureShowTop, Panl_PictureShowDown })
             {
-                flow.Padding = UiTheme.Dpi(new Padding(0, 6, 0, 0));
+                flow.Padding = UiTheme.Dpi(new Padding(12, 0, 12, 0));
                 flow.BackColor = Color.Transparent;
             }
-            foreach (PictureBox b in NavButtons())
+            foreach (PictureBox button in NavButtons())
             {
-                b.Size = UiTheme.Dpi(NavButtonSize);
-                b.Margin = UiTheme.Dpi(new Padding(1, 2, 1, 2));
-                b.SizeMode = PictureBoxSizeMode.CenterImage;
-                b.Cursor = Cursors.Hand;
+                button.Size = UiTheme.Dpi(NavButtonSize);
+                button.Margin = UiTheme.Dpi(new Padding(0, 2, 0, 2));
+                button.SizeMode = PictureBoxSizeMode.CenterImage;
+                button.Cursor = Cursors.Hand;
             }
         }
 
         /// <summary>导航栏右侧分隔线。</summary>
         private void Nav_Paint(object sender, PaintEventArgs e)
         {
-            Control c = (Control)sender;
-            using (Pen p = new Pen(UiKit.Line))
-                e.Graphics.DrawLine(p, c.Width - 1, 0, c.Width - 1, c.Height);
+            Control control = (Control)sender;
+            using (Pen pen = new Pen(Color.FromArgb(29, 48, 67)))
+                e.Graphics.DrawLine(pen, control.Width - 1, 0, control.Width - 1, control.Height);
         }
 
+        /// <summary>返回左侧导航按钮，保留原页面顺序。</summary>
         private PictureBox[] NavButtons()
         {
             return new PictureBox[]
@@ -221,6 +229,7 @@ namespace AlphaRap
 
         // ---------------- 底部工具栏 ----------------
 
+        /// <summary>返回顶部设备操作与系统操作按钮。</summary>
         private PictureBox[] ToolbarButtons()
         {
             return new PictureBox[]
@@ -230,51 +239,55 @@ namespace AlphaRap
             };
         }
 
+        /// <summary>设置顶部操作栏及两组按钮的间距。</summary>
         private void StyleToolbar()
         {
-            panel_PictureShowDown.BackColor = UiKit.Surface;
+            panel_PictureShowDown.BackColor = Color.FromArgb(18, 38, 57);
             panel_PictureShowDown.Paint -= Toolbar_Paint;
             panel_PictureShowDown.Paint += Toolbar_Paint;
-            panel_PictureShowLeft.Width = UiTheme.Dpi(5 * (ToolButtonSize.Width + 8) + 16);
-            panel_PictureShowRight.Width = UiTheme.Dpi(3 * (ToolButtonSize.Width + 8) + 16);
-            panel_PictureShowLeft.Padding = UiTheme.Dpi(new Padding(12, 4, 0, 0));
-            panel_PictureShowRight.Padding = UiTheme.Dpi(new Padding(0, 4, 8, 0));
+            panel_PictureShowLeft.Padding = UiTheme.Dpi(new Padding(24, 10, 0, 0));
+            panel_PictureShowRight.Padding = UiTheme.Dpi(new Padding(0, 10, 16, 0));
             panel_PictureShowLeft.BackColor = Color.Transparent;
             panel_PictureShowRight.BackColor = Color.Transparent;
-            foreach (PictureBox b in ToolbarButtons())
+            foreach (PictureBox button in ToolbarButtons())
             {
-                b.Size = UiTheme.Dpi(ToolButtonSize);
-                b.Margin = UiTheme.Dpi(new Padding(4, 1, 4, 1));
-                b.SizeMode = PictureBoxSizeMode.CenterImage;
-                b.Cursor = Cursors.Hand;
+                button.Size = UiTheme.Dpi(ToolButtonSize);
+                button.Margin = UiTheme.Dpi(new Padding(0, 0, 8, 0));
+                button.SizeMode = PictureBoxSizeMode.CenterImage;
+                button.Cursor = Cursors.Hand;
             }
         }
 
         /// <summary>工具栏顶部分隔线。</summary>
         private void Toolbar_Paint(object sender, PaintEventArgs e)
         {
-            Control c = (Control)sender;
-            using (Pen p = new Pen(UiKit.Line)) e.Graphics.DrawLine(p, 0, 0, c.Width, 0);
+            Control control = (Control)sender;
+            using (Pen pen = new Pen(Color.FromArgb(29, 48, 67)))
+                e.Graphics.DrawLine(pen, 0, control.Height - 1, control.Width, control.Height - 1);
         }
 
         // ---------------- 内容区选项卡 ----------------
 
+        /// <summary>设置首页、视觉与报警页签的样式。</summary>
         private void StyleContentTabs()
         {
             uiTabControl1.Cursor = Cursors.Default;
-            uiTabControl1.Font = UiKit.Bold(11f);
-            uiTabControl1.ItemSize = new Size(UiTheme.Dpi(132), UiTheme.TabHeight);
-            uiTabControl1.FillColor = UiTheme.FrameBg;
-            uiTabControl1.TabBackColor = UiTheme.FrameBg;
-            uiTabControl1.TabSelectedColor = UiKit.PageBg;
-            uiTabControl1.TabSelectedForeColor = UiKit.Brand;
-            uiTabControl1.TabUnSelectedForeColor = UiKit.TextSecondary;
-            uiTabControl1.TabSelectedHighColor = UiKit.Brand;
-            uiTabControl1.TabSelectedHighColorSize = 3;
+            uiTabControl1.Font = UiKit.Regular(10f);
+            uiTabControl1.ItemSize = UiTheme.Dpi(new Size(68, 48));
+            uiTabControl1.FillColor = ShellCanvas;
+            uiTabControl1.TabBackColor = ShellCanvas;
+            uiTabControl1.TabSelectedColor = ShellCanvas;
+            uiTabControl1.TabSelectedForeColor = Color.FromArgb(0, 118, 177);
+            uiTabControl1.TabUnSelectedForeColor = Color.FromArgb(100, 117, 138);
+            uiTabControl1.TabSelectedHighColor = ShellAccent;
+            uiTabControl1.TabSelectedHighColorSize = 2;
+            tabPage22.BackColor = ShellCanvas;
+            tabPage10.BackColor = ShellCanvas;
         }
 
         // ---------------- 报警栏 ----------------
 
+        /// <summary>设置原报警筛选条与报警列表。</summary>
         private void StyleAlarmPanel()
         {
             panelAlarmFilter.Height = UiTheme.Dpi(38);
@@ -326,14 +339,18 @@ namespace AlphaRap
 
         // ---------------- 状态栏 ----------------
 
+        /// <summary>设置底部时钟与版本文字。</summary>
         private void StyleStatusBar()
         {
-            statusStrip2.BackColor = UiTheme.StatusBar;
-            statusStrip2.Font = UiTheme.Caption;
-            foreach (ToolStripItem it in statusStrip2.Items)
+            statusStrip2.BackColor = Color.White;
+            statusStrip2.Font = UiKit.Regular(8f);
+            statusStrip2.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            statusStrip2.Padding = Padding.Empty;
+            foreach (ToolStripItem item in statusStrip2.Items)
             {
-                it.ForeColor = Color.FromArgb(214, 230, 246);
-                it.Font = UiTheme.Caption;
+                item.ForeColor = Color.FromArgb(124, 143, 168);
+                item.Font = UiKit.Regular(8f);
+                item.Margin = UiTheme.Dpi(new Padding(8, 0, 0, 0));
             }
         }
 
@@ -343,6 +360,12 @@ namespace AlphaRap
         private void LoadFrameTexts()
         {
             _buttonTexts.Clear();
+            lblMonitorGroup.Text = UiTheme.T("MainForm", "lblMonitorGroup", "监控", "MONITOR", "MONITORIZACIÓN");
+            lblSystemGroup.Text = UiTheme.T("MainForm", "lblSystemGroup", "系统", "SYSTEM", "SISTEMA");
+            lblDashboardCaption.Text = UiTheme.T("MainForm", "lblDashboardCaption", "生产监控", "Production", "Producción");
+            tabPage22.Text = UiTheme.T("MainForm", "tabPage22", "主页", "Home", "Inicio");
+            tabPage10.Text = UiTheme.T("MainForm", "tabPage10", "视觉", "Vision", "Visión");
+            tabAlarms.Text = UiTheme.T("MainForm", "tabAlarms", "报警", "Alarms", "Alarmas");
             Action<PictureBox, string, string, string, string> add = (b, key, zh, en, es) =>
             {
                 if (b != null) _buttonTexts[b] = UiTheme.T("MainForm", key, zh, en, es);
@@ -370,6 +393,7 @@ namespace AlphaRap
             add(MENU_Exit, "tool_Exit", "退出", "Exit", "Salir");
         }
 
+        /// <summary>读取当前语言的按钮名称。</summary>
         private string ButtonText(PictureBox b)
         {
             string s;
@@ -405,13 +429,14 @@ namespace AlphaRap
 
                 // 顶栏：深蓝底上的白色图标
                 SetImage(MENU_Product, AppIcons.Get(AppIcon.Product, UiTheme.Dpi(24),
-                    MENU_Product.Enabled ? AppIconColor.OnDarkBar : AppIconColor.DisabledOnDark));
+                    MENU_Product.Enabled ? ShellAccent : AppIconColor.Disabled));
                 SetImage(MENU_Login, AppIcons.Get(AppIcon.Login, UiTheme.Dpi(24),
                     MENU_Login.Enabled ? AppIconColor.OnDarkBar : AppIconColor.DisabledOnDark));
             }
             catch { }
         }
 
+        /// <summary>仅在图标实例变化时更新图片。</summary>
         private static void SetImage(PictureBox b, Image img)
         {
             if (b != null && !ReferenceEquals(b.Image, img)) b.Image = img;
@@ -478,6 +503,7 @@ namespace AlphaRap
             catch { }
         }
 
+        /// <summary>判断按钮是否对应当前页面。</summary>
         private bool IsSelectedNav(PictureBox b)
         {
             int i = (int)MENU_SelectPage;
@@ -495,7 +521,7 @@ namespace AlphaRap
             public Color IconColor = AppIconColor.Nav;
             public Color AccentColor = AppIconColor.Nav;
             public Color TextColor = UiTheme.NavText;
-            public Font Font = UiTheme.NavLabel;
+            public Font Font;
             /// <summary>禁用时画一个小锁角标：把"没有权限"从颜色通道挪到形状通道。</summary>
             public UiTheme.LockBadgeMode LockBadge = UiTheme.LockBadgeMode.None;
         }
@@ -512,6 +538,7 @@ namespace AlphaRap
             if (!_navPaint.TryGetValue(b, out st))
             {
                 st = new NavPaintState();
+                st.Font = isNav ? UiKit.Regular(10f) : UiKit.Bold(9f);
                 _navPaint[b] = st;
                 b.Image = null;                        // 关键：不再用烤好的合成位图
                 b.Paint += NavButton_Paint;
@@ -519,35 +546,64 @@ namespace AlphaRap
             st.Icon = icon;
             st.IconSize = iconSize;
             st.IsNav = isNav;
-            st.Font = isNav ? UiTheme.NavLabel : UiTheme.ToolLabel;
             return st;
         }
 
-        private void NavButton_Paint(object sender, PaintEventArgs e)
+        /// <summary>释放主框架缓存的按钮字体和悬停提示。</summary>
+        private void DisposeFrameResources()
         {
-            PictureBox b = sender as PictureBox;
-            NavPaintState st;
-            if (b == null || !_navPaint.TryGetValue(b, out st)) return;
-            try
-            {
-                // 按钮底色不是不透明时（悬停/未选中是 Transparent）不铺底，直接画在身后的渐变/白底上
-                Color back = (b.BackColor.A == 255) ? b.BackColor : Color.Transparent;
-                Image ic = AppIcons.Get(st.Icon, UiTheme.Dpi(st.IconSize), st.IconColor, st.AccentColor);
-                UiTheme.PaintIconButton(e.Graphics, b.Size, ic, ButtonText(b), st.Font, st.TextColor,
-                    st.IconSize, st.IsNav && IsSelectedNav(b), back, b.Enabled ? UiTheme.LockBadgeMode.None : st.LockBadge);
-            }
-            catch { }
+            foreach (NavPaintState state in _navPaint.Values)
+                if (state.Font != null) state.Font.Dispose();
+            _navPaint.Clear();
+            _loginTip.Dispose();
+            _statusTip.Dispose();
         }
 
+        /// <summary>横向绘制圆角按钮、图标、文字和权限角标。</summary>
+        private void NavButton_Paint(object sender, PaintEventArgs e)
+        {
+            PictureBox button = sender as PictureBox;
+            NavPaintState state;
+            if (button == null || !_navPaint.TryGetValue(button, out state)) return;
+            Graphics graphics = e.Graphics;
+            graphics.Clear(UiKit.ResolveParentBack(button));
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            int padding = UiTheme.Dpi(state.IsNav ? 14 : 12);
+            int iconSize = UiTheme.Dpi(state.IconSize);
+            Rectangle bounds = new Rectangle(0, 0, button.Width - 1, button.Height - 1);
+            using (GraphicsPath path = UiKit.RoundRect(bounds, UiTheme.Dpi(7)))
+            {
+                if (button.BackColor.A == 255)
+                    using (SolidBrush fill = new SolidBrush(button.BackColor)) graphics.FillPath(fill, path);
+                if (!state.IsNav)
+                    using (Pen border = new Pen(button == MENU_Run || button == MENU_Stop ? button.BackColor : Color.FromArgb(211, 221, 231))) graphics.DrawPath(border, path);
+            }
+            Image icon = AppIcons.Get(state.Icon, iconSize, state.IconColor, state.AccentColor);
+            graphics.DrawImage(icon, new Rectangle(padding, (button.Height - iconSize) / 2, iconSize, iconSize));
+            int textLeft = padding + iconSize + UiTheme.Dpi(state.IsNav ? 14 : 7);
+            TextRenderer.DrawText(graphics, ButtonText(button), state.Font,
+                new Rectangle(textLeft, 0, Math.Max(1, button.Width - textLeft - UiTheme.Dpi(8)), button.Height),
+                state.TextColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+            if (state.IsNav && IsSelectedNav(button))
+                using (SolidBrush accent = new SolidBrush(ShellAccent)) graphics.FillRectangle(accent, 0, UiTheme.Dpi(9), UiTheme.Dpi(3), button.Height - UiTheme.Dpi(18));
+            if (!button.Enabled)
+            {
+                Image locked = AppIcons.Get(AppIcon.Lock, UiTheme.Dpi(9), state.TextColor);
+                graphics.DrawImage(locked, button.Width - UiTheme.Dpi(12), UiTheme.Dpi(3), UiTheme.Dpi(9), UiTheme.Dpi(9));
+            }
+        }
+
+        /// <summary>按页面选择及权限更新导航按钮配色。</summary>
         private void StyleNavButton(PictureBox b, AppIcon icon)
         {
             if (b == null) return;
-            bool sel = IsSelectedNav(b);
-            NavPaintState st = AttachNavPaint(b, icon, NavIconSize, true);
-            st.IconColor = !b.Enabled ? AppIconColor.Disabled : sel ? UiTheme.NavTextSelected : AppIconColor.Nav;
-            st.AccentColor = st.IconColor;
-            st.TextColor = !b.Enabled ? UiKit.DisabledText : sel ? UiTheme.NavTextSelected : UiTheme.NavText;
-            st.LockBadge = NavLockBadge;
+            bool selected = IsSelectedNav(b);
+            NavPaintState state = AttachNavPaint(b, icon, NavIconSize, true);
+            state.IconColor = !b.Enabled ? Color.FromArgb(97, 117, 140) : selected ? Color.FromArgb(66, 190, 248) : ShellMuted;
+            state.AccentColor = state.IconColor;
+            state.TextColor = state.IconColor;
+            state.LockBadge = NavLockBadge;
+            b.BackColor = selected ? ShellSelected : Color.Transparent;
             b.Invalidate();
         }
 
@@ -559,30 +615,40 @@ namespace AlphaRap
         {
             try
             {
-                StyleToolbarButton(MENU_Reset, AppIcon.Reset, AppIconColor.Reset, AppIconColor.Reset);
-                StyleToolbarButton(MENU_Run, AppIcon.Run, AppIconColor.Run, AppIconColor.Run);
-                StyleToolbarButton(MENU_Pause, AppIcon.Pause, AppIconColor.Pause, AppIconColor.Pause);
-                StyleToolbarButton(MENU_Stop, AppIcon.Stop, AppIconColor.Stop, AppIconColor.Stop);
-                StyleToolbarButton(AlarmReset, AppIcon.AlarmReset, AppIconColor.Nav, AppIconColor.Danger);
-                StyleToolbarButton(MENU_Lock, AppIcon.Lock, AppIconColor.Nav, AppIconColor.Nav);
-                StyleToolbarButton(MENU_System, AppIcon.System, AppIconColor.Nav, AppIconColor.Nav);
-                StyleToolbarButton(MENU_Exit, AppIcon.Exit, AppIconColor.Danger, AppIconColor.Danger);
+                StyleToolbarButton(MENU_Reset, AppIcon.Reset);
+                StyleToolbarButton(MENU_Run, AppIcon.Run);
+                StyleToolbarButton(MENU_Pause, AppIcon.Pause);
+                StyleToolbarButton(MENU_Stop, AppIcon.Stop);
+                StyleToolbarButton(AlarmReset, AppIcon.AlarmReset);
+                StyleToolbarButton(MENU_Lock, AppIcon.Lock);
+                StyleToolbarButton(MENU_System, AppIcon.System);
+                StyleToolbarButton(MENU_Exit, AppIcon.Exit);
+                panel_PictureShowRight.Width = MENU_Exit.Width + MENU_System.Width + MENU_Lock.Width + UiTheme.Dpi(40);
             }
             catch { }
         }
 
-        private void StyleToolbarButton(PictureBox btn, AppIcon icon, Color iconColor, Color accentColor)
+        /// <summary>按动作设置按钮配色，并为当前语言保留完整文字宽度。</summary>
+        private void StyleToolbarButton(PictureBox btn, AppIcon icon)
         {
             if (btn == null) return;
-            bool on = btn.Enabled;
-            Color back = (on && btn == _hoverToolbarButton) ? ToolbarHover : Color.Transparent;
-            if (btn.BackColor != back) btn.BackColor = back;
-
-            NavPaintState st = AttachNavPaint(btn, icon, ToolIconSize, false);
-            st.IconColor = on ? iconColor : AppIconColor.Disabled;
-            st.AccentColor = on ? accentColor : AppIconColor.Disabled;
-            st.TextColor = !on ? UiKit.DisabledText : (iconColor == AppIconColor.Nav ? UiKit.TextPrimary : iconColor);
-            st.LockBadge = NavLockBadge;
+            bool enabled = btn.Enabled;
+            bool primary = btn == MENU_Run || btn == MENU_Stop;
+            Color back = btn == MENU_Run ? Color.FromArgb(0, 143, 211) : btn == MENU_Stop ? Color.FromArgb(232, 64, 76) : Color.White;
+            if (enabled && btn == _hoverToolbarButton) back = primary ? ControlPaint.Light(back, 0.08f) : ToolbarHover;
+            btn.BackColor = back;
+            NavPaintState state = AttachNavPaint(btn, icon, ToolIconSize, false);
+            state.IconColor = primary ? Color.White : ShellInk;
+            state.AccentColor = state.IconColor;
+            state.TextColor = primary ? Color.White : enabled ? ShellInk : Color.FromArgb(112, 129, 149);
+            state.LockBadge = NavLockBadge;
+            int textWidth = TextRenderer.MeasureText(ButtonText(btn), state.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+            int width = Math.Max(UiTheme.Dpi(84), textWidth + UiTheme.Dpi(16 + 7 + 24));
+            if (btn.Width != width)
+            {
+                btn.Width = width;
+                ApplyRoundRegion(new[] { btn }, UiTheme.Dpi(12));
+            }
             btn.Invalidate();
         }
 
@@ -603,6 +669,7 @@ namespace AlphaRap
             }
         }
 
+        /// <summary>高亮鼠标当前指向的操作按钮。</summary>
         private void ToolbarButton_MouseEnter(object sender, EventArgs e)
         {
             PictureBox btn = sender as PictureBox;
@@ -611,6 +678,7 @@ namespace AlphaRap
             ApplyToolbarButtonStyles();
         }
 
+        /// <summary>清除操作按钮的悬停状态。</summary>
         private void ToolbarButton_MouseLeave(object sender, EventArgs e)
         {
             PictureBox btn = sender as PictureBox;
@@ -626,18 +694,8 @@ namespace AlphaRap
         public void RefreshMenuBackcolor()
         {
             if (MENU_Picture == null) return;
-            for (int i = 0; i < MENU_Picture.Length; i++)
-            {
-                PictureBox btn = MENU_Picture[i];
-                if (btn == null) continue;
-                if (Array.IndexOf(ToolbarButtons(), btn) >= 0) continue;
-
-                bool sel = i == (int)MENU_SelectPage;
-                if (btn == MENU_Product || btn == MENU_Login)
-                    btn.BackColor = sel ? UiKit.BrandDark : Color.Transparent;
-                else
-                    btn.BackColor = sel ? UiTheme.Selected : Color.Transparent;
-            }
+            MENU_Product.BackColor = Color.Transparent;
+            MENU_Login.BackColor = Color.Transparent;
             RefreshButtonIcons();
         }
 
