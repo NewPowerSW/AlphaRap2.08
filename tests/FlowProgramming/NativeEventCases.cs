@@ -130,6 +130,7 @@ internal static partial class Cases
         Test("native IDLE polling shares one deadline and undeclared exits report one alarm", NativeEventFailures);
         Test("native simulation uses the declared preview and rejects undeclared hardware execution", NativeEventSimulation);
         Test("actual flow page selection refreshes native tools and native editor exposes targets without duplicate conditions", NativePageAndEditor);
+        Test("native double clicks leave code nodes unchanged while dragging and explicit properties remain available", NativeDoubleClickPolicy);
     }
 
     /// <summary>Create and release an independent current-form editor through the real framework attachment path.</summary>
@@ -502,6 +503,69 @@ internal static partial class Cases
             runtime.Start(owner.Program, physical.Id, Context(new FlowResultHub())); Wait(runtime.Completion);
             Assert(runtime.Error != null && page.Calls == 0, "A native hardware callback executed without a declared simulator.");
         });
+    }
+
+    /// <summary>Exercise the actual SDK double-click events without opening the code node's configuration dialog.</summary>
+    private static void NativeDoubleClickPolicy()
+    {
+        WithNativeEvents((page, owner, actions) =>
+        {
+            FlowStep native = NativeNode(page, owner, actions, "Start_FlowChartRun");
+            FlowStep action = owner.AddNode("", "value", page.Canvas, new Point(230, 80));
+            FlowStep condition = owner.AddNode("None", page.Canvas, new Point(430, 80));
+            Flow_Chart nativeControl = page.Canvas.Controls.OfType<Flow_Chart>().Single(node => node.Name == native.ControlName);
+            page.ClientSize = new Size(850, 350); page.Show(); owner.SetEditing(true); Application.DoEvents();
+            string before = ActionNodeXml(native);
+            foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+            {
+                SwitchLanguage(language);
+                Assert(NativeEditorCount(() => NativeDoubleClick(nativeControl)) == 0 && NativeEditorCount(() => NativeDoubleClick(page.BoundNode)) == 0,
+                    "A new or imported native code node opened its configuration on double-click.");
+            }
+            foreach (FlowStep editable in new[] { action, condition })
+            {
+                Flow_Chart control = page.Canvas.Controls.OfType<Flow_Chart>().Single(node => node.Name == editable.ControlName);
+                Assert(NativeEditorCount(() => NativeDoubleClick(control)) == 1, "A function or condition node lost its double-click editor.");
+            }
+            Assert(NativeEditorCount(() => owner.EditNode(native.Id)) == 1 && ActionNodeXml(native) == before,
+                "Explicit code-node properties were blocked or cancelling them changed the node.");
+            Point location = nativeControl.Location;
+            Control surface = nativeControl.Controls.Find("button1", true).Single();
+            RaiseMouse(surface, "OnMouseDown", new MouseEventArgs(MouseButtons.Left, 1, 8, 8, 0));
+            RaiseMouse(nativeControl, "OnMouseMove", new MouseEventArgs(MouseButtons.Left, 0, 90, 60, 0));
+            RaiseMouse(nativeControl, "OnMouseUp", new MouseEventArgs(MouseButtons.Left, 1, 8, 8, 0));
+            owner.ToggleBreakpoint(native.Id);
+            Assert(nativeControl.Location != location && native.Breakpoint && nativeControl.ProgramBreakpoint && page.Calls == 0 && page.BoundCalls == 0,
+                "Blocking code-node double-click disabled dragging or breakpoints, or executed native business code.");
+        });
+        SwitchLanguage(LanguageType.Chinese);
+    }
+
+    /// <summary>Send the same two left-button releases recognized by the SDK's inner-button double-click handler.</summary>
+    private static void NativeDoubleClick(Flow_Chart node)
+    {
+        Control surface = node.Controls.Find("button1", true).Single();
+        for (int click = 0; click < 2; click++)
+        {
+            RaiseMouse(surface, "OnMouseDown", new MouseEventArgs(MouseButtons.Left, 1, 8, 8, 0));
+            RaiseMouse(node, "OnMouseUp", new MouseEventArgs(MouseButtons.Left, 1, 8, 8, 0));
+        }
+    }
+
+    /// <summary>Observe and cancel real modal editors so an unexpected opening fails without blocking the regression run.</summary>
+    private static int NativeEditorCount(Action invoke)
+    {
+        int opened = 0;
+        using (System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 15 })
+        {
+            timer.Tick += (sender, args) => {
+                FlowNodeForm dialog = Application.OpenForms.OfType<FlowNodeForm>().FirstOrDefault();
+                if (dialog == null) return;
+                opened++; dialog.DialogResult = DialogResult.Cancel; dialog.Close();
+            };
+            timer.Start(); invoke(); NativePump(40);
+        }
+        return opened;
     }
 
     /// <summary>Exercise page-selection events and the real node editor without reparenting existing machine forms.</summary>

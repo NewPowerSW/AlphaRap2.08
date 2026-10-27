@@ -709,11 +709,14 @@ namespace AlphaRap.FlowProgramming
             }
         }
 
-        /// <summary>双击任意 Flow_BaseForm 内的节点使用同一配置窗口。</summary>
+        /// <summary>双击仅配置功能和条件节点，代码节点通过右键属性维护流程设置。</summary>
         private void Configure(object sender, EventArgs args)
         {
             if (!editing) return;
-            try { EditNode(IdOf((Flow_Chart)sender)); }
+            string id = IdOf((Flow_Chart)sender);
+            FlowStep step = Program.Steps.SingleOrDefault(item => item.Id == id);
+            if (step == null || step.UsesFlowResult) return;
+            try { EditNode(id); }
             catch (Exception error) { MessageBox.Show(string.Format(FlowText.T("error"), error.Message), FlowText.T("title")); }
         }
 
