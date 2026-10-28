@@ -7,15 +7,18 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 - 源码基线：[NPSDK 91f6fb6deeee70f510d5d56bbac87fe34a445552](https://github.com/JeffreyWub/NPSDK/commit/91f6fb6deeee70f510d5d56bbac87fe34a445552)。
 - 来源元数据扩展：[NPSDK c9f57200e619c7cb4dd9a7e0975160e02564373a](https://github.com/JeffreyWub/NPSDK/commit/c9f57200e619c7cb4dd9a7e0975160e02564373a)，分支 `codex/source-control-sync-20261028`，已推送并核对远端提交。
 - 实际运行状态桥接：[NPSDK 1d7535de524b1c8f51d6907ed6591394fbde8d27](https://github.com/JeffreyWub/NPSDK/commit/1d7535de524b1c8f51d6907ed6591394fbde8d27)，分支 `codex/flow-runtime-state-20261028`。
+- 轴手动会话停止：[NPSDK c124b9d4549ea3f6ad87ef0c254d37dbe0fd4373](https://github.com/JeffreyWub/NPSDK/commit/c124b9d4549ea3f6ad87ef0c254d37dbe0fd4373)，分支 `codex/flow-runtime-state-20261028`。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
-- 大小：538624 字节。
-- SHA256：`675388c013625ee93e4573cc1f471b943e208ab758edd5a5823a7957e464d05d`。
+- 大小：539648 字节。
+- SHA256：`33f4663338003d5b4e1ef9aeb89a472855344276a88232141801bc370eb9c1fa`。
 
 该版本从独立、干净的源码工作树构建，不包含原 SDK 开发目录中的未提交改动。
 
 可选 `FlowStep.ControlOrigin`、`SourceLinks` 记录节点来源与源码四出口基准。宿主在加载时清理没有剩余引用的已删源码节点，合并源码连接变化，并保留拖拽节点及明确的混合流程连接。原 V1/V2/V3 文件继续兼容，配置仍统一由主 Save 保存。使用见 [源码节点同步](../docs/NativeFlowEvents.md#源码节点删除与连接同步)。
 
 可选 `IFlowProgramStatus` 让 SDK、页面与主保存统一读取实际任务状态。完成的托管流程忽略旧运行标记，真实未返回的调用和旧工作器仍保持忙碌；旧控制器接口兼容。宿主待机模式下仍忙碌时显示三语“停止中”，保存提示包含忙碌工位。原生事件/状态 18/18、核心流程 13/13、IO 绑定回归通过；宿主流程 136/136、统一保存 17 项及源码生成回归通过。
+
+`NP_Motor.Stop()` 同步取消绑定轴组合控件的手动回零/点动会话，与回零指令发送共用轴锁；停止后定时刷新不会再次启动回零。驱动的真实忙碌反馈继续保留。宿主硬件检查列出尚未停稳的轴名，编辑模式使用独立提示，不再统一误报“流程正在运行或停止”。轴专项 5/5、宿主流程 138/138、统一保存 17 项、主界面 11/11 及原核心/IO 回归通过；旧 DLL 可复现停止后回零重启，未访问真实硬件。
 
 ## 继承工具接入
 

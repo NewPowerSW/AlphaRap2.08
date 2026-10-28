@@ -319,7 +319,13 @@ namespace AlphaRap.FlowProgramming
             try { if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) MiddleLayer.HardF.Resources.ValidateStart(!initialize && !SysPara.Simulation); }
             catch (Exception error) { MessageBox.Show(error.Message,Configuration.HardwareText.T("title")); return false; }
             if (!installed) return true;
-            if (AnyEditing || (AnyRunning && (initialize || SysPara.SystemMode != RunMode.PAUSE)))
+            if (AnyEditing)
+            {
+                string names = string.Join(", ", modules.Values.Where(module => module.IsEditing).Select(module => module.Form.Name));
+                MessageBox.Show(string.Format(FlowText.T("editingBlocksStart"), names), FlowText.T("title"));
+                return false;
+            }
+            if (AnyRunning && (initialize || SysPara.SystemMode != RunMode.PAUSE))
             {
                 if (initialize) StopAll();
                 MessageBox.Show(FlowText.T("busy"), FlowText.T("title"));
