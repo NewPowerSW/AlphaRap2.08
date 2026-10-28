@@ -5,7 +5,7 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 ## 当前发布来源
 
 - 源码基线：[NPSDK 91f6fb6deeee70f510d5d56bbac87fe34a445552](https://github.com/JeffreyWub/NPSDK/commit/91f6fb6deeee70f510d5d56bbac87fe34a445552)。
-- 来源元数据扩展：本地提交 `c9f57200e619c7cb4dd9a7e0975160e02564373a`，分支 `codex/source-control-sync-20261028`；核心库远端推送等待明确授权。
+- 来源元数据扩展：[NPSDK c9f57200e619c7cb4dd9a7e0975160e02564373a](https://github.com/JeffreyWub/NPSDK/commit/c9f57200e619c7cb4dd9a7e0975160e02564373a)，分支 `codex/source-control-sync-20261028`，已推送并核对远端提交。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
 - 大小：538112 字节。
 - SHA256：`a433924ff80a9a1f7c282bcaae47a556f2ebcf10e1b4405966c490c88573b09f`。
