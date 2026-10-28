@@ -12,6 +12,7 @@ namespace AlphaRap
         /// <summary>确认运行中重新初始化的请求，按当前状态只发送一次初始化指令。</summary>
         public static void Initial()
         {
+            if (ContinueInitializationIfActive()) return;
             if (!FlowProgramming.FlowPrograms.CanStartMachine(true)) return;
             if (FlowProgramming.FlowPrograms.HasPrograms) FlowProgramming.FlowPrograms.BeginBatch();
             if (Alarm.IsError) { ShowResetAlarmWarning(); return; }
@@ -35,6 +36,15 @@ namespace AlphaRap
                 Thread.Sleep(500);
             }
             Flow_Module.Module_InitialRun();
+        }
+
+        /// <summary>初始化暂停时沿用初始化按钮继续同一会话，报警未清除或旧调用未退出时保留等待。</summary>
+        private static bool ContinueInitializationIfActive()
+        {
+            if (!FlowProgramming.FlowPrograms.HasInitializationSession) return false;
+            try { FlowProgramming.FlowPrograms.ContinueInitialization(); }
+            catch (System.Exception error) { MessageBox.Show(error.Message, FlowProgramming.FlowText.T("title")); }
+            return true;
         }
 
         /// <summary>触发自动流程；暂停后恢复同一流程会话。</summary>

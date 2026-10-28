@@ -1201,6 +1201,12 @@ int nheightEllipse
                 _statusTip.SetToolTip(MachineStatus, "");
             }
 
+            if (FlowProgramming.FlowPrograms.CanContinueInitialization)
+            {
+                SetStatusLook(StatusPauseFill, StatusDarkInk,
+                    MiddleLayer.LangMsg("MainForm", "msg_StatusInitialPaused", "初始化待继续", "INIT PAUSED", "INICIO EN PAUSA"), AppIcon.Pause);
+                return;
+            }
             if (SysPara.SystemMode == RunMode.IDLE && FlowProgramming.FlowPrograms.AnyRunning)
             {
                 SetStatusLook(StatusPauseFill, StatusDarkInk,
@@ -1336,7 +1342,8 @@ int nheightEllipse
             MENU_Pause.Enabled = SysPara.SystemMode == RunMode.RUN;
             MENU_LifeSpan.Enabled = (SysPara.UserPermission == PermissionType.Administrator
                                      || SysPara.UserPermission == PermissionType.Maintenance);
-            MENU_Reset.Enabled = SysPara.SystemMode == RunMode.IDLE;
+            MENU_Reset.Enabled = SysPara.SystemMode == RunMode.IDLE
+                || (!NPSDK.Alarm.IsError && FlowProgramming.FlowPrograms.CanContinueInitialization);
 
             // 只有可用状态真的变了才重画（图片静态复用，避免每秒 10 次的无谓重建）
             RefreshButtonIconsIfChanged();

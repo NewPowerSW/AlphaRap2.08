@@ -12,6 +12,7 @@ namespace AlphaRap
     {
         private bool filling;
         private bool permissionNotice;
+        private string runtimeStatus;
         private FlowModuleEditor contextModule;
         private string contextNodeId;
         private FlowModuleEditor contextPage;
@@ -324,8 +325,10 @@ namespace AlphaRap
             debugPanel.Visible = canEdit && (FlowPrograms.DebugEnabled || hasModule && module.Runtime.IsDebugging);
             debugPanel.Bind(module);
             if (hasModule && module.Runtime.IsDebugPaused) pause.Enabled = false;
+            if (hasModule && module.IsInitializing && module.Runtime.IsPaused) pause.Enabled = false;
             if (!hasModule) return;
-            if (module.Runtime.Error != null) status.Text = string.Format(FlowText.T("error"), module.Runtime.Error);
+            if (module.Runtime.Error != null) { runtimeStatus = string.Format(FlowText.T("error"), module.Runtime.Error); status.Text = runtimeStatus; }
+            else if (runtimeStatus != null) { if (status.Text == runtimeStatus) status.Text = ""; runtimeStatus = null; }
         }
         /// <summary>Translate labels without changing names or selected data references.</summary>
         private void ApplyLanguage(object sender, EventArgs args)

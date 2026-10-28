@@ -9,9 +9,10 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 - 实际运行状态桥接：[NPSDK 1d7535de524b1c8f51d6907ed6591394fbde8d27](https://github.com/JeffreyWub/NPSDK/commit/1d7535de524b1c8f51d6907ed6591394fbde8d27)，分支 `codex/flow-runtime-state-20261028`。
 - 轴手动会话停止：[NPSDK c124b9d4549ea3f6ad87ef0c254d37dbe0fd4373](https://github.com/JeffreyWub/NPSDK/commit/c124b9d4549ea3f6ad87ef0c254d37dbe0fd4373)，分支 `codex/flow-runtime-state-20261028`。
 - 雷赛初始化返回值与轴状态校验：[NPSDK 3b6dbedca23521b894802c0e4c6ebdc30589752a](https://github.com/JeffreyWub/NPSDK/commit/3b6dbedca23521b894802c0e4c6ebdc30589752a)，分支 `codex/flow-runtime-state-20261028`。
+- 初始化故障节点恢复：[NPSDK 69783aa4ae3fe267ab9c4b4afeb64727c6864884](https://github.com/JeffreyWub/NPSDK/commit/69783aa4ae3fe267ab9c4b4afeb64727c6864884)，分支 `codex/flow-runtime-state-20261028`。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
-- 大小：539648 字节。
-- SHA256：`70070147b58e9a2bf39196432e389c1174156434c3fa1bce85102050919d0eda`。
+- 大小：542720 字节。
+- SHA256：`35f2fe7f7d010a66a475a918b407934d65ede68b78a2b77276b508378ae08566`。
 
 该版本从独立、干净的源码工作树构建，不包含原 SDK 开发目录中的未提交改动。
 
@@ -24,6 +25,8 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 雷赛 `dmc_board_init()` 返回 0 表示没有找到板卡或板卡异常，1–8 才是成功找到的板卡数；依据 [官方手册 9.1](https://kzcp.leisai.com/product%20literature/Data%20download/PC%20Base/DMC5000E%26DMC3000E/EtherCAT20220224.pdf)。失败时清除连接标记，轴数或参数配置失败不能发布就绪。未初始化轴不查询运动反馈，异常反馈也不能当作静止而授权定位或回零。显式调用 SDK 驱动初始化只连接和配置对应资源，不自动发出运动。生产驱动源码与记录型原生替身回归 6/6，旧源码可复现无板卡假成功；初始化未发出任何运动命令。宿主 138/138、主保存 17 项、轴组 5/5、原生流程 18/18、核心 13/13 和 IO 绑定回归通过。
 
 主界面【初始化／启动】只触发对应的已保存流程，不遍历组合硬件，不自动连接，也不检测就绪或分析资源依赖。连接和硬件状态处理由流程节点代码负责；资源配置仍由主 Save 保存。原全量启动检查与自动初始化方法已移除。真实主入口在无关硬件未就绪的离线场景完成初始化及自动流程，未读轴忙状态；宿主流程 139/139、主保存 17 项及源码生成回归通过。
+
+正式初始化启用 `FlowProgramRuntime.PauseOnFailure`：异常或超时保留当前节点，底层调用退出后才允许重试；普通报警暂停不消耗初始化期限，也不重发已完成动作。处理原因并清除报警后，再点原【初始化】继续，保留已完成工位、上游结果和参数快照。【停止】结束会话，下次初始化从入口开始；主【启动】仍只用于自动生产，原生产失败语义不变。恢复位置不持久化，不增加配置项。SDK 原生事件 23/23、核心 13/13；宿主流程 142/142、主保存 17 项、主界面 11/11。实际初始化按钮覆盖普通报警、异常、超时、完成工位不重跑和三语状态切换，主保存与配方保护沿用现有机制。验证均在离线环境完成，未操作现场硬件。
 
 ## 继承工具接入
 

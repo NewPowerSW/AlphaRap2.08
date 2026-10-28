@@ -165,6 +165,8 @@ namespace AlphaRap.FlowProgramming
             { "end", new[] { "结束", "End", "Fin" } },
             { "hint", new[] { "编辑模式下拖动、双击节点。配置统一使用主界面【保存】；退出编辑后使用主界面初始化 / 启动，运行模式取机器 Simulation 设置。", "Drag and double-click nodes in edit mode. Use the main Save button for configuration; exit editing, then use the main Initialize / Start buttons. Execution uses the machine Simulation setting.", "Arrastre y configure los nodos en edición. Use Guardar principal para la configuración; salga de edición y use Inicializar / Iniciar. Se usa Simulation de la máquina." } },
             { "busy", new[] { "流程正在运行或停止，请等待完成。", "The flow is running or stopping. Wait for completion.", "El flujo se está ejecutando o deteniendo. Espere a que termine." } },
+            { "continueInitializationHint", new[] { "处理并清除报警后，点击主界面【初始化】继续当前节点；【停止】后再初始化将从头开始。", "Resolve and clear the alarm, then click Main Initialize to continue the current node. Stop ends the session; the next initialization starts from the beginning.", "Resuelva y borre la alarma; pulse Inicializar para continuar el nodo actual. Detener termina la sesión; la próxima inicialización empieza desde el principio." } },
+            { "clearAlarmBeforeContinue", new[] { "请先处理并清除报警，再点击【初始化】继续。", "Resolve and clear the alarm, then click Initialize to continue.", "Resuelva y borre la alarma; después pulse Inicializar para continuar." } },
             { "editingBlocksStart", new[] { "流程仍处于编辑模式：{0}\n请先使用主界面【保存】，再取消勾选所列页面的【编辑流程】，然后初始化或启动。", "Flow editing is enabled: {0}\nUse Main Save, turn off Edit flow on the listed pages, then Initialize or Start.", "La edición de flujo está activada: {0}\nUse Guardar principal, desactive Editar flujo en las páginas indicadas y después Inicializar o Iniciar." } },
             { "permission", new[] { "当前为只读查看，编辑流程需要维护员或管理员权限，且需启用流程页面权限。", "Read-only view. Editing requires Maintenance or Administrator access and flow page permission.", "Vista de solo lectura. La edición requiere permisos de mantenimiento o administrador y acceso a la página de flujo." } },
             { "error", new[] { "操作失败：{0}", "Operation failed: {0}", "Error en la operación: {0}" } },
@@ -189,6 +191,7 @@ namespace AlphaRap.FlowProgramming
             { "Failed", new[] { "故障", "Failed", "Error" } },
             { "Timeout", new[] { "超时", "Timed out", "Tiempo agotado" } },
             { "Cancelled", new[] { "已取消", "Cancelled", "Cancelado" } },
+            { "RecoveryPaused", new[] { "初始化报警暂停", "Initialization paused", "Inicialización pausada" } },
         };
 
         /// <summary>汇集复用编辑控件的固定文案，统一使用原框架语言入口。</summary>

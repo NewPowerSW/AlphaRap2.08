@@ -64,6 +64,7 @@ namespace AlphaRap.FlowProgramming
         private static string StateTitle(string state)
         {
             if (state == "Paused") return FlowText.T("DebugPaused");
+            if (state == "RecoveryPaused") return FlowText.T("RecoveryPaused");
             return FlowText.T("debug" + state);
         }
 

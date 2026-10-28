@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,21 @@ namespace AlphaRap.FlowProgramming
         public static bool AnyEditing { get { return modules.Values.Any(module => module.IsEditing); } }
         public static bool HasPrograms { get { return modules.Count > 0; } }
         public static bool IsInitialized { get { return HasPrograms && modules.Values.All(module => module.IsEnabled && module.Form.InitialStatus); } }
+        public static bool HasInitializationSession { get { return modules.Values.Any(module => module.IsInitializing); } }
+        public static bool CanContinueInitialization
+        {
+            get
+            {
+                bool ready = false;
+                foreach (FlowModuleEditor module in modules.Values)
+                {
+                    if (!module.IsInitializing) continue;
+                    if (module.Runtime.IsPaused && !module.Runtime.CanResume) return false;
+                    ready |= module.Runtime.CanResume;
+                }
+                return ready;
+            }
+        }
         public static bool CanEdit { get { return SysPara.UserPermission == PermissionType.Administrator || SysPara.UserPermission == PermissionType.Maintenance; } }
         public static IEnumerable<FlowModuleEditor> Modules { get { return modules.Values.ToArray(); } }
 
@@ -178,6 +194,19 @@ namespace AlphaRap.FlowProgramming
 
         /// <summary>取消全部工程会话，底层结束前保留占用和运行状态。</summary>
         public static void StopAll() { foreach (FlowModuleEditor module in modules.Values) module.Runtime.Stop(); }
+
+        /// <summary>恢复当前初始化会话及故障节点，保留已完成工位、运行结果和参数快照。</summary>
+        public static void ContinueInitialization()
+        {
+            if (DebugEnabled && !CanEdit) throw new InvalidOperationException(FlowText.T("permission"));
+            if (Alarm.IsError) throw new InvalidOperationException(FlowText.T("clearAlarmBeforeContinue"));
+            if (!CanContinueInitialization) throw new InvalidOperationException(FlowText.T("busy"));
+            foreach (FlowModuleEditor module in modules.Values)
+                if (module.IsInitializing || (!module.Runtime.IsRunning && module.Form.InitialStatus)) module.Handle(FlowProgramCommand.Resume);
+            Flow_Module.AllPause = false;
+            SysPara.SystemRun = false;
+            SysPara.SystemMode = RunMode.INITIAL;
+        }
 
         /// <summary>在运行时创建普通基类流程模块，工程师无需编写新的 Form 类。</summary>
         public static Flow_BaseForm AddModule(string name)
@@ -384,9 +413,11 @@ namespace AlphaRap.FlowProgramming
         private readonly HashSet<string> originalControls;
         private readonly FlowControlSource controlSource;
         private readonly Dictionary<string, Flow_Chart> removedNodes = new Dictionary<string, Flow_Chart>();
+        private readonly ConcurrentDictionary<string, string> nodeStates = new ConcurrentDictionary<string, string>();
         public readonly Flow_BaseForm Form;
         public readonly FlowProgramRuntime Runtime = new FlowProgramRuntime();
         public bool IsRunning { get { return Runtime.IsRunning; } }
+        public bool IsInitializing { get { return isProduction && isInitializing && Runtime.IsRunning; } }
         public FlowProgram Program { get; private set; }
         private FlowProgram published;
         internal FlowProgram PublishedProgram { get { return published; } }
@@ -444,6 +475,7 @@ namespace AlphaRap.FlowProgramming
             foreach (ScrollableControl canvas in program.Steps.Select(step => FindParent(step.ParentPath)).OfType<ScrollableControl>().Distinct()) canvas.AutoScrollPosition = Point.Empty;
             foreach (Flow_Chart node in nodes.Values) node.ConfigurationRequested -= Configure;
             nodes.Clear();
+            nodeStates.Clear();
             Program = program;
             foreach (KeyValuePair<string, Flow_Chart> removed in removedNodes.ToArray())
             {
@@ -607,6 +639,8 @@ namespace AlphaRap.FlowProgramming
                 else description = string.Format(FlowNativeText.T("actionBinding"), step.Target ?? "", step.Action ?? "");
                 node.AccessibleDescription = description;
                 BindHint(node, description);
+                string state;
+                if (nodeStates.TryGetValue(step.Id, out state)) DisplayState(step, state);
             }
         }
 
@@ -739,6 +773,8 @@ namespace AlphaRap.FlowProgramming
             Program.RemovedControls.Add(node.Name);
             RemoveControl(node);
             nodes.Remove(id);
+            string previousState;
+            nodeStates.TryRemove(id, out previousState);
             Program.Steps.RemoveAll(step => step.Id == id);
             foreach (FlowStep step in Program.Steps)
             {
@@ -840,7 +876,10 @@ namespace AlphaRap.FlowProgramming
         {
             if (command == FlowProgramCommand.Stop) { Runtime.Stop(); return true; }
             if (command == FlowProgramCommand.Pause) { Runtime.Pause(); paused = true; return true; }
-            if (command == FlowProgramCommand.Resume || (command == FlowProgramCommand.Start && paused && Runtime.IsRunning)) { Runtime.Resume(); paused = false; return true; }
+            if (command == FlowProgramCommand.Resume || (command == FlowProgramCommand.Start && paused && Runtime.IsRunning))
+            {
+                Runtime.Resume(); paused = Runtime.IsPaused; Form.PauseStatus = paused; return true;
+            }
             if (published.Mode == "Disabled") { Form.InitialStatus = true; Form.RunningStatus = false; return true; }
             Action start = () => StartCore(command == FlowProgramCommand.Initialize ? published.InitialEntry : published.AutoEntry, SysPara.Simulation, command == FlowProgramCommand.Initialize, true, FlowPrograms.DebugEnabled);
             if (MiddleLayer.MainF != null && MiddleLayer.MainF.InvokeRequired) MiddleLayer.MainF.Invoke(start); else start();
@@ -870,6 +909,7 @@ namespace AlphaRap.FlowProgramming
             isProduction = production;
             Runtime.ExecuteAction = actions.Execute;
             Runtime.ExecuteStep = actions.ExecuteOutcome;
+            Runtime.PauseOnFailure = production && initializing;
             DebugSnapshot = null;
             PrepareDebugPlan(plan, entry, actions, debug);
             Form.RunningStatus = true;
@@ -905,12 +945,18 @@ namespace AlphaRap.FlowProgramming
         {
             Flow_Chart node = Node(step.Id);
             if (node == null) return;
-            Color color = state == "DebugPaused" ? Color.LightSalmon : state == "Running" ? Color.LightGreen : state == "Completed" ? Color.White : state == "Waiting" ? Color.LightYellow : Color.MistyRose;
+            nodeStates[step.Id] = state;
+            Color color = state == "DebugPaused" || state == "RecoveryPaused" ? Color.LightSalmon : state == "Running" ? Color.LightGreen : state == "Completed" ? Color.White : state == "Waiting" ? Color.LightYellow : Color.MistyRose;
             node.SetProgramState(FlowText.T(state), color);
         }
 
         /// <summary>在暂停与恢复间切换同一执行会话。</summary>
-        public void TogglePause() { if (paused) Runtime.Resume(); else Runtime.Pause(); paused = !paused; }
+        public void TogglePause()
+        {
+            if (IsInitializing && Runtime.IsPaused) throw new InvalidOperationException(FlowText.T("continueInitializationHint"));
+            if (paused) Runtime.Resume(); else Runtime.Pause();
+            paused = Runtime.IsPaused;
+        }
 
         /// <summary>工程成功落盘后固定生产版本，草稿仅供工程测试。</summary>
         public void Publish() { published = FlowProgramFile.Snapshot(Program); ApplyLinks(); }

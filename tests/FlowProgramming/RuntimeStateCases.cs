@@ -98,10 +98,22 @@ internal static partial class Cases
         Test("both machine entries explain all editing pages in three languages without changing drafts or starting nodes", EditingBlocksMachineStart);
         Test("direct and main motor stops cancel manual homing while preserving physical feedback", ManualHomeStartValidation);
         Test("main Initialize and Start dispatch native workflows without touching unrelated hardware", MachineEntriesIgnoreUnrelatedHardware);
+        Test("Initialize resumes an alarmed initialization without repeating completed nodes or stations", () => VerifyInitializationRecovery("Alarm"));
+        Test("Initialize retries an exceptional initialization node and Stop discards its checkpoint", () => VerifyInitializationRecovery("Exception"));
+        Test("Initialize retries a timed-out initialization node with a fresh deadline", () => VerifyInitializationRecovery("Timeout"));
     }
 
     /// <summary>Invoke actual main commands with unrelated unready IO and an axis whose busy read must never be called.</summary>
     private static void MachineEntriesIgnoreUnrelatedHardware()
+    {
+        WithMachineEntryState(driver =>
+        {
+            using (EntryOnlyPage page = new EntryOnlyPage()) VerifyMainEntryDispatch(page, driver);
+        });
+    }
+
+    /// <summary>Isolate actual main commands from the site's hardware, saved program and alarm state.</summary>
+    private static void WithMachineEntryState(Action<RuntimeManualAxisDriver> test)
     {
         FieldInfo moduleField = typeof(FlowPrograms).GetField("modules", BindingFlags.Static | BindingFlags.NonPublic);
         FieldInfo projectField = typeof(FlowPrograms).GetField("project", BindingFlags.Static | BindingFlags.NonPublic);
@@ -116,6 +128,9 @@ internal static partial class Cases
         bool previousAlarmError = Alarm.IsError, previousAlarmWarning = Alarm.IsWarning, previousAlarmInformation = Alarm.IsInformation;
         var previousAlarms = Alarm.AlarmList.ToArray(); var appAlarms = (List<string>)host.GetField("AlarmList").GetValue(null);
         string[] previousAppAlarms = appAlarms.ToArray();
+        FieldInfo armField = typeof(Alarm).GetField("ArmList", BindingFlags.Static | BindingFlags.NonPublic);
+        var definitions = (List<Alarm.AlarmDataClass>)armField.GetValue(null); var previousDefinitions = definitions.ToArray();
+        bool previousRefresh = Alarm.DoRefresh, previousDoStop = Alarm.DoStop;
         FieldInfo loadField = typeof(HardwareResources).GetField("loadError", BindingFlags.Instance | BindingFlags.NonPublic);
         object previousLoadError = loadField.GetValue(hardware.Resources);
         RuntimeManualAxisDriver driver = new RuntimeManualAxisDriver { BusyError = new InvalidOperationException("Unexpected unrelated-axis read") };
@@ -133,7 +148,7 @@ internal static partial class Cases
                 SysPara.Simulation = false; SysPara.SystemRun = false; SysPara.SystemMode = RunMode.IDLE; FlowPrograms.DebugEnabled = false;
                 Alarm.IsError = false;
                 loadField.SetValue(hardware.Resources, new InvalidDataException("Unrelated hardware must not block flow entry"));
-                using (EntryOnlyPage page = new EntryOnlyPage()) VerifyMainEntryDispatch(page, driver);
+                test(driver);
             }
             finally
             {
@@ -148,6 +163,7 @@ internal static partial class Cases
                 SysPara.UpConveyorInitialOk = previousUpInitial; Flow_Module.AllStop = previousAllStop; Flow_Module.AllPause = previousAllPause;
                 Alarm.AlarmList.Clear(); Alarm.AlarmList.AddRange(previousAlarms);
                 Alarm.IsError = previousAlarmError; Alarm.IsWarning = previousAlarmWarning; Alarm.IsInformation = previousAlarmInformation;
+                definitions.Clear(); definitions.AddRange(previousDefinitions); Alarm.DoRefresh = previousRefresh; Alarm.DoStop = previousDoStop;
                 appAlarms.Clear(); appAlarms.AddRange(previousAppAlarms);
             }
         }
