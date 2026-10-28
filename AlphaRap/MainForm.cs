@@ -1201,6 +1201,13 @@ int nheightEllipse
                 _statusTip.SetToolTip(MachineStatus, "");
             }
 
+            if (SysPara.SystemMode == RunMode.IDLE && FlowProgramming.FlowPrograms.AnyRunning)
+            {
+                SetStatusLook(StatusPauseFill, StatusDarkInk,
+                    MiddleLayer.LangMsg("MainForm", "msg_StatusStopping", "停止中", "STOPPING", "DETENIENDO"), AppIcon.Stop);
+                return;
+            }
+
             // 无报警时按运行模式着色
             string statusText;
             if (!_statusTextMap.TryGetValue(SysPara.SystemMode, out statusText))

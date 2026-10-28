@@ -181,6 +181,7 @@ internal static partial class Cases
     private static void RegisterNativeEventCases()
     {
         RegisterSourceControlCases();
+        RegisterRuntimeStateCases();
         Test("native events discover private inherited and bound callbacks without executing business code", NativeEventDiscovery);
         Test("native event toolbox is limited to its current form and preserves identities in three languages", NativeEventToolbox);
         Test("existing single events import automatically and multicast events require one explicit callback", NativeBoundImport);

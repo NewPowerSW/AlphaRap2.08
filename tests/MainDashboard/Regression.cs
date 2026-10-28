@@ -18,6 +18,16 @@ internal static class DashboardProbe
         public override LicenseUsageMode UsageMode { get { return LicenseUsageMode.Designtime; } }
     }
 
+    private sealed class PendingController : NPSDK.IFlowProgramController, NPSDK.IFlowProgramStatus
+    {
+        internal bool Active;
+        public bool IsEnabled { get { return true; } }
+        public bool IsRunning { get { return Active; } }
+
+        /// <summary>Represent an isolated pending task without running a machine lifecycle command.</summary>
+        public bool Handle(NPSDK.FlowProgramCommand command) { return true; }
+    }
+
     /// <summary>Render the actual dashboard without showing the machine window or invoking its production Load handler.</summary>
     [STAThread]
     private static int Main(string[] args)
@@ -45,6 +55,7 @@ internal static class DashboardProbe
                 Test(currentSize.Width + "x" + currentSize.Height + " language=" + current, () => Render(currentSize, current));
             }
         Test("all embedded pages retain readable fonts and text colors", () => TypographyCases.Run(outputRoot));
+        Test("actual language switching preserves stopping status and four distinct alarm headers", PendingMachineStatus);
         Console.WriteLine("RESULT: " + passed + "/" + (passed + failed) + " passed");
         Console.WriteLine("Offline designer rendering; no machine Load, motion, IO write or camera capture was executed.");
         return failed == 0 ? 0 : 1;
@@ -153,16 +164,17 @@ internal static class DashboardProbe
             { "初始化完成", "INITIAL Completed", "cargando terminado" },
             { "运行状态", "RUNNING", "CORRER" },
             { "暂停状态", "PAUSE", "Estado suspendido" },
-            { "设备报警  ×2", "ALARM  ×2", "ALARMA  ×2" }
+            { "设备报警  ×2", "ALARM  ×2", "ALARMA  ×2" },
+            { "停止中", "STOPPING", "DETENIENDO" }
         };
-        string[] colors = { "StatusIdleFill", "StatusInitFill", "StatusInitFill", "StatusRunFill", "StatusPauseFill", "StatusAlarmFill" };
-        AppIcon[] icons = { AppIcon.Stop, AppIcon.Reset, AppIcon.Reset, AppIcon.Run, AppIcon.Pause, AppIcon.Alarm };
+        string[] colors = { "StatusIdleFill", "StatusInitFill", "StatusInitFill", "StatusRunFill", "StatusPauseFill", "StatusAlarmFill", "StatusPauseFill" };
+        AppIcon[] icons = { AppIcon.Stop, AppIcon.Reset, AppIcon.Reset, AppIcon.Run, AppIcon.Pause, AppIcon.Alarm, AppIcon.Stop };
         Label badge = Field<Label>(frame, "MachineStatus");
         Check(badge.Height >= 48 && badge.Font.SizeInPoints >= 16, "The machine state is too small to read at a glance.");
         for (int state = 0; state < colors.Length; state++)
         {
             Color fill = (Color)typeof(MainForm).GetField(colors[state], BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-            Color ink = state == 4 ? Color.FromArgb(16, 30, 46) : Color.White;
+            Color ink = state == 4 || state == 6 ? Color.FromArgb(16, 30, 46) : Color.White;
             Invoke(frame, "SetStatusLook", fill, ink, captions[state, language], icons[state]);
             Layout(Field<Control>(frame, "tableLayoutPanel2"));
             CheckChildren(Field<Control>(frame, "tableLayoutPanel2"));
@@ -179,6 +191,156 @@ internal static class DashboardProbe
         Color idle = (Color)typeof(MainForm).GetField("StatusIdleFill", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
         Invoke(frame, "SetStatusLook", idle, Color.White, captions[0, language], AppIcon.Stop);
         Layout(Field<Control>(frame, "tableLayoutPanel2"));
+    }
+
+    /// <summary>Exercise the real machine-state update using an isolated controller and copied language packs.</summary>
+    private static void PendingMachineStatus()
+    {
+        LicenseContext previousContext = LicenseManager.CurrentContext;
+        Func<string, string, string, string, string, string> previousText = UiTheme.TextProvider;
+        string previousDirectory = SysPara.LanguageDataDirectory;
+        string previousAlarmDirectory = SysPara.AlarmTableDirectory;
+        LanguageType previousLanguage = SysPara.LanguageShow;
+        RunMode previousMode = SysPara.SystemMode;
+        bool previousAlarm = NPSDK.Alarm.IsError;
+        System.Globalization.CultureInfo previousCulture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+        Type middleLayer = typeof(SysPara).Assembly.GetType("AlphaRap.MiddleLayer");
+        MethodInfo reloadLanguage = middleLayer.GetMethod("ReloadLanguageData", BindingFlags.Static | BindingFlags.NonPublic);
+        MethodInfo switchLanguage = middleLayer.GetMethod("SwitchLanguage", BindingFlags.Static | BindingFlags.Public);
+        MethodInfo registerLanguage = middleLayer.GetMethod("RegisterLanguage", BindingFlags.Static | BindingFlags.Public);
+        string languageDirectory = Path.Combine(outputRoot, "stopping-languages");
+        Directory.CreateDirectory(languageDirectory);
+        foreach (string language in new[] { "Chinese", "English", "Español" })
+            File.Copy(Path.Combine(sourceRoot, "LanguageData", language + ".xml"), Path.Combine(languageDirectory, language + ".xml"), true);
+        SeedLegacyAlarmHeaderKeys(languageDirectory);
+        MainForm frame = null;
+        NPSDK.Flow_BaseForm module = null;
+        PendingController controller = new PendingController();
+        try
+        {
+            LicenseManager.CurrentContext = new DesignerContext();
+            UiTheme.ForceDesignTimeForTest(true);
+            frame = CreateFrame();
+            module = new NPSDK.Flow_BaseForm { Name = "OfflineStoppingStatus", ProgramController = controller };
+            RemoveMachineLoad(frame);
+            frame.Show(); Application.DoEvents();
+            LicenseManager.CurrentContext = previousContext;
+            UiTheme.ForceDesignTimeForTest(false);
+            SysPara.LanguageDataDirectory = languageDirectory;
+            SysPara.AlarmTableDirectory = Path.Combine(outputRoot, "empty-alarm-definitions");
+            Directory.CreateDirectory(SysPara.AlarmTableDirectory);
+            SysPara.SystemMode = RunMode.IDLE;
+            NPSDK.Alarm.IsError = false;
+            reloadLanguage.Invoke(null, null);
+            ListViewItem alarm = PrepareAlarmHeaderCheck(frame);
+            registerLanguage.Invoke(null, new object[] { frame.WarnningMessage, "MainForm" });
+            string[] expected = { "停止中", "STOPPING", "DETENIENDO" };
+            for (int language = 0; language < expected.Length; language++)
+            {
+                switchLanguage.Invoke(null, new object[] { (LanguageType)language });
+                CheckPendingLanguage(frame, controller, language, expected[language]);
+                Layout(frame); frame.Refresh(); Application.DoEvents();
+                CheckAlarmHeaderLanguage(frame, language, alarm);
+            }
+            CheckSiteAlarmCaption(frame, languageDirectory, switchLanguage, reloadLanguage);
+        }
+        finally
+        {
+            controller.Active = false;
+            if (module != null) { NPSDK.Flow_Module.FlowChart_ModuleList.Remove(module); module.Dispose(); }
+            if (frame != null) frame.Dispose();
+            SysPara.LanguageDataDirectory = previousDirectory;
+            SysPara.AlarmTableDirectory = previousAlarmDirectory;
+            SysPara.LanguageShow = previousLanguage;
+            SysPara.SystemMode = previousMode;
+            NPSDK.Alarm.IsError = previousAlarm;
+            UiTheme.TextProvider = previousText;
+            UiTheme.ForceDesignTimeForTest(false);
+            LicenseManager.CurrentContext = previousContext;
+            reloadLanguage.Invoke(null, null);
+            System.Threading.Thread.CurrentThread.CurrentUICulture = previousCulture;
+        }
+    }
+
+    /// <summary>Keep a polluted old empty-column key in the isolated packs to prove stable identities avoid it.</summary>
+    private static void SeedLegacyAlarmHeaderKeys(string directory)
+    {
+        foreach (string language in new[] { "Chinese", "English", "Español" })
+        {
+            string path = Path.Combine(directory, language + ".xml");
+            System.Xml.XmlDocument document = new System.Xml.XmlDocument(); document.Load(path);
+            System.Xml.XmlElement owner = document.DocumentElement["MainForm"];
+            System.Xml.XmlElement key = owner["WarnningMessage_"];
+            if (key == null) { key = document.CreateElement("WarnningMessage_"); owner.AppendChild(key); }
+            key.SetAttribute("ComponentText", "Time");
+            document.Save(path);
+        }
+    }
+
+    /// <summary>Require unique designer identities and verify theme repair fills missing names without replacing text.</summary>
+    private static ListViewItem PrepareAlarmHeaderCheck(MainForm frame)
+    {
+        ColumnHeader[] columns = frame.WarnningMessage.Columns.Cast<ColumnHeader>().ToArray();
+        Check(columns.Length == 4 && columns.All(column => !string.IsNullOrWhiteSpace(column.Name))
+            && columns.Select(column => column.Name).Distinct(StringComparer.Ordinal).Count() == 4,
+            "Alarm headers do not have four stable language identities.");
+        foreach (ColumnHeader column in columns) column.Name = "";
+        columns[2].Text = "Draft heading";
+        Invoke(frame, "InitializeAlarmColumnNames");
+        Check(columns.Select(column => column.Name).SequenceEqual(new[] { "columnHeader1", "columnHeader2", "columnHeader3", "columnHeader4" })
+            && columns[2].Text == "Draft heading", "Alarm identity repair changed text or retained duplicate language keys.");
+        ListViewItem alarm = new ListViewItem(new[] { "12:34:56", "E", "11000", "Keep alarm payload" });
+        frame.WarnningMessage.Items.Add(alarm);
+        return alarm;
+    }
+
+    /// <summary>Apply the real language registry to four headers while preserving the alarm row and its values.</summary>
+    private static void CheckAlarmHeaderLanguage(MainForm frame, int language, ListViewItem alarm)
+    {
+        string[][] captions = { new[] { "时间", "类型", "编号", "内容" }, new[] { "Time", "Type", "Code", "Content" }, new[] { "Hora", "Tipo", "Código", "Contenido" } };
+        Check(frame.WarnningMessage.Columns.Cast<ColumnHeader>().Select(column => column.Text).SequenceEqual(captions[language]),
+            "Actual language switching produced duplicated or incorrect alarm headers.");
+        Check(frame.WarnningMessage.Items.Count == 1 && ReferenceEquals(frame.WarnningMessage.Items[0], alarm)
+            && alarm.SubItems.Cast<ListViewItem.ListViewSubItem>().Select(item => item.Text).SequenceEqual(new[] { "12:34:56", "E", "11000", "Keep alarm payload" }),
+            "Language switching changed the existing alarm row or its data.");
+        using (Bitmap image = new Bitmap(frame.WarnningMessage.Width, frame.WarnningMessage.Height))
+        {
+            frame.WarnningMessage.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
+            image.Save(Path.Combine(outputRoot, "alarm-headers-" + language + ".png"));
+        }
+    }
+
+    /// <summary>Respect a site-defined qualified caption instead of overwriting it with a hard-coded runtime header.</summary>
+    private static void CheckSiteAlarmCaption(MainForm frame, string directory, MethodInfo switchLanguage, MethodInfo reloadLanguage)
+    {
+        string path = Path.Combine(directory, "English.xml");
+        System.Xml.XmlDocument document = new System.Xml.XmlDocument(); document.Load(path);
+        ((System.Xml.XmlElement)document.SelectSingleNode("/English/MainForm/WarnningMessage_columnHeader3")).SetAttribute("ComponentText", "Site code heading");
+        document.Save(path);
+        switchLanguage.Invoke(null, new object[] { LanguageType.English });
+        reloadLanguage.Invoke(null, null);
+        Check(frame.WarnningMessage.Columns[2].Text == "Site code heading", "A site-defined alarm caption was overwritten.");
+    }
+
+    /// <summary>Require the pending-task translation, then restore the idle translation only after task completion.</summary>
+    private static void CheckPendingLanguage(MainForm frame, PendingController controller, int language, string expected)
+    {
+        SysPara.LanguageShow = (LanguageType)language;
+        controller.Active = true;
+        Invoke(frame, "UpdateMachineStatus");
+        Layout(Field<Control>(frame, "tableLayoutPanel2"));
+        Label badge = Field<Label>(frame, "MachineStatus");
+        Check(badge.Text == expected, "Pending execution was shown as idle or lost its translation: " + badge.Text);
+        CheckChildren(Field<Control>(frame, "tableLayoutPanel2"));
+        using (Bitmap image = new Bitmap(badge.Width, badge.Height))
+        {
+            badge.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
+            image.Save(Path.Combine(outputRoot, "stopping-status-" + language + ".png"));
+        }
+        controller.Active = false;
+        Invoke(frame, "UpdateMachineStatus");
+        string idle = Field<Dictionary<RunMode, string>>(frame, "_statusTextMap")[RunMode.IDLE];
+        Check(badge.Text == idle && badge.Text != expected, "The returned task did not restore the translated idle state.");
     }
 
     /// <summary>Exercise the original alarm cache and filters in the persistent main dashboard table.</summary>

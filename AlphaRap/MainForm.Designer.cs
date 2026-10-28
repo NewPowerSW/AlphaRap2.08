@@ -968,23 +968,27 @@
             // 
             // columnHeader1
             // 
-            this.columnHeader1.Text = "Time";
+            this.columnHeader1.Name = "columnHeader1";
+            this.columnHeader1.Text = "时间";
             this.columnHeader1.Width = 171;
             // 
             // columnHeader2
             // 
-            this.columnHeader2.Text = "Type";
+            this.columnHeader2.Name = "columnHeader2";
+            this.columnHeader2.Text = "类型";
             this.columnHeader2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.columnHeader2.Width = 63;
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "Code";
+            this.columnHeader3.Name = "columnHeader3";
+            this.columnHeader3.Text = "编号";
             this.columnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // columnHeader4
             // 
-            this.columnHeader4.Text = "Content";
+            this.columnHeader4.Name = "columnHeader4";
+            this.columnHeader4.Text = "内容";
             this.columnHeader4.Width = 1240;
             // 
             // panelAlarmFilter

@@ -289,6 +289,7 @@ namespace AlphaRap
         /// <summary>设置原报警筛选条与报警列表。</summary>
         private void StyleAlarmPanel()
         {
+            InitializeAlarmColumnNames();
             panelAlarmFilter.Height = UiTheme.Dpi(38);
             panelAlarmFilter.BackColor = UiKit.Surface;
             flowAlarmFilter.Padding = UiTheme.Dpi(new Padding(8, 5, 0, 0));
@@ -306,6 +307,15 @@ namespace AlphaRap
             UiTheme.StyleListView(WarnningMessage, 30);
             WarnningMessage.SizeChanged += ResizeAlarmColumns;
             ResizeAlarmColumns(WarnningMessage, EventArgs.Empty);
+        }
+
+        /// <summary>为报警列补充稳定语言身份，保留已有列名称与自定义显示文字。</summary>
+        private void InitializeAlarmColumnNames()
+        {
+            if (string.IsNullOrWhiteSpace(columnHeader1.Name)) columnHeader1.Name = "columnHeader1";
+            if (string.IsNullOrWhiteSpace(columnHeader2.Name)) columnHeader2.Name = "columnHeader2";
+            if (string.IsNullOrWhiteSpace(columnHeader3.Name)) columnHeader3.Name = "columnHeader3";
+            if (string.IsNullOrWhiteSpace(columnHeader4.Name)) columnHeader4.Name = "columnHeader4";
         }
 
         /// <summary>按报警表可见宽度分配内容列，窄窗口也能同时查看时间、类型、编号和内容。</summary>

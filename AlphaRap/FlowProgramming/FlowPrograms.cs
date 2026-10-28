@@ -18,7 +18,7 @@ namespace AlphaRap.FlowProgramming
         private static bool installed;
         public static readonly FlowResultHub Results = new FlowResultHub();
         public static bool DebugEnabled { get; set; }
-        public static bool AnyRunning { get { return modules.Values.Any(module => module.Runtime.IsRunning); } }
+        public static bool AnyRunning { get { return modules.Values.Any(module => module.IsRunning) || Flow_Module.Module_GetRunningStatus; } }
         public static bool AnyEditing { get { return modules.Values.Any(module => module.IsEditing); } }
         public static bool HasPrograms { get { return modules.Count > 0; } }
         public static bool IsInitialized { get { return HasPrograms && modules.Values.All(module => module.IsEnabled && module.Form.InitialStatus); } }
@@ -62,6 +62,7 @@ namespace AlphaRap.FlowProgramming
             if (modules.Values.Any(item => item.Program.ModuleId == id)) throw new InvalidDataException("Duplicate flow module identity: " + id);
             FlowModuleEditor editor = new FlowModuleEditor(form, definition);
             modules.Add(form, editor);
+            if (form.ProgramController == null) form.ProgramController = editor;
             form.Disposed += (sender, args) => { editor.Runtime.Stop(); modules.Remove(form); Flow_Module.FlowChart_ModuleList.Remove(form); };
             return editor;
         }
@@ -69,7 +70,13 @@ namespace AlphaRap.FlowProgramming
         /// <summary>运行和修改前统一检查工位、机器状态及权限。</summary>
         public static void RequireIdle()
         {
-            if (AnyRunning || SysPara.SystemMode != RunMode.IDLE || Flow_Module.Module_GetRunningStatus) throw new InvalidOperationException(FlowText.T("busy"));
+            if (AnyRunning || SysPara.SystemMode != RunMode.IDLE)
+            {
+                string names = string.Join(", ", Flow_Module.FlowChart_ModuleList.Where(Flow_Module.IsExecutionActive).Select(form => form.Name).Distinct());
+                string legacy = string.Join(", ", Flow_Module.FlowChart_List.Where(node => node.IsLegacyRunning).Select(node => node.text).Distinct());
+                if (legacy.Length > 0) names = names.Length == 0 ? legacy : names + ", " + legacy;
+                throw new InvalidOperationException(FlowText.T("busy") + (names.Length == 0 ? "" : Environment.NewLine + names));
+            }
             if (!CanEdit) throw new InvalidOperationException(FlowText.T("permission"));
         }
 
@@ -361,7 +368,7 @@ namespace AlphaRap.FlowProgramming
         }
     }
 
-    public sealed partial class FlowModuleEditor : IFlowProgramController
+    public sealed partial class FlowModuleEditor : IFlowProgramController, IFlowProgramStatus
     {
         private readonly Dictionary<string, Flow_Chart> nodes = new Dictionary<string, Flow_Chart>();
         private readonly ToolTip bindingHints = new ToolTip { AutoPopDelay = 15000, InitialDelay = 350, ReshowDelay = 100 };
@@ -375,6 +382,7 @@ namespace AlphaRap.FlowProgramming
         private readonly Dictionary<string, Flow_Chart> removedNodes = new Dictionary<string, Flow_Chart>();
         public readonly Flow_BaseForm Form;
         public readonly FlowProgramRuntime Runtime = new FlowProgramRuntime();
+        public bool IsRunning { get { return Runtime.IsRunning; } }
         public FlowProgram Program { get; private set; }
         private FlowProgram published;
         internal FlowProgram PublishedProgram { get { return published; } }
@@ -865,8 +873,17 @@ namespace AlphaRap.FlowProgramming
             Form.StopStatus = false;
             paused = false;
             foreach (Flow_Chart node in nodes.Values) node.ProgramManaged = true;
-            Runtime.Start(plan, entry, new FlowExecutionContext { Hub = FlowPrograms.Results, RunId = FlowPrograms.Results.Epoch,
-                CycleId = "batch", ModuleId = plan.ModuleId, RecipeName = resources.RecipeName, Parameters = resources.Parameters }, debug);
+            try
+            {
+                Runtime.Start(plan, entry, new FlowExecutionContext { Hub = FlowPrograms.Results, RunId = FlowPrograms.Results.Epoch,
+                    CycleId = "batch", ModuleId = plan.ModuleId, RecipeName = resources.RecipeName, Parameters = resources.Parameters }, debug);
+            }
+            catch
+            {
+                Form.RunningStatus = false;
+                if (initializing) Form.InitialStatus = false;
+                throw;
+            }
         }
 
         /// <summary>执行任务完成前更新模块状态，避免旧回调覆盖下一次启动。</summary>
