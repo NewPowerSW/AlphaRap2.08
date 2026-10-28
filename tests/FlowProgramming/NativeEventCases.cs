@@ -198,7 +198,7 @@ internal static partial class Cases
         Test("actual flow page selection refreshes native tools and native editor exposes targets without duplicate conditions", NativePageAndEditor);
         Test("native nodes block double clicks and property edits while preserving other node editors dragging and breakpoints", NativeDoubleClickPolicy);
         Test("unified flow imports native page roots and original links without invoking legacy lifecycle methods", NativeUnifiedImport);
-        Test("saved Legacy definitions migrate to one mixed flow while preserving explicit entries positions and native identities", NativeUnifiedReload);
+        Test("saved Legacy definitions use source positions while preserving explicit entries and native identities", NativeUnifiedReload);
         Test("ambiguous native page roots block validation and starting until an entry is selected", NativeUnifiedAmbiguousEntry);
         Test("disabled and empty unified modules consume lifecycle commands without legacy fallbacks", NativeUnifiedDisabledAndEmpty);
         Test("published output bindings stay isolated from unsaved producer method and output changes", NativePublishedOutputIsolation);
@@ -329,7 +329,7 @@ internal static partial class Cases
             FlowStep moved = owner.Program.Steps.Single(step => step.ControlName == page.AutoFirst.Name);
             Assert(owner.Program.Mode == "Program" && owner.Program.InitialEntry == initialFirst.Id && owner.Program.AutoEntry == automaticFirst.Id,
                 "Loading a Legacy definition retained the old mode or included unrelated draft nodes when inferring original page roots.");
-            Assert(new Point(moved.X, moved.Y) == new Point(320, 410) && page.AutoFirst.Location == new Point(320, 410)
+            Assert(new Point(moved.X, moved.Y) == new Point(75, 55) && page.AutoFirst.Location == new Point(75, 55)
                 && ReferenceEquals(page.AutoFirst.Next, page.AutoLast) && owner.Program.Steps.Count(step => step.UsesFlowResult) == 4
                 && string.Join("|", owner.Program.Steps.Select(step => step.Id + ":" + step.Target + ":" + step.Action)) == identities,
                 "Legacy migration changed saved node positions, native identities, SDK return contracts or original connections.");

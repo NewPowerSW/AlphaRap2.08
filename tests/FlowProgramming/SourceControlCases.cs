@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using AlphaRap;
 using AlphaRap.FlowProgramming;
@@ -53,8 +54,8 @@ internal static partial class Cases
         Test("old saved unbound source nodes do not return after source deletion", SourceLegacyDeletion);
         Test("saved source metadata removes deleted native nodes and preserves dynamic native and ordinary nodes", SourceNativeDeletion);
         Test("source link edits update inherited links while preserving explicit mixed-flow overrides", SourceLinkMerge);
-        Test("deleted source nodes still used by data or dynamic links remain blocked and repairable", SourceReferencedDeletion);
-        Test("deleted source entry requires explicit replacement and is then removed", SourceEntryDeletion);
+        Test("deleted source nodes stay deleted while surviving data consumers require rebinding", SourceReferencedDeletion);
+        Test("deleted source entry is cleared without selecting a replacement", SourceEntryDeletion);
         RegisterContainerCases();
     }
 
@@ -84,7 +85,7 @@ internal static partial class Cases
             FlowStep first = SourceStep(editor.Program, "sourceFirst"), last = SourceStep(editor.Program, "sourceLast");
             Assert(editor.Program.Steps.Count == 2 && first.Next == last.Id && first.Case1 == last.Id,
                 "The deleted legacy control returned or the compiled bypass was not restored.");
-            Assert(first.X == 345 && first.Id == SourceStep(old, "sourceFirst").Id && page.Calls == 0
+            Assert(first.X == page.First.Left && first.Id == SourceStep(old, "sourceFirst").Id && page.Calls == 0
                 && original.SequenceEqual(File.ReadAllBytes(path)), "Source migration changed layout, identity, disk or invoked a callback.");
             editor.Validate(null);
             editor.Restore(FlowProgramFile.Load(path).Modules.Single());
@@ -137,7 +138,7 @@ internal static partial class Cases
         }
     }
 
-    /// <summary>Keep a visible blocked placeholder for dangling data and dynamic links, then remove it once those references are repaired.</summary>
+    /// <summary>Never recreate deleted source controls for surviving data bindings or dynamic links.</summary>
     private static void SourceReferencedDeletion()
     {
         string name = "SourceReferences_" + Guid.NewGuid().ToString("N");
@@ -150,11 +151,13 @@ internal static partial class Cases
         using (SourceSyncPage page = new SourceSyncPage(name, false))
         {
             FlowModuleEditor editor = new FlowModuleEditor(page, old);
-            Assert(SourceStep(editor.Program, "sourceMiddle").ControlOrigin == "MissingForm", "A referenced removed source was silently dropped.");
+            Assert(editor.Program.Steps.All(step => step.Id != middle.Id) && page.Controls.Find("sourceMiddle", true).Length == 0,
+                "A deleted source control was recreated because another node still referenced it.");
             bool rejected = false;
-            try { editor.Validate(middle.Id); } catch (InvalidOperationException error) { rejected = error.Message.Contains("sourceMiddle"); }
-            Assert(rejected, "A removed source callback could still validate for production.");
+            try { editor.Validate(consumer.Id); } catch (InvalidOperationException) { rejected = true; }
+            Assert(rejected, "A consumer of deleted source data was silently assigned a replacement value.");
             FlowStep current = editor.Program.Steps.Single(step => step.Id == consumer.Id);
+            Assert(current.Next == null, "A surviving dynamic link still pointed at a deleted source node.");
             current.Next = SourceStep(editor.Program, "sourceLast").Id;
             current.Inputs[0].Source = "Constant"; current.Inputs[0].Reference = "Reviewed";
             editor.Restore(FlowProgramFile.Snapshot(editor.Program));
@@ -172,7 +175,8 @@ internal static partial class Cases
         using (SourceSyncPage page = new SourceSyncPage(name, false))
         {
             FlowModuleEditor editor = new FlowModuleEditor(page, old);
-            Assert(editor.Program.Steps.Any(step => step.Id == editor.Program.InitialEntry && step.ControlOrigin == "MissingForm"), "A removed entry silently selected a new root.");
+            Assert(editor.Program.InitialEntries.Count == 0 && editor.Program.Steps.All(step => step.ControlName != "sourceMiddle"),
+                "A removed entry was recreated or silently replaced by another source flow.");
             editor.Program.InitialEntry = SourceStep(editor.Program, "sourceFirst").Id;
             editor.Restore(FlowProgramFile.Snapshot(editor.Program));
             Assert(editor.Program.Steps.All(step => step.ControlName != "sourceMiddle"), "Replacing an invalid entry failed to remove the orphan.");
@@ -225,6 +229,9 @@ internal static partial class Cases
         Test("ambiguous container paths do not choose the first page or recreate deleted nodes", AmbiguousContainerCleanup);
         Test("incompatible saved containers do not accept flow nodes or cause startup exceptions", InvalidContainerCleanup);
         Test("deleted derived Forms are not recreated or executed from saved configuration", RemovedFormCompatibility);
+        Test("reusing a deleted page name keeps only the new source controls and their designer positions", ReusedPageCleanup);
+        Test("workflow page translation keys do not reuse deleted page titles", ReusedPageLanguages);
+        Test("the actual Gantry designer survives a saved obsolete MES graph without adding controls", GantryDesignerAuthority);
     }
 
     /// <summary>Create a source node and a dynamic node in a nested tab before the source structure changes.</summary>
@@ -294,7 +301,7 @@ internal static partial class Cases
         {
             FlowModuleEditor owner = new FlowModuleEditor(page, saved);
             FlowStep native = owner.Program.Steps.Single();
-            Assert(native.ControlName == "nativeWork" && native.ParentPath.EndsWith("/newTab") && native.X == 345
+            Assert(native.ControlName == "nativeWork" && native.ParentPath.EndsWith("/newTab") && native.X == 40
                 && owner.Program.InitialEntry == native.Id && page.FlowChartTable.TabPages.Count == 2,
                 "A moved source node lost its identity, or deleted-container contents were recreated.");
             owner.Validate(null); owner.Start(native.Id, false, true); Wait(owner.Runtime.Completion);
@@ -364,5 +371,127 @@ internal static partial class Cases
                 "A deleted source Form was reinstantiated or its saved definition was silently overwritten.");
         }
         finally { SysPara.SettingDataDirectory = settings; project.SetValue(null, previous); installed.SetValue(null, wasInstalled); Flow_Module.ProgramControllerFactory = factory; }
+    }
+
+    /// <summary>Simulate deleting MES then creating a screw page with the same WinForms-generated tab name.</summary>
+    private static void ReusedPageCleanup()
+    {
+        string name = "PageReused_" + Guid.NewGuid().ToString("N"); FlowProgram saved = ContainerSnapshot(name);
+        for (int i = 0; i < saved.Steps.Count; i++)
+        { saved.Steps[i].ControlName = "deletedMes" + i; saved.Steps[i].ControlOrigin = "Form"; }
+        using (ContainerRevisionPage page = new ContainerRevisionPage(name, "oldTab"))
+        {
+            page.PointPage.Text = "打螺丝";
+            FlowModuleEditor owner = new FlowModuleEditor(page, saved);
+            Assert(owner.Program.Steps.Count == 1 && owner.Program.Steps[0].ControlName == "nativeWork"
+                && owner.Program.InitialEntries.Count == 0 && page.PointPage.Controls.OfType<Flow_Chart>().Count() == 1,
+                "Reusing tabPage identity recreated deleted MES controls or selected a different entry.");
+            FlowStep current = owner.Program.Steps[0]; current.X = 750; current.Y = 410; current.Caption = "Stale saved title";
+            string action = current.Action; current.Action = "native.ObsoleteHandler"; current.Target = "native/DeletedOwner";
+            owner.Restore(FlowProgramFile.Snapshot(owner.Program));
+            Assert(owner.Program.Steps[0].Id == current.Id && owner.Program.Steps[0].X == 40 && owner.Program.Steps[0].Y == 40
+                && owner.Program.Steps[0].Caption == "Native work" && owner.Program.Steps[0].Action == action
+                && owner.Program.Steps[0].Target != "native/DeletedOwner" && page.PointPage.Text == "打螺丝" && page.Calls == 0,
+                "Saved source layout overrode the actual designer or a callback ran during loading.");
+            FlowProgram cleared = FlowProgramFile.Snapshot(owner.Program);
+            owner.Restore(cleared);
+            Assert(page.PointPage.Controls.Count == 1 && owner.Program.Steps.Count == 1, "Repeated reload duplicated a source control.");
+        }
+    }
+
+    /// <summary>Preserve old language records while isolating new workflow titles and retaining translation support.</summary>
+    private static void ReusedPageLanguages()
+    {
+        string name = "PageLanguages_" + Guid.NewGuid().ToString("N");
+        if (SysPara.ComponentLangurageList == null) host.GetMethod("InitialLanguageData", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, null);
+        host.GetMethod("LangMsg").Invoke(null, new object[] { name, "oldTab", "MES流程", "MES workflow", "Flujo MES" });
+        using (ContainerRevisionPage page = new ContainerRevisionPage(name, "oldTab"))
+        {
+            page.PointPage.Text = "打螺丝";
+            RegisterSourcePageLanguage(page, name);
+            foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+            {
+                SwitchLanguage(language);
+                Assert(page.PointPage.Text == "打螺丝", "A deleted MES translation replaced the new source page title.");
+            }
+            string key = SysPara.ComponentLangurageList[0].Single(item => ReferenceEquals(item.Component, page.PointPage)).ComponentName;
+            MethodInfo setText = host.GetMethod("SetLangText", BindingFlags.Static | BindingFlags.NonPublic);
+            setText.Invoke(null, new object[] { LanguageType.English, name, key, "Screw fastening" });
+            setText.Invoke(null, new object[] { LanguageType.Español, name, key, "Atornillado" });
+            RegisterSourcePageLanguage(page, name);
+            SwitchLanguage(LanguageType.English); Assert(page.PointPage.Text == "Screw fastening", "New page English translation was not applied.");
+            RegisterSourcePageLanguage(page, name);
+            SwitchLanguage(LanguageType.Español); Assert(page.PointPage.Text == "Atornillado", "Re-registering a translated page changed its language identity.");
+            SwitchLanguage(LanguageType.Chinese); Assert(page.PointPage.Text == "打螺丝", "Chinese source title was lost.");
+            Assert((string)host.GetMethod("LangText").Invoke(null, new object[] { name, "oldTab", "" }) == "MES流程", "The migration overwrote the old site translation.");
+        }
+        using (ContainerRevisionPage unchanged = new ContainerRevisionPage(name, "oldTab"))
+        {
+            unchanged.PointPage.Text = "MES流程"; RegisterSourcePageLanguage(unchanged, name);
+            SwitchLanguage(LanguageType.English);
+            Assert(unchanged.PointPage.Text == "MES workflow", "An unchanged source page lost its existing translation.");
+        }
+        using (ContainerRevisionPage englishSource = new ContainerRevisionPage(name, "oldTab"))
+        {
+            englishSource.PointPage.Text = "MES workflow"; RegisterSourcePageLanguage(englishSource, name);
+            SwitchLanguage(LanguageType.Chinese);
+            Assert(englishSource.PointPage.Text == "MES流程", "An unchanged English source page lost its Chinese translation.");
+        }
+        SwitchLanguage(LanguageType.Chinese);
+    }
+
+    /// <summary>Use the real application Form and its current Designer source; never start initialization or hardware.</summary>
+    private static void GantryDesignerAuthority()
+    {
+        using (AlphaRap.TaskProcess.Gantry page = new AlphaRap.TaskProcess.Gantry())
+        {
+            try
+            {
+                Flow_Chart[] source = SourceCharts(page).ToArray();
+                Dictionary<string, Rectangle> bounds = source.ToDictionary(node => node.Name, node => node.Bounds);
+                FlowProgram saved = new FlowProgram { ModuleId = page.GetType().FullName + "/" + page.Name };
+                for (int i = 0; i < 5; i++) saved.Steps.Add(new FlowStep { ControlName = "deleted_MES_" + i, ControlOrigin = "Form",
+                    Caption = "Old MES " + i, ParentPath = "/FlowChartTable/AutoPage/tabControl1/tabPage3", X = 223, Y = 80 + i * 55 });
+                for (int i = 0; i < 5; i++) saved.Steps[i].Next = saved.Steps[(i + 1) % 5].Id;
+                saved.AutoEntry = saved.Steps[0].Id;
+                RegisterSourcePageLanguage(page, page.Name);
+                FlowModuleEditor owner = new FlowModuleEditor(page, saved);
+                Assert(owner.Program.Steps.Count == source.Length && SourceCharts(page).Count() == source.Length
+                    && owner.Program.Steps.All(step => bounds.ContainsKey(step.ControlName)) && owner.Program.AutoEntries.Count == 0,
+                    "The real Gantry recreated saved MES controls or kept a deleted MES entry.");
+                Assert(SourceCharts(page).All(node => bounds[node.Name] == node.Bounds), "Gantry runtime positions differ from the current designer.");
+                foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+                {
+                    SwitchLanguage(language);
+                    Assert(page.Controls.Find("tabPage3", true).Cast<TabPage>().All(tab => tab.Text != "MES流程"),
+                        "The old Gantry MES language key overwrote the screw page.");
+                }
+                SwitchLanguage(LanguageType.Chinese);
+                page.Size = new Size(1280, 780); page.FlowChartTable.SelectedTab = page.AutoPage;
+                TabPage screw = page.Controls.Find("tabPage3", true).OfType<TabPage>().SingleOrDefault();
+                if (screw != null) ((TabControl)screw.Parent).SelectedTab = screw;
+                page.Show(); Application.DoEvents();
+                using (Bitmap bitmap = new Bitmap(page.Width, page.Height))
+                { page.DrawToBitmap(bitmap, new Rectangle(Point.Empty, page.Size)); bitmap.Save(Path.Combine(root, "gantry-designer-authority.png")); }
+            }
+            finally { Flow_Module.FlowChart_ModuleList.Remove(page); SwitchLanguage(LanguageType.Chinese); }
+        }
+    }
+
+    /// <summary>Exercise the same language registration used by startup without initializing hardware.</summary>
+    private static void RegisterSourcePageLanguage(Control page, string name)
+    {
+        host.GetMethod("RegisterAndApplyLanguage").Invoke(null, new object[] { page, name });
+    }
+
+    /// <summary>Enumerate actual node instances while excluding internal node decorations.</summary>
+    private static IEnumerable<Flow_Chart> SourceCharts(Control parent)
+    {
+        foreach (Control child in parent.Controls)
+        {
+            Flow_Chart node = child as Flow_Chart;
+            if (node != null) { yield return node; continue; }
+            foreach (Flow_Chart nested in SourceCharts(child)) yield return nested;
+        }
     }
 }

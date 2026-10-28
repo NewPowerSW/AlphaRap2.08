@@ -19,13 +19,17 @@ namespace AlphaRap.FlowProgramming
         internal FlowControlSource(Control form)
         {
             foreach (Flow_Chart node in Enumerate(form))
-                controls.Add(node.Name, new FlowStep { ControlName = node.Name, Caption = node.text, X = node.Left, Y = node.Top,
+            {
+                FlowStep source = new FlowStep { ControlName = node.Name, Caption = node.text, X = node.Left, Y = node.Top,
                     ParentPath = ParentPath(node.Parent, form), ControlOrigin = FormOrigin,
                     TimeoutMs = node.AlarmStaus ? Math.Max(1, node.AlarmTimeOut) : System.Threading.Timeout.Infinite,
                     AlarmCode = node.AlarmStaus ? node.AlarmCode : null,
                     SourceLinks = new FlowControlLinks { Next = node.Next == null ? null : node.Next.Name,
                         Case1 = node.Casse1 == null ? null : node.Casse1.Name, Case2 = node.Casse2 == null ? null : node.Casse2.Name,
-                        Case3 = node.Casse3 == null ? null : node.Casse3.Name } });
+                        Case3 = node.Casse3 == null ? null : node.Casse3.Name } };
+                FlowNativeMethods.BindExisting(form as Flow_BaseForm, node, source);
+                controls.Add(node.Name, source);
+            }
         }
 
         /// <summary>源码原生节点沿用构造时的报警开关、期限及编号，不接受功能节点的默认参数。</summary>
@@ -38,14 +42,31 @@ namespace AlphaRap.FlowProgramming
             step.AlarmCode = source.AlarmCode;
         }
 
-        /// <summary>仅按仍存在的源码控件身份提供容器路径，不按相似名称猜测页面。</summary>
-        internal string CurrentParent(string controlName)
+        /// <summary>源码控件的父页面、标题及位置始终取设计器实际定义，动态节点不受影响。</summary>
+        internal void ApplyLayout(FlowStep step)
         {
             FlowStep source;
-            return controls.TryGetValue(controlName, out source) ? source.ParentPath : null;
+            if (!controls.TryGetValue(step.ControlName, out source)) return;
+            step.ParentPath = source.ParentPath;
+            step.Caption = source.Caption;
+            step.X = source.X;
+            step.Y = source.Y;
         }
 
-        /// <summary>准备独立恢复快照；来源明确且不再被连接或数据引用的已删源码节点才会移除。</summary>
+        /// <summary>原生节点执行设计器当前绑定的本页事件，不沿用已替换的旧方法。</summary>
+        internal void ApplyNativeBinding(FlowStep step)
+        {
+            FlowStep source;
+            if (step.ControlOrigin != FormOrigin || !controls.TryGetValue(step.ControlName, out source)) return;
+            if (!source.UsesFlowResult) return;
+            step.Action = source.Action;
+            step.Target = source.Target;
+            step.ExecutionMode = "Action";
+            step.UsesFlowResult = true;
+            step.Inputs.Clear();
+        }
+
+        /// <summary>按当前源码标记节点来源并同步原生连线，失效节点由工程统一清理。</summary>
         internal FlowProgram Prepare(FlowProgram program)
         {
             FlowProgram candidate = FlowProgramFile.Snapshot(program);
@@ -59,7 +80,6 @@ namespace AlphaRap.FlowProgramming
             HashSet<string> removed = new HashSet<string>(candidate.Steps.Where(step => step.ControlOrigin == MissingOrigin).Select(step => step.Id));
             foreach (FlowStep step in candidate.Steps.Where(step => step.ControlOrigin == FormOrigin))
                 SynchronizeLinks(step, controls[step.ControlName].SourceLinks, byId, byName, removed);
-            RemoveUnreferenced(candidate, removed);
             return candidate;
         }
 
@@ -97,27 +117,6 @@ namespace AlphaRap.FlowProgramming
                     step.Branches.Add(new FlowBranch { Code = exit, Unconditional = true });
             }
             step.SourceLinks = CopyLinks(current);
-        }
-
-        /// <summary>保留尚有外部连接、入口或数据引用的失效节点及其依赖，由保存校验提示工程师处理。</summary>
-        private static void RemoveUnreferenced(FlowProgram program, ISet<string> removed)
-        {
-            HashSet<string> retained = new HashSet<string>();
-            foreach (FlowStep step in program.Steps.Where(step => !removed.Contains(step.Id)))
-                foreach (string target in Exits.Select(step.TargetOf).Where(target => target != null && removed.Contains(target))) retained.Add(target);
-            foreach (string entry in program.InitialEntries.Concat(program.AutoEntries))
-                if (entry != null && removed.Contains(entry)) retained.Add(entry);
-            foreach (string id in removed)
-                if (FlowPrograms.NodeReferences(program, id).Count > 0) retained.Add(id);
-            Queue<string> pending = new Queue<string>(retained);
-            while (pending.Count > 0)
-            {
-                string id = pending.Dequeue();
-                FlowStep step = program.Steps.Single(item => item.Id == id);
-                foreach (string target in Exits.Select(step.TargetOf).Where(target => target != null && removed.Contains(target)))
-                    if (retained.Add(target)) pending.Enqueue(target);
-            }
-            program.Steps.RemoveAll(step => removed.Contains(step.Id) && !retained.Contains(step.Id));
         }
 
         /// <summary>复制源码节点模板并赋予独立持久化身份。</summary>

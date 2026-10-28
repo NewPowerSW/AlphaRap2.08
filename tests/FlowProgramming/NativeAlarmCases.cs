@@ -34,7 +34,7 @@ internal static partial class Cases
     private static void RegisterNativeAlarmCases()
     {
         Test("source native timeout uses its SDK alarm switch duration and code", NativeSourceAlarmImport);
-        Test("old native defaults migrate from the immutable source policy while layout and links survive", NativeSourceAlarmMigration);
+        Test("old native defaults migrate from source alarm and designer layout while identities survive", NativeSourceAlarmMigration);
         Test("disabled native alarms wait until stopped and mixed actions keep their own deadline", NativeDisabledAndMixedAlarms);
         Test("new native toolbox nodes have no implicit Action deadline or fallback alarm code", NativeToolAlarmDefaults);
         Test("actual DownConveryor code binding preserves the compiled alarm policy without invoking IO", ActualConveyorNativeAlarm);
@@ -87,7 +87,7 @@ internal static partial class Cases
             page.Node.AlarmTimeOut = 9999; page.Node.AlarmCode = "runtime-mutated"; page.Node.AlarmStaus = false;
             owner.Restore(FlowProgramFile.Load(path).Modules.Single());
             FlowStep restored = owner.Program.Steps.Single();
-            Assert(restored.TimeoutMs == 180 && restored.AlarmCode == "4004" && restored.Id == saved.Id && restored.X == 333 && restored.Y == 444
+            Assert(restored.TimeoutMs == 180 && restored.AlarmCode == "4004" && restored.Id == saved.Id && restored.X == page.Node.Left && restored.Y == page.Node.Top
                 && bytes.SequenceEqual(File.ReadAllBytes(path)) && page.Calls == 0, "Source alarm migration lost its original policy or changed disk/layout/identity.");
             using (NativeAlarmPage next = new NativeAlarmPage(page.Name, false))
             {

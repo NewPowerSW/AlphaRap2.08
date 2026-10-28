@@ -531,6 +531,7 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowStep step in Program.Steps)
             {
                 FlowNativeMethods.BindExisting(Form, nodes[step.Id], step);
+                controlSource.ApplyNativeBinding(step);
                 controlSource.ApplyNativeAlarm(step);
             }
             if (importing)
@@ -542,7 +543,7 @@ namespace AlphaRap.FlowProgramming
             foreach (ScrollableControl canvas in nodes.Values.Select(node => node.Parent).OfType<ScrollableControl>().Distinct()) UpdateCanvasBounds(canvas);
         }
 
-        /// <summary>先检查全部节点和父容器，避免无效布局加载到一半破坏当前工程。</summary>
+        /// <summary>先检查节点身份和连接结构，避免无效模型加载到一半破坏当前工程。</summary>
         public void ValidateLayout(FlowProgram program)
         {
             List<string> errors = FlowProgramFile.Validate(program);
@@ -555,21 +556,17 @@ namespace AlphaRap.FlowProgramming
         internal FlowProgram PrepareRestore(FlowProgram program)
         {
             FlowProgram prepared = controlSource.Prepare(program);
-            foreach (FlowStep step in prepared.Steps)
-            {
-                if (TryFindParent(step.ParentPath) != null) continue;
-                string sourceParent = controlSource.CurrentParent(step.ControlName);
-                if (sourceParent != null && TryFindParent(sourceParent) != null) step.ParentPath = sourceParent;
-            }
+            foreach (FlowStep step in prepared.Steps) controlSource.ApplyLayout(step);
             RemoveMissingContainers(prepared);
             ValidateLayout(prepared);
             return prepared;
         }
 
-        /// <summary>清理已删除容器的节点、入口及入站连线，保留其他动作的失效数据绑定供明确重绑。</summary>
+        /// <summary>清理源码已删或容器失效的节点、入口和入站连线，数据消费者保留原绑定供重绑。</summary>
         private void RemoveMissingContainers(FlowProgram program)
         {
-            FlowStep[] removed = program.Steps.Where(step => TryFindParent(step.ParentPath) == null).ToArray();
+            FlowStep[] removed = program.Steps.Where(step => step.ControlOrigin == FlowControlSource.MissingOrigin
+                || program.RemovedControls.Contains(step.ControlName) || TryFindParent(step.ParentPath) == null).ToArray();
             if (removed.Length == 0) return;
             HashSet<string> ids = new HashSet<string>(removed.Select(step => step.Id));
             foreach (FlowStep step in removed)

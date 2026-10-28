@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using AlphaRap.Classes;
@@ -16,6 +19,44 @@ namespace AlphaRap
         public static event EventHandler LanguageChanged;
 
         public const string DynTextSuffix = "_dyn";
+
+        private sealed class FlowPageText
+        {
+            internal string Source;
+            internal string Key;
+        }
+
+        private static readonly ConditionalWeakTable<Control, FlowPageText> FlowPageTexts = new ConditionalWeakTable<Control, FlowPageText>();
+
+        /// <summary>流程子页的语言身份包含源码标题，防止复用 tabPage 名称时继承被删页面的译文。</summary>
+        private static string LanguageControlKey(Control control)
+        {
+            if (string.IsNullOrEmpty(control.Name) || control.Name.EndsWith(DynTextSuffix)) return control.Name;
+            TabPage page = control as TabPage;
+            Flow_BaseForm form = page == null ? null : page.FindForm() as Flow_BaseForm;
+            if (form == null || ReferenceEquals(page, form.InitialPage) || ReferenceEquals(page, form.AutoPage)) return control.Name;
+            return FlowPageTexts.GetValue(page, CreateFlowPageText).Key;
+        }
+
+        /// <summary>只捕获首次登记前的源码标题，切换语言后不以译文重新计算身份。</summary>
+        private static FlowPageText CreateFlowPageText(Control control)
+        {
+            using (SHA256 hash = SHA256.Create())
+            {
+                string signature = BitConverter.ToString(hash.ComputeHash(Encoding.UTF8.GetBytes(control.Text))).Replace("-", "").Substring(0, 16);
+                return new FlowPageText { Source = control.Text, Key = control.Name + "_FlowPage_" + signature };
+            }
+        }
+
+        /// <summary>同一源码标题可沿用旧译文；页面名称复用且标题改变时只使用新底稿。</summary>
+        private static string ExistingControlText(Control control, string formName, string key, LanguageType language)
+        {
+            string text = LangTextOf(language, formName, key);
+            if (text != null || key == control.Name) return text;
+            FlowPageText page = FlowPageTexts.GetValue(control, CreateFlowPageText);
+            return Languages.Any(item => LangTextOf(item, formName, control.Name) == page.Source)
+                ? LangTextOf(language, formName, control.Name) : null;
+        }
 
         /// <summary>初始化三语登记表，扫描所有启动页及框架自定义控件。</summary>
         private static void InitialLanguageData()
@@ -91,7 +132,7 @@ namespace AlphaRap
                     return;
                 }
 
-                string key = root.Name;
+                string key = LanguageControlKey(root);
                 if (!string.IsNullOrEmpty(key) && !key.EndsWith(DynTextSuffix) && IsLanguageControl(root))
                 {
                     string t = LangTextOf(SysPara.LanguageShow, formName, key);
@@ -147,7 +188,7 @@ namespace AlphaRap
             {
                 if (c == null) return;
 
-                string key = c.Name;
+                string key = LanguageControlKey(c);
                 if (string.IsNullOrEmpty(key) || key.EndsWith(DynTextSuffix)) return;
                 if (!IsLanguageControl(c)) return;
                 string text = c.Text;
@@ -156,7 +197,7 @@ namespace AlphaRap
                 int listCount = (SysPara.ComponentLangurageList == null) ? 0 : SysPara.ComponentLangurageList.Length;
                 for (int i = 0; i < Languages.Length; i++)
                 {
-                    string t = LangTextOf((LanguageType)i, formName, key);
+                    string t = ExistingControlText(c, formName, key, (LanguageType)i);
                     if (t == null) { SetLangText((LanguageType)i, formName, key, text); t = text; }
                     if (i >= listCount) continue;
                     List<ComponentTextInfo> list = SysPara.ComponentLangurageList[i];

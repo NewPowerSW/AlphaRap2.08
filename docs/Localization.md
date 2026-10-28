@@ -14,6 +14,8 @@
 
 固定控件及布局维护在 Designer.cs。已有固定列的绑定表格设置 AutoGenerateColumns=false，绑定后重新登记表头。复用页由可在设计器中预览的 UserControl 承载。
 
+Flow_BaseForm 内的流程子选项卡使用 `Name_FlowPage_源码标题SHA256前16位` 语言键，初始化/自动两个固定阶段页保持原键。底稿在首次登记、应用译文之前捕获并随控件生命周期缓存，重登及切换语言不会把译文当成新底稿。新建页面复用已删 tabPage 名称时不继承旧页面译文；未改变的源码标题若匹配任一旧语言条目，可迁移该组现场译文到新键。旧条目保留，语言编辑仍通过统一主保存落盘。
+
 FieldBox 内部的提示 Label、Flow_Chart 内部按钮、PropertyGrid 内部编辑控件和自管 DeviceControl 不重复扫描，避免内部重名控件互相覆盖。
 
 ## 动态文案和数据
