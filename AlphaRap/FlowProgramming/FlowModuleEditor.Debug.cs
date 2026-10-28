@@ -36,10 +36,14 @@ namespace AlphaRap.FlowProgramming
         /// <summary>保存运行器的调试快照，界面轮询只读引用而不阻塞执行线程。</summary>
         private void CaptureDebug(FlowDebugSnapshot snapshot)
         {
-            FlowDebugSnapshot previous = DebugSnapshot;
-            if (snapshot.State == "Finished" && previous != null && (string.IsNullOrEmpty(snapshot.StepId) || snapshot.StepId == previous.StepId))
-                snapshot = new FlowDebugSnapshot { StepId = previous.StepId, State = snapshot.State, Inputs = previous.Inputs, Outputs = previous.Outputs, BranchCode = previous.BranchCode };
-            DebugSnapshot = snapshot;
+            lock (executionDisplaySync)
+            {
+                if (stopped) return;
+                FlowDebugSnapshot previous = DebugSnapshot;
+                if (snapshot.State == "Finished" && previous != null && (string.IsNullOrEmpty(snapshot.StepId) || snapshot.StepId == previous.StepId))
+                    snapshot = new FlowDebugSnapshot { StepId = previous.StepId, State = snapshot.State, Inputs = previous.Inputs, Outputs = previous.Outputs, BranchCode = previous.BranchCode };
+                DebugSnapshot = snapshot;
+            }
         }
 
         /// <summary>使用现有工程入口启动节点调试，参数、模拟和数据生命周期仍由同一运行器拥有。</summary>

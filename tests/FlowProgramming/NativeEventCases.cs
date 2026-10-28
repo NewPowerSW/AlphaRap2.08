@@ -842,7 +842,8 @@ internal static partial class Cases
                         menu.Show(editableSurface, new Point(5, 5)); Application.DoEvents();
                         Assert(menu.Items["nodeProperties"].Available && menu.Items["nodeProperties"].Enabled,
                             "Switching from a code node hid another node's property command.");
-                        Assert(NativeEditorCount(() => menu.Items["nodeProperties"].PerformClick()) == 1, "An ordinary node lost its property editor.");
+                        int opened = NativeEditorCount(() => menu.Items["nodeProperties"].PerformClick());
+                        Assert(opened == 1, "An ordinary node lost its property editor: opened=" + opened + ", mode=" + editable.ExecutionMode + ", language=" + language);
                         menu.Close();
                     }
                 }
@@ -875,11 +876,12 @@ internal static partial class Cases
     private static int NativeEditorCount(Action invoke)
     {
         int opened = 0;
+        HashSet<FlowNodeForm> seen = new HashSet<FlowNodeForm>();
         using (System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 15 })
         {
             timer.Tick += (sender, args) => {
-                FlowNodeForm dialog = Application.OpenForms.OfType<FlowNodeForm>().FirstOrDefault();
-                if (dialog == null) return;
+                FlowNodeForm dialog = Application.OpenForms.OfType<FlowNodeForm>().FirstOrDefault(form => form.Visible && !seen.Contains(form));
+                if (dialog == null || !seen.Add(dialog)) return;
                 opened++; dialog.DialogResult = DialogResult.Cancel; dialog.Close();
             };
             timer.Start(); invoke(); NativePump(40);

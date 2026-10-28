@@ -12,9 +12,10 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 - 初始化故障节点恢复：[NPSDK 69783aa4ae3fe267ab9c4b4afeb64727c6864884](https://github.com/JeffreyWub/NPSDK/commit/69783aa4ae3fe267ab9c4b4afeb64727c6864884)，分支 `codex/flow-runtime-state-20261028`。
 - 原生节点可关闭自动期限：[NPSDK 8ebbf7fd094fc679260efe6850d59e301ce35d60](https://github.com/JeffreyWub/NPSDK/commit/8ebbf7fd094fc679260efe6850d59e301ce35d60)，分支 `codex/flow-runtime-state-20261028`。
 - 节点右上角执行耗时：[NPSDK 77830aadaa698818cbff58c16bfdb094dfcbfcc1](https://github.com/JeffreyWub/NPSDK/commit/77830aadaa698818cbff58c16bfdb094dfcbfcc1)，分支 `codex/flow-runtime-state-20261028`。
+- 暂停归零与旧刷新保护：[NPSDK 20c39268e49a81493237497cf8ae4740e9202470](https://github.com/JeffreyWub/NPSDK/commit/20c39268e49a81493237497cf8ae4740e9202470)，分支 `codex/flow-runtime-state-20261028`。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
 - 大小：544256 字节。
-- SHA256：`d56c65c945231eb129386074ae5c63c6d6f3744a38d359fa1ab153e8eb15aa57`。
+- SHA256：`99f4028913950c420f10fc06b380915105087696bf996237c98c1cef122f6132`。
 
 该版本从独立、干净的源码工作树构建，不包含原 SDK 开发目录中的未提交改动。
 
@@ -32,7 +33,7 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 
 源码代码节点按原 FlowChat 的 `AlarmStaus`、`AlarmTimeOut`、`AlarmCode` 运行，加载旧工程时修正误带入的 10000ms／空编号，保留位置、身份及连接。关闭自动报警的原生节点使用 `TimeoutMs = -1`，仍可暂停、停止和报告业务异常；普通功能及条件节点仍要求正超时。新拖入的纯代码函数不默认附加 10 秒期限，已有明确保存的拖拽代码设置保留。SDK 原生事件 24/24、核心 13/13；宿主流程 147/147、主保存 17 项及源码生成回归通过，含实际下流道节点只读绑定核对，未调用现场 IO。
 
-节点右上角显示执行秒数，与原生 `FlowChart_ElapsedMilliseconds` 共用计时器；暂停冻结、普通继续累计、故障重试归零，完成后保留。复用流程页刷新周期，不为每个节点新增计时线程，耗时不写入配置。流程页停止统一到整机停止，立即撤销初始化续跑位置，下次初始化清除旧状态并从入口执行。主页改为蓝色导航和蓝色重点卡片，报警筛选条对齐；新 VPP 默认 X/Y/R，兼容旧角度键，表格紧跟标题。SDK 原生 25/25、核心 13/13，宿主流程 148/148、主保存 17 项、视觉与语言 63/63、主页三语与三种窗口尺寸 11/11；均为离线验证。
+节点右上角显示执行秒数，与原生 `FlowChart_ElapsedMilliseconds` 共用计时器；每次暂停归零并停表，继续从零重新计时，等待超时也获得完整周期，完成节点保留数值。停止立即清空全部节点耗时、执行标记、调试快照和流程页错误提示，旧的异步状态消息不能重新填回已清空界面；实际调用退出前仍保留运行占用。耗时不写入配置。流程页停止统一到整机停止，撤销初始化续跑位置，下次初始化从入口执行。主页为蓝色导航和重点卡片，报警筛选条对齐；新 VPP 默认 X/Y/R，兼容旧角度键，表格紧跟标题。暂停与清空专项：SDK 原生 26/26、核心 13/13，宿主流程 149/149、主保存 17 项及源码生成回归通过，包含三语清空检查；均为离线验证。
 
 ## 继承工具接入
 

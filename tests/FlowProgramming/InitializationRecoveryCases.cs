@@ -170,8 +170,21 @@ internal static partial class Cases
             ActionUntil(() => owner.Runtime.IsWaitingForRetry && Alarm.IsError, "Initialization did not reach its controlled exception.");
             using (Flow flow = new Flow())
             {
+                TabControl tabs = (TabControl)flow.Controls.Find("tabControl1", true).Single();
+                tabs.TabPages.Add(new TabPage { Tag = owner });
+                Assert(tabs.Handle != IntPtr.Zero, "The flow-page fixture did not create its tab handle.");
+                tabs.SelectedIndex = 0;
+                typeof(Flow).GetMethod("RefreshRuntime", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(flow, new object[] { null, EventArgs.Empty });
+                Assert(flow.Controls.Find("flowStatus_dyn", true).Single().Text.Length > 0, "The failed initialization did not display its error before Stop.");
                 Control button = flowButton ? flow.Controls.Find("stop", true).Single() : main.Controls.Find("MENU_Stop", true).Single();
                 typeof(Control).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(button, new object[] { EventArgs.Empty });
+                Wait(owner.Runtime.Completion); Wait(peer.Runtime.Completion); Application.DoEvents();
+                typeof(Flow).GetMethod("RefreshRuntime", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(flow, new object[] { null, EventArgs.Empty });
+                Assert(flow.Controls.Find("flowStatus_dyn", true).Single().Text == "", "Stop left an old runtime failure in the flow-page status.");
+                foreach (Flow_Chart node in new[] { page.Entry, page.Work, page.Last, page.Automatic, ((EntryOnlyPage)peer.Form).InitialNode })
+                    Assert(node.FlowChart_ElapsedMilliseconds == 0 && node.Controls.Find("elapsedTime", true).Single().Text == ""
+                        && node.Controls.Find("label1", true).Single().Text == node.ProgramBindingLabel,
+                        "Stop did not clear a completed, failed or unused node.");
             }
             Assert(!FlowPrograms.HasInitializationSession && !FlowPrograms.CanContinueInitialization && !page.InitialStatus,
                 "The actual Stop button retained a resumable initialization checkpoint.");

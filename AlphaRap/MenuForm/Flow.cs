@@ -328,7 +328,7 @@ namespace AlphaRap
             if (hasModule && module.IsInitializing && module.Runtime.IsPaused) pause.Enabled = false;
             if (!hasModule) return;
             module.RefreshElapsed();
-            if (module.Runtime.Error != null) { runtimeStatus = string.Format(FlowText.T("error"), module.Runtime.Error); status.Text = runtimeStatus; }
+            if (module.ExecutionError != null) { runtimeStatus = string.Format(FlowText.T("error"), module.ExecutionError); status.Text = runtimeStatus; }
             else if (runtimeStatus != null) { if (status.Text == runtimeStatus) status.Text = ""; runtimeStatus = null; }
         }
         /// <summary>Translate labels without changing names or selected data references.</summary>

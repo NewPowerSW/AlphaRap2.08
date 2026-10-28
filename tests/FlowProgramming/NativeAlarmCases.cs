@@ -39,6 +39,7 @@ internal static partial class Cases
         Test("new native toolbox nodes have no implicit Action deadline or fallback alarm code", NativeToolAlarmDefaults);
         Test("actual DownConveryor code binding preserves the compiled alarm policy without invoking IO", ActualConveyorNativeAlarm);
         Test("native elapsed-time code and the corner display share one clock and retain the completed value", NativeElapsedClock);
+        Test("each pause resets the active clock and Stop clears all node timing and state", NativePauseAndStopDisplay);
     }
 
     /// <summary>Prepare an isolated native source node without starting machine threads or writing site configuration.</summary>
@@ -157,6 +158,40 @@ internal static partial class Cases
             Assert(page.Node.FlowChart_ElapsedMilliseconds == elapsed, "A completed node kept accumulating time.");
             page.Ready = true; owner.Start(owner.Program.Steps.Single().Id, false, true); Wait(owner.Runtime.Completion);
             Assert(page.Node.FlowChart_ElapsedMilliseconds < elapsed, "A new initialization reused the previous elapsed time.");
+        });
+    }
+
+    /// <summary>Repeat real pause/resume commands and verify a stop remains visually clear after asynchronous cancellation.</summary>
+    private static void NativePauseAndStopDisplay()
+    {
+        WithNativeAlarm(false, (page, owner, actions) =>
+        {
+            Assert(page.Node.Handle != IntPtr.Zero, "The timing fixture did not create its node surface.");
+            owner.Start(owner.Program.Steps.Single().Id, false, false);
+            for (int pause = 0; pause < 2; pause++)
+            {
+                ActionUntil(() => page.Node.FlowChart_ElapsedMilliseconds >= 40, "The continued node clock did not advance.");
+                owner.Handle(FlowProgramCommand.Pause); NativePump(80);
+                Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && page.Node.Controls.Find("elapsedTime", true).Single().Text == "0.00 s",
+                    "A pause did not reset and hold the active clock at zero.");
+                owner.Handle(FlowProgramCommand.Resume);
+            }
+            owner.Handle(FlowProgramCommand.Stop); Wait(owner.Runtime.Completion); NativePump(80);
+            Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && page.Node.Controls.Find("elapsedTime", true).Single().Text == ""
+                && page.Node.Controls.Find("label1", true).Single().Text == page.Node.ProgramBindingLabel && owner.ExecutionError == null
+                && page.Node.Controls.Find("button1", true).Single().BackColor == System.Drawing.Color.White,
+                "Cancelled work or a queued status update repopulated the stopped display.");
+            LanguageType previous = SysPara.LanguageShow;
+            try
+            {
+                foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+                {
+                    SwitchLanguage(language); NativePump(20);
+                    Assert(page.Node.Controls.Find("elapsedTime", true).Single().Text == "" && page.Node.Controls.Find("label1", true).Single().Text == page.Node.ProgramBindingLabel,
+                        "Language switching restored a cleared elapsed time or execution state.");
+                }
+            }
+            finally { SwitchLanguage(previous); }
         });
     }
 

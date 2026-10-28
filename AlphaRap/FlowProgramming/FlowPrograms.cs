@@ -193,7 +193,7 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>取消全部工程会话，底层结束前保留占用和运行状态。</summary>
-        public static void StopAll() { foreach (FlowModuleEditor module in modules.Values) module.Runtime.Stop(); }
+        public static void StopAll() { foreach (FlowModuleEditor module in modules.Values) module.Handle(FlowProgramCommand.Stop); }
 
         /// <summary>恢复当前初始化会话及故障节点，保留已完成工位、运行结果和参数快照。</summary>
         public static void ContinueInitialization()
@@ -415,10 +415,13 @@ namespace AlphaRap.FlowProgramming
         private readonly Dictionary<string, Flow_Chart> removedNodes = new Dictionary<string, Flow_Chart>();
         private readonly ConcurrentDictionary<string, string> nodeStates = new ConcurrentDictionary<string, string>();
         private Flow_Chart timedNode;
+        private readonly object executionDisplaySync = new object();
+        private volatile bool stopped;
         public readonly Flow_BaseForm Form;
         public readonly FlowProgramRuntime Runtime = new FlowProgramRuntime();
         public bool IsRunning { get { return Runtime.IsRunning; } }
         public bool IsInitializing { get { return isProduction && isInitializing && Runtime.IsRunning; } }
+        public string ExecutionError { get { return stopped ? null : Runtime.Error; } }
         public FlowProgram Program { get; private set; }
         private FlowProgram published;
         internal FlowProgram PublishedProgram { get { return published; } }
@@ -882,18 +885,18 @@ namespace AlphaRap.FlowProgramming
         {
             if (command == FlowProgramCommand.Stop)
             {
+                lock (executionDisplaySync) stopped = true;
                 isInitializing = false; paused = false;
                 Form.InitialStatus = false; Form.PauseStatus = false; Form.StopStatus = true;
-                if (timedNode != null)
-                {
-                    timedNode.PauseProgramTiming();
-                    string id = IdOf(timedNode);
-                    if (id != null) nodeStates[id] = "Cancelled";
-                    timedNode.SetProgramState(FlowText.T("Cancelled"), Color.White);
-                }
-                Runtime.Stop(); return true;
+                Runtime.Stop(); ClearExecutionDisplay(); return true;
             }
-            if (command == FlowProgramCommand.Pause) { Runtime.Pause(); paused = true; if (timedNode != null) timedNode.PauseProgramTiming(); return true; }
+            if (command == FlowProgramCommand.Pause)
+            {
+                Runtime.Pause(); paused = true;
+                lock (executionDisplaySync)
+                    if (!stopped && Runtime.IsRunning && timedNode != null) timedNode.PauseProgramTiming(true);
+                return true;
+            }
             if (command == FlowProgramCommand.Resume || (command == FlowProgramCommand.Start && paused && Runtime.IsRunning))
             {
                 bool retry = Runtime.IsWaitingForRetry;
@@ -940,8 +943,8 @@ namespace AlphaRap.FlowProgramming
             Form.StopStatus = false;
             Form.PauseStatus = false;
             paused = false;
-            timedNode = null; nodeStates.Clear();
-            foreach (Flow_Chart node in nodes.Values) { node.ResetProgramTiming(); node.SetProgramState("", Color.White); }
+            ClearExecutionDisplay();
+            stopped = false;
             foreach (Flow_Chart node in nodes.Values) node.ProgramManaged = true;
             try
             {
@@ -970,11 +973,25 @@ namespace AlphaRap.FlowProgramming
         /// <summary>切换到节点 UI 显示状态，语言切换不修改节点业务名称。</summary>
         private void UpdateNodeExecution(FlowStep step, string state)
         {
-            Flow_Chart node = Node(step.Id);
-            if (node == null) return;
-            if (state == "Running") { timedNode = node; node.BeginProgramTiming(); }
-            if (state == "Completed" || state == "Timeout" || state == "Failed" || state == "Cancelled" || state == "RecoveryPaused") node.PauseProgramTiming();
-            DisplayState(step, state);
+            lock (executionDisplaySync)
+            {
+                if (stopped) return;
+                Flow_Chart node = Node(step.Id);
+                if (node == null) return;
+                if (state == "Running") { timedNode = node; node.BeginProgramTiming(); if (Runtime.IsPaused) node.PauseProgramTiming(true); }
+                if (state == "Completed" || state == "Timeout" || state == "Failed" || state == "Cancelled" || state == "RecoveryPaused") node.PauseProgramTiming();
+                DisplayState(step, state);
+            }
+        }
+
+        /// <summary>清空所有节点的运行显示和调试快照，保留流程布局及配置。</summary>
+        private void ClearExecutionDisplay()
+        {
+            lock (executionDisplaySync)
+            {
+                timedNode = null; nodeStates.Clear(); DebugSnapshot = null;
+                foreach (Flow_Chart node in nodes.Values) { node.ResetProgramTiming(); node.SetProgramState("", Color.White); }
+            }
         }
 
         /// <summary>复用流程页刷新周期，仅更新当前节点的右上角耗时。</summary>
@@ -983,11 +1000,15 @@ namespace AlphaRap.FlowProgramming
         /// <summary>显示节点业务状态，语言刷新不重新启动计时。</summary>
         private void DisplayState(FlowStep step, string state)
         {
-            Flow_Chart node = Node(step.Id);
-            if (node == null) return;
-            nodeStates[step.Id] = state;
-            Color color = state == "DebugPaused" || state == "RecoveryPaused" ? Color.LightSalmon : state == "Running" ? Color.LightGreen : state == "Completed" ? Color.White : state == "Waiting" ? Color.LightYellow : Color.MistyRose;
-            node.SetProgramState(FlowText.T(state), color);
+            lock (executionDisplaySync)
+            {
+                if (stopped) return;
+                Flow_Chart node = Node(step.Id);
+                if (node == null) return;
+                nodeStates[step.Id] = state;
+                Color color = state == "DebugPaused" || state == "RecoveryPaused" ? Color.LightSalmon : state == "Running" ? Color.LightGreen : state == "Completed" ? Color.White : state == "Waiting" ? Color.LightYellow : Color.MistyRose;
+                node.SetProgramState(FlowText.T(state), color);
+            }
         }
 
         /// <summary>在暂停与恢复间切换同一执行会话。</summary>
