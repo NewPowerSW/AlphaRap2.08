@@ -316,8 +316,6 @@ namespace AlphaRap.FlowProgramming
         public static bool CanStartMachine(bool initialize)
         {
             if (DebugEnabled && !CanEdit) { MessageBox.Show(FlowText.T("permission"), FlowText.T("title")); return false; }
-            try { if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) MiddleLayer.HardF.Resources.ValidateStart(!initialize && !SysPara.Simulation); }
-            catch (Exception error) { MessageBox.Show(error.Message,Configuration.HardwareText.T("title")); return false; }
             if (!installed) return true;
             if (AnyEditing)
             {

@@ -154,7 +154,7 @@ internal static partial class Cases
         Test("grouped resource editor follows language changes without committing edits", HardwareLanguages);
         Test("SDK refresh survives adding and disposing registered controls", HardwareRegistry);
         Test("continuous jog survives capture gain and stops on release or capture loss", JogCapture);
-        Test("SDK startup defers host-managed resources to the existing initialization button", DeferredInitialization);
+        Test("SDK startup leaves host-managed hardware initialization to application flows", DeferredInitialization);
         Test("axis and IO pages create resources through the actual add and confirm buttons", HardwareAddUi);
         Test("resource constant and point menus target the actual right-click object", ContextTargets);
         Test("CASE condition and production-field drafts delete through context menus", DraftMenus);
@@ -1011,14 +1011,14 @@ internal static partial class Cases
             probeInput.ParametersRequested += (sender,args)=>settings++; probeInput.ShowParameters();
         }
         Assert(settings == 2, "Group settings did not come from the composite entry.");
-        bool blocked = false; try { hardware.Resources.ValidateStart(); } catch (InvalidOperationException) { blocked = true; } Assert(blocked,"Unsaved definitions were allowed to start.");
-        blocked = false; try { hardware.Resources.Put(new HardwareDefinition { Name = "Duplicate port",Port = "2" }); } catch (InvalidOperationException) { blocked = true; } Assert(blocked,"A second axis object was bound to the same physical channel.");
+        Assert(hardware.Resources.IsDirty, "Resource edits lost their Main Save boundary.");
+        bool blocked = false; try { hardware.Resources.Put(new HardwareDefinition { Name = "Duplicate port",Port = "2" }); } catch (InvalidOperationException) { blocked = true; } Assert(blocked,"A second axis object was bound to the same physical channel.");
         hardware.Resources.Save();
         Assert(!hardware.Resources.IsDirty && HardwareResources.Load(hardware.Resources.PathName).Resources.Count == 3,"Resource definitions were not saved.");
         using (NP_Motor duplicate = new NP_Motor { Port=groupedAxis.Port,Vendor=groupedAxis.Vendor })
         {
-            blocked = false; try { hardware.Resources.ValidateStart(); } catch (InvalidOperationException) { blocked = true; }
-            Assert(blocked,"Startup did not detect a channel conflict introduced by a legacy control.");
+            blocked = false; try { hardware.Resources.ValidateForSave(); } catch (InvalidOperationException) { blocked = true; }
+            Assert(blocked,"Main Save did not detect a channel conflict introduced by a legacy control.");
         }
     }
 
@@ -1152,8 +1152,6 @@ internal static partial class Cases
             }
         }
         finally { lock (SDKPara.ControlList) { SDKPara.ControlList.Clear(); SDKPara.ControlList.AddRange(original); } }
-        bool blocked = false; try { hardware.Resources.ValidateStart(true); } catch (InvalidOperationException) { blocked = true; }
-        Assert(blocked,"Production start allowed new real resources before initialization.");
     }
 
     /// <summary>Verify menus locate clicked rows and groups without using previous selection or confirmation dialogs.</summary>

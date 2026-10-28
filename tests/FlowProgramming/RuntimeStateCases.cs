@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -63,6 +64,29 @@ internal sealed class RuntimeStatePage : Flow_BaseForm
     }
 }
 
+internal sealed class EntryOnlyPage : Flow_BaseForm
+{
+    internal readonly Flow_Chart InitialNode = new Flow_Chart { Name = "initialEntry", text = "Initial entry" };
+    internal readonly Flow_Chart AutoNode = new Flow_Chart { Name = "automaticEntry", text = "Automatic entry" };
+    internal int InitialCalls, AutoCalls;
+
+    /// <summary>Bind two ordinary native callbacks without any hardware references.</summary>
+    internal EntryOnlyPage()
+    {
+        Name = "EntryOnlyPage";
+        InitialNode.FlowChartRun += InitializeFlow; AutoNode.FlowChartRun += AutomaticFlow;
+        InitialPage.Controls.Add(InitialNode); AutoPage.Controls.Add(AutoNode);
+    }
+
+    /// <summary>Record entry into the initialization workflow.</summary>
+    [FlowTool("入口初始化", "Initialize entry", "Inicializar entrada", UsesHardware = false)]
+    private Flow_Chart.ResultType InitializeFlow() { Interlocked.Increment(ref InitialCalls); return Flow_Chart.ResultType.NEXT; }
+
+    /// <summary>Record entry into the automatic workflow.</summary>
+    [FlowTool("入口启动", "Start entry", "Iniciar entrada", UsesHardware = false)]
+    private Flow_Chart.ResultType AutomaticFlow() { Interlocked.Increment(ref AutoCalls); return Flow_Chart.ResultType.NEXT; }
+}
+
 internal static partial class Cases
 {
     /// <summary>Exercise one busy decision across completed, stopping and unmanaged execution states.</summary>
@@ -72,7 +96,84 @@ internal static partial class Cases
         Test("timed-out callbacks remain busy after Stop until the actual invocation returns", StoppingManagedState);
         Test("unmanaged legacy modules still block configuration changes", UnmanagedRuntimeState);
         Test("both machine entries explain all editing pages in three languages without changing drafts or starting nodes", EditingBlocksMachineStart);
-        Test("direct and main motor stops cancel manual homing without bypassing hardware startup busy checks", ManualHomeStartValidation);
+        Test("direct and main motor stops cancel manual homing while preserving physical feedback", ManualHomeStartValidation);
+        Test("main Initialize and Start dispatch native workflows without touching unrelated hardware", MachineEntriesIgnoreUnrelatedHardware);
+    }
+
+    /// <summary>Invoke actual main commands with unrelated unready IO and an axis whose busy read must never be called.</summary>
+    private static void MachineEntriesIgnoreUnrelatedHardware()
+    {
+        FieldInfo moduleField = typeof(FlowPrograms).GetField("modules", BindingFlags.Static | BindingFlags.NonPublic);
+        FieldInfo projectField = typeof(FlowPrograms).GetField("project", BindingFlags.Static | BindingFlags.NonPublic);
+        var modules = (Dictionary<Flow_BaseForm, FlowModuleEditor>)moduleField.GetValue(null);
+        var previousModules = modules.ToArray(); object previousProject = projectField.GetValue(null);
+        var previousPages = Flow_Module.FlowChart_ModuleList.ToArray(); var previousNodes = Flow_Module.FlowChart_List.ToArray();
+        ControlBaseInterface[] previousControls = SDKPara.ControlsSnapshot();
+        object previousMain = host.GetField("MainF").GetValue(null), previousData = host.GetField("DataF").GetValue(null);
+        bool previousSimulation = SysPara.Simulation, previousRun = SysPara.SystemRun, previousDebug = FlowPrograms.DebugEnabled;
+        bool previousUpInitial = SysPara.UpConveyorInitialOk, previousAllStop = Flow_Module.AllStop, previousAllPause = Flow_Module.AllPause;
+        RunMode previousMode = SysPara.SystemMode;
+        bool previousAlarmError = Alarm.IsError, previousAlarmWarning = Alarm.IsWarning, previousAlarmInformation = Alarm.IsInformation;
+        var previousAlarms = Alarm.AlarmList.ToArray(); var appAlarms = (List<string>)host.GetField("AlarmList").GetValue(null);
+        string[] previousAppAlarms = appAlarms.ToArray();
+        FieldInfo loadField = typeof(HardwareResources).GetField("loadError", BindingFlags.Instance | BindingFlags.NonPublic);
+        object previousLoadError = loadField.GetValue(hardware.Resources);
+        RuntimeManualAxisDriver driver = new RuntimeManualAxisDriver { BusyError = new InvalidOperationException("Unexpected unrelated-axis read") };
+        using (NP_Motor unusedAxis = new NP_Motor { Name = "Unused axis" })
+        using (NP_Output unusedOutput = new NP_Output { Name = "Unused output" })
+        {
+            try
+            {
+                modules.Clear(); projectField.SetValue(null, new FlowProject());
+                Flow_Module.FlowChart_ModuleList.Clear(); Flow_Module.FlowChart_List.Clear();
+                lock (SDKPara.ControlList) { SDKPara.ControlList.Clear(); SDKPara.ControlList.Add(unusedAxis); SDKPara.ControlList.Add(unusedOutput); }
+                typeof(NP_Motor).GetField("dMotor", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unusedAxis, driver);
+                typeof(NP_Motor).GetField("ready", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unusedAxis, true);
+                SetHost("MainF", null); SetHost("DataF", null);
+                SysPara.Simulation = false; SysPara.SystemRun = false; SysPara.SystemMode = RunMode.IDLE; FlowPrograms.DebugEnabled = false;
+                Alarm.IsError = false;
+                loadField.SetValue(hardware.Resources, new InvalidDataException("Unrelated hardware must not block flow entry"));
+                using (EntryOnlyPage page = new EntryOnlyPage()) VerifyMainEntryDispatch(page, driver);
+            }
+            finally
+            {
+                modules.Clear(); foreach (var item in previousModules) modules.Add(item.Key, item.Value);
+                projectField.SetValue(null, previousProject);
+                Flow_Module.FlowChart_ModuleList.Clear(); Flow_Module.FlowChart_ModuleList.AddRange(previousPages);
+                Flow_Module.FlowChart_List.Clear(); Flow_Module.FlowChart_List.AddRange(previousNodes);
+                lock (SDKPara.ControlList) { SDKPara.ControlList.Clear(); SDKPara.ControlList.AddRange(previousControls); }
+                loadField.SetValue(hardware.Resources, previousLoadError);
+                SetHost("MainF", previousMain); SetHost("DataF", previousData);
+                SysPara.Simulation = previousSimulation; SysPara.SystemRun = previousRun; SysPara.SystemMode = previousMode; FlowPrograms.DebugEnabled = previousDebug;
+                SysPara.UpConveyorInitialOk = previousUpInitial; Flow_Module.AllStop = previousAllStop; Flow_Module.AllPause = previousAllPause;
+                Alarm.AlarmList.Clear(); Alarm.AlarmList.AddRange(previousAlarms);
+                Alarm.IsError = previousAlarmError; Alarm.IsWarning = previousAlarmWarning; Alarm.IsInformation = previousAlarmInformation;
+                appAlarms.Clear(); appAlarms.AddRange(previousAppAlarms);
+            }
+        }
+    }
+
+    /// <summary>Complete the actual initialization and automatic entries, proving no hardware preflight was performed.</summary>
+    private static void VerifyMainEntryDispatch(EntryOnlyPage page, RuntimeManualAxisDriver driver)
+    {
+        FlowModuleEditor owner = FlowPrograms.Attach(page);
+        owner.Program.InitialEntry = owner.Program.Steps.Single(step => step.ControlName == page.InitialNode.Name).Id;
+        owner.Program.AutoEntry = owner.Program.Steps.Single(step => step.ControlName == page.AutoNode.Name).Id;
+        owner.Publish();
+        try
+        {
+            string notice = CaptureRuntimeDialog(() => host.GetMethod("Initial").Invoke(null, null));
+            Assert(notice == null, "Unrelated hardware blocked main initialization: " + notice);
+            Wait(owner.Runtime.Completion);
+            Assert(page.InitialCalls == 1 && page.InitialStatus && owner.Runtime.Error == null, "The main initialization entry was not executed.");
+            notice = CaptureRuntimeDialog(() => host.GetMethod("StartRun").Invoke(null, null));
+            Assert(notice == null, "Unrelated hardware blocked main start: " + notice);
+            ActionUntil(() => Volatile.Read(ref page.AutoCalls) == 1, "The main automatic entry was not dispatched.");
+            Wait(owner.Runtime.Completion);
+            Assert(driver.BusyReads == 0 && driver.HomeCalls == 0 && driver.Stops == 0, "Starting the workflow read or operated an unrelated axis.");
+            Thread.Sleep(150);
+        }
+        finally { owner.Runtime.Stop(); Wait(owner.Runtime.Completion); }
     }
 
     /// <summary>Disable only operation logging in this isolated fixture and restore the original host afterward.</summary>
@@ -231,7 +332,7 @@ internal static partial class Cases
         }
     }
 
-    /// <summary>Use a registered axis group with a fake driver to exercise the application's actual startup validation.</summary>
+    /// <summary>Use a registered axis group with a fake driver to exercise application and direct stops.</summary>
     private static void ManualHomeStartValidation()
     {
         HardwareEntry entry = hardware.Resources.Entries.Single(item => item.Definition.Id == groupedAxis.Id);
@@ -251,8 +352,6 @@ internal static partial class Cases
         {
             timer.Stop(); driverField.SetValue(motor, driver); readyField.SetValue(motor, true); group.CanOperate = () => true;
             lock (SDKPara.ControlList) { SDKPara.ControlList.Clear(); SDKPara.ControlList.Add(motor); }
-            VerifyUnavailableAxisStatus(group, driver, readyField);
-            hardware.Resources.ValidateStart();
             VerifyStoppedManualHome(group, driver, false, false);
             VerifyStoppedManualHome(group, driver, true, false);
             VerifyStoppedManualHome(group, driver, false, true);
@@ -266,30 +365,6 @@ internal static partial class Cases
             SwitchLanguage(previousLanguage); Thread.CurrentThread.CurrentUICulture = previousCulture;
             timer.Enabled = previousTimer; driver.Dispose();
         }
-    }
-
-    /// <summary>Do not query an uninitialized axis, and distinguish failed feedback from real movement in all languages.</summary>
-    private static void VerifyUnavailableAxisStatus(NP_AxisGroup group, RuntimeManualAxisDriver driver, FieldInfo readyField)
-    {
-        readyField.SetValue(group.Motor, false); driver.Busy = true;
-        int reads = driver.BusyReads;
-        hardware.Resources.ValidateStart();
-        Assert(driver.BusyReads == reads && !group.IsManualRunning, "An uninitialized axis was queried or labelled as moving.");
-        readyField.SetValue(group.Motor, true); driver.Busy = false;
-        driver.BusyError = new InvalidOperationException("dmc_check_done returned -7");
-        try
-        {
-            foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
-            {
-                SwitchLanguage(language);
-                InvalidOperationException failure = null;
-                try { hardware.Resources.ValidateStart(); } catch (InvalidOperationException error) { failure = error; }
-                string expected = string.Format(HardwareText.Words["axisStatusError"][(int)language], group.AxisCaption, driver.BusyError.Message);
-                Assert(failure != null && failure.Message == expected && ReferenceEquals(failure.InnerException, driver.BusyError),
-                    "Failed axis feedback was treated as movement or its raw diagnostic was lost.");
-            }
-        }
-        finally { driver.BusyError = null; }
     }
 
     /// <summary>Start homing through the group button, stop through either application path and reject only remaining physical activity.</summary>
@@ -308,10 +383,8 @@ internal static partial class Cases
             "A stopped manual home was restarted by the group refresh timer or the driver was not stopped exactly once.");
         Assert(group.IsManualRunning == holdAfterStop && driver.Busy == holdAfterStop,
             "The group lost actual driver motion or retained a stopped manual session.");
-        if (holdAfterStop) VerifyManualAxisBusyMessage(group);
         driver.Busy = false; PollManualAxis(group);
         Assert(!group.IsManualRunning, "A settled driver still has a stale manual-home session.");
-        hardware.Resources.ValidateStart();
     }
 
     /// <summary>Invoke the real UI refresh callback without showing a machine form or allowing asynchronous timer races.</summary>
@@ -321,21 +394,17 @@ internal static partial class Cases
         typeof(NP_AxisGroup).GetMethod("RefreshAxis", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(group, new object[] { null, EventArgs.Empty });
     }
 
-    /// <summary>Preserve physical-motion interlocks and identify the blocked axis using the actual three-language hardware message.</summary>
-    private static void VerifyManualAxisBusyMessage(NP_AxisGroup group)
-    {
-        foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
-        {
-            SwitchLanguage(language);
-            string actual = null;
-            try { hardware.Resources.ValidateStart(); } catch (InvalidOperationException error) { actual = error.Message; }
-            string expected = string.Format(HardwareText.Words["manualBusy"][(int)language], group.AxisCaption);
-            Assert(actual == expected, "A physically busy axis was not identified in the hardware startup guard: " + (actual ?? "<allowed>"));
-        }
-    }
-
     /// <summary>Capture and dismiss only native dialogs owned by this regression thread while the actual guard is called.</summary>
     private static string CaptureMachineStartDialog(bool initialize, out bool allowed)
+    {
+        bool result = false;
+        string message = CaptureRuntimeDialog(() => result = FlowPrograms.CanStartMachine(initialize));
+        allowed = result;
+        return message;
+    }
+
+    /// <summary>Observe only dialogs created by an actual main command on this isolated regression thread.</summary>
+    private static string CaptureRuntimeDialog(Action command)
     {
         uint thread = GetCurrentThreadId();
         string message = null;
@@ -355,7 +424,7 @@ internal static partial class Cases
                     Thread.Sleep(20);
                 }
             });
-            try { allowed = FlowPrograms.CanStartMachine(initialize); }
+            try { command(); }
             finally { finished.Cancel(); observer.GetAwaiter().GetResult(); }
         }
         return message;

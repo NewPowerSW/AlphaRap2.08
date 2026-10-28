@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace AlphaRap.Configuration
@@ -7,7 +7,7 @@ namespace AlphaRap.Configuration
     {
         public static readonly Dictionary<string,string[]> Words = new Dictionary<string,string[]>
         {
-            { "ioHint",new[]{"右键 IO 卡片编辑属性或删除。输出卡片与开关共用点击操作；配置统一使用主界面【保存】，新资源通过【初始化】连接。","Right-click an IO card to edit properties or delete. Click an output card or its switch to toggle. Use the main Save button; Initialize connects new resources.","Clic derecho en una tarjeta para editar o eliminar. Pulse una salida o su interruptor para conmutar. Use Guardar principal; Inicializar conecta recursos nuevos."} },
+            { "ioHint",new[]{"右键 IO 卡片编辑属性或删除。输出卡片与开关共用点击操作；配置统一使用主界面【保存】。连接和读写由流程负责。","Right-click an IO card to edit properties or delete. Click an output card or its switch to toggle. Use Main Save for configuration. The workflow controls connection and IO.","Clic derecho en una tarjeta para editar o eliminar. Pulse una salida o su interruptor para conmutar. Use Guardar principal. El flujo controla la conexión y las E/S."} },
             { "AxisPort",new[]{"轴号","Axis number","Número de eje"} },
             { "IoPort",new[]{"IO 点号","IO port","Puerto de E/S"} },
             { "ControlType",new[]{"控件类型","Control type","Tipo de control"} },
@@ -17,7 +17,7 @@ namespace AlphaRap.Configuration
             { "title",new[]{"硬件资源组合","Hardware resource groups","Grupos de recursos de hardware"} },
             { "addAxis",new[]{"新增轴","Add axis","Añadir eje"} }, { "addInput",new[]{"新增输入","Add input","Añadir entrada"} }, { "addOutput",new[]{"新增输出","Add output","Añadir salida"} },
             { "edit",new[]{"参数","Parameters","Parámetros"} }, { "delete",new[]{"删除资源","Delete resource","Eliminar recurso"} }, { "save",new[]{"保存资源定义","Save resource definitions","Guardar definiciones"} },
-            { "hint", new[] { "双击标题或右键属性编辑，右键删除；配置统一使用主界面【保存】。轴点位随当前配方切换。新资源使用主界面【初始化】连接；已连接资源修改驱动参数后需保存并重启。", "Double-click titles or right-click to edit properties; right-click to delete. Use the main Save button. Axis points follow the recipe. Main Initialize connects new resources; restart after saving driver changes to connected hardware.", "Doble clic en el título o clic derecho para editar propiedades; clic derecho para eliminar. Use Guardar principal. Los puntos siguen la receta. Inicializar conecta recursos nuevos; reinicie tras guardar cambios de controlador." } },
+            { "hint",new[]{"双击标题或右键属性编辑，右键删除；配置统一使用主界面【保存】。轴点位随配方切换，连接及运动由流程负责；已连接资源修改驱动参数后需保存并重启。","Double-click titles or right-click to edit properties; right-click to delete. Use Main Save. Axis points follow the recipe; the workflow controls connection and motion. Save and restart after changing connected hardware parameters.","Doble clic en el título o clic derecho para editar propiedades; clic derecho para eliminar. Use Guardar principal. Los puntos siguen la receta; el flujo controla la conexión y el movimiento. Guarde y reinicie tras cambiar parámetros conectados."} },
             { "invalid",new[]{"请检查名称、地址、有限参数、速度及软限位。","Check name, address, finite parameters, speeds and soft limits.","Revise nombre, dirección, parámetros finitos, velocidades y límites."} },
             { "vendor",new[]{"轴仅支持当前 SDK 提供的运动板卡厂商。","Axes require a motion-card vendor supported by this SDK.","Los ejes requieren un fabricante de tarjeta de movimiento admitido."} },
             { "duplicate",new[]{"资源名称重复。","Duplicate resource name.","Nombre de recurso duplicado."} },
@@ -29,11 +29,7 @@ namespace AlphaRap.Configuration
             { "duplicatePath",new[]{"配置文件路径重复，请检查模块身份。","Duplicate configuration file path. Check module identities.","Ruta de configuración duplicada. Revise la identidad de los módulos."} },
             { "noFreePort",new[]{"当前驱动的通道已用满，请先释放通道或配置其他板卡。","No free channel is available. Release a channel or configure another card.","No hay un canal libre. Libere un canal o configure otra tarjeta."} },
             { "loadError",new[]{"硬件资源文件加载失败，请恢复备份后重启，当前文件不会被覆盖。","Hardware definitions failed to load. Restore the backup and restart; the file will not be overwritten.","No se cargaron las definiciones. Restaure la copia y reinicie; no se sobrescribirá el archivo."} },
-            { "saveFirst", new[] { "硬件资源有未保存修改，请先点击主界面【保存】。", "Hardware resources have unsaved edits. Click the main Save button first.", "Hay recursos sin guardar. Pulse Guardar principal primero." } },
             { "restart", new[] { "已连接硬件的参数有变更，请点击主界面【保存】并重启后运行。", "Connected hardware parameters changed. Use the main Save button and restart before running.", "Cambió el hardware conectado. Use Guardar principal y reinicie antes de ejecutar." } },
-            { "notReady",new[]{"硬件初始化未就绪。","Hardware initialization is not ready.","La inicialización del hardware no está lista."} },
-            { "manualBusy",new[]{"以下轴的手动动作或运动尚未结束：{0}\n请停止对应轴并等待停稳后，再初始化或启动。","Manual operations or motion are still active on these axes: {0}\nStop these axes and wait until they are stationary before initializing or starting.","Siguen activas operaciones manuales o movimientos en estos ejes: {0}\nDetenga estos ejes y espere a que estén inmóviles antes de inicializar o iniciar."} },
-            { "axisStatusError",new[]{"无法确认轴“{0}”的运动状态：{1}\n请检查板卡连接和轴配置。","Cannot determine the motion state of axis '{0}': {1}\nCheck the controller connection and axis configuration.","No se puede determinar el estado de movimiento del eje «{0}»: {1}\nCompruebe la conexión de la tarjeta y la configuración del eje."} },
             { "referenced",new[]{"以下节点仍绑定该资源或点位参数，不能删除：{0}","These nodes still bind this resource or its point parameters; deletion is blocked: {0}","Estos nodos aún usan el recurso o sus puntos; no se permite eliminar: {0}"} },
             { "remove", new[] { "删除资源“{0}”？点击主界面【保存】后下次启动不再创建该组合，历史配方点位保留。", "Delete resource '{0}'? Use the main Save button to keep it removed after restart. Historical recipe points remain.", "¿Eliminar «{0}»? Use Guardar principal para mantenerlo eliminado tras reiniciar. Se conservan los puntos históricos." } },
             { "saved",new[]{"资源定义已保存。点位请使用主界面【保存】。","Definitions saved. Use the main Save button to save points.","Definiciones guardadas. Use Guardar principal para guardar puntos."} },

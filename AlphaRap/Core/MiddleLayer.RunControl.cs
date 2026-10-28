@@ -15,11 +15,6 @@ namespace AlphaRap
             if (!FlowProgramming.FlowPrograms.CanStartMachine(true)) return;
             if (FlowProgramming.FlowPrograms.HasPrograms) FlowProgramming.FlowPrograms.BeginBatch();
             if (Alarm.IsError) { ShowResetAlarmWarning(); return; }
-            if (HardF != null && HardF.Resources != null)
-            {
-                try { HardF.Resources.InitializePending(); }
-                catch (System.Exception error) { MessageBox.Show(error.Message,Configuration.HardwareText.T("title")); return; }
-            }
             if (SysPara.SystemMode == RunMode.RUN)
             {
                 DialogResult choice = MessageBox.Show(
@@ -42,26 +37,13 @@ namespace AlphaRap
             Flow_Module.Module_InitialRun();
         }
 
-        /// <summary>视觉就绪且完成初始化时进入生产；暂停后的恢复保留输送线状态。</summary>
+        /// <summary>触发自动流程；暂停后恢复同一流程会话。</summary>
         public static void StartRun()
         {
             if (!FlowProgramming.FlowPrograms.CanStartMachine(false)) return;
-            string visionError;
-            if (!FlowProgramming.FlowPrograms.HasPrograms && VPF != null && !VPF.CanStartProduction(out visionError))
-            {
-                MessageBox.Show(visionError, LangMsg("Vision", "msg_NotReady", "视觉尚未就绪", "Vision is not ready", "Visión no está lista"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
             AlarmClear();
             Thread.Sleep(200);
             if (Alarm.IsError) { ShowResetAlarmWarning(); return; }
-            if (!FlowProgramming.FlowPrograms.HasPrograms && !SysPara.UpConveyorInitialOk)
-            {
-                MessageBox.Show(LangMsg("MiddleLayer", "msg_InitializeFirst", "请先初始化。", "Initialize the machine first.", "Inicialice primero la máquina."),
-                    LangMsg("Common", "msg_WarningTitle", "警告", "Warning", "Aviso"), MessageBoxButtons.OK, MessageBoxIcon.Warning,
-                    MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                return;
-            }
 
             if (SysPara.SystemRun && SysPara.SystemMode == RunMode.PAUSE)
             {

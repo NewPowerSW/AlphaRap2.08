@@ -196,38 +196,6 @@ namespace AlphaRap.Configuration
             return Entries.Where(entry=>entry.Group is NP_AxisGroup).Any(entry=>((NP_AxisGroup)entry.Group).Points.DataSet1.GetChanges()!=null);
         }
 
-        /// <summary>正式初始化前检查定义已保存，运行时连接变更必须通过重启应用。</summary>
-        public void ValidateStart(bool requireReady = false)
-        {
-            if (loadError != null) throw new InvalidOperationException(HardwareText.T("loadError"),loadError);
-            if (IsDirty) throw new InvalidOperationException(HardwareText.T("saveFirst"));
-            if (RequiresRestart) throw new InvalidOperationException(HardwareText.T("restart"));
-            foreach (HardwareEntry entry in Entries) ValidatePhysicalAddress(entry.Definition,entry.Device);
-            if (requireReady && Entries.Any(entry=>!Ready(entry.Device))) throw new InvalidOperationException(HardwareText.T("notReady"));
-            List<string> moving = new List<string>();
-            foreach (HardwareEntry entry in Entries.Where(entry=>entry.Group is NP_AxisGroup))
-            {
-                string name = string.IsNullOrWhiteSpace(entry.Device.Text) ? entry.Definition.Name : entry.Device.Text;
-                try { if (((NP_AxisGroup)entry.Group).IsManualRunning) moving.Add(name); }
-                catch (Exception error) { throw new InvalidOperationException(string.Format(HardwareText.T("axisStatusError"), name, error.Message), error); }
-            }
-            if (moving.Count > 0) throw new InvalidOperationException(string.Format(HardwareText.T("manualBusy"), string.Join(", ", moving)));
-        }
-
-        /// <summary>主界面初始化时连接新加且未初始化的对象，模拟模式只设置标记。</summary>
-        public void InitializePending()
-        {
-            ValidateStart();
-            foreach (HardwareEntry entry in Entries)
-            {
-                if (Ready(entry.Device)) continue;
-                entry.Device.SetSimulation(SysPara.Simulation);
-                if (SysPara.Simulation) continue;
-                lock (entry.Device) entry.Device.Initial();
-                if (!Ready(entry.Device)) throw new InvalidOperationException(entry.Definition.Name + ": " + HardwareText.T("notReady"));
-            }
-        }
-
         /// <summary>创建一个资源组合和其真实驱动对象，名称及点位表身份来自稳定 ID。</summary>
         private HardwareEntry Create(HardwareDefinition definition)
         {
