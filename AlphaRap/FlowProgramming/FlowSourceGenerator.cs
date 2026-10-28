@@ -71,6 +71,20 @@ namespace AlphaRap.FlowProgramming
             }
         }
 
+        /// <summary>只读取所有权清单中的生成源码，查看过程不创建、修改或删除任何文件。</summary>
+        public static IDictionary<string, string> ReadGeneratedSources()
+        {
+            string directory = OutputDirectory;
+            Manifest manifest = ReadManifest(Path.Combine(directory, "FlowSources.manifest.xml"));
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            foreach (OwnedFile source in manifest.Files.OrderBy(item => item.FileName))
+            {
+                string path = OwnedPath(directory, source.FileName);
+                result.Add(source.FileName, File.ReadAllText(path));
+            }
+            return result;
+        }
+
         /// <summary>显示当前关联或导出路径，并明确生成源码仍需编译。</summary>
         public static string ModeDescription
         {

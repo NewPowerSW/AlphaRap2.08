@@ -12,12 +12,12 @@ namespace AlphaRap.FlowProgramming
         private readonly Dictionary<string, FlowMethod> debugMethods = new Dictionary<string, FlowMethod>();
 
         /// <summary>固定本次运行的节点和字段标题，运行结束后的草稿编辑不改变观察结果归属。</summary>
-        private void PrepareDebugPlan(FlowProgram plan, string entry, FlowActions actions, bool enabled)
+        private void PrepareDebugPlan(FlowProgram plan, IEnumerable<string> entries, FlowActions actions, bool enabled)
         {
             debugPlan = enabled ? FlowProgramFile.Snapshot(plan) : null;
             debugMethods.Clear();
             if (!enabled) return;
-            foreach (FlowStep step in FlowProgramFile.Reachable(debugPlan, entry)) debugMethods[step.Id] = actions.FindMethod(step);
+            foreach (FlowStep step in entries.SelectMany(entry => FlowProgramFile.Reachable(debugPlan, entry))) debugMethods[step.Id] = actions.FindMethod(step);
         }
 
         /// <summary>读取本次执行快照的节点身份，不通过当前工程草稿重新解释旧结果。</summary>
@@ -41,7 +41,7 @@ namespace AlphaRap.FlowProgramming
                 if (stopped) return;
                 FlowDebugSnapshot previous = DebugSnapshot;
                 if (snapshot.State == "Finished" && previous != null && (string.IsNullOrEmpty(snapshot.StepId) || snapshot.StepId == previous.StepId))
-                    snapshot = new FlowDebugSnapshot { StepId = previous.StepId, State = snapshot.State, Inputs = previous.Inputs, Outputs = previous.Outputs, BranchCode = previous.BranchCode };
+                    snapshot = new FlowDebugSnapshot { EntryId = snapshot.EntryId, StepId = previous.StepId, State = snapshot.State, Inputs = previous.Inputs, Outputs = previous.Outputs, BranchCode = previous.BranchCode };
                 DebugSnapshot = snapshot;
             }
         }

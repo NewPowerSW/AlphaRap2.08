@@ -11,6 +11,9 @@ namespace AlphaRap.FlowProgramming
     {
         private FlowModuleEditor module;
         private FlowDebugSnapshot snapshot;
+        private bool filling;
+        private string selectedEntry;
+        public string SelectedStepId { get { return snapshot == null ? null : snapshot.StepId; } }
         public event EventHandler ContinueRequested;
         public event EventHandler StepRequested;
 
@@ -21,22 +24,48 @@ namespace AlphaRap.FlowProgramming
             if (UiTheme.IsDesignTime) return;
             debugContinue.Click += (sender, args) => { if (ContinueRequested != null) ContinueRequested(this, EventArgs.Empty); };
             debugStep.Click += (sender, args) => { if (StepRequested != null) StepRequested(this, EventArgs.Empty); };
+            debugFlows.SelectedIndexChanged += SelectFlow;
         }
 
         /// <summary>切换模块或调试快照时更新观察值，不重复采样设备或执行表达式。</summary>
         public void Bind(FlowModuleEditor current)
         {
-            bool changed = !ReferenceEquals(module, current) || !ReferenceEquals(snapshot, current == null ? null : current.DebugSnapshot);
+            if (!ReferenceEquals(module, current)) selectedEntry = null;
             module = current;
-            snapshot = module == null ? null : module.DebugSnapshot;
-            debugContinue.Enabled = debugStep.Enabled = module != null && FlowPrograms.CanEdit && module.Runtime.IsDebugPaused;
+            FlowDebugSnapshot[] values = module == null || module.DebugSnapshot == null ? new FlowDebugSnapshot[0] : module.Runtime.DebugSnapshots.ToArray();
+            filling = true;
+            debugFlows.Items.Clear();
+            foreach (FlowDebugSnapshot item in values)
+            {
+                FlowStep entry = module.FindDebugStep(item.EntryId ?? item.StepId);
+                debugFlows.Items.Add(new FlowChoice { Id = item.EntryId ?? item.StepId, Label = entry == null ? item.StepId : entry.Caption });
+            }
+            debugFlows.DisplayMember = "Label";
+            if (selectedEntry == null && module != null && module.DebugSnapshot != null) selectedEntry = module.DebugSnapshot.EntryId ?? module.DebugSnapshot.StepId;
+            debugFlows.SelectedIndex = Array.FindIndex(values, item => (item.EntryId ?? item.StepId) == selectedEntry);
+            debugFlows.Visible = values.Length > 1;
+            filling = false;
+            FlowDebugSnapshot next = values.FirstOrDefault(item => (item.EntryId ?? item.StepId) == selectedEntry);
+            bool changed = !ReferenceEquals(snapshot, next);
+            snapshot = next;
+            debugContinue.Enabled = debugStep.Enabled = module != null && FlowPrograms.CanEdit && snapshot != null && snapshot.State == "Paused" && module.Runtime.IsDebugPaused;
             if (changed) RefreshValues();
+        }
+
+        /// <summary>选择需要观察和单步的并行流程，其他入口继续保持当前状态。</summary>
+        private void SelectFlow(object sender, EventArgs args)
+        {
+            if (filling) return;
+            FlowChoice choice = debugFlows.SelectedItem as FlowChoice;
+            selectedEntry = choice == null ? null : choice.Id;
+            Bind(module);
         }
 
         /// <summary>翻译标签和观察字段显示名，保留运行器已产生的业务值。</summary>
         public void RefreshLanguage()
         {
             FlowLanguageForm.ApplyTexts(this);
+            debugFlows.AccessibleName = FlowText.T("debugFlow");
             RefreshValues();
         }
 

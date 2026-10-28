@@ -1394,4 +1394,10 @@
     <Compile Include="FlowProgramming\FlowToolboxControl.Designer.cs"><DependentUpon>FlowToolboxControl.cs</DependentUpon></Compile>
     <Compile Include="GeneratedFlows\**\*.cs"><SubType>Code</SubType></Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FlowProgramming\FlowEntryForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowEntryForm.Designer.cs"><DependentUpon>FlowEntryForm.cs</DependentUpon></Compile>
+    <Compile Include="FlowProgramming\FlowSourceViewer.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="FlowProgramming\FlowSourceViewer.Designer.cs"><DependentUpon>FlowSourceViewer.cs</DependentUpon></Compile>
+  </ItemGroup>
 </Project>

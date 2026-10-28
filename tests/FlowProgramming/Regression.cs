@@ -192,6 +192,7 @@ internal static partial class Cases
         RegisterHardwareDerivedTypeCases();
         RegisterFrameworkInheritanceCases();
         RegisterNativeEventCases();
+        RegisterParallelEntryCases();
         Test("first Boolean CASE defaults to the opposite result and missing objects explain repair", BeginnerNodeDefaults);
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
         ExportP0FieldTexts();
@@ -442,7 +443,7 @@ internal static partial class Cases
         step.Branches = new[] { "NEXT", "CASE1", "CASE2", "CASE3" }.Select((code, i) => EqualBranch(code, i.ToString())).ToList();
         FlowProgramFile.Save(path, project);
         string xml = File.ReadAllText(path);
-        Assert(project.Version == 3 && !xml.Contains("<Failure>") && xml.Contains("<Case3>three</Case3>") && FlowProgramFile.Load(path).Modules[0].Steps[0].Branches.Count == 4, "Native branch persistence duplicated or renamed exits.");
+        Assert(project.Version == 4 && !xml.Contains("<Failure>") && xml.Contains("<Case3>three</Case3>") && FlowProgramFile.Load(path).Modules[0].Steps[0].Branches.Count == 4, "Native branch persistence duplicated or renamed exits.");
     }
 
     /// <summary>Load model files through the existing ProductManagerForm recipe entry point.</summary>
@@ -1294,6 +1295,7 @@ internal static partial class Cases
         Control status = ActionControl<Control>(page, "flowStatus_dyn");
         Assert(workspace.Panel1Collapsed && toggle.Image != null && toggle.Text == "" && toggle.Visible,
             "The toolbox did not start as a single, visible icon.");
+        Assert(page.Controls.Find("add", true).Length == 0, "The separate Add node button remains in the flow toolbar.");
         Assert(page.Controls.Find("flowHelp", true).Length == 0 && page.Controls.Find("toolboxHint", true).Length == 0,
             "A deleted permanent operation hint remains in the visual tree.");
         status.Text = ""; Application.DoEvents();

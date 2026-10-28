@@ -16,7 +16,6 @@ namespace AlphaRap
         private FlowModuleEditor contextModule;
         private string contextNodeId;
         private FlowModuleEditor contextPage;
-        private Control activeCanvas;
         private readonly Dictionary<Flow_BaseForm, TabPage> pages = new Dictionary<Flow_BaseForm, TabPage>();
         /// <summary>Bind the engineering commands to all registered base-form instances.</summary>
         public Flow()
@@ -36,14 +35,13 @@ namespace AlphaRap
             tabControl1.SelectedIndexChanged += (sender, args) => RefreshSelection();
             edit.CheckedChanged += ToggleEditing;
             moduleEnabled.CheckedChanged += UpdateDefinition;
-            initialValue.SelectedIndexChanged += UpdateDefinition;
-            autoValue.SelectedIndexChanged += UpdateDefinition;
+            initialValue.Click += (sender, args) => Execute(() => SelectEntries(true));
+            autoValue.Click += (sender, args) => Execute(() => SelectEntries(false));
             addModule.Click += (sender, args) => Execute(() =>
             {
                 using (FlowInputForm dialog = new FlowInputForm(FlowText.T("moduleName")))
                     if (dialog.ShowDialog(this) == DialogResult.OK) { FlowPrograms.AddModule(dialog.InputValue); AddFlowChart(); }
             });
-            add.Click += (sender, args) => Execute(() => Current().AddNode());
             nodeMenu.Opening += OpenNodeMenu;
             nodeDelete.Click += (sender, args) => Execute(() => DeleteNode(contextModule, contextNodeId));
             nodeProperties.Click += (sender, args) => Execute(() => { if (contextModule != null) contextModule.EditNode(contextNodeId); });
@@ -55,8 +53,8 @@ namespace AlphaRap
                 filling = true; debugMode.Checked = FlowPrograms.DebugEnabled; filling = false;
                 RefreshRuntime(null, EventArgs.Empty);
             };
-            debugPanel.ContinueRequested += (sender, args) => Execute(() => { if (FlowPrograms.CanEdit && tabControl1.SelectedTab != null) Current().Runtime.ContinueDebug(); });
-            debugPanel.StepRequested += (sender, args) => Execute(() => { if (FlowPrograms.CanEdit && tabControl1.SelectedTab != null) Current().Runtime.StepDebug(); });
+            debugPanel.ContinueRequested += (sender, args) => Execute(() => { if (FlowPrograms.CanEdit && tabControl1.SelectedTab != null) Current().Runtime.ContinueDebug(debugPanel.SelectedStepId); });
+            debugPanel.StepRequested += (sender, args) => Execute(() => { if (FlowPrograms.CanEdit && tabControl1.SelectedTab != null) Current().Runtime.StepDebug(debugPanel.SelectedStepId); });
             tabControl1.MouseDown += OpenModuleMenu;
             moduleDelete.Click += (sender, args) => Execute(() => DeleteModule(contextPage));
             ApplyLanguage(null, EventArgs.Empty);
@@ -65,7 +63,6 @@ namespace AlphaRap
             stop.Click += (sender, args) => MiddleLayer.StopRun();
             pause.Click += (sender, args) => { if (tabControl1.SelectedTab != null) Current().TogglePause(); };
             schema.Click += (sender, args) => Execute(() => { FlowPrograms.RequireIdle(); using (FlowSchemaForm dialog = new FlowSchemaForm(MiddleLayer.DataF)) dialog.ShowDialog(this); });
-            toolbox.InsertRequested += entry => Execute(() => InsertToolboxEntry(entry, KeyboardCanvas(), null));
             viewSources.Click += (sender, args) => Execute(ViewGeneratedSources);
             timer.Tick += RefreshRuntime;
         }
@@ -146,20 +143,8 @@ namespace AlphaRap
                 parent.DragEnter -= ToolboxDragOver; parent.DragEnter += ToolboxDragOver;
                 parent.DragOver -= ToolboxDragOver; parent.DragOver += ToolboxDragOver;
                 parent.DragDrop -= ToolboxDrop; parent.DragDrop += ToolboxDrop;
-                parent.MouseDown -= RememberCanvas; parent.MouseDown += RememberCanvas;
             }
             foreach (Control child in parent.Controls) BindDropTargets(child);
-        }
-
-        /// <summary>记录最近点击的有效画布，供双击工具箱和键盘新增使用。</summary>
-        private void RememberCanvas(object sender, MouseEventArgs args) { activeCanvas = (Control)sender; }
-
-        /// <summary>键盘新增使用当前选中的流程页，不依赖工具箱获取焦点后的 ActiveControl。</summary>
-        private Control KeyboardCanvas()
-        {
-            Flow_BaseForm form = Current().Form;
-            if (activeCanvas != null && !activeCanvas.IsDisposed && activeCanvas.Visible && (activeCanvas == form || form.Contains(activeCanvas))) return activeCanvas;
-            return (Control)form.FlowChartTable.SelectedTab ?? form;
         }
 
         /// <summary>仅在空闲编辑的实际画布接受工具箱条目。</summary>
@@ -183,27 +168,29 @@ namespace AlphaRap
             Execute(() => InsertToolboxEntry(entry, canvas, point));
         }
 
-        /// <summary>拖放和键盘共用模块新增校验，不创建替身硬件对象。</summary>
-        private void InsertToolboxEntry(FlowToolboxEntry entry, Control canvas, Point? requested)
+        /// <summary>按拖放位置新增已绑定对象的节点，不创建替身硬件对象。</summary>
+        private void InsertToolboxEntry(FlowToolboxEntry entry, Control canvas, Point point)
         {
             FlowModuleEditor module = FlowPrograms.Modules.FirstOrDefault(item => canvas == item.Form || item.Form.Contains(canvas));
             if (module == null || !module.IsEditing) throw new InvalidOperationException(FlowText.T("edit"));
-            Point scroll = canvas is ScrollableControl ? ((ScrollableControl)canvas).AutoScrollPosition : Point.Empty;
-            int bottom = canvas.Controls.OfType<Flow_Chart>().Select(node => node.Bottom - scroll.Y + 35).DefaultIfEmpty(40).Max();
-            Point point = requested ?? new Point(40, bottom);
             point = new Point(Math.Max(0, point.X), Math.Max(0, point.Y));
             if (entry.ExecutionMode == "None") module.AddNode("None", canvas, point);
             else if (entry.ExecutionMode == "Action") module.AddNode(entry.TargetId, entry.ActionId, canvas, point);
             else throw new InvalidOperationException(FlowText.T("retiredNodeChoice"));
-            activeCanvas = canvas;
         }
 
-        /// <summary>查看已生成的模块源码目录，不添加保存入口或生成现场配置。</summary>
+        /// <summary>在应用内只读查看已生成源码，不开放文件修改或删除入口。</summary>
         private void ViewGeneratedSources()
         {
-            string directory = FlowSourceGenerator.OutputDirectory;
-            if (!System.IO.Directory.Exists(directory)) { MessageBox.Show(string.Format(FlowToolboxText.T("sourceDirectoryMissing"), directory), FlowToolboxText.T("sourceDirectory")); return; }
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = directory, UseShellExecute = true });
+            using (FlowSourceViewer viewer = new FlowSourceViewer(FlowSourceGenerator.ReadGeneratedSources(), FlowSourceGenerator.OutputDirectory)) viewer.ShowDialog(this);
+        }
+
+        /// <summary>多选当前阶段需要同时启动的入口，确定仅修改内存草稿。</summary>
+        private void SelectEntries(bool initializing)
+        {
+            FlowPrograms.RequireIdle();
+            using (FlowEntryForm dialog = new FlowEntryForm(Current(), initializing)) dialog.ShowDialog(this);
+            RefreshSelection(false);
         }
 
         /// <summary>复用节点右键菜单，覆盖 Flow_Chart 内部按钮的鼠标表面。</summary>
@@ -236,7 +223,7 @@ namespace AlphaRap
             if (tabControl1.SelectedTab == null)
             {
                 filling = true;
-                foreach (ComboBox combo in new[] { initialValue, autoValue }) combo.DataSource = null;
+                initialValue.Text = autoValue.Text = FlowText.T("chooseEntries");
                 moduleEnabled.Checked = false;
                 edit.Checked = false;
                 filling = false;
@@ -247,13 +234,8 @@ namespace AlphaRap
             filling = true;
             FlowModuleEditor module = Current();
             moduleEnabled.Checked = module.Program.Mode != "Disabled";
-            foreach (ComboBox combo in new[] { initialValue, autoValue })
-            {
-                combo.DisplayMember = "Label"; combo.ValueMember = "Id";
-                combo.DataSource = new[] { new FlowChoice { Id = "", Label = FlowText.T("end") } }.Concat(module.Program.Steps.Select(step => new FlowChoice { Id = step.Id, Label = step.Caption })).ToList();
-            }
-            initialValue.SelectedValue = module.Program.InitialEntry ?? ""; autoValue.SelectedValue = module.Program.AutoEntry ?? "";
-            initialValue.AccessibleName = FlowText.T("initialEntry"); autoValue.AccessibleName = FlowText.T("autoEntry");
+            RefreshEntryButton(initialValue, module.Program.InitialEntries, module, true);
+            RefreshEntryButton(autoValue, module.Program.AutoEntries, module, false);
             edit.Checked = module.IsEditing;
             BindNodeMenus(module.Form);
             filling = false;
@@ -269,9 +251,15 @@ namespace AlphaRap
                 FlowPrograms.RequireIdle();
                 FlowProgram program = Current().Program;
                 program.Mode = moduleEnabled.Checked ? "Program" : "Disabled";
-                program.InitialEntry = Convert.ToString(initialValue.SelectedValue);
-                program.AutoEntry = Convert.ToString(autoValue.SelectedValue);
             });
+        }
+
+        /// <summary>入口按钮显示选中数量，悬停列出全部入口名称。</summary>
+        private void RefreshEntryButton(Button button, IList<string> entries, FlowModuleEditor module, bool initializing)
+        {
+            button.Text = entries.Count == 0 ? FlowText.T("chooseEntries") : string.Format(FlowText.T("selectedEntries"), entries.Count);
+            button.AccessibleName = FlowText.T(initializing ? "initialFlows" : "automaticFlows");
+            sourceHint.SetToolTip(button, string.Join(Environment.NewLine, entries.Select(id => module.Program.Steps.Where(step => step.Id == id).Select(step => step.Caption).FirstOrDefault() ?? id)));
         }
         /// <summary>Enable dragging and configuration for the active module.</summary>
         private void ToggleEditing(object sender, EventArgs args)
@@ -341,7 +329,7 @@ namespace AlphaRap
             bool hasModule = module != null;
             debugMode.Enabled = !busy && canEdit && hasModule && SysPara.SystemMode == RunMode.IDLE;
             foreach (Control control in new Control[] { addModule, reload, schema }) control.Enabled = !busy && canEdit;
-            foreach (Control control in new Control[] { edit, moduleEnabled, initialValue, autoValue, add, validate }) control.Enabled = !busy && canEdit && hasModule;
+            foreach (Control control in new Control[] { edit, moduleEnabled, initialValue, autoValue, validate }) control.Enabled = !busy && canEdit && hasModule;
             toolbox.Enabled = !busy && canEdit && hasModule && module.IsEditing && SysPara.SystemMode == RunMode.IDLE;
             if (!canEdit)
             {

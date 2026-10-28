@@ -114,7 +114,7 @@ namespace AlphaRap.FlowProgramming
         internal static FlowProject CaptureForSave()
         {
             ValidateForSave();
-            return new FlowProject { Version = 3, Modules = project.Modules.Select(FlowProgramFile.Snapshot).ToList() };
+            return new FlowProject { Version = 4, Modules = project.Modules.Select(FlowProgramFile.Snapshot).ToList() };
         }
 
         /// <summary>所有文件成功提交后发布同一保存快照，不重新采样未保存的编辑值。</summary>
@@ -414,11 +414,11 @@ namespace AlphaRap.FlowProgramming
         private readonly FlowControlSource controlSource;
         private readonly Dictionary<string, Flow_Chart> removedNodes = new Dictionary<string, Flow_Chart>();
         private readonly ConcurrentDictionary<string, string> nodeStates = new ConcurrentDictionary<string, string>();
-        private Flow_Chart timedNode;
+        private readonly HashSet<Flow_Chart> timedNodes = new HashSet<Flow_Chart>();
         private readonly object executionDisplaySync = new object();
         private volatile bool stopped;
         public readonly Flow_BaseForm Form;
-        public readonly FlowProgramRuntime Runtime = new FlowProgramRuntime();
+        public readonly FlowProgramGroup Runtime = new FlowProgramGroup();
         public bool IsRunning { get { return Runtime.IsRunning; } }
         public bool IsInitializing { get { return isProduction && isInitializing && Runtime.IsRunning; } }
         public string ExecutionError { get { return stopped ? null : Runtime.Error; } }
@@ -443,6 +443,7 @@ namespace AlphaRap.FlowProgramming
             Runtime.DebugChanged += CaptureDebug;
             Runtime.AlarmRequested += code => { if (!simulating) Alarm.Show(string.IsNullOrWhiteSpace(code) ? "2019" : code); };
             Runtime.Finished += Finish;
+            Runtime.PauseRequested += ResetActiveTiming;
             MiddleLayer.LanguageChanged += RefreshBindingHints;
             Form.Disposed += DisposeEditor;
         }
@@ -792,8 +793,8 @@ namespace AlphaRap.FlowProgramming
                 if (step.Case2 == id) step.Case2 = null;
                 if (step.Case3 == id) step.Case3 = null;
             }
-            if (Program.InitialEntry == id) Program.InitialEntry = null;
-            if (Program.AutoEntry == id) Program.AutoEntry = null;
+            Program.InitialEntries.Remove(id);
+            Program.AutoEntries.Remove(id);
             ApplyLinks();
             if (canvas != null) UpdateCanvasBounds(canvas);
         }
@@ -864,7 +865,7 @@ namespace AlphaRap.FlowProgramming
             if (plan.Mode != "Program") throw new InvalidDataException(FlowText.T("invalidFlowMode") + " " + Form.Name);
             if (entry == null) ValidateEntries(plan);
             IEnumerable<FlowStep> reachable = entry == null
-                ? FlowProgramFile.Reachable(plan, plan.InitialEntry).Concat(FlowProgramFile.Reachable(plan, plan.AutoEntry))
+                ? plan.InitialEntries.Concat(plan.AutoEntries).SelectMany(id => FlowProgramFile.Reachable(plan, id)).Distinct()
                 : FlowProgramFile.Reachable(plan, entry);
             foreach (FlowStep step in reachable) actions.Validate(step);
         }
@@ -893,21 +894,18 @@ namespace AlphaRap.FlowProgramming
             if (command == FlowProgramCommand.Pause)
             {
                 Runtime.Pause(); paused = true;
-                lock (executionDisplaySync)
-                    if (!stopped && Runtime.IsRunning && timedNode != null) timedNode.PauseProgramTiming(true);
                 return true;
             }
             if (command == FlowProgramCommand.Resume || (command == FlowProgramCommand.Start && paused && Runtime.IsRunning))
             {
-                bool retry = Runtime.IsWaitingForRetry;
                 Runtime.Resume(); paused = Runtime.IsPaused; Form.PauseStatus = paused;
-                string id = timedNode == null ? null : IdOf(timedNode), state;
-                if (!paused && !retry && Runtime.IsRunning && id != null && nodeStates.TryGetValue(id, out state) && (state == "Running" || state == "Waiting"))
-                    timedNode.ResumeProgramTiming();
+                lock (executionDisplaySync)
+                    if (!paused && Runtime.IsRunning)
+                        foreach (Flow_Chart node in timedNodes) node.ResumeProgramTiming();
                 return true;
             }
             if (published.Mode == "Disabled") { Form.InitialStatus = true; Form.RunningStatus = false; return true; }
-            Action start = () => StartCore(command == FlowProgramCommand.Initialize ? published.InitialEntry : published.AutoEntry, SysPara.Simulation, command == FlowProgramCommand.Initialize, true, FlowPrograms.DebugEnabled);
+            Action start = () => StartEntries(command == FlowProgramCommand.Initialize ? published.InitialEntries : published.AutoEntries, SysPara.Simulation, command == FlowProgramCommand.Initialize, true, FlowPrograms.DebugEnabled);
             if (MiddleLayer.MainF != null && MiddleLayer.MainF.InvokeRequired) MiddleLayer.MainF.Invoke(start); else start();
             return true;
         }
@@ -921,6 +919,12 @@ namespace AlphaRap.FlowProgramming
         /// <summary>使用同一已校验运行计划，可选在节点执行前进入调试等待。</summary>
         private void StartCore(string entry, bool simulate, bool initializing, bool production, bool debug)
         {
+            StartEntries(string.IsNullOrEmpty(entry) ? new string[0] : new[] { entry }, simulate, initializing, production, debug);
+        }
+
+        /// <summary>同一模块的各入口并发运行，初始化在全部入口结束后完成。</summary>
+        private void StartEntries(IEnumerable<string> entries, bool simulate, bool initializing, bool production, bool debug)
+        {
             if (Runtime.IsRunning) throw new InvalidOperationException(FlowText.T("busy"));
             if (production) FlowPrograms.RequireLoaded();
             SetEditing(false);
@@ -928,8 +932,12 @@ namespace AlphaRap.FlowProgramming
             if (plan.Removed) throw new InvalidOperationException(FlowText.T("moduleMissing"));
             FlowResources resources = FlowResources.Capture();
             FlowActions actions = new FlowActions(resources, Form) { Simulate = simulate, RequestInput = FlowInputForm.Request, UsePublishedOutputs = production };
-            ValidatePlan(plan, entry, actions);
-            if (string.IsNullOrEmpty(entry)) { Form.InitialStatus = true; Form.RunningStatus = false; return; }
+            string[] selected = entries.ToArray();
+            if (selected.Length == 0) ValidatePlan(plan, null, actions);
+            foreach (string entry in selected) ValidatePlan(plan, entry, actions);
+            List<string> errors = FlowProgramFile.ValidateEntries(plan, selected);
+            if (errors.Count > 0) throw new InvalidOperationException(string.Join(Environment.NewLine, errors));
+            if (selected.Length == 0) { Form.InitialStatus = true; Form.RunningStatus = false; return; }
             simulating = simulate;
             isInitializing = initializing;
             isProduction = production;
@@ -937,7 +945,7 @@ namespace AlphaRap.FlowProgramming
             Runtime.ExecuteStep = actions.ExecuteOutcome;
             Runtime.PauseOnFailure = production && initializing;
             DebugSnapshot = null;
-            PrepareDebugPlan(plan, entry, actions, debug);
+            PrepareDebugPlan(plan, selected, actions, debug);
             Form.RunningStatus = true;
             if (initializing) Form.InitialStatus = false;
             Form.StopStatus = false;
@@ -948,7 +956,7 @@ namespace AlphaRap.FlowProgramming
             foreach (Flow_Chart node in nodes.Values) node.ProgramManaged = true;
             try
             {
-                Runtime.Start(plan, entry, new FlowExecutionContext { Hub = FlowPrograms.Results, RunId = FlowPrograms.Results.Epoch,
+                Runtime.StartMany(plan, selected, new FlowExecutionContext { Hub = FlowPrograms.Results, RunId = FlowPrograms.Results.Epoch,
                     CycleId = "batch", ModuleId = plan.ModuleId, RecipeName = resources.RecipeName, Parameters = resources.Parameters }, debug);
             }
             catch
@@ -962,7 +970,8 @@ namespace AlphaRap.FlowProgramming
         /// <summary>执行任务完成前更新模块状态，避免旧回调覆盖下一次启动。</summary>
         private void Finish()
         {
-            if (timedNode != null) timedNode.PauseProgramTiming();
+            lock (executionDisplaySync)
+                foreach (Flow_Chart node in timedNodes) node.PauseProgramTiming();
             Form.RunningStatus = false;
             foreach (Flow_Chart node in nodes.Values) node.ProgramManaged = IsEnabled;
             if (isInitializing) Form.InitialStatus = Runtime.Error == null;
@@ -978,8 +987,8 @@ namespace AlphaRap.FlowProgramming
                 if (stopped) return;
                 Flow_Chart node = Node(step.Id);
                 if (node == null) return;
-                if (state == "Running") { timedNode = node; node.BeginProgramTiming(); if (Runtime.IsPaused) node.PauseProgramTiming(true); }
-                if (state == "Completed" || state == "Timeout" || state == "Failed" || state == "Cancelled" || state == "RecoveryPaused") node.PauseProgramTiming();
+                if (state == "Running") { timedNodes.Add(node); node.BeginProgramTiming(); if (Runtime.IsPaused) node.PauseProgramTiming(true); }
+                if (state == "Completed" || state == "Timeout" || state == "Failed" || state == "Cancelled" || state == "RecoveryPaused") { timedNodes.Remove(node); node.PauseProgramTiming(); }
                 DisplayState(step, state);
             }
         }
@@ -989,13 +998,45 @@ namespace AlphaRap.FlowProgramming
         {
             lock (executionDisplaySync)
             {
-                timedNode = null; nodeStates.Clear(); DebugSnapshot = null;
+                timedNodes.Clear(); nodeStates.Clear(); DebugSnapshot = null;
                 foreach (Flow_Chart node in nodes.Values) { node.ResetProgramTiming(); node.SetProgramState("", Color.White); }
             }
         }
 
-        /// <summary>复用流程页刷新周期，仅更新当前节点的右上角耗时。</summary>
-        public void RefreshElapsed() { if (timedNode != null && !timedNode.IsDisposed) timedNode.RefreshProgramTiming(); }
+        /// <summary>复用流程页刷新周期，更新各并行流程当前节点的耗时。</summary>
+        public void RefreshElapsed()
+        {
+            lock (executionDisplaySync)
+                foreach (Flow_Chart node in timedNodes) if (!node.IsDisposed) node.RefreshProgramTiming();
+        }
+
+        /// <summary>每次暂停清零所有正在执行的节点计时，保留已完成节点的耗时。</summary>
+        private void ResetActiveTiming()
+        {
+            lock (executionDisplaySync)
+                if (!stopped) foreach (Flow_Chart node in timedNodes) node.PauseProgramTiming(true);
+        }
+
+        /// <summary>列出当前阶段可选的节点，保留自定义容器内的历史节点。</summary>
+        public List<FlowChoice> EntryChoices(bool initializing)
+        {
+            Control otherPage = initializing ? (Control)Form.AutoPage : Form.InitialPage;
+            return Program.Steps.Where(step => !otherPage.Contains(Node(step.Id)))
+                .Select(step => new FlowChoice { Id = step.Id, Label = step.Caption + " (" + step.ControlName + ")" }).ToList();
+        }
+
+        /// <summary>校验多选入口草稿；主保存成功后才用于整机运行。</summary>
+        public void SetEntries(bool initializing, IEnumerable<string> entries)
+        {
+            FlowPrograms.RequireIdle();
+            List<string> selected = entries.ToList();
+            HashSet<string> allowed = new HashSet<string>(EntryChoices(initializing).Select(item => item.Id));
+            if (selected.Any(id => !allowed.Contains(id))) throw new InvalidOperationException(FlowText.T("entryPhaseMismatch"));
+            List<string> errors = FlowProgramFile.ValidateEntries(Program, selected);
+            if (errors.Count > 0) throw new InvalidOperationException(string.Join(Environment.NewLine, errors));
+            if (initializing) Program.InitialEntries = selected;
+            else Program.AutoEntries = selected;
+        }
 
         /// <summary>显示节点业务状态，语言刷新不重新启动计时。</summary>
         private void DisplayState(FlowStep step, string state)

@@ -152,7 +152,6 @@ internal static partial class Cases
             Assert(tree.Nodes.Count == 0 && search.Text == "probe/rebind" && probe.Calls == 0 && probe.Simulations == 0,
                 "Rebinding retained a deleted target or invoked the real method while browsing.");
             search.Clear();
-            FlowToolboxEntry inserted = null; toolbox.InsertRequested += value => inserted = value;
             tree.SelectedNode = tree.Nodes.Cast<TreeNode>().SelectMany(group => group.Nodes.Cast<TreeNode>()).Single(node => ((FlowToolboxEntry)node.Tag).ExecutionMode == "None");
             string selectedId = ((FlowToolboxEntry)tree.SelectedNode.Tag).Id;
             search.Text = "missing-tool-" + Guid.NewGuid().ToString("N");
@@ -160,8 +159,8 @@ internal static partial class Cases
             search.Clear();
             Assert(tree.SelectedNode != null && ((FlowToolboxEntry)tree.SelectedNode.Tag).Id == selectedId,
                 "Clearing a temporary filter lost the previously selected tool.");
-            typeof(Control).GetMethod("OnKeyDown", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(tree, new object[] { new KeyEventArgs(Keys.Enter) });
-            Assert(inserted != null && inserted.ExecutionMode == "None", "Enter did not request the selected condition node.");
+            DataObject payload = new DataObject(FlowToolboxControl.DragFormat, tree.SelectedNode.Tag);
+            Assert(((FlowToolboxEntry)payload.GetData(FlowToolboxControl.DragFormat)).ExecutionMode == "None", "The condition tool has no stable drag payload.");
         }
         SwitchLanguage(LanguageType.Chinese);
     }

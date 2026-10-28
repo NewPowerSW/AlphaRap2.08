@@ -98,7 +98,7 @@ namespace AlphaRap.FlowProgramming
             HashSet<string> retained = new HashSet<string>();
             foreach (FlowStep step in program.Steps.Where(step => !removed.Contains(step.Id)))
                 foreach (string target in Exits.Select(step.TargetOf).Where(target => target != null && removed.Contains(target))) retained.Add(target);
-            foreach (string entry in new[] { program.InitialEntry, program.AutoEntry })
+            foreach (string entry in program.InitialEntries.Concat(program.AutoEntries))
                 if (entry != null && removed.Contains(entry)) retained.Add(entry);
             foreach (string id in removed)
                 if (FlowPrograms.NodeReferences(program, id).Count > 0) retained.Add(id);

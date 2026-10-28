@@ -221,7 +221,7 @@ internal static partial class Cases
         Test("automatic non-cooperative calls retain the actual resource lease through cancellation", AutoMethodOwnership);
         Test("derived IO and axis methods coexist with standard actions and the axis bound point table", AutoMethodHardware);
         Test("explicit IO capabilities remain authoritative while a new derived layer is discovered automatically", AutoMethodExplicitInheritance);
-        Test("automatic tools appear in three languages and insert through the existing toolbox command", AutoMethodToolbox);
+        Test("automatic tools expose stable drag payloads in three languages", AutoMethodToolbox);
         Test("automatic action identities survive file reload and bind the reconstructed actual object", AutoMethodPersistence);
         Test("optional tool titles and simulation metadata do not require a registration catalogue", AutoMethodOptionalMetadata);
     }
@@ -450,7 +450,7 @@ internal static partial class Cases
         });
     }
 
-    /// <summary>Expose inherited methods through the existing translated toolbox and ordinary insertion event.</summary>
+    /// <summary>Expose inherited methods through the translated toolbox and stable drag payload.</summary>
     private static void AutoMethodToolbox()
     {
         WithAutoMethods((page, actions) =>
@@ -472,9 +472,9 @@ internal static partial class Cases
                     entryId = entry.Id;
                     tree.SelectedNode = tree.Nodes.Cast<TreeNode>().SelectMany(group => group.Nodes.Cast<TreeNode>()).Single(node => ((FlowToolboxEntry)node.Tag).Id == entryId);
                 }
-                FlowToolboxEntry inserted = null; toolbox.InsertRequested += value => inserted = value;
-                typeof(Control).GetMethod("OnKeyDown", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(tree, new object[] { new KeyEventArgs(Keys.Enter) });
-                Assert(inserted != null && inserted.TargetId == resource.Id && inserted.ActionId == action, "The normal toolbox command did not insert the automatically discovered equipment action.");
+                DataObject payload = new DataObject(FlowToolboxControl.DragFormat, tree.SelectedNode.Tag);
+                FlowToolboxEntry selected = (FlowToolboxEntry)payload.GetData(FlowToolboxControl.DragFormat);
+                Assert(selected.TargetId == resource.Id && selected.ActionId == action, "The drag payload lost the inherited equipment method.");
             }
         });
         SwitchLanguage(LanguageType.Chinese);

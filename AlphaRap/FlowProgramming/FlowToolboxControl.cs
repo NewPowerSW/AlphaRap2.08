@@ -11,7 +11,7 @@ namespace AlphaRap.FlowProgramming
         public string Id, ExecutionMode, TargetId, ActionId, Category, Title;
     }
 
-    /// <summary>显示真实对象动作及条件节点，拖放和键盘使用同一稳定条目。</summary>
+    /// <summary>显示实际对象动作及条件节点，拖放携带稳定的对象和方法身份。</summary>
     public partial class FlowToolboxControl : UserControl
     {
         public const string DragFormat = "AlphaRap.FlowToolboxEntry";
@@ -19,7 +19,6 @@ namespace AlphaRap.FlowProgramming
         private List<FlowToolboxEntry> choices = new List<FlowToolboxEntry>();
         private string selectedEntryId;
         private bool languageSubscribed;
-        public event Action<FlowToolboxEntry> InsertRequested;
 
         /// <summary>创建固定工具箱模板，设计期不读取模块或设备目录。</summary>
         public FlowToolboxControl()
@@ -33,8 +32,6 @@ namespace AlphaRap.FlowProgramming
                 if (entry != null) selectedEntryId = entry.Id;
             };
             entries.ItemDrag += DragEntry;
-            entries.NodeMouseDoubleClick += (sender, args) => Insert(args.Node);
-            entries.KeyDown += InsertWithKeyboard;
             MiddleLayer.LanguageChanged += LanguageChanged;
             languageSubscribed = true;
             RefreshLanguage();
@@ -107,20 +104,6 @@ namespace AlphaRap.FlowProgramming
             FlowToolboxEntry entry = node == null ? null : node.Tag as FlowToolboxEntry;
             if (entry == null || !Enabled) return;
             entries.DoDragDrop(new DataObject(DragFormat, entry), DragDropEffects.Copy);
-        }
-
-        /// <summary>选中功能后按 Enter 与双击执行相同的新增请求。</summary>
-        private void InsertWithKeyboard(object sender, KeyEventArgs args)
-        {
-            if (args.KeyCode != Keys.Enter) return;
-            args.Handled = true; args.SuppressKeyPress = true; Insert(entries.SelectedNode);
-        }
-
-        /// <summary>将新增交给宿主统一校验编辑权限、画布及工程草稿。</summary>
-        private void Insert(TreeNode node)
-        {
-            FlowToolboxEntry entry = node == null ? null : node.Tag as FlowToolboxEntry;
-            if (entry != null && Enabled && InsertRequested != null) InsertRequested(entry);
         }
 
         /// <summary>刷新固定文案与功能标题，不清空查询文字。</summary>

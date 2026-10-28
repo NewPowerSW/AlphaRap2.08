@@ -11,6 +11,7 @@ namespace AlphaRap.FlowProgramming
         private System.Windows.Forms.FlowLayoutPanel commands;
         private System.Windows.Forms.Button debugContinue;
         private System.Windows.Forms.Button debugStep;
+        private System.Windows.Forms.ComboBox debugFlows;
 
         /// <summary>以固定控件呈现节点输入输出和单步命令，设计期不读取工程或设备。</summary>
         private void InitializeComponent()
@@ -20,6 +21,7 @@ namespace AlphaRap.FlowProgramming
             this.commands = new System.Windows.Forms.FlowLayoutPanel();
             this.debugContinue = new System.Windows.Forms.Button();
             this.debugStep = new System.Windows.Forms.Button();
+            this.debugFlows = new System.Windows.Forms.ComboBox();
             this.debugValues = new System.Windows.Forms.DataGridView();
             this.directionColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.fieldColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -51,6 +53,10 @@ namespace AlphaRap.FlowProgramming
             //
             this.commands.Controls.Add(this.debugContinue);
             this.commands.Controls.Add(this.debugStep);
+            this.debugFlows.Name = "debugFlows_dyn";
+            this.debugFlows.Dock = System.Windows.Forms.DockStyle.Top;
+            this.debugFlows.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.debugFlows.Visible = false;
             this.commands.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.commands.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.commands.Height = 36;
@@ -116,6 +122,7 @@ namespace AlphaRap.FlowProgramming
             //
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.Controls.Add(this.debugValues);
+            this.Controls.Add(this.debugFlows);
             this.Controls.Add(this.debugTitle);
             this.Controls.Add(this.commands);
             this.Controls.Add(this.debugHint);

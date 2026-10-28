@@ -6,6 +6,17 @@ namespace AlphaRap.FlowProgramming
     {
         public static readonly Dictionary<string, string[]> Defaults = new Dictionary<string, string[]>
         {
+            { "initialFlows", new[] { "初始化流程", "Initialization flows", "Flujos de inicialización" } },
+            { "automaticFlows", new[] { "自动运行流程", "Automatic flows", "Flujos automáticos" } },
+            { "chooseEntries", new[] { "选择启动流程…", "Select flows…", "Seleccionar flujos…" } },
+            { "selectedEntries", new[] { "已选择 {0} 条流程…", "{0} flows selected…", "{0} flujos seleccionados…" } },
+            { "entrySelection", new[] { "选择启动流程", "Select startup flows", "Seleccionar flujos de inicio" } },
+            { "entryExplanation", new[] { "勾选需要同时启动的流程入口；全部结束后，该模块的当前阶段才完成。", "Select the flows to start together. This stage completes when all selected flows finish.", "Seleccione los flujos que iniciarán juntos. La etapa termina cuando finalizan todos." } },
+            { "entryPhaseMismatch", new[] { "请选择对应初始化或自动流程页面内的入口。", "Choose entries on the corresponding initialization or automatic page.", "Seleccione entradas de la página correspondiente de inicialización o automática." } },
+            { "sourceReadOnly", new[] { "生成源码（只读）", "Generated source (read-only)", "Código generado (solo lectura)" } },
+            { "sourceNotGenerated", new[] { "尚未生成源码，请完成流程配置后使用主界面保存。", "No source has been generated. Configure the flow and use Main Save.", "Aún no hay código generado. Configure el flujo y use Guardar principal." } },
+            { "debugFlow", new[] { "当前调试流程", "Observed flow", "Flujo observado" } },
+            { "close", new[] { "关闭", "Close", "Cerrar" } },
             { "retiredNode", new[] { "节点“{0}”使用已移除的 C# 脚本或代码模块。请选择现有功能或仅判断条件并重新配置后保存。", "Node '{0}' uses a removed C# script or code module. Configure it as an existing action or conditions only before saving.", "El nodo «{0}» usa un script C# o módulo de código eliminado. Configúrelo como acción existente o solo condiciones antes de guardar." } },
             { "retiredNodeChoice", new[] { "只能添加现有功能或仅判断条件节点。", "Only existing action and condition nodes can be added.", "Solo se pueden añadir nodos de acciones existentes o condiciones." } },
             { "retiredModeNotice", new[] { "C# 脚本和代码模块已移除。请选择现有功能或仅判断条件后重新配置；原条件、出口与断点保留，取消不改变原节点。", "C# scripts and code modules were removed. Select an existing action or conditions only and reconfigure. Conditions, destinations and breakpoints are retained; Cancel keeps the original node.", "Se eliminaron los scripts C# y módulos de código. Seleccione acción existente o solo condiciones y reconfigure. Se conservan condiciones, destinos y puntos de interrupción; Cancelar mantiene el nodo original." } },

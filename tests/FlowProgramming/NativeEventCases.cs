@@ -519,10 +519,9 @@ internal static partial class Cases
                     Assert(search.Text == "Poll_FlowChartRun" && tree.Nodes.Cast<TreeNode>().SelectMany(group => group.Nodes.Cast<TreeNode>()).Count() == 1,
                         "Native tool search was cleared or did not match its readable method name.");
                 }
-                FlowToolboxEntry inserted = null; toolbox.InsertRequested += entry => inserted = entry;
                 tree.SelectedNode = tree.Nodes[0].Nodes[0];
-                typeof(Control).GetMethod("OnKeyDown", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(tree, new object[] { new KeyEventArgs(Keys.Enter) });
-                Assert(inserted != null && inserted.TargetId == target && inserted.ActionId == action, "The toolbox keyboard path did not select the native callback.");
+                FlowToolboxEntry inserted = (FlowToolboxEntry)new DataObject(FlowToolboxControl.DragFormat, tree.SelectedNode.Tag).GetData(FlowToolboxControl.DragFormat);
+                Assert(inserted.TargetId == target && inserted.ActionId == action, "The toolbox drag data did not select the native callback.");
                 FlowStep added = owner.AddNode(inserted.TargetId, inserted.ActionId, page.Canvas, new Point(70, 170));
                 Assert(added.UsesFlowResult && added.Target == target && page.Polls == 0, "Toolbox insertion executed or replaced the callback.");
             }
