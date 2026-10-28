@@ -100,8 +100,8 @@ namespace AlphaRap
             this.band.Controls.Add(this.saveRow);
             this.band.Controls.Add(this.paramRow);
             this.band.Controls.Add(this.foot);
-            this.band.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.band.Location = new System.Drawing.Point(0, 34);
+            this.band.Dock = System.Windows.Forms.DockStyle.Top;
+            this.band.Location = new System.Drawing.Point(0, 30);
             this.band.Name = "band";
             this.band.Size = new System.Drawing.Size(900, 266);
             this.band.TabIndex = 1;
@@ -439,8 +439,8 @@ namespace AlphaRap
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
-            this.Controls.Add(this.head);
             this.Controls.Add(this.band);
+            this.Controls.Add(this.head);
             this.Name = "VpVppPage";
             this.Size = new System.Drawing.Size(900, 300);
             this.head.ResumeLayout(false);

@@ -100,8 +100,8 @@
             this.kpiLayout.Margin = new System.Windows.Forms.Padding(0, 0, 0, 14);
             this.kpiOkCard.Name = "kpiOkCard";
             this.kpiOkCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.kpiOkCard.BackColor = System.Drawing.Color.FromArgb(14, 29, 48);
-            this.kpiOkCard.FillColor = System.Drawing.Color.FromArgb(14, 29, 48);
+            this.kpiOkCard.BackColor = System.Drawing.Color.FromArgb(7, 113, 182);
+            this.kpiOkCard.FillColor = System.Drawing.Color.FromArgb(7, 113, 182);
             this.kpiOkCard.BorderColor = System.Drawing.Color.FromArgb(214, 226, 239);
             this.kpiOkCard.ShowBorder = false;
             this.kpiOkCard.ShowShadow = false;
@@ -116,7 +116,7 @@
             this.lblKpiOkTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiOkTitle.AutoEllipsis = true;
             this.lblKpiOkTitle.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiOkTitle.ForeColor = System.Drawing.Color.FromArgb(154, 174, 197);
+            this.lblKpiOkTitle.ForeColor = System.Drawing.Color.FromArgb(218, 239, 253);
             this.lblKpiOkTitle.BackColor = System.Drawing.Color.Transparent;
             this.lblKpiOkTitle.Text = "良品产出";
             this.lblKpiOkTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -135,7 +135,7 @@
             this.lblKpiOkHint.Margin = new System.Windows.Forms.Padding(0);
             this.lblKpiOkHint.AutoEllipsis = true;
             this.lblKpiOkHint.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblKpiOkHint.ForeColor = System.Drawing.Color.FromArgb(78, 202, 251);
+            this.lblKpiOkHint.ForeColor = System.Drawing.Color.FromArgb(218, 239, 253);
             this.lblKpiOkHint.BackColor = System.Drawing.Color.Transparent;
             this.lblKpiOkHint.Text = "本小时 0";
             this.lblKpiOkHint.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;

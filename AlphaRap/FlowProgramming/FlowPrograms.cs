@@ -414,6 +414,7 @@ namespace AlphaRap.FlowProgramming
         private readonly FlowControlSource controlSource;
         private readonly Dictionary<string, Flow_Chart> removedNodes = new Dictionary<string, Flow_Chart>();
         private readonly ConcurrentDictionary<string, string> nodeStates = new ConcurrentDictionary<string, string>();
+        private Flow_Chart timedNode;
         public readonly Flow_BaseForm Form;
         public readonly FlowProgramRuntime Runtime = new FlowProgramRuntime();
         public bool IsRunning { get { return Runtime.IsRunning; } }
@@ -435,7 +436,7 @@ namespace AlphaRap.FlowProgramming
             controlSource = new FlowControlSource(form);
             Restore(program);
             Publish();
-            Runtime.StateChanged += DisplayState;
+            Runtime.StateChanged += UpdateNodeExecution;
             Runtime.DebugChanged += CaptureDebug;
             Runtime.AlarmRequested += code => { if (!simulating) Alarm.Show(string.IsNullOrWhiteSpace(code) ? "2019" : code); };
             Runtime.Finished += Finish;
@@ -879,11 +880,28 @@ namespace AlphaRap.FlowProgramming
         /// <summary>通过同一控制器处理所有派生窗体的生命周期。</summary>
         public bool Handle(FlowProgramCommand command)
         {
-            if (command == FlowProgramCommand.Stop) { Runtime.Stop(); return true; }
-            if (command == FlowProgramCommand.Pause) { Runtime.Pause(); paused = true; return true; }
+            if (command == FlowProgramCommand.Stop)
+            {
+                isInitializing = false; paused = false;
+                Form.InitialStatus = false; Form.PauseStatus = false; Form.StopStatus = true;
+                if (timedNode != null)
+                {
+                    timedNode.PauseProgramTiming();
+                    string id = IdOf(timedNode);
+                    if (id != null) nodeStates[id] = "Cancelled";
+                    timedNode.SetProgramState(FlowText.T("Cancelled"), Color.White);
+                }
+                Runtime.Stop(); return true;
+            }
+            if (command == FlowProgramCommand.Pause) { Runtime.Pause(); paused = true; if (timedNode != null) timedNode.PauseProgramTiming(); return true; }
             if (command == FlowProgramCommand.Resume || (command == FlowProgramCommand.Start && paused && Runtime.IsRunning))
             {
-                Runtime.Resume(); paused = Runtime.IsPaused; Form.PauseStatus = paused; return true;
+                bool retry = Runtime.IsWaitingForRetry;
+                Runtime.Resume(); paused = Runtime.IsPaused; Form.PauseStatus = paused;
+                string id = timedNode == null ? null : IdOf(timedNode), state;
+                if (!paused && !retry && Runtime.IsRunning && id != null && nodeStates.TryGetValue(id, out state) && (state == "Running" || state == "Waiting"))
+                    timedNode.ResumeProgramTiming();
+                return true;
             }
             if (published.Mode == "Disabled") { Form.InitialStatus = true; Form.RunningStatus = false; return true; }
             Action start = () => StartCore(command == FlowProgramCommand.Initialize ? published.InitialEntry : published.AutoEntry, SysPara.Simulation, command == FlowProgramCommand.Initialize, true, FlowPrograms.DebugEnabled);
@@ -920,7 +938,10 @@ namespace AlphaRap.FlowProgramming
             Form.RunningStatus = true;
             if (initializing) Form.InitialStatus = false;
             Form.StopStatus = false;
+            Form.PauseStatus = false;
             paused = false;
+            timedNode = null; nodeStates.Clear();
+            foreach (Flow_Chart node in nodes.Values) { node.ResetProgramTiming(); node.SetProgramState("", Color.White); }
             foreach (Flow_Chart node in nodes.Values) node.ProgramManaged = true;
             try
             {
@@ -938,6 +959,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>执行任务完成前更新模块状态，避免旧回调覆盖下一次启动。</summary>
         private void Finish()
         {
+            if (timedNode != null) timedNode.PauseProgramTiming();
             Form.RunningStatus = false;
             foreach (Flow_Chart node in nodes.Values) node.ProgramManaged = IsEnabled;
             if (isInitializing) Form.InitialStatus = Runtime.Error == null;
@@ -946,6 +968,19 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>切换到节点 UI 显示状态，语言切换不修改节点业务名称。</summary>
+        private void UpdateNodeExecution(FlowStep step, string state)
+        {
+            Flow_Chart node = Node(step.Id);
+            if (node == null) return;
+            if (state == "Running") { timedNode = node; node.BeginProgramTiming(); }
+            if (state == "Completed" || state == "Timeout" || state == "Failed" || state == "Cancelled" || state == "RecoveryPaused") node.PauseProgramTiming();
+            DisplayState(step, state);
+        }
+
+        /// <summary>复用流程页刷新周期，仅更新当前节点的右上角耗时。</summary>
+        public void RefreshElapsed() { if (timedNode != null && !timedNode.IsDisposed) timedNode.RefreshProgramTiming(); }
+
+        /// <summary>显示节点业务状态，语言刷新不重新启动计时。</summary>
         private void DisplayState(FlowStep step, string state)
         {
             Flow_Chart node = Node(step.Id);
@@ -959,8 +994,7 @@ namespace AlphaRap.FlowProgramming
         public void TogglePause()
         {
             if (IsInitializing && Runtime.IsPaused) throw new InvalidOperationException(FlowText.T("continueInitializationHint"));
-            if (paused) Runtime.Resume(); else Runtime.Pause();
-            paused = Runtime.IsPaused;
+            Handle(paused ? FlowProgramCommand.Resume : FlowProgramCommand.Pause);
         }
 
         /// <summary>工程成功落盘后固定生产版本，草稿仅供工程测试。</summary>

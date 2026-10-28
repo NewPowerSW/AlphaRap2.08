@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace AlphaRap
 {
     /// <summary>
-    /// 主框架的外观：深色导航、顶部操作、内容页签与底部状态。
+    /// 主框架的外观：蓝色导航、顶部操作、内容页签与底部状态。
     /// 只包含界面样式，不涉及设备逻辑。
     /// </summary>
     public partial class MainForm
@@ -51,12 +51,12 @@ namespace AlphaRap
         private const int ToolIconSize = 16;
 
         /// <summary>工具栏按钮悬停时的底色。</summary>
-        private static readonly Color ShellNav = Color.FromArgb(12, 27, 43);
+        private static readonly Color ShellNav = Color.FromArgb(7, 105, 169);
         private static readonly Color ShellCanvas = Color.FromArgb(229, 237, 244);
         private static readonly Color ShellInk = Color.FromArgb(20, 36, 59);
-        private static readonly Color ShellMuted = Color.FromArgb(150, 169, 190);
-        private static readonly Color ShellAccent = Color.FromArgb(0, 152, 220);
-        private static readonly Color ShellSelected = Color.FromArgb(24, 46, 70);
+        private static readonly Color ShellMuted = Color.FromArgb(218, 239, 253);
+        private static readonly Color ShellAccent = Color.FromArgb(255, 255, 255);
+        private static readonly Color ShellSelected = Color.FromArgb(30, 139, 204);
         private static readonly Color ToolbarHover = Color.FromArgb(230, 240, 248);
 
         /// <summary>当前鼠标悬停的工具栏按钮。</summary>
@@ -190,8 +190,9 @@ namespace AlphaRap
         /// <summary>设置导航分组和横向图标按钮的尺寸。</summary>
         private void StyleNavigation()
         {
+            panel4.BackColor = ShellNav;
             panel4.GradientTop = ShellNav;
-            panel4.GradientBottom = ShellNav;
+            panel4.GradientBottom = Color.FromArgb(5, 80, 135);
             panel4.Paint -= Nav_Paint;
             panel4.Paint += Nav_Paint;
             foreach (FlowLayoutPanel flow in new[] { Panl_PictureShowTop, Panl_PictureShowDown })
@@ -241,7 +242,7 @@ namespace AlphaRap
         /// <summary>设置顶部操作栏及两组按钮的间距。</summary>
         private void StyleToolbar()
         {
-            panel_PictureShowDown.BackColor = Color.FromArgb(18, 38, 57);
+            panel_PictureShowDown.BackColor = Color.FromArgb(7, 105, 169);
             panel_PictureShowDown.Paint -= Toolbar_Paint;
             panel_PictureShowDown.Paint += Toolbar_Paint;
             panel_PictureShowLeft.Padding = UiTheme.Dpi(new Padding(24, 10, 0, 0));
@@ -292,7 +293,7 @@ namespace AlphaRap
             InitializeAlarmColumnNames();
             panelAlarmFilter.Height = UiTheme.Dpi(38);
             panelAlarmFilter.BackColor = UiKit.Surface;
-            flowAlarmFilter.Padding = UiTheme.Dpi(new Padding(8, 5, 0, 0));
+            flowAlarmFilter.Padding = UiTheme.Dpi(new Padding(8, 5, 0, 5));
             flowAlarmFilter.BackColor = UiKit.Surface;
             foreach (Control chip in new Control[] { btnAlarmFilterAll, btnAlarmFilterWarn, btnAlarmFilterAlarm })
             {
@@ -303,6 +304,14 @@ namespace AlphaRap
                 c.BorderColor = Color.FromArgb(200, 210, 222);
                 c.TextColor = UiKit.TextPrimary;
             }
+            btnAlarmQuery.Height = UiTheme.Dpi(28);
+            btnAlarmQuery.Margin = UiTheme.Dpi(new Padding(0, 0, 8, 0));
+            btnAlarmQuery.CornerRadius = UiTheme.Dpi(14);
+            lblAlarmTitle.AutoSize = false;
+            lblAlarmTitle.TextAlign = ContentAlignment.MiddleLeft;
+            lblAlarmTitle.Padding = UiTheme.Dpi(new Padding(0, 0, 12, 0));
+            lblAlarmTitle.Height = panelAlarmFilter.Height;
+            lblAlarmTitle.Width = TextRenderer.MeasureText(lblAlarmTitle.Text, lblAlarmTitle.Font).Width + UiTheme.Dpi(12);
 
             UiTheme.StyleListView(WarnningMessage, 30);
             WarnningMessage.SizeChanged += ResizeAlarmColumns;
@@ -380,6 +389,7 @@ namespace AlphaRap
             tabPage22.Text = UiTheme.T("MainForm", "tabPage22", "主页", "Home", "Inicio");
             tabPage10.Text = UiTheme.T("MainForm", "tabPage10", "视觉", "Vision", "Visión");
             lblAlarmTitle.Text = UiTheme.T("MainForm", "lblAlarmTitle", "报警信息", "Alarms", "Alarmas");
+            lblAlarmTitle.Width = TextRenderer.MeasureText(lblAlarmTitle.Text, lblAlarmTitle.Font).Width + UiTheme.Dpi(12);
             Action<PictureBox, string, string, string, string> add = (b, key, zh, en, es) =>
             {
                 if (b != null) _buttonTexts[b] = UiTheme.T("MainForm", key, zh, en, es);
@@ -580,7 +590,13 @@ namespace AlphaRap
             NavPaintState state;
             if (button == null || !_navPaint.TryGetValue(button, out state)) return;
             Graphics graphics = e.Graphics;
-            graphics.Clear(UiKit.ResolveParentBack(button));
+            if (state.IsNav)
+            {
+                int y = panel4.PointToClient(button.PointToScreen(Point.Empty)).Y;
+                using (LinearGradientBrush back = new LinearGradientBrush(new Rectangle(0, -y, button.Width, Math.Max(1, panel4.Height)), panel4.GradientTop, panel4.GradientBottom, LinearGradientMode.Vertical))
+                    graphics.FillRectangle(back, button.ClientRectangle);
+            }
+            else graphics.Clear(UiKit.ResolveParentBack(button));
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             int padding = UiTheme.Dpi(state.IsNav ? 14 : 12);
             int iconSize = UiTheme.Dpi(state.IconSize);
@@ -613,7 +629,7 @@ namespace AlphaRap
             if (b == null) return;
             bool selected = IsSelectedNav(b);
             NavPaintState state = AttachNavPaint(b, icon, NavIconSize, true);
-            state.IconColor = !b.Enabled ? Color.FromArgb(97, 117, 140) : selected ? Color.FromArgb(66, 190, 248) : ShellMuted;
+            state.IconColor = !b.Enabled ? Color.FromArgb(155, 199, 228) : selected ? Color.White : ShellMuted;
             state.AccentColor = state.IconColor;
             state.TextColor = state.IconColor;
             state.LockBadge = NavLockBadge;

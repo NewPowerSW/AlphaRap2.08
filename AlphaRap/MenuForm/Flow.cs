@@ -59,7 +59,7 @@ namespace AlphaRap
             ApplyLanguage(null, EventArgs.Empty);
             reload.Click += (sender, args) => Execute(() => { if (MessageBox.Show(FlowText.T("discard"), FlowText.T("title"), MessageBoxButtons.OKCancel) == DialogResult.OK) { FlowPrograms.Reload(); AddFlowChart(); } });
             validate.Click += (sender, args) => Execute(() => { Current().Validate(null); status.Text = FlowText.T("valid"); });
-            stop.Click += (sender, args) => { if (tabControl1.SelectedTab != null) Current().Runtime.Stop(); };
+            stop.Click += (sender, args) => MiddleLayer.StopRun();
             pause.Click += (sender, args) => { if (tabControl1.SelectedTab != null) Current().TogglePause(); };
             schema.Click += (sender, args) => Execute(() => { FlowPrograms.RequireIdle(); using (FlowSchemaForm dialog = new FlowSchemaForm(MiddleLayer.DataF)) dialog.ShowDialog(this); });
             toolbox.InsertRequested += entry => Execute(() => InsertToolboxEntry(entry, KeyboardCanvas(), null));
@@ -327,6 +327,7 @@ namespace AlphaRap
             if (hasModule && module.Runtime.IsDebugPaused) pause.Enabled = false;
             if (hasModule && module.IsInitializing && module.Runtime.IsPaused) pause.Enabled = false;
             if (!hasModule) return;
+            module.RefreshElapsed();
             if (module.Runtime.Error != null) { runtimeStatus = string.Format(FlowText.T("error"), module.Runtime.Error); status.Text = runtimeStatus; }
             else if (runtimeStatus != null) { if (status.Text == runtimeStatus) status.Text = ""; runtimeStatus = null; }
         }

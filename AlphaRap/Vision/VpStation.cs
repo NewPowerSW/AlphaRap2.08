@@ -105,14 +105,14 @@ namespace AlphaRap
         public int SaveImageKeepDays = 0;
 
         /// <summary>
-        /// 补偿限制表为空时补三行默认值（X / Y / 角度）。仅在读取无 Comp 节点的配置和首次建页时调用。
+        /// 补偿限制表为空时补三行默认值（X / Y / R），保留已经配置的业务键。
         /// </summary>
         public void EnsureCompLimits()
         {
             if (CompLimits.Count > 0) return;
             CompLimits.Add(new VpCompLimitItem("X", -1, 1));
             CompLimits.Add(new VpCompLimitItem("Y", -1, 1));
-            CompLimits.Add(new VpCompLimitItem("角度", -5, 5));
+            CompLimits.Add(new VpCompLimitItem("R", -5, 5));
         }
 
         /// <summary>按行名取限制；没有返回 null（同名取第一行）。</summary>
@@ -649,7 +649,7 @@ namespace AlphaRap
 
             ValidateCompensation("X", x);
             ValidateCompensation("Y", y);
-            if (Kind == VpStationKind.Fiducial) ValidateCompensation("角度", angle);
+            if (Kind == VpStationKind.Fiducial) ValidateCompensation(Config != null && Config.GetCompLimit("R") != null ? "R" : "角度", angle);
             IsAccept = true;
         }
 

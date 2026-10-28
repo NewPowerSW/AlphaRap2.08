@@ -13,6 +13,7 @@ internal sealed class NativeAlarmPage : Flow_BaseForm
     internal readonly Flow_Chart Node;
     internal volatile bool Ready;
     internal int Calls;
+    internal int WaitMilliseconds;
 
     /// <summary>Represent a source code node whose alarm policy is configured on its original SDK control.</summary>
     internal NativeAlarmPage(string name, bool enabled)
@@ -24,7 +25,7 @@ internal sealed class NativeAlarmPage : Flow_BaseForm
 
     /// <summary>Wait without raising an application alarm or invoking any object action.</summary>
     [FlowTool("等待条件", "Wait for condition", "Esperar condición", UsesHardware = false)]
-    private Flow_Chart.ResultType WaitForInput() { Interlocked.Increment(ref Calls); return Ready ? Flow_Chart.ResultType.NEXT : Flow_Chart.ResultType.IDLE; }
+    private Flow_Chart.ResultType WaitForInput() { Interlocked.Increment(ref Calls); return Ready || WaitMilliseconds > 0 && Node.FlowChart_ElapsedMilliseconds >= WaitMilliseconds ? Flow_Chart.ResultType.NEXT : Flow_Chart.ResultType.IDLE; }
 }
 
 internal static partial class Cases
@@ -37,6 +38,7 @@ internal static partial class Cases
         Test("disabled native alarms wait until stopped and mixed actions keep their own deadline", NativeDisabledAndMixedAlarms);
         Test("new native toolbox nodes have no implicit Action deadline or fallback alarm code", NativeToolAlarmDefaults);
         Test("actual DownConveryor code binding preserves the compiled alarm policy without invoking IO", ActualConveyorNativeAlarm);
+        Test("native elapsed-time code and the corner display share one clock and retain the completed value", NativeElapsedClock);
     }
 
     /// <summary>Prepare an isolated native source node without starting machine threads or writing site configuration.</summary>
@@ -137,6 +139,24 @@ internal static partial class Cases
             FlowStep action = owner.AddNode("Action", page.InitialPage, new Point(40, 140));
             Assert(native.UsesFlowResult && native.TimeoutMs == System.Threading.Timeout.Infinite && native.AlarmCode == null
                 && !action.UsesFlowResult && action.TimeoutMs == 10000 && action.AlarmCode == "2019", "Toolbox defaults mixed native and action alarm policies.");
+        });
+    }
+
+    /// <summary>Run an actual timed native callback without a sleep, verify the visible value freezes, then restart its clock.</summary>
+    private static void NativeElapsedClock()
+    {
+        WithNativeAlarm(false, (page, owner, actions) =>
+        {
+            page.WaitMilliseconds = 100;
+            owner.Start(owner.Program.Steps.Single().Id, false, true);
+            Wait(owner.Runtime.Completion); owner.RefreshElapsed();
+            long elapsed = page.Node.FlowChart_ElapsedMilliseconds;
+            Assert(owner.Runtime.Error == null && elapsed >= 100 && elapsed < 2000 && page.Node.Controls.Find("elapsedTime", true).Single().Text.EndsWith(" s"),
+                "A native event could not use the same elapsed clock displayed in the node corner.");
+            NativePump(100);
+            Assert(page.Node.FlowChart_ElapsedMilliseconds == elapsed, "A completed node kept accumulating time.");
+            page.Ready = true; owner.Start(owner.Program.Steps.Single().Id, false, true); Wait(owner.Runtime.Completion);
+            Assert(page.Node.FlowChart_ElapsedMilliseconds < elapsed, "A new initialization reused the previous elapsed time.");
         });
     }
 

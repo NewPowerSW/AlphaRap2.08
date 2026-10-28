@@ -11,9 +11,10 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 - 雷赛初始化返回值与轴状态校验：[NPSDK 3b6dbedca23521b894802c0e4c6ebdc30589752a](https://github.com/JeffreyWub/NPSDK/commit/3b6dbedca23521b894802c0e4c6ebdc30589752a)，分支 `codex/flow-runtime-state-20261028`。
 - 初始化故障节点恢复：[NPSDK 69783aa4ae3fe267ab9c4b4afeb64727c6864884](https://github.com/JeffreyWub/NPSDK/commit/69783aa4ae3fe267ab9c4b4afeb64727c6864884)，分支 `codex/flow-runtime-state-20261028`。
 - 原生节点可关闭自动期限：[NPSDK 8ebbf7fd094fc679260efe6850d59e301ce35d60](https://github.com/JeffreyWub/NPSDK/commit/8ebbf7fd094fc679260efe6850d59e301ce35d60)，分支 `codex/flow-runtime-state-20261028`。
+- 节点右上角执行耗时：[NPSDK 77830aadaa698818cbff58c16bfdb094dfcbfcc1](https://github.com/JeffreyWub/NPSDK/commit/77830aadaa698818cbff58c16bfdb094dfcbfcc1)，分支 `codex/flow-runtime-state-20261028`。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
-- 大小：542720 字节。
-- SHA256：`434a701b7efad92194461abe45fdff69a6e01ddbba6d48a747ee26d68aa33857`。
+- 大小：544256 字节。
+- SHA256：`d56c65c945231eb129386074ae5c63c6d6f3744a38d359fa1ab153e8eb15aa57`。
 
 该版本从独立、干净的源码工作树构建，不包含原 SDK 开发目录中的未提交改动。
 
@@ -30,6 +31,8 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 正式初始化启用 `FlowProgramRuntime.PauseOnFailure`：异常或超时保留当前节点，底层调用退出后才允许重试；普通报警暂停不消耗初始化期限，也不重发已完成动作。处理原因并清除报警后，再点原【初始化】继续，保留已完成工位、上游结果和参数快照。【停止】结束会话，下次初始化从入口开始；主【启动】仍只用于自动生产，原生产失败语义不变。恢复位置不持久化，不增加配置项。SDK 原生事件 23/23、核心 13/13；宿主流程 142/142、主保存 17 项、主界面 11/11。实际初始化按钮覆盖普通报警、异常、超时、完成工位不重跑和三语状态切换，主保存与配方保护沿用现有机制。验证均在离线环境完成，未操作现场硬件。
 
 源码代码节点按原 FlowChat 的 `AlarmStaus`、`AlarmTimeOut`、`AlarmCode` 运行，加载旧工程时修正误带入的 10000ms／空编号，保留位置、身份及连接。关闭自动报警的原生节点使用 `TimeoutMs = -1`，仍可暂停、停止和报告业务异常；普通功能及条件节点仍要求正超时。新拖入的纯代码函数不默认附加 10 秒期限，已有明确保存的拖拽代码设置保留。SDK 原生事件 24/24、核心 13/13；宿主流程 147/147、主保存 17 项及源码生成回归通过，含实际下流道节点只读绑定核对，未调用现场 IO。
+
+节点右上角显示执行秒数，与原生 `FlowChart_ElapsedMilliseconds` 共用计时器；暂停冻结、普通继续累计、故障重试归零，完成后保留。复用流程页刷新周期，不为每个节点新增计时线程，耗时不写入配置。流程页停止统一到整机停止，立即撤销初始化续跑位置，下次初始化清除旧状态并从入口执行。主页改为蓝色导航和蓝色重点卡片，报警筛选条对齐；新 VPP 默认 X/Y/R，兼容旧角度键，表格紧跟标题。SDK 原生 25/25、核心 13/13，宿主流程 148/148、主保存 17 项、视觉与语言 63/63、主页三语与三种窗口尺寸 11/11；均为离线验证。
 
 ## 继承工具接入
 

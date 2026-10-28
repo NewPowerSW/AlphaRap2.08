@@ -270,7 +270,7 @@
             // 
             // panel_PictureShowDown
             // 
-            this.panel_PictureShowDown.BackColor = System.Drawing.Color.FromArgb(18, 38, 57);
+            this.panel_PictureShowDown.BackColor = System.Drawing.Color.FromArgb(7, 105, 169);
             this.panel_PictureShowDown.Controls.Add(this.panel_PictureShowLeft);
             this.panel_PictureShowDown.Controls.Add(this.panel_PictureShowRight);
             this.panel_PictureShowDown.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -460,7 +460,7 @@
             // 
             // picLogo
             // 
-            this.picLogo.BackColor = System.Drawing.Color.FromArgb(12, 27, 43);
+            this.picLogo.BackColor = System.Drawing.Color.FromArgb(7, 105, 169);
             this.picLogo.Image = ((System.Drawing.Image)(resources.GetObject("picLogo.Image")));
             this.picLogo.Location = new System.Drawing.Point(22, 20);
             this.picLogo.Margin = new System.Windows.Forms.Padding(8, 6, 0, 0);
@@ -520,7 +520,7 @@
             // panelLogin
             // 
             // 右上角登录芯片：图标 + 用户名·权限·登录时间，整块可点开登录页
-            this.panelLogin.BackColor = System.Drawing.Color.FromArgb(12, 27, 43);
+            this.panelLogin.BackColor = System.Drawing.Color.FromArgb(7, 105, 169);
             this.panelLogin.Controls.Add(this.MENU_Login);
             this.panelLogin.Controls.Add(this.LoginText);
             this.panelLogin.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -678,9 +678,9 @@
             // 
             // panel4
             // 
-            this.panel4.BackColor = System.Drawing.Color.FromArgb(12, 27, 43);
-            this.panel4.GradientTop = System.Drawing.Color.FromArgb(12, 27, 43);
-            this.panel4.GradientBottom = System.Drawing.Color.FromArgb(12, 27, 43);
+            this.panel4.BackColor = System.Drawing.Color.FromArgb(7, 105, 169);
+            this.panel4.GradientTop = System.Drawing.Color.FromArgb(7, 105, 169);
+            this.panel4.GradientBottom = System.Drawing.Color.FromArgb(5, 80, 135);
             this.panel4.ColumnCount = 1;
             this.panel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.panel4.Controls.Add(this.panelBrand, 0, 0);
@@ -996,7 +996,7 @@
             this.panelAlarmFilter.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelAlarmFilter.Location = new System.Drawing.Point(0, 574);
             this.panelAlarmFilter.Name = "panelAlarmFilter";
-            this.panelAlarmFilter.Size = new System.Drawing.Size(1342, 30);
+            this.panelAlarmFilter.Size = new System.Drawing.Size(1304, 38);
             this.panelAlarmFilter.TabIndex = 32;
             // 
             // flowAlarmFilter
@@ -1010,7 +1010,7 @@
             this.flowAlarmFilter.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.flowAlarmFilter.Location = new System.Drawing.Point(0, 0);
             this.flowAlarmFilter.Name = "flowAlarmFilter";
-            this.flowAlarmFilter.Padding = new System.Windows.Forms.Padding(6, 4, 6, 4);
+            this.flowAlarmFilter.Padding = new System.Windows.Forms.Padding(8, 5, 0, 5);
             this.flowAlarmFilter.Size = new System.Drawing.Size(1342, 30);
             this.flowAlarmFilter.TabIndex = 0;
             this.flowAlarmFilter.WrapContents = false;
@@ -1019,8 +1019,10 @@
             // 
             this.btnAlarmFilterAll.AccentColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(108)))), ((int)(((byte)(182)))));
             this.btnAlarmFilterAll.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
+            this.btnAlarmFilterAll.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
+            this.btnAlarmFilterAll.CornerRadius = 14;
             this.btnAlarmFilterAll.Name = "btnAlarmFilterAll_dyn";
-            this.btnAlarmFilterAll.Size = new System.Drawing.Size(68, 22);
+            this.btnAlarmFilterAll.Size = new System.Drawing.Size(68, 28);
             this.btnAlarmFilterAll.Style = AlphaRap.AlarmChipStyle.Toggle;
             this.btnAlarmFilterAll.TabIndex = 0;
             this.btnAlarmFilterAll.Text = "全部";
@@ -1030,8 +1032,10 @@
             // 
             this.btnAlarmFilterWarn.AccentColor = System.Drawing.Color.FromArgb(((int)(((byte)(219)))), ((int)(((byte)(149)))), ((int)(((byte)(44)))));
             this.btnAlarmFilterWarn.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
+            this.btnAlarmFilterWarn.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
+            this.btnAlarmFilterWarn.CornerRadius = 14;
             this.btnAlarmFilterWarn.Name = "btnAlarmFilterWarn_dyn";
-            this.btnAlarmFilterWarn.Size = new System.Drawing.Size(80, 22);
+            this.btnAlarmFilterWarn.Size = new System.Drawing.Size(80, 28);
             this.btnAlarmFilterWarn.Style = AlphaRap.AlarmChipStyle.Toggle;
             this.btnAlarmFilterWarn.TabIndex = 1;
             this.btnAlarmFilterWarn.Text = "警告";
@@ -1041,8 +1045,10 @@
             // 
             this.btnAlarmFilterAlarm.AccentColor = System.Drawing.Color.FromArgb(((int)(((byte)(214)))), ((int)(((byte)(69)))), ((int)(((byte)(69)))));
             this.btnAlarmFilterAlarm.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
+            this.btnAlarmFilterAlarm.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
+            this.btnAlarmFilterAlarm.CornerRadius = 14;
             this.btnAlarmFilterAlarm.Name = "btnAlarmFilterAlarm_dyn";
-            this.btnAlarmFilterAlarm.Size = new System.Drawing.Size(76, 22);
+            this.btnAlarmFilterAlarm.Size = new System.Drawing.Size(76, 28);
             this.btnAlarmFilterAlarm.Style = AlphaRap.AlarmChipStyle.Toggle;
             this.btnAlarmFilterAlarm.TabIndex = 2;
             this.btnAlarmFilterAlarm.Text = "报警";
@@ -1052,8 +1058,10 @@
             // 
             this.btnAlarmQuery.AccentColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(108)))), ((int)(((byte)(126)))));
             this.btnAlarmQuery.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
+            this.btnAlarmQuery.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
+            this.btnAlarmQuery.CornerRadius = 14;
             this.btnAlarmQuery.Name = "btnAlarmQuery";
-            this.btnAlarmQuery.Size = new System.Drawing.Size(68, 22);
+            this.btnAlarmQuery.Size = new System.Drawing.Size(68, 28);
             this.btnAlarmQuery.Style = AlphaRap.AlarmChipStyle.Toggle;
             this.btnAlarmQuery.TabIndex = 3;
             this.btnAlarmQuery.Text = "查询";
@@ -1130,7 +1138,7 @@
             // 
             // panelBrand
             //
-            this.panelBrand.BackColor = System.Drawing.Color.FromArgb(12, 27, 43);
+            this.panelBrand.BackColor = System.Drawing.Color.FromArgb(7, 105, 169);
             this.panelBrand.Controls.Add(this.picLogo);
             this.panelBrand.Controls.Add(this.lblBrandName);
             this.panelBrand.Controls.Add(this.lblBrandCaption);
@@ -1152,7 +1160,7 @@
             //
             // lblBrandCaption
             //
-            this.lblBrandCaption.ForeColor = System.Drawing.Color.FromArgb(139, 161, 184);
+            this.lblBrandCaption.ForeColor = System.Drawing.Color.FromArgb(218, 239, 253);
             this.lblBrandCaption.Font = new System.Drawing.Font("Segoe UI", 7F);
             this.lblBrandCaption.Location = new System.Drawing.Point(69, 40);
             this.lblBrandCaption.Size = new System.Drawing.Size(150, 18);
@@ -1162,7 +1170,7 @@
             // lblMonitorGroup
             //
             this.lblMonitorGroup.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblMonitorGroup.ForeColor = System.Drawing.Color.FromArgb(126, 148, 171);
+            this.lblMonitorGroup.ForeColor = System.Drawing.Color.FromArgb(218, 239, 253);
             this.lblMonitorGroup.Font = new System.Drawing.Font("Microsoft YaHei UI", 8F);
             this.lblMonitorGroup.Margin = new System.Windows.Forms.Padding(24, 0, 0, 0);
             this.lblMonitorGroup.Name = "lblMonitorGroup";
@@ -1172,7 +1180,7 @@
             // lblSystemGroup
             //
             this.lblSystemGroup.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblSystemGroup.ForeColor = System.Drawing.Color.FromArgb(126, 148, 171);
+            this.lblSystemGroup.ForeColor = System.Drawing.Color.FromArgb(218, 239, 253);
             this.lblSystemGroup.Font = new System.Drawing.Font("Microsoft YaHei UI", 8F);
             this.lblSystemGroup.Margin = new System.Windows.Forms.Padding(24, 0, 0, 0);
             this.lblSystemGroup.Name = "lblSystemGroup";
@@ -1195,11 +1203,13 @@
             //
             // lblAlarmTitle
             //
-            this.lblAlarmTitle.AutoSize = true;
+            this.lblAlarmTitle.AutoSize = false;
             this.lblAlarmTitle.Dock = System.Windows.Forms.DockStyle.Left;
             this.lblAlarmTitle.Font = new System.Drawing.Font("Microsoft YaHei UI", 10F, System.Drawing.FontStyle.Bold);
             this.lblAlarmTitle.ForeColor = System.Drawing.Color.FromArgb(20, 36, 59);
-            this.lblAlarmTitle.Padding = new System.Windows.Forms.Padding(0, 7, 12, 0);
+            this.lblAlarmTitle.Padding = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.lblAlarmTitle.Size = new System.Drawing.Size(92, 38);
+            this.lblAlarmTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblAlarmTitle.Name = "lblAlarmTitle";
             this.lblAlarmTitle.Text = "报警信息";
             //

@@ -79,6 +79,7 @@ internal static partial class Cases
                         "Initialization did not retain its failed node and completed peer.");
                     host.GetMethod("PauseRun").Invoke(null, null);
                     string epoch = FlowPrograms.Results.Epoch;
+                    long peerElapsed = peer.InitialNode.FlowChart_ElapsedMilliseconds;
                     int calls = Volatile.Read(ref page.WorkCalls);
                     Thread.Sleep(650);
                     Assert(owner.Runtime.IsRunning && page.EntryCalls == 1 && page.LastCalls == 0 && peer.InitialCalls == 1
@@ -96,6 +97,8 @@ internal static partial class Cases
                     notice = CaptureRuntimeDialog(() => ClickInitialization(main));
                     Assert(notice == null, "Continuing through Initialize failed: " + notice);
                     Wait(owner.Runtime.Completion); Wait(other.Runtime.Completion);
+                    Thread.Sleep(50);
+                    Assert(peer.InitialNode.FlowChart_ElapsedMilliseconds == peerElapsed, "Continuing initialization restarted a completed peer's elapsed clock.");
                     Assert(owner.Runtime.Error == null && page.InitialStatus && peer.InitialStatus && FlowPrograms.IsInitialized,
                         "The continued initialization did not complete.");
                     Assert(page.EntryCalls == 1 && page.LastCalls == 1 && peer.InitialCalls == 1 && page.AutomaticCalls == 0 && peer.AutoCalls == 0,
@@ -106,7 +109,7 @@ internal static partial class Cases
                     Assert(!main.Controls.Find("MENU_Reset", true)[0].Enabled && main.Controls.Find("MENU_Run", true)[0].Enabled,
                         "Start was not enabled only after the initialization completed.");
                     if (failure == "Exception") VerifyStoppedInitialization(main, page, owner, other);
-                    Assert(driver.BusyReads == 0 && driver.HomeCalls == 0 && driver.Stops == 0,
+                    Assert(driver.BusyReads == 0 && driver.HomeCalls == 0 && driver.Stops == (failure == "Exception" ? 2 : 0),
                         "Initialization or continuation queried or operated unrelated hardware.");
                 }
                 finally { owner.Runtime.Stop(); other.Runtime.Stop(); Wait(owner.Runtime.Completion); Wait(other.Runtime.Completion); }
@@ -159,16 +162,24 @@ internal static partial class Cases
     /// <summary>Stopping the retained session discards the checkpoint and the next Initialize begins at its entry.</summary>
     private static void VerifyStoppedInitialization(MainForm main, InitializationRecoveryPage page, FlowModuleEditor owner, FlowModuleEditor peer)
     {
-        SysPara.SystemMode = RunMode.IDLE; page.Ready = false;
-        ClickInitialization(main);
-        ActionUntil(() => owner.Runtime.IsWaitingForRetry && Alarm.IsError, "The second initialization did not reach its controlled exception.");
-        owner.Handle(FlowProgramCommand.Stop); peer.Handle(FlowProgramCommand.Stop);
-        Wait(owner.Runtime.Completion); Wait(peer.Runtime.Completion);
-        SysPara.SystemMode = RunMode.IDLE;
-        host.GetMethod("AlarmClear").Invoke(null, null);
-        Assert(!FlowPrograms.HasInitializationSession && !FlowPrograms.CanContinueInitialization, "Stop retained a resumable initialization checkpoint.");
-        page.Ready = true; ClickInitialization(main); Wait(owner.Runtime.Completion); Wait(peer.Runtime.Completion);
-        Assert(page.EntryCalls == 3 && page.LastCalls == 2 && owner.Runtime.Error == null,
-            "Initialization after Stop did not restart from the saved entry.");
+        foreach (bool flowButton in new[] { false, true })
+        {
+            int entries = page.EntryCalls, finishes = page.LastCalls;
+            SysPara.SystemMode = RunMode.IDLE; page.Ready = false;
+            ClickInitialization(main);
+            ActionUntil(() => owner.Runtime.IsWaitingForRetry && Alarm.IsError, "Initialization did not reach its controlled exception.");
+            using (Flow flow = new Flow())
+            {
+                Control button = flowButton ? flow.Controls.Find("stop", true).Single() : main.Controls.Find("MENU_Stop", true).Single();
+                typeof(Control).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(button, new object[] { EventArgs.Empty });
+            }
+            Assert(!FlowPrograms.HasInitializationSession && !FlowPrograms.CanContinueInitialization && !page.InitialStatus,
+                "The actual Stop button retained a resumable initialization checkpoint.");
+            Wait(owner.Runtime.Completion); Wait(peer.Runtime.Completion);
+            host.GetMethod("AlarmClear").Invoke(null, null);
+            page.Ready = true; ClickInitialization(main); Wait(owner.Runtime.Completion); Wait(peer.Runtime.Completion);
+            Assert(page.EntryCalls == entries + 2 && page.LastCalls == finishes + 1 && owner.Runtime.Error == null,
+                "Initialization after the actual Stop button did not restart from the saved entry.");
+        }
     }
 }

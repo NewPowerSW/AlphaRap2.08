@@ -109,6 +109,17 @@ internal static class DashboardProbe
                 CheckChildren(Field<Control>(home, "kpiLayout"));
                 Check(Field<Control>(frame, "panel_PictureShowDown").Top == 0, "Machine commands are not at the top.");
                 Check(Field<Control>(frame, "panel4").Height == frame.ClientSize.Height, "Navigation does not span the window height.");
+                Color blue = Field<AlphaRap.GradientTableLayoutPanel>(frame, "panel4").GradientTop;
+                Check(blue.B > blue.R + 60 && blue.G > blue.R + 50 && Field<Control>(home, "kpiOkCard").BackColor.B > 150,
+                    "The main shell and highlighted KPI did not use the blue palette.");
+                Control alarmTitle = Field<Control>(frame, "lblAlarmTitle");
+                foreach (string chip in new[] { "btnAlarmFilterAll", "btnAlarmFilterWarn", "btnAlarmFilterAlarm", "btnAlarmQuery" })
+                {
+                    Control control = Field<Control>(frame, chip);
+                    int center = control.Parent.PointToScreen(new Point(control.Left, control.Top + control.Height / 2)).Y;
+                    int titleCenter = alarmTitle.Parent.PointToScreen(new Point(alarmTitle.Left, alarmTitle.Top + alarmTitle.Height / 2)).Y;
+                    Check(control.Height == 28 && Math.Abs(center - titleCenter) <= 1, "The alarm title/filter/query row is vertically misaligned.");
+                }
                 Control alarms = Field<Control>(frame, "alarmCard");
                 Check(frame.WarnningMessage.Parent == alarms && alarms.Visible && frame.WarnningMessage.Visible,
                     "The original alarm list is not visible on the main dashboard.");

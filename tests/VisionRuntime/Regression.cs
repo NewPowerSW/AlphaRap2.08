@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Windows.Forms;
 using AlphaRap;
 using Cognex.VisionPro.ToolBlock;
 using Cognex.VisionPro.CalibFix;
@@ -107,6 +109,7 @@ internal static partial class Tests
         Run("designer contains the fixed production checkbox", DesignerProductionControl);
         Run("three-language refresh preserves edited VPP data", VppLanguageRefresh);
         Run("compensation table is an independent configuration snapshot", CompensationTable);
+        Run("new R limits validate positioning and VPP content aligns below its header", VppDefaultsAndLayout);
         Run("compensation values persist and legacy values default to zero", CompensationConfig);
         Run("compensation editor stages finite input until main save without rounding other fields", CompensationEditor);
         Run("localized angle editing preserves the business key across languages", CompensationItemEditing);
@@ -452,6 +455,7 @@ internal static partial class Tests
                 Station.TB.Outputs[name].Value = 0.0;
             }
             Vpp.EnsureCompLimits();
+            Vpp.GetCompLimit("R").Item = "角度";
             Vpp.Station = Station;
             Station.Config = Vpp;
             Camera.Vpps.Add(Vpp);
@@ -767,6 +771,26 @@ internal static partial class Tests
         finally { SysPara.LanguageShow = previous; }
     }
 
+    /// <summary>New defaults use R, remain valid for positioning, and dock the editor immediately below its header at any height.</summary>
+    private static void VppDefaultsAndLayout()
+    {
+        using (BindingFixture fixture = new BindingFixture())
+        using (VpVppPage page = new VpVppPage())
+        {
+            fixture.Vpp.CompLimits.Clear(); fixture.Vpp.EnsureCompLimits();
+            Check(fixture.Vpp.CompLimits.Select(row => row.Item).SequenceEqual(new[] { "X", "Y", "R" }), "New VPP defaults do not use X/Y/R.");
+            Check(fixture.Station.RunAndWait(2000), fixture.Station.LastError);
+            fixture.Station.TB.Outputs["A"].Value = 6.0;
+            Check(!fixture.Station.RunAndWait(2000), "The R limit did not reject an excessive angle.");
+            Control head = page.Controls.Find("head", true).Single(), band = page.Controls.Find("band", true).Single();
+            foreach (int height in new[] { 400, 700 })
+            {
+                page.Size = new System.Drawing.Size(900, height); page.PerformLayout(); band.PerformLayout();
+                Check(band.Top == head.Bottom && page.CompGrid.Parent.Top <= 2, "The VPP editor has a blank gap: head=" + head.Bottom + ", band=" + band.Top + ", grid=" + page.CompGrid.Parent.Top);
+            }
+        }
+    }
+
     /// <summary>表接口无需加载算法，返回独立行和列表，查找失败与空表可区分。</summary>
     private static void CompensationTable()
     {
@@ -781,7 +805,7 @@ internal static partial class Tests
             camera.Vpps.Add(vpp);
             config.Cameras.Add(camera);
             List<VpCompLimitItem> table = owner.GetCompensationTable("TakePCBA", "VPP1");
-            Check(table.Count == 4 && table[0].Item == "X" && table[2].Item == "角度" && table[3].Item == "Custom", "Snapshot lost rows or raw keys.");
+            Check(table.Count == 4 && table[0].Item == "X" && table[2].Item == "R" && table[3].Item == "Custom", "Snapshot lost rows or raw keys.");
             Check(table[0].Compensation == 0.125 && table[0].Min == -1 && table[0].Max == 1 && table[3].Compensation == -2, "Snapshot lost configuration values.");
             table[0].Item = "Changed";
             table[0].Compensation = 999;
