@@ -19,14 +19,15 @@ using NPSDK.Motion;
 internal sealed class RuntimeManualAxisDriver : MotorBaseInterface
 {
     internal bool Busy, HoldAfterStop;
-    internal int HomeCalls, Stops;
+    internal int HomeCalls, Stops, BusyReads;
+    internal Exception BusyError;
 
     /// <summary>Keep a simulated manual home active until the test explicitly stops its driver.</summary>
     public override bool Home() { HomeCalls++; Busy = true; return false; }
     /// <summary>Prepare the next simulated home without issuing any physical command.</summary>
     public override void HomeReset() { Busy = false; }
     /// <summary>Expose controlled physical motion independently from UI manual-session flags.</summary>
-    public override bool GetBusy() { return Busy; }
+    public override bool GetBusy() { BusyReads++; if (BusyError != null) throw BusyError; return Busy; }
     /// <summary>Model immediate settling or a driver that remains physically busy after a stop request.</summary>
     public override void FastStop() { Stops++; if (!HoldAfterStop) Busy = false; }
 }
@@ -250,6 +251,7 @@ internal static partial class Cases
         {
             timer.Stop(); driverField.SetValue(motor, driver); readyField.SetValue(motor, true); group.CanOperate = () => true;
             lock (SDKPara.ControlList) { SDKPara.ControlList.Clear(); SDKPara.ControlList.Add(motor); }
+            VerifyUnavailableAxisStatus(group, driver, readyField);
             hardware.Resources.ValidateStart();
             VerifyStoppedManualHome(group, driver, false, false);
             VerifyStoppedManualHome(group, driver, true, false);
@@ -264,6 +266,30 @@ internal static partial class Cases
             SwitchLanguage(previousLanguage); Thread.CurrentThread.CurrentUICulture = previousCulture;
             timer.Enabled = previousTimer; driver.Dispose();
         }
+    }
+
+    /// <summary>Do not query an uninitialized axis, and distinguish failed feedback from real movement in all languages.</summary>
+    private static void VerifyUnavailableAxisStatus(NP_AxisGroup group, RuntimeManualAxisDriver driver, FieldInfo readyField)
+    {
+        readyField.SetValue(group.Motor, false); driver.Busy = true;
+        int reads = driver.BusyReads;
+        hardware.Resources.ValidateStart();
+        Assert(driver.BusyReads == reads && !group.IsManualRunning, "An uninitialized axis was queried or labelled as moving.");
+        readyField.SetValue(group.Motor, true); driver.Busy = false;
+        driver.BusyError = new InvalidOperationException("dmc_check_done returned -7");
+        try
+        {
+            foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+            {
+                SwitchLanguage(language);
+                InvalidOperationException failure = null;
+                try { hardware.Resources.ValidateStart(); } catch (InvalidOperationException error) { failure = error; }
+                string expected = string.Format(HardwareText.Words["axisStatusError"][(int)language], group.AxisCaption, driver.BusyError.Message);
+                Assert(failure != null && failure.Message == expected && ReferenceEquals(failure.InnerException, driver.BusyError),
+                    "Failed axis feedback was treated as movement or its raw diagnostic was lost.");
+            }
+        }
+        finally { driver.BusyError = null; }
     }
 
     /// <summary>Start homing through the group button, stop through either application path and reject only remaining physical activity.</summary>

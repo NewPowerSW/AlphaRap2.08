@@ -204,9 +204,14 @@ namespace AlphaRap.Configuration
             if (RequiresRestart) throw new InvalidOperationException(HardwareText.T("restart"));
             foreach (HardwareEntry entry in Entries) ValidatePhysicalAddress(entry.Definition,entry.Device);
             if (requireReady && Entries.Any(entry=>!Ready(entry.Device))) throw new InvalidOperationException(HardwareText.T("notReady"));
-            string[] moving = Entries.Where(entry=>entry.Group is NP_AxisGroup && ((NP_AxisGroup)entry.Group).IsManualRunning)
-                .Select(entry=>string.IsNullOrWhiteSpace(entry.Device.Text) ? entry.Definition.Name : entry.Device.Text).ToArray();
-            if (moving.Length > 0) throw new InvalidOperationException(string.Format(HardwareText.T("manualBusy"), string.Join(", ", moving)));
+            List<string> moving = new List<string>();
+            foreach (HardwareEntry entry in Entries.Where(entry=>entry.Group is NP_AxisGroup))
+            {
+                string name = string.IsNullOrWhiteSpace(entry.Device.Text) ? entry.Definition.Name : entry.Device.Text;
+                try { if (((NP_AxisGroup)entry.Group).IsManualRunning) moving.Add(name); }
+                catch (Exception error) { throw new InvalidOperationException(string.Format(HardwareText.T("axisStatusError"), name, error.Message), error); }
+            }
+            if (moving.Count > 0) throw new InvalidOperationException(string.Format(HardwareText.T("manualBusy"), string.Join(", ", moving)));
         }
 
         /// <summary>主界面初始化时连接新加且未初始化的对象，模拟模式只设置标记。</summary>

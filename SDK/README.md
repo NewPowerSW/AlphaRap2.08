@@ -8,9 +8,10 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 - 来源元数据扩展：[NPSDK c9f57200e619c7cb4dd9a7e0975160e02564373a](https://github.com/JeffreyWub/NPSDK/commit/c9f57200e619c7cb4dd9a7e0975160e02564373a)，分支 `codex/source-control-sync-20261028`，已推送并核对远端提交。
 - 实际运行状态桥接：[NPSDK 1d7535de524b1c8f51d6907ed6591394fbde8d27](https://github.com/JeffreyWub/NPSDK/commit/1d7535de524b1c8f51d6907ed6591394fbde8d27)，分支 `codex/flow-runtime-state-20261028`。
 - 轴手动会话停止：[NPSDK c124b9d4549ea3f6ad87ef0c254d37dbe0fd4373](https://github.com/JeffreyWub/NPSDK/commit/c124b9d4549ea3f6ad87ef0c254d37dbe0fd4373)，分支 `codex/flow-runtime-state-20261028`。
+- 雷赛初始化返回值与轴状态校验：[NPSDK 3b6dbedca23521b894802c0e4c6ebdc30589752a](https://github.com/JeffreyWub/NPSDK/commit/3b6dbedca23521b894802c0e4c6ebdc30589752a)，分支 `codex/flow-runtime-state-20261028`。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
 - 大小：539648 字节。
-- SHA256：`33f4663338003d5b4e1ef9aeb89a472855344276a88232141801bc370eb9c1fa`。
+- SHA256：`70070147b58e9a2bf39196432e389c1174156434c3fa1bce85102050919d0eda`。
 
 该版本从独立、干净的源码工作树构建，不包含原 SDK 开发目录中的未提交改动。
 
@@ -19,6 +20,8 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 可选 `IFlowProgramStatus` 让 SDK、页面与主保存统一读取实际任务状态。完成的托管流程忽略旧运行标记，真实未返回的调用和旧工作器仍保持忙碌；旧控制器接口兼容。宿主待机模式下仍忙碌时显示三语“停止中”，保存提示包含忙碌工位。原生事件/状态 18/18、核心流程 13/13、IO 绑定回归通过；宿主流程 136/136、统一保存 17 项及源码生成回归通过。
 
 `NP_Motor.Stop()` 同步取消绑定轴组合控件的手动回零/点动会话，与回零指令发送共用轴锁；停止后定时刷新不会再次启动回零。驱动的真实忙碌反馈继续保留。宿主硬件检查列出尚未停稳的轴名，编辑模式使用独立提示，不再统一误报“流程正在运行或停止”。轴专项 5/5、宿主流程 138/138、统一保存 17 项、主界面 11/11 及原核心/IO 回归通过；旧 DLL 可复现停止后回零重启，未访问真实硬件。
+
+雷赛 `dmc_board_init()` 返回 0 表示没有找到板卡或板卡异常，1–8 才是成功找到的板卡数；依据 [官方手册 9.1](https://kzcp.leisai.com/product%20literature/Data%20download/PC%20Base/DMC5000E%26DMC3000E/EtherCAT20220224.pdf)。失败时清除连接标记，轴数或参数配置失败不能发布就绪。未初始化轴不查询运动反馈，异常反馈也不能当作静止而授权定位或回零。主初始化只连接和配置组合硬件，运动仍由流程或手动命令发起。生产驱动源码与记录型原生替身回归 6/6，旧源码可复现无板卡假成功；初始化未发出任何运动命令。宿主 138/138、主保存 17 项、轴组 5/5、原生流程 18/18、核心 13/13 和 IO 绑定回归通过。
 
 ## 继承工具接入
 
