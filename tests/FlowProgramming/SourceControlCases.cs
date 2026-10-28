@@ -55,6 +55,7 @@ internal static partial class Cases
         Test("source link edits update inherited links while preserving explicit mixed-flow overrides", SourceLinkMerge);
         Test("deleted source nodes still used by data or dynamic links remain blocked and repairable", SourceReferencedDeletion);
         Test("deleted source entry requires explicit replacement and is then removed", SourceEntryDeletion);
+        RegisterContainerCases();
     }
 
     /// <summary>Create an original form snapshot without publishing configuration files.</summary>
@@ -177,5 +178,191 @@ internal static partial class Cases
             Assert(editor.Program.Steps.All(step => step.ControlName != "sourceMiddle"), "Replacing an invalid entry failed to remove the orphan.");
             editor.Validate(null);
         }
+    }
+}
+
+internal sealed class ContainerRevisionPage : Flow_BaseForm
+{
+    internal TabPage PointPage;
+    internal int Calls;
+
+    /// <summary>Represent a source revision with a renamed, moved or deleted nested tab.</summary>
+    internal ContainerRevisionPage(string name, string tab, bool rootNode = false)
+    {
+        Name = name;
+        if (rootNode)
+        {
+            Flow_Chart root = new Flow_Chart { Name = "survivingRoot", text = "Surviving root" };
+            root.FlowChartRun += Work; InitialPage.Controls.Add(root);
+        }
+        if (tab == null) return;
+        TabControl nested = new TabControl { Name = "nestedTabs", Dock = DockStyle.Fill };
+        PointPage = new TabPage { Name = tab, Text = tab };
+        Flow_Chart node = new Flow_Chart { Name = "nativeWork", text = "Native work", Location = new Point(40, 40) };
+        node.FlowChartRun += Work;
+        PointPage.Controls.Add(node); nested.TabPages.Add(PointPage); InitialPage.Controls.Add(nested);
+    }
+
+    /// <summary>Record invocation without touching hardware.</summary>
+    private Flow_Chart.ResultType Work() { Calls++; return Flow_Chart.ResultType.End; }
+
+    /// <summary>Release an isolated fixture from the SDK catalogue.</summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) Flow_Module.FlowChart_ModuleList.Remove(this);
+        base.Dispose(disposing);
+    }
+}
+
+internal static partial class Cases
+{
+    /// <summary>Verify saved layouts follow actual source deletion without creating replacement tabs.</summary>
+    private static void RegisterContainerCases()
+    {
+        Test("deleted tabs remove saved nodes, entries and links without restoring tabs or changing disk automatically", RemovedContainerCleanup);
+        Test("legacy import does not replace a deleted selected entry with another surviving flow", RemovedLegacyEntryCleanup);
+        Test("moved source nodes keep their identity while deleted-container dynamic nodes are removed", MovedContainerCleanup);
+        Test("ambiguous container paths do not choose the first page or recreate deleted nodes", AmbiguousContainerCleanup);
+        Test("incompatible saved containers do not accept flow nodes or cause startup exceptions", InvalidContainerCleanup);
+        Test("deleted derived Forms are not recreated or executed from saved configuration", RemovedFormCompatibility);
+    }
+
+    /// <summary>Create a source node and a dynamic node in a nested tab before the source structure changes.</summary>
+    private static FlowProgram ContainerSnapshot(string name)
+    {
+        using (ContainerRevisionPage page = new ContainerRevisionPage(name, "oldTab"))
+        {
+            FlowModuleEditor owner = new FlowModuleEditor(page, new FlowProgram { ModuleId = page.GetType().FullName + "/" + name });
+            FlowStep native = owner.Program.Steps.Single(); native.X = 345;
+            owner.AddNode("", "value", page.PointPage, new Point(40, 145));
+            owner.Program.InitialEntry = native.Id;
+            return FlowProgramFile.Snapshot(owner.Program);
+        }
+    }
+
+    /// <summary>Remove deleted-tab content and its routing while keeping surviving output bindings explicitly invalid.</summary>
+    private static void RemovedContainerCleanup()
+    {
+        string name = "ContainerDeleted_" + Guid.NewGuid().ToString("N");
+        FlowProgram saved = ContainerSnapshot(name);
+        FlowStep native = saved.Steps.Single(step => step.ControlName == "nativeWork");
+        FlowStep dynamic = saved.Steps.Single(step => step.ControlOrigin == "Designer");
+        string reference = saved.ModuleId + "/" + native.Id + "/Value";
+        FlowStep consumer = new FlowStep { ControlName = "flow_" + Guid.NewGuid().ToString("N"), Caption = "Surviving action", Action = "value",
+            ControlOrigin = "Designer", ParentPath = "/FlowChartTable/InitialPage", Branches = FlowBranch.Default(),
+            Inputs = new List<FlowInput> { new FlowInput { Name = "Value", Source = "Output", Reference = reference } } };
+        consumer.Next = native.Id; consumer.Case1 = dynamic.Id; saved.Steps.Add(consumer);
+        string path = Path.Combine(root, name + ".xml");
+        FlowProgramFile.Save(path, new FlowProject { Modules = new List<FlowProgram> { saved } });
+        byte[] before = File.ReadAllBytes(path);
+        using (ContainerRevisionPage page = new ContainerRevisionPage(name, null))
+        {
+            FlowModuleEditor owner = new FlowModuleEditor(page, FlowProgramFile.Load(path).Modules.Single());
+            Assert(owner.Program.Steps.Count == 1 && owner.Program.Steps[0].Id == consumer.Id
+                && owner.Program.InitialEntries.Count == 0 && owner.Program.AutoEntries.Count == 0,
+                "Deleted-tab nodes survived or the loader silently chose a replacement entry.");
+            Assert(owner.Program.Steps[0].Next == null && owner.Program.Steps[0].Case1 == null
+                && owner.Program.RemovedControls.Contains(native.ControlName) && owner.Program.RemovedControls.Contains(dynamic.ControlName),
+                "Deleted-node routing or deletion markers were not cleaned.");
+            Assert(page.FlowChartTable.TabPages.Count == 2 && page.Controls.Find("oldTab", true).Length == 0 && page.Calls == 0,
+                "A deleted or recovery tab was created, or a callback was invoked during loading.");
+            owner.CaptureLayout();
+            Assert(before.SequenceEqual(File.ReadAllBytes(path)) && owner.Program.Steps[0].Inputs[0].Reference == reference,
+                "Loading overwrote disk or replaced a surviving action's data binding with a fabricated value.");
+            owner.SetEntries(true, new[] { consumer.Id });
+            bool rejected = false; try { owner.Validate(null); } catch (InvalidOperationException) { rejected = true; }
+            Assert(rejected, "An action consuming deleted-node data was allowed to run with a replacement value.");
+            owner.Program.Steps[0].Inputs[0].Source = "Constant"; owner.Program.Steps[0].Inputs[0].Reference = "Retained value";
+            owner.Validate(null); saved = FlowProgramFile.Snapshot(owner.Program);
+        }
+        FlowProgramFile.Save(path, new FlowProject { Modules = new List<FlowProgram> { saved } });
+        using (ContainerRevisionPage page = new ContainerRevisionPage(name, null))
+        {
+            FlowModuleEditor owner = new FlowModuleEditor(page, FlowProgramFile.Load(path).Modules.Single());
+            Assert(owner.Program.Steps.Count == 1 && page.FlowChartTable.TabPages.Count == 2 && owner.Program.InitialEntry == consumer.Id,
+                "Save/reload resurrected deleted tab contents or lost the chosen surviving entry.");
+            owner.Start(consumer.Id, false, true); Wait(owner.Runtime.Completion);
+            Assert(owner.Runtime.Error == null && page.Calls == 0, "The surviving flow could not execute independently.");
+        }
+    }
+
+    /// <summary>A surviving source control provides the only evidence for moving a saved node to a different container.</summary>
+    private static void MovedContainerCleanup()
+    {
+        string name = "ContainerMoved_" + Guid.NewGuid().ToString("N"); FlowProgram saved = ContainerSnapshot(name);
+        using (ContainerRevisionPage page = new ContainerRevisionPage(name, "newTab"))
+        {
+            FlowModuleEditor owner = new FlowModuleEditor(page, saved);
+            FlowStep native = owner.Program.Steps.Single();
+            Assert(native.ControlName == "nativeWork" && native.ParentPath.EndsWith("/newTab") && native.X == 345
+                && owner.Program.InitialEntry == native.Id && page.FlowChartTable.TabPages.Count == 2,
+                "A moved source node lost its identity, or deleted-container contents were recreated.");
+            owner.Validate(null); owner.Start(native.Id, false, true); Wait(owner.Runtime.Completion);
+            Assert(owner.Runtime.Error == null && page.Calls == 1, "The surviving native callback did not run independently.");
+        }
+    }
+
+    /// <summary>A deleted explicit entry must not become an unrelated initialization flow during legacy import.</summary>
+    private static void RemovedLegacyEntryCleanup()
+    {
+        string name = "LegacyContainerDeleted_" + Guid.NewGuid().ToString("N");
+        FlowProgram saved = ContainerSnapshot(name); saved.Mode = "Legacy";
+        using (ContainerRevisionPage page = new ContainerRevisionPage(name, null, true))
+        {
+            FlowModuleEditor owner = new FlowModuleEditor(page, saved);
+            Assert(owner.Program.Steps.Count == 1 && owner.Program.Steps[0].ControlName == "survivingRoot"
+                && owner.Program.InitialEntries.Count == 0 && page.Calls == 0,
+                "Deleting a legacy entry silently selected a different source flow.");
+        }
+    }
+
+    /// <summary>Do not move nodes into an arbitrary same-named sibling.</summary>
+    private static void AmbiguousContainerCleanup()
+    {
+        string name = "ContainerAmbiguous_" + Guid.NewGuid().ToString("N"); FlowProgram saved = ContainerSnapshot(name);
+        using (ContainerRevisionPage page = new ContainerRevisionPage(name, "oldTab"))
+        {
+            page.InitialPage.Controls.Add(new TabControl { Name = "nestedTabs" });
+            FlowModuleEditor owner = new FlowModuleEditor(page, saved);
+            Assert(owner.Program.Steps.Count == 0 && owner.Program.InitialEntries.Count == 0 && page.Calls == 0
+                && page.Controls.Find("nativeWork", true).Length == 0 && page.FlowChartTable.TabPages.Count == 2,
+                "An ambiguous container selected a sibling, recreated a node or invoked a callback.");
+        }
+    }
+
+    /// <summary>TabControls only accept TabPages and cannot directly host flow nodes.</summary>
+    private static void InvalidContainerCleanup()
+    {
+        string name = "ContainerTypeChanged_" + Guid.NewGuid().ToString("N"); FlowProgram saved = ContainerSnapshot(name);
+        FlowStep dynamic = saved.Steps.Single(step => step.ControlOrigin == "Designer");
+        dynamic.ParentPath = dynamic.ParentPath.Substring(0, dynamic.ParentPath.LastIndexOf('/'));
+        using (ContainerRevisionPage page = new ContainerRevisionPage(name, "oldTab"))
+        {
+            FlowModuleEditor owner = new FlowModuleEditor(page, saved);
+            Assert(owner.Program.Steps.Count == 1 && owner.Program.Steps[0].ControlName == "nativeWork" && page.Calls == 0,
+                "An incompatible container was used or a valid source node was lost.");
+        }
+    }
+
+    /// <summary>Missing source Form definitions do not create phantom runtime modules or change saved files on load.</summary>
+    private static void RemovedFormCompatibility()
+    {
+        Type type = typeof(FlowPrograms);
+        System.Reflection.FieldInfo project = type.GetField("project", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        System.Reflection.FieldInfo installed = type.GetField("installed", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        object previous = project.GetValue(null), wasInstalled = installed.GetValue(null);
+        var factory = Flow_Module.ProgramControllerFactory;
+        string settings = SysPara.SettingDataDirectory;
+        try
+        {
+            SysPara.SettingDataDirectory = Path.Combine(root, "removed-form");
+            FlowProgram ghost = new FlowProgram { ModuleId = "Removed.Namespace.DeletedForm/OldStation", Mode = "Program" };
+            FlowProgramFile.Save(FlowPrograms.FilePath, new FlowProject { Modules = new List<FlowProgram> { ghost } });
+            byte[] before = File.ReadAllBytes(FlowPrograms.FilePath); installed.SetValue(null, false);
+            FlowPrograms.Install();
+            Assert(!FlowPrograms.Modules.Any(module => module.Program.ModuleId == ghost.ModuleId) && before.SequenceEqual(File.ReadAllBytes(FlowPrograms.FilePath)),
+                "A deleted source Form was reinstantiated or its saved definition was silently overwritten.");
+        }
+        finally { SysPara.SettingDataDirectory = settings; project.SetValue(null, previous); installed.SetValue(null, wasInstalled); Flow_Module.ProgramControllerFactory = factory; }
     }
 }

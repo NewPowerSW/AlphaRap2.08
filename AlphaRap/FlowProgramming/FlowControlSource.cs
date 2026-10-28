@@ -38,6 +38,13 @@ namespace AlphaRap.FlowProgramming
             step.AlarmCode = source.AlarmCode;
         }
 
+        /// <summary>仅按仍存在的源码控件身份提供容器路径，不按相似名称猜测页面。</summary>
+        internal string CurrentParent(string controlName)
+        {
+            FlowStep source;
+            return controls.TryGetValue(controlName, out source) ? source.ParentPath : null;
+        }
+
         /// <summary>准备独立恢复快照；来源明确且不再被连接或数据引用的已删源码节点才会移除。</summary>
         internal FlowProgram Prepare(FlowProgram program)
         {

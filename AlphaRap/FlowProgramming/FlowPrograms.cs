@@ -473,8 +473,13 @@ namespace AlphaRap.FlowProgramming
         public void Restore(FlowProgram program)
         {
             if (Runtime.IsRunning) throw new InvalidOperationException(FlowText.T("busy"));
+            bool importInitial = program.InitialEntries.Count == 0;
+            bool importAuto = program.AutoEntries.Count == 0;
             FlowProgram prepared = PrepareRestore(program);
             program.Steps = prepared.Steps;
+            program.InitialEntries = prepared.InitialEntries;
+            program.AutoEntries = prepared.AutoEntries;
+            program.RemovedControls = prepared.RemovedControls;
             bool importing = program.Mode == "Legacy";
             if (importing) program.Mode = "Program";
             foreach (ScrollableControl canvas in program.Steps.Select(step => FindParent(step.ParentPath)).OfType<ScrollableControl>().Distinct()) canvas.AutoScrollPosition = Point.Empty;
@@ -530,8 +535,8 @@ namespace AlphaRap.FlowProgramming
             }
             if (importing)
             {
-                if (string.IsNullOrEmpty(program.InitialEntry)) program.InitialEntry = ImportedEntry(Form.InitialPage);
-                if (string.IsNullOrEmpty(program.AutoEntry)) program.AutoEntry = ImportedEntry(Form.AutoPage);
+                if (importInitial && string.IsNullOrEmpty(program.InitialEntry)) program.InitialEntry = ImportedEntry(Form.InitialPage);
+                if (importAuto && string.IsNullOrEmpty(program.AutoEntry)) program.AutoEntry = ImportedEntry(Form.AutoPage);
             }
             ApplyLinks();
             foreach (ScrollableControl canvas in nodes.Values.Select(node => node.Parent).OfType<ScrollableControl>().Distinct()) UpdateCanvasBounds(canvas);
@@ -544,15 +549,41 @@ namespace AlphaRap.FlowProgramming
             if (errors.Count > 0) throw new InvalidDataException(string.Join(Environment.NewLine, errors));
             if (program.Steps.Any(step => string.IsNullOrWhiteSpace(step.ControlName)) || program.Steps.GroupBy(step => step.ControlName).Any(group => group.Count() != 1))
                 throw new InvalidDataException("Invalid or duplicate flow control name.");
-            foreach (FlowStep step in program.Steps) FindParent(step.ParentPath);
         }
 
         /// <summary>在改变当前画布之前完成源码同步及布局校验。</summary>
         internal FlowProgram PrepareRestore(FlowProgram program)
         {
             FlowProgram prepared = controlSource.Prepare(program);
+            foreach (FlowStep step in prepared.Steps)
+            {
+                if (TryFindParent(step.ParentPath) != null) continue;
+                string sourceParent = controlSource.CurrentParent(step.ControlName);
+                if (sourceParent != null && TryFindParent(sourceParent) != null) step.ParentPath = sourceParent;
+            }
+            RemoveMissingContainers(prepared);
             ValidateLayout(prepared);
             return prepared;
+        }
+
+        /// <summary>清理已删除容器的节点、入口及入站连线，保留其他动作的失效数据绑定供明确重绑。</summary>
+        private void RemoveMissingContainers(FlowProgram program)
+        {
+            FlowStep[] removed = program.Steps.Where(step => TryFindParent(step.ParentPath) == null).ToArray();
+            if (removed.Length == 0) return;
+            HashSet<string> ids = new HashSet<string>(removed.Select(step => step.Id));
+            foreach (FlowStep step in removed)
+                if (!program.RemovedControls.Contains(step.ControlName)) program.RemovedControls.Add(step.ControlName);
+            program.Steps.RemoveAll(step => ids.Contains(step.Id));
+            program.InitialEntries.RemoveAll(ids.Contains);
+            program.AutoEntries.RemoveAll(ids.Contains);
+            foreach (FlowStep step in program.Steps)
+            {
+                if (ids.Contains(step.Next ?? "")) step.Next = null;
+                if (ids.Contains(step.Case1 ?? "")) step.Case1 = null;
+                if (ids.Contains(step.Case2 ?? "")) step.Case2 = null;
+                if (ids.Contains(step.Case3 ?? "")) step.Case3 = null;
+            }
         }
 
         /// <summary>仅首次导入旧节点的控件连接，之后以工程定义为准。</summary>
@@ -588,7 +619,7 @@ namespace AlphaRap.FlowProgramming
             return ParentPath(parent.Parent) + "/" + parent.Name;
         }
 
-        /// <summary>在原父容器创建真实 SDK 节点，找不到父容器时拒绝恢复。</summary>
+        /// <summary>在已经校验的原父容器创建真实 SDK 节点。</summary>
         private Flow_Chart CreateNode(FlowStep step)
         {
             Control parent = FindParent(step.ParentPath);
@@ -601,9 +632,22 @@ namespace AlphaRap.FlowProgramming
         /// <summary>按保存的容器路径解析原布局。</summary>
         private Control FindParent(string path)
         {
+            Control parent = TryFindParent(path);
+            if (parent == null) throw new InvalidDataException(string.Format(FlowText.T("containerMissing"), path));
+            return parent;
+        }
+
+        /// <summary>按完整 Name 路径唯一定位容器，缺失、重名或不兼容容器均不猜测替代页面。</summary>
+        private Control TryFindParent(string path)
+        {
             Control parent = Form;
             foreach (string segment in (path ?? "").Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries))
-                parent = parent.Controls.Cast<Control>().Single(control => control.Name == segment);
+            {
+                Control[] matches = parent.Controls.Cast<Control>().Where(control => control.Name == segment).ToArray();
+                if (matches.Length != 1) return null;
+                parent = matches[0];
+            }
+            if (parent.IsDisposed || parent is TabControl || parent is SplitContainer || parent is ToolStrip) return null;
             return parent;
         }
 

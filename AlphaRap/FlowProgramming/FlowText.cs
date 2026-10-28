@@ -6,6 +6,7 @@ namespace AlphaRap.FlowProgramming
     {
         public static readonly Dictionary<string, string[]> Defaults = new Dictionary<string, string[]>
         {
+            { "containerMissing", new[] { "流程容器不存在、重名或不能承载节点：{0}", "The flow container is missing, ambiguous or cannot host nodes: {0}", "El contenedor del flujo no existe, es ambiguo o no admite nodos: {0}" } },
             { "initialFlows", new[] { "初始化流程", "Initialization flows", "Flujos de inicialización" } },
             { "automaticFlows", new[] { "自动运行流程", "Automatic flows", "Flujos automáticos" } },
             { "chooseEntries", new[] { "选择启动流程…", "Select flows…", "Seleccionar flujos…" } },
