@@ -225,10 +225,12 @@ internal static class StartupSmoke
             step.Breakpoint = true; module.Program.Mode = "Program"; module.Program.AutoEntry = step.Id;
             ChooseSave(main, "Button1_dyn");
             FlowStep saved = FlowProgramFile.Load(FlowPrograms.FilePath).Modules.Single(item => item.ModuleId == module.Program.ModuleId).Steps.Single();
-            if (!saved.UsesFlowResult || saved.Action != method.Id || saved.Target != resource.Id || !saved.Breakpoint || page.Calls != 0)
+            if (!saved.UsesFlowResult || saved.Action != method.Id || saved.Target != resource.Id || !saved.Breakpoint || page.Calls != 0
+                || saved.TimeoutMs != System.Threading.Timeout.Infinite || saved.AlarmCode != null)
                 throw new InvalidOperationException("Main Save lost native identity, routing or breakpoint, or executed code.");
             string before = File.ReadAllText(FlowPrograms.FilePath);
             step.UsesFlowResult = false;
+            step.TimeoutMs = 10000;
             bool rejected = false;
             try { ProjectConfiguration.Save(); } catch (InvalidOperationException) { rejected = true; }
             if (!rejected || File.ReadAllText(FlowPrograms.FilePath) != before || step.UsesFlowResult)
@@ -239,7 +241,8 @@ internal static class StartupSmoke
             if (!module.Runtime.Completion.IsCompleted || module.Runtime.Error != null || page.Calls != 1)
                 throw new InvalidOperationException("The published native plan did not invoke the real current form.");
             ChooseSave(main, "Button3_dyn");
-            if (!module.Program.Steps.Single().UsesFlowResult || module.Program.Steps.Single().Action != method.Id || !module.Program.Steps.Single().Breakpoint)
+            if (!module.Program.Steps.Single().UsesFlowResult || module.Program.Steps.Single().Action != method.Id || !module.Program.Steps.Single().Breakpoint
+                || module.Program.Steps.Single().TimeoutMs != System.Threading.Timeout.Infinite || module.Program.Steps.Single().AlarmCode != null)
                 throw new InvalidOperationException("Main Save No did not restore the complete native node.");
             Console.WriteLine("PASS Main Save persists native event identity routing and breakpoints; failed save and discard retain the correct versions.");
         }

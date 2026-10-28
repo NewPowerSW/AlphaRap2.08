@@ -518,7 +518,11 @@ namespace AlphaRap.FlowProgramming
                 node.BringToFront();
             }
             ImportLegacyLinks();
-            foreach (FlowStep step in Program.Steps) FlowNativeMethods.BindExisting(Form, nodes[step.Id], step);
+            foreach (FlowStep step in Program.Steps)
+            {
+                FlowNativeMethods.BindExisting(Form, nodes[step.Id], step);
+                controlSource.ApplyNativeAlarm(step);
+            }
             if (importing)
             {
                 if (string.IsNullOrEmpty(program.InitialEntry)) program.InitialEntry = ImportedEntry(Form.InitialPage);
@@ -707,6 +711,7 @@ namespace AlphaRap.FlowProgramming
             step.Target = targetId;
             step.Action = actionId;
             step.UsesFlowResult = method.UsesFlowResult;
+            if (step.UsesFlowResult) { step.TimeoutMs = Timeout.Infinite; step.AlarmCode = null; }
             step.Inputs = method.Inputs.Select(field => new FlowInput { Name = field.Name, Source = string.IsNullOrEmpty(field.OutputSourceMethod) ? "Constant" : "Output", Reference = field.DefaultValue }).ToList();
             return AddNodeCore(step, canvas, logicalLocation);
         }

@@ -180,6 +180,7 @@ internal static partial class Cases
     /// <summary>Register original event programming alongside ordinary configured equipment actions.</summary>
     private static void RegisterNativeEventCases()
     {
+        RegisterNativeAlarmCases();
         RegisterSourceControlCases();
         RegisterRuntimeStateCases();
         Test("native events discover private inherited and bound callbacks without executing business code", NativeEventDiscovery);

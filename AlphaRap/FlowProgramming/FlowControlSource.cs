@@ -21,9 +21,21 @@ namespace AlphaRap.FlowProgramming
             foreach (Flow_Chart node in Enumerate(form))
                 controls.Add(node.Name, new FlowStep { ControlName = node.Name, Caption = node.text, X = node.Left, Y = node.Top,
                     ParentPath = ParentPath(node.Parent, form), ControlOrigin = FormOrigin,
+                    TimeoutMs = node.AlarmStaus ? Math.Max(1, node.AlarmTimeOut) : System.Threading.Timeout.Infinite,
+                    AlarmCode = node.AlarmStaus ? node.AlarmCode : null,
                     SourceLinks = new FlowControlLinks { Next = node.Next == null ? null : node.Next.Name,
                         Case1 = node.Casse1 == null ? null : node.Casse1.Name, Case2 = node.Casse2 == null ? null : node.Casse2.Name,
                         Case3 = node.Casse3 == null ? null : node.Casse3.Name } });
+        }
+
+        /// <summary>源码原生节点沿用构造时的报警开关、期限及编号，不接受功能节点的默认参数。</summary>
+        internal void ApplyNativeAlarm(FlowStep step)
+        {
+            if (!step.UsesFlowResult || step.ControlOrigin != FormOrigin) return;
+            FlowStep source;
+            if (!controls.TryGetValue(step.ControlName, out source)) return;
+            step.TimeoutMs = source.TimeoutMs;
+            step.AlarmCode = source.AlarmCode;
         }
 
         /// <summary>准备独立恢复快照；来源明确且不再被连接或数据引用的已删源码节点才会移除。</summary>

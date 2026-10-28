@@ -367,8 +367,8 @@ namespace AlphaRap.FlowProgramming
                 candidate.Action = action.Id;
                 candidate.UsesFlowResult = action.UsesFlowResult;
                 candidate.Target = executionMode == "Action" ? Convert.ToString(targetValue.SelectedValue) : "";
-                candidate.TimeoutMs = (int)timeoutValue.Value;
-                candidate.AlarmCode = SelectedAlarmCode;
+                if (!candidate.UsesFlowResult) { candidate.TimeoutMs = (int)timeoutValue.Value; candidate.AlarmCode = SelectedAlarmCode; }
+                if (candidate.UsesFlowResult && !original.UsesFlowResult) { candidate.TimeoutMs = System.Threading.Timeout.Infinite; candidate.AlarmCode = null; }
                 candidate.Inputs = InputRows.Select(row => row.ReadInput()).ToList();
                 ReadExecutionTo(candidate);
                 candidate.Conditions.Clear(); candidate.WaitForCondition = false; candidate.AnyCondition = false;

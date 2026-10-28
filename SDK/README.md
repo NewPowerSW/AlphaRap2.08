@@ -10,9 +10,10 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 - 轴手动会话停止：[NPSDK c124b9d4549ea3f6ad87ef0c254d37dbe0fd4373](https://github.com/JeffreyWub/NPSDK/commit/c124b9d4549ea3f6ad87ef0c254d37dbe0fd4373)，分支 `codex/flow-runtime-state-20261028`。
 - 雷赛初始化返回值与轴状态校验：[NPSDK 3b6dbedca23521b894802c0e4c6ebdc30589752a](https://github.com/JeffreyWub/NPSDK/commit/3b6dbedca23521b894802c0e4c6ebdc30589752a)，分支 `codex/flow-runtime-state-20261028`。
 - 初始化故障节点恢复：[NPSDK 69783aa4ae3fe267ab9c4b4afeb64727c6864884](https://github.com/JeffreyWub/NPSDK/commit/69783aa4ae3fe267ab9c4b4afeb64727c6864884)，分支 `codex/flow-runtime-state-20261028`。
+- 原生节点可关闭自动期限：[NPSDK 8ebbf7fd094fc679260efe6850d59e301ce35d60](https://github.com/JeffreyWub/NPSDK/commit/8ebbf7fd094fc679260efe6850d59e301ce35d60)，分支 `codex/flow-runtime-state-20261028`。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
 - 大小：542720 字节。
-- SHA256：`35f2fe7f7d010a66a475a918b407934d65ede68b78a2b77276b508378ae08566`。
+- SHA256：`434a701b7efad92194461abe45fdff69a6e01ddbba6d48a747ee26d68aa33857`。
 
 该版本从独立、干净的源码工作树构建，不包含原 SDK 开发目录中的未提交改动。
 
@@ -27,6 +28,8 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 主界面【初始化／启动】只触发对应的已保存流程，不遍历组合硬件，不自动连接，也不检测就绪或分析资源依赖。连接和硬件状态处理由流程节点代码负责；资源配置仍由主 Save 保存。原全量启动检查与自动初始化方法已移除。真实主入口在无关硬件未就绪的离线场景完成初始化及自动流程，未读轴忙状态；宿主流程 139/139、主保存 17 项及源码生成回归通过。
 
 正式初始化启用 `FlowProgramRuntime.PauseOnFailure`：异常或超时保留当前节点，底层调用退出后才允许重试；普通报警暂停不消耗初始化期限，也不重发已完成动作。处理原因并清除报警后，再点原【初始化】继续，保留已完成工位、上游结果和参数快照。【停止】结束会话，下次初始化从入口开始；主【启动】仍只用于自动生产，原生产失败语义不变。恢复位置不持久化，不增加配置项。SDK 原生事件 23/23、核心 13/13；宿主流程 142/142、主保存 17 项、主界面 11/11。实际初始化按钮覆盖普通报警、异常、超时、完成工位不重跑和三语状态切换，主保存与配方保护沿用现有机制。验证均在离线环境完成，未操作现场硬件。
+
+源码代码节点按原 FlowChat 的 `AlarmStaus`、`AlarmTimeOut`、`AlarmCode` 运行，加载旧工程时修正误带入的 10000ms／空编号，保留位置、身份及连接。关闭自动报警的原生节点使用 `TimeoutMs = -1`，仍可暂停、停止和报告业务异常；普通功能及条件节点仍要求正超时。新拖入的纯代码函数不默认附加 10 秒期限，已有明确保存的拖拽代码设置保留。SDK 原生事件 24/24、核心 13/13；宿主流程 147/147、主保存 17 项及源码生成回归通过，含实际下流道节点只读绑定核对，未调用现场 IO。
 
 ## 继承工具接入
 
