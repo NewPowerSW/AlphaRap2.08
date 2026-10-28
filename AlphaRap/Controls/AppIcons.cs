@@ -27,7 +27,8 @@ namespace AlphaRap
         // 报警统计窗口用到的补充图标
         Minimize,           // 窗口最小化
         Chart,              // 统计（柱形）
-        Calendar            // 日期
+        Calendar,           // 日期
+        Alarm               // 报警警示
     }
 
     /// <summary>
@@ -197,6 +198,7 @@ namespace AlphaRap
                 case AppIcon.Minimize: DrawMinimize(g, c); break;
                 case AppIcon.Chart: DrawChart(g, c); break;
                 case AppIcon.Calendar: DrawCalendar(g, c); break;
+                case AppIcon.Alarm: DrawAlarm(g, c); break;
             }
         }
 
@@ -474,6 +476,17 @@ namespace AlphaRap
             }
             using (SolidBrush b = new SolidBrush(c))
                 g.FillEllipse(b, 10.8f, 14.4f, 2.4f, 2.4f);
+        }
+
+        /// <summary>报警：三角警示牌和感叹号。</summary>
+        private static void DrawAlarm(Graphics g, Color color)
+        {
+            using (Pen outline = Stroke(color))
+                g.DrawPolygon(outline, new[] { P(12f, 3f), P(22f, 21f), P(2f, 21f) });
+            using (Pen mark = Stroke(color, 2.4f))
+                g.DrawLine(mark, 12f, 9f, 12f, 14f);
+            using (SolidBrush dot = new SolidBrush(color))
+                g.FillEllipse(dot, 10.8f, 16.5f, 2.4f, 2.4f);
         }
 
         /// <summary>报警复位：铃铛 + 红色斜线（表示"解除"）</summary>

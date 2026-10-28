@@ -92,6 +92,7 @@ internal static class DashboardProbe
                 Application.DoEvents();
                 Console.WriteLine("  Layout");
                 Layout(frame);
+                CheckMachineStatus(frame, size, language);
                 foreach (string field in new[] { "tableLayoutPanel_Main", "tableLayoutPanel2", "Panl_PictureShowTop", "Panl_PictureShowDown", "panel_PictureShowLeft", "panel_PictureShowRight" })
                     CheckChildren(Field<Control>(frame, field));
                 CheckChildren(Field<Control>(home, "kpiLayout"));
@@ -113,6 +114,7 @@ internal static class DashboardProbe
                 CheckClick(frame, "MENU_Save", "SaveData_Click"); CheckClick(frame, "MENU_Reset", "MENU_Reset_Click");
                 CheckClick(frame, "MENU_Run", "btStart_Click"); CheckClick(frame, "MENU_Pause", "btPause_Click");
                 CheckClick(frame, "MENU_Stop", "btStop_Click"); CheckClick(frame, "AlarmReset", "btAlarmReset_Click");
+                CheckClick(frame, "MachineStatus", "DashboardAlarm_Click");
                 Check(Field<Control>(home, "lblKpiOkValue").Text.Replace(",", "").Replace(" ", "") == "1236", "Good-product count was not rendered.");
                 Check(Field<Control>(home, "lblKpiInputValue").Text.Replace(",", "").Replace(" ", "") == "1248", "Input count was not rendered.");
                 using (Bitmap image = new Bitmap(frame.Width, frame.Height))
@@ -140,6 +142,43 @@ internal static class DashboardProbe
             UiTheme.ForceDesignTimeForTest(false);
             LicenseManager.CurrentContext = previous;
         }
+    }
+
+    /// <summary>Render every machine-state appearance and require full translated text inside the enlarged footer badge.</summary>
+    private static void CheckMachineStatus(MainForm frame, Size size, int language)
+    {
+        string[,] captions = {
+            { "待机状态", "IDLE", "modo espera" },
+            { "正在初始化状态", "INITIAL", "Estado inicialización" },
+            { "初始化完成", "INITIAL Completed", "cargando terminado" },
+            { "运行状态", "RUNNING", "CORRER" },
+            { "暂停状态", "PAUSE", "Estado suspendido" },
+            { "设备报警  ×2", "ALARM  ×2", "ALARMA  ×2" }
+        };
+        string[] colors = { "StatusIdleFill", "StatusInitFill", "StatusInitFill", "StatusRunFill", "StatusPauseFill", "StatusAlarmFill" };
+        AppIcon[] icons = { AppIcon.Stop, AppIcon.Reset, AppIcon.Reset, AppIcon.Run, AppIcon.Pause, AppIcon.Alarm };
+        Label badge = Field<Label>(frame, "MachineStatus");
+        Check(badge.Height >= 48 && badge.Font.SizeInPoints >= 16, "The machine state is too small to read at a glance.");
+        for (int state = 0; state < colors.Length; state++)
+        {
+            Color fill = (Color)typeof(MainForm).GetField(colors[state], BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+            Color ink = state == 4 ? Color.FromArgb(16, 30, 46) : Color.White;
+            Invoke(frame, "SetStatusLook", fill, ink, captions[state, language], icons[state]);
+            Layout(Field<Control>(frame, "tableLayoutPanel2"));
+            CheckChildren(Field<Control>(frame, "tableLayoutPanel2"));
+            Size text = TextRenderer.MeasureText(badge.Text, badge.Font);
+            Check(text.Width <= badge.ClientSize.Width - badge.Padding.Horizontal && text.Height <= badge.ClientSize.Height,
+                "Translated machine state is clipped: " + badge.Text);
+            if (size.Width != 1280) continue;
+            using (Bitmap image = new Bitmap(badge.Width, badge.Height))
+            {
+                badge.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
+                image.Save(Path.Combine(outputRoot, "machine-state-" + state + "-" + language + ".png"));
+            }
+        }
+        Color idle = (Color)typeof(MainForm).GetField("StatusIdleFill", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+        Invoke(frame, "SetStatusLook", idle, Color.White, captions[0, language], AppIcon.Stop);
+        Layout(Field<Control>(frame, "tableLayoutPanel2"));
     }
 
     /// <summary>Exercise the original alarm cache and filters in the persistent main dashboard table.</summary>

@@ -110,12 +110,11 @@ namespace AlphaRap
             LoginText.ForeColor = Color.White;
             LoginText.Cursor = Cursors.Hand;
             LoginText.AutoEllipsis = true;
-            MachineStatus.Font = UiKit.Bold(9f);
             MachineStatus.TextAlign = ContentAlignment.MiddleCenter;
             MachineStatus.AutoSize = false;
             MachineStatus.AutoEllipsis = true;
-            MachineStatus.BackColor = Color.FromArgb(232, 240, 247);
-            MachineStatus.ForeColor = ShellInk;
+            MachineStatus.BackColor = StatusIdleFill;
+            MachineStatus.ForeColor = StatusWhiteInk;
             MachineStatus.Paint -= MachineStatus_Paint;
             MachineStatus.Paint += MachineStatus_Paint;
             languageSwitch.ForeColor = Color.FromArgb(83, 102, 125);

@@ -1144,26 +1144,22 @@ int nheightEllipse
         }
 
         // ---------------- 机台状态徽章 ----------------
-        // 整块填满状态色。原来是"深藏蓝底 + 左侧 6px 竖条"，而 IDLE 的灰蓝竖条压在深藏蓝上
-        // 几乎看不见 ⇒ 远处根本看不出机台在什么状态。整块上色后一眼可辨。
-        // 亮底配深字、红底配白字；对比度都按 WCAG 算过（括号里是实测值）。
-        private static readonly Color StatusIdleFill = Color.FromArgb(148, 163, 184);   // 灰蓝：待机（深字 5.5:1）
-        private static readonly Color StatusInitFill = Color.FromArgb(56, 158, 226);    // 亮蓝：初始化（深字 4.8:1）
-        private static readonly Color StatusRunFill = Color.FromArgb(52, 199, 89);      // 绿：运行（深字 7.3:1）
-        private static readonly Color StatusPauseFill = Color.FromArgb(250, 196, 21);   // 琥珀：暂停（深字 9.2:1）
-        private static readonly Color StatusAlarmFill = Color.FromArgb(206, 38, 38);    // 红：报警（白字 5.3:1）
+        private static readonly Color StatusIdleFill = Color.FromArgb(71, 85, 105);
+        private static readonly Color StatusInitFill = Color.FromArgb(4, 108, 182);
+        private static readonly Color StatusRunFill = Color.FromArgb(22, 130, 67);
+        private static readonly Color StatusPauseFill = Color.FromArgb(250, 196, 21);
+        private static readonly Color StatusAlarmFill = Color.FromArgb(206, 38, 38);
 
         /// <summary>亮底上的深字。</summary>
         private static readonly Color StatusDarkInk = Color.FromArgb(16, 30, 46);
-        /// <summary>红底上的白字。</summary>
+        /// <summary>深色状态底上的白字。</summary>
         private static readonly Color StatusWhiteInk = Color.White;
 
-        /// <summary>徽章左右内边距（96 DPI 设计值）——决定胶囊比文字宽多少。</summary>
-        private const int StatusPadX = 12;
-        /// <summary>徽章最小宽度（96 DPI 设计值），短文案也别缩成一小块。</summary>
-        private const int StatusMinWidth = 106;
-        /// <summary>当前填充色（MachineStatus_Paint 画描边时用）。</summary>
-        private Color _statusFill = StatusIdleFill;
+        /// <summary>短文案状态牌的最小宽度（96 DPI 设计值）。</summary>
+        private const int StatusMinWidth = 200;
+        /// <summary>状态图标的边长（96 DPI 设计值）。</summary>
+        private const int StatusIconSize = 32;
+        private AppIcon _statusIcon = AppIcon.Stop;
 
         // 状态文案缓存：语言或初始化状态变化时重建
         private Dictionary<RunMode, string> _statusTextMap;
@@ -1173,6 +1169,7 @@ int nheightEllipse
         private string _lastAlarmTip;
         private readonly ToolTip _statusTip = new ToolTip();
 
+        /// <summary>按报警优先级和整机运行模式刷新状态牌及报警提示。</summary>
         private void UpdateMachineStatus()
         {
             if (_statusTextMap == null || _statusTextLang != SysPara.LanguageShow
@@ -1190,7 +1187,7 @@ int nheightEllipse
             if (TryGetActiveErrors(out errorCount, out latestError))
             {
                 SetStatusLook(StatusAlarmFill, StatusWhiteInk,
-                    errorCount > 1 ? _statusAlarmText + "  ×" + errorCount : _statusAlarmText);
+                    errorCount > 1 ? _statusAlarmText + "  ×" + errorCount : _statusAlarmText, AppIcon.Alarm);
                 if (latestError != _lastAlarmTip)
                 {
                     _lastAlarmTip = latestError;
@@ -1208,50 +1205,38 @@ int nheightEllipse
             string statusText;
             if (!_statusTextMap.TryGetValue(SysPara.SystemMode, out statusText))
             {
-                SetStatusLook(StatusIdleFill, StatusDarkInk, "Unknown status");
+                SetStatusLook(StatusIdleFill, StatusWhiteInk, "Unknown status", AppIcon.Stop);
                 return;
             }
             switch (SysPara.SystemMode)
             {
-                case RunMode.RUN: SetStatusLook(StatusRunFill, StatusDarkInk, statusText); break;
-                case RunMode.PAUSE: SetStatusLook(StatusPauseFill, StatusDarkInk, statusText); break;
+                case RunMode.RUN: SetStatusLook(StatusRunFill, StatusWhiteInk, statusText, AppIcon.Run); break;
+                case RunMode.PAUSE: SetStatusLook(StatusPauseFill, StatusDarkInk, statusText, AppIcon.Pause); break;
                 case RunMode.INITIAL:
-                    // 初始化中 / 初始化完成（就绪）都是蓝色，文字区分两者
-                    SetStatusLook(StatusInitFill, StatusDarkInk, statusText); break;
-                default: SetStatusLook(StatusIdleFill, StatusDarkInk, statusText); break;
+                    SetStatusLook(StatusInitFill, StatusWhiteInk, statusText, AppIcon.Reset); break;
+                default: SetStatusLook(StatusIdleFill, StatusWhiteInk, statusText, AppIcon.Stop); break;
             }
         }
 
-        /// <summary>
-        /// 设置徽章外观：整块填状态色 + 深字（红底时白字）。
-        /// 宽度跟着文字走 —— 状态名在不同语言下长短差很多（西语「Estado inicialización」在 22pt 下
-        /// 300+px），原来固定 220px 加 AutoEllipsis 会把状态名截掉，等于白装一个状态灯。
-        /// 只在值变化时赋值并重绘，避免每秒刷新造成闪烁。
-        /// </summary>
-        private void SetStatusLook(Color fill, Color ink, string text)
+        /// <summary>设置状态颜色、图标及文案，按文字和图标预留宽度，限制长文案占用的底栏空间。</summary>
+        private void SetStatusLook(Color fill, Color ink, string text, AppIcon icon)
         {
             if (MachineStatus.BackColor != fill) MachineStatus.BackColor = fill;
             if (MachineStatus.ForeColor != ink) MachineStatus.ForeColor = ink;
             if (MachineStatus.Text != text) MachineStatus.Text = text;
 
-            int w = UiTheme.Dpi(StatusMinWidth);
-            try
-            {
-                int need = TextRenderer.MeasureText(text ?? "", MachineStatus.Font).Width
-                           + UiTheme.Dpi(StatusPadX * 2);
-                if (need > w) w = Math.Min(need, UiTheme.Dpi(200));
-            }
-            catch { }
+            int need = TextRenderer.MeasureText(text ?? "", MachineStatus.Font).Width + MachineStatus.Padding.Horizontal;
+            int w = Math.Max(UiTheme.Dpi(StatusMinWidth), Math.Min(need, UiTheme.Dpi(360)));
             if (MachineStatus.Width != w) MachineStatus.Width = w;
 
-            if (_statusFill != fill)
+            if (_statusIcon != icon)
             {
-                _statusFill = fill;
+                _statusIcon = icon;
                 MachineStatus.Invalidate();
             }
         }
 
-        /// <summary>徽章描边：亮底压在品牌蓝顶栏上时给一条半透明深边，轮廓更清楚。</summary>
+        /// <summary>绘制状态牌轮廓与独立图标，文字区域由标签内边距留出。</summary>
         private void MachineStatus_Paint(object sender, PaintEventArgs e)
         {
             try
@@ -1261,6 +1246,10 @@ int nheightEllipse
                 using (GraphicsPath path = UiKit.RoundRect(r, UiTheme.Dpi(12)))
                 using (Pen p = new Pen(Color.FromArgb(70, 8, 20, 36), 1f))
                     e.Graphics.DrawPath(p, path);
+                int iconSize = UiTheme.Dpi(StatusIconSize);
+                Image icon = AppIcons.Get(_statusIcon, iconSize, MachineStatus.ForeColor);
+                if (icon != null)
+                    e.Graphics.DrawImageUnscaled(icon, UiTheme.Dpi(14), (MachineStatus.Height - iconSize) / 2);
             }
             catch { }
         }

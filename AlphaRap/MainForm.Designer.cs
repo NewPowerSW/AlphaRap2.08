@@ -220,7 +220,7 @@
             this.tableLayoutPanel_Main.RowCount = 3;
             this.tableLayoutPanel_Main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
             this.tableLayoutPanel_Main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel_Main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 72F));
+            this.tableLayoutPanel_Main.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 92F));
             this.tableLayoutPanel_Main.Size = new System.Drawing.Size(1600, 1000);
             // 
             // statusStrip2
@@ -434,7 +434,7 @@
             this.panel1.Margin = new System.Windows.Forms.Padding(24, 8, 24, 16);
             this.panel1.Padding = new System.Windows.Forms.Padding(16, 5, 12, 5);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1328, 48);
+            this.panel1.Size = new System.Drawing.Size(1328, 68);
             // 
             // tableLayoutPanel2
             // 
@@ -459,7 +459,7 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(1300, 38);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(1300, 58);
             // 
             // picLogo
             // 
@@ -505,14 +505,15 @@
             // MachineStatus
             // 
             this.MachineStatus.AutoSize = false;
-            this.MachineStatus.BackColor = System.Drawing.Color.FromArgb(232, 240, 247);
+            this.MachineStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.MachineStatus.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.MachineStatus.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
-            this.MachineStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(30)))), ((int)(((byte)(46)))));
+            this.MachineStatus.Font = new System.Drawing.Font("Microsoft YaHei UI", 16F, System.Drawing.FontStyle.Bold);
+            this.MachineStatus.ForeColor = System.Drawing.Color.White;
             this.MachineStatus.Location = new System.Drawing.Point(1231, 2);
-            this.MachineStatus.Margin = new System.Windows.Forms.Padding(6, 4, 12, 4);
+            this.MachineStatus.Margin = new System.Windows.Forms.Padding(6, 5, 16, 5);
+            this.MachineStatus.Padding = new System.Windows.Forms.Padding(60, 0, 16, 0);
             this.MachineStatus.Name = "MachineStatus_dyn";
-            this.MachineStatus.Size = new System.Drawing.Size(116, 30);
+            this.MachineStatus.Size = new System.Drawing.Size(200, 48);
             this.MachineStatus.TabIndex = 211;
             this.MachineStatus.Text = "IDLE";
             this.MachineStatus.Cursor = System.Windows.Forms.Cursors.Hand;
