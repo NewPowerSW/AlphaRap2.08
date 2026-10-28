@@ -28,7 +28,8 @@ namespace AlphaRap
         Minimize,           // 窗口最小化
         Chart,              // 统计（柱形）
         Calendar,           // 日期
-        Alarm               // 报警警示
+        Alarm,              // 报警警示
+        Toolbox             // 流程工具箱
     }
 
     /// <summary>
@@ -199,10 +200,24 @@ namespace AlphaRap
                 case AppIcon.Chart: DrawChart(g, c); break;
                 case AppIcon.Calendar: DrawCalendar(g, c); break;
                 case AppIcon.Alarm: DrawAlarm(g, c); break;
+                case AppIcon.Toolbox: DrawToolbox(g, c); break;
             }
         }
 
         // ---------- 左侧导航（描边线稿） ----------
+
+        /// <summary>工具箱：提手、箱体和中间搭扣。</summary>
+        private static void DrawToolbox(Graphics g, Color c)
+        {
+            using (Pen p = Stroke(c))
+            {
+                using (GraphicsPath body = RR(3f, 8f, 18f, 12f, 2f)) g.DrawPath(p, body);
+                g.DrawLines(p, new[] { P(8f, 8f), P(8f, 4f), P(16f, 4f), P(16f, 8f) });
+                g.DrawLine(p, 3f, 13f, 10f, 13f);
+                g.DrawLine(p, 14f, 13f, 21f, 13f);
+                g.DrawRectangle(p, 10f, 11f, 4f, 4f);
+            }
+        }
 
         /// <summary>主界面：屋顶 + 屋身 + 门</summary>
         private static void DrawHome(Graphics g, Color c)

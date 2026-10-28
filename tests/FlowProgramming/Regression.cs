@@ -1275,10 +1275,78 @@ internal static partial class Cases
             Assert(!tabs.TabPages.Cast<TabPage>().Any(tab => tab.Text == "Configured module") && !created.IsDisposed, "Deleted module remains visible or lost reload support.");
             Assert(visible.Visible && station.Visible, "Removing another module hid the remaining module.");
             VerifyToolboxDrops(page);
+            VerifyToolboxDock(page);
             VerifyCompactFlowPage(page);
             using (Bitmap bitmap = new Bitmap(page.Width, page.Height)) { page.DrawToBitmap(bitmap, new Rectangle(Point.Empty, page.Size)); bitmap.Save(Path.Combine(root, "flow-page.png")); }
             page.Close();
         }
+    }
+
+    /// <summary>Exercise the actual toolbox button without losing selection, changing node layout or bypassing editing permissions.</summary>
+    private static void VerifyToolboxDock(Flow page)
+    {
+        SplitContainer workspace = ActionControl<SplitContainer>(page, "flowWorkspace");
+        Button toggle = ActionControl<Button>(page, "toolboxToggle_dyn");
+        FlowToolboxControl toolbox = ActionControl<FlowToolboxControl>(page, "flowToolbox");
+        TreeView tree = ActionControl<TreeView>(toolbox, "toolboxEntries");
+        TextBox search = ActionControl<TextBox>(toolbox, "toolboxSearch");
+        CheckBox edit = ActionControl<CheckBox>(page, "edit");
+        Control status = ActionControl<Control>(page, "flowStatus_dyn");
+        Assert(workspace.Panel1Collapsed && toggle.Image != null && toggle.Text == "" && toggle.Visible,
+            "The toolbox did not start as a single, visible icon.");
+        Assert(page.Controls.Find("flowHelp", true).Length == 0 && page.Controls.Find("toolboxHint", true).Length == 0,
+            "A deleted permanent operation hint remains in the visual tree.");
+        status.Text = ""; Application.DoEvents();
+        Assert(!status.Visible, "The empty operation status still occupies canvas space.");
+        status.Text = "UI regression error"; Application.DoEvents();
+        Assert(status.Visible, "Removing permanent hints also hid real operation errors.");
+        status.Text = "";
+        Flow_Chart visible = station.Controls.Find(model.ControlName, true).OfType<Flow_Chart>().Single();
+        ((ScrollableControl)visible.Parent).ScrollControlIntoView(visible); Application.DoEvents();
+        string definition = string.Join("|", editor.Program.Steps.Select(ActionNodeXml));
+        Point nodePosition = station.Existing.Location;
+        foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+        {
+            SwitchLanguage(language);
+            foreach (int width in new[] { 1280, 900 })
+            {
+                page.ClientSize = new Size(width, 700); Application.DoEvents();
+                int collapsedWidth = workspace.Panel2.Width;
+                toggle.PerformClick(); Application.DoEvents();
+                Assert(!workspace.Panel1Collapsed && toolbox.Visible && !edit.Checked && !toolbox.Enabled
+                    && workspace.Panel2.Width < collapsedWidth, "Opening the toolbox changed edit mode or did not expand the panel.");
+                Assert(toggle.AccessibleName.Length > 0 && toggle.AccessibleDescription.Length > 0,
+                    "The icon has no translated accessible name or state.");
+                workspace.SplitterDistance = 260;
+                search.Text = "flow/value";
+                TreeNode selected = tree.Nodes.Cast<TreeNode>().SelectMany(group => group.Nodes.Cast<TreeNode>()).First();
+                tree.SelectedNode = selected;
+                string expandedDescription = toggle.AccessibleDescription;
+                toggle.PerformClick(); Application.DoEvents();
+                Assert(workspace.Panel1Collapsed && !toolbox.Visible && workspace.Panel2.Width == collapsedWidth
+                    && expandedDescription != toggle.AccessibleDescription, "Closing the toolbox did not restore canvas space or update its state.");
+                toggle.PerformClick(); Application.DoEvents();
+                Assert(search.Text == "flow/value" && ReferenceEquals(tree.SelectedNode, selected) && workspace.SplitterDistance == 260,
+                    "Toolbox reopening rebuilt the catalogue or lost the filter, selection or width.");
+                search.Clear();
+                Screenshot(page, "flow-toolbox-expanded-" + language + "-" + width);
+                toggle.PerformClick(); Application.DoEvents();
+                Screenshot(page, "flow-toolbox-collapsed-" + language + "-" + width);
+            }
+        }
+        Assert(string.Join("|", editor.Program.Steps.Select(ActionNodeXml)) == definition && station.Existing.Location == nodePosition,
+            "Toolbox docking or language switching changed node definitions or canvas coordinates.");
+        PermissionType previous = SysPara.UserPermission;
+        try
+        {
+            SysPara.UserPermission = PermissionType.Operator;
+            typeof(Flow).GetMethod("RefreshRuntime", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(page, new object[] { null, EventArgs.Empty });
+            toggle.PerformClick(); Application.DoEvents();
+            Assert(!workspace.Panel1Collapsed && toggle.Enabled && !toolbox.Enabled && !edit.Enabled && !status.Visible,
+                "The view-only toolbox bypassed permissions or restored a permanent permission hint.");
+            toggle.PerformClick();
+        }
+        finally { SysPara.UserPermission = previous; SwitchLanguage(LanguageType.Chinese); page.ClientSize = new Size(1280, 700); }
     }
 
     /// <summary>Keep the unified flow controls reachable at normal and narrow widths in every supported language.</summary>

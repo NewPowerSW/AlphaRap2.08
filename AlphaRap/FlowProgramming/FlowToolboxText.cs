@@ -11,7 +11,8 @@ namespace AlphaRap.FlowProgramming
         {
             { "toolbox", new[] { "流程工具箱", "Flow toolbox", "Caja de flujos" } },
             { "search", new[] { "搜索", "Search", "Buscar" } },
-            { "toolboxHint", new[] { "拖到画布；也可双击或按 Enter 添加。", "Drag onto the canvas, double-click, or press Enter to add.", "Arrastre al lienzo, haga doble clic o pulse Intro para agregar." } },
+            { "showToolbox", new[] { "展开工具箱", "Show toolbox", "Mostrar caja de herramientas" } },
+            { "hideToolbox", new[] { "收起工具箱", "Hide toolbox", "Ocultar caja de herramientas" } },
             { "toolboxEmpty", new[] { "没有匹配的节点。", "No matching nodes.", "No hay nodos coincidentes." } },
             { "noneEntry", new[] { "条件节点", "Condition node", "Nodo de condición" } },
             { "sourceDirectory", new[] { "查看生成源码", "View generated sources", "Ver código generado" } },

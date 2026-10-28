@@ -117,4 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="toolboxToggle.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAENSURBVEhL7ZShbsMwEIaj2ZUGC/Moe4zBsdGpvqh9hLHC
+        wsHCwpKcAwsL9wiDg4OBrS6t1u6/XOxoNJ90JP/dZ8WxUxQT/8GFZu0pngarilucy0bJjMK5bFKCVJ4k
+        JUjlCl/FJ0+8wy3IrhD3jvgZvR0XuR6aVfpZMg/8hv5CVpfQUfwoFnWJeZLXw6ML/H5d5Bvj2372yHuP
+        q3E8fz2IGQwcV+wTzMxTowRYt16d3desavoW0I1Yub3y4f/ah15tQIh9gpmZQfeR+YhyT/yFfYLpMYOR
+        mB4zGInpcRQ/JXgI8QWzbBZ16YlbKYzkJq/0Po8tkV//Bgq56sQbH+KPHswtbrsbvtzPUT9hcgYqLqg/
+        VvkLbwAAAABJRU5ErkJggg==
+</value>
+  </data>
 </root>

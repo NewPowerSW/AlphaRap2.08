@@ -11,7 +11,7 @@ namespace AlphaRap
     public partial class Flow : Form
     {
         private bool filling;
-        private bool permissionNotice;
+        private int toolboxWidth;
         private string runtimeStatus;
         private FlowModuleEditor contextModule;
         private string contextNodeId;
@@ -26,6 +26,9 @@ namespace AlphaRap
             FlowLanguageForm.ApplyTexts(this);
             MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
+            toolboxWidth = workspace.SplitterDistance;
+            toolboxToggle.Click += ToggleToolbox;
+            status.TextChanged += (sender, args) => status.Visible = status.Text.Length > 0;
             Load += (sender, args) => { AddFlowChart(); timer.Start(); };
             VisibleChanged += (sender, args) => { if (Visible && IsHandleCreated) AddFlowChart(); };
             MiddleLayer.LanguageChanged += ApplyLanguage;
@@ -104,6 +107,34 @@ namespace AlphaRap
 
         /// <summary>刷新真实对象动作目录，保留工具箱搜索草稿。</summary>
         private void RefreshToolbox() { toolbox.BindActions(new FlowActions(FlowResources.Capture(true), tabControl1.SelectedTab == null ? null : Current().Form)); }
+
+        /// <summary>收放工具箱并保留拖动后的宽度，不重建目录或改变画布节点坐标。</summary>
+        private void ToggleToolbox(object sender, EventArgs args)
+        {
+            if (!workspace.Panel1Collapsed)
+            {
+                toolboxWidth = workspace.SplitterDistance;
+                workspace.Panel1Collapsed = true;
+                RefreshToolboxToggle();
+                return;
+            }
+            int available = workspace.ClientSize.Width - workspace.Panel2MinSize - workspace.SplitterWidth;
+            if (available < workspace.Panel1MinSize) return;
+            workspace.SplitterDistance = Math.Min(toolboxWidth, available);
+            workspace.Panel1Collapsed = false;
+            RefreshToolboxToggle();
+        }
+
+        /// <summary>工具箱图标按展开状态高亮，悬停说明和无障碍文字沿用语言切换。</summary>
+        private void RefreshToolboxToggle()
+        {
+            string description = FlowToolboxText.T(workspace.Panel1Collapsed ? "showToolbox" : "hideToolbox");
+            toolboxToggle.AccessibleName = FlowToolboxText.T("toolbox");
+            toolboxToggle.AccessibleDescription = description;
+            sourceHint.SetToolTip(toolboxToggle, description);
+            toolboxToggle.BackColor = workspace.Panel1Collapsed ? toolboxRail.BackColor : UiKit.BrandSoft;
+            toolboxToggle.Image = AppIcons.Get(AppIcon.Toolbox, UiTheme.Dpi(24), UiKit.Brand);
+        }
 
         /// <summary>为所有实际基类页面中的容器接入同一工具箱拖放入口。</summary>
         private void BindDropTargets(Control parent)
@@ -318,8 +349,6 @@ namespace AlphaRap
                 filling = true; edit.Checked = false; filling = false;
                 if (!busy) FlowPrograms.DebugEnabled = false;
             }
-            if (!canEdit) { status.Text = FlowText.T("permission"); permissionNotice = true; }
-            else if (permissionNotice) { status.Text = ""; permissionNotice = false; }
             pause.Enabled = stop.Enabled = hasModule && module.Runtime.IsRunning;
             filling = true; debugMode.Checked = FlowPrograms.DebugEnabled; filling = false;
             debugPanel.Visible = canEdit && (FlowPrograms.DebugEnabled || hasModule && module.Runtime.IsDebugging);
@@ -347,6 +376,7 @@ namespace AlphaRap
             viewSources.Text = FlowToolboxText.Fixed(viewSources, "sourceDirectory");
             sourceHint.SetToolTip(viewSources, FlowSourceGenerator.ModeDescription);
             viewSources.AccessibleDescription = FlowSourceGenerator.ModeDescription;
+            RefreshToolboxToggle();
             RefreshSelection(false);
         }
         /// <summary>Keep the draft available when an engineering operation fails.</summary>

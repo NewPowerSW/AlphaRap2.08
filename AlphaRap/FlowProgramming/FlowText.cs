@@ -118,7 +118,6 @@ namespace AlphaRap.FlowProgramming
             { "stop", new[] { "停止", "Stop", "Detener" } },
             { "pause", new[] { "边界暂停 / 继续", "Pause at boundary / Resume", "Pausar en límite / Continuar" } },
             { "moduleEnabled", new[] { "启用流程", "Enable flow", "Habilitar flujo" } },
-            { "compactHint", new[] { "拖入节点 → 右键配置 → 主界面保存。代码节点双击不编辑。", "Drag a node → right-click to configure → use Main Save. Double-click does not edit code nodes.", "Arrastre un nodo → configure con clic derecho → use Guardar principal. El doble clic no edita nodos de código." } },
             { "invalidFlowMode", new[] { "流程运行状态无效，请重新加载工程：", "Invalid flow state. Reload the project: ", "Estado de flujo no válido. Vuelva a cargar el proyecto: " } },
             { "projectReloadRequired", new[] { "流程工程加载失败，请恢复备份并重新加载后再保存或运行。", "The flow project failed to load. Restore its backup and reload before saving or running.", "No se pudo cargar el proyecto de flujo. Restaure la copia y vuelva a cargarlo antes de guardar o ejecutar." } },
             { "initialEntryRequired", new[] { "初始化页存在节点，请明确选择初始化入口：", "The initialization page contains nodes. Select its entry: ", "La página de inicialización contiene nodos. Seleccione su entrada: " } },

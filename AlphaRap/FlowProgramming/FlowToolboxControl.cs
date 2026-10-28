@@ -127,7 +127,7 @@ namespace AlphaRap.FlowProgramming
         public void RefreshLanguage()
         {
             title.Text = FlowToolboxText.Fixed(title, "toolbox"); searchLabel.Text = FlowToolboxText.Fixed(searchLabel, "search");
-            help.Text = FlowToolboxText.Fixed(help, "toolboxHint"); emptyHint.Text = FlowToolboxText.Fixed(emptyHint, "toolboxEmpty");
+            emptyHint.Text = FlowToolboxText.Fixed(emptyHint, "toolboxEmpty");
             search.AccessibleName = searchLabel.Text; entries.AccessibleName = title.Text;
             choices = Choices();
             RefreshTree();
