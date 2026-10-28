@@ -992,6 +992,7 @@
     <Compile Include="FlowProgramming\FlowNodeForm.Execution.cs"><DependentUpon>FlowNodeForm.cs</DependentUpon><SubType>Code</SubType></Compile>
     <Compile Include="FlowProgramming\FlowInheritedMethods.cs" />
     <Compile Include="FlowProgramming\FlowNativeMethods.cs" />
+    <Compile Include="FlowProgramming\FlowControlSource.cs" />
     <Compile Include="FlowProgramming\FlowActions.cs" />
     <Compile Include="FlowProgramming\FlowInputForm.cs"><SubType>Form</SubType></Compile>
     <Compile Include="FlowProgramming\FlowInputForm.Designer.cs"><DependentUpon>FlowInputForm.cs</DependentUpon></Compile>

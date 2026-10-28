@@ -149,7 +149,7 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowModuleEditor editor in modules.Values)
             {
                 FlowProgram definition = candidate.Modules.SingleOrDefault(item => item.ModuleId == editor.Program.ModuleId);
-                if (definition != null) editor.ValidateLayout(definition);
+                if (definition != null) editor.PrepareRestore(definition);
             }
             foreach (FlowModuleEditor editor in modules.Values)
             {
@@ -214,20 +214,27 @@ namespace AlphaRap.FlowProgramming
         /// <summary>删除输出源之前列出引用它的其他节点，避免留下无法解析的数据来源。</summary>
         internal static void ValidateNodeDeletion(FlowModuleEditor owner, string nodeId)
         {
-            string prefix = owner.Program.ModuleId + "/" + nodeId + "/";
+            List<string> references = NodeReferences(owner.Program, nodeId);
+            if (references.Count > 0) throw new InvalidOperationException(string.Format(FlowText.T("nodeReferenced"), string.Join(Environment.NewLine, references)));
+        }
+
+        /// <summary>列出当前模块草稿及其他模块对指定节点输出的引用。</summary>
+        internal static List<string> NodeReferences(FlowProgram program, string nodeId)
+        {
+            string prefix = program.ModuleId + "/" + nodeId + "/";
             List<string> references = new List<string>();
-            foreach (FlowProgram module in project.Modules)
+            foreach (FlowProgram module in project.Modules.Where(module => module.ModuleId != program.ModuleId).Concat(new[] { program }))
             {
                 foreach (FlowStep step in module.Steps)
                 {
-                    if (module.ModuleId == owner.Program.ModuleId && step.Id == nodeId) continue;
+                    if (module.ModuleId == program.ModuleId && step.Id == nodeId) continue;
                     IEnumerable<FlowCondition> conditions = step.Conditions.Concat(step.Branches.SelectMany(branch => branch.Conditions));
                     IEnumerable<FlowInput> inputs = step.Inputs.Concat(conditions.SelectMany(condition => new[] { condition.Left, condition.Right }));
                     if (inputs.Any(input => input.Source == "Output" && (input.Reference ?? "").StartsWith(prefix, StringComparison.Ordinal)))
                         references.Add(module.ModuleId + " / " + step.Caption);
                 }
             }
-            if (references.Count > 0) throw new InvalidOperationException(string.Format(FlowText.T("nodeReferenced"), string.Join(Environment.NewLine, references)));
+            return references;
         }
 
         /// <summary>常量删改前检查所有已载入工程的输入和出口条件，保留仍被引用的业务键与类型。</summary>
@@ -364,6 +371,7 @@ namespace AlphaRap.FlowProgramming
         private bool isInitializing;
         private bool isProduction;
         private readonly HashSet<string> originalControls;
+        private readonly FlowControlSource controlSource;
         private readonly Dictionary<string, Flow_Chart> removedNodes = new Dictionary<string, Flow_Chart>();
         public readonly Flow_BaseForm Form;
         public readonly FlowProgramRuntime Runtime = new FlowProgramRuntime();
@@ -381,6 +389,7 @@ namespace AlphaRap.FlowProgramming
         {
             Form = form;
             originalControls = new HashSet<string>(Enumerate(form).Select(node => node.Name));
+            controlSource = new FlowControlSource(form);
             Restore(program);
             Publish();
             Runtime.StateChanged += DisplayState;
@@ -416,7 +425,8 @@ namespace AlphaRap.FlowProgramming
         public void Restore(FlowProgram program)
         {
             if (Runtime.IsRunning) throw new InvalidOperationException(FlowText.T("busy"));
-            ValidateLayout(program);
+            FlowProgram prepared = PrepareRestore(program);
+            program.Steps = prepared.Steps;
             bool importing = program.Mode == "Legacy";
             if (importing) program.Mode = "Program";
             foreach (ScrollableControl canvas in program.Steps.Select(step => FindParent(step.ParentPath)).OfType<ScrollableControl>().Distinct()) canvas.AutoScrollPosition = Point.Empty;
@@ -482,6 +492,14 @@ namespace AlphaRap.FlowProgramming
             if (program.Steps.Any(step => string.IsNullOrWhiteSpace(step.ControlName)) || program.Steps.GroupBy(step => step.ControlName).Any(group => group.Count() != 1))
                 throw new InvalidDataException("Invalid or duplicate flow control name.");
             foreach (FlowStep step in program.Steps) FindParent(step.ParentPath);
+        }
+
+        /// <summary>在改变当前画布之前完成源码同步及布局校验。</summary>
+        internal FlowProgram PrepareRestore(FlowProgram program)
+        {
+            FlowProgram prepared = controlSource.Prepare(program);
+            ValidateLayout(prepared);
+            return prepared;
         }
 
         /// <summary>仅首次导入旧节点的控件连接，之后以工程定义为准。</summary>
@@ -561,10 +579,11 @@ namespace AlphaRap.FlowProgramming
             {
                 Flow_Chart node = Node(step.Id);
                 if (node == null || node.IsDisposed) continue;
-                string key = step.ExecutionMode == "None" ? "badgeCondition" : step.UsesFlowResult ? "badgeNative" : step.Action == "legacy" ? "badgePending" : "badgeAction";
+                string key = step.ControlOrigin == FlowControlSource.MissingOrigin ? "badgePending" : step.ExecutionMode == "None" ? "badgeCondition" : step.UsesFlowResult ? "badgeNative" : step.Action == "legacy" ? "badgePending" : "badgeAction";
                 node.ProgramBindingLabel = FlowNativeText.T(key);
                 string description;
-                if (step.ExecutionMode == "None") description = FlowNativeText.T("conditionBinding");
+                if (step.ControlOrigin == FlowControlSource.MissingOrigin) description = string.Format(FlowText.T("sourceControlMissing"), step.Caption, step.ControlName);
+                else if (step.ExecutionMode == "None") description = FlowNativeText.T("conditionBinding");
                 else if (step.UsesFlowResult)
                 {
                     string method = step.Action ?? "";
@@ -649,7 +668,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>建立独立节点身份，默认只有 NEXT，入口沿用原工位页面。</summary>
         private FlowStep NewStep()
         {
-            return new FlowStep { ControlName = "flow_" + Guid.NewGuid().ToString("N"), Caption = "Step " + (Program.Steps.Count + 1),
+            return new FlowStep { ControlName = "flow_" + Guid.NewGuid().ToString("N"), ControlOrigin = FlowControlSource.DesignerOrigin, Caption = "Step " + (Program.Steps.Count + 1),
                 AlarmCode = "2019", Branches = FlowBranch.Default() };
         }
 

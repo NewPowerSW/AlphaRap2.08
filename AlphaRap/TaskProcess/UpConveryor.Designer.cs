@@ -37,7 +37,6 @@
             this.UPConveyInit_Flow1_8 = new NPSDK.Flow_Chart();
             this.UPConveyInit_Flow1_9 = new NPSDK.Flow_Chart();
             this.UPConveyInit_Flow2_0 = new NPSDK.Flow_Chart();
-            this.UPConveyInit_Flow2_01 = new NPSDK.Flow_Chart();
             this.UPConveyInit_Flow2_1 = new NPSDK.Flow_Chart();
             this.UPConveyInit_Flow2_2 = new NPSDK.Flow_Chart();
             this.UPConveyInit_Flow2_21 = new NPSDK.Flow_Chart();
@@ -109,7 +108,6 @@
             // InitialPage
             // 
             this.InitialPage.BackColor = System.Drawing.Color.White;
-            this.InitialPage.Controls.Add(this.UPConveyInit_Flow2_01);
             this.InitialPage.Controls.Add(this.UPConveyInit_Flow2_0);
             this.InitialPage.Controls.Add(this.UPConveyInit_Flow1_9);
             this.InitialPage.Controls.Add(this.UPConveyInit_Flow2_21);
@@ -311,30 +309,11 @@
             this.UPConveyInit_Flow2_0.Location = new System.Drawing.Point(325, 418);
             this.UPConveyInit_Flow2_0.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.UPConveyInit_Flow2_0.Name = "UPConveyInit_Flow2_0";
-            this.UPConveyInit_Flow2_0.Next = this.UPConveyInit_Flow2_01;
+            this.UPConveyInit_Flow2_0.Next = this.UPConveyInit_Flow2_1;
             this.UPConveyInit_Flow2_0.Size = new System.Drawing.Size(276, 35);
             this.UPConveyInit_Flow2_0.TabIndex = 35;
             this.UPConveyInit_Flow2_0.text = "上流道缓存位阻挡上升2_0";
             this.UPConveyInit_Flow2_0.FlowChartRun += new NPSDK.Flow_Chart.FlowChartHandle(this.UPConveyInit_Flow2_0_FlowChartRun);
-            // 
-            // UPConveyInit_Flow2_01
-            // 
-            this.UPConveyInit_Flow2_01.AlarmCode = "4003";
-            this.UPConveyInit_Flow2_01.AlarmStaus = false;
-            this.UPConveyInit_Flow2_01.AlarmTimeOut = 5000;
-            this.UPConveyInit_Flow2_01.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.UPConveyInit_Flow2_01.Casse1 = null;
-            this.UPConveyInit_Flow2_01.Casse2 = null;
-            this.UPConveyInit_Flow2_01.Casse3 = null;
-            this.UPConveyInit_Flow2_01.FlowChart_ElapsedMilliseconds = ((long)(224811));
-            this.UPConveyInit_Flow2_01.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.UPConveyInit_Flow2_01.Location = new System.Drawing.Point(325, 468);
-            this.UPConveyInit_Flow2_01.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.UPConveyInit_Flow2_01.Name = "UPConveyInit_Flow2_01";
-            this.UPConveyInit_Flow2_01.Next = this.UPConveyInit_Flow2_1;
-            this.UPConveyInit_Flow2_01.Size = new System.Drawing.Size(276, 35);
-            this.UPConveyInit_Flow2_01.TabIndex = 36;
-            this.UPConveyInit_Flow2_01.text = "上流道缓存位阻挡上升2_0";
             // 
             // UPConveyInit_Flow2_1
             // 
@@ -1645,7 +1624,6 @@
 		private NPSDK.Flow_Chart UPConveyorAuto_Flow2_14;
 		private NPSDK.Flow_Chart UPConveyorAuto_Flow2_30;
 		private NPSDK.Flow_Chart UPConveyInit_Flow1_9;
-		private NPSDK.Flow_Chart UPConveyInit_Flow2_01;
 		private NPSDK.Flow_Chart UPConveyInit_Flow2_0;
 	}
 }

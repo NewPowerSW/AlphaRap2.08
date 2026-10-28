@@ -95,6 +95,8 @@ internal static class SourceGenerationCases
     private static FlowProject Model()
     {
         FlowStep first = new FlowStep { Caption = "移动到取料点 <A>\r\n\"quoted\"", Target = "hardware/axis-stable-id/axis", Action = "axis.point", ParentPath = "/tabControl1/Auto", AlarmCode = "2019", X = 35, Y = 77 };
+        first.ControlOrigin = "Form";
+        first.SourceLinks = new FlowControlLinks { Next = "compiledNext", Case1 = "compiledCase" };
         first.Inputs.Add(new FlowInput { Name = "Index", Source = "Parameter", Reference = "Constants/Recipe/LoadPoint" });
         first.Branches = FlowBranch.Default();
         first.Branches[0].Unconditional = false;

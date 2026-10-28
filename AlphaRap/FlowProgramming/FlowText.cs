@@ -90,6 +90,7 @@ namespace AlphaRap.FlowProgramming
             { "error.trayIndex", new[] { "托盘穴位索引超出配置范围。", "Tray pocket index is outside the configured layout.", "El índice de cavidad está fuera de la configuración de la bandeja." } },
             { "visionDraft", new[] { "视觉参数尚未保存，请使用主界面【保存】后再运行。", "Vision parameters are unsaved. Use the main Save button before running.", "Los parámetros de visión no están guardados. Use Guardar principal antes de ejecutar." } },
             { "methodMissing", new[] { "绑定对象或方法不存在：", "Bound object or method is missing:", "Falta el objeto o método vinculado:" } },
+            { "sourceControlMissing", new[] { "源码节点已删除，但仍被入口、连接或数据引用：{0}（{1}）。请调整引用后删除该失效节点，再使用主界面保存。", "Source node was removed but is still referenced by an entry, link or data binding: {0} ({1}). Update its references, remove the missing node and use the main Save.", "El nodo de origen se eliminó, pero una entrada, enlace o dato aún lo referencia: {0} ({1}). Actualice las referencias, quite el nodo y use Guardar principal." } },
             { "fieldsChanged", new[] { "方法输入字段已改变，请重新打开节点确认绑定：", "Method inputs changed; reopen the node to review bindings:", "Las entradas del método cambiaron; revise los vínculos del nodo:" } },
             { "invalidChoice", new[] { "值不在该对象的可选范围内：", "Value is outside this object's available choices:", "El valor no está entre las opciones de este objeto:" } },
             { "sourceMissing", new[] { "数据来源不存在或不可用于此处：", "Data source is missing or invalid here:", "La fuente de datos falta o no es válida aquí:" } },

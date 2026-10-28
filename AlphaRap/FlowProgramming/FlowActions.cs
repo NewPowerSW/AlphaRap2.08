@@ -72,6 +72,8 @@ namespace AlphaRap.FlowProgramming
         {
             Lazy<List<FlowChoice>> outputs = new Lazy<List<FlowChoice>>(() => FlowPrograms.OutputChoices(this));
             if (!IsSupported(step)) throw new InvalidOperationException(string.Format(FlowText.T("retiredNode"), step == null ? "" : step.Caption));
+            if (step.ControlOrigin == FlowControlSource.MissingOrigin)
+                throw new InvalidOperationException(string.Format(FlowText.T("sourceControlMissing"), step.Caption, step.ControlName));
             FlowNativeMethods.ValidateLegacy(Owner, step);
             if (FlowProgramFile.RequiresBranchReview(step)) throw new InvalidOperationException(FlowText.T("reviewBranches") + " " + step.Caption);
             List<string> errors = FlowProgramFile.ValidateBranches(step);

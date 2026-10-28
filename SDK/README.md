@@ -4,13 +4,15 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 
 ## 当前发布来源
 
-- 源码：[NPSDK 91f6fb6deeee70f510d5d56bbac87fe34a445552](https://github.com/JeffreyWub/NPSDK/commit/91f6fb6deeee70f510d5d56bbac87fe34a445552)。
-- 分支：`codex/native-flow-events-20261026`，基于上一发布版本 `fa0a77e`。
+- 源码基线：[NPSDK 91f6fb6deeee70f510d5d56bbac87fe34a445552](https://github.com/JeffreyWub/NPSDK/commit/91f6fb6deeee70f510d5d56bbac87fe34a445552)。
+- 来源元数据扩展：本地提交 `c9f57200e619c7cb4dd9a7e0975160e02564373a`，分支 `codex/source-control-sync-20261028`；核心库远端推送等待明确授权。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
-- 大小：537600 字节。
-- SHA256：`2eba16447ec8286e527b5dd123d614ad404bc07f2180a9e9cd17d0322f63be61`。
+- 大小：538112 字节。
+- SHA256：`a433924ff80a9a1f7c282bcaae47a556f2ebcf10e1b4405966c490c88573b09f`。
 
 该版本从独立、干净的源码工作树构建，不包含原 SDK 开发目录中的未提交改动。
+
+可选 `FlowStep.ControlOrigin`、`SourceLinks` 记录节点来源与源码四出口基准。宿主在加载时清理没有剩余引用的已删源码节点，合并源码连接变化，并保留拖拽节点及明确的混合流程连接。原 V1/V2/V3 文件继续兼容，配置仍统一由主 Save 保存。使用见 [源码节点同步](../docs/NativeFlowEvents.md#源码节点删除与连接同步)。
 
 ## 继承工具接入
 
@@ -37,6 +39,8 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 SDK 的 IO 绑定回归覆盖实际实例所有权、方向匹配、重复绑定、替换释放、卡片与指示图单次点击、权限和资源租约；原核心 13 组运行回归通过。宿主的构建、流程、主保存、语言及设计器验证随同 AlphaRap 提交说明交付。现场硬件和 Visual Studio 交互式设计器重开仍需现场验证。
 
 原生事件 15 组回归覆盖事件快照、XML身份、全部出口、单一期限、暂停、取消与超时等待在途调用、断点单步、异常报警及不修改业务名称的持久类型标记；原核心及 IO 回归同时通过。
+
+源码来源元数据扩展后，SDK 原生事件与 XML 兼容回归为 16/16、核心流程为 13/13，IO 绑定回归通过；宿主流程 133/133、统一保存 17 项及源码生成回归通过。实际 UpConveryor 旧配置的只读验证确认重复节点清理及 NEXT 修复，未调用真实设备。
 
 安装 .NET Framework 4.8 开发工具、Cognex VisionPro SDK，并还原 packages.config 后，使用 Visual Studio 或 MSBuild 构建 AlphaRap.sln 的 Debug / x64。
 
