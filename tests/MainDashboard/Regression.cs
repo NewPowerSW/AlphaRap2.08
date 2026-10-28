@@ -44,6 +44,7 @@ internal static class DashboardProbe
                 int current = language; Size currentSize = size;
                 Test(currentSize.Width + "x" + currentSize.Height + " language=" + current, () => Render(currentSize, current));
             }
+        Test("all embedded pages retain readable fonts and text colors", () => TypographyCases.Run(outputRoot));
         Console.WriteLine("RESULT: " + passed + "/" + (passed + failed) + " passed");
         Console.WriteLine("Offline designer rendering; no machine Load, motion, IO write or camera capture was executed.");
         return failed == 0 ? 0 : 1;
@@ -96,7 +97,19 @@ internal static class DashboardProbe
                 CheckChildren(Field<Control>(home, "kpiLayout"));
                 Check(Field<Control>(frame, "panel_PictureShowDown").Top == 0, "Machine commands are not at the top.");
                 Check(Field<Control>(frame, "panel4").Height == frame.ClientSize.Height, "Navigation does not span the window height.");
-                Check(Field<Control>(frame, "WarnningMessage").Parent == Field<Control>(frame, "tabAlarms"), "The existing alarm list is not accessible in its tab.");
+                Control alarms = Field<Control>(frame, "alarmCard");
+                Check(frame.WarnningMessage.Parent == alarms && alarms.Visible && frame.WarnningMessage.Visible,
+                    "The original alarm list is not visible on the main dashboard.");
+                CheckChildren(Field<Control>(frame, "tableLayoutPanel4"));
+                Rectangle alarmBounds = frame.RectangleToClient(alarms.RectangleToScreen(alarms.ClientRectangle));
+                Check(frame.ClientRectangle.Contains(alarmBounds) && frame.WarnningMessage.Height >= 64,
+                    "The persistent alarm table is clipped or too short.");
+                TabControl tabs = (TabControl)Field<Control>(frame, "uiTabControl1");
+                tabs.SelectedTab = Field<TabPage>(frame, "tabPage10");
+                Application.DoEvents();
+                Check(alarms.Visible && frame.WarnningMessage.Visible, "Switching to vision hid the main alarm table.");
+                tabs.SelectedTab = Field<TabPage>(frame, "tabPage22");
+                Application.DoEvents();
                 CheckClick(frame, "MENU_Save", "SaveData_Click"); CheckClick(frame, "MENU_Reset", "MENU_Reset_Click");
                 CheckClick(frame, "MENU_Run", "btStart_Click"); CheckClick(frame, "MENU_Pause", "btPause_Click");
                 CheckClick(frame, "MENU_Stop", "btStop_Click"); CheckClick(frame, "AlarmReset", "btAlarmReset_Click");
@@ -110,12 +123,9 @@ internal static class DashboardProbe
                 }
                 if (size.Width == 1600 && language == 0)
                 {
-                    TabPage alarms = Field<TabPage>(frame, "tabAlarms");
-                    ((TabControl)alarms.Parent).SelectedTab = alarms;
-                    Application.DoEvents();
-                    using (Bitmap alarmImage = new Bitmap(frame.Width, frame.Height))
+                    using (Bitmap alarmImage = new Bitmap(alarms.Width, alarms.Height))
                     {
-                        frame.DrawToBitmap(alarmImage, new Rectangle(Point.Empty, alarmImage.Size));
+                        alarms.DrawToBitmap(alarmImage, new Rectangle(Point.Empty, alarmImage.Size));
                         alarmImage.Save(Path.Combine(outputRoot, "alarms-1600x1000.png"));
                     }
                 }
@@ -132,7 +142,7 @@ internal static class DashboardProbe
         }
     }
 
-    /// <summary>Exercise the original alarm cache and filters after the same ListView has moved to its tab.</summary>
+    /// <summary>Exercise the original alarm cache and filters in the persistent main dashboard table.</summary>
     private static void CheckAlarmTable(MainForm frame)
     {
         frame.AlarmLogCache.Add(new[] { "16:48:12", "E", "11000", "Offline alarm fixture" });

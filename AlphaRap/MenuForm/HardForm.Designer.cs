@@ -72,7 +72,7 @@
             this.MTR_H1_X.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.MTR_H1_X.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.MTR_H1_X.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.MTR_H1_X.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.MTR_H1_X.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.MTR_H1_X.Location = new System.Drawing.Point(26, 22);
             this.MTR_H1_X.Margin = new System.Windows.Forms.Padding(1);
             this.MTR_H1_X.MaximumSize = new System.Drawing.Size(500, 40);
@@ -158,7 +158,7 @@
             this.nP_MotorJog2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.nP_MotorJog2.JogDirection = NPSDK.Motion.NP_MotorJog.JogDirectionType.JogN;
             this.nP_MotorJog2.JogOption = this.nP_JogOption1;
-            this.nP_MotorJog2.Location = new System.Drawing.Point(312, 400);
+            this.nP_MotorJog2.Location = new System.Drawing.Point(384, 400);
             this.nP_MotorJog2.Name = "nP_MotorJog2";
             this.nP_MotorJog2.RelativeDistance = 0D;
             this.nP_MotorJog2.Size = new System.Drawing.Size(60, 60);
@@ -214,7 +214,8 @@
             this.X1_PositionTable1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.X1_PositionTable1.DataSet = this.RecipeData;
             this.X1_PositionTable1.DataSet1 = this.tb_H1_Srew1Post;
-            this.X1_PositionTable1.Font = new System.Drawing.Font("Arial", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.X1_PositionTable1.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.X1_PositionTable1.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.X1_PositionTable1.Location = new System.Drawing.Point(26, 102);
             this.X1_PositionTable1.Margin = new System.Windows.Forms.Padding(1);
             this.X1_PositionTable1.Name = "X1_PositionTable1";

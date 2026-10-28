@@ -305,13 +305,19 @@ namespace AlphaRap
             }
 
             UiTheme.StyleListView(WarnningMessage, 30);
-            if (WarnningMessage.Columns.Count >= 4)
-            {
-                WarnningMessage.Columns[0].Width = UiTheme.Dpi(180);
-                WarnningMessage.Columns[1].Width = UiTheme.Dpi(80);
-                WarnningMessage.Columns[2].Width = UiTheme.Dpi(90);
-                WarnningMessage.Columns[3].Width = UiTheme.Dpi(900);
-            }
+            WarnningMessage.SizeChanged += ResizeAlarmColumns;
+            ResizeAlarmColumns(WarnningMessage, EventArgs.Empty);
+        }
+
+        /// <summary>按报警表可见宽度分配内容列，窄窗口也能同时查看时间、类型、编号和内容。</summary>
+        private void ResizeAlarmColumns(object sender, EventArgs e)
+        {
+            if (WarnningMessage.Columns.Count < 4) return;
+            WarnningMessage.Columns[0].Width = UiTheme.Dpi(160);
+            WarnningMessage.Columns[1].Width = UiTheme.Dpi(64);
+            WarnningMessage.Columns[2].Width = UiTheme.Dpi(80);
+            WarnningMessage.Columns[3].Width = Math.Max(UiTheme.Dpi(180),
+                WarnningMessage.ClientSize.Width - UiTheme.Dpi(304) - SystemInformation.VerticalScrollBarWidth - 2);
         }
 
         /// <summary>
@@ -365,7 +371,7 @@ namespace AlphaRap
             lblDashboardCaption.Text = UiTheme.T("MainForm", "lblDashboardCaption", "生产监控", "Production", "Producción");
             tabPage22.Text = UiTheme.T("MainForm", "tabPage22", "主页", "Home", "Inicio");
             tabPage10.Text = UiTheme.T("MainForm", "tabPage10", "视觉", "Vision", "Visión");
-            tabAlarms.Text = UiTheme.T("MainForm", "tabAlarms", "报警", "Alarms", "Alarmas");
+            lblAlarmTitle.Text = UiTheme.T("MainForm", "lblAlarmTitle", "报警信息", "Alarms", "Alarmas");
             Action<PictureBox, string, string, string, string> add = (b, key, zh, en, es) =>
             {
                 if (b != null) _buttonTexts[b] = UiTheme.T("MainForm", key, zh, en, es);

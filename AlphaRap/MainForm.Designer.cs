@@ -109,7 +109,8 @@
             this.lblMonitorGroup = new System.Windows.Forms.Label();
             this.lblSystemGroup = new System.Windows.Forms.Label();
             this.lblDashboardCaption = new System.Windows.Forms.Label();
-            this.tabAlarms = new System.Windows.Forms.TabPage();
+            this.alarmCard = new AlphaRap.CardPanel();
+            this.lblAlarmTitle = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RecipeData)).BeginInit();
             this.tableLayoutPanel_Main.SuspendLayout();
@@ -931,11 +932,13 @@
             this.tableLayoutPanel4.ColumnCount = 1;
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel4.Controls.Add(this.panel5, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.alarmCard, 0, 1);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 1;
+            this.tableLayoutPanel4.RowCount = 2;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 160F));
             // 
             // WarnningMessage
             // 
@@ -985,10 +988,9 @@
             // 
             // panelAlarmFilter
             // 
-            // 报警列表上方的筛选条：三个标签（全部 / 警告 / 报警）。放在设计器里，
-            // 位置交给 Dock（贴 panel5 底部 30px），运行时只补图标、事件和"名称 + 条数"。
             this.panelAlarmFilter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
             this.panelAlarmFilter.Controls.Add(this.flowAlarmFilter);
+            this.panelAlarmFilter.Controls.Add(this.lblAlarmTitle);
             this.panelAlarmFilter.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelAlarmFilter.Location = new System.Drawing.Point(0, 574);
             this.panelAlarmFilter.Name = "panelAlarmFilter";
@@ -1066,7 +1068,6 @@
             // 
             this.uiTabControl1.Controls.Add(this.tabPage22);
             this.uiTabControl1.Controls.Add(this.tabPage10);
-            this.uiTabControl1.Controls.Add(this.tabAlarms);
             this.uiTabControl1.Cursor = System.Windows.Forms.Cursors.No;
             this.uiTabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.uiTabControl1.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
@@ -1092,7 +1093,7 @@
             // 
             this.tabPage22.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tabPage22.Controls.Add(this.plMainShow);
-            this.tabPage22.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabPage22.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tabPage22.Location = new System.Drawing.Point(0, 38);
             this.tabPage22.Name = "tabPage22";
             this.tabPage22.Size = new System.Drawing.Size(1342, 566);
@@ -1106,7 +1107,7 @@
             this.plMainShow.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.plMainShow.BackColor = System.Drawing.Color.FromArgb(229, 237, 244);
             this.plMainShow.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.plMainShow.Font = new System.Drawing.Font("Century Gothic", 25.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.plMainShow.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.plMainShow.ForeColor = System.Drawing.Color.Black;
             this.plMainShow.Location = new System.Drawing.Point(0, 0);
             this.plMainShow.Margin = new System.Windows.Forms.Padding(0);
@@ -1187,13 +1188,29 @@
             this.lblDashboardCaption.Text = "生产监控";
             this.lblDashboardCaption.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             //
-            // tabAlarms
+            // alarmCard
             //
-            this.tabAlarms.BackColor = System.Drawing.Color.White;
-            this.tabAlarms.Controls.Add(this.WarnningMessage);
-            this.tabAlarms.Controls.Add(this.panelAlarmFilter);
-            this.tabAlarms.Name = "tabAlarms";
-            this.tabAlarms.Text = "报警";
+            this.alarmCard.BackColor = System.Drawing.Color.White;
+            this.alarmCard.FillColor = System.Drawing.Color.White;
+            this.alarmCard.CornerRadius = 14;
+            this.alarmCard.ShowBorder = false;
+            this.alarmCard.ShowShadow = false;
+            this.alarmCard.Controls.Add(this.WarnningMessage);
+            this.alarmCard.Controls.Add(this.panelAlarmFilter);
+            this.alarmCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.alarmCard.Margin = new System.Windows.Forms.Padding(0, 12, 0, 0);
+            this.alarmCard.Padding = new System.Windows.Forms.Padding(12, 4, 12, 8);
+            this.alarmCard.Name = "alarmCard";
+            //
+            // lblAlarmTitle
+            //
+            this.lblAlarmTitle.AutoSize = true;
+            this.lblAlarmTitle.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblAlarmTitle.Font = new System.Drawing.Font("Microsoft YaHei UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblAlarmTitle.ForeColor = System.Drawing.Color.FromArgb(20, 36, 59);
+            this.lblAlarmTitle.Padding = new System.Windows.Forms.Padding(0, 7, 12, 0);
+            this.lblAlarmTitle.Name = "lblAlarmTitle";
+            this.lblAlarmTitle.Text = "报警信息";
             //
             // MainForm
             // 
@@ -1203,8 +1220,8 @@
             this.ClientSize = new System.Drawing.Size(1600, 1000);
             this.ControlBox = false;
             this.Controls.Add(this.tableLayoutPanel_Main);
-            this.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ForeColor = System.Drawing.Color.White;
+            this.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.ForeColor = System.Drawing.Color.FromArgb(20, 36, 59);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.HelpButton = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -1280,7 +1297,8 @@
         private System.Windows.Forms.Label lblMonitorGroup;
         private System.Windows.Forms.Label lblSystemGroup;
         private System.Windows.Forms.Label lblDashboardCaption;
-        private System.Windows.Forms.TabPage tabAlarms;
+        private AlphaRap.CardPanel alarmCard;
+        private System.Windows.Forms.Label lblAlarmTitle;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Timer LoginOutTime;
 

@@ -1302,11 +1302,12 @@ int nheightEllipse
             LoginText.Text = SysPara.UserName + Environment.NewLine + MiddleLayer.PermissionText(SysPara.UserPermission);
         }
 
-        /// <summary>从设备状态打开原报警列表，保留现有筛选与报警处理接口。</summary>
+        /// <summary>从设备状态返回首页并聚焦常驻报警列表。</summary>
         private void DashboardAlarm_Click(object sender, EventArgs e)
         {
             SwitchMainPage(MENU_PageType.Home);
-            uiTabControl1.SelectedTab = tabAlarms;
+            uiTabControl1.SelectedTab = tabPage22;
+            WarnningMessage.Focus();
         }
 
         private void timer1_Tick(object sender, EventArgs e)

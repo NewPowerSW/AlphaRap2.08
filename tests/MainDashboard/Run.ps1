@@ -9,6 +9,7 @@ $dashboardExecutable = Join-Path $dashboardOutput 'MainDashboard.Regression.exe'
 $dashboardArguments = @('/nologo', '/target:exe', '/platform:x64', "/out:$dashboardExecutable", '/r:System.Data.dll', '/r:System.Drawing.dll', '/r:System.Windows.Forms.dll', '/r:System.Xml.Linq.dll')
 foreach ($dashboardAssembly in @('AlphaRap.exe', 'NPSDK.dll', 'NewPowerLibrary.dll')) { $dashboardArguments += '/r:' + (Join-Path $dashboardAssemblies $dashboardAssembly) }
 $dashboardArguments += Join-Path $PSScriptRoot 'Regression.cs'
+$dashboardArguments += Join-Path $PSScriptRoot 'Typography.cs'
 & 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe' @dashboardArguments
 if ($LASTEXITCODE -ne 0) { throw 'Dashboard probe compilation failed.' }
 & $dashboardExecutable $dashboardAssemblies $dashboardRoot $dashboardOutput

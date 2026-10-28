@@ -489,6 +489,8 @@
             this.BackColor = System.Drawing.Color.FromArgb(229, 237, 244);
             this.ClientSize = new System.Drawing.Size(1328, 806);
             this.Controls.Add(this.rootLayout);
+            this.AutoScroll = true;
+            this.AutoScrollMinSize = new System.Drawing.Size(0, 590);
             this.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "HomeForm";
