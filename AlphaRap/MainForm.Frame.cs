@@ -377,7 +377,6 @@ namespace AlphaRap
             _buttonTexts.Clear();
             lblMonitorGroup.Text = UiTheme.T("MainForm", "lblMonitorGroup", "监控", "MONITOR", "MONITORIZACIÓN");
             lblSystemGroup.Text = UiTheme.T("MainForm", "lblSystemGroup", "系统", "SYSTEM", "SISTEMA");
-            lblDashboardCaption.Text = UiTheme.T("MainForm", "lblDashboardCaption", "生产监控", "Production", "Producción");
             tabPage22.Text = UiTheme.T("MainForm", "tabPage22", "主页", "Home", "Inicio");
             tabPage10.Text = UiTheme.T("MainForm", "tabPage10", "视觉", "Vision", "Visión");
             lblAlarmTitle.Text = UiTheme.T("MainForm", "lblAlarmTitle", "报警信息", "Alarms", "Alarmas");

@@ -108,7 +108,6 @@
             this.lblBrandCaption = new System.Windows.Forms.Label();
             this.lblMonitorGroup = new System.Windows.Forms.Label();
             this.lblSystemGroup = new System.Windows.Forms.Label();
-            this.lblDashboardCaption = new System.Windows.Forms.Label();
             this.alarmCard = new AlphaRap.CardPanel();
             this.lblAlarmTitle = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.SettingData)).BeginInit();
@@ -439,21 +438,19 @@
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.BackColor = System.Drawing.Color.White;
-            this.tableLayoutPanel2.ColumnCount = 7;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tableLayoutPanel2.ColumnCount = 6;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 34F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
-            this.tableLayoutPanel2.Controls.Add(this.lblDashboardCaption, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.MachineStatus, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.MENU_Product, 2, 0);
-            this.tableLayoutPanel2.Controls.Add(this.lbRecipeName, 3, 0);
-            this.tableLayoutPanel2.Controls.Add(this.picVirtualKeyboard, 4, 0);
-            this.tableLayoutPanel2.Controls.Add(this.languageSwitch, 5, 0);
-            this.tableLayoutPanel2.Controls.Add(this.statusStrip2, 6, 0);
+            this.tableLayoutPanel2.Controls.Add(this.MachineStatus, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.MENU_Product, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.lbRecipeName, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.picVirtualKeyboard, 3, 0);
+            this.tableLayoutPanel2.Controls.Add(this.languageSwitch, 4, 0);
+            this.tableLayoutPanel2.Controls.Add(this.statusStrip2, 5, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -510,7 +507,7 @@
             this.MachineStatus.Font = new System.Drawing.Font("Microsoft YaHei UI", 16F, System.Drawing.FontStyle.Bold);
             this.MachineStatus.ForeColor = System.Drawing.Color.White;
             this.MachineStatus.Location = new System.Drawing.Point(1231, 2);
-            this.MachineStatus.Margin = new System.Windows.Forms.Padding(6, 5, 16, 5);
+            this.MachineStatus.Margin = new System.Windows.Forms.Padding(0, 5, 16, 5);
             this.MachineStatus.Padding = new System.Windows.Forms.Padding(60, 0, 16, 0);
             this.MachineStatus.Name = "MachineStatus_dyn";
             this.MachineStatus.Size = new System.Drawing.Size(200, 48);
@@ -1182,17 +1179,6 @@
             this.lblSystemGroup.Text = "系统";
             this.lblSystemGroup.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             //
-            // lblDashboardCaption
-            //
-            this.lblDashboardCaption.AutoSize = true;
-            this.lblDashboardCaption.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblDashboardCaption.ForeColor = System.Drawing.Color.FromArgb(20, 36, 59);
-            this.lblDashboardCaption.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblDashboardCaption.Margin = new System.Windows.Forms.Padding(0, 0, 4, 0);
-            this.lblDashboardCaption.Name = "lblDashboardCaption";
-            this.lblDashboardCaption.Text = "生产监控";
-            this.lblDashboardCaption.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            //
             // alarmCard
             //
             this.alarmCard.BackColor = System.Drawing.Color.White;
@@ -1301,7 +1287,6 @@
         private System.Windows.Forms.Label lblBrandCaption;
         private System.Windows.Forms.Label lblMonitorGroup;
         private System.Windows.Forms.Label lblSystemGroup;
-        private System.Windows.Forms.Label lblDashboardCaption;
         private AlphaRap.CardPanel alarmCard;
         private System.Windows.Forms.Label lblAlarmTitle;
         private System.Windows.Forms.Timer timer1;
