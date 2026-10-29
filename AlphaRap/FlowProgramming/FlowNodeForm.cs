@@ -142,7 +142,7 @@ namespace AlphaRap.FlowProgramming
         {
             categoryValue.DisplayMember = "Label";
             categoryValue.ValueMember = "Id";
-            categoryValue.DataSource = new[] { "flow", "native", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data" }
+            categoryValue.DataSource = new[] { "flow", "native", "constants", "di", "do", "cylinder", "motion", "vision", "device", "tray", "data", "log" }
                 .Where(id => id != "native" || catalog.Resources.Items.Values.Any(resource => resource.Kind == "native" && catalog.CanSelectResource(resource)))
                 .Select(id => new FlowChoice { Id = id, Label = id == "native" ? FlowNativeText.T("category") : FlowText.T(id) }).ToList();
         }

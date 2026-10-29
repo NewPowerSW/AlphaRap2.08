@@ -28,7 +28,7 @@ namespace AlphaRap.Configuration
             FlowPrograms.RequireIdle();
             if (MiddleLayer.SystemS != null) MiddleLayer.SystemS.ValidateConstants();
             if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) MiddleLayer.HardF.Resources.ValidateForSave();
-            if (MiddleLayer.DataF != null) MiddleLayer.DataF.ValidateProductionDraft();
+            if (MiddleLayer.DataF != null) { MiddleLayer.DataF.ValidateProductionDraft(); MiddleLayer.DataF.ValidateLogModulesDraft(); }
             if (MiddleLayer.VPF != null) MiddleLayer.VPF.ValidateVisionDraft();
             FlowPrograms.ValidateForSave();
         }
@@ -46,7 +46,7 @@ namespace AlphaRap.Configuration
                 module.SettingData.AcceptChanges();
             }
             if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) MiddleLayer.HardF.Resources.AcceptSaved();
-            if (MiddleLayer.DataF != null) MiddleLayer.DataF.AcceptProductionDraft();
+            if (MiddleLayer.DataF != null) { MiddleLayer.DataF.AcceptProductionDraft(); MiddleLayer.DataF.AcceptLogModulesDraft(); }
             if (MiddleLayer.VPF != null) MiddleLayer.VPF.AcceptSaved();
             if (MiddleLayer.AddF != null) MiddleLayer.AddF.AcceptPermissionSave();
             FlowPrograms.PublishSaved(snapshot);
@@ -79,6 +79,7 @@ namespace AlphaRap.Configuration
             files.Add(new PendingFile { Path=SysPara.FilePath,Write=recipe.WriteXml });
             if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) files.Add(new PendingFile { Path=MiddleLayer.HardF.Resources.PathName,Write=MiddleLayer.HardF.Resources.WriteDraft });
             if (MiddleLayer.DataF != null) files.Add(new PendingFile { Path=DataForm.ProductionSchemaPath,Write=MiddleLayer.DataF.WriteProductionDraft });
+            if (MiddleLayer.DataF != null) files.Add(new PendingFile { Path=LogModuleStore.FilePath,Write=MiddleLayer.DataF.WriteLogModulesDraft });
             files.Add(new PendingFile { Path=FlowPrograms.FilePath,Write=path => FlowProgramFile.Save(path,snapshot) });
             files.AddRange(FlowSourceGenerator.Prepare(snapshot));
             if (MiddleLayer.VPF != null) files.AddRange(MiddleLayer.VPF.PrepareConfigurationSave());
@@ -196,7 +197,7 @@ namespace AlphaRap.Configuration
                 module.ReadRecipeData(SysPara.FilePath);
                 module.ReadSettingData();
             }
-            if (MiddleLayer.DataF != null) MiddleLayer.DataF.DiscardProductionDraft();
+            if (MiddleLayer.DataF != null) { MiddleLayer.DataF.DiscardProductionDraft(); MiddleLayer.DataF.DiscardLogModulesDraft(); }
             FlowPrograms.DiscardChanges();
             discardSource();
         }

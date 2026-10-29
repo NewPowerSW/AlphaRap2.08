@@ -61,7 +61,7 @@ internal static class Cases
         SysPara.VisionFileDirectory = Path.Combine(configurationRoot, "VisionData");
         SysPara.RecipeName = "DesignerProbe"; SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, "DesignerProbe.xml");
         visualTypes = typeof(SystemSetting).Assembly.GetTypes().Where(type => !type.IsAbstract && !type.IsNested && typeof(Control).IsAssignableFrom(type)
-            && type.Namespace == "AlphaRap.FlowProgramming").Concat(new[] { typeof(SystemSetting), typeof(Flow) }).OrderBy(type => type.FullName).ToArray();
+            && type.Namespace == "AlphaRap.FlowProgramming").Concat(new[] { typeof(SystemSetting), typeof(Flow), typeof(AlphaRap.Configuration.LogModulesForm), typeof(DataForm) }).OrderBy(type => type.FullName).ToArray();
         Test("every flow source is included once and compiled sources exist", ProjectSources);
         Test("visual classes have complete project metadata and public parameterless constructors", ProjectMetadata);
         Test("InitializeComponent contains only explicit designer-supported UI initialization", DesignerSource);
@@ -145,7 +145,9 @@ internal static class Cases
             Check(!Regex.IsMatch(body, @"\bnew\s*\[\s*\]"), "Implicit array inside InitializeComponent: " + file);
             Check(!Regex.IsMatch(body, @"\bnew\s+(?:global::)?[A-Za-z_][\w.<>]*(?:\s*\([^;{}]*\))?\s*\{"), "Object initializer inside InitializeComponent: " + file);
             foreach (Match local in Regex.Matches(body, @"(?m)^\s*(?<type>(?:global::)?[A-Za-z_][\w.:<>]*)\s+(?<name>[A-Za-z_]\w*)\s*="))
-                Check(local.Groups["type"].Value.EndsWith("ComponentResourceManager", StringComparison.Ordinal) && local.Groups["name"].Value == "resources", "Business or inferred local variable inside InitializeComponent: " + file);
+                Check((local.Groups["type"].Value.EndsWith("ComponentResourceManager", StringComparison.Ordinal) && local.Groups["name"].Value == "resources")
+                    || (type == typeof(DataForm) && local.Groups["type"].Value == "DataSave.DataFormat" && Regex.IsMatch(local.Groups["name"].Value, @"^dataFormat[0-9]+$")),
+                    "Business or inferred local variable inside InitializeComponent: " + file);
             Check(!Regex.IsMatch(body, @"\b(?:if|for|foreach|while|switch|try|using)\s*\("), "Business control flow inside InitializeComponent: " + file);
             Check(!body.Contains("=>"), "Lambda inside InitializeComponent: " + file);
             Check(!Regex.IsMatch(body, @"\b(?:SettingData|RecipeData|DataTable|ConstantStore|MiddleLayer|FlowPrograms|FlowActions|UiTheme)\b"), "Business data or services inside InitializeComponent: " + file);
@@ -288,7 +290,8 @@ internal static class Cases
     /// <summary>Resolve the project-relative primary source path of a discovered visual class.</summary>
     private static string SourceName(Type type)
     {
-        return (type == typeof(SystemSetting) || type == typeof(Flow) ? "MenuForm\\" : "FlowProgramming\\") + type.Name + ".cs";
+        string folder = type.Namespace == "AlphaRap.Configuration" ? "Configuration" : type.Namespace == "AlphaRap.FlowProgramming" ? "FlowProgramming" : "MenuForm";
+        return folder + "\\" + type.Name + ".cs";
     }
 
     /// <summary>Resolve the fixed Designer source associated with a discovered concrete visual class.</summary>

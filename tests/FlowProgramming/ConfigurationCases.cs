@@ -91,7 +91,7 @@ internal static partial class ConfigurationCases
     private static IEnumerable<string> CorePaths()
     {
         return new[] { Path.Combine(ModuleManager.SettingDataDirectory, settings.Text + ".xml"), SysPara.FilePath,
-            hardware.Resources.PathName, (string)typeof(DataForm).GetProperty("ProductionSchemaPath", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null, null), FlowPrograms.FilePath };
+            Path.Combine(SysPara.SettingDataDirectory, "DataForm.LogModules.xml"), hardware.Resources.PathName, (string)typeof(DataForm).GetProperty("ProductionSchemaPath", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null, null), FlowPrograms.FilePath };
     }
 
     /// <summary>Change actual drafts while retaining the last accepted DataRow and executable flow versions.</summary>
@@ -109,6 +109,8 @@ internal static partial class ConfigurationCases
         definition.Name = "Transaction axis " + text;
         hardware.Resources.Put(definition);
         data.SetProductionDraft(new List<ProductionField> { new ProductionField { Name = "Barcode" }, new ProductionField { Name = "Result" }, new ProductionField { Name = "Value" + text, Type = "Number" } });
+        data.SetLogModulesDraft(new List<LogModuleDefinition> { new LogModuleDefinition { Id = "cccccccccccccccccccccccccccccccc", Name = "Transaction log " + text,
+            Directory = Path.Combine(SysPara.SettingDataDirectory, "CustomLogs"), Fields = new List<ProductionField> { new ProductionField { Name = "Value" + text, Type = "Number" } } } });
         module.Program.Steps.Single().Caption = "Generation " + text;
     }
 
@@ -130,6 +132,7 @@ internal static partial class ConfigurationCases
     {
         Assert(Convert.ToInt64(settings.Constants.Committed("Setting").Single(item => item.Key == ConstantStore.Reference("Setting", "TxnSetting")).Value) == generation, "Setting was accepted too early or failed to publish.");
         Assert(Convert.ToInt64(settings.Constants.Committed("Recipe").Single(item => item.Key == ConstantStore.Reference("Recipe", "TxnRecipe")).Value) == generation, "Recipe was accepted too early or failed to publish.");
+        Assert(data.GetLogModules(false).Single().Name == "Transaction log " + generation, "Log module was published before save or failed to commit.");
         Assert(data.GetProductionSchema().Any(field => field.Name == "Value" + generation), "Production schema was accepted too early or failed to publish.");
         FlowProgram published = (FlowProgram)typeof(FlowModuleEditor).GetField("published", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(module);
         Assert(published.Steps.Single().Caption == "Generation " + generation, "The executable flow snapshot changed before the transaction committed.");
@@ -140,6 +143,7 @@ internal static partial class ConfigurationCases
     {
         AssertCoreDraft(generation); AssertCorePublished(generation);
         Assert(!hardware.Resources.IsDirty, "Reloaded hardware resources remained dirty.");
+        Assert(data.GetLogModules().Single().Name == "Transaction log " + generation, "Log draft did not restore the saved generation.");
         Assert(settings.Constants.Table("Setting").GetChanges() == null && settings.Constants.Table("Recipe").GetChanges() == null, "Reloaded constants were not accepted.");
         Assert(HardwareResources.Load(hardware.Resources.PathName).Resources.Single(item => item.Id == axisId).Name == "Transaction axis " + generation, "Resource file did not reload the saved generation.");
         Assert(FlowProgramFile.Load(FlowPrograms.FilePath).Modules.Single(item => item.ModuleId == module.Program.ModuleId).Steps.Single().Caption == "Generation " + generation, "Flow file did not reload the saved generation.");

@@ -193,6 +193,7 @@ internal static partial class Cases
         RegisterFrameworkInheritanceCases();
         RegisterNativeEventCases();
         RegisterParallelEntryCases();
+        RegisterLogModuleCases();
         Test("first Boolean CASE defaults to the opposite result and missing objects explain repair", BeginnerNodeDefaults);
         Test("all inherited forms and runtime-created modules appear in the flow page", FlowPage);
         ExportP0FieldTexts();

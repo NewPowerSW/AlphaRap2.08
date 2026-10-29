@@ -15,8 +15,8 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 - 暂停归零与旧刷新保护：[NPSDK 20c39268e49a81493237497cf8ae4740e9202470](https://github.com/JeffreyWub/NPSDK/commit/20c39268e49a81493237497cf8ae4740e9202470)，分支 `codex/flow-runtime-state-20261028`。
 - 多入口并行调度与 V4 工程：[NPSDK 31364140fcc708b98483e9725e536f6f13143c89](https://github.com/JeffreyWub/NPSDK/commit/31364140fcc708b98483e9725e536f6f13143c89)，分支 `codex/flow-runtime-state-20261028`。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
-- 大小：556544 字节。
-- SHA256：`b838eb9cfd4c706e7c9ac8e32e91279ba32118039ce74cc2f4b82b467641435b`。
+- 大小：564224 字节。
+- SHA256：`4156cff17fd729afcc19a8fc926805de9b890b55b7ccca4f786d42ef4b8bf9e2`。
 
 该版本从独立、干净的源码工作树构建，不包含原 SDK 开发目录中的未提交改动。
 
@@ -82,3 +82,7 @@ MSBuild.exe AlphaRap.sln /t:Rebuild /p:Configuration=Debug /p:Platform=x64
 文档页面试点使用 [NPSDK 8bb64646144385e04122c917c1970df17a9be1bd](https://github.com/JeffreyWub/NPSDK/commit/8bb64646144385e04122c917c1970df17a9be1bd)，分支 `codex/flow-runtime-state-20261028`，已推送并核对远端。新增可选 Pages、稳定 PageId 和节点尺寸；存在文档页时主保存升级 V5，其余仍为 V4。原运行器、原生 ResultType 及多入口行为保持原契约，详见 [心跳页试用说明](../docs/FlowDocumentPilot.md)。
 
 本次离线验证：宿主流程 167/167、统一主保存 17 项、设计器探针 19/19、SDK 原生与并行 35/35、核心兼容 13/13，包含源码生成往返与回滚。未运行真实硬件，VS 专有设计器交互加载另需现场确认。
+
+界面日志模块版本使用 [NPSDK 10f9fbf551096d6e9ee795dff6d67438d30cfbe2](https://github.com/JeffreyWub/NPSDK/commit/10f9fbf551096d6e9ee795dff6d67438d30cfbe2)，分支 `codex/flow-runtime-state-20261028`，已推送并核对。核心新增严格日志追加、按文件字段名查询、跨年月与 CSV 特殊字符支持、查询来源刷新及旧报警数组兼容。TypeCollection1 的旧写入入口继续使用，IO 失败向业务调用方抛出。宿主日志定义由 Main Save 持久化到机器 Setting，详见 [日志模块使用说明](../docs/FlowLogModules.md)。
+
+本次离线验证：流程 174/174、统一主保存 17 项、设计器探针 21/21、首页及报警显示 11/11、SDK 日志 8/8、原生并行流程 35/35、核心兼容 13/13。没有连接实际设备；VS 专有设计器交互加载另需现场确认。

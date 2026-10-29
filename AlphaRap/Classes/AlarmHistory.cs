@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Linq;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -84,81 +85,37 @@ namespace AlphaRap
             // 上限一年：防止误选日期把界面卡死
             if ((to.Date - from.Date).TotalDays > 366) to = from.Date.AddDays(366);
 
-            for (DateTime d = from.Date; d <= to.Date; d = d.AddDays(1))
-            {
-                string file = Path.Combine(Path.Combine(Path.Combine(root, d.ToString("yyyy")),
-                    d.ToString("MM")), d.ToString("yyyy-MM-dd") + ".csv");
-                if (!File.Exists(file)) continue;
-
-                string[] lines;
-                try { lines = DecodeLines(File.ReadAllBytes(file)); }
-                catch (Exception) { continue; }
-                fileCount++;
-
-                for (int i = 0; i < lines.Length; i++)
+            using (DataSave.TypeCollection1 source = new DataSave.TypeCollection1 { SavePath = root })
+                for (DateTime day = from.Date; day <= to.Date; day = day.AddDays(1))
                 {
-                    AlarmRecord r = ParseLine(lines[i]);
-                    if (r == null) continue;
-                    r.Stop = IsStopCode(r.Code);
-                    if (!Match(r, typeFilter, code, keyword)) continue;
-                    list.Add(r);
+                    List<string[]> rows;
+                    try { rows = source.ReadDataFromToFile(day, day); }
+                    catch (Exception) { continue; }
+                    if (rows.Count < 2) continue;
+                    string folder = Path.Combine(root, day.ToString("yyyy"), day.ToString("MM"));
+                    fileCount += Directory.GetFiles(folder, day.ToString("yyyy-MM-dd") + "*.csv").Length;
+                    foreach (string[] values in rows.Skip(1))
+                    {
+                        AlarmRecord record = ParseRecord(rows[0], values);
+                        if (record == null) continue;
+                        record.Stop = IsStopCode(record.Code);
+                        if (Match(record, typeFilter, code, keyword)) list.Add(record);
+                    }
                 }
-            }
             return list;
         }
 
-        /// <summary>
-        /// 按字节读日志并拆成行。文件可能是带 BOM 的 UTF-8，也可能是旧版按 ANSI(GBK) 写出来的；
-        /// 先按严格 UTF-8 解，解不开再退回系统 ANSI 代码页，否则中文报警内容会读成乱码。
-        /// </summary>
-        private static string[] DecodeLines(byte[] raw)
+        /// <summary>按历史文件实际列名读取报警，兼容字段内逗号、引号及换行。</summary>
+        private static AlarmRecord ParseRecord(string[] columns, string[] values)
         {
-            string text;
-            if (raw.Length >= 3 && raw[0] == 0xEF && raw[1] == 0xBB && raw[2] == 0xBF)
-            {
-                text = Encoding.UTF8.GetString(raw, 3, raw.Length - 3);
-            }
-            else
-            {
-                try { text = new UTF8Encoding(false, true).GetString(raw); }
-                catch (DecoderFallbackException)
-                {
-                    try { text = Encoding.GetEncoding(936).GetString(raw); }
-                    catch { text = Encoding.Default.GetString(raw); }
-                }
-            }
-            return text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
-        }
-
-        /// <summary>
-        /// 解析一行；表头或列数不足的行返回 null。
-        /// Content 里可能带逗号，所以按前 7 个逗号切分，其余整段算 Content。
-        /// </summary>
-        private static AlarmRecord ParseLine(string line)
-        {
-            if (string.IsNullOrEmpty(line)) return null;
-
-            int[] cut = new int[7];
-            int idx = -1;
-            for (int k = 0; k < 7; k++)
-            {
-                idx = line.IndexOf(',', idx + 1);
-                if (idx < 0) return null;
-                cut[k] = idx;
-            }
-
-            AlarmRecord r = new AlarmRecord();
-            r.Time = ParseTime(line.Substring(0, cut[0]));
-            if (r.Time == DateTime.MinValue) return null;          // 表头走这里
-
-            r.User = line.Substring(cut[0] + 1, cut[1] - cut[0] - 1);
-            r.RecipeId = line.Substring(cut[1] + 1, cut[2] - cut[1] - 1);
-            r.RecipeName = line.Substring(cut[2] + 1, cut[3] - cut[2] - 1);
-            r.Mode = line.Substring(cut[3] + 1, cut[4] - cut[3] - 1);
-            r.Type = line.Substring(cut[4] + 1, cut[5] - cut[4] - 1);
-            r.Code = line.Substring(cut[5] + 1, cut[6] - cut[5] - 1);
-            r.Content = line.Substring(cut[6] + 1).TrimEnd(',').Trim();
-            return r;
+            Func<string, string> value = name => {
+                int index = Array.FindIndex(columns, column => string.Equals(column, name, StringComparison.OrdinalIgnoreCase));
+                return index >= 0 && index < values.Length ? values[index] : "";
+            };
+            DateTime time = ParseTime(value("Time"));
+            if (time == DateTime.MinValue) return null;
+            return new AlarmRecord { Time = time, User = value("User"), RecipeId = value("RecipeID"), RecipeName = value("RecipeName"),
+                Mode = value("Mode"), Type = value("Type"), Code = value("Code"), Content = value("Content") };
         }
 
         /// <summary>解析库写出的时间（形如 2026-10-14 08:58:41:839）；失败返回 DateTime.MinValue。</summary>

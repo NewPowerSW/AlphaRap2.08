@@ -21,6 +21,7 @@ $flowArguments += Join-Path $PSScriptRoot 'NativeEventCases.cs'
 $flowArguments += Join-Path $PSScriptRoot 'NativeAlarmCases.cs'
 $flowArguments += Join-Path $PSScriptRoot 'SourceControlCases.cs'
 $flowArguments += Join-Path $PSScriptRoot 'DocumentPageCases.cs'
+$flowArguments += Join-Path $PSScriptRoot 'LogModuleCases.cs'
 $flowArguments += Join-Path $PSScriptRoot 'RuntimeStateCases.cs'
 $flowArguments += Join-Path $PSScriptRoot 'InitializationRecoveryCases.cs'
 $flowArguments += Join-Path $PSScriptRoot 'ParallelEntryCases.cs'
@@ -34,7 +35,7 @@ Write-Output "Flow UI screenshots: $flowRunRoot"
 $flowStartupExecutable = Join-Path $flowTestRoot 'FlowProgramming.StartupSmoke.exe'
 $flowStartupArguments = $flowArguments | Where-Object { $_ -notlike '/out:*' -and $_ -notlike '*Regression.cs' -and $_ -notlike '*ObjectMethods.cs' -and $_ -notlike '*Resources.cs' -and $_ -notlike '*Usability.cs' -and $_ -notlike '*ActionOnlyCases.cs' -and $_ -notlike '*AutoMethodCases.cs' -and $_ -notlike '*HardwareDerivedTypeCases.cs' -and $_ -notlike '*FrameworkInheritanceCases.cs' -and $_ -notlike '*NativeEventCases.cs' }
 $flowStartupArguments = $flowStartupArguments | Where-Object { $_ -notlike '*SourceControlCases.cs' -and $_ -notlike '*RuntimeStateCases.cs' -and $_ -notlike '*InitializationRecoveryCases.cs' -and $_ -notlike '*NativeAlarmCases.cs' -and $_ -notlike '*ParallelEntryCases.cs' }
-$flowStartupArguments = $flowStartupArguments | Where-Object { $_ -notlike '*DocumentPageCases.cs' }
+$flowStartupArguments = $flowStartupArguments | Where-Object { $_ -notlike '*DocumentPageCases.cs' -and $_ -notlike '*LogModuleCases.cs' }
 $flowStartupArguments += "/out:$flowStartupExecutable"
 $flowStartupArguments += Join-Path $PSScriptRoot 'StartupSmoke.cs'
 $flowStartupArguments += Join-Path $PSScriptRoot 'ConfigurationCases.cs'

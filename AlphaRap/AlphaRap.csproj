@@ -973,6 +973,22 @@
       <DependentUpon>SystemSetting.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\MiddleLayer.cs" />
+    <Compile Include="Configuration\LogModuleStore.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configuration\LogModulesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\LogModulesForm.Designer.cs">
+      <DependentUpon>LogModulesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FlowProgramming\FlowLogModule.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MenuForm\DataForm.LogModules.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>DataForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Configuration\ProjectConfiguration.cs" />
     <Compile Include="Configuration\HardwareDefinition.cs"></Compile>
     <Compile Include="Configuration\HardwareControlTypes.cs" />

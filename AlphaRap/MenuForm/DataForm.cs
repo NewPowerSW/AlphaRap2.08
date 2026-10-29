@@ -16,6 +16,7 @@ namespace AlphaRap
 		public DataForm()
 		{
 			InitializeComponent();
+            if (!UiTheme.IsDesignTime) RefreshLogSources(false);
             FlowProgramming.FlowLanguageForm.ApplyTexts(this);
             if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
@@ -26,9 +27,9 @@ namespace AlphaRap
 			{
 				if (Errordata != data)
 				{
-					Errordata = data;
 					string[] dataArray = { data };
 					LogError.SaveDataToFile(dataArray);
+                    Errordata = data;
 				}
 			}
 		}
@@ -38,9 +39,9 @@ namespace AlphaRap
 			{
 				if (Rundata != data)
 				{
-					Rundata = data;
 					string[] dataArray = { data };
 					LogRun.SaveDataToFile(dataArray);
+                    Rundata = data;
 				}
 			}
 		}
@@ -50,9 +51,9 @@ namespace AlphaRap
 			{
 				if (MESdata != data)
 				{
-					MESdata = data;
 					string[] dataArray = { data };
 					MESLOG.SaveDataToFile(dataArray);
+                    MESdata = data;
 				}
 			}
 		}

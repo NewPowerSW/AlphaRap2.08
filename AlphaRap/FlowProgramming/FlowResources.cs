@@ -52,7 +52,7 @@ namespace AlphaRap.FlowProgramming
                     case "input": return "di";
                     case "output": return "do";
                     case "cylinder": return Kind;
-                    case "vision": case "data": case "tray": case "constants": case "code": case "native": return Kind;
+                    case "log": case "vision": case "data": case "tray": case "constants": case "code": case "native": return Kind;
                     default: return "device";
                 }
             }
@@ -95,6 +95,8 @@ namespace AlphaRap.FlowProgramming
                 foreach (KeyValuePair<string, VisionproInterface> station in MiddleLayer.VPF.GetFlowStations())
                     catalog.Add("vision/" + station.Key, station.Value.StationName, "vision", station.Value);
             if (MiddleLayer.DataF != null) catalog.Add("data/Production", "DataForm · Production", "data", MiddleLayer.DataF);
+            if (MiddleLayer.DataF != null)
+                foreach (FlowLogModule log in MiddleLayer.DataF.GetFlowLogs(includeDraft)) catalog.Add(log.Id, log.Name, "log", log);
             List<Form> forms = MiddleLayer.lstForm.OfType<Form>().Concat(Flow_Module.FlowChart_ModuleList).Distinct().ToList();
             foreach (Form form in forms)
             {

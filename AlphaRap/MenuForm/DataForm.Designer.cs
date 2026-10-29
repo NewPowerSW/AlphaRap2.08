@@ -13,6 +13,7 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
+            if (disposing) foreach (DataSave.TypeCollection1 log in customLogs) log.Dispose();
             if (disposing && (components != null))
             {
                 components.Dispose();
@@ -57,6 +58,8 @@
 			this.UserLogin = new DataSave.TypeCollection1();
 			this.UserOperationLog = new DataSave.TypeCollection1();
 			this.flowProductionFields = new System.Windows.Forms.Button();
+            this.flowLogModules = new System.Windows.Forms.Button();
+            this.dataActions = new System.Windows.Forms.FlowLayoutPanel();
 			this.SuspendLayout();
 			// 
 			// data1
@@ -64,9 +67,15 @@
             this.flowProductionFields.Name = "flowProductionFields";
             this.flowProductionFields.Tag = "schema";
             this.flowProductionFields.Text = "生产表字段";
-            this.flowProductionFields.Dock = System.Windows.Forms.DockStyle.Top;
-            this.flowProductionFields.Height = 38;
+            this.flowProductionFields.Size = new System.Drawing.Size(175, 32);
+            this.flowProductionFields.Margin = new System.Windows.Forms.Padding(4);
             this.flowProductionFields.Click += new System.EventHandler(this.FlowProductionFieldsClick);
+            this.flowLogModules.Name = "flowLogModules";
+            this.flowLogModules.Tag = "logModules";
+            this.flowLogModules.Text = "日志模块";
+            this.flowLogModules.Size = new System.Drawing.Size(175, 32);
+            this.flowLogModules.Margin = new System.Windows.Forms.Padding(4);
+            this.flowLogModules.Click += new System.EventHandler(this.ManageLogModules);
 			this.data1.BackColor = System.Drawing.Color.White;
 			this.data1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.data1.Location = new System.Drawing.Point(0, 0);
@@ -159,7 +168,12 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.ClientSize = new System.Drawing.Size(1224, 740);
 			this.Controls.Add(this.data1);
-            this.Controls.Add(this.flowProductionFields);
+            this.dataActions.Name = "dataActions";
+            this.dataActions.Dock = System.Windows.Forms.DockStyle.Top;
+            this.dataActions.Height = 42;
+            this.dataActions.Controls.Add(this.flowLogModules);
+            this.dataActions.Controls.Add(this.flowProductionFields);
+            this.Controls.Add(this.dataActions);
 			this.Name = "DataForm";
 			this.Text = "DataForm";
 			this.ResumeLayout(false);
@@ -168,6 +182,8 @@
         #endregion
 
         private System.Windows.Forms.Button flowProductionFields;
+        private System.Windows.Forms.Button flowLogModules;
+        private System.Windows.Forms.FlowLayoutPanel dataActions;
         private DataSave.Data data1;
         public DataSave.TypeCollection1 MESLOG;
         public DataSave.TypeCollection1 Alarm;
