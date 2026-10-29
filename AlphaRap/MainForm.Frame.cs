@@ -45,7 +45,7 @@ namespace AlphaRap
 
         // ---------------- 尺寸 ----------------
 
-        private static readonly Size NavButtonSize = new Size(200, 42);
+        private static readonly Size NavButtonSize = new Size(200, 38);
         private const int NavIconSize = 20;
         private static readonly Size ToolButtonSize = new Size(88, 40);
         private const int ToolIconSize = 16;
@@ -222,7 +222,7 @@ namespace AlphaRap
         {
             return new PictureBox[]
             {
-                MENU_Home, MENU_Vision, MENU_Save, MENU_Rapid, MENU_Hard, MENU_Manual,
+                MENU_Home, MENU_Product, MENU_Vision, MENU_Save, MENU_Rapid, MENU_Hard, MENU_Manual,
                 MENU_LifeSpan, MENU_Mes, MENU_AddUser, MENU_Data, MENU_Check, MENU_Log
             };
         }
@@ -394,6 +394,7 @@ namespace AlphaRap
             {
                 if (b != null) _buttonTexts[b] = UiTheme.T("MainForm", key, zh, en, es);
             };
+            add(MENU_Product, "nav_Product", "物料管理", "Materials", "Materiales");
             add(MENU_Home, "nav_Home", "主页", "Home", "Inicio");
             add(MENU_Vision, "nav_Vision", "视觉", "Vision", "Visión");
             add(MENU_Save, "nav_Save", "保存", "Save", "Guardar");
@@ -436,6 +437,7 @@ namespace AlphaRap
                 if (_buttonTexts.Count == 0) LoadFrameTexts();
                 _iconSignature = BuildIconSignature();   // 记下本次绘制时的状态，供 RefreshButtonIconsIfChanged 比对
 
+                StyleNavButton(MENU_Product, AppIcon.Product);
                 StyleNavButton(MENU_Home, AppIcon.Home);
                 StyleNavButton(MENU_Save, AppIcon.Save);
                 StyleNavButton(MENU_Rapid, AppIcon.Rapid);
@@ -451,9 +453,6 @@ namespace AlphaRap
 
                 ApplyToolbarButtonStyles();
 
-                // 顶栏：深蓝底上的白色图标
-                SetImage(MENU_Product, AppIcons.Get(AppIcon.Product, UiTheme.Dpi(24),
-                    MENU_Product.Enabled ? ShellAccent : AppIconColor.Disabled));
                 SetImage(MENU_Login, AppIcons.Get(AppIcon.Login, UiTheme.Dpi(24),
                     MENU_Login.Enabled ? AppIconColor.OnDarkBar : AppIconColor.DisabledOnDark));
             }
@@ -724,7 +723,6 @@ namespace AlphaRap
         public void RefreshMenuBackcolor()
         {
             if (MENU_Picture == null) return;
-            MENU_Product.BackColor = Color.Transparent;
             MENU_Login.BackColor = Color.Transparent;
             RefreshButtonIcons();
         }

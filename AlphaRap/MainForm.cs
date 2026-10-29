@@ -1110,6 +1110,7 @@ int nheightEllipse
                     MENU_Exit.Enabled = Convert.ToBoolean(readData.Rows[0]["Exit"]);
                 }
             }
+            RefreshMenuBackcolor();
         }
         #endregion
 

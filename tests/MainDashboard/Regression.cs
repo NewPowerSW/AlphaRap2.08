@@ -48,7 +48,7 @@ internal static class DashboardProbe
         Application.EnableVisualStyles();
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
         Environment.CurrentDirectory = outputRoot;
-        foreach (Size size in new[] { new Size(1600, 1000), new Size(1440, 900), new Size(1280, 800) })
+        foreach (Size size in new[] { new Size(1600, 1000), new Size(1440, 900), new Size(1280, 800), new Size(1280, 760) })
             for (int language = 0; language < 3; language++)
             {
                 int current = language; Size currentSize = size;
@@ -133,6 +133,21 @@ internal static class DashboardProbe
                 Check(alarms.Visible && frame.WarnningMessage.Visible, "Switching to vision hid the main alarm table.");
                 tabs.SelectedTab = Field<TabPage>(frame, "tabPage22");
                 Application.DoEvents();
+                PictureBox product = Field<PictureBox>(frame, "MENU_Product");
+                Control productParent = Field<Control>(frame, "Panl_PictureShowTop");
+                Check(ReferenceEquals(product.Parent, productParent) && product.Width >= 180 && product.Height >= 36,
+                    "Material management is still an icon-only footer shortcut.");
+                Check(frame.ClientRectangle.Contains(frame.RectangleToClient(productParent.RectangleToScreen(product.Bounds))), "Material navigation is outside the visible window.");
+                string productText = (string)typeof(MainForm).GetMethod("ButtonText", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(frame, new object[] { product });
+                Check(productText == (language == 0 ? "物料管理" : language == 1 ? "Materials" : "Materiales"), "Material navigation lacks a translated visible title.");
+                bool productEnabled = product.Enabled; product.Enabled = false; Invoke(frame, "RefreshMenuBackcolor");
+                Check(ReferenceEquals(product.Parent, productParent), "Permission refresh removed material navigation.");
+                product.Enabled = true; Invoke(frame, "RefreshMenuBackcolor");
+                typeof(MainForm).GetField("MENU_SelectPage", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(frame, MainForm.MENU_PageType.Product);
+                Invoke(frame, "RefreshMenuBackcolor"); Check(product.BackColor != Color.Transparent, "The selected materials page is not highlighted.");
+                typeof(MainForm).GetField("MENU_SelectPage", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(frame, MainForm.MENU_PageType.Home);
+                product.Enabled = productEnabled; Invoke(frame, "RefreshMenuBackcolor");
+                CheckClick(frame, "MENU_Product", "MENU_Click");
                 CheckClick(frame, "MENU_Save", "SaveData_Click"); CheckClick(frame, "MENU_Reset", "MENU_Reset_Click");
                 CheckClick(frame, "MENU_Run", "btStart_Click"); CheckClick(frame, "MENU_Pause", "btPause_Click");
                 CheckClick(frame, "MENU_Stop", "btStop_Click"); CheckClick(frame, "AlarmReset", "btAlarmReset_Click");
