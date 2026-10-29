@@ -92,7 +92,6 @@ int nheightEllipse
         /// <summary>语言表保存或语言切换后刷新主框架的动态文字。</summary>
         private void MainForm_LanguageChanged(object sender, EventArgs e)
         {
-            _statusLabelLang = (LanguageType)(-1);
             _statusTextMap = null;
             SyncLanguageTexts();
             UpdateMachineStatus();
@@ -995,8 +994,7 @@ int nheightEllipse
                 // 登录芯片的悬停提示（含完整登录时间）
                 UpdateLoginChipTip();
                 RefreshLoginChipText();
-                EnsureStatusLabels();
-                if (MiddleLayer.ProductF != null) lbRecipeName.Text = _lblRecipe + MiddleLayer.ProductF.CurrentModel.Text;
+                UpdateRecipeDisplay();
             }
             catch { }
         }
@@ -1128,38 +1126,32 @@ int nheightEllipse
                 { RunMode.PAUSE, MiddleLayer.LangMsg("MainForm", "msg_StatusPause", "暂停状态", "PAUSE", "Estado suspendido") },
             };
         }
-        // 机台状态条前缀文案（按语言缓存，避免定时器反复查 XML）
-        private LanguageType _statusLabelLang = (LanguageType)(-1);
-        private string _lblRecipe;
-
-        /// <summary>按当前语言（变化时才重取）准备好状态条前缀文案。</summary>
-        private void EnsureStatusLabels()
+        /// <summary>刷新当前配方的业务名称，完整名称通过悬停提示显示。</summary>
+        private void UpdateRecipeDisplay()
         {
-            try
-            {
-                if (_statusLabelLang == SysPara.LanguageShow && _lblRecipe != null) return;
-                _statusLabelLang = SysPara.LanguageShow;
-                _lblRecipe = MiddleLayer.LangMsg("MainForm", "msg_RecipeLabel", "配方:  ", "RecipeName :  ", "Fórmula :  ");
-            }
-            catch { }
+            string name = MiddleLayer.ProductF == null ? SysPara.RecipeName : MiddleLayer.ProductF.CurrentModel.Text;
+            name = name ?? "";
+            if (lbRecipeName.Text == name) return;
+            lbRecipeName.Text = name;
+            _statusTip.SetToolTip(lbRecipeName, name);
         }
 
         // ---------------- 机台状态徽章 ----------------
-        private static readonly Color StatusIdleFill = Color.FromArgb(71, 85, 105);
-        private static readonly Color StatusInitFill = Color.FromArgb(4, 108, 182);
-        private static readonly Color StatusRunFill = Color.FromArgb(22, 130, 67);
-        private static readonly Color StatusPauseFill = Color.FromArgb(250, 196, 21);
+        private static readonly Color StatusIdleFill = Color.FromArgb(10, 112, 172);
+        private static readonly Color StatusInitFill = Color.FromArgb(0, 137, 202);
+        private static readonly Color StatusRunFill = Color.FromArgb(31, 141, 87);
+        private static readonly Color StatusPauseFill = Color.FromArgb(255, 237, 177);
         private static readonly Color StatusAlarmFill = Color.FromArgb(206, 38, 38);
 
         /// <summary>亮底上的深字。</summary>
-        private static readonly Color StatusDarkInk = Color.FromArgb(16, 30, 46);
+        private static readonly Color StatusDarkInk = Color.FromArgb(146, 96, 16);
         /// <summary>深色状态底上的白字。</summary>
         private static readonly Color StatusWhiteInk = Color.White;
 
         /// <summary>短文案状态牌的最小宽度（96 DPI 设计值）。</summary>
-        private const int StatusMinWidth = 200;
+        private const int StatusMinWidth = 192;
         /// <summary>状态图标的边长（96 DPI 设计值）。</summary>
-        private const int StatusIconSize = 32;
+        private const int StatusIconSize = 26;
         private AppIcon _statusIcon = AppIcon.Stop;
 
         // 状态文案缓存：语言或初始化状态变化时重建
@@ -1258,8 +1250,10 @@ int nheightEllipse
                 if (MachineStatus.Width <= 2 || MachineStatus.Height <= 2) return;
                 Rectangle r = new Rectangle(0, 0, MachineStatus.Width - 1, MachineStatus.Height - 1);
                 using (GraphicsPath path = UiKit.RoundRect(r, UiTheme.Dpi(12)))
-                using (Pen p = new Pen(Color.FromArgb(70, 8, 20, 36), 1f))
+                using (Pen p = new Pen(MachineStatus.BackColor == StatusAlarmFill ? Color.FromArgb(185, 28, 28) : Color.FromArgb(221, 229, 237), 1f))
                     e.Graphics.DrawPath(p, path);
+                using (Brush stripe = new SolidBrush(MachineStatus.ForeColor))
+                    e.Graphics.FillRectangle(stripe, 0, UiTheme.Dpi(8), UiTheme.Dpi(4), MachineStatus.Height - UiTheme.Dpi(16));
                 int iconSize = UiTheme.Dpi(StatusIconSize);
                 Image icon = AppIcons.Get(_statusIcon, iconSize, MachineStatus.ForeColor);
                 if (icon != null)
@@ -1322,17 +1316,13 @@ int nheightEllipse
             #region ProductData
             #endregion
 
-            #region Language
-            // 状态条前缀文案（取自语言包 LanguageData\MainForm，按语言缓存）
-            EnsureStatusLabels();
-            #endregion
 
             #region  RecipeName
             toolStripStatusLabel5.Text = DateTime.Now.ToString("HH:mm");
             toolStripStatusLabel5.ToolTipText = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             // 右上角登录芯片：用户名 · 权限 · 登录时刻（完整日期见悬停提示；芯片宽度有限，只显示到分钟）
             RefreshLoginChipText();
-            lbRecipeName.Text = _lblRecipe + MiddleLayer.ProductF.CurrentModel.Text;
+            UpdateRecipeDisplay();
             #endregion
 
             #region  PictureBox

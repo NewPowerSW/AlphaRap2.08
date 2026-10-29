@@ -101,8 +101,11 @@ namespace AlphaRap
         /// <summary>设置配方、设备状态和登录区域的样式。</summary>
         private void StyleIdentityArea()
         {
-            lbRecipeName.Font = UiKit.Regular(9f);
-            lbRecipeName.ForeColor = Color.FromArgb(0, 118, 177);
+            lbRecipeName.Font = UiKit.Bold(10.5f);
+            lbRecipeName.ForeColor = UiKit.TextPrimary;
+            lbRecipeName.BackColor = Color.White;
+            lblRecipeCaption.Font = UiKit.Regular(8f);
+            lblRecipeCaption.ForeColor = UiKit.TextMuted;
             lbRecipeName.AutoEllipsis = true;
             panelLogin.BackColor = LoginChipBack;
             panelLogin.Cursor = Cursors.Hand;
@@ -110,7 +113,7 @@ namespace AlphaRap
             LoginText.ForeColor = Color.White;
             LoginText.Cursor = Cursors.Hand;
             LoginText.AutoEllipsis = true;
-            MachineStatus.TextAlign = ContentAlignment.MiddleCenter;
+            MachineStatus.TextAlign = ContentAlignment.MiddleLeft;
             MachineStatus.AutoSize = false;
             MachineStatus.AutoEllipsis = true;
             MachineStatus.BackColor = StatusIdleFill;
@@ -394,6 +397,7 @@ namespace AlphaRap
             {
                 if (b != null) _buttonTexts[b] = UiTheme.T("MainForm", key, zh, en, es);
             };
+            lblRecipeCaption.Text = UiTheme.T("MainForm", "lblRecipeCaption", "当前配方", "Active recipe", "Receta activa");
             add(MENU_Product, "nav_Product", "物料管理", "Materials", "Materiales");
             add(MENU_Home, "nav_Home", "主页", "Home", "Inicio");
             add(MENU_Vision, "nav_Vision", "视觉", "Vision", "Visión");

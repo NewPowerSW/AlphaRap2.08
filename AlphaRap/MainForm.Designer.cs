@@ -66,6 +66,9 @@
             this.NumC4 = new System.Windows.Forms.ToolStripMenuItem();
             this.LoginText = new System.Windows.Forms.Label();
             this.lbRecipeName = new System.Windows.Forms.Label();
+            this.recipeDetails = new System.Windows.Forms.TableLayoutPanel();
+            this.lblRecipeCaption = new System.Windows.Forms.Label();
+            this.footerDivider = new System.Windows.Forms.Panel();
             this.MENU_Product = new System.Windows.Forms.PictureBox();
             this.panel_Second = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -440,13 +443,14 @@
             this.tableLayoutPanel2.BackColor = System.Drawing.Color.White;
             this.tableLayoutPanel2.ColumnCount = 6;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 0F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 33F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 34F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
             this.tableLayoutPanel2.Controls.Add(this.MachineStatus, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.lbRecipeName, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.footerDivider, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.recipeDetails, 2, 0);
             this.tableLayoutPanel2.Controls.Add(this.picVirtualKeyboard, 3, 0);
             this.tableLayoutPanel2.Controls.Add(this.languageSwitch, 4, 0);
             this.tableLayoutPanel2.Controls.Add(this.statusStrip2, 5, 0);
@@ -500,21 +504,21 @@
             // 
             // MachineStatus
             // 
+            this.MachineStatus.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.MachineStatus.AutoSize = false;
-            this.MachineStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.MachineStatus.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.MachineStatus.Font = new System.Drawing.Font("Microsoft YaHei UI", 16F, System.Drawing.FontStyle.Bold);
+            this.MachineStatus.BackColor = System.Drawing.Color.FromArgb(10, 112, 172);
+            this.MachineStatus.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.MachineStatus.Font = new System.Drawing.Font("Microsoft YaHei UI", 14F, System.Drawing.FontStyle.Bold);
             this.MachineStatus.ForeColor = System.Drawing.Color.White;
-            this.MachineStatus.Location = new System.Drawing.Point(1231, 2);
-            this.MachineStatus.Margin = new System.Windows.Forms.Padding(0, 5, 16, 5);
-            this.MachineStatus.Padding = new System.Windows.Forms.Padding(60, 0, 16, 0);
+            this.MachineStatus.Location = new System.Drawing.Point(0, 7);
+            this.MachineStatus.Margin = new System.Windows.Forms.Padding(0);
             this.MachineStatus.Name = "MachineStatus_dyn";
-            this.MachineStatus.Size = new System.Drawing.Size(200, 48);
+            this.MachineStatus.Padding = new System.Windows.Forms.Padding(48, 0, 14, 0);
+            this.MachineStatus.Size = new System.Drawing.Size(192, 44);
             this.MachineStatus.TabIndex = 211;
             this.MachineStatus.Text = "IDLE";
-            this.MachineStatus.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.MachineStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.MachineStatus.Click += new System.EventHandler(this.DashboardAlarm_Click);
-            this.MachineStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panelLogin
             // 
@@ -627,16 +631,39 @@
             // 
             // lbRecipeName
             // 
-            this.lbRecipeName.BackColor = System.Drawing.Color.FromArgb(224, 241, 251);
-            this.lbRecipeName.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lbRecipeName.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
-            this.lbRecipeName.ForeColor = System.Drawing.Color.FromArgb(0, 118, 177);
-            this.lbRecipeName.Location = new System.Drawing.Point(139, 5);
-            this.lbRecipeName.Margin = new System.Windows.Forms.Padding(4, 0, 6, 0);
+            this.recipeDetails.BackColor = System.Drawing.Color.White;
+            this.recipeDetails.ColumnCount = 1;
+            this.recipeDetails.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.recipeDetails.RowCount = 2;
+            this.recipeDetails.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 16F));
+            this.recipeDetails.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.recipeDetails.Controls.Add(this.lblRecipeCaption, 0, 0);
+            this.recipeDetails.Controls.Add(this.lbRecipeName, 0, 1);
+            this.recipeDetails.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.recipeDetails.Margin = new System.Windows.Forms.Padding(0);
+            this.recipeDetails.Padding = new System.Windows.Forms.Padding(0, 7, 8, 7);
+            this.recipeDetails.Name = "recipeDetails";
+            this.lblRecipeCaption.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblRecipeCaption.Font = new System.Drawing.Font("Microsoft YaHei UI", 8F);
+            this.lblRecipeCaption.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
+            this.lblRecipeCaption.Margin = new System.Windows.Forms.Padding(0);
+            this.lblRecipeCaption.Name = "lblRecipeCaption";
+            this.lblRecipeCaption.Text = "当前配方";
+            this.lblRecipeCaption.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.footerDivider.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.footerDivider.BackColor = System.Drawing.Color.FromArgb(221, 229, 237);
+            this.footerDivider.Margin = new System.Windows.Forms.Padding(16, 0, 16, 0);
+            this.footerDivider.Name = "footerDivider";
+            this.footerDivider.Size = new System.Drawing.Size(1, 32);
+            this.lbRecipeName.AutoEllipsis = true;
+            this.lbRecipeName.BackColor = System.Drawing.Color.White;
+            this.lbRecipeName.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbRecipeName.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.5F, System.Drawing.FontStyle.Bold);
+            this.lbRecipeName.ForeColor = System.Drawing.Color.FromArgb(32, 54, 78);
+            this.lbRecipeName.Margin = new System.Windows.Forms.Padding(0);
             this.lbRecipeName.Name = "lbRecipeName_dyn";
-            this.lbRecipeName.Size = new System.Drawing.Size(240, 30);
             this.lbRecipeName.TabIndex = 0;
-            this.lbRecipeName.Text = "Recipe Name:";
+            this.lbRecipeName.Text = "AllModel";
             this.lbRecipeName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // MENU_Product
@@ -1329,6 +1356,9 @@
 		public System.Windows.Forms.ToolStripMenuItem NumC4;
 		private System.Windows.Forms.Label LoginText;
 		public System.Windows.Forms.Label lbRecipeName;
+        private System.Windows.Forms.TableLayoutPanel recipeDetails;
+        private System.Windows.Forms.Label lblRecipeCaption;
+        private System.Windows.Forms.Panel footerDivider;
 		private System.Windows.Forms.PictureBox MENU_Product;
 		private System.Windows.Forms.PictureBox picLogo;
 		private System.Windows.Forms.PictureBox picVirtualKeyboard;

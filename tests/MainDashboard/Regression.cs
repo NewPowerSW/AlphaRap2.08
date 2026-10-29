@@ -104,6 +104,7 @@ internal static class DashboardProbe
                 Console.WriteLine("  Layout");
                 Layout(frame);
                 CheckMachineStatus(frame, size, language);
+                CheckFooterIdentity(frame, size, language);
                 foreach (string field in new[] { "tableLayoutPanel_Main", "tableLayoutPanel2", "Panl_PictureShowTop", "Panl_PictureShowDown", "panel_PictureShowLeft", "panel_PictureShowRight" })
                     CheckChildren(Field<Control>(frame, field));
                 CheckChildren(Field<Control>(home, "kpiLayout"));
@@ -181,7 +182,7 @@ internal static class DashboardProbe
         }
     }
 
-    /// <summary>Render every machine-state appearance and require full translated text inside the enlarged footer badge.</summary>
+    /// <summary>Render every machine-state appearance and require full translated text inside the compact footer badge.</summary>
     private static void CheckMachineStatus(MainForm frame, Size size, int language)
     {
         string[,] captions = {
@@ -196,11 +197,12 @@ internal static class DashboardProbe
         string[] colors = { "StatusIdleFill", "StatusInitFill", "StatusInitFill", "StatusRunFill", "StatusPauseFill", "StatusAlarmFill", "StatusPauseFill" };
         AppIcon[] icons = { AppIcon.Stop, AppIcon.Reset, AppIcon.Reset, AppIcon.Run, AppIcon.Pause, AppIcon.Alarm, AppIcon.Stop };
         Label badge = Field<Label>(frame, "MachineStatus");
-        Check(badge.Height >= 48 && badge.Font.SizeInPoints >= 16, "The machine state is too small to read at a glance.");
+        Check(badge.Height >= 44 && badge.Font.SizeInPoints >= 14, "The machine state is too small to read at a glance.");
         for (int state = 0; state < colors.Length; state++)
         {
             Color fill = (Color)typeof(MainForm).GetField(colors[state], BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-            Color ink = state == 4 || state == 6 ? Color.FromArgb(16, 30, 46) : Color.White;
+            string[] inkFields = { "StatusWhiteInk", "StatusWhiteInk", "StatusWhiteInk", "StatusWhiteInk", "StatusDarkInk", "StatusWhiteInk", "StatusDarkInk" };
+            Color ink = (Color)typeof(MainForm).GetField(inkFields[state], BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
             Invoke(frame, "SetStatusLook", fill, ink, captions[state, language], icons[state]);
             Layout(Field<Control>(frame, "tableLayoutPanel2"));
             CheckChildren(Field<Control>(frame, "tableLayoutPanel2"));
@@ -217,6 +219,41 @@ internal static class DashboardProbe
         Color idle = (Color)typeof(MainForm).GetField("StatusIdleFill", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
         Invoke(frame, "SetStatusLook", idle, Color.White, captions[0, language], AppIcon.Stop);
         Layout(Field<Control>(frame, "tableLayoutPanel2"));
+    }
+
+    /// <summary>Keep active recipe and compact state aligned without a textbox-style fill or footer overlap.</summary>
+    private static void CheckFooterIdentity(MainForm frame, Size size, int language)
+    {
+        Control footer = Field<Control>(frame, "tableLayoutPanel2"), recipe = Field<Control>(frame, "recipeDetails");
+        Label badge = Field<Label>(frame, "MachineStatus"), name = Field<Label>(frame, "lbRecipeName"), caption = Field<Label>(frame, "lblRecipeCaption");
+        Check(ReferenceEquals(name.Parent, recipe) && name.BackColor == Color.White && name.AutoEllipsis, "Recipe still looks like a filled input field.");
+        Check(caption.Text == (language == 0 ? "当前配方" : language == 1 ? "Active recipe" : "Receta activa"), "Recipe caption lost its translation.");
+        Check(badge.Height <= 48 && recipe.Height >= badge.Height && name.Font.SizeInPoints >= 10, "Footer identity block is oversized or unreadable.");
+        string previous = name.Text;
+        string longName = "Long_Product_Recipe_2026_10_AOI_Dispensing_Assembly_Variant_123456789";
+        Type host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
+        FieldInfo productField = host.GetField("ProductF", BindingFlags.Public | BindingFlags.Static);
+        object originalProduct = productField.GetValue(null); string originalRecipe = SysPara.RecipeName;
+        try
+        {
+            productField.SetValue(null, null); SysPara.RecipeName = longName; Invoke(frame, "UpdateRecipeDisplay");
+            Check(name.Text == longName && Field<ToolTip>(frame, "_statusTip").GetToolTip(name) == longName,
+                "Active recipe was not refreshed or its full-name tooltip was lost.");
+        }
+        finally { productField.SetValue(null, originalProduct); SysPara.RecipeName = originalRecipe; }
+        Layout(footer); CheckChildren(footer); CheckChildren(recipe);
+        Check(recipe.Width >= 100 && name.Width <= recipe.Width && name.Text.EndsWith("123456789"), "Long recipe name was modified or displaced the status controls.");
+        using (Bitmap image = new Bitmap(footer.Width, footer.Height))
+        {
+            footer.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
+            image.Save(Path.Combine(outputRoot, "footer-long-" + size.Width + "-" + language + ".png"));
+        }
+        name.Text = previous;
+        using (Bitmap image = new Bitmap(footer.Width, footer.Height))
+        {
+            footer.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
+            image.Save(Path.Combine(outputRoot, "footer-normal-" + size.Width + "-" + language + ".png"));
+        }
     }
 
     /// <summary>Exercise the real machine-state update using an isolated controller and copied language packs.</summary>
