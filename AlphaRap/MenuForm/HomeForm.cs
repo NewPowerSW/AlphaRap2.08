@@ -293,62 +293,6 @@ namespace AlphaRap
 			RefreshDeviceStatusColors();
 		}
 
-		#region Alarm Data
-		public void WriteExcelData()
-		{
-			string[] strArrange = new string[22];
-			SysPara.AlarmMessagePath = MiddleLayer.LogF.GetSettingValue("Path", "AlarmPath") + "\\AlarmMessageData\\" + DateTime.Now.Year + "\\" + DateTime.Now.Month + "\\" + DateTime.Now.Day + "\\";
-
-			string strFileName = SysPara.AlarmMessagePath + DateTime.Now.ToString("yyyy-MM-dd") + ".csv";
-			FileInfo fileInfo = new FileInfo(strFileName);
-			if (fileInfo.Exists)
-			{
-				for (int i = 0; i < MiddleLayer.MainF.WarnningMessage.Items.Count; i++)
-				{
-					ListViewItem lvi = MiddleLayer.MainF.WarnningMessage.Items[i];
-					for (int j = 0; j < lvi.SubItems.Count; j++)
-					{
-						strArrange[j] = lvi.SubItems[j].Text;
-					}
-					WriteExcelData(strFileName, strArrange);
-				}
-			}
-			else
-			{
-				for (int i = 0; i < MiddleLayer.MainF.WarnningMessage.Columns.Count; i++)
-				{
-					strArrange[i] = MiddleLayer.MainF.WarnningMessage.Columns[i].Text;
-				}
-
-				DirectoryInfo dirInfo = new DirectoryInfo(SysPara.AlarmMessagePath);
-				if (!dirInfo.Exists)
-				{
-					try
-					{
-						dirInfo.Create();
-					}
-					catch (Exception)
-					{
-						MiddleLayer.LogF.SettingData.Tables["Path"].Rows[0]["AlarmPath"] = "C:\\Log";
-					}
-				}
-
-				for (int i = 0; i < MiddleLayer.MainF.WarnningMessage.Items.Count; i++)
-				{
-					ListViewItem lvi = MiddleLayer.MainF.WarnningMessage.Items[i];
-					for (int j = 0; j < lvi.SubItems.Count; j++)
-					{
-						strArrange[j] = lvi.SubItems[j].Text;
-					}
-					WriteExcelData(strFileName, strArrange);
-				}
-			}
-		}
-		public void WriteExcelData(string strFileName, string[] strArange)
-		{
-			ListViewWrite.WriteCSV(strFileName, strArange);
-		}
-		#endregion
 
 		//BacodeScanner
 

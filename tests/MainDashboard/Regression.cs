@@ -73,6 +73,7 @@ internal static class DashboardProbe
             using (MainForm frame = CreateFrame())
             using (HomeForm home = CreateHome())
             {
+                Check(typeof(MainForm).GetField("MENU_Log", BindingFlags.Instance | BindingFlags.NonPublic) == null && typeof(MainForm).Assembly.GetType("AlphaRap.LogForm") == null, "The deleted log navigation/page remains in the application.");
                 RemoveMachineLoad(frame);
                 frame.ClientSize = size;
                 home.TopLevel = false; home.FormBorderStyle = FormBorderStyle.None; home.Dock = DockStyle.Fill;

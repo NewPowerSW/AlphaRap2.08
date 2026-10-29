@@ -24,6 +24,7 @@ internal static partial class Cases
         Test("invalid log definitions cannot replace built-in alarm tables or share directories", LogValidation);
         Test("bound log modules cannot be deleted and failed legacy writes remain retryable", LogDeleteAndRetry);
         Test("alarm history resolves original fields and multiline content from CSV headers", LogAlarmHistory);
+        Test("removing the path page preserves actual alarm storage and existing production directories", LogWithoutPathPage);
     }
 
     private sealed class LogFixture : IDisposable
@@ -182,4 +183,33 @@ internal static partial class Cases
         AlarmRecord record = (AlarmRecord)typeof(AlarmHistory).GetMethod("ParseRecord", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { columns, values });
         Assert(record != null && record.Code == "2019" && record.Content == values[7] && record.RecipeId == "R1" && record.IsAlarm, "Alarm columns or original content were lost.");
     }
+    /// <summary>Actual alarm storage and historical production paths do not require the deleted form or writes to its settings.</summary>
+    private static void LogWithoutPathPage()
+    {
+        using (LogFixture fixture = new LogFixture())
+        {
+            string previousSettings = AlphaRapLibrary.ModuleManager.SettingDataDirectory;
+            FieldInfo overrideRoot = typeof(ProductionDataStore).GetField("_rootOverride", BindingFlags.NonPublic | BindingFlags.Static);
+            string previousRoot = (string)overrideRoot.GetValue(null);
+            try
+            {
+                AlphaRapLibrary.ModuleManager.SettingDataDirectory = fixture.Folder;
+                string alarm = Path.Combine(fixture.Folder, "alarm-data"), production = Path.Combine(fixture.Folder, "production-data");
+                string file = Path.Combine(fixture.Folder, "MESForm.xml");
+                string xml = "<NewDataSet><Path><AlarmPath>" + System.Security.SecurityElement.Escape(alarm) + "</AlarmPath><ProducPath>" + System.Security.SecurityElement.Escape(production) + "</ProducPath></Path></NewDataSet>";
+                File.WriteAllText(file, xml);
+                Type directories = typeof(DataForm).Assembly.GetType("AlphaRap.LogDirectories", true);
+                directories.GetMethod("RestoreAlarmPath", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { fixture.Form });
+                Assert(AlarmHistory.RootPath() == alarm && fixture.Form.Alarm.SavePath == alarm, "Alarm history does not use the actual writer directory.");
+                fixture.Form.Alarm.SaveDataToFile(new[] { "operator", "R1", "Recipe", "Auto", "ERROR", "2019", "kept after page removal" });
+                int count; List<AlarmRecord> records = AlarmHistory.Query(DateTime.Today, DateTime.Today, AlarmHistory.FilterAll, "", "", out count);
+                Assert(records.Count == 1 && records[0].Code == "2019" && count == 1, "Removing the path page broke alarm write/query.");
+                ProductionDataStore.SetRoot("");
+                Assert(ProductionDataStore.RootPath() == Path.Combine(production, "ProductionData") && File.ReadAllText(file) == xml, "Existing production data was relocated or legacy settings were rewritten.");
+                Assert(host.GetField("LogF") == null && typeof(DataForm).Assembly.GetType("AlphaRap.LogForm") == null, "The deleted log path form still starts.");
+            }
+            finally { AlphaRapLibrary.ModuleManager.SettingDataDirectory = previousSettings; ProductionDataStore.SetRoot(previousRoot); }
+        }
+    }
+
 }

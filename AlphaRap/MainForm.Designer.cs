@@ -86,7 +86,6 @@
             this.MENU_AddUser = new System.Windows.Forms.PictureBox();
             this.MENU_Data = new System.Windows.Forms.PictureBox();
             this.MENU_Check = new System.Windows.Forms.PictureBox();
-            this.MENU_Log = new System.Windows.Forms.PictureBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.WarnningMessage = new System.Windows.Forms.ListView();
@@ -152,7 +151,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.MENU_AddUser)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MENU_Data)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MENU_Check)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.MENU_Log)).BeginInit();
             this.panel2.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -722,7 +720,7 @@
             this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 336F));
             this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 210F));
+            this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 168F));
             this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.panel4.Size = new System.Drawing.Size(224, 1000);
@@ -847,7 +845,6 @@
             this.Panl_PictureShowDown.Controls.Add(this.MENU_AddUser);
             this.Panl_PictureShowDown.Controls.Add(this.MENU_Data);
             this.Panl_PictureShowDown.Controls.Add(this.MENU_Check);
-            this.Panl_PictureShowDown.Controls.Add(this.MENU_Log);
             // 
             // MENU_LifeSpan
             // 
@@ -923,21 +920,6 @@
             this.MENU_Check.Tag = "Check";
             this.MENU_Check.Click += new System.EventHandler(this.MENU_Click);
             this.MENU_Check.MouseEnter += new System.EventHandler(this.MouseEnter1);
-            // 
-            // MENU_Log
-            // 
-            this.MENU_Log.BackColor = System.Drawing.Color.Transparent;
-            this.MENU_Log.Location = new System.Drawing.Point(12, 170);
-            this.MENU_Log.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
-            this.MENU_Log.Name = "MENU_Log";
-            this.MENU_Log.Padding = new System.Windows.Forms.Padding(1);
-            this.MENU_Log.Size = new System.Drawing.Size(200, 38);
-            this.MENU_Log.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.MENU_Log.TabIndex = 11;
-            this.MENU_Log.TabStop = false;
-            this.MENU_Log.Tag = "Log";
-            this.MENU_Log.Click += new System.EventHandler(this.MENU_Click);
-            this.MENU_Log.MouseEnter += new System.EventHandler(this.MouseEnter1);
             // 
             // panel2
             // 
@@ -1304,7 +1286,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.MENU_AddUser)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.MENU_Data)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.MENU_Check)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.MENU_Log)).EndInit();
             this.panel2.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
             this.flowAlarmFilter.ResumeLayout(false);
@@ -1374,7 +1355,6 @@
 		private System.Windows.Forms.PictureBox MENU_AddUser;
 		private System.Windows.Forms.PictureBox MENU_Data;
 		private System.Windows.Forms.PictureBox MENU_Check;
-		private System.Windows.Forms.PictureBox MENU_Log;
 		private System.Windows.Forms.FlowLayoutPanel Panl_PictureShowTop;
 		private System.Windows.Forms.PictureBox MENU_Home;
 		private System.Windows.Forms.PictureBox MENU_Vision;

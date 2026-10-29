@@ -60,7 +60,6 @@ namespace AlphaRap
 					data[4] = AlarmData.Type == "E" ? "ERROR" : "Information";
 					data[5] = AlarmData.Code;
 					data[6] = AlarmData.Content;
-					MiddleLayer.DataF.Alarm.SavePath = MiddleLayer.LogF.GetSettingValue("Path", "AlarmPath");
 					MiddleLayer.DataF.Alarm.SaveDataToFile(data);
 					#endregion
 

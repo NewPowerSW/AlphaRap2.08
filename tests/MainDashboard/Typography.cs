@@ -69,7 +69,7 @@ internal static class TypographyCases
     /// <summary>Include application pages and parameterless flow/configuration editors already supported in design mode.</summary>
     private static IEnumerable<Type> PageTypes()
     {
-        string[] names = { "SystemForm", "SystemSetting", "HardForm", "ManualForm", "CheckForm", "LogForm", "DataForm", "Parameter", "ProductManagerForm", "AddUserForm", "UserLoginForm", "MenuForm.LockForm1", "MenuForm.LanguageSetting", "MenuForm.AlarmSetting", "MES.LENS", "MES.Amphenol", "MES.DongJu", "Flow", "SpanLife", "Warning", "HomeForm", "PlatFormSetting", "VPForm", "AlarmQueryForm", "ProductionQueryForm", "LoadingForm", "TaskProcess.Gantry", "TaskProcess.UpConveryor", "TaskProcess.DownConveryor" };
+        string[] names = { "SystemForm", "SystemSetting", "HardForm", "ManualForm", "CheckForm", "DataForm", "Parameter", "ProductManagerForm", "AddUserForm", "UserLoginForm", "MenuForm.LockForm1", "MenuForm.LanguageSetting", "MenuForm.AlarmSetting", "MES.LENS", "MES.Amphenol", "MES.DongJu", "Flow", "SpanLife", "Warning", "HomeForm", "PlatFormSetting", "VPForm", "AlarmQueryForm", "ProductionQueryForm", "LoadingForm", "TaskProcess.Gantry", "TaskProcess.UpConveryor", "TaskProcess.DownConveryor" };
         Assembly assembly = typeof(HomeForm).Assembly;
         return names.Select(name => assembly.GetType("AlphaRap." + name, true)).Concat(assembly.GetTypes().Where(type =>
             !type.IsAbstract && !type.IsNested && typeof(Control).IsAssignableFrom(type) && type.GetConstructor(Type.EmptyTypes) != null

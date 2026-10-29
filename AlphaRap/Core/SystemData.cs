@@ -50,12 +50,6 @@ namespace AlphaRap
         public static string IOPortDirectory;
         public static string FilePath;
 
-        public static string RunMessagePath;
-        public static string AlarmMessagePath;
-        public static string ProductMessagePath;
-        public static string UserMessagePath;
-        public static string RFIDPath;
-        public static string RFIDFinalPath;
         //RFID
         //RFID
         public static string strRFIDReadPallet;      //读到的Pallet NO.

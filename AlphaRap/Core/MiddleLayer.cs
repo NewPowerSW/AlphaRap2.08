@@ -15,7 +15,6 @@ namespace AlphaRap
         public static ManualForm ManualF;
         public static HardForm HardF;
         public static CheckForm CheckF;
-        public static LogForm LogF;
         public static DataForm DataF;
         public static Parameter ParF;
         public static SystemSetting SystemS;

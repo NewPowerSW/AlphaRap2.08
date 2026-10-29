@@ -33,7 +33,7 @@ namespace AlphaRap
     /// 首行是该文件写入时的表头（列名），之后每行一条记录。读的时候**按列名取值**，
     /// 所以后来改了列名也能读旧文件。
     ///
-    /// root 取日志页配置的 ProducPath；没配时退回 &lt;当前目录&gt;\ModuleData\ProductionData。
+    /// root 兼容已有 ProducPath 数据目录；没配时退回 &lt;当前目录&gt;\ModuleData\ProductionData。
     ///
     /// 同一天新增字段时先原子扩展文件表头，旧记录保留原值；写入由同一锁串行处理。
     /// </summary>
@@ -57,25 +57,19 @@ namespace AlphaRap
 
         /// <summary>
         /// 指定生产数据的根目录。传空串恢复为"按配置取"。
-        /// 不调用时取日志页的 ProducPath，没有则退回 &lt;当前目录&gt;\ModuleData\ProductionData。
+        /// 不调用时兼容已有生产目录，没有则退回 &lt;当前目录&gt;\ModuleData\ProductionData。
         /// </summary>
         public static void SetRoot(string dir)
         {
             _rootOverride = string.IsNullOrEmpty(dir) ? "" : dir;
         }
 
-        /// <summary>生产数据根目录（日志页 ProducPath 之下再放一层 ProductionData）。</summary>
+        /// <summary>生产数据根目录；保持已有文件目录，未配置时使用机器数据目录。</summary>
         public static string RootPath()
         {
             if (_rootOverride.Length > 0) return _rootOverride;
 
-            string baseDir = "";
-            try
-            {
-                if (MiddleLayer.LogF != null)
-                    baseDir = MiddleLayer.LogF.GetSettingValue("Path", "ProducPath");
-            }
-            catch { baseDir = ""; }
+            string baseDir = LogDirectories.LegacyPath("ProducPath");
 
             if (string.IsNullOrEmpty(baseDir) || baseDir.Trim().Length == 0)
                 return Path.Combine(@".\ModuleData", "ProductionData");

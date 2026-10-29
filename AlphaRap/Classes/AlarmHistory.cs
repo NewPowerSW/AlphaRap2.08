@@ -46,19 +46,14 @@ namespace AlphaRap
         /// <summary>只看会导致停机的报警（报警表里 DoStop=true）。</summary>
         public const string FilterStop = "STOP";
 
-        /// <summary>报警日志根目录（取自日志页配置的 AlarmPath）；取不到时返回空串。</summary>
+        /// <summary>报警历史与实际报警写盘使用同一个 DataForm 日志目录。</summary>
         public static string RootPath()
         {
-            try
-            {
-                if (MiddleLayer.LogF == null) return "";
-                string p = MiddleLayer.LogF.GetSettingValue("Path", "AlarmPath");
-                return string.IsNullOrEmpty(p) ? "" : p.Trim();
-            }
-            catch { return ""; }
+            if (MiddleLayer.DataF == null || MiddleLayer.DataF.Alarm == null) return "";
+            return (MiddleLayer.DataF.Alarm.SavePath ?? "").Trim();
         }
 
-        /// <summary>报警日志根目录是否存在（不存在时界面提示去日志页配置）。</summary>
+        /// <summary>实际报警日志目录是否存在。</summary>
         public static bool RootReady()
         {
             string root = RootPath();

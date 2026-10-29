@@ -62,7 +62,7 @@ internal static partial class ConfigurationCases
         Test("all three languages preserve configuration drafts and the saved files", LanguageDrafts);
         Test("Main Save Cancel preserves draft values, files and dirty flags", CancelSave);
         Test("closing Main Save preserves draft values, files and dirty flags", CloseSave);
-        Test("leaving tray and log pages preserves drafts and dirty flags when Main Save is cancelled", CancelPageLeaveSave);
+        Test("leaving the tray page preserves drafts and dirty flags when Main Save is cancelled", CancelPageLeaveSave);
         Test("staging failure preserves every original file and every committed snapshot", StagingFailure);
         Test("middle replacement failure rolls back all previously replaced files", MiddleFailure);
         Test("last replacement failure rolls back all previously replaced files", LastFailure);
@@ -201,8 +201,8 @@ internal static partial class ConfigurationCases
     /// <summary>Invoke both actual page-leave handlers and require cancelling their Main Save dialog to retain every pending value.</summary>
     private static void CancelPageLeaveSave()
     {
-        string[] fields = { "PlatF", "LogF" };
-        string[] methods = { "PlatFormSetting_Leave", "MESForm_Leave" };
+        string[] fields = { "PlatF" };
+        string[] methods = { "PlatFormSetting_Leave" };
         for (int index = 0; index < fields.Length; index++)
         {
             Form page = (Form)host.GetField(fields[index], BindingFlags.Static | BindingFlags.Public).GetValue(null);

@@ -59,8 +59,7 @@ int nheightEllipse
             Data,
             Vision,
             Exit,
-            LifeSpan,
-            Log
+            LifeSpan
         }
 
         public MainForm()
@@ -682,9 +681,6 @@ int nheightEllipse
                     break;
                 case MENU_PageType.AddUser:
                     ShowhMainPage(MiddleLayer.AddF, ShowPanl);
-                    break;
-                case MENU_PageType.Log:
-                    ShowhMainPage(MiddleLayer.LogF, ShowPanl);
                     break;
                 case MENU_PageType.Data:
                     ShowhMainPage(MiddleLayer.DataF, ShowPanl);
@@ -1347,21 +1343,6 @@ int nheightEllipse
         {
             MiddleLayer.DataF.AddLogError(strMessage);
         }
-        public void WriteRunMessageResult(string RunTime, string strMessage)
-        {
-            ListViewItem lvi = new ListViewItem(RunTime);
-            lvi.SubItems.Add(strMessage);
-            lvi.SubItems.Add(SysPara.UserName);
-            string Year = DateTime.Now.Year.ToString();
-            string month = DateTime.Now.Month.ToString();
-            string day = DateTime.Now.Day.ToString();
-            SysPara.RunMessagePath = MiddleLayer.LogF.GetSettingValue("Path", "RunPath") + "\\RunMessageData\\" + "\\" + Year + "\\" + month + "\\" + day + "\\";
-            using (ListView listView1 = new ListView())
-            {
-                listView1.Items.Add(lvi);
-                ListViewWrite.WriteExcelData(SysPara.RunMessagePath, listView1);
-            }
-        }
         #endregion
 
         private readonly object ProductObjLock = new object();
@@ -1479,9 +1460,6 @@ int nheightEllipse
                 case MENU_PageType1.Exit:
                     ShowWord(this.MENU_Exit, MiddleLayer.LangMsg("MainForm", "MENU_Exit", "退出", "Exit", "Salir"));
                     break;
-                case MENU_PageType1.Log:
-                    ShowWord(this.MENU_Log, MiddleLayer.LangMsg("MainForm", "MENU_Log", "日志", "Log", "Registro"));
-                    break;
             }
         }
 
@@ -1571,24 +1549,6 @@ int nheightEllipse
         private void btPause_Click(object sender, EventArgs e)
         {
             MiddleLayer.PauseRun();
-        }
-        /// <summary>
-        /// 把用户登录数据保存到文件
-        /// </summary>
-        public void AddUserResult(string UserName, string UserPermission, string LoginTime)
-        {
-            ListViewItem lvi = new ListViewItem(LoginTime);
-            lvi.SubItems.Add(UserName);
-            lvi.SubItems.Add(UserPermission);
-            string Year = DateTime.Now.Year.ToString();
-            string month = DateTime.Now.Month.ToString();
-            string day = DateTime.Now.Day.ToString();
-            SysPara.UserMessagePath = MiddleLayer.LogF.GetSettingValue("Path", "UserPath") + "\\UserLoginData\\" + Year + "\\" + month + "\\" + day + "\\";
-            using (ListView listView1 = new ListView())
-            {
-                listView1.Items.Add(lvi);
-                ListViewWrite.WriteExcelData(SysPara.UserMessagePath, listView1);
-            }
         }
 
         //鼠标监听事件

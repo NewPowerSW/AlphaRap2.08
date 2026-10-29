@@ -103,11 +103,11 @@ namespace AlphaRap
             ManualF = CreateForm(ManualF, "ManualForm");
             HardF = CreateForm(HardF, "HardForm");
             CheckF = CreateForm(CheckF, "CheckForm");
-            LogF = CreateForm(LogF, "LogForm");
             AddF = CreateForm(AddF, "AddUserForm");
             VPF = CreateForm(VPF, "VPForm");
             FlowF = new Flow();
             DataF = CreateForm(DataF, "DataForm");
+            LogDirectories.RestoreAlarmPath(DataF);
             LockForm1 = new LockForm1();
             MesF = CreateForm(MesF, "LENS");
         }
