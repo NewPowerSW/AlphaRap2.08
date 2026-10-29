@@ -55,6 +55,9 @@ internal sealed class CapabilityHost : Form
 
 internal sealed class FlowVisionProbe : VpStation
 {
+    public Cognex.VisionPro.ICogRecord ImageRecord;
+    /// <summary>Supply a memory image record without invoking acquisition hardware.</summary>
+    protected override Cognex.VisionPro.ICogRecord CaptureImageRecord() { return ImageRecord ?? base.CaptureImageRecord(); }
     public bool Accept = true;
     public int Runs;
     /// <summary>Create a real in-memory ToolBlock with typed ports and no acquisition tools.</summary>
@@ -178,7 +181,7 @@ internal static partial class Cases
             {
                 FlowActions actions = new FlowActions(FlowResources.Capture());
                 FlowResource resource = actions.Resources.Items.Values.Single(item => ReferenceEquals(item.Instance, vision));
-                FlowStep step = BoundStep(resource, "vision.run"); step.Inputs.Single().Reference = "3.5";
+                FlowStep step = BoundStep(resource, "vision.run"); step.Inputs.Single(input => input.Name == "TB:Measure").Reference = "3.5";
                 IDictionary<string, object> result = ExecuteBound(actions, step);
                 Assert((double)result["TB:Score"] == 7 && !(bool)result["Accepted"] && vision.Runs == 1 && vision.LastRunResult.IsFlowManaged, "VPP port binding or NG condition output was lost.");
                 Assert(resource.Methods.Any(method => method.Id == "vision.image.save") && resource.Methods.Any(method => method.Id == "vision.compensation"), "The VPP's own methods were missing.");
@@ -245,4 +248,114 @@ internal static partial class Cases
             dialog.Close();
         }
     }
+    /// <summary>SN is resolved for each product at capture, encoded as BMP/JPEG, and retained for later consumers.</summary>
+    private static void VisionProductImages()
+    {
+        FlowVisionProbe vision = new FlowVisionProbe();
+        string folder = Path.Combine(root, "product-images");
+        using (Bitmap pixels = new Bitmap(24, 16))
+        using (CapabilityHost container = new CapabilityHost { Name = "ProductImageProbe", Bound = vision })
+        {
+            Cognex.VisionPro.ICogImage image = new Cognex.VisionPro.CogImage8Grey(pixels);
+            vision.ImageRecord = new Cognex.VisionPro.Implementation.CogRecord("Capture", typeof(Cognex.VisionPro.ICogImage), Cognex.VisionPro.CogRecordUsageConstants.Result, true, image, "");
+            vision.Config.SaveImageEnabled = true; vision.Config.SaveImageOriginal = true; vision.Config.SaveImagePath = folder; vision.CommitSettings();
+            RegisterForm(container);
+            try
+            {
+                FlowActions actions = new FlowActions(FlowResources.Capture());
+                FlowResource resource = actions.Resources.Items.Values.Single(item => ReferenceEquals(item.Instance, vision));
+                actions.Resources.Parameters["CurrentProduct.SN"] = "SN-A";
+                FlowStep capture = BoundStep(resource, "vision.run");
+                FlowInput sn = capture.Inputs.Single(input => input.Name == "ProductSN"); sn.Source = "Parameter"; sn.Reference = "CurrentProduct.SN";
+                IDictionary<string, object> first = ExecuteBound(actions, capture); VisionRunResult firstSnapshot = vision.LastRunResult;
+                string bmp = (string)first["Path"];
+                Assert((string)first["ProductSN"] == "SN-A" && Path.GetFileName(bmp).StartsWith("SN-A_") && Path.GetDirectoryName(bmp) == folder, "First product SN or VPP storage directory was lost.");
+                byte[] bytes = File.ReadAllBytes(bmp); Assert(bytes[0] == 0x42 && bytes[1] == 0x4d, "BMP extension did not contain real BMP data.");
+                FlowStep save = BoundStep(resource, "vision.image.save"); save.Inputs.Single(input => input.Name == "RunId").Reference = first["RunId"].ToString();
+                Assert((string)ExecuteBound(actions, save)["Path"] == bmp && Directory.GetFiles(folder).Length == 1, "Existing save nodes duplicated an automatically saved image.");
+                actions.Resources.Parameters["CurrentProduct.SN"] = "SN-B";
+                capture.Inputs.Single(input => input.Name == "ImageFormat").Reference = "jpg";
+                string jpg = (string)ExecuteBound(actions, capture)["Path"];
+                bytes = File.ReadAllBytes(jpg); Assert(bytes[0] == 0xff && bytes[1] == 0xd8 && bytes[2] == 0xff, "JPG file contained a different image encoding.");
+                using (Image decoded = Image.FromFile(jpg)) Assert(decoded.Width == 24 && decoded.Height == 16, "Saved JPEG cannot be decoded.");
+                Assert(Path.GetFileName(jpg).StartsWith("SN-B_") && firstSnapshot.Capture.ProductSN == "SN-A" && firstSnapshot.ImagePath == bmp && File.Exists(bmp), "Next product changed the previous capture identity or image.");
+                bool stale = false; try { ExecuteBound(actions, save); } catch (InvalidOperationException) { stale = true; }
+                Assert(stale, "An old run saved the next product image.");
+                actions.Resources.Parameters["CurrentProduct.SN"] = "SN/A:B";
+                string safe = (string)ExecuteBound(actions, capture)["Path"];
+                Assert(Path.GetFileName(safe).StartsWith("SN_A_B_") && vision.LastRunResult.Capture.ProductSN == "SN/A:B", "SN filename sanitization changed the actual product identity.");
+                MethodInfo writer = typeof(VpStation).GetMethod("WriteImageFile", BindingFlags.Instance | BindingFlags.NonPublic);
+                byte[] before = File.ReadAllBytes(safe);
+                Assert((string)writer.Invoke(vision, new object[] { image, folder, Path.GetFileName(safe) }) == "" && before.SequenceEqual(File.ReadAllBytes(safe)), "An existing product photo was overwritten.");
+                vision.ImageRecord.SubRecords.Add(new Cognex.VisionPro.Implementation.CogRecord("Snapshot", typeof(Cognex.VisionPro.ICogImage), Cognex.VisionPro.CogRecordUsageConstants.Result, true, image, ""));
+                vision.Config.SaveImageSnapshot = true; vision.Config.SaveImageAutoDelete = true; vision.Config.SaveImageKeepDays = 1; vision.CommitSettings();
+                string expired = Path.Combine(folder, "old.jpg"); File.WriteAllBytes(expired, bytes); File.SetLastWriteTime(expired, DateTime.Now.AddDays(-3));
+                string unrelated = Path.Combine(folder, "keep.txt"); File.WriteAllText(unrelated, "keep"); File.SetLastWriteTime(unrelated, DateTime.Now.AddDays(-3));
+                string both = (string)ExecuteBound(actions, capture)["Path"];
+                Assert(Path.GetDirectoryName(both) == Path.Combine(folder, "Snapshot") && File.Exists(Path.Combine(folder, "Original", Path.GetFileName(both))), "Original and snapshot did not retain the same SN/time name in separate folders.");
+                Assert(!File.Exists(expired) && File.Exists(unrelated), "JPEG retention was ignored or removed a non-image file.");
+                string blockedFolder = Path.Combine(root, "blocked-photo-bundle"); Directory.CreateDirectory(blockedFolder);
+                string blocker = Path.Combine(blockedFolder, "Snapshot"); File.WriteAllText(blocker, "occupied");
+                vision.Config.SaveImagePath = blockedFolder; vision.CommitSettings();
+                bool failed = false; try { ExecuteBound(actions, capture); } catch (InvalidOperationException) { failed = true; }
+                Assert(failed && Directory.GetFiles(Path.Combine(blockedFolder, "Original")).Length == 0, "A failed photo bundle left a partially published product image.");
+                File.Delete(blocker);
+                Assert(vision.SaveLastImage() != "", "A failed image bundle could not be retried with the same capture identity.");
+            }
+            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(container); VisionproInterface.VList.Remove(vision); }
+        }
+    }
+
+    /// <summary>Old capture nodes retain defaults, while removed required ports and duplicate inputs remain errors.</summary>
+    private static void VisionCaptureDefaults()
+    {
+        FlowVisionProbe vision = new FlowVisionProbe();
+        using (CapabilityHost container = new CapabilityHost { Name = "CaptureDefaultsProbe", Bound = vision })
+        {
+            RegisterForm(container);
+            try
+            {
+                FlowActions actions = new FlowActions(FlowResources.Capture());
+                FlowResource resource = actions.Resources.Items.Values.Single(item => ReferenceEquals(item.Instance, vision));
+                FlowStep old = BoundStep(resource, "vision.run"); old.Inputs.RemoveAll(input => input.Name == "ProductSN" || input.Name == "ImageFormat");
+                IDictionary<string, object> output = ExecuteBound(actions, old);
+                Assert((string)output["ProductSN"] == "" && (string)output["Path"] == "" && vision.LastRunResult.Capture.ImageFormat == "bmp", "An old capture node no longer runs with compatible defaults.");
+                FlowStep invalid = BoundStep(resource, "vision.run"); invalid.Inputs.RemoveAll(input => input.Name == "TB:Measure");
+                bool blocked = false; try { actions.Validate(invalid); } catch (InvalidOperationException) { blocked = true; }
+                Assert(blocked, "A removed required VPP port was treated as optional.");
+                invalid = BoundStep(resource, "vision.run"); invalid.Inputs.Add(new FlowInput { Name = "ProductSN", Reference = "duplicate" });
+                blocked = false; try { actions.Validate(invalid); } catch (InvalidOperationException) { blocked = true; }
+                Assert(blocked, "Duplicate SN inputs were accepted.");
+                FlowStep simulated = BoundStep(resource, "vision.run"); simulated.Inputs.Single(input => input.Name == "ProductSN").Reference = "SIM-PRODUCT";
+                actions.Simulate = true; int before = vision.Runs;
+                IDictionary<string, object> sim = ExecuteBound(actions, simulated);
+                Assert((string)sim["ProductSN"] == "SIM-PRODUCT" && (string)sim["Path"] == "" && vision.Runs == before, "Simulation invented another SN or pretended to save a real image.");
+                using (FlowNodeForm dialog = new FlowNodeForm(editor, BoundStep(resource, "vision.run")))
+                {
+                    dialog.Show(); Application.DoEvents();
+                    FlowInputRow snRow = dialog.Controls.Find("inputs", true)[0].Controls.OfType<FlowInputRow>().Single(row => row.FieldName == "ProductSN");
+                    FlowInputRow formatRow = dialog.Controls.Find("inputs", true)[0].Controls.OfType<FlowInputRow>().Single(row => row.FieldName == "ImageFormat");
+                    TextBox pending = (TextBox)snRow.Controls.Find("inputLiteral", true)[0]; pending.Text = "PENDING-SN";
+                    ((ComboBox)formatRow.Controls.Find("inputOption", true)[0]).SelectedIndex = 1;
+                    foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+                    {
+                        SwitchLanguage(language); Application.DoEvents();
+                        Assert(snRow.ReadInput().Reference == "PENDING-SN" && formatRow.ReadInput().Reference == "jpg", "Language switching replaced the SN or image format draft.");
+                        using (Bitmap screenshot = new Bitmap(dialog.Width, dialog.Height))
+                        {
+                            dialog.DrawToBitmap(screenshot, new Rectangle(Point.Empty, dialog.Size));
+                            screenshot.Save(Path.Combine(root, "vision-capture-sn-" + language + ".png"));
+                        }
+                    }
+                    dialog.Close();
+                }
+                VisionCaptureInfo identity = new VisionCaptureInfo("SN-CODE", ".JPEG");
+                Assert(identity.ProductSN == "SN-CODE" && identity.ImageFormat == "jpg", "Code capture format was not normalized.");
+                blocked = false; try { new VisionCaptureInfo("SN-CODE", "png"); } catch (ArgumentException) { blocked = true; }
+                Assert(blocked, "An unsupported format was silently written as another format.");
+            }
+            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(container); VisionproInterface.VList.Remove(vision); }
+        }
+    }
+
 }

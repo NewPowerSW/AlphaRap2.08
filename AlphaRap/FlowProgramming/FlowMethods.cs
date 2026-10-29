@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using NPSDK;
 
@@ -9,6 +10,21 @@ namespace AlphaRap.FlowProgramming
     /// <summary>对象方法的公共声明工具，不维护设备类型或动作目录。</summary>
     internal static class FlowMethods
     {
+        private static readonly ConditionalWeakTable<FlowMethod, HashSet<string>> optionalInputs = new ConditionalWeakTable<FlowMethod, HashSet<string>>();
+
+        /// <summary>为新增可选输入声明缺省兼容，旧流程缺少这些字段时使用方法初值。</summary>
+        internal static void OptionalInputs(FlowMethod method, params string[] names)
+        {
+            optionalInputs.Add(method, new HashSet<string>(names, StringComparer.Ordinal));
+        }
+
+        /// <summary>只允许明确声明的可选输入缺省，必需端口和重复字段仍须校验。</summary>
+        internal static bool IsOptional(FlowMethod method, FlowField field)
+        {
+            HashSet<string> names;
+            return optionalInputs.TryGetValue(method, out names) && names.Contains(field.Name);
+        }
+
         /// <summary>声明同步方法，实际调用在后台执行并保留资源租约至返回。</summary>
         internal static FlowMethod Sync(string id, string zh, string en, string es, FlowField[] inputs, FlowField[] outputs,
             Func<FlowCall, IDictionary<string, object>> invoke, bool hardware = true)

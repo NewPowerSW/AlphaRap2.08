@@ -357,11 +357,15 @@ namespace AlphaRap
         /// 返回 true 表示在 timeoutMs 内完成且 ToolBlock 结果为 Accept；启用存图时成功后自动存图并清理过期照片。
         /// </summary>
         [AlphaRap.FlowProgramming.FlowToolIgnore]
-        public bool RunAndWait(int timeoutMs)
+        public bool RunAndWait(int timeoutMs) { return RunAndWait(timeoutMs, "", "bmp"); }
+
+        /// <summary>传入当前产品 SN 拍照并等待判定，启用存图时按 SN、拍照时间和指定格式保存。</summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
+        public bool RunAndWait(int timeoutMs, string productSN, string imageFormat = "bmp")
         {
             if (timeoutMs <= 0) throw new ArgumentOutOfRangeException("timeoutMs");
             long runId;
-            if (!TryRunTB(out runId)) return false;
+            if (!TryRunTB(out runId, productSN, imageFormat)) return false;
             System.Diagnostics.Stopwatch elapsed = System.Diagnostics.Stopwatch.StartNew();
             while (elapsed.ElapsedMilliseconds < timeoutMs)
             {
@@ -371,11 +375,13 @@ namespace AlphaRap
                 System.Threading.Thread.Sleep(10);
             }
             TimeoutRun(runId);
-            VisionRunResult result = LastRunResult;
-            if (result == null || result.RunId != runId || result.State != VisionRunState.Succeeded) return false;
-
-            if (Config != null && Config.SaveImageEnabled) SaveLastImage();
-            return true;
+            lock (_operationLock)
+            {
+                VisionRunResult result = LastRunResult;
+                if (result == null || result.RunId != runId || result.State != VisionRunState.Succeeded || IsBusy) return false;
+                if (Config != null && Config.SaveImageEnabled && SaveCaptureImage(Config, result) == "") return false;
+                return true;
+            }
         }
 
         /// <summary>按行名（补偿限制表"项目"列）取本 VPP 的补偿限制；没有该行返回 false。</summary>
@@ -411,53 +417,124 @@ namespace AlphaRap
         /// 保存后按保留天数清理旧照片。
         /// </summary>
         [AlphaRap.FlowProgramming.FlowToolIgnore]
-        public string SaveLastImage() { return SaveLastImage(Config); }
+        public string SaveLastImage()
+        {
+            lock (_operationLock)
+            {
+                if (IsBusy) return "";
+                VisionRunResult result = LastRunResult;
+                return result == null ? SaveLastImage(Config, null) : SaveCaptureImage(Config, result);
+            }
+        }
+
+        /// <summary>只保存指定编号的已完成拍照，拒绝在重拍后保存另一件产品的照片。</summary>
+        [AlphaRap.FlowProgramming.FlowToolIgnore]
+        public string SaveLastImage(long runId)
+        {
+            lock (_operationLock) { return SaveCaptureImage(Config, RequireFlowResult(runId)); }
+        }
+
+        /// <summary>同次拍照只保存一次，兼容自动存图后仍保留的显式存图节点。</summary>
+        private string SaveCaptureImage(VpVppConfig settings, VisionRunResult result)
+        {
+            if (!string.IsNullOrEmpty(result.ImagePath)) return result.ImagePath;
+            result.ImagePath = SaveLastImage(settings, result.Capture);
+            return result.ImagePath;
+        }
+
+        /// <summary>取得本 VPP 最近运行记录，派生视觉站可提供自己的原图和截图记录。</summary>
+        protected virtual ICogRecord CaptureImageRecord() { return TB.CreateLastRunRecord(); }
 
         /// <summary>按已捕获的存图设置保存最近图像，不读取其他节点的设置或覆盖页面草稿。</summary>
-        private string SaveLastImage(VpVppConfig settings)
+        private string SaveLastImage(VpVppConfig settings, VisionCaptureInfo capture)
         {
             if (settings == null || !settings.SaveImageEnabled) return "";
             if (TB == null || !IsLoadTBOk) return "";
             if (!settings.SaveImageOriginal && !settings.SaveImageSnapshot) return "";
 
+            List<string> written = new List<string>();
+            bool completed = false;
             try
             {
-                Cognex.VisionPro.ICogRecord root = TB.CreateLastRunRecord();   // CreateLastRunRecord 返回的是 ICogRecord 接口
+                Cognex.VisionPro.ICogRecord root = CaptureImageRecord();
                 if (root == null) return "";
 
                 string dir = SaveImageDirectory(settings);
                 if (!System.IO.Directory.Exists(dir)) System.IO.Directory.CreateDirectory(dir);
-                string stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
+                string stamp = capture == null ? DateTime.Now.ToString("yyyyMMdd_HHmmss_fffffff") : capture.CapturedAt.ToString("yyyyMMdd_HHmmss_fffffff");
+                string sn = capture == null ? "" : SafeImageSN(capture.ProductSN);
+                string fileName = (sn == "" ? "" : sn + "_") + stamp + "." + (capture == null ? "bmp" : capture.ImageFormat);
+                bool both = settings.SaveImageOriginal && settings.SaveImageSnapshot;
                 string last = "";
 
                 if (settings.SaveImageOriginal)
-                    last = WriteImageFile(root.Content as Cognex.VisionPro.ICogImage, dir, stamp + "_original.bmp");
-                if (settings.SaveImageSnapshot && root.SubRecords.Count > VisionRunDisplayIndex)
-                    last = WriteImageFile(root.SubRecords[VisionRunDisplayIndex].Content as Cognex.VisionPro.ICogImage, dir, stamp + "_snap.bmp");
+                {
+                    last = WriteImageFile(OriginalImage(root), both ? System.IO.Path.Combine(dir, "Original") : dir, fileName);
+                    if (last == "") return "";
+                    written.Add(last);
+                }
+                if (settings.SaveImageSnapshot)
+                {
+                    if (VisionRunDisplayIndex < 0 || root.SubRecords.Count <= VisionRunDisplayIndex) return "";
+                    last = WriteImageFile(root.SubRecords[VisionRunDisplayIndex].Content as ICogImage,
+                        both ? System.IO.Path.Combine(dir, "Snapshot") : dir, fileName);
+                    if (last == "") return "";
+                    written.Add(last);
+                }
 
+                completed = true;
                 CleanOldImages(dir, settings);
                 return last;
             }
-            catch (Exception) { return ""; }
+            catch (Exception ex) { System.Diagnostics.Trace.WriteLine("[Vision] " + ex.Message); return ""; }
+            finally
+            {
+                if (!completed)
+                    foreach (string file in written)
+                        try { System.IO.File.Delete(file); }
+                        catch (Exception ex) { System.Diagnostics.Trace.WriteLine("[Vision] " + ex.Message); }
+            }
         }
 
-        /// <summary>把一张图写成 bmp；失败返回 ""。</summary>
-        private string WriteImageFile(Cognex.VisionPro.ICogImage img, string dir, string fileName)
+        /// <summary>优先取记录原图，记录未携带图像时读取本 VPP 的输入图像。</summary>
+        private ICogImage OriginalImage(ICogRecord record)
         {
+            ICogImage image = record.Content as ICogImage;
+            if (image != null) return image;
+            foreach (Cognex.VisionPro.ToolBlock.CogToolBlockTerminal input in TB.Inputs)
+                if (input.Value is ICogImage) return (ICogImage)input.Value;
+            return null;
+        }
+
+        /// <summary>只替换文件名非法字符，原始产品 SN 仍保存在拍照结果中。</summary>
+        private static string SafeImageSN(string sn)
+        {
+            if (string.IsNullOrEmpty(sn)) return "";
+            char[] invalid = System.IO.Path.GetInvalidFileNameChars();
+            char[] chars = sn.ToCharArray();
+            for (int i = 0; i < chars.Length; i++)
+                if (Array.IndexOf(invalid, chars[i]) >= 0) chars[i] = '_';
+            return new string(chars);
+        }
+
+        /// <summary>以真实 BMP 或 JPEG 编码保存，完整写入后再发布文件，不覆盖已有照片。</summary>
+        private string WriteImageFile(ICogImage img, string dir, string fileName)
+        {
+            if (img == null) return "";
+            string temporary = null;
             try
             {
-                if (img == null) return "";
+                System.IO.Directory.CreateDirectory(dir);
                 string file = System.IO.Path.Combine(dir, fileName);
-                // CogImageFile / CogImageFileModeConstants 位于 Cognex.VisionPro.ImageFile 命名空间
-                using (Cognex.VisionPro.ImageFile.CogImageFile f = new Cognex.VisionPro.ImageFile.CogImageFile())
-                {
-                    f.Open(file, Cognex.VisionPro.ImageFile.CogImageFileModeConstants.Write);
-                    f.Append(img);
-                    f.Close();
-                }
+                temporary = System.IO.Path.Combine(dir, "." + Guid.NewGuid().ToString("N") + ".tmp");
+                using (System.Drawing.Bitmap bitmap = img.ToBitmap())
+                    bitmap.Save(temporary, fileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
+                        ? System.Drawing.Imaging.ImageFormat.Jpeg : System.Drawing.Imaging.ImageFormat.Bmp);
+                System.IO.File.Move(temporary, file);
                 return file;
             }
-            catch (Exception) { return ""; }
+            catch (Exception ex) { System.Diagnostics.Trace.WriteLine("[Vision] " + ex.Message); return ""; }
+            finally { if (temporary != null && System.IO.File.Exists(temporary)) System.IO.File.Delete(temporary); }
         }
 
         /// <summary>存图目录：VPP 配置中的路径，未设置时为 vpp 所在目录下的 Images。</summary>
@@ -471,22 +548,25 @@ namespace AlphaRap
             catch (Exception) { return ".\\Images"; }
         }
 
-        /// <summary>
-        /// 启用自动删除时，按保留天数删除存图目录中的旧 *.bmp（每次存图时执行；天数 &lt;= 0 时不删除）。
-        /// </summary>
+        /// <summary>按保留天数清理存图目录及原图、截图子目录中的 BMP 和 JPEG，不扫描其他目录。</summary>
         private void CleanOldImages(string dir, VpVppConfig settings)
         {
-            if (!settings.SaveImageAutoDelete) return;
-            if (settings.SaveImageKeepDays <= 0) return;
+            if (!settings.SaveImageAutoDelete || settings.SaveImageKeepDays <= 0) return;
             try
             {
                 DateTime dead = DateTime.Now.AddDays(-settings.SaveImageKeepDays);
-                string[] files = System.IO.Directory.GetFiles(dir, "*.bmp");
-                for (int i = 0; i < files.Length; i++)
-                    if (System.IO.File.GetLastWriteTime(files[i]) < dead)
-                        System.IO.File.Delete(files[i]);
+                foreach (string folder in new[] { dir, System.IO.Path.Combine(dir, "Original"), System.IO.Path.Combine(dir, "Snapshot") })
+                {
+                    if (!System.IO.Directory.Exists(folder)) continue;
+                    foreach (string file in System.IO.Directory.GetFiles(folder))
+                    {
+                        string extension = System.IO.Path.GetExtension(file).ToLowerInvariant();
+                        if (extension != ".bmp" && extension != ".jpg" && extension != ".jpeg") continue;
+                        if (System.IO.File.GetLastWriteTime(file) < dead) System.IO.File.Delete(file);
+                    }
+                }
             }
-            catch (Exception) { }
+            catch (Exception ex) { System.Diagnostics.Trace.WriteLine("[Vision] " + ex.Message); }
         }
 
         /// <summary>把另一个 CogRecordDisplay 绑定到本站，拍照和实时画面也会显示到它上面（按引用去重）。</summary>

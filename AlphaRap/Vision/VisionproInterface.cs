@@ -14,6 +14,25 @@ namespace AlphaRap
     /// <summary>一次视觉请求的执行状态；超时和取消后不再接受迟到结果。</summary>
     public enum VisionRunState { Running, Succeeded, Rejected, Faulted, TimedOut, Cancelled }
 
+    /// <summary>触发拍照时固定的产品身份、图像格式和时间，不读取后续扫码结果。</summary>
+    public sealed class VisionCaptureInfo
+    {
+        public string ProductSN { get; private set; }
+        public string ImageFormat { get; private set; }
+        public DateTime CapturedAt { get; private set; }
+
+        /// <summary>记录本次产品 SN，图像格式只接受 BMP 或 JPG。</summary>
+        public VisionCaptureInfo(string productSN, string imageFormat = "bmp")
+        {
+            ProductSN = (productSN ?? "").Trim();
+            ImageFormat = (imageFormat ?? "bmp").Trim().TrimStart('.').ToLowerInvariant();
+            if (ImageFormat == "jpeg") ImageFormat = "jpg";
+            if (ImageFormat != "bmp" && ImageFormat != "jpg")
+                throw new ArgumentException(MiddleLayer.LangMsg("Vision", "error_ImageFormat", "照片格式只支持 BMP 或 JPG。", "Image format must be BMP or JPG.", "El formato de imagen debe ser BMP o JPG."), "imageFormat");
+            CapturedAt = DateTime.Now;
+        }
+    }
+
     /// <summary>单次运行的结果快照，坐标单位与本站 ToolBlock 输出一致。</summary>
     public sealed class VisionRunResult
     {
@@ -24,6 +43,8 @@ namespace AlphaRap
         public double Y { get; private set; }
         public double Angle { get; private set; }
         public bool IsFlowManaged { get; internal set; }
+        public VisionCaptureInfo Capture { get; internal set; }
+        public string ImagePath { get; internal set; } = "";
 
         /// <summary>记录运行编号、状态、错误和定位坐标。</summary>
         public VisionRunResult(long runId, VisionRunState state, string error = "", double x = 0, double y = 0, double angle = 0)
@@ -144,7 +165,7 @@ namespace AlphaRap
             get { lock (_operationLock) return _isRunning || _editingThreadId != 0; }
         }
 
-        /// <summary>最近一次请求的不可变结果快照；尚未运行时为 null。</summary>
+        /// <summary>最近一次请求的结果快照；SN 与坐标固定，存图后补充路径；尚未运行时为 null。</summary>
         public VisionRunResult LastRunResult
         {
             get { lock (_operationLock) return _lastRunResult; }
@@ -395,8 +416,12 @@ namespace AlphaRap
         }
 
         /// <summary>原子地占用本站并返回运行编号；拒绝请求不会复用此前结果。</summary>
-        public bool TryRunTB(out long runId)
+        public bool TryRunTB(out long runId) { return TryRunTB(out runId, "", "bmp"); }
+
+        /// <summary>固定当前产品 SN 和格式后启动本次拍照；旧结果不会被重复使用。</summary>
+        public bool TryRunTB(out long runId, string productSN, string imageFormat = "bmp")
         {
+            VisionCaptureInfo capture = new VisionCaptureInfo(productSN, imageFormat);
             lock (_operationLock)
             {
                 runId = 0;
@@ -408,12 +433,12 @@ namespace AlphaRap
                 IsAccept = false;
                 LastError = "";
                 _isRunning = true;
-                _lastRunResult = new VisionRunResult(runId, VisionRunState.Running);
+                _lastRunResult = new VisionRunResult(runId, VisionRunState.Running) { Capture = capture };
                 try { Task.Run(() => ExecuteRun(requestId)); return true; }
                 catch (Exception ex)
                 {
                     _isRunning = false;
-                    _lastRunResult = new VisionRunResult(runId, VisionRunState.Faulted, ex.Message);
+                    _lastRunResult = new VisionRunResult(runId, VisionRunState.Faulted, ex.Message) { Capture = capture };
                     runId = 0;
                     return FailOperation(MiddleLayer.LangMsg("Vision", "error_Start", "启动视觉任务失败：", "Could not start vision task: ", "No se pudo iniciar la tarea de visión: ") + ex.Message, out error);
                 }
@@ -439,6 +464,7 @@ namespace AlphaRap
                 _isRunning = false;
                 IsAccept = false;
                 if (_lastRunResult.RunId != runId || _lastRunResult.State != VisionRunState.Running) return;
+                result.Capture = _lastRunResult.Capture;
                 result.IsFlowManaged = flowRunId == runId;
                 _lastRunResult = result;
                 IsAccept = result.State == VisionRunState.Succeeded;
@@ -475,7 +501,7 @@ namespace AlphaRap
             {
                 if (_lastRunResult == null || _lastRunResult.RunId != runId) return;
                 if (_lastRunResult.State != VisionRunState.Running) return;
-                _lastRunResult = new VisionRunResult(runId, state, error);
+                _lastRunResult = new VisionRunResult(runId, state, error) { Capture = _lastRunResult.Capture };
                 IsAccept = false;
                 LastError = error;
             }

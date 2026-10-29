@@ -82,7 +82,9 @@ namespace AlphaRap.FlowProgramming
             if (method == null) throw new InvalidOperationException(FlowText.T("methodMissing") + " " + step.Caption + " / " + step.Target + " / " + step.Action);
             if (step.UsesFlowResult != method.UsesFlowResult)
                 throw new InvalidOperationException(string.Format(FlowNativeText.T("contract"), step.Caption));
-            if (step.Inputs.Count != method.Inputs.Count || method.Inputs.Any(field => step.Inputs.Count(input => input.Name == field.Name) != 1))
+            if (step.Inputs.Any(input => method.Inputs.Count(field => field.Name == input.Name) != 1) ||
+                method.Inputs.Any(field => step.Inputs.Count(input => input.Name == field.Name) != 1 &&
+                    (!FlowMethods.IsOptional(method, field) || step.Inputs.Any(input => input.Name == field.Name))))
                 throw new InvalidOperationException(FlowText.T("fieldsChanged") + " " + step.Caption);
             foreach (FlowInput input in step.Inputs)
             {
@@ -174,8 +176,12 @@ namespace AlphaRap.FlowProgramming
         {
             Validate(step);
             FlowMethod method = FindMethod(step);
-            Dictionary<string, object> input = method.Inputs.ToDictionary(field => field.Name,
-                field => ValidateValue(field, context.Resolve(step.Inputs.Single(item => item.Name == field.Name))));
+            Dictionary<string, object> input = new Dictionary<string, object>(StringComparer.Ordinal);
+            foreach (FlowField field in method.Inputs)
+            {
+                FlowInput binding = step.Inputs.SingleOrDefault(item => item.Name == field.Name);
+                input.Add(field.Name, ValidateValue(field, binding == null ? field.DefaultValue : context.Resolve(binding)));
+            }
             FlowCall call = new FlowCall { Step = step, Context = context, InvocationId = context.ExecutionId, Inputs = input, Token = token, Simulation = Simulate, RequestInput = RequestInput };
             FlowResource resource = step.ExecutionMode == "Action" ? FindResource(step.Target) : null;
             if (method.ValidateInputs != null) method.ValidateInputs(input);

@@ -164,6 +164,8 @@ internal static partial class Cases
         Test("cancelling an axis method stops the real instance before releasing its lease", AxisMethodCancellation);
         Test("VPP methods expose actual terminals and allow NEXT CASE conditions to handle NG", VisionObjectMethods);
         Test("vision result consumers reject another run and compensation follows the main save snapshot", VisionMethodSnapshots);
+        Test("capture binds per-product SN and saves real BMP/JPEG without overwrites", VisionProductImages);
+        Test("capture metadata defaults keep old nodes compatible without relaxing port validation", VisionCaptureDefaults);
         Test("object method language changes retain unfinished input and selected identities", ObjectMethodLanguage);
         Test("axis vendors and IO fields match real driver capabilities", HardwareCapabilityFields);
         Test("changing IO vendor preserves pending text and shows only relevant properties", HardwareVendorEditor);

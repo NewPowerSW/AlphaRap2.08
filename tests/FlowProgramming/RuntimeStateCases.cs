@@ -450,7 +450,9 @@ internal static partial class Cases
     private static bool CloseRuntimeDialog(IntPtr window, ref string message)
     {
         if (NativeWindowClass(window) != "#32770") return true;
-        message = ReadRuntimeDialogBody(window).Replace("\r\n", "\n");
+        string body = ReadRuntimeDialogBody(window);
+        if (string.IsNullOrWhiteSpace(body)) return true;
+        message = body.Replace("\r\n", "\n");
         PostMessage(window, 0x0010, IntPtr.Zero, IntPtr.Zero);
         return false;
     }

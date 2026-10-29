@@ -77,6 +77,7 @@ internal static partial class Tests
         SysPara.LanguageDataDirectory = Path.Combine(TestDirectory, "language");
         LanguageHost.GetField("_langDocs", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, null);
         Run("successful run captures immutable coordinates", Success);
+        Run("capture SN and format remain fixed through completion and cancellation", ProductCaptureIdentity);
         Run("duplicate run and mutation while busy are rejected", Busy);
         Run("concurrent callers start exactly one worker", ConcurrentStarts);
         Run("timed out worker cannot publish late success", Timeout);
@@ -180,6 +181,21 @@ internal static partial class Tests
         VisionRunResult result = station.LastRunResult;
         station.Fiducial.x = 99;
         Check(result.X == 2 && result.Y == 3 && result.Angle == 4, "Snapshot changed.");
+    }
+
+    /// <summary>拍照时复制 SN 与格式，完成和取消都不能被下一件产品覆盖。</summary>
+    private static void ProductCaptureIdentity()
+    {
+        ControlledStation station = new ControlledStation(); long id;
+        string sn = "PRODUCT-A";
+        Check(station.TryRunTB(out id, sn, "jpg") && station.Entered.WaitOne(2000), "SN capture did not start.");
+        VisionRunResult pending = station.LastRunResult; sn = "PRODUCT-B";
+        station.CancelRun(id); station.Release.Set(); WaitIdle(station);
+        Check(station.LastRunResult.State == VisionRunState.Cancelled && station.LastRunResult.Capture.ProductSN == "PRODUCT-A" &&
+            ReferenceEquals(pending.Capture, station.LastRunResult.Capture), "Cancel replaced the capture identity.");
+        Check(station.RunAndWait(2000, sn, "bmp"), "Code capture with SN did not complete.");
+        Check(station.LastRunResult.Capture.ProductSN == "PRODUCT-B" && station.LastRunResult.Capture.ImageFormat == "bmp" &&
+            pending.Capture.ProductSN == "PRODUCT-A", "Next capture changed an earlier SN or format.");
     }
 
     /// <summary>运行排队和执行期间均不允许第二次触发、加载、保存或标定。</summary>

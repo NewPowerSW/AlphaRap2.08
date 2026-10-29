@@ -15,13 +15,22 @@ namespace AlphaRap
         /// <summary>按当前 VPP 的真实端口声明输入、输出和运行能力，不运行算法。</summary>
         public virtual IEnumerable<FlowMethod> GetFlowMethods(bool includeDraft = false)
         {
-            FlowMethod run = FlowMethods.Sync("vision.run", "拍照并运行当前 VPP", "Capture and run this VPP", "Capturar y ejecutar este VPP", new FlowField[0],
+            FlowMethod run = FlowMethods.Sync("vision.run", "拍照并运行当前 VPP", "Capture and run this VPP", "Capturar y ejecutar este VPP", new[] {
+                    new FlowField("ProductSN", typeof(string)) { DisplayName = new[] { "产品 SN", "Product SN", "SN del producto" },
+                        Help = new[] { "绑定当前产品记录的 SN 或本次扫码结果；存图使用本次拍照固定的 SN。未绑定时保留时间命名。", "Bind the current product record SN or its scan result; image saving uses this capture identity. If empty, time-based names are retained.", "Vincule el SN del producto actual o su lectura; el guardado usa la identidad de esta captura. Si está vacío, se conserva el nombre por hora." } },
+                    new FlowField("ImageFormat", typeof(string), "bmp") { DisplayName = new[] { "照片格式", "Image format", "Formato de imagen" } }
+                },
                 new[] { new FlowField("RunId", typeof(long)) { DisplayName = new[] { "拍照结果编号", "Capture result identifier", "Identificador del resultado de captura" }, Advanced = true,
                         Help = new[] { "关联本次拍照结果；保存照片或读取输出时选择本拍照节点即可。", "Identifies this capture result; select this capture node when saving its image or reading its output.", "Identifica este resultado; seleccione este nodo de captura para guardar su imagen o leer su salida." } },
                     new FlowField("Accepted", typeof(bool)) { DisplayName = new[] { "视觉判定通过", "Vision accepted", "Visión aceptada" } },
                     new FlowField("X", typeof(double)) { DisplayName = new[] { "视觉 X 结果", "Vision X result", "Resultado X de visión" } },
                     new FlowField("Y", typeof(double)) { DisplayName = new[] { "视觉 Y 结果", "Vision Y result", "Resultado Y de visión" } },
                     new FlowField("Angle", typeof(double)) { DisplayName = new[] { "视觉角度结果", "Vision angle result", "Resultado angular de visión" } } }, call => null);
+            FlowMethods.OptionalInputs(run, "ProductSN", "ImageFormat");
+            run.Inputs.Single(field => field.Name == "ImageFormat").Options.AddRange(new[] {
+                new FlowOption { Value = "bmp", Label = "BMP" }, new FlowOption { Value = "jpg", Label = "JPG" } });
+            run.Outputs.Add(new FlowField("ProductSN", typeof(string)) { DisplayName = new[] { "本次产品 SN", "Captured product SN", "SN del producto capturado" } });
+            run.Outputs.Add(new FlowField("Path", typeof(string)) { DisplayName = new[] { "照片文件路径", "Image file path", "Ruta del archivo de imagen" } });
             lock (_operationLock)
             {
                 if (TB != null)
@@ -36,6 +45,12 @@ namespace AlphaRap
                 }
             }
             run.Invoke = RunFlowVision;
+            Func<FlowCall, Task<IDictionary<string, object>>> simulate = run.Simulate;
+            run.Simulate = async call => {
+                IDictionary<string, object> result = await simulate(call).ConfigureAwait(false);
+                result["ProductSN"] = call.Get<string>("ProductSN"); result["Path"] = "";
+                return result;
+            };
             if (!includeDraft) run.ValidateInputs = inputs => { if (HasToolBlockDraft) throw new InvalidOperationException(FlowText.T("visionDraft")); };
             yield return run;
             FlowField output = new FlowField("Output", typeof(string)) { DisplayName = new[] { "VPP 输出项目", "VPP output item", "Salida de VPP" } };
@@ -59,8 +74,8 @@ namespace AlphaRap
             {
                 if (HasToolBlockDraft) throw new InvalidOperationException(FlowText.T("visionDraft"));
                 if (IsBusy || !IsLoadTBOk || TB == null) throw new InvalidOperationException(FlowText.T("error.visionBusy") + StationName);
-                foreach (KeyValuePair<string, object> input in call.Inputs) TB.Inputs[input.Key.Substring(3)].Value = input.Value;
-                if (!TryRunTB(out id)) throw new InvalidOperationException(LastError);
+                foreach (KeyValuePair<string, object> input in call.Inputs.Where(item => item.Key.StartsWith("TB:", StringComparison.Ordinal))) TB.Inputs[input.Key.Substring(3)].Value = input.Value;
+                if (!TryRunTB(out id, call.Get<string>("ProductSN"), call.Get<string>("ImageFormat"))) throw new InvalidOperationException(LastError);
                 flowRunId = id;
             }
             try
@@ -71,7 +86,8 @@ namespace AlphaRap
                 {
                     VisionRunResult result = RequireFlowResult(id);
                     Dictionary<string, object> output = new Dictionary<string, object> { { "RunId", id }, { "Accepted", result.State == VisionRunState.Succeeded },
-                        { "X", result.X }, { "Y", result.Y }, { "Angle", result.Angle } };
+                        { "X", result.X }, { "Y", result.Y }, { "Angle", result.Angle },
+                        { "ProductSN", result.Capture.ProductSN }, { "Path", SaveFlowCaptureImage(result) } };
                     foreach (CogToolBlockTerminal terminal in TB.Outputs) output.Add("TB:" + terminal.Name, terminal.Value);
                     return output;
                 }
@@ -83,6 +99,9 @@ namespace AlphaRap
                 throw;
             }
         }
+
+        /// <summary>由具有存图配置的视觉站保存本次结果；通用视觉对象不自动存图。</summary>
+        protected virtual string SaveFlowCaptureImage(VisionRunResult result) { return ""; }
 
         /// <summary>只允许读取已完成的同一请求，防止重拍后保存或读取其他产品的结果。</summary>
         protected VisionRunResult RequireFlowResult(long id)
@@ -131,6 +150,16 @@ namespace AlphaRap
                 throw new InvalidOperationException(FlowText.T("visionDraft"));
         }
 
+        /// <summary>拍照完成后按已保存的 VPP 配置存图，SN 和格式来自本次请求快照。</summary>
+        protected override string SaveFlowCaptureImage(VisionRunResult result)
+        {
+            VpVppConfig settings = CopyFlowConfiguration(flowSavedConfig);
+            if (settings == null || !settings.SaveImageEnabled) return "";
+            string path = SaveCaptureImage(settings, result);
+            if (string.IsNullOrEmpty(path)) throw new InvalidOperationException(FlowText.T("error.imageSave"));
+            return path;
+        }
+
         /// <summary>声明本相机下本 VPP 的存图与补偿表读取方法，补偿不会自动写入运动指令。</summary>
         public override IEnumerable<FlowMethod> GetFlowMethods(bool includeDraft = false)
         {
@@ -148,8 +177,8 @@ namespace AlphaRap
                 new[] { new FlowField("Path", typeof(string)) { DisplayName = new[] { "照片文件路径", "Image file path", "Ruta del archivo de imagen" } } }, call => {
                     lock (_operationLock)
                     {
-                        RequireFlowResult(call.Get<long>("RunId"));
-                        string path = SaveLastImage(settings);
+                        VisionRunResult result = RequireFlowResult(call.Get<long>("RunId"));
+                        string path = SaveCaptureImage(settings, result);
                         if (string.IsNullOrEmpty(path)) throw new InvalidOperationException(FlowText.T("error.imageSave"));
                         return FlowCall.Result("Path", path);
                     }
