@@ -6,6 +6,12 @@ namespace AlphaRap.FlowProgramming
     {
         public static readonly Dictionary<string, string[]> Defaults = new Dictionary<string, string[]>
         {
+            { "refreshDocument", new[] { "刷新流程预览", "Refresh flow preview", "Actualizar vista previa del flujo" } },
+            { "documentLinks", new[] { "连接设置", "Configure connections", "Configurar conexiones" } },
+            { "documentKey", new[] { "流程画布的文档键不能为空或重复。", "Flow canvas document keys must be present and unique.", "Las claves de documento del lienzo deben existir y ser únicas." } },
+            { "documentHostMissing", new[] { "流程文档对应的页面宿主已不存在，请恢复宿主后加载：", "The flow document host is missing. Restore it before loading:", "Falta el contenedor del documento. Restáurelo antes de cargar:" } },
+            { "previewRuntime", new[] { "运行画布不能被预览替换。", "A runtime canvas cannot be replaced by a preview.", "Un lienzo en ejecución no se puede reemplazar por una vista previa." } },
+            { "previewNotSaved", new[] { "尚无已保存的流程文档，请先在程序主界面保存。", "No saved flow document. Use Main Save in the application first.", "No hay documento guardado. Use Guardar principal en la aplicación." } },
             { "containerMissing", new[] { "流程容器不存在、重名或不能承载节点：{0}", "The flow container is missing, ambiguous or cannot host nodes: {0}", "El contenedor del flujo no existe, es ambiguo o no admite nodos: {0}" } },
             { "initialFlows", new[] { "初始化流程", "Initialization flows", "Flujos de inicialización" } },
             { "automaticFlows", new[] { "自动运行流程", "Automatic flows", "Flujos automáticos" } },

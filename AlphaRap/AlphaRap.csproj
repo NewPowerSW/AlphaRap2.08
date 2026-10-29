@@ -992,6 +992,19 @@
     <Compile Include="FlowProgramming\FlowNodeForm.Execution.cs"><DependentUpon>FlowNodeForm.cs</DependentUpon><SubType>Code</SubType></Compile>
     <Compile Include="FlowProgramming\FlowInheritedMethods.cs" />
     <Compile Include="FlowProgramming\FlowNativeMethods.cs" />
+    <Compile Include="FlowProgramming\FlowDocumentCanvas.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FlowProgramming\FlowDocumentCanvas.Designer.cs">
+      <DependentUpon>FlowDocumentCanvas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FlowProgramming\FlowDocumentPages.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TaskProcess\Gantry.Heartbeat.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>Gantry.cs</DependentUpon>
+    </Compile>
     <Compile Include="FlowProgramming\FlowControlSource.cs" />
     <Compile Include="FlowProgramming\FlowEntryForm.cs">
       <SubType>Form</SubType>

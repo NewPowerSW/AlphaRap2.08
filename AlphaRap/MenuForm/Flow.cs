@@ -16,6 +16,7 @@ namespace AlphaRap
         private FlowModuleEditor contextModule;
         private string contextNodeId;
         private FlowModuleEditor contextPage;
+        private readonly ToolStripMenuItem documentLinks = new ToolStripMenuItem();
         private readonly Dictionary<Flow_BaseForm, TabPage> pages = new Dictionary<Flow_BaseForm, TabPage>();
         /// <summary>Bind the engineering commands to all registered base-form instances.</summary>
         public Flow()
@@ -43,6 +44,7 @@ namespace AlphaRap
                     if (dialog.ShowDialog(this) == DialogResult.OK) { FlowPrograms.AddModule(dialog.InputValue); AddFlowChart(); }
             });
             nodeMenu.Opening += OpenNodeMenu;
+            nodeMenu.Items.Insert(0, documentLinks);
             nodeDelete.Click += (sender, args) => Execute(() => DeleteNode(contextModule, contextNodeId));
             nodeProperties.Click += (sender, args) => Execute(() => { if (contextModule != null) contextModule.EditNode(contextNodeId); });
             nodeBreakpoint.Click += (sender, args) => Execute(() => { if (contextModule != null) contextModule.ToggleBreakpoint(contextNodeId); });
@@ -283,6 +285,28 @@ namespace AlphaRap
             nodeProperties.Enabled = nodeProperties.Available && nodeDelete.Enabled && contextModule.IsEditing;
             nodeBreakpoint.Enabled = nodeDelete.Enabled;
             nodeBreakpoint.Checked = step != null && step.Breakpoint;
+            documentLinks.Text = FlowText.T("documentLinks");
+            documentLinks.Available = step != null && step.UsesFlowResult && !string.IsNullOrEmpty(step.PageId);
+            documentLinks.Enabled = documentLinks.Available && nodeDelete.Enabled && contextModule.IsEditing;
+            documentLinks.DropDownItems.Clear();
+            if (!documentLinks.Available) return;
+            foreach (string exit in new[] { "NEXT", "CASE1", "CASE2", "CASE3" })
+            {
+                ToolStripMenuItem route = new ToolStripMenuItem(exit);
+                route.DropDownItems.Add(ConnectionChoice(step, exit, null, FlowText.T("end")));
+                foreach (FlowStep target in contextModule.Program.Steps)
+                    route.DropDownItems.Add(ConnectionChoice(step, exit, target.Id, target.Caption));
+                documentLinks.DropDownItems.Add(route);
+            }
+        }
+
+        /// <summary>连接菜单以稳定节点 ID 提交，不修改代码绑定及输入配置。</summary>
+        private ToolStripMenuItem ConnectionChoice(FlowStep step, string exit, string target, string caption)
+        {
+            FlowModuleEditor module = contextModule;
+            ToolStripMenuItem item = new ToolStripMenuItem(caption) { Checked = step.TargetOf(exit) == target };
+            item.Click += (sender, args) => Execute(() => module.SetConnection(step.Id, exit, target));
+            return item;
         }
 
         /// <summary>确认后删除指定节点，统一清理入口和 NEXT / CASE 连接。</summary>

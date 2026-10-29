@@ -57,6 +57,7 @@ internal static partial class Cases
         Test("deleted source nodes stay deleted while surviving data consumers require rebinding", SourceReferencedDeletion);
         Test("deleted source entry is cleared without selecting a replacement", SourceEntryDeletion);
         RegisterContainerCases();
+        RegisterDocumentPageCases();
     }
 
     /// <summary>Create an original form snapshot without publishing configuration files.</summary>

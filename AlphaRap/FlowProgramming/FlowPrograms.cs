@@ -114,7 +114,7 @@ namespace AlphaRap.FlowProgramming
         internal static FlowProject CaptureForSave()
         {
             ValidateForSave();
-            return new FlowProject { Version = 4, Modules = project.Modules.Select(FlowProgramFile.Snapshot).ToList() };
+            return new FlowProject { Version = project.Modules.Any(module => module.Pages.Count > 0) ? 5 : 4, Modules = project.Modules.Select(FlowProgramFile.Snapshot).ToList() };
         }
 
         /// <summary>所有文件成功提交后发布同一保存快照，不重新采样未保存的编辑值。</summary>
@@ -412,6 +412,7 @@ namespace AlphaRap.FlowProgramming
         private bool isProduction;
         private readonly HashSet<string> originalControls;
         private readonly FlowControlSource controlSource;
+        private readonly FlowDocumentPages documentPages;
         private readonly Dictionary<string, Flow_Chart> removedNodes = new Dictionary<string, Flow_Chart>();
         private readonly ConcurrentDictionary<string, string> nodeStates = new ConcurrentDictionary<string, string>();
         private readonly HashSet<Flow_Chart> timedNodes = new HashSet<Flow_Chart>();
@@ -437,6 +438,7 @@ namespace AlphaRap.FlowProgramming
             Form = form;
             originalControls = new HashSet<string>(Enumerate(form).Select(node => node.Name));
             controlSource = new FlowControlSource(form);
+            documentPages = new FlowDocumentPages(form);
             Restore(program);
             Publish();
             Runtime.StateChanged += UpdateNodeExecution;
@@ -480,6 +482,7 @@ namespace AlphaRap.FlowProgramming
             program.InitialEntries = prepared.InitialEntries;
             program.AutoEntries = prepared.AutoEntries;
             program.RemovedControls = prepared.RemovedControls;
+            program.Pages = prepared.Pages;
             bool importing = program.Mode == "Legacy";
             if (importing) program.Mode = "Program";
             foreach (ScrollableControl canvas in program.Steps.Select(step => FindParent(step.ParentPath)).OfType<ScrollableControl>().Distinct()) canvas.AutoScrollPosition = Point.Empty;
@@ -499,7 +502,7 @@ namespace AlphaRap.FlowProgramming
             List<Flow_Chart> existing = Enumerate(Form).ToList();
             foreach (Flow_Chart node in existing)
             {
-                if (program.Removed || program.RemovedControls.Contains(node.Name) || (!originalControls.Contains(node.Name) && program.Steps.All(definition => definition.ControlName != node.Name)))
+                if (program.Removed || program.RemovedControls.Contains(node.Name) || ((!originalControls.Contains(node.Name) || FlowDocumentCanvas.Find(node.Parent) != null) && program.Steps.All(definition => definition.ControlName != node.Name)))
                 {
                     if (program.Removed && !program.RemovedControls.Contains(node.Name)) program.RemovedControls.Add(node.Name);
                     RemoveControl(node);
@@ -520,6 +523,7 @@ namespace AlphaRap.FlowProgramming
                 Control savedParent = FindParent(step.ParentPath);
                 if (node.Parent != savedParent) savedParent.Controls.Add(node);
                 node.Location = new Point(step.X, step.Y);
+                if (step.Width > 0 && step.Height > 0) node.Size = new Size(step.Width, step.Height);
                 node.text = step.Caption;
                 node.ConfigurationRequested += Configure;
                 node.EnableProgramEditor(editing);
@@ -555,9 +559,12 @@ namespace AlphaRap.FlowProgramming
         /// <summary>在改变当前画布之前完成源码同步及布局校验。</summary>
         internal FlowProgram PrepareRestore(FlowProgram program)
         {
-            FlowProgram prepared = controlSource.Prepare(program);
+            FlowProgram prepared = FlowProgramFile.Snapshot(program);
+            documentPages.Prepare(prepared, controlSource);
+            prepared = controlSource.Prepare(prepared);
             foreach (FlowStep step in prepared.Steps) controlSource.ApplyLayout(step);
             RemoveMissingContainers(prepared);
+            documentPages.Validate(prepared);
             ValidateLayout(prepared);
             return prepared;
         }
@@ -777,6 +784,8 @@ namespace AlphaRap.FlowProgramming
             if (parent == null || (parent != Form && !Form.Contains(parent)) || parent is Flow_Chart)
                 throw new ArgumentException("The drop target is not a flow canvas.");
             step.ParentPath = ParentPath(parent);
+            step.PageId = documentPages.PageId(Program, parent);
+            if (step.PageId != null) step.ControlOrigin = "Document";
             step.X = Math.Max(0, location.X);
             step.Y = Math.Max(0, location.Y);
             Program.Steps.Add(step);
@@ -784,6 +793,7 @@ namespace AlphaRap.FlowProgramming
             if (initial && string.IsNullOrEmpty(Program.InitialEntry)) Program.InitialEntry = step.Id;
             if (!initial && string.IsNullOrEmpty(Program.AutoEntry)) Program.AutoEntry = step.Id;
             Flow_Chart node = CreateNode(step);
+            if (step.PageId != null) { step.Width = node.Width; step.Height = node.Height; }
             nodes.Add(step.Id, node);
             node.ConfigurationRequested += Configure;
             node.EnableProgramEditor(editing);
@@ -840,6 +850,21 @@ namespace AlphaRap.FlowProgramming
             if (canvas != null) UpdateCanvasBounds(canvas);
         }
 
+        /// <summary>仅编辑文档代码节点的出口目标，业务函数保持只读。</summary>
+        public void SetConnection(string id, string exit, string target)
+        {
+            FlowPrograms.RequireIdle();
+            if (!editing) throw new InvalidOperationException(FlowText.T("edit"));
+            FlowStep step = Program.Steps.Single(item => item.Id == id);
+            if (string.IsNullOrEmpty(step.PageId) || !step.UsesFlowResult || !new[] { "NEXT", "CASE1", "CASE2", "CASE3" }.Contains(exit))
+                throw new InvalidOperationException(FlowText.T("methodMissing"));
+            if (target != null && Program.Steps.All(item => item.Id != target)) throw new InvalidOperationException(FlowText.T("methodMissing"));
+            step.SetTarget(exit, target);
+            if (target != null && step.Branches.All(branch => branch.Code != exit)) step.Branches.Add(new FlowBranch { Code = exit, Unconditional = true });
+            ApplyLinks();
+            if (Changed != null) Changed(this, EventArgs.Empty);
+        }
+
         /// <summary>保留原控件及回调，重新加载旧版本时可恢复；移出全局运行列表。</summary>
         private void RemoveControl(Flow_Chart node)
         {
@@ -858,6 +883,7 @@ namespace AlphaRap.FlowProgramming
                 Flow_Chart node = nodes[step.Id];
                 Point scroll = node.Parent is ScrollableControl ? ((ScrollableControl)node.Parent).AutoScrollPosition : Point.Empty;
                 step.X = node.Left - scroll.X; step.Y = node.Top - scroll.Y; step.ParentPath = ParentPath(node.Parent);
+                if (step.PageId != null) { step.Width = node.Width; step.Height = node.Height; }
             }
         }
 

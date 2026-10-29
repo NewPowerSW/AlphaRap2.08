@@ -15,8 +15,8 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 - 暂停归零与旧刷新保护：[NPSDK 20c39268e49a81493237497cf8ae4740e9202470](https://github.com/JeffreyWub/NPSDK/commit/20c39268e49a81493237497cf8ae4740e9202470)，分支 `codex/flow-runtime-state-20261028`。
 - 多入口并行调度与 V4 工程：[NPSDK 31364140fcc708b98483e9725e536f6f13143c89](https://github.com/JeffreyWub/NPSDK/commit/31364140fcc708b98483e9725e536f6f13143c89)，分支 `codex/flow-runtime-state-20261028`。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
-- 大小：555520 字节。
-- SHA256：`298e458f531fbeffc24ce7ad70009c0d71dda360942a7c11341a8e704f2cbe3d`。
+- 大小：556544 字节。
+- SHA256：`b838eb9cfd4c706e7c9ac8e32e91279ba32118039ce74cc2f4b82b467641435b`。
 
 该版本从独立、干净的源码工作树构建，不包含原 SDK 开发目录中的未提交改动。
 
@@ -78,3 +78,7 @@ MSBuild.exe AlphaRap.sln /t:Rebuild /p:Configuration=Debug /p:Platform=x64
 当前多入口版本使用 FlowProgramGroup 并发调度各独立入口，节点执行继续复用 FlowProgramRuntime。V4 保存完整 InitialEntries/AutoEntries，旧 V1/V2/V3 单入口可读取；配置仅由主 Save 升级。主界面初始化和启动分别调度已保存入口组，初始化等待所有入口完成，停止取消所有入口并等待实际调用释放。
 
 本次验证：核心原生及并行运行 34/34，核心兼容 13/13，宿主流程 152/152，主保存 17 项，设计期构造与布局 18/18。全部为离线验证，未连接实机。
+
+文档页面试点使用 [NPSDK 8bb64646144385e04122c917c1970df17a9be1bd](https://github.com/JeffreyWub/NPSDK/commit/8bb64646144385e04122c917c1970df17a9be1bd)，分支 `codex/flow-runtime-state-20261028`，已推送并核对远端。新增可选 Pages、稳定 PageId 和节点尺寸；存在文档页时主保存升级 V5，其余仍为 V4。原运行器、原生 ResultType 及多入口行为保持原契约，详见 [心跳页试用说明](../docs/FlowDocumentPilot.md)。
+
+本次离线验证：宿主流程 167/167、统一主保存 17 项、设计器探针 19/19、SDK 原生与并行 35/35、核心兼容 13/13，包含源码生成往返与回滚。未运行真实硬件，VS 专有设计器交互加载另需现场确认。

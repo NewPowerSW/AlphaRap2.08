@@ -10,6 +10,7 @@ namespace AlphaRap.TaskProcess
 		{
 			CheckForIllegalCrossThreadCalls = false;
 			InitializeComponent();
+            if (!UiTheme.IsDesignTime) InitializeHeartbeatNodes();
             UiTheme.ApplyDpi(this);
 		}
 

@@ -110,11 +110,13 @@ internal static class SourceGenerationCases
         AddCodeBinding(first);
         first.Next = second.Id;
         FlowProgram form = new FlowProgram { ModuleId = "Fixture.Carrier/FormOne", Mode = "Program", AutoEntry = first.Id };
+        FlowPageDefinition page = new FlowPageDefinition { Key = "fixture.auto", Caption = "自动流程" };
+        form.Pages.Add(page); first.PageId = page.Id; first.Width = 276; first.Height = 36;
         form.Steps.Add(first); form.Steps.Add(second);
         FlowProgram dynamic = new FlowProgram { ModuleId = "NPSDK.Flow_BaseForm/Dynamic 页面", Mode = "Program" };
         FlowStep empty = new FlowStep { ExecutionMode = "None", Caption = "Dynamic node" }; empty.Inputs.Clear(); empty.Branches = FlowBranch.Default();
         dynamic.Steps.Add(empty); dynamic.AutoEntry = empty.Id;
-        FlowProject project = new FlowProject(); project.Modules.Add(form); project.Modules.Add(dynamic);
+        FlowProject project = new FlowProject { Version = 5 }; project.Modules.Add(form); project.Modules.Add(dynamic);
         FlowProgram reused = FlowProgramFile.Snapshot(form); reused.ModuleId = "Fixture.Carrier/FormTwo"; project.Modules.Add(reused);
         return project;
     }

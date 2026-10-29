@@ -14,13 +14,14 @@ namespace AlphaRap.FlowProgramming
         internal const string MissingOrigin = "MissingForm";
         private static readonly string[] Exits = { "NEXT", "CASE1", "CASE2", "CASE3" };
         private readonly Dictionary<string, FlowStep> controls = new Dictionary<string, FlowStep>(StringComparer.Ordinal);
+        private readonly HashSet<string> documentControls = new HashSet<string>(StringComparer.Ordinal);
 
         /// <summary>在保存连接覆盖 SDK 控件之前记录源码位置、容器及四个出口，不执行事件。</summary>
         internal FlowControlSource(Control form)
         {
             foreach (Flow_Chart node in Enumerate(form))
             {
-                FlowStep source = new FlowStep { ControlName = node.Name, Caption = node.text, X = node.Left, Y = node.Top,
+                FlowStep source = new FlowStep { ControlName = node.Name, Caption = node.text, X = node.Left, Y = node.Top, Width = node.Width, Height = node.Height,
                     ParentPath = ParentPath(node.Parent, form), ControlOrigin = FormOrigin,
                     TimeoutMs = node.AlarmStaus ? Math.Max(1, node.AlarmTimeOut) : System.Threading.Timeout.Infinite,
                     AlarmCode = node.AlarmStaus ? node.AlarmCode : null,
@@ -29,6 +30,7 @@ namespace AlphaRap.FlowProgramming
                         Case3 = node.Casse3 == null ? null : node.Casse3.Name } };
                 FlowNativeMethods.BindExisting(form as Flow_BaseForm, node, source);
                 controls.Add(node.Name, source);
+                if (FlowDocumentCanvas.Find(node.Parent) != null) documentControls.Add(node.Name);
             }
         }
 
@@ -45,6 +47,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>源码控件的父页面、标题及位置始终取设计器实际定义，动态节点不受影响。</summary>
         internal void ApplyLayout(FlowStep step)
         {
+            if (!string.IsNullOrEmpty(step.PageId)) return;
             FlowStep source;
             if (!controls.TryGetValue(step.ControlName, out source)) return;
             step.ParentPath = source.ParentPath;
@@ -72,7 +75,7 @@ namespace AlphaRap.FlowProgramming
             FlowProgram candidate = FlowProgramFile.Snapshot(program);
             if (candidate.Removed) return candidate;
             foreach (FlowStep source in controls.Values)
-                if (!candidate.RemovedControls.Contains(source.ControlName) && candidate.Steps.All(step => step.ControlName != source.ControlName))
+                if (!documentControls.Contains(source.ControlName) && !candidate.RemovedControls.Contains(source.ControlName) && candidate.Steps.All(step => step.ControlName != source.ControlName))
                     candidate.Steps.Add(CopySource(source));
             foreach (FlowStep step in candidate.Steps) IdentifyOrigin(step);
             Dictionary<string, FlowStep> byId = candidate.Steps.ToDictionary(step => step.Id);
@@ -86,6 +89,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>区分实际源码控件、明确拖拽节点和旧版原生节点，不把动态节点作为已删源码清理。</summary>
         private void IdentifyOrigin(FlowStep step)
         {
+            if (!string.IsNullOrEmpty(step.PageId)) { step.ControlOrigin = "Document"; return; }
             if (controls.ContainsKey(step.ControlName)) { step.ControlOrigin = FormOrigin; return; }
             Guid generated;
             bool designerName = step.ControlName != null && step.ControlName.StartsWith("flow_", StringComparison.Ordinal)
@@ -117,6 +121,13 @@ namespace AlphaRap.FlowProgramming
                     step.Branches.Add(new FlowBranch { Code = exit, Unconditional = true });
             }
             step.SourceLinks = CopyLinks(current);
+        }
+
+        /// <summary>仅为尚无历史定义的文档页提供首次导入模板。</summary>
+        internal List<FlowStep> DocumentTemplates(string path)
+        {
+            return controls.Values.Where(step => step.ParentPath == path).Select(step =>
+                FlowProgramFile.Snapshot(new FlowProgram { Steps = new List<FlowStep> { step } }).Steps[0]).ToList();
         }
 
         /// <summary>复制源码节点模板并赋予独立持久化身份。</summary>
