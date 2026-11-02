@@ -5,22 +5,22 @@ namespace AlphaRap.Configuration
 {
     partial class HardwareEditForm
     {
-        private DataGridView parameters;
+        private DataGridView hardwareParameters;
         private DataGridViewTextBoxColumn property, value;
-        private FlowLayoutPanel buttons;
-        private Button ok,cancel;
+        private FlowLayoutPanel hardwareButtons;
+        private Button hardwareOk,hardwareCancel;
 
         /// <summary>资源参数窗口使用固定表头及按钮布局。</summary>
         private void InitializeComponent()
         {
-            this.parameters = new DataGridView();
-            this.parameters.Name = "hardwareParameters";
-            this.parameters.Dock = DockStyle.Fill;
-            this.parameters.AutoGenerateColumns = false;
-            this.parameters.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            this.parameters.AllowUserToAddRows = false;
-            this.parameters.AllowUserToDeleteRows = false;
-            this.parameters.RowHeadersVisible = false;
+            this.hardwareParameters = new DataGridView();
+            this.hardwareParameters.Name = "hardwareParameters";
+            this.hardwareParameters.Dock = DockStyle.Fill;
+            this.hardwareParameters.AutoGenerateColumns = false;
+            this.hardwareParameters.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            this.hardwareParameters.AllowUserToAddRows = false;
+            this.hardwareParameters.AllowUserToDeleteRows = false;
+            this.hardwareParameters.RowHeadersVisible = false;
             this.property = new DataGridViewTextBoxColumn();
             this.property.Name = "property";
             this.property.Tag = "property";
@@ -32,23 +32,23 @@ namespace AlphaRap.Configuration
             this.value.Tag = "value";
             this.value.HeaderText = "值";
             this.value.SortMode = DataGridViewColumnSortMode.NotSortable;
-            parameters.Columns.AddRange(property,value);
-            this.buttons = new FlowLayoutPanel();
-            this.buttons.Name = "hardwareButtons";
-            this.buttons.Dock = DockStyle.Bottom;
-            this.buttons.Height = 44;
-            this.buttons.FlowDirection = FlowDirection.RightToLeft;
-            this.ok = new Button();
-            this.ok.Name = "hardwareOk";
-            this.ok.Text = "确定";
-            this.ok.AutoSize = true;
-            this.cancel = new Button();
-            this.cancel.Name = "hardwareCancel";
-            this.cancel.Text = "取消";
-            this.cancel.AutoSize = true;
-            this.cancel.DialogResult = DialogResult.Cancel;
-            buttons.Controls.Add(cancel); buttons.Controls.Add(ok); Controls.Add(parameters); Controls.Add(buttons);
-            Name = "HardwareEditForm"; Tag = "title"; Text = "硬件资源组合"; ClientSize = new Size(670,660); MinimumSize = new Size(640,520); Font = new Font("Microsoft YaHei",9F); StartPosition = FormStartPosition.CenterParent; AutoScaleMode = AutoScaleMode.None; AcceptButton = ok; CancelButton = cancel;
+            hardwareParameters.Columns.AddRange(property,value);
+            this.hardwareButtons = new FlowLayoutPanel();
+            this.hardwareButtons.Name = "hardwareButtons";
+            this.hardwareButtons.Dock = DockStyle.Bottom;
+            this.hardwareButtons.Height = 44;
+            this.hardwareButtons.FlowDirection = FlowDirection.RightToLeft;
+            this.hardwareOk = new Button();
+            this.hardwareOk.Name = "hardwareOk";
+            this.hardwareOk.Text = "确定";
+            this.hardwareOk.AutoSize = true;
+            this.hardwareCancel = new Button();
+            this.hardwareCancel.Name = "hardwareCancel";
+            this.hardwareCancel.Text = "取消";
+            this.hardwareCancel.AutoSize = true;
+            this.hardwareCancel.DialogResult = DialogResult.Cancel;
+            hardwareButtons.Controls.Add(hardwareCancel); hardwareButtons.Controls.Add(hardwareOk); Controls.Add(hardwareParameters); Controls.Add(hardwareButtons);
+            Name = "HardwareEditForm"; Tag = "title"; Text = "硬件资源组合"; ClientSize = new Size(670,660); MinimumSize = new Size(640,520); Font = new Font("Microsoft YaHei",9F); StartPosition = FormStartPosition.CenterParent; AutoScaleMode = AutoScaleMode.None; AcceptButton = hardwareOk; CancelButton = hardwareCancel;
         }
     }
 }

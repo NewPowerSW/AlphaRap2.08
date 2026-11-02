@@ -14,10 +14,10 @@ namespace AlphaRap.Configuration
         public ConstantEditForm(ConstantValue value, Action<ConstantValue> save) : this()
         {
             commit = save;
-            keyValue.Text = value.Key; valueValue.Text = value.Value; descriptionValue.Text = value.Description;
-            typeValue.Items.AddRange(ConstantStore.Types); typeValue.SelectedItem = value.Type;
-            typeValue.Format += (sender, args) => args.Value = ConstantText.T(Convert.ToString(args.ListItem));
-            ok.Click += Save;
+            constantKeyValue.Text = value.Key; constantValueValue.Text = value.Value; constantDescriptionValue.Text = value.Description;
+            constantTypeValue.Items.AddRange(ConstantStore.Types); constantTypeValue.SelectedItem = value.Type;
+            constantTypeValue.Format += (sender, args) => args.Value = ConstantText.T(Convert.ToString(args.ListItem));
+            constantOk.Click += Save;
             ApplyLanguage(null, EventArgs.Empty);
             MiddleLayer.LanguageChanged += ApplyLanguage;
             Disposed += (sender, args) => MiddleLayer.LanguageChanged -= ApplyLanguage;
@@ -29,7 +29,7 @@ namespace AlphaRap.Configuration
         {
             try
             {
-                commit(new ConstantValue { Key = keyValue.Text, Type = Convert.ToString(typeValue.SelectedItem), Value = valueValue.Text, Description = descriptionValue.Text });
+                commit(new ConstantValue { Key = constantKeyValue.Text, Type = Convert.ToString(constantTypeValue.SelectedItem), Value = constantValueValue.Text, Description = constantDescriptionValue.Text });
                 DialogResult = DialogResult.OK;
             }
             catch (Exception error) { MessageBox.Show(error.Message, ConstantText.T("title")); }
@@ -39,8 +39,8 @@ namespace AlphaRap.Configuration
         private void ApplyLanguage(object sender, EventArgs args)
         {
             ConstantText.Apply(this);
-            ok.Text = FlowProgramming.FlowText.T("ok"); cancel.Text = FlowProgramming.FlowText.T("cancel");
-            typeValue.Refresh();
+            constantOk.Text = FlowProgramming.FlowText.T("ok"); constantCancel.Text = FlowProgramming.FlowText.T("cancel");
+            constantTypeValue.Refresh();
         }
     }
 }

@@ -82,6 +82,7 @@ internal static class Cases
         Test("every flow source is included once and compiled sources exist", ProjectSources);
         Test("visual classes have complete project metadata and public parameterless constructors", ProjectMetadata);
         Test("InitializeComponent contains only explicit designer-supported UI initialization", DesignerSource);
+        Test("constant and hardware editor field names preserve their control identities on designer save", EditorIdentities);
         foreach (Type type in visualTypes)
         {
             Type current = type;
@@ -148,7 +149,7 @@ internal static class Cases
             Match declaration = Regex.Match(Sanitize(File.ReadAllText(path)), @"\bpartial\s+class\s+(?<name>[A-Za-z_]\w*)");
             if (!declaration.Success || !controlNames.Contains(declaration.Groups["name"].Value) || Path.GetFileNameWithoutExtension(source) == declaration.Groups["name"].Value) continue;
             string subtype = (string)item.Element(ns + "SubType");
-            Check(subtype != "Form" && subtype != "UserControl", "A business or supporting partial file is incorrectly marked as a standalone designer: " + source);
+            Check(subtype == "Code", "A business or supporting partial file must be explicitly marked as Code so Visual Studio cannot infer a standalone designer: " + source);
         }
     }
 
@@ -202,6 +203,21 @@ internal static class Cases
             if (source[index] == '}' && --depth == 0) return source.Substring(start, index - start);
         }
         throw new InvalidOperationException("Unbalanced InitializeComponent source: " + file);
+    }
+
+    /// <summary>Keep the component site names used by Visual Studio identical to the existing localization and lookup keys.</summary>
+    private static void EditorIdentities()
+    {
+        foreach (Type type in new[] { typeof(AlphaRap.Configuration.ConstantEditForm), typeof(AlphaRap.Configuration.HardwareEditForm) })
+        {
+            using (Control page = (Control)Activator.CreateInstance(type))
+                foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                {
+                    Control control = field.GetValue(page) as Control;
+                    if (control == null) continue;
+                    Check(field.Name == control.Name, "Designer site would rename a stable control: " + type.FullName + "." + field.Name + " -> " + control.Name);
+                }
+        }
     }
 
     /// <summary>Create and render one visual class under the genuine design LicenseContext without configuring objects or executing actions.</summary>
