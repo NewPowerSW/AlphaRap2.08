@@ -143,7 +143,6 @@ internal static partial class Cases
         byte[] disk = File.ReadAllBytes(hardware.Resources.PathName);
         ioPage.Show(); ((TabControl)ioPage.Controls.Find("tabControl1", true)[0]).SelectedTab = (TabPage)ioPage.Controls.Find("ioResourcesPage", true)[0]; Application.DoEvents();
         HardwareResourcePanel panel = (HardwareResourcePanel)ioPage.Controls.Find("ioResourcePanel", true)[0];
-        ((ComboBox)panel.Controls.Find("resourceSelected", true)[0]).SelectedIndex = 0;
         foreach (bool accept in new[] { false, true })
         {
             HardwareEntry clicked = hardware.Resources.Entries.Single(item => item.Definition.Id == groupedInput.Id);
@@ -256,4 +255,81 @@ internal static partial class Cases
         editor.SetEditing(false); menu.Show(surface, new Point(5, 5)); Application.DoEvents();
         Assert(!menu.Items["nodeProperties"].Enabled, "Properties bypassed the flow-editing switch."); menu.Close();
     }
+    /// <summary>Each axis has one reusable tab; selecting and translating the page never recreates motors or point tables.</summary>
+    private static void AxisResourceTabs()
+    {
+        string previousSettings = SysPara.SettingDataDirectory;
+        string folder = Path.Combine(root, "axis-tabs"); Directory.CreateDirectory(folder);
+        SysPara.SettingDataDirectory = folder;
+        HardForm form = null;
+        try
+        {
+            form = new HardForm();
+            HardwareResourcePanel panel = (HardwareResourcePanel)form.Controls.Find("hardwareResourcePanel", true)[0];
+            panel.BindOwner(form);
+            HardwareResources resources = panel.Resources;
+            TabControl tabs = (TabControl)panel.Controls.Find("axisResourceTabs", true)[0];
+            Assert(tabs.TabCount == 0 && panel.Controls.Find("resourceSelected", true).Length == 0, "Axis view retains duplicate selectors or sample devices.");
+            foreach (string name in new[] { "X 轴", "Y axis", "旋转轴" })
+            {
+                HardwareDefinition definition = resources.NewDefinition("Axis"); definition.Name = name;
+                HardwareEntry created = resources.Put(definition);
+                Assert(((HardwareDefinition)tabs.SelectedTab.Tag).Id == created.Definition.Id, "New axis did not select its own tab.");
+                form.RecipeData.Tables[HardwareResources.PointsName(created.Definition.Id)].Rows.Add(100d, "Point A");
+            }
+            HardwareEntry[] axes = resources.Entries.ToArray();
+            TabPage[] pages = tabs.TabPages.Cast<TabPage>().ToArray();
+            Assert(pages.Length == 3 && pages.Select(page => page.Text).SequenceEqual(axes.Select(entry => entry.Definition.Name)), "Axis tabs lost their configured order or names.");
+            form.Show(); ((Button)form.Controls.Find("configuredResources", true)[0]).PerformClick(); Application.DoEvents();
+            tabs.SelectedTab = pages[0];
+            NP_AxisGroup axis = (NP_AxisGroup)axes[0].Group;
+            NP_Motor motor = axis.Motor;
+            DataTable points = form.RecipeData.Tables[HardwareResources.PointsName(axes[0].Definition.Id)];
+            DataRow point = points.Rows[0];
+            foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+            {
+                foreach (Size size in new[] { new Size(1280, 740), new Size(900, 620), new Size(680, 520) })
+                {
+                    form.ClientSize = size; SwitchLanguage(language); Application.DoEvents();
+                    tabs.SelectedTab = pages[1]; tabs.SelectedTab = pages[0]; Application.DoEvents();
+                    Assert(ReferenceEquals(axis.Motor, motor) && ReferenceEquals(points.Rows[0], point) && (double)point["Position"] == 100d, "Switching axis tabs or language recreated a motor or lost point edits.");
+                    Assert(pages.Select(page => page.Text).SequenceEqual(axes.Select(entry => entry.Definition.Name)), "Language switching translated business axis names.");
+                    Assert(axis.Parent == pages[0] && axis.Dock == DockStyle.Fill && axis.Width >= axis.MinimumSize.Width && axis.Height >= axis.MinimumSize.Height, "Selected axis does not occupy its tab or clips its minimum layout.");
+                    Assert(axes.Skip(1).All(entry => !entry.Group.Visible) && !panel.Controls.Find("resourceCanvas", true)[0].Visible, "Inactive axes are still tiled into the view.");
+                    using (Bitmap screenshot = new Bitmap(form.Width, form.Height))
+                    {
+                        form.DrawToBitmap(screenshot, new Rectangle(Point.Empty, form.Size));
+                        screenshot.Save(Path.Combine(root, "axis-tabs-" + size.Width + "-" + language + ".png"));
+                    }
+                }
+            }
+            form.ClientSize = new Size(1280, 740); Application.DoEvents();
+            Rectangle tabHeader = tabs.GetTabRect(1); Point hit = new Point(tabHeader.Left + 4, tabHeader.Top + 4);
+            typeof(Control).GetMethod("OnMouseDown", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(tabs, new object[] { new MouseEventArgs(MouseButtons.Right, 1, hit.X, hit.Y, 0) });
+            tabs.ContextMenuStrip.Show(tabs, hit); Application.DoEvents();
+            Assert((string)typeof(HardwareResourcePanel).GetField("contextResourceId", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(panel) == axes[1].Definition.Id, "Tab context menu targeted a different axis.");
+            tabs.ContextMenuStrip.Close();
+            HardwareEntry selectedAxis = (HardwareEntry)typeof(HardwareResourcePanel).GetMethod("Selected", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(panel, null);
+            Assert(selectedAxis.Definition.Id == axes[1].Definition.Id, "Parameter button ignores the active axis tab.");
+            resources.Save();
+            HardwareDefinition rename = axes[1].Definition.Copy(); rename.Name = "Renamed Y"; resources.Put(rename);
+            Assert(ReferenceEquals(tabs.SelectedTab, pages[1]) && pages[1].Text == "Renamed Y", "Editing axis properties recreated or switched its tab.");
+            resources.Delete(axes[2].Definition.Id); Assert(tabs.TabCount == 2 && pages[2].IsDisposed, "Deleted axis retained an empty tab.");
+            resources.DiscardChanges();
+            Assert(tabs.TabCount == 3 && tabs.TabPages.Cast<TabPage>().Select(page => page.Text).SequenceEqual(new[] { "X 轴", "Y axis", "旋转轴" }), "Discard did not restore saved axis tabs exactly once.");
+            resources.Save(); resources.DiscardChanges();
+            Assert(tabs.TabCount == 3 && resources.Entries.All(entry => entry.Group.Parent is TabPage && !entry.Group.IsDisposed), "Reload duplicated tabs or disposed the live axis.");
+            string firstSavedId = HardwareResources.Load(resources.PathName).Resources[0].Id;
+            form.Close(); form.Dispose(); AlphaRapLibrary.ModuleManager.ModuleList.Remove(form);
+            form = new HardForm(); panel = (HardwareResourcePanel)form.Controls.Find("hardwareResourcePanel", true)[0]; panel.BindOwner(form);
+            tabs = (TabControl)panel.Controls.Find("axisResourceTabs", true)[0];
+            Assert(tabs.TabCount == 3 && tabs.SelectedTab == tabs.TabPages[0] && ((HardwareDefinition)tabs.SelectedTab.Tag).Id == firstSavedId, "Restart did not restore each saved axis once and select the first persisted tab.");
+        }
+        finally
+        {
+            if (form != null) { form.Close(); form.Dispose(); AlphaRapLibrary.ModuleManager.ModuleList.Remove(form); }
+            SysPara.SettingDataDirectory = previousSettings; SwitchLanguage(LanguageType.Chinese);
+        }
+    }
+
 }

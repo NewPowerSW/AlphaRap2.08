@@ -11,6 +11,8 @@ namespace AlphaRap.Configuration
     {
         public HardwareResources Resources { get; private set; }
         private string contextResourceId;
+        private TabPage contextAxisTab;
+        private bool refreshingTabs;
         private string resourceKind = "Axis";
         [DefaultValue("Axis")]
         public string ResourceKind
@@ -25,9 +27,11 @@ namespace AlphaRap.Configuration
             InitializeComponent();
             canvas.Resize += (sender, args) => ArrangeIo();
             ApplyKind();
+            axisTabs.SelectedIndexChanged += (sender, args) => edit.Enabled = axisTabs.SelectedTab != null;
+            axisTabs.MouseDown += SelectContextTab;
             if (UiTheme.IsDesignTime) return;
             HardwareText.Apply(this);
-            foreach (Control control in Controls) if (control != canvas) MiddleLayer.RegisterAndApplyLanguage(control,"HardwareResources");
+            foreach (Control control in Controls) if (control != canvas && control != axisTabs) MiddleLayer.RegisterAndApplyLanguage(control,"HardwareResources");
             MiddleLayer.LanguageChanged += ApplyLanguage;
             Disposed += (sender,args) => MiddleLayer.LanguageChanged -= ApplyLanguage;
             addAxis.Click += (sender,args) => Execute(()=>EditNew("Axis"));
@@ -74,17 +78,20 @@ namespace AlphaRap.Configuration
             if (addAxis == null) return;
             addAxis.Visible = resourceKind!="IO";
             addInput.Visible = resourceKind=="IO"; addOutput.Visible = resourceKind=="IO";
-            selected.Visible = resourceKind!="IO"; edit.Visible = resourceKind!="IO";
-            toolbar.Height = resourceKind=="IO" ? 42 : 78;
+            edit.Visible = resourceKind!="IO";
+            axisTabs.Visible = resourceKind!="IO"; canvas.Visible = resourceKind=="IO";
+            toolbar.Height = 42;
+            if (Resources != null) RefreshEntries();
             hint.Name = resourceKind=="IO" ? "ioResourceHint" : "resourceHint"; hint.Tag = resourceKind=="IO" ? "ioHint" : "hint";
             hint.Text = HardwareText.T(resourceKind=="IO" ? "ioHint" : "hint");
             ArrangeIo();
         }
 
-        /// <summary>选择列表按对象身份定位，业务名称不作翻译。</summary>
+        /// <summary>参数按钮始终定位当前轴选项卡，业务名称不作为身份。</summary>
         private HardwareEntry Selected()
         {
-            HardwareEntry entry = selected.SelectedItem as HardwareEntry;
+            HardwareDefinition definition = axisTabs.SelectedTab == null ? null : axisTabs.SelectedTab.Tag as HardwareDefinition;
+            HardwareEntry entry = definition == null || Resources == null ? null : Resources.Entries.FirstOrDefault(item => item.Definition.Id == definition.Id);
             if (entry == null) throw new InvalidOperationException(HardwareText.T("missing"));
             return entry;
         }
@@ -153,6 +160,7 @@ namespace AlphaRap.Configuration
         {
             contextResourceId = null;
             Control control = resourceMenu.SourceControl;
+            if (control == axisTabs) control = contextAxisTab;
             while (control != null && !(control.Tag is HardwareDefinition)) control = control.Parent;
             HardwareDefinition definition = control == null ? null : control.Tag as HardwareDefinition;
             if (definition == null || Resources == null) { args.Cancel = true; return; }
@@ -167,11 +175,65 @@ namespace AlphaRap.Configuration
             Execute(()=>EditEntry(Resources.Entries.Single(entry=>ReferenceEquals(entry.Group,sender))));
         }
 
-        /// <summary>增删改后刷新列表，语言切换不执行此数据绑定。</summary>
+        /// <summary>右键命中轴页签后选择该页，空白处不借用上次右键的资源。</summary>
+        private void SelectContextTab(object sender, MouseEventArgs args)
+        {
+            if (args.Button != MouseButtons.Right) return;
+            contextAxisTab = null;
+            for (int index = 0; index < axisTabs.TabCount; index++)
+            {
+                if (!axisTabs.GetTabRect(index).Contains(args.Location)) continue;
+                contextAxisTab = axisTabs.TabPages[index];
+                axisTabs.SelectedTab = contextAxisTab;
+                return;
+            }
+        }
+
+        /// <summary>资源变更只同步所属页面；语言和配方切换不重建轴实例。</summary>
         private void RefreshEntries()
         {
-            selected.DataSource = Resources.Entries.Where(BelongsHere).ToList();
-            ArrangeIo();
+            if (resourceKind == "IO") { ArrangeIo(); return; }
+            RefreshAxisTabs();
+        }
+
+        /// <summary>每个轴使用一个稳定身份页签，保留当前选择并让新建轴直接显示。</summary>
+        private void RefreshAxisTabs()
+        {
+            if (refreshingTabs) return;
+            refreshingTabs = true;
+            axisTabs.SuspendLayout();
+            try
+            {
+                HardwareEntry[] axes = Resources.Entries.Where(entry => entry.Definition.Kind == "Axis").ToArray();
+                TabPage selection = axisTabs.SelectedTab;
+                bool hadTabs = axisTabs.TabCount > 0;
+                foreach (TabPage page in axisTabs.TabPages.Cast<TabPage>().ToArray())
+                {
+                    HardwareDefinition definition = page.Tag as HardwareDefinition;
+                    if (definition != null && axes.Any(entry => entry.Definition.Id == definition.Id)) continue;
+                    if (ReferenceEquals(contextAxisTab, page)) contextAxisTab = null;
+                    axisTabs.TabPages.Remove(page); page.Dispose();
+                }
+                foreach (HardwareEntry entry in axes)
+                {
+                    TabPage page = axisTabs.TabPages.Cast<TabPage>().FirstOrDefault(item => ((HardwareDefinition)item.Tag).Id == entry.Definition.Id);
+                    if (page == null)
+                    {
+                        page = new TabPage { Name = "axisTab_" + entry.Definition.Id + "_dyn", AutoScroll = true, Padding = new Padding(5), UseVisualStyleBackColor = true };
+                        axisTabs.TabPages.Add(page);
+                        if (hadTabs || axes.Length == 1) selection = page;
+                    }
+                    page.Tag = entry.Definition; page.Text = entry.Definition.Name; page.ToolTipText = entry.Definition.Name;
+                    if (entry.Group.Parent == page) continue;
+                    entry.Group.Dock = DockStyle.Fill; entry.Group.Margin = Padding.Empty;
+                    page.AutoScrollMinSize = entry.Group.MinimumSize + page.Padding.Size;
+                    page.Controls.Add(entry.Group); entry.Group.Visible = true;
+                }
+                if (selection != null && axisTabs.TabPages.Contains(selection)) axisTabs.SelectedTab = selection;
+                else if (axisTabs.SelectedTab == null && axisTabs.TabCount > 0) axisTabs.SelectedTab = axisTabs.TabPages[0];
+                edit.Enabled = axisTabs.SelectedTab != null;
+            }
+            finally { axisTabs.ResumeLayout(); refreshingTabs = false; }
         }
 
         /// <summary>输入和输出在同一画布分区平铺，卡片使用原 IO 外观而不增加可见外框。</summary>

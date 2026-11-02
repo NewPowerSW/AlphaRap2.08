@@ -57,7 +57,7 @@ internal static partial class Cases
         foreach(string kind in new[]{"Input","Input","Output","Output","Output"}){HardwareDefinition definition=hardware.Resources.NewDefinition(kind);hardware.Resources.Put(definition);additions.Add(definition.Id);}
         ioPage.Show(); ((TabControl)ioPage.Controls.Find("tabControl1",true)[0]).SelectedTab=(TabPage)ioPage.Controls.Find("ioResourcesPage",true)[0]; Application.DoEvents();
         HardwareResourcePanel panel=(HardwareResourcePanel)ioPage.Controls.Find("ioResourcePanel",true)[0];
-        Assert(!panel.Controls.Find("resourceSelected",true)[0].Visible && !panel.Controls.Find("resourceEdit",true)[0].Visible,"IO still has duplicate resource selectors.");
+        Assert(panel.Controls.Find("resourceSelected",true).Length==0 && !panel.Controls.Find("resourceEdit",true)[0].Visible,"IO still has duplicate resource selectors.");
         Assert(hardware.Resources.Entries.Where(entry=>entry.Definition.Kind!="Axis").All(entry=>entry.Group.Height==40),"IO was not compact after host binding.");
         Control canvas=panel.Controls.Find("resourceCanvas",true)[0];Assert(canvas.Controls.Find("inputHeader_dyn",true)[0].Top<canvas.Controls.Find("outputHeader_dyn",true)[0].Top,"Inputs and outputs were not grouped in the correct order.");
         Screenshot(panel,"compact-io-cards"); ioPage.Hide();foreach(string id in additions)hardware.Resources.Delete(id);hardware.Resources.Save();

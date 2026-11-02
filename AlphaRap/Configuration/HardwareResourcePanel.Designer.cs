@@ -9,7 +9,7 @@ namespace AlphaRap.Configuration
         private Button addAxis,addInput,addOutput,edit;
         private ContextMenuStrip resourceMenu;
         private ToolStripMenuItem resourceDelete, resourceProperties;
-        private ComboBox selected;
+        private TabControl axisTabs;
         private Label hint,status,inputHeader,outputHeader;
 
         /// <summary>释放资源右键菜单及其项。</summary>
@@ -19,29 +19,90 @@ namespace AlphaRap.Configuration
             base.Dispose(disposing);
         }
 
-        /// <summary>固定管理入口与滚动组合控件画布。</summary>
+        /// <summary>固定管理入口、轴选项卡与独立 IO 画布。</summary>
         private void InitializeComponent()
         {
-            toolbar = new FlowLayoutPanel { Name = "resourceToolbar",Dock = DockStyle.Top,Height = 78,WrapContents = true,Padding = new Padding(4) };
-            addAxis = new Button { Name = "resourceAddAxis",Tag = "addAxis",Text = "新增轴",AutoSize = true };
-            addInput = new Button { Name = "resourceAddInput",Tag = "addInput",Text = "新增输入",AutoSize = true };
-            addOutput = new Button { Name = "resourceAddOutput",Tag = "addOutput",Text = "新增输出",AutoSize = true };
-            selected = new ComboBox { Name = "resourceSelected",DropDownStyle = ComboBoxStyle.DropDownList,Width = 220 };
-            edit = new Button { Name = "resourceEdit",Tag = "edit",Text = "参数",AutoSize = true };
-            resourceMenu = new ContextMenuStrip { Name = "resourceMenu" };
-            resourceDelete = new ToolStripMenuItem { Name = "resourceDelete", Text = "删除资源" };
-            resourceProperties = new ToolStripMenuItem { Name = "resourceProperties", Text = "属性编辑" };
-            resourceMenu.Items.AddRange(new ToolStripItem[] { resourceProperties, new ToolStripSeparator(), resourceDelete });
-            toolbar.Controls.AddRange(new Control[] { addAxis,addInput,addOutput,selected,edit });
-            canvas = new FlowLayoutPanel { Name = "resourceCanvas",Dock = DockStyle.Fill,AutoScroll = true,WrapContents = true,Padding = new Padding(5) };
-            inputHeader = new Label { Name = "inputHeader_dyn", Text = "输入", Width = 1200, Height = 32, Font = new Font("Microsoft YaHei",10F,FontStyle.Bold), Visible = false };
-            outputHeader = new Label { Name = "outputHeader_dyn", Text = "输出", Width = 1200, Height = 32, Font = new Font("Microsoft YaHei",10F,FontStyle.Bold), Visible = false };
+            this.toolbar = new FlowLayoutPanel();
+            this.toolbar.Name = "resourceToolbar";
+            this.toolbar.Dock = DockStyle.Top;
+            this.toolbar.Height = 42;
+            this.toolbar.WrapContents = true;
+            this.toolbar.Padding = new Padding(4);
+            this.addAxis = new Button();
+            this.addAxis.Name = "resourceAddAxis";
+            this.addAxis.Tag = "addAxis";
+            this.addAxis.Text = "新增轴";
+            this.addAxis.AutoSize = true;
+            this.addInput = new Button();
+            this.addInput.Name = "resourceAddInput";
+            this.addInput.Tag = "addInput";
+            this.addInput.Text = "新增输入";
+            this.addInput.AutoSize = true;
+            this.addOutput = new Button();
+            this.addOutput.Name = "resourceAddOutput";
+            this.addOutput.Tag = "addOutput";
+            this.addOutput.Text = "新增输出";
+            this.addOutput.AutoSize = true;
+            this.edit = new Button();
+            this.edit.Name = "resourceEdit";
+            this.edit.Tag = "edit";
+            this.edit.Text = "参数";
+            this.edit.AutoSize = true;
+            this.resourceMenu = new ContextMenuStrip();
+            this.resourceMenu.Name = "resourceMenu";
+            this.resourceDelete = new ToolStripMenuItem();
+            this.resourceDelete.Name = "resourceDelete";
+            this.resourceDelete.Text = "删除资源";
+            this.resourceProperties = new ToolStripMenuItem();
+            this.resourceProperties.Name = "resourceProperties";
+            this.resourceProperties.Text = "属性编辑";
+            this.resourceMenu.Items.AddRange(new ToolStripItem[] { resourceProperties, new ToolStripSeparator(), resourceDelete });
+            this.toolbar.Controls.AddRange(new Control[] { addAxis,addInput,addOutput,edit });
+            this.axisTabs = new TabControl();
+            this.axisTabs.Name = "axisResourceTabs";
+            this.axisTabs.Dock = DockStyle.Fill;
+            this.axisTabs.Multiline = false;
+            this.axisTabs.ShowToolTips = true;
+            this.axisTabs.ContextMenuStrip = this.resourceMenu;
+            this.canvas = new FlowLayoutPanel();
+            this.canvas.Name = "resourceCanvas";
+            this.canvas.Dock = DockStyle.Fill;
+            this.canvas.AutoScroll = true;
+            this.canvas.WrapContents = true;
+            this.canvas.Padding = new Padding(5);
+            this.inputHeader = new Label();
+            this.inputHeader.Name = "inputHeader_dyn";
+            this.inputHeader.Text = "输入";
+            this.inputHeader.Width = 1200;
+            this.inputHeader.Height = 32;
+            this.inputHeader.Font = new Font("Microsoft YaHei",10F,FontStyle.Bold);
+            this.inputHeader.Visible = false;
+            this.outputHeader = new Label();
+            this.outputHeader.Name = "outputHeader_dyn";
+            this.outputHeader.Text = "输出";
+            this.outputHeader.Width = 1200;
+            this.outputHeader.Height = 32;
+            this.outputHeader.Font = new Font("Microsoft YaHei",10F,FontStyle.Bold);
+            this.outputHeader.Visible = false;
             canvas.Controls.Add(inputHeader); canvas.Controls.Add(outputHeader);
             canvas.SetFlowBreak(inputHeader,true); canvas.SetFlowBreak(outputHeader,true);
-            hint = new Label { Name = "resourceHint",Tag = "hint",Text = "双击标题或右键属性编辑，右键删除；配置统一使用主界面【保存】。轴点位随配方切换，连接及运动由流程负责；已连接资源修改驱动参数后需保存并重启。",Dock = DockStyle.Bottom,Height = 64,Padding = new Padding(5) };
-            status = new Label { Name = "resourceStatus_dyn",Dock = DockStyle.Bottom,Height = 28,AutoEllipsis = true };
-            Controls.Add(canvas); Controls.Add(toolbar); Controls.Add(status); Controls.Add(hint);
-            Name = "HardwareResourcePanel"; Size = new Size(1250,700); Font = new Font("Microsoft YaHei",9F); AutoScaleMode = AutoScaleMode.None;
+            this.hint = new Label();
+            this.hint.Name = "resourceHint";
+            this.hint.Tag = "hint";
+            this.hint.Text = "双击标题或右键属性编辑，右键删除；配置统一使用主界面【保存】。轴点位随配方切换，连接及运动由流程负责；已连接资源修改驱动参数后需保存并重启。";
+            this.hint.Dock = DockStyle.Bottom;
+            this.hint.Height = 64;
+            this.hint.Padding = new Padding(5);
+            this.status = new Label();
+            this.status.Name = "resourceStatus_dyn";
+            this.status.Dock = DockStyle.Bottom;
+            this.status.Height = 28;
+            this.status.AutoEllipsis = true;
+            Controls.Add(axisTabs); Controls.Add(canvas); Controls.Add(toolbar); Controls.Add(status); Controls.Add(hint);
+            this.Name = "HardwareResourcePanel";
+            this.Size = new Size(1250,700);
+            this.Font = new Font("Microsoft YaHei",9F);
+            this.AutoScaleMode = AutoScaleMode.None;
         }
     }
 }

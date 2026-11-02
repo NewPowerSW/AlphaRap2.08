@@ -61,7 +61,7 @@ internal static class Cases
         SysPara.VisionFileDirectory = Path.Combine(configurationRoot, "VisionData");
         SysPara.RecipeName = "DesignerProbe"; SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, "DesignerProbe.xml");
         visualTypes = typeof(SystemSetting).Assembly.GetTypes().Where(type => !type.IsAbstract && !type.IsNested && typeof(Control).IsAssignableFrom(type)
-            && type.Namespace == "AlphaRap.FlowProgramming").Concat(new[] { typeof(SystemSetting), typeof(Flow), typeof(AlphaRap.Configuration.LogModulesForm), typeof(DataForm) }).OrderBy(type => type.FullName).ToArray();
+            && type.Namespace == "AlphaRap.FlowProgramming").Concat(new[] { typeof(SystemSetting), typeof(Flow), typeof(AlphaRap.Configuration.LogModulesForm), typeof(AlphaRap.Configuration.HardwareResourcePanel), typeof(DataForm) }).OrderBy(type => type.FullName).ToArray();
         Test("every flow source is included once and compiled sources exist", ProjectSources);
         Test("visual classes have complete project metadata and public parameterless constructors", ProjectMetadata);
         Test("InitializeComponent contains only explicit designer-supported UI initialization", DesignerSource);
@@ -156,7 +156,7 @@ internal static class Cases
                 string prefix = body.Substring(0, call.Index);
                 if (Regex.IsMatch(prefix, @"\bnew\s+(?:global::)?$")) continue;
                 string method = call.Groups["name"].Value.Split('.').Last();
-                Check(new[] { "typeof", "SuspendLayout", "ResumeLayout", "PerformLayout", "BeginInit", "EndInit", "Add", "AddRange", "Insert", "SetColumnSpan", "SetRowSpan", "SetChildIndex", "FromArgb", "ApplyResources", "GetObject", "GetString", "SetToolTip", "SetIconAlignment", "SetIconPadding" }.Contains(method),
+                Check(new[] { "typeof", "SuspendLayout", "ResumeLayout", "PerformLayout", "BeginInit", "EndInit", "Add", "AddRange", "Insert", "SetColumnSpan", "SetRowSpan", "SetFlowBreak", "SetChildIndex", "FromArgb", "ApplyResources", "GetObject", "GetString", "SetToolTip", "SetIconAlignment", "SetIconPadding" }.Contains(method),
                     "Custom method inside InitializeComponent: " + call.Groups["name"].Value + " / " + file);
             }
         }

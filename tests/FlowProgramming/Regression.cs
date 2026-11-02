@@ -172,6 +172,7 @@ internal static partial class Cases
         Test("IO group and resource labels follow the original control Text without changing IDs", IoDisplayNames);
         Test("axis menus exclude trays and movement uses only the page-bound point table", AxisBoundPointChoices);
         Test("resource property context menus edit the clicked instance as a draft", ResourceProperties);
+        Test("axis resource tabs preserve identity, points, language and add/delete/reload behavior", AxisResourceTabs);
         Test("Setting and Recipe constant tables are selectable objects with saved typed values", ConstantTableObjects);
         Test("constant read nodes protect referenced keys and types", ConstantReadReferences);
         Test("compact IO cards reuse the original instance and guard manual toggles", CompactIoCards);
