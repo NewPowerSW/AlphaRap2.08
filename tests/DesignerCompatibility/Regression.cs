@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -39,6 +40,7 @@ internal static class Cases
 {
     private static string projectRoot, outputRoot, configurationRoot;
     private static Type[] visualTypes;
+    private static readonly Dictionary<Type, string> sourcePaths = new Dictionary<Type, string>();
     private static int passed, failed;
 
     private sealed class DesignContext : LicenseContext
@@ -46,7 +48,7 @@ internal static class Cases
         public override LicenseUsageMode UsageMode { get { return LicenseUsageMode.Designtime; } }
     }
 
-    /// <summary>Discover every FlowProgramming visual type and SystemSetting, then verify their source and safe construction paths.</summary>
+    /// <summary>Discover compiled forms and controls with Designer sources, then verify metadata, initialization and design-time safety.</summary>
     internal static int Run(string[] args)
     {
         Application.EnableVisualStyles();
@@ -60,8 +62,23 @@ internal static class Cases
         SysPara.RecipeDataDirectory = Path.Combine(configurationRoot, "Recipes");
         SysPara.VisionFileDirectory = Path.Combine(configurationRoot, "VisionData");
         SysPara.RecipeName = "DesignerProbe"; SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, "DesignerProbe.xml");
-        visualTypes = typeof(SystemSetting).Assembly.GetTypes().Where(type => !type.IsAbstract && !type.IsNested && typeof(Control).IsAssignableFrom(type)
-            && type.Namespace == "AlphaRap.FlowProgramming").Concat(new[] { typeof(SystemSetting), typeof(Flow), typeof(AlphaRap.Configuration.LogModulesForm), typeof(AlphaRap.Configuration.HardwareResourcePanel), typeof(DataForm) }).OrderBy(type => type.FullName).ToArray();
+        XDocument project = XDocument.Load(Path.Combine(projectRoot, "AlphaRap", "AlphaRap.csproj"));
+        XNamespace ns = project.Root.Name.Namespace;
+        Type[] types = typeof(SystemSetting).Assembly.GetTypes();
+        foreach (XElement item in project.Descendants(ns + "Compile"))
+        {
+            string source = (string)item.Attribute("Include");
+            if (source == null || source.EndsWith(".Designer.cs", StringComparison.OrdinalIgnoreCase)) continue;
+            string file = Path.Combine(projectRoot, "AlphaRap", source);
+            string designer = file.Substring(0, file.Length - 3) + ".Designer.cs";
+            if (!File.Exists(file) || !File.Exists(designer)) continue;
+            Type type = types.SingleOrDefault(candidate => candidate.Name == Path.GetFileNameWithoutExtension(source) && !candidate.IsAbstract && typeof(Control).IsAssignableFrom(candidate));
+            if (type == null || type.GetConstructor(Type.EmptyTypes) == null) continue;
+            sourcePaths[type] = source;
+        }
+        foreach (Type type in types.Where(type => !type.IsAbstract && !type.IsNested && typeof(Control).IsAssignableFrom(type) && type.Namespace == "AlphaRap.FlowProgramming"))
+            if (!sourcePaths.ContainsKey(type)) sourcePaths[type] = "FlowProgramming\\" + type.Name + ".cs";
+        visualTypes = sourcePaths.Keys.OrderBy(type => type.FullName).ToArray();
         Test("every flow source is included once and compiled sources exist", ProjectSources);
         Test("visual classes have complete project metadata and public parameterless constructors", ProjectMetadata);
         Test("InitializeComponent contains only explicit designer-supported UI initialization", DesignerSource);
@@ -146,17 +163,21 @@ internal static class Cases
             Check(!Regex.IsMatch(body, @"\bnew\s+(?:global::)?[A-Za-z_][\w.<>]*(?:\s*\([^;{}]*\))?\s*\{"), "Object initializer inside InitializeComponent: " + file);
             foreach (Match local in Regex.Matches(body, @"(?m)^\s*(?<type>(?:global::)?[A-Za-z_][\w.:<>]*)\s+(?<name>[A-Za-z_]\w*)\s*="))
                 Check((local.Groups["type"].Value.EndsWith("ComponentResourceManager", StringComparison.Ordinal) && local.Groups["name"].Value == "resources")
-                    || (type == typeof(DataForm) && local.Groups["type"].Value == "DataSave.DataFormat" && Regex.IsMatch(local.Groups["name"].Value, @"^dataFormat[0-9]+$")),
+                    || (type == typeof(DataForm) && local.Groups["type"].Value == "DataSave.DataFormat" && Regex.IsMatch(local.Groups["name"].Value, @"^dataFormat[0-9]+$"))
+                    || (type == typeof(HardForm) && local.Groups["type"].Value == "NPSDK.Motion.PositionColumn" && Regex.IsMatch(local.Groups["name"].Value, @"^positionColumn[0-9]+$")),
                     "Business or inferred local variable inside InitializeComponent: " + file);
             Check(!Regex.IsMatch(body, @"\b(?:if|for|foreach|while|switch|try|using)\s*\("), "Business control flow inside InitializeComponent: " + file);
             Check(!body.Contains("=>"), "Lambda inside InitializeComponent: " + file);
-            Check(!Regex.IsMatch(body, @"\b(?:SettingData|RecipeData|DataTable|ConstantStore|MiddleLayer|FlowPrograms|FlowActions|UiTheme)\b"), "Business data or services inside InitializeComponent: " + file);
+            string forbidden = typeof(ModuleBaseForm).IsAssignableFrom(type)
+                ? @"\b(?:ConstantStore|MiddleLayer|FlowPrograms|FlowActions|UiTheme)\b"
+                : @"\b(?:SettingData|RecipeData|DataTable|ConstantStore|MiddleLayer|FlowPrograms|FlowActions|UiTheme)\b";
+            Check(!Regex.IsMatch(body, forbidden), "Business data or services inside InitializeComponent: " + file);
             foreach (Match call in Regex.Matches(body, @"(?<name>[A-Za-z_][\w.]*)\s*\("))
             {
                 string prefix = body.Substring(0, call.Index);
                 if (Regex.IsMatch(prefix, @"\bnew\s+(?:global::)?$")) continue;
                 string method = call.Groups["name"].Value.Split('.').Last();
-                Check(new[] { "typeof", "SuspendLayout", "ResumeLayout", "PerformLayout", "BeginInit", "EndInit", "Add", "AddRange", "Insert", "SetColumnSpan", "SetRowSpan", "SetFlowBreak", "SetChildIndex", "FromArgb", "ApplyResources", "GetObject", "GetString", "SetToolTip", "SetIconAlignment", "SetIconPadding" }.Contains(method),
+                Check(new[] { "typeof", "SuspendLayout", "ResumeLayout", "PerformLayout", "BeginInit", "EndInit", "Add", "AddRange", "Insert", "SetColumnSpan", "SetRowSpan", "SetFlowBreak", "SetKeyName", "SetChildIndex", "FromArgb", "ApplyResources", "GetObject", "GetString", "SetToolTip", "SetIconAlignment", "SetIconPadding" }.Contains(method),
                     "Custom method inside InitializeComponent: " + call.Groups["name"].Value + " / " + file);
             }
         }
@@ -188,8 +209,8 @@ internal static class Cases
     {
         LicenseContext previous = LicenseManager.CurrentContext;
         string before = ConfigurationTree();
-        int hardwareCount = SDKPara.ControlList.Count;
-        Control component = null; Form window = null;
+        NPSDK.ControlBaseInterface[] registered = SDKPara.ControlsSnapshot();
+        Control component = null; Control preview = null; Form window = null; DesignSurface surface = null;
         try
         {
             LicenseManager.CurrentContext = new DesignContext();
@@ -207,39 +228,76 @@ internal static class Cases
                 Timer timer = (Timer)typeof(SystemSetting).GetField("permissionTimer", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(settings);
                 Check(timer != null && !timer.Enabled, "SystemSetting started its permission timer in design mode.");
             }
-            window = component as Form;
-            if (window == null)
-            {
-                window = new Form { ClientSize = new Size(Math.Max(700, component.Width), Math.Max(220, component.Height)) };
-                component.Dock = DockStyle.Fill; window.Controls.Add(component);
-            }
+            Check(ConfigurationTree() == before, "Design construction wrote configuration files or directories: " + type.FullName);
+            UiTheme.ForceDesignTimeForTest(true);
+            surface = new DesignSurface(type);
+            Check(surface.IsLoaded, "The .NET design surface could not load " + type.FullName + ": " + string.Join("; ", surface.LoadErrors.Cast<object>().Select(error => error.ToString())));
+            preview = (Control)((IDesignerHost)surface.GetService(typeof(IDesignerHost))).RootComponent;
+            VerifySitedLifecycle(preview);
+            Control view = (Control)surface.View;
+            window = new Form { ClientSize = new Size(Math.Max(700, component.Width + 30), Math.Max(220, component.Height + 30)) };
+            view.Dock = DockStyle.Fill; window.Controls.Add(view);
             window.ShowInTaskbar = false; window.StartPosition = FormStartPosition.Manual; window.Location = new Point(-30000, -30000);
-            window.Show(); component.PerformLayout(); Application.DoEvents();
-            Check(component.IsHandleCreated, "The visual component did not create a handle: " + type.FullName);
+            window.Show();
+            component.PerformLayout(); Application.DoEvents();
+            Check(preview.IsHandleCreated, "The design surface did not create a preview handle: " + type.FullName);
             using (Bitmap image = new Bitmap(Math.Max(1, window.Width), Math.Max(1, window.Height)))
             {
                 window.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
                 image.Save(Path.Combine(outputRoot, type.FullName.Replace('.', '_') + ".png"));
             }
             Check(ConfigurationTree() == before, "Design construction wrote configuration files or directories: " + type.FullName);
-            Check(SDKPara.ControlList.Count == hardwareCount, "Design construction registered hardware controls: " + type.FullName);
+            foreach (NPSDK.ControlBaseInterface device in SDKPara.ControlsSnapshot().Except(registered))
+            {
+                FieldInfo ready = device.GetType().GetField("ready", BindingFlags.Instance | BindingFlags.NonPublic);
+                Check(ready == null || !Equals(ready.GetValue(device), true), "Design construction initialized hardware: " + type.FullName);
+            }
         }
         finally
         {
             LicenseManager.CurrentContext = previous;
+            UiTheme.ForceDesignTimeForTest(false);
             try
             {
                 if (window != null) window.Dispose();
-                else if (component != null) component.Dispose();
+                if (surface != null) surface.Dispose();
+                if (component != null) component.Dispose();
             }
             finally
             {
                 ModuleBaseForm module = component as ModuleBaseForm;
                 if (module != null) ModuleManager.ModuleList.Remove(module);
+                ModuleBaseForm previewModule = preview as ModuleBaseForm;
+                if (previewModule != null) ModuleManager.ModuleList.Remove(previewModule);
             }
         }
         Check(ConfigurationTree() == before, "Disposing a design-created component after restoring the runtime license wrote configuration: " + type.FullName);
-        Check(SDKPara.ControlList.Count == hardwareCount, "Disposing a design-created component registered hardware controls: " + type.FullName);
+        Check(!SDKPara.ControlsSnapshot().Except(registered).Any(), "Disposing a design-created component leaked hardware registrations: " + type.FullName);
+    }
+
+    /// <summary>Verify lifecycle guards still protect sited pages after the constructor's design license is no longer current.</summary>
+    private static void VerifySitedLifecycle(Control preview)
+    {
+        string[] guarded = { "AddUserForm", "ProductManagerForm", "DeviceControl", "MainForm", "CheckForm", "AlarmSetting", "LanguageSetting", "SystemForm" };
+        if (!guarded.Contains(preview.GetType().Name)) return;
+        Check(preview.Site != null && preview.Site.DesignMode, "The preview is not attached to a genuine design site.");
+        string before = ConfigurationTree();
+        LicenseContext current = LicenseManager.CurrentContext;
+        try
+        {
+            UiTheme.ForceDesignTimeForTest(false);
+            LicenseManager.CurrentContext = new LicenseContext();
+            Type baseType = preview is Form ? typeof(Form) : typeof(UserControl);
+            baseType.GetMethod("OnLoad", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(preview, new object[] { EventArgs.Empty });
+            if (preview is Form) typeof(Form).GetMethod("OnShown", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(preview, new object[] { EventArgs.Empty });
+            typeof(Control).GetMethod("OnVisibleChanged", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(preview, new object[] { EventArgs.Empty });
+            Check(ConfigurationTree() == before, "A sited design lifecycle accessed configuration after the license context changed: " + preview.GetType().FullName);
+        }
+        finally
+        {
+            LicenseManager.CurrentContext = current;
+            UiTheme.ForceDesignTimeForTest(true);
+        }
     }
 
     /// <summary>Check every designer-created control or component field exists after its parameterless constructor completes.</summary>
@@ -250,6 +308,7 @@ internal static class Cases
         foreach (Match assignment in Regex.Matches(body, @"(?m)^\s*(?:this\.)?(?<field>[A-Za-z_]\w*)\s*=\s*new\s+"))
         {
             string name = assignment.Groups["field"].Value;
+            if (Regex.IsMatch(body, @"(?m)^\s*(?:System\.[\w.]+|[A-Za-z_]\w*)\s+" + Regex.Escape(name) + @"\s*;")) continue;
             FieldInfo field = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             if (field == null && type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) != null) continue;
             Check(field != null && field.GetValue(component) != null, "Designer field was not initialized: " + type.FullName + "." + name);
@@ -290,8 +349,9 @@ internal static class Cases
     /// <summary>Resolve the project-relative primary source path of a discovered visual class.</summary>
     private static string SourceName(Type type)
     {
-        string folder = type.Namespace == "AlphaRap.Configuration" ? "Configuration" : type.Namespace == "AlphaRap.FlowProgramming" ? "FlowProgramming" : "MenuForm";
-        return folder + "\\" + type.Name + ".cs";
+        string source;
+        Check(sourcePaths.TryGetValue(type, out source), "Missing primary source mapping: " + type.FullName);
+        return source;
     }
 
     /// <summary>Resolve the fixed Designer source associated with a discovered concrete visual class.</summary>

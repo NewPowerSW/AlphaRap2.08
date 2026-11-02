@@ -29,8 +29,13 @@ namespace AlphaRap
 		private void InitializeComponent()
 		{
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.ioResourcesPage = new System.Windows.Forms.TabPage { Name = "ioResourcesPage", Text = "IO 资源" };
-            this.ioResourcePanel = new AlphaRap.Configuration.HardwareResourcePanel { Name = "ioResourcePanel", ResourceKind = "IO", Dock = System.Windows.Forms.DockStyle.Fill };
+            this.ioResourcesPage = new System.Windows.Forms.TabPage();
+            this.ioResourcesPage.Name = "ioResourcesPage";
+            this.ioResourcesPage.Text = "IO 资源";
+            this.ioResourcePanel = new AlphaRap.Configuration.HardwareResourcePanel();
+            this.ioResourcePanel.Name = "ioResourcePanel";
+            this.ioResourcePanel.ResourceKind = "IO";
+            this.ioResourcePanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ioResourcesPage.Controls.Add(this.ioResourcePanel);
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();

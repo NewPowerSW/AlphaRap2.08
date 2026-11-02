@@ -63,9 +63,11 @@ namespace AlphaRap
         private static readonly string[] RecvMethodNames =
             { "Receive", "Recv", "Read", "ReadData", "Readdata", "ReadExisting", "ReadString", "ScanOnce" };
 
+        /// <summary>创建固定设备面板；运行时再登记语言事件及可用设备类型。</summary>
         public DeviceControl()
         {
             InitializeComponent();
+            if (UiTheme.IsDesignTime) return;
             if (!InDesigner) ApplyLanguage();   // 按当前语言覆盖 Designer 里写死的文案（设计期保留预览）
 
             BuildTypeList();        // 反射扫描设备类，供【添加】时挑选
@@ -340,13 +342,9 @@ namespace AlphaRap
         #region 设备类列表与实例
 
         /// <summary>是否运行在 VS 设计器中（设计期不建设备实例、不碰真实端口）。</summary>
-        private static bool InDesigner
+        private bool InDesigner
         {
-            get
-            {
-                try { return LicenseManager.UsageMode == LicenseUsageMode.Designtime; }
-                catch { return false; }
-            }
+            get { return UiTheme.IsDesignTime || DesignMode; }
         }
 
         /// <summary>
@@ -1239,6 +1237,7 @@ namespace AlphaRap
         /// <summary>加载离线设备配置；损坏配置显示错误并阻止自动连接，页面保持可用。</summary>
         private void DeviceControl_Load(object sender, EventArgs e)
         {
+            if (InDesigner) return;
             // 单设备模式：面板由宿主（Parameter）负责建好、绑定设备、再按 XML 套参数。
             // 这里若自作主张 LoadFromXml，会按"窗体名_控件名"去 XML 找节点，
             // 而此刻宿主可能还没给面板命名/绑定设备类 —— 所以交给宿主决定何时载入。

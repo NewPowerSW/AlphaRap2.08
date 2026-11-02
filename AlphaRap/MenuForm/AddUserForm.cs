@@ -28,6 +28,7 @@ namespace AlphaRap
         {
             InitializeComponent();
             UiTheme.ApplyDpi(this);
+            if (UiTheme.IsDesignTime) return;
             cbSelectedPermission.FormattingEnabled = true;
             cbAddUserPermission.FormattingEnabled = true;
             cbSelectedPermission.Format += delegate(object sender, ListControlConvertEventArgs e) { e.Value = MiddleLayer.PermissionText(e.ListItem); };
@@ -93,6 +94,7 @@ namespace AlphaRap
         protected override void OnVisibleChanged(EventArgs e)
         {
             base.OnVisibleChanged(e);
+            if (UiTheme.IsDesignTime || DesignMode) return;
             if (Visible) ApplyLanguage();
         }
 

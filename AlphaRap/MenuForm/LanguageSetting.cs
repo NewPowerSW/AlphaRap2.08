@@ -32,7 +32,11 @@ namespace AlphaRap.MenuForm
         }
 
         /// <summary>打开页面时加载语言条目。</summary>
-        private void LanguageSetting_Load(object sender, EventArgs e) { LoadTables(); }
+        private void LanguageSetting_Load(object sender, EventArgs e)
+        {
+            if (UiTheme.IsDesignTime || DesignMode) return;
+            LoadTables();
+        }
 
         /// <summary>允许编辑译文，锁定窗体名和条目键。</summary>
         private void btnUpdate_Click(object sender, EventArgs e) { SetEditing(true); }

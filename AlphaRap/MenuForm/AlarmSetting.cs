@@ -24,6 +24,7 @@ namespace AlphaRap.MenuForm
         /// <summary>读取配置目录下的三语报警表。</summary>
         private void AlarmSetting_Shown(object sender, EventArgs e)
         {
+            if (UiTheme.IsDesignTime || DesignMode) return;
             try
             {
                 dtTable = AlarmCatalog.Load();

@@ -14,9 +14,10 @@ AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心�
 - 节点右上角执行耗时：[NPSDK 77830aadaa698818cbff58c16bfdb094dfcbfcc1](https://github.com/JeffreyWub/NPSDK/commit/77830aadaa698818cbff58c16bfdb094dfcbfcc1)，分支 `codex/flow-runtime-state-20261028`。
 - 暂停归零与旧刷新保护：[NPSDK 20c39268e49a81493237497cf8ae4740e9202470](https://github.com/JeffreyWub/NPSDK/commit/20c39268e49a81493237497cf8ae4740e9202470)，分支 `codex/flow-runtime-state-20261028`。
 - 多入口并行调度与 V4 工程：[NPSDK 31364140fcc708b98483e9725e536f6f13143c89](https://github.com/JeffreyWub/NPSDK/commit/31364140fcc708b98483e9725e536f6f13143c89)，分支 `codex/flow-runtime-state-20261028`。
+- 手动窗口递归发现动态轴：[NPSDK 3215a3b8101e15ad414796f4585e61529d7262f6](https://github.com/JeffreyWub/NPSDK/commit/3215a3b8101e15ad414796f4585e61529d7262f6)，分支 `codex/flow-runtime-state-20261028`，已推送并核对。
 - 构建：Debug / x64；SDK 为 .NET Framework 4.7.1，宿主为 4.8。
-- 大小：564224 字节。
-- SHA256：`4156cff17fd729afcc19a8fc926805de9b890b55b7ccca4f786d42ef4b8bf9e2`。
+- 大小：564736 字节。
+- SHA256：`a6bc912cfa70d388d773b493300a2b167e068e9e4f24bf1a633b8a577143d1b5`。
 
 该版本从独立、干净的源码工作树构建，不包含原 SDK 开发目录中的未提交改动。
 

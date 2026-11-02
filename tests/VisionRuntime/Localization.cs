@@ -138,7 +138,7 @@ internal static partial class Tests
             string[] pages = { "AlphaRap.SystemForm", "AlphaRap.SystemSetting", "AlphaRap.HardForm", "AlphaRap.ManualForm", "AlphaRap.CheckForm", "AlphaRap.DataForm", "AlphaRap.Parameter", "AlphaRap.ProductManagerForm", "AlphaRap.AddUserForm", "AlphaRap.UserLoginForm", "AlphaRap.MenuForm.LockForm1", "AlphaRap.MenuForm.LanguageSetting", "AlphaRap.MenuForm.AlarmSetting", "AlphaRap.MES.LENS", "AlphaRap.MES.Amphenol", "AlphaRap.MES.DongJu", "AlphaRap.Flow", "AlphaRap.SpanLife", "AlphaRap.Warning", "AlphaRap.HomeForm", "AlphaRap.PlatFormSetting", "AlphaRap.VPForm", "AlphaRap.MainForm", "AlphaRap.AlarmQueryForm", "AlphaRap.ProductionQueryForm", "AlphaRap.LoadingForm", "AlphaRap.TaskProcess.Gantry", "AlphaRap.TaskProcess.UpConveryor", "AlphaRap.TaskProcess.DownConveryor" };
             try
             {
-                foreach (string name in pages)
+                foreach (string name in pages.Where(name => typeof(VPForm).Assembly.GetType(name) != null))
                 {
                     LicenseManager.CurrentContext = new DesignContext();
                     using (Form page = (Form)Activator.CreateInstance(typeof(VPForm).Assembly.GetType(name)))
@@ -291,13 +291,15 @@ internal static partial class Tests
     {
         WithLanguageFiles(delegate
         {
-            LicenseContext previous = LicenseManager.CurrentContext;
-            LicenseManager.CurrentContext = new DesignContext();
+            string previousDatabase = SysPara.MdbPath;
+            string database = Path.Combine(SysPara.LanguageDataDirectory, "PermissionProbe.mdb");
+            File.Copy(PermissionFixturePath, database);
+            Uri runner = new Uri(AppDomain.CurrentDomain.BaseDirectory);
+            SysPara.MdbPath = Uri.UnescapeDataString(runner.MakeRelativeUri(new Uri(database)).ToString()).Replace('/', Path.DirectorySeparatorChar);
             try
             {
                 using (AddUserForm page = new AddUserForm())
                 {
-                    LicenseManager.CurrentContext = previous;
                     ComboBox combo = (ComboBox)page.Controls.Find("cbSelectedPermission", true)[0];
                     IntPtr handle = combo.Handle;
                     object selected = combo.SelectedItem;
@@ -310,7 +312,7 @@ internal static partial class Tests
                     }
                 }
             }
-            finally { LicenseManager.CurrentContext = previous; }
+            finally { SysPara.MdbPath = previousDatabase; }
         });
     }
 

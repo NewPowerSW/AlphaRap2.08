@@ -23,8 +23,14 @@ namespace AlphaRap
         private bool _dragging;
         private Point _dragOffset;
 
+        /// <summary>创建登录界面与图标，运行时再设置语言、账号绑定及交互。</summary>
         public UserLoginForm()
         {
+            InitializeComponent();
+            UiTheme.ApplyDpi(this);
+            ApplyIcons();
+            if (UiTheme.IsDesignTime) return;
+
             // 设置 UI 区域（影响 .NET 自带对话框和异常消息的语言）
             switch (SysPara.LanguageShow)
             {
@@ -39,16 +45,12 @@ namespace AlphaRap
                     break;
             }
 
-            InitializeComponent();
-            UiTheme.ApplyDpi(this);
-
             // 本窗体的文案交给语言表：按需 new 出来的窗体，构造里"登记 + 立刻按当前语言套一遍"
             // （键 = 控件名，翻译在 LanguageData\UserLoginForm 段里改；切语言统一走 SwitchLanguageTo）。
             // 只 Register 不套字的话，英文/西语环境下打开登录框会显示设计器里的中文。
             if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
 
             // 图标只依赖 AppIcons，运行期与设计期都安全 → 放在这里，VS 设计视图也能看到真实图标
-            ApplyIcons();
             ApplyLanguage();
             dgvUserList.DataBindingComplete += delegate { MiddleLayer.RefreshUserHeaders(dgvUserList); };
             dgvUserList.CellFormatting += delegate(object sender, DataGridViewCellFormattingEventArgs e)

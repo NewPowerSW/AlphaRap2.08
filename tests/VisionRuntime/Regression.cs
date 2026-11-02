@@ -17,6 +17,7 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        Tests.PermissionFixturePath = Path.Combine(args[1], "SystemData.mdb");
         AppDomain.CurrentDomain.AssemblyResolve += delegate(object sender, ResolveEventArgs request)
         {
             string name = new AssemblyName(request.Name).Name + ".dll";
@@ -65,6 +66,7 @@ internal sealed class ControlledStation : VpStation
 /// <summary>覆盖运行身份、超时隔离、文件失败和输入判据的回归场景。</summary>
 internal static partial class Tests
 {
+    internal static string PermissionFixturePath;
     private static int _failed;
     private static int _passed;
     private static readonly string TestDirectory = Path.Combine(Path.GetTempPath(), "AlphaRap-Vision-" + Guid.NewGuid().ToString("N"));

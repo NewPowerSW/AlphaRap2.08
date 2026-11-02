@@ -27,6 +27,7 @@ namespace AlphaRap
             CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
             UiTheme.ApplyDpi(this);
+            if (UiTheme.IsDesignTime) return;
 
             StyleListView();
             ApplyIcons();
@@ -122,9 +123,11 @@ namespace AlphaRap
         /// 必须这么做：本页在启动阶段就被创建（MiddleLayer.InitialProject 里 CreateForm），
         /// 早于语言表扫描；之后用户切换语言时，本页一显示就会被这里纠正过来。
         /// </summary>
+        /// <summary>运行时显示页面时刷新型号标题，设计预览不访问语言配置。</summary>
         protected override void OnVisibleChanged(EventArgs e)
         {
             base.OnVisibleChanged(e);
+            if (UiTheme.IsDesignTime || DesignMode) return;
             if (Visible) ApplyLanguage();
         }
 
@@ -378,8 +381,10 @@ namespace AlphaRap
             SysPara.items++;
         }
 
+        /// <summary>运行时显示当前配方名称，设计预览使用固定示例。</summary>
         private void ProductManagerForm_Load(object sender, EventArgs e)
         {
+            if (UiTheme.IsDesignTime || DesignMode) return;
             CurrentModel.Text = SysPara.RecipeName;
         }
     }

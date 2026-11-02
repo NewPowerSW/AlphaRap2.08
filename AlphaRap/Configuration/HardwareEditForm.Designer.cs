@@ -13,12 +13,40 @@ namespace AlphaRap.Configuration
         /// <summary>资源参数窗口使用固定表头及按钮布局。</summary>
         private void InitializeComponent()
         {
-            parameters = new DataGridView { Name = "hardwareParameters", Dock = DockStyle.Fill, AutoGenerateColumns = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false };
-            property = new DataGridViewTextBoxColumn { Name = "property",Tag = "property",HeaderText = "参数", ReadOnly = true, SortMode = DataGridViewColumnSortMode.NotSortable };
-            value = new DataGridViewTextBoxColumn { Name = "value",Tag = "value",HeaderText = "值", SortMode = DataGridViewColumnSortMode.NotSortable };
+            this.parameters = new DataGridView();
+            this.parameters.Name = "hardwareParameters";
+            this.parameters.Dock = DockStyle.Fill;
+            this.parameters.AutoGenerateColumns = false;
+            this.parameters.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            this.parameters.AllowUserToAddRows = false;
+            this.parameters.AllowUserToDeleteRows = false;
+            this.parameters.RowHeadersVisible = false;
+            this.property = new DataGridViewTextBoxColumn();
+            this.property.Name = "property";
+            this.property.Tag = "property";
+            this.property.HeaderText = "参数";
+            this.property.ReadOnly = true;
+            this.property.SortMode = DataGridViewColumnSortMode.NotSortable;
+            this.value = new DataGridViewTextBoxColumn();
+            this.value.Name = "value";
+            this.value.Tag = "value";
+            this.value.HeaderText = "值";
+            this.value.SortMode = DataGridViewColumnSortMode.NotSortable;
             parameters.Columns.AddRange(property,value);
-            buttons = new FlowLayoutPanel { Name = "hardwareButtons", Dock = DockStyle.Bottom, Height = 44, FlowDirection = FlowDirection.RightToLeft };
-            ok = new Button { Name = "hardwareOk",Text = "确定",AutoSize = true }; cancel = new Button { Name = "hardwareCancel",Text = "取消",AutoSize = true,DialogResult = DialogResult.Cancel };
+            this.buttons = new FlowLayoutPanel();
+            this.buttons.Name = "hardwareButtons";
+            this.buttons.Dock = DockStyle.Bottom;
+            this.buttons.Height = 44;
+            this.buttons.FlowDirection = FlowDirection.RightToLeft;
+            this.ok = new Button();
+            this.ok.Name = "hardwareOk";
+            this.ok.Text = "确定";
+            this.ok.AutoSize = true;
+            this.cancel = new Button();
+            this.cancel.Name = "hardwareCancel";
+            this.cancel.Text = "取消";
+            this.cancel.AutoSize = true;
+            this.cancel.DialogResult = DialogResult.Cancel;
             buttons.Controls.Add(cancel); buttons.Controls.Add(ok); Controls.Add(parameters); Controls.Add(buttons);
             Name = "HardwareEditForm"; Tag = "title"; Text = "硬件资源组合"; ClientSize = new Size(670,660); MinimumSize = new Size(640,520); Font = new Font("Microsoft YaHei",9F); StartPosition = FormStartPosition.CenterParent; AutoScaleMode = AutoScaleMode.None; AcceptButton = ok; CancelButton = cancel;
         }

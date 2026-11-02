@@ -99,11 +99,7 @@ int nheightEllipse
         /// <summary>是否运行在 VS 的 WinForms 设计器中（设计期跳过运行期逻辑）。</summary>
         private static bool InDesigner
         {
-            get
-            {
-                try { return System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime; }
-                catch { return false; }
-            }
+            get { return UiTheme.IsDesignTime; }
         }
 
         /// <summary>已挂接鼠标事件转发的控件集合，用于去重，避免子页面反复切换时重复订阅。</summary>
@@ -281,8 +277,10 @@ int nheightEllipse
         [System.Runtime.InteropServices.DllImport("uxtheme.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
         private static extern int SetWindowTheme(IntPtr hWnd, string pszSubAppName, string pszSubIdList);
 
+        /// <summary>运行时绑定主窗口交互与业务状态，设计预览只使用固定布局及主题。</summary>
         private void MainForm_Load(object sender, EventArgs e)
         {
+            if (InDesigner || DesignMode) return;
             ApplyInitialWindowSize();
 
             // 顶栏机器状态徽章：圆角胶囊，尺寸变化时重算

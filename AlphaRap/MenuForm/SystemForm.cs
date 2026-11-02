@@ -71,8 +71,10 @@ namespace AlphaRap
             ShowPage.Show();
         }
 
+        /// <summary>运行时嵌入参数页面，设计预览不创建业务模块。</summary>
         private void SystemForm_Load(object sender, EventArgs e)
         {
+            if (UiTheme.IsDesignTime || DesignMode) return;
             labParameter.BackColor = Color.FromArgb(4, 108, 182);
          
             ShowhMainPage(MiddleLayer.ParF);

@@ -8,8 +8,10 @@ namespace AlphaRap
 {
     public partial class CheckForm : Form
     {    
+        /// <summary>运行时选中待机灯塔设置，设计预览不访问灯塔数据。</summary>
         private void CheckForm_Load(object sender, EventArgs e)
         {
+            if (UiTheme.IsDesignTime || DesignMode) return;
             radioButton25.PerformClick();
         }
         private List<SignalTowerData> TowerData = new List<SignalTowerData>();
