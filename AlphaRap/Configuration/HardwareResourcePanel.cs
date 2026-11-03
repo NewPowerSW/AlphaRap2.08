@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
@@ -89,7 +89,8 @@ namespace AlphaRap.Configuration
             addIoPage.Visible = resourceKind=="IO";
             edit.Visible = resourceKind!="IO";
             axisTabs.Visible = resourceKind!="IO"; ioTabs.Visible = resourceKind=="IO"; canvas.Visible = resourceKind=="IO";
-            toolbar.Height = 42;
+            toolbar.Height = 48;
+            hint.Height = resourceKind == "IO" ? 64 : 48;
             if (Resources != null) RefreshEntries();
             hint.Name = resourceKind=="IO" ? "ioResourceHint" : "resourceHint"; hint.Tag = resourceKind=="IO" ? "ioHint" : "hint";
             hint.Text = HardwareText.T(resourceKind=="IO" ? "ioHint" : "hint");
@@ -230,7 +231,7 @@ namespace AlphaRap.Configuration
                     TabPage page = axisTabs.TabPages.Cast<TabPage>().FirstOrDefault(item => ((HardwareDefinition)item.Tag).Id == entry.Definition.Id);
                     if (page == null)
                     {
-                        page = new TabPage { Name = "axisTab_" + entry.Definition.Id + "_dyn", AutoScroll = true, Padding = new Padding(5), UseVisualStyleBackColor = true };
+                        page = new TabPage { Name = "axisTab_" + entry.Definition.Id + "_dyn", AutoScroll = true, Padding = Padding.Empty, UseVisualStyleBackColor = true };
                         axisTabs.TabPages.Add(page);
                         if (hadTabs || axes.Length == 1) selection = page;
                     }

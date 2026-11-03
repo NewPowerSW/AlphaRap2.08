@@ -30,14 +30,19 @@ namespace AlphaRap.Configuration
             this.toolbar = new FlowLayoutPanel();
             this.toolbar.Name = "resourceToolbar";
             this.toolbar.Dock = DockStyle.Top;
-            this.toolbar.Height = 42;
+            this.toolbar.Height = 48;
             this.toolbar.WrapContents = true;
-            this.toolbar.Padding = new Padding(4);
+            this.toolbar.Padding = new Padding(8, 4, 8, 4);
+            this.toolbar.BackColor = Color.FromArgb(243, 246, 250);
             this.addAxis = new Button();
             this.addAxis.Name = "resourceAddAxis";
             this.addAxis.Tag = "addAxis";
             this.addAxis.Text = "新增轴";
             this.addAxis.AutoSize = true;
+            this.addAxis.MinimumSize = new Size(92, 32);
+            this.addAxis.FlatStyle = FlatStyle.Flat;
+            this.addAxis.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+            this.addAxis.BackColor = Color.White;
             this.addInput = new Button();
             this.addInput.Name = "resourceAddInput";
             this.addInput.Tag = "addInput";
@@ -53,6 +58,10 @@ namespace AlphaRap.Configuration
             this.edit.Tag = "edit";
             this.edit.Text = "参数";
             this.edit.AutoSize = true;
+            this.edit.MinimumSize = new Size(92, 32);
+            this.edit.FlatStyle = FlatStyle.Flat;
+            this.edit.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+            this.edit.BackColor = Color.White;
             this.resourceMenu = new ContextMenuStrip();
             this.resourceMenu.Name = "resourceMenu";
             this.resourceDelete = new ToolStripMenuItem();
@@ -131,18 +140,19 @@ namespace AlphaRap.Configuration
             this.hint.Tag = "hint";
             this.hint.Text = "双击标题或右键属性编辑，右键删除；配置统一使用主界面【保存】。轴点位随配方切换，连接及运动由流程负责；已连接资源修改驱动参数后需保存并重启。";
             this.hint.Dock = DockStyle.Bottom;
-            this.hint.Height = 64;
+            this.hint.Height = 48;
             this.hint.Padding = new Padding(5);
             this.status = new Label();
             this.status.Name = "resourceStatus_dyn";
             this.status.Dock = DockStyle.Bottom;
-            this.status.Height = 28;
+            this.status.Height = 20;
             this.status.AutoEllipsis = true;
             this.ioDefaultPage.Controls.Add(this.canvas);
             Controls.Add(axisTabs); Controls.Add(ioTabs); Controls.Add(toolbar); Controls.Add(status); Controls.Add(hint);
             this.Name = "HardwareResourcePanel";
             this.Size = new Size(1250,700);
-            this.Font = new Font("Microsoft YaHei",9F);
+            this.Font = new Font("Microsoft YaHei",9.5F);
+            this.BackColor = Color.FromArgb(243, 246, 250);
             this.AutoScaleMode = AutoScaleMode.None;
         }
     }
