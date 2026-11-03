@@ -255,6 +255,89 @@ internal static partial class Cases
         editor.SetEditing(false); menu.Show(surface, new Point(5, 5)); Application.DoEvents();
         Assert(!menu.Items["nodeProperties"].Enabled, "Properties bypassed the flow-editing switch."); menu.Close();
     }
+    /// <summary>Verify the fixed manual entry discovers only the current page's real dynamic axes and retains language and point data.</summary>
+    private static void DynamicAxisManualControl()
+    {
+        string previousSettings = SysPara.SettingDataDirectory;
+        SysPara.SettingDataDirectory = Path.Combine(root, "dynamic-axis-manual");
+        Directory.CreateDirectory(SysPara.SettingDataDirectory);
+        NP_Motor[] registered = SDKPara.ControlsSnapshot().OfType<NP_Motor>().ToArray();
+        HardForm form = null;
+        try
+        {
+            form = new HardForm();
+            Assert(!SDKPara.ControlsSnapshot().OfType<NP_Motor>().Except(registered).Any(), "The page still creates an unconfigured sample axis.");
+            Assert(form.Controls.Find("legacyResources", true).Length == 0 && form.Controls.Find("configuredResources", true).Length == 0
+                && form.Controls.Find("X1_Group", true).Length == 0, "The old axis page or its page selector remains.");
+            HardwareResourcePanel panel = (HardwareResourcePanel)form.Controls.Find("hardwareResourcePanel", true).Single();
+            NP_ManualControl manual = (NP_ManualControl)form.Controls.Find("nP_ManualControl1", true).Single();
+            Assert(manual.WorkMotor == null && manual.Parent.Name == "manualToolbar", "Manual control is not the fixed all-axis entry.");
+            panel.BindOwner(form);
+            HardwareDefinition firstDefinition = form.Resources.NewDefinition("Axis"); firstDefinition.Name = "First dynamic axis";
+            HardwareEntry first = form.Resources.Put(firstDefinition);
+            HardwareDefinition secondDefinition = form.Resources.NewDefinition("Axis"); secondDefinition.Name = "Second dynamic axis";
+            HardwareEntry second = form.Resources.Put(secondDefinition);
+            NP_AxisGroup firstGroup = (NP_AxisGroup)first.Group, secondGroup = (NP_AxisGroup)second.Group;
+            firstGroup.Points.DataSet1.Rows.Add(123.5, "Keep this point");
+            DataRow point = firstGroup.Points.DataSet1.Rows[0];
+            form.Show(); Application.DoEvents();
+            Control add = panel.Controls.Find("resourceAddAxis", true).Single();
+            Assert(panel.Visible && manual.Visible && manual.RectangleToScreen(manual.ClientRectangle).Bottom <= add.RectangleToScreen(add.ClientRectangle).Top,
+                "Manual control is hidden or not above the axis creation row.");
+            foreach (LanguageType language in Enum.GetValues(typeof(LanguageType)))
+            {
+                SwitchLanguage(language);
+                string expected = language == LanguageType.Chinese ? "手动调试" : language == LanguageType.English ? "Manual control" : "Control manual";
+                Assert(manual.Text == expected && ReferenceEquals(point, firstGroup.Points.DataSet1.Rows[0]) && (double)point["Position"] == 123.5,
+                    "Language switching changed the manual caption or lost a point draft.");
+            }
+            TabControl tabs = (TabControl)panel.Controls.Find("axisResourceTabs", true).Single(); tabs.SelectedIndex = 0;
+            InspectManualDialog(manual, new[] { firstGroup.Motor, secondGroup.Motor });
+            form.Resources.Delete(second.Definition.Id);
+            HardwareDefinition renamed = first.Definition.Copy(); renamed.Name = "Renamed dynamic axis";
+            HardwareEntry current = form.Resources.Put(renamed);
+            InspectManualDialog(manual, new[] { (NP_Motor)current.Device });
+            Assert(!((NP_Motor)current.Device).IsReady && ReferenceEquals(point, ((NP_AxisGroup)current.Group).Points.DataSet1.Rows[0]), "Manual discovery initialized a driver or resource editing lost point data.");
+            using (Bitmap image = new Bitmap(form.Width, form.Height))
+            {
+                form.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size)); image.Save(Path.Combine(root, "dynamic-axis-only.png"));
+            }
+        }
+        finally
+        {
+            if (form != null) { form.Dispose(); AlphaRapLibrary.ModuleManager.ModuleList.Remove(form); }
+            SysPara.SettingDataDirectory = previousSettings; SwitchLanguage(LanguageType.Chinese);
+        }
+    }
+
+    /// <summary>Click the actual SDK button and inspect its dialog without selecting a motion operation or initializing hardware.</summary>
+    private static void InspectManualDialog(NP_ManualControl manual, NP_Motor[] expected)
+    {
+        MotorControlForm opened = null; Exception failure = null;
+        using (Timer timer = new Timer { Interval = 20 })
+        {
+            timer.Tick += delegate
+            {
+                opened = Application.OpenForms.OfType<MotorControlForm>().FirstOrDefault();
+                if (opened == null) return;
+                timer.Stop();
+                try
+                {
+                    IEnumerable entries = (IEnumerable)typeof(MotorControlForm).GetField("lstMotor", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(opened);
+                    NP_Motor[] actual = entries.Cast<object>().Select(entry => (NP_Motor)entry.GetType().GetField("Motor").GetValue(entry)).ToArray();
+                    Assert(actual.Length == expected.Length && expected.All(actual.Contains), "Manual control missed a hidden dynamic tab or included a foreign/deleted motor.");
+                    Control buttons = opened.Controls.Find("plMotorButton", true).Single();
+                    Assert(expected.All(motor => buttons.Controls.Cast<Control>().Any(button => button.Text == motor.Text)), "Manual choices use stale axis names.");
+                }
+                catch (Exception error) { failure = error; }
+                opened.Close();
+            };
+            timer.Start(); manual.PerformClick(); timer.Stop();
+        }
+        if (failure != null) throw failure;
+        Assert(opened != null && opened.IsDisposed, "The fixed manual button did not open or release its dialog.");
+    }
+
     /// <summary>Each axis has one reusable tab; selecting and translating the page never recreates motors or point tables.</summary>
     private static void AxisResourceTabs()
     {
@@ -280,7 +363,7 @@ internal static partial class Cases
             HardwareEntry[] axes = resources.Entries.ToArray();
             TabPage[] pages = tabs.TabPages.Cast<TabPage>().ToArray();
             Assert(pages.Length == 3 && pages.Select(page => page.Text).SequenceEqual(axes.Select(entry => entry.Definition.Name)), "Axis tabs lost their configured order or names.");
-            form.Show(); ((Button)form.Controls.Find("configuredResources", true)[0]).PerformClick(); Application.DoEvents();
+            form.Show(); Application.DoEvents();
             tabs.SelectedTab = pages[0];
             NP_AxisGroup axis = (NP_AxisGroup)axes[0].Group;
             NP_Motor motor = axis.Motor;

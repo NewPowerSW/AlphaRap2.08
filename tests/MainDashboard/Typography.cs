@@ -45,9 +45,10 @@ internal static class TypographyCases
                         if (type == typeof(HardForm))
                         {
                             frame.Show(); page.Show(); Application.DoEvents();
-                            Control jogOptions = (Control)type.GetField("nP_JogOption1", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(page);
-                            Control jogRight = (Control)type.GetField("nP_MotorJog2", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(page);
-                            if (jogOptions.Bounds.IntersectsWith(jogRight.Bounds)) failures.Add("HardForm: jog options cover the right arrow.");
+                            Control manual = page.Controls.Find("nP_ManualControl1", true).Single();
+                            Control addAxis = page.Controls.Find("resourceAddAxis", true).Single();
+                            if (manual.RectangleToScreen(manual.ClientRectangle).Bottom > addAxis.RectangleToScreen(addAxis.ClientRectangle).Top)
+                                failures.Add("HardForm: manual control overlaps the axis creation row.");
                             using (Bitmap image = new Bitmap(frame.Width, frame.Height))
                             {
                                 frame.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));

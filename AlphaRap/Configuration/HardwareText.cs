@@ -17,6 +17,7 @@ namespace AlphaRap.Configuration
             { "title",new[]{"硬件资源组合","Hardware resource groups","Grupos de recursos de hardware"} },
             { "addAxis",new[]{"新增轴","Add axis","Añadir eje"} }, { "addInput",new[]{"新增输入","Add input","Añadir entrada"} }, { "addOutput",new[]{"新增输出","Add output","Añadir salida"} },
             { "edit",new[]{"参数","Parameters","Parámetros"} }, { "delete",new[]{"删除资源","Delete resource","Eliminar recurso"} }, { "save",new[]{"保存资源定义","Save resource definitions","Guardar definiciones"} },
+            { "manualDebug",new[]{"手动调试","Manual control","Control manual"} },
             { "hint",new[]{"双击标题或右键属性编辑，右键删除；配置统一使用主界面【保存】。轴点位随配方切换，连接及运动由流程负责；已连接资源修改驱动参数后需保存并重启。","Double-click titles or right-click to edit properties; right-click to delete. Use Main Save. Axis points follow the recipe; the workflow controls connection and motion. Save and restart after changing connected hardware parameters.","Doble clic en el título o clic derecho para editar propiedades; clic derecho para eliminar. Use Guardar principal. Los puntos siguen la receta; el flujo controla la conexión y el movimiento. Guarde y reinicie tras cambiar parámetros conectados."} },
             { "invalid",new[]{"请检查名称、地址、有限参数、速度及软限位。","Check name, address, finite parameters, speeds and soft limits.","Revise nombre, dirección, parámetros finitos, velocidades y límites."} },
             { "vendor",new[]{"轴仅支持当前 SDK 提供的运动板卡厂商。","Axes require a motion-card vendor supported by this SDK.","Los ejes requieren un fabricante de tarjeta de movimiento admitido."} },

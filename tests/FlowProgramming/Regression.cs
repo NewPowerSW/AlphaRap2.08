@@ -173,6 +173,7 @@ internal static partial class Cases
         Test("axis menus exclude trays and movement uses only the page-bound point table", AxisBoundPointChoices);
         Test("resource property context menus edit the clicked instance as a draft", ResourceProperties);
         Test("axis resource tabs preserve identity, points, language and add/delete/reload behavior", AxisResourceTabs);
+        Test("dynamic-only axis page exposes one fixed manual control for every owned motor", DynamicAxisManualControl);
         Test("Setting and Recipe constant tables are selectable objects with saved typed values", ConstantTableObjects);
         Test("constant read nodes protect referenced keys and types", ConstantReadReferences);
         Test("compact IO cards reuse the original instance and guard manual toggles", CompactIoCards);
@@ -256,11 +257,15 @@ internal static partial class Cases
         table.RejectChanges();
     }
 
-    /// <summary>Verify the actual HardForm table-to-axis association.</summary>
+    /// <summary>Verify runtime point-table discovery with explicit ParameterSet bindings and an unset WorkMotor.</summary>
     private static void PointBinding()
     {
         hardware = new HardForm(); SetHost("HardF", hardware); RegisterForm(hardware);
         DataTable table = hardware.RecipeData.Tables["tb_X1_Post"]; table.Rows.Clear(); table.Rows.Add(12.5, "Capture point"); hardware.RecipeData.AcceptChanges();
+        NP_Motor fixtureMotor = new NP_Motor { Name = "PointFixtureAxis", Port = "0", InitializeWithSdk = false, Visible = false };
+        NP_PositionTable fixturePoints = new NP_PositionTable { Name = "PointFixtureTable", DataSet = hardware.RecipeData, DataSet1 = table, WorkMotor = null, Visible = false };
+        fixturePoints.ParameterSet.Add(new PositionColumn { Axis = fixtureMotor, Name = "X1" });
+        hardware.Controls.Add(fixtureMotor); hardware.Controls.Add(fixturePoints);
         FlowResource resource = FlowResources.Capture().Items.Values.Single(item => item.Kind == "point");
         Assert(((FlowPointAxis)resource.Instance).Positions[0] == 12.5, "The actual point was not captured.");
         Assert(resource.Points[0].Label.Contains("P1 [0]"), "Index display is ambiguous.");
@@ -1091,8 +1096,8 @@ internal static partial class Cases
     private static void HardwareLanguages()
     {
         host.GetMethod("InitialLanguageData",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
-        hardware.Show(); ((Button)hardware.Controls.Find("configuredResources",true)[0]).PerformClick(); Application.DoEvents();
-        Control panel = hardware.Controls.Find("HardwareResourcePanel",true)[0], toolbar = hardware.Controls.Find("resourceToolbar",false)[0];
+        hardware.Show(); Application.DoEvents();
+        Control panel = hardware.Controls.Find("hardwareResourcePanel",true)[0], toolbar = hardware.Controls.Find("manualToolbar",false)[0];
         Assert(!panel.Bounds.IntersectsWith(toolbar.Bounds), "The group canvas covers the hardware navigation toolbar.");
         DataTable table = hardware.RecipeData.Tables[HardwareResources.PointsName(groupedAxis.Id)]; DataRow row = table.Rows[0];
         ioPage.Show(); ((TabControl)ioPage.Controls.Find("tabControl1",true)[0]).SelectedTab = (TabPage)ioPage.Controls.Find("ioResourcesPage",true)[0];
@@ -1162,7 +1167,7 @@ internal static partial class Cases
     /// <summary>Verify menus locate clicked rows and groups without using previous selection or confirmation dialogs.</summary>
     private static void ContextTargets()
     {
-        hardware.Show(); ((Button)hardware.Controls.Find("configuredResources",true)[0]).PerformClick(); Application.DoEvents();
+        hardware.Show(); Application.DoEvents();
         HardwareResourcePanel panel = (HardwareResourcePanel)hardware.Controls.Find("HardwareResourcePanel",true)[0];
         HardwareEntry input = hardware.Resources.Entries.Single(item=>item.Definition.Id==groupedInput.Id);
         ioPage.Show(); ((TabControl)ioPage.Controls.Find("tabControl1",true)[0]).SelectedTab = (TabPage)ioPage.Controls.Find("ioResourcesPage",true)[0]; Application.DoEvents();
@@ -1191,7 +1196,7 @@ internal static partial class Cases
     /// <summary>Complete the real modal editor through button events, checking defaults, parent page and saved definition reload.</summary>
     private static void HardwareAddUi()
     {
-        hardware.Show(); ((Button)hardware.Controls.Find("configuredResources",true)[0]).PerformClick();
+        hardware.Show();
         ioPage.Show(); ((TabControl)ioPage.Controls.Find("tabControl1",true)[0]).SelectedTab = (TabPage)ioPage.Controls.Find("ioResourcesPage",true)[0]; Application.DoEvents();
         HardwareResourcePanel axisPanel = (HardwareResourcePanel)hardware.Controls.Find("hardwareResourcePanel",true)[0];
         HardwareResourcePanel ioPanel = (HardwareResourcePanel)ioPage.Controls.Find("ioResourcePanel",true)[0];
