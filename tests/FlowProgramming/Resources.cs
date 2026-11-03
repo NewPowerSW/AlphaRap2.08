@@ -338,6 +338,139 @@ internal static partial class Cases
         Assert(opened != null && opened.IsDisposed, "The fixed manual button did not open or release its dialog.");
     }
 
+    /// <summary>Old resource files gain one default IO tab; grouping changes are Setting drafts and invalid references are rejected.</summary>
+    private static void IoTabPersistence()
+    {
+        string previousSettings = SysPara.SettingDataDirectory;
+        SysPara.SettingDataDirectory = Path.Combine(root, "io-tab-persistence"); Directory.CreateDirectory(SysPara.SettingDataDirectory);
+        HardForm form = null;
+        try
+        {
+            HardwareDefinition legacy = hardware.Resources.NewDefinition("Input"); legacy.IoPageId = "";
+            string path = Path.Combine(SysPara.SettingDataDirectory, "HardwareResources.xml");
+            using (FileStream output = File.Create(path)) new System.Xml.Serialization.XmlSerializer(typeof(HardwareProject)).Serialize(output, new HardwareProject { Resources=new System.Collections.Generic.List<HardwareDefinition> { legacy } });
+            System.Xml.Linq.XDocument oldFile = System.Xml.Linq.XDocument.Load(path);
+            oldFile.Root.Element("IoPages").Remove(); oldFile.Root.Element("Resources").Elements().Single().Element("IoPageId").Remove(); oldFile.Save(path);
+            form = new HardForm(); ((HardwareResourcePanel)form.Controls.Find("hardwareResourcePanel", true).Single()).BindOwner(form);
+            HardwareResources resources = form.Resources;
+            Assert(resources.IoPages.Single().Id == "default" && resources.Entries.Single().Definition.IoPageId == "default", "A legacy IO was lost or assigned to a missing tab.");
+            HardwareIoPage station = resources.AddIoPage("装配工位");
+            HardwareEntry input = resources.Entries.Single(); Control actual = input.Group; object driver = input.Device;
+            resources.MoveIoToPage(input.Definition.Id, station.Id); resources.RenameIoPage(station.Id, "扫码工位");
+            Assert(ReferenceEquals(actual, input.Group) && ReferenceEquals(driver, input.Device) && !resources.RequiresRestart, "Regrouping IO replaced its device or requested hardware restart.");
+            bool blocked = false; try { resources.DeleteIoPage(station.Id); } catch (InvalidOperationException) { blocked = true; }
+            Assert(blocked, "A nonempty tab deleted its IO.");
+            blocked = false; try { resources.AddIoPage("扫码工位"); } catch (InvalidOperationException) { blocked = true; }
+            Assert(blocked, "Duplicate IO tab names were accepted.");
+            HardwareDefinition bad = input.Definition.Copy(); bad.IoPageId = Guid.NewGuid().ToString("N");
+            blocked = false; try { resources.Put(bad); } catch (InvalidOperationException) { blocked = true; }
+            Assert(blocked && ReferenceEquals(driver, resources.Entries.Single().Device), "Invalid tab membership replaced live IO.");
+            resources.Save(); byte[] saved = File.ReadAllBytes(path);
+            HardwareIoPage detached = resources.IoPages.First(); detached.Name = "External mutation";
+            resources.RenameIoPage(station.Id, "Draft name"); resources.MoveIoToPage(input.Definition.Id, "default"); resources.DeleteIoPage(station.Id);
+            Assert(resources.IsDirty && File.ReadAllBytes(path).SequenceEqual(saved), "Editing tabs bypassed Main Save.");
+            resources.DiscardChanges();
+            Assert(resources.IoPages.Single(page => page.Id == station.Id).Name == "扫码工位" && resources.Entries.Single().Definition.IoPageId == station.Id && !resources.IsDirty, "Discard failed to restore saved tabs and membership.");
+            resources.DeleteIoPage("default");
+            resources.MoveIoToPage(input.Definition.Id, station.Id); resources.Delete(input.Definition.Id);
+            blocked = false; try { resources.DeleteIoPage(station.Id); } catch (InvalidOperationException) { blocked = true; }
+            Assert(blocked, "The last IO tab was deleted.");
+            HardwareProject corrupt = HardwareResources.Load(path); corrupt.Resources.Single().IoPageId = Guid.NewGuid().ToString("N");
+            string invalid = Path.Combine(SysPara.SettingDataDirectory, "Invalid.xml");
+            using (FileStream output = File.Create(invalid)) new System.Xml.Serialization.XmlSerializer(typeof(HardwareProject)).Serialize(output, corrupt);
+            blocked = false; try { HardwareResources.Load(invalid); } catch (InvalidDataException) { blocked = true; }
+            Assert(blocked && File.ReadAllBytes(path).SequenceEqual(saved), "Missing tab references were silently accepted or overwrote saved data.");
+        }
+        finally
+        {
+            if (form != null) { form.Dispose(); AlphaRapLibrary.ModuleManager.ModuleList.Remove(form); }
+            SysPara.SettingDataDirectory = previousSettings;
+        }
+    }
+
+    /// <summary>Exercise actual add-tab and IO editor buttons, tab hit testing, moving menus and multilingual labels.</summary>
+    private static void IoTabInterface()
+    {
+        string previousSettings = SysPara.SettingDataDirectory;
+        SysPara.SettingDataDirectory = Path.Combine(root, "io-tab-interface"); Directory.CreateDirectory(SysPara.SettingDataDirectory);
+        HardForm owner = null;
+        try
+        {
+            owner = new HardForm(); ((HardwareResourcePanel)owner.Controls.Find("hardwareResourcePanel", true).Single()).BindOwner(owner);
+            using (Form fixture = new Form { Size=new Size(1050, 650) })
+            using (HardwareResourcePanel panel = new HardwareResourcePanel { ResourceKind="IO", Dock=DockStyle.Fill })
+            {
+                fixture.Controls.Add(panel); panel.BindResources(owner.Resources); fixture.Show(); Application.DoEvents();
+                TabControl tabs = (TabControl)panel.Controls.Find("ioResourceTabs", true).Single();
+                CompleteIoName(() => ((Button)panel.Controls.Find("resourceAddIoPage", true).Single()).PerformClick(), "Cancelled group", false);
+                Assert(tabs.TabCount == 1 && !owner.Resources.IsDirty, "Cancelling Add tab changed the resource draft.");
+                CompleteIoName(() => ((Button)panel.Controls.Find("resourceAddIoPage", true).Single()).PerformClick(), "工位 A");
+                string stationId = tabs.SelectedTab.Tag as string;
+                Assert(tabs.TabCount == 2 && tabs.SelectedTab.Text == "工位 A", "Add tab did not select the new group.");
+                using (Timer timer = new Timer { Interval=20 })
+                {
+                    timer.Tick += delegate { HardwareEditForm dialog = Application.OpenForms.OfType<HardwareEditForm>().FirstOrDefault(); if (dialog == null) return; timer.Stop(); ((Button)dialog.Controls.Find("hardwareOk", true).Single()).PerformClick(); };
+                    timer.Start(); ((Button)panel.Controls.Find("resourceAddInput", true).Single()).PerformClick();
+                }
+                HardwareEntry input = owner.Resources.Entries.Single(); object actual = input.Device;
+                Assert(input.Definition.IoPageId == stationId && input.Group.Visible, "New IO did not belong to the selected tab.");
+                HardwareDefinition output = owner.Resources.NewDefinition("Output"); owner.Resources.Put(output);
+                tabs.SelectedTab = tabs.TabPages.Cast<TabPage>().Single(page => page.Tag as string == "default"); Application.DoEvents();
+                Assert(!input.Group.Visible, "IO from another tab remained visible.");
+                tabs.SelectedTab = tabs.TabPages.Cast<TabPage>().Single(page => page.Tag as string == stationId); Application.DoEvents();
+                foreach (LanguageType language in Enum.GetValues(typeof(LanguageType)))
+                {
+                    SwitchLanguage(language);
+                    Assert(tabs.SelectedTab.Text == "工位 A" && input.Group.Visible && ReferenceEquals(actual, input.Device), "Translation rebuilt IO or translated the user's tab name.");
+                }
+                ContextMenuStrip menu = input.Group.ContextMenuStrip; menu.Show(input.Group, new Point(5, 5)); Application.DoEvents();
+                ToolStripMenuItem move = (ToolStripMenuItem)menu.Items["resourceMove"];
+                move.DropDownItems["moveIo_default"].PerformClick(); menu.Close(); Application.DoEvents();
+                Assert(input.Definition.IoPageId == "default" && !input.Group.Visible && ReferenceEquals(actual, input.Device), "Moving IO changed its instance or failed to hide it from the old page.");
+                Rectangle tab = tabs.GetTabRect(tabs.SelectedIndex);
+                RaiseMouse(tabs, "OnMouseDown", new MouseEventArgs(MouseButtons.Right, 1, tab.Left+4, tab.Top+4, 0));
+                tabs.ContextMenuStrip.Show(tabs, new Point(tab.Left+4, tab.Bottom)); Application.DoEvents();
+                Assert(tabs.ContextMenuStrip.Items["ioPageDelete"].Enabled && tabs.ContextMenuStrip.Items["ioPageDelete"].ToolTipText == "", "An empty optional IO tab cannot be deleted or shows a stale restriction.");
+                CompleteIoName(() => tabs.ContextMenuStrip.Items["ioPageRename"].PerformClick(), "工位 B"); tabs.ContextMenuStrip.Close();
+                Assert(tabs.SelectedTab.Text == "工位 B", "Right-click renamed a different tab.");
+                tabs.SelectedTab = tabs.TabPages.Cast<TabPage>().Single(page => page.Tag as string == "default");
+                SwitchLanguage(LanguageType.Chinese); Application.DoEvents(); Screenshot(fixture, "io-tabs-grouped");
+                tabs.SelectedTab = tabs.TabPages.Cast<TabPage>().Single(page => page.Tag as string == stationId);
+                owner.Resources.DeleteIoPage(stationId);
+                Assert(tabs.TabCount == 1 && tabs.SelectedTab.Tag as string == "default" && input.Group.Visible && !input.Group.IsDisposed, "Deleting an empty selected tab disposed the shared IO canvas.");
+                using (Bitmap image = new Bitmap(fixture.Width, fixture.Height)) { fixture.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size)); image.Save(Path.Combine(root, "io-tabs.png")); }
+            }
+        }
+        finally
+        {
+            if (owner != null) { owner.Dispose(); AlphaRapLibrary.ModuleManager.ModuleList.Remove(owner); }
+            SysPara.SettingDataDirectory = previousSettings; SwitchLanguage(LanguageType.Chinese);
+        }
+    }
+
+    /// <summary>Finish the reused input dialog through its real OK button while preserving normal modal behavior.</summary>
+    private static void CompleteIoName(Action open, string text, bool accept = true)
+    {
+        bool shown = false;
+        using (Timer timer = new Timer { Interval=20 })
+        {
+            timer.Tick += delegate
+            {
+                FlowInputForm dialog = Application.OpenForms.OfType<FlowInputForm>().FirstOrDefault();
+                if (dialog == null) return;
+                timer.Stop(); shown = true; dialog.InputValue = text;
+                foreach (LanguageType language in Enum.GetValues(typeof(LanguageType)))
+                {
+                    SwitchLanguage(language);
+                    Assert(dialog.InputValue == text && dialog.Controls.Find("prompt_dyn", true).Single().Text == HardwareText.T("ioPageName"), "The tab name editor lost input or kept a stale language prompt.");
+                }
+                ((Button)dialog.Controls.Find(accept ? "ok" : "cancel", true).Single()).PerformClick();
+            };
+            timer.Start(); open(); timer.Stop();
+        }
+        Assert(shown, "The IO tab command did not open its name editor.");
+    }
+
     /// <summary>Each axis has one reusable tab; selecting and translating the page never recreates motors or point tables.</summary>
     private static void AxisResourceTabs()
     {

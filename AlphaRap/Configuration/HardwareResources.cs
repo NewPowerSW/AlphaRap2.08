@@ -15,6 +15,16 @@ namespace AlphaRap.Configuration
     {
         public int Version = 1;
         public List<HardwareDefinition> Resources = new List<HardwareDefinition>();
+        public List<HardwareIoPage> IoPages = new List<HardwareIoPage>();
+    }
+
+    public sealed class HardwareIoPage
+    {
+        public string Id = Guid.NewGuid().ToString("N");
+        public string Name = "IO";
+
+        /// <summary>返回不持有内部草稿的选项卡副本。</summary>
+        public HardwareIoPage Copy() { return (HardwareIoPage)MemberwiseClone(); }
     }
 
     public sealed class HardwareEntry
@@ -32,7 +42,9 @@ namespace AlphaRap.Configuration
         private readonly FlowLayoutPanel canvas;
         private FlowLayoutPanel ioCanvas;
         private readonly Dictionary<string,HardwareEntry> entries = new Dictionary<string,HardwareEntry>();
+        private readonly List<HardwareIoPage> ioPages = new List<HardwareIoPage>();
         public IEnumerable<HardwareEntry> Entries { get { return entries.Values.ToArray(); } }
+        public IEnumerable<HardwareIoPage> IoPages { get { return ioPages.Select(page => page.Copy()).ToArray(); } }
         public bool IsDirty { get; private set; }
         public bool RequiresRestart { get; private set; }
         public event EventHandler Changed;
@@ -46,6 +58,7 @@ namespace AlphaRap.Configuration
             try
             {
                 HardwareProject project = Load(PathName);
+                ioPages.AddRange(project.IoPages);
                 foreach (HardwareDefinition definition in project.Resources) Create(definition);
             }
             catch (Exception error) { loadError = error; }
@@ -65,8 +78,8 @@ namespace AlphaRap.Configuration
         /// <summary>为新增资源选择未占用通道及唯一名称，默认参数可直接确认。</summary>
         public HardwareDefinition NewDefinition(string kind)
         {
-            FlowPrograms.RequireIdle();
-            HardwareDefinition draft = new HardwareDefinition { Kind=kind };
+            RequireIoPageEdit();
+            HardwareDefinition draft = new HardwareDefinition { Kind=kind, IoPageId=kind=="Axis" ? "" : ioPages.First().Id };
             int nameIndex = 1;
             while (Entries.Any(entry=>string.Equals(entry.Definition.Name,kind+"_"+nameIndex,StringComparison.OrdinalIgnoreCase))) nameIndex++;
             draft.Name = kind+"_"+nameIndex;
@@ -83,10 +96,13 @@ namespace AlphaRap.Configuration
         /// <summary>加载全部定义并验证唯一身份，文件损坏时不生成空工程覆盖原配置。</summary>
         public static HardwareProject Load(string path)
         {
-            if (!File.Exists(path)) return new HardwareProject();
             HardwareProject project;
-            using (FileStream input = File.OpenRead(path)) project = (HardwareProject)new XmlSerializer(typeof(HardwareProject)).Deserialize(input);
+            if (!File.Exists(path)) project = new HardwareProject();
+            else using (FileStream input = File.OpenRead(path)) project = (HardwareProject)new XmlSerializer(typeof(HardwareProject)).Deserialize(input);
             if (project.Version != 1) throw new InvalidDataException("Unsupported hardware project version.");
+            if (project.IoPages.Count == 0) project.IoPages.Add(new HardwareIoPage { Id="default", Name="IO" });
+            foreach (HardwareDefinition definition in project.Resources.Where(item => item.Kind != "Axis" && string.IsNullOrEmpty(item.IoPageId))) definition.IoPageId = project.IoPages[0].Id;
+            ValidateIoPages(project);
             foreach (HardwareDefinition definition in project.Resources) definition.Validate();
             if (project.Resources.GroupBy(item=>item.Id).Any(group=>group.Count()!=1) || project.Resources.GroupBy(item=>item.Name,StringComparer.OrdinalIgnoreCase).Any(group=>group.Count()!=1)) throw new InvalidDataException(HardwareText.T("duplicate"));
             if (project.Resources.GroupBy(PhysicalAddress).Any(group=>group.Count()!=1)) throw new InvalidDataException(HardwareText.T("portDuplicate"));
@@ -98,6 +114,9 @@ namespace AlphaRap.Configuration
         {
             FlowPrograms.RequireIdle();
             if (loadError != null) throw new InvalidOperationException(HardwareText.T("loadError"),loadError);
+            definition = definition.Copy();
+            if (definition.Kind != "Axis" && string.IsNullOrEmpty(definition.IoPageId)) definition.IoPageId = ioPages.First().Id;
+            if (definition.Kind != "Axis" && !ioPages.Any(page => page.Id == definition.IoPageId)) throw new InvalidOperationException(HardwareText.T("ioPageMissing"));
             definition.Validate();
             if (entries.Values.Any(item=>item.Definition.Id!=definition.Id && string.Equals(item.Definition.Name,definition.Name,StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException(HardwareText.T("duplicate"));
             HardwareEntry current;
@@ -145,7 +164,8 @@ namespace AlphaRap.Configuration
         {
             FlowPrograms.RequireIdle();
             if (loadError != null) throw new InvalidOperationException(HardwareText.T("loadError"),loadError);
-            HardwareProject project = new HardwareProject { Resources = Entries.Select(entry=>entry.Definition.Copy()).ToList() };
+            HardwareProject project = CaptureProject();
+            ValidateIoPages(project);
             foreach (HardwareDefinition definition in project.Resources) definition.Validate();
             string path = System.IO.Path.GetFullPath(PathName); Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
             string temp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
@@ -165,13 +185,14 @@ namespace AlphaRap.Configuration
             if (loadError != null) throw new InvalidOperationException(HardwareText.T("loadError"),loadError);
             if (Entries.Any(entry=>entry.Group is NP_AxisGroup && ((NP_AxisGroup)entry.Group).IsManualRunning)) throw new InvalidOperationException(FlowText.T("busy"));
             foreach (HardwareEntry entry in Entries) { entry.Definition.Validate(); ValidatePhysicalAddress(entry.Definition,entry.Device); }
+            ValidateIoPages(CaptureProject());
         }
 
         /// <summary>将资源草稿写入主保存的暂存文件，不改变已保存状态。</summary>
         public void WriteDraft(string path)
         {
             ValidateForSave();
-            HardwareProject project = new HardwareProject { Resources=Entries.Select(entry=>entry.Definition.Copy()).ToList() };
+            HardwareProject project = CaptureProject();
             using (FileStream output = File.Create(path)) new XmlSerializer(typeof(HardwareProject)).Serialize(output,project);
         }
 
@@ -185,9 +206,97 @@ namespace AlphaRap.Configuration
             if (Entries.Any(entry=>entry.Group is NP_AxisGroup && ((NP_AxisGroup)entry.Group).IsManualRunning)) throw new InvalidOperationException(FlowText.T("busy"));
             HardwareProject restored = Load(PathName);
             foreach (HardwareEntry entry in Entries) RemoveGroup(entry);
+            ioPages.Clear(); ioPages.AddRange(restored.IoPages);
             foreach (HardwareDefinition definition in restored.Resources) Create(definition);
             IsDirty = false; RequiresRestart = false; loadError = null;
             if (Changed != null) Changed(this,EventArgs.Empty);
+        }
+
+        /// <summary>新增机器级 IO 分组选项卡，不创建或初始化 IO 驱动。</summary>
+        public HardwareIoPage AddIoPage(string name)
+        {
+            RequireIoPageEdit(); ValidateIoPageName(name, null);
+            HardwareIoPage page = new HardwareIoPage { Name=name };
+            ioPages.Add(page); NotifyIoPageChange();
+            return page.Copy();
+        }
+
+        /// <summary>修改页签显示名，保留 IO、流程绑定及配方数据的身份。</summary>
+        public void RenameIoPage(string id, string name)
+        {
+            RequireIoPageEdit();
+            HardwareIoPage page = FindIoPage(id);
+            ValidateIoPageName(name, id);
+            page.Name = name; NotifyIoPageChange();
+        }
+
+        /// <summary>只允许删除空页，并始终保留至少一个 IO 分组。</summary>
+        public void DeleteIoPage(string id)
+        {
+            RequireIoPageEdit();
+            HardwareIoPage page = FindIoPage(id);
+            if (Entries.Any(entry => entry.Definition.Kind != "Axis" && entry.Definition.IoPageId == id)) throw new InvalidOperationException(HardwareText.T("ioPageNotEmpty"));
+            if (ioPages.Count == 1) throw new InvalidOperationException(HardwareText.T("ioPageLast"));
+            ioPages.Remove(page); NotifyIoPageChange();
+        }
+
+        /// <summary>移动 IO 到另一分组，仅修改显示归属，不重建驱动或改变流程引用。</summary>
+        public void MoveIoToPage(string resourceId, string pageId)
+        {
+            RequireIoPageEdit(); FindIoPage(pageId);
+            HardwareEntry entry;
+            if (!entries.TryGetValue(resourceId, out entry) || entry.Definition.Kind == "Axis") throw new InvalidOperationException(HardwareText.T("missing"));
+            if (entry.Definition.IoPageId == pageId) return;
+            entry.Definition.IoPageId = pageId; NotifyIoPageChange();
+        }
+
+        /// <summary>读取明确的分组身份，缺失时拒绝静默落到其他页面。</summary>
+        private HardwareIoPage FindIoPage(string id)
+        {
+            HardwareIoPage page = ioPages.FirstOrDefault(item => item.Id == id);
+            if (page == null) throw new InvalidOperationException(HardwareText.T("ioPageMissing"));
+            return page;
+        }
+
+        /// <summary>校验非空且唯一的用户页签名，名称不参与语言翻译。</summary>
+        private void ValidateIoPageName(string name, string id)
+        {
+            if (string.IsNullOrWhiteSpace(name) || name != name.Trim() || ioPages.Any(page => page.Id != id && string.Equals(page.Name, name, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidOperationException(HardwareText.T("ioPageNameInvalid"));
+        }
+
+        /// <summary>分组编辑沿用资源权限与运行互斥，加载失败时保护原文件。</summary>
+        private void RequireIoPageEdit()
+        {
+            FlowPrograms.RequireIdle();
+            if (loadError != null) throw new InvalidOperationException(HardwareText.T("loadError"), loadError);
+        }
+
+        /// <summary>标记分组草稿并让绑定视图同步显示，不在子页面落盘。</summary>
+        private void NotifyIoPageChange()
+        {
+            IsDirty = true;
+            if (Changed != null) Changed(this, EventArgs.Empty);
+        }
+
+        /// <summary>统一捕获资源和 IO 页签，主保存与独立回归使用同一份快照。</summary>
+        private HardwareProject CaptureProject()
+        {
+            return new HardwareProject { Resources=Entries.Select(entry => entry.Definition.Copy()).ToList(), IoPages=IoPages.ToList() };
+        }
+
+        /// <summary>验证页签身份与 IO 归属完整性，损坏引用不能生成错误页面。</summary>
+        private static void ValidateIoPages(HardwareProject project)
+        {
+            if (project.IoPages == null || project.IoPages.Count == 0 || project.IoPages.Any(page => page == null || string.IsNullOrWhiteSpace(page.Name) || page.Name != page.Name.Trim()))
+                throw new InvalidDataException(HardwareText.T("ioPageNameInvalid"));
+            Guid identity;
+            if (project.IoPages.Any(page => page.Id != "default" && !Guid.TryParseExact(page.Id, "N", out identity))
+                || project.IoPages.GroupBy(page => page.Id).Any(group => group.Count() != 1)
+                || project.IoPages.GroupBy(page => page.Name, StringComparer.OrdinalIgnoreCase).Any(group => group.Count() != 1))
+                throw new InvalidDataException(HardwareText.T("ioPageNameInvalid"));
+            if (project.Resources.Any(item => item.Kind != "Axis" && !project.IoPages.Any(page => page.Id == item.IoPageId)))
+                throw new InvalidDataException(HardwareText.T("ioPageMissing"));
         }
 
         /// <summary>检测新组合轴在当前配方中的未保存点位修改。</summary>

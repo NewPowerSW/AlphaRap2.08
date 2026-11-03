@@ -174,6 +174,8 @@ internal static partial class Cases
         Test("resource property context menus edit the clicked instance as a draft", ResourceProperties);
         Test("axis resource tabs preserve identity, points, language and add/delete/reload behavior", AxisResourceTabs);
         Test("dynamic-only axis page exposes one fixed manual control for every owned motor", DynamicAxisManualControl);
+        Test("IO tabs migrate legacy files and preserve grouping through save, discard and reload", IoTabPersistence);
+        Test("IO tab buttons and menus group real IO without replacing devices or losing language state", IoTabInterface);
         Test("Setting and Recipe constant tables are selectable objects with saved typed values", ConstantTableObjects);
         Test("constant read nodes protect referenced keys and types", ConstantReadReferences);
         Test("compact IO cards reuse the original instance and guard manual toggles", CompactIoCards);

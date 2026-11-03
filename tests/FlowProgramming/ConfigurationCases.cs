@@ -50,6 +50,7 @@ internal static partial class ConfigurationCases
         HardwareDefinition definition = hardware.Resources.NewDefinition("Axis");
         axisId = definition.Id;
         hardware.Resources.Put(definition);
+        hardware.Resources.AddIoPage("Transaction IO");
         module = FlowPrograms.Attach(FlowPrograms.AddModule("Transaction fixture"));
         FlowStep step = module.AddNode();
         step.ExecutionMode = "None"; step.Action = "flow.none"; step.Target = "";
@@ -108,6 +109,7 @@ internal static partial class ConfigurationCases
         HardwareDefinition definition = hardware.Resources.Entries.Single(item => item.Definition.Id == axisId).Definition.Copy();
         definition.Name = "Transaction axis " + text;
         hardware.Resources.Put(definition);
+        hardware.Resources.RenameIoPage(hardware.Resources.IoPages.Last().Id, "Transaction IO " + text);
         data.SetProductionDraft(new List<ProductionField> { new ProductionField { Name = "Barcode" }, new ProductionField { Name = "Result" }, new ProductionField { Name = "Value" + text, Type = "Number" } });
         data.SetLogModulesDraft(new List<LogModuleDefinition> { new LogModuleDefinition { Id = "cccccccccccccccccccccccccccccccc", Name = "Transaction log " + text,
             Directory = Path.Combine(SysPara.SettingDataDirectory, "CustomLogs"), Fields = new List<ProductionField> { new ProductionField { Name = "Value" + text, Type = "Number" } } } });
@@ -123,6 +125,7 @@ internal static partial class ConfigurationCases
         NP_AxisGroup axis = (NP_AxisGroup)hardware.Resources.Entries.Single(item => item.Definition.Id == axisId).Group;
         Assert(axis.Points.DataSet1.Rows[0].Field<double>("Position") == generation * 10.0, "Point draft changed.");
         Assert(hardware.Resources.Entries.Single(item => item.Definition.Id == axisId).Definition.Name == "Transaction axis " + text, "Resource draft changed.");
+        Assert(hardware.Resources.IoPages.Last().Name == "Transaction IO " + text, "IO tab draft changed.");
         Assert(data.GetProductionDraft().Any(field => field.Name == "Value" + text), "Production schema draft changed.");
         Assert(module.Program.Steps.Single().Caption == "Generation " + text, "Flow draft changed.");
     }
@@ -146,6 +149,7 @@ internal static partial class ConfigurationCases
         Assert(data.GetLogModules().Single().Name == "Transaction log " + generation, "Log draft did not restore the saved generation.");
         Assert(settings.Constants.Table("Setting").GetChanges() == null && settings.Constants.Table("Recipe").GetChanges() == null, "Reloaded constants were not accepted.");
         Assert(HardwareResources.Load(hardware.Resources.PathName).Resources.Single(item => item.Id == axisId).Name == "Transaction axis " + generation, "Resource file did not reload the saved generation.");
+        Assert(HardwareResources.Load(hardware.Resources.PathName).IoPages.Last().Name == "Transaction IO " + generation, "IO tabs did not participate in the unified save transaction.");
         Assert(FlowProgramFile.Load(FlowPrograms.FilePath).Modules.Single(item => item.ModuleId == module.Program.ModuleId).Steps.Single().Caption == "Generation " + generation, "Flow file did not reload the saved generation.");
     }
 
@@ -378,6 +382,7 @@ internal static partial class ConfigurationCases
     private static void RecipeScope()
     {
         string recipeA = SysPara.FilePath;
+        string[] ioTabs = hardware.Resources.IoPages.Select(page => page.Id+"/"+page.Name).ToArray();
         string recipeB = Path.Combine(SysPara.RecipeDataDirectory, "Transaction-B.xml");
         DataSet alternate = new DataSet(); alternate.ReadXml(recipeA);
         DataTable constants = alternate.Tables[settings.RecipeData.Tables[ConstantStore.TableName].TableName];
@@ -392,6 +397,7 @@ internal static partial class ConfigurationCases
         foreach (ModuleBaseForm form in ModuleManager.ModuleList) form.ReadRecipeData(recipeA);
         Assert(Convert.ToString(ConstantStore.Find(settings.Constants.Table("Setting"), "TxnSetting")["Value"]) == "3", "Returning to recipe A changed machine Setting.");
         Assert(Convert.ToString(ConstantStore.Find(settings.Constants.Table("Recipe"), "TxnRecipe")["Value"]) == "3", "Recipe A did not restore its own value.");
+        Assert(hardware.Resources.IoPages.Select(page => page.Id+"/"+page.Name).SequenceEqual(ioTabs), "Recipe switching altered Setting IO tabs.");
     }
 
     /// <summary>Apply the same generation to each real participant rather than simulating configuration files.</summary>

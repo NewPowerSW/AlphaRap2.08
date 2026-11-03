@@ -6,16 +6,21 @@ namespace AlphaRap.Configuration
     partial class HardwareResourcePanel
     {
         private FlowLayoutPanel toolbar,canvas;
-        private Button addAxis,addInput,addOutput,edit;
+        private Button addAxis,addInput,addOutput,edit,addIoPage;
         private ContextMenuStrip resourceMenu;
         private ToolStripMenuItem resourceDelete, resourceProperties;
         private TabControl axisTabs;
+        private TabControl ioTabs;
+        private TabPage ioDefaultPage;
+        private ContextMenuStrip ioPageMenu;
+        private ToolStripMenuItem ioPageAdd,ioPageRename,ioPageDelete,resourceMove;
         private Label hint,status,inputHeader,outputHeader;
 
         /// <summary>释放资源右键菜单及其项。</summary>
         protected override void Dispose(bool disposing)
         {
             if (disposing && resourceMenu != null) resourceMenu.Dispose();
+            if (disposing && ioPageMenu != null) ioPageMenu.Dispose();
             base.Dispose(disposing);
         }
 
@@ -56,8 +61,39 @@ namespace AlphaRap.Configuration
             this.resourceProperties = new ToolStripMenuItem();
             this.resourceProperties.Name = "resourceProperties";
             this.resourceProperties.Text = "属性编辑";
-            this.resourceMenu.Items.AddRange(new ToolStripItem[] { resourceProperties, new ToolStripSeparator(), resourceDelete });
-            this.toolbar.Controls.AddRange(new Control[] { addAxis,addInput,addOutput,edit });
+            this.resourceMove = new ToolStripMenuItem();
+            this.resourceMove.Name = "resourceMove";
+            this.resourceMove.Text = "移动到选项卡";
+            this.resourceMenu.Items.AddRange(new ToolStripItem[] { resourceProperties, resourceMove, new ToolStripSeparator(), resourceDelete });
+            this.addIoPage = new Button();
+            this.addIoPage.Name = "resourceAddIoPage";
+            this.addIoPage.Tag = "addIoPage";
+            this.addIoPage.Text = "新增选项卡";
+            this.addIoPage.AutoSize = true;
+            this.toolbar.Controls.AddRange(new Control[] { addIoPage,addAxis,addInput,addOutput,edit });
+            this.ioPageMenu = new ContextMenuStrip();
+            this.ioPageMenu.Name = "ioPageMenu";
+            this.ioPageAdd = new ToolStripMenuItem();
+            this.ioPageAdd.Name = "ioPageAdd";
+            this.ioPageAdd.Text = "新增选项卡";
+            this.ioPageRename = new ToolStripMenuItem();
+            this.ioPageRename.Name = "ioPageRename";
+            this.ioPageRename.Text = "重命名选项卡";
+            this.ioPageDelete = new ToolStripMenuItem();
+            this.ioPageDelete.Name = "ioPageDelete";
+            this.ioPageDelete.Text = "删除选项卡";
+            this.ioPageMenu.Items.AddRange(new ToolStripItem[] { ioPageAdd,ioPageRename,new ToolStripSeparator(),ioPageDelete });
+            this.ioTabs = new TabControl();
+            this.ioTabs.Name = "ioResourceTabs";
+            this.ioTabs.Dock = DockStyle.Fill;
+            this.ioTabs.ShowToolTips = true;
+            this.ioTabs.ContextMenuStrip = this.ioPageMenu;
+            this.ioDefaultPage = new TabPage();
+            this.ioDefaultPage.Name = "ioDefaultPage";
+            this.ioDefaultPage.Text = "IO";
+            this.ioDefaultPage.Tag = "default";
+            this.ioDefaultPage.UseVisualStyleBackColor = true;
+            this.ioTabs.TabPages.Add(this.ioDefaultPage);
             this.axisTabs = new TabControl();
             this.axisTabs.Name = "axisResourceTabs";
             this.axisTabs.Dock = DockStyle.Fill;
@@ -98,7 +134,8 @@ namespace AlphaRap.Configuration
             this.status.Dock = DockStyle.Bottom;
             this.status.Height = 28;
             this.status.AutoEllipsis = true;
-            Controls.Add(axisTabs); Controls.Add(canvas); Controls.Add(toolbar); Controls.Add(status); Controls.Add(hint);
+            this.ioDefaultPage.Controls.Add(this.canvas);
+            Controls.Add(axisTabs); Controls.Add(ioTabs); Controls.Add(toolbar); Controls.Add(status); Controls.Add(hint);
             this.Name = "HardwareResourcePanel";
             this.Size = new Size(1250,700);
             this.Font = new Font("Microsoft YaHei",9F);

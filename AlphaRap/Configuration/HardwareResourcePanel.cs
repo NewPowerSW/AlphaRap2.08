@@ -12,6 +12,7 @@ namespace AlphaRap.Configuration
         public HardwareResources Resources { get; private set; }
         private string contextResourceId;
         private TabPage contextAxisTab;
+        private string contextIoPageId;
         private bool refreshingTabs;
         private string resourceKind = "Axis";
         [DefaultValue("Axis")]
@@ -29,9 +30,11 @@ namespace AlphaRap.Configuration
             ApplyKind();
             axisTabs.SelectedIndexChanged += (sender, args) => edit.Enabled = axisTabs.SelectedTab != null;
             axisTabs.MouseDown += SelectContextTab;
+            ioTabs.SelectedIndexChanged += (sender, args) => ShowIoPage();
+            ioTabs.MouseDown += SelectIoContextTab;
             if (UiTheme.IsDesignTime) return;
             HardwareText.Apply(this);
-            foreach (Control control in Controls) if (control != canvas && control != axisTabs) MiddleLayer.RegisterAndApplyLanguage(control,"HardwareResources");
+            foreach (Control control in new Control[] { toolbar, status, hint }) MiddleLayer.RegisterAndApplyLanguage(control,"HardwareResources");
             MiddleLayer.LanguageChanged += ApplyLanguage;
             Disposed += (sender,args) => MiddleLayer.LanguageChanged -= ApplyLanguage;
             addAxis.Click += (sender,args) => Execute(()=>EditNew("Axis"));
@@ -41,6 +44,11 @@ namespace AlphaRap.Configuration
             resourceMenu.Opening += OpenResourceMenu;
             resourceDelete.Click += (sender,args) => Execute(DeleteEntry);
             resourceProperties.Click += (sender,args) => Execute(EditContextEntry);
+            addIoPage.Click += (sender,args) => Execute(() => EditIoPageName(null));
+            ioPageAdd.Click += (sender,args) => Execute(() => EditIoPageName(null));
+            ioPageRename.Click += (sender,args) => Execute(() => EditIoPageName(contextIoPageId));
+            ioPageDelete.Click += (sender,args) => Execute(DeleteIoPage);
+            ioPageMenu.Opening += OpenIoPageMenu;
         }
 
         /// <summary>在所属硬件模块初始化后，加载资源并绑定当前配方点位表。</summary>
@@ -78,8 +86,9 @@ namespace AlphaRap.Configuration
             if (addAxis == null) return;
             addAxis.Visible = resourceKind!="IO";
             addInput.Visible = resourceKind=="IO"; addOutput.Visible = resourceKind=="IO";
+            addIoPage.Visible = resourceKind=="IO";
             edit.Visible = resourceKind!="IO";
-            axisTabs.Visible = resourceKind!="IO"; canvas.Visible = resourceKind=="IO";
+            axisTabs.Visible = resourceKind!="IO"; ioTabs.Visible = resourceKind=="IO"; canvas.Visible = resourceKind=="IO";
             toolbar.Height = 42;
             if (Resources != null) RefreshEntries();
             hint.Name = resourceKind=="IO" ? "ioResourceHint" : "resourceHint"; hint.Tag = resourceKind=="IO" ? "ioHint" : "hint";
@@ -102,6 +111,7 @@ namespace AlphaRap.Configuration
             FlowPrograms.RequireIdle();
             if (Resources == null) throw new InvalidOperationException(HardwareText.T("missing"));
             HardwareDefinition definition = Resources.NewDefinition(kind);
+            if (kind != "Axis" && ioTabs.SelectedTab != null) definition.IoPageId = (string)ioTabs.SelectedTab.Tag;
             using (HardwareEditForm dialog = new HardwareEditForm(definition,value=>Resources.Put(value))) dialog.ShowDialog(TopLevelControl);
         }
 
@@ -167,6 +177,7 @@ namespace AlphaRap.Configuration
             contextResourceId = definition.Id;
             resourceDelete.Enabled = FlowPrograms.CanEdit && !FlowPrograms.AnyRunning && SysPara.SystemMode == RunMode.IDLE && !NPSDK.Flow_Module.Module_GetRunningStatus;
             resourceProperties.Enabled = resourceDelete.Enabled;
+            RefreshMoveMenu(definition, resourceDelete.Enabled);
         }
 
         /// <summary>按发送组合控件定位资源，不使用旧的下拉框选择。</summary>
@@ -192,7 +203,7 @@ namespace AlphaRap.Configuration
         /// <summary>资源变更只同步所属页面；语言和配方切换不重建轴实例。</summary>
         private void RefreshEntries()
         {
-            if (resourceKind == "IO") { ArrangeIo(); return; }
+            if (resourceKind == "IO") { RefreshIoTabs(); return; }
             RefreshAxisTabs();
         }
 
@@ -247,11 +258,13 @@ namespace AlphaRap.Configuration
             canvas.SuspendLayout();
             foreach (string kind in new[] { "Input","Output" })
             {
-                HardwareEntry[] entries = Resources.Entries.Where(entry => entry.Definition.Kind == kind).ToArray();
+                string pageId = ioTabs.SelectedTab == null ? null : ioTabs.SelectedTab.Tag as string;
+                HardwareEntry[] entries = Resources.Entries.Where(entry => entry.Definition.Kind == kind && entry.Definition.IoPageId == pageId).ToArray();
                 Label header = kind == "Input" ? inputHeader : outputHeader;
                 header.Text = FlowText.T(kind == "Input" ? "di" : "do") + " · " + entries.Length;
                 header.Visible = entries.Length > 0; header.Width = width - 6;
                 canvas.Controls.SetChildIndex(header,position++);
+                foreach (HardwareEntry entry in Resources.Entries.Where(entry => entry.Definition.Kind == kind)) entry.Group.Visible = entry.Definition.IoPageId == pageId;
                 foreach (HardwareEntry entry in entries)
                 {
                     entry.Group.Size = new System.Drawing.Size(tileWidth,40);
@@ -262,6 +275,121 @@ namespace AlphaRap.Configuration
             canvas.ResumeLayout();
         }
 
+        /// <summary>按稳定分组身份同步 IO 页签，移除旧页之前保留共享画布和实际 IO。</summary>
+        private void RefreshIoTabs()
+        {
+            if (refreshingTabs) return;
+            refreshingTabs = true;
+            ioTabs.SuspendLayout();
+            try
+            {
+                HardwareIoPage[] pages = Resources.IoPages.ToArray();
+                TabPage selection = ioTabs.SelectedTab;
+                foreach (TabPage page in ioTabs.TabPages.Cast<TabPage>().ToArray())
+                {
+                    if (pages.Any(item => item.Id == page.Tag as string)) continue;
+                    if (canvas.Parent == page) Controls.Add(canvas);
+                    ioTabs.TabPages.Remove(page); page.Dispose();
+                }
+                foreach (HardwareIoPage definition in pages)
+                {
+                    TabPage page = ioTabs.TabPages.Cast<TabPage>().FirstOrDefault(item => item.Tag as string == definition.Id);
+                    if (page == null)
+                    {
+                        page = new TabPage { Name="ioTab_"+definition.Id+"_dyn", Tag=definition.Id, UseVisualStyleBackColor=true };
+                        ioTabs.TabPages.Add(page); selection = page;
+                    }
+                    page.Text = definition.Name; page.ToolTipText = definition.Name;
+                }
+                if (selection != null && ioTabs.TabPages.Contains(selection)) ioTabs.SelectedTab = selection;
+                else if (ioTabs.TabCount > 0) ioTabs.SelectedIndex = 0;
+            }
+            finally { ioTabs.ResumeLayout(); refreshingTabs = false; }
+            ShowIoPage();
+        }
+
+        /// <summary>切换显示归属只搬动画布，复用同一批 IO 控件且不执行读写。</summary>
+        private void ShowIoPage()
+        {
+            if (refreshingTabs || resourceKind != "IO" || ioTabs.SelectedTab == null) return;
+            if (canvas.Parent != ioTabs.SelectedTab) ioTabs.SelectedTab.Controls.Add(canvas);
+            ArrangeIo();
+        }
+
+        /// <summary>复用输入窗口编辑页签业务名称，确定后仅修改资源草稿。</summary>
+        private void EditIoPageName(string id)
+        {
+            FlowPrograms.RequireIdle();
+            if (Resources == null) throw new InvalidOperationException(HardwareText.T("missing"));
+            HardwareIoPage page = id == null ? null : Resources.IoPages.FirstOrDefault(item => item.Id == id);
+            if (id != null && page == null) throw new InvalidOperationException(HardwareText.T("ioPageMissing"));
+            int index = 1;
+            while (Resources.IoPages.Any(item => string.Equals(item.Name, "IO_"+index, StringComparison.OrdinalIgnoreCase))) index++;
+            using (FlowInputForm dialog = new FlowInputForm(() => HardwareText.T("ioPageName")))
+            {
+                dialog.InputValue = page == null ? "IO_"+index : page.Name;
+                if (dialog.ShowDialog(TopLevelControl) != DialogResult.OK) return;
+                string name = dialog.InputValue.Trim();
+                if (page == null) Resources.AddIoPage(name);
+                else Resources.RenameIoPage(id, name);
+            }
+        }
+
+        /// <summary>右键只定位实际命中的 IO 页签，空白区域不复用旧目标。</summary>
+        private void SelectIoContextTab(object sender, MouseEventArgs args)
+        {
+            if (args.Button != MouseButtons.Right) return;
+            contextIoPageId = null;
+            for (int index = 0; index < ioTabs.TabCount; index++)
+            {
+                if (!ioTabs.GetTabRect(index).Contains(args.Location)) continue;
+                ioTabs.SelectedIndex = index;
+                contextIoPageId = ioTabs.TabPages[index].Tag as string;
+                return;
+            }
+        }
+
+        /// <summary>空页可删除，非空页先移动或删除 IO，操作权限由服务层再次校验。</summary>
+        private void OpenIoPageMenu(object sender, CancelEventArgs args)
+        {
+            bool editable = Resources != null && FlowPrograms.CanEdit && !FlowPrograms.AnyRunning && SysPara.SystemMode == RunMode.IDLE && !NPSDK.Flow_Module.Module_GetRunningStatus;
+            ioPageAdd.Enabled = editable;
+            ioPageRename.Enabled = editable && contextIoPageId != null;
+            bool occupied = Resources != null && Resources.Entries.Any(entry => entry.Definition.Kind != "Axis" && entry.Definition.IoPageId == contextIoPageId);
+            bool lastPage = Resources == null || Resources.IoPages.Count() <= 1;
+            ioPageDelete.Enabled = ioPageRename.Enabled && !occupied && !lastPage;
+            ioPageDelete.ToolTipText = occupied ? HardwareText.T("ioPageNotEmpty") : lastPage ? HardwareText.T("ioPageLast") : "";
+        }
+
+        /// <summary>确认删除右键页签，服务拒绝非空页和最后一页。</summary>
+        private void DeleteIoPage()
+        {
+            FlowPrograms.RequireIdle();
+            HardwareIoPage page = Resources.IoPages.FirstOrDefault(item => item.Id == contextIoPageId);
+            if (page == null) return;
+            if (MessageBox.Show(string.Format(HardwareText.T("removeIoPage"), page.Name), HardwareText.T("title"), MessageBoxButtons.OKCancel) != DialogResult.OK) return;
+            Resources.DeleteIoPage(page.Id);
+            contextIoPageId = null;
+        }
+
+        /// <summary>每次打开 IO 菜单重新列出可移动分组，点击只更新该 IO 的显示归属。</summary>
+        private void RefreshMoveMenu(HardwareDefinition definition, bool editable)
+        {
+            foreach (ToolStripItem item in resourceMove.DropDownItems.Cast<ToolStripItem>().ToArray()) item.Dispose();
+            resourceMove.DropDownItems.Clear();
+            resourceMove.Visible = definition.Kind != "Axis";
+            resourceMove.Enabled = editable;
+            if (definition.Kind == "Axis") return;
+            string resourceId = definition.Id;
+            foreach (HardwareIoPage page in Resources.IoPages)
+            {
+                ToolStripMenuItem choice = new ToolStripMenuItem(page.Name) { Name="moveIo_"+page.Id, Checked=page.Id==definition.IoPageId, Enabled=page.Id!=definition.IoPageId };
+                string pageId = page.Id;
+                choice.Click += (sender, args) => Execute(() => Resources.MoveIoToPage(resourceId, pageId));
+                resourceMove.DropDownItems.Add(choice);
+            }
+        }
+
         /// <summary>只刷新固定标签及组合控件标题，保留点位数据和选中资源。</summary>
         private void ApplyLanguage(object sender,EventArgs args)
         {
@@ -269,6 +397,10 @@ namespace AlphaRap.Configuration
             ArrangeIo();
             resourceDelete.Text = HardwareText.Translate(resourceDelete.Name, "删除资源", "Delete resource", "Eliminar recurso");
             resourceProperties.Text = HardwareText.Translate(resourceProperties.Name, "属性编辑", "Edit properties", "Editar propiedades");
+            resourceMove.Text = HardwareText.T("moveIoPage");
+            ioPageAdd.Text = HardwareText.T("addIoPage");
+            ioPageRename.Text = HardwareText.T("renameIoPage");
+            ioPageDelete.Text = HardwareText.T("deleteIoPage");
             if (Resources == null) return;
             foreach (HardwareEntry entry in Resources.Entries.Where(BelongsHere))
             {

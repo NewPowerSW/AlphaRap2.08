@@ -12,6 +12,7 @@ namespace AlphaRap.Configuration
         public string Kind = "Axis";
         public string Name = "Axis";
         public string ControlType = "";
+        public string IoPageId = "";
         public NPVendor Vendor = NPVendor.Leadshine;
         public string Port = "0";
         public double WorkSpeed = 10, ManualSpeed = 10, MaxSpeed = 1000, SpeedRatio = 100, Tacc = 0.1, Tdec = 0.1;
