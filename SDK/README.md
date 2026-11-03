@@ -90,7 +90,7 @@ MSBuild.exe AlphaRap.sln /t:Rebuild /p:Configuration=Debug /p:Platform=x64
 
 ## 轴点位界面与可见删除入口
 
-当前发布在 `3215a3b8101e15ad414796f4585e61529d7262f6` 基线上更新轴调试模板。源码本地提交为 `428e7ad4af9c3c7c0d4070361701d6232ec06733`，分支 `codex/axis-panel-layout-20261103`，目标仓库为 `https://github.com/JeffreyWub/NPSDK.git`；源码推送被自动审批拦截，尚待明确授权，因此此处不声明已上传。
+点位界面初版在 `3215a3b8101e15ad414796f4585e61529d7262f6` 基线上更新轴调试模板。源码本地提交为 `428e7ad4af9c3c7c0d4070361701d6232ec06733`，分支 `codex/axis-panel-layout-20261103`，目标仓库为 `https://github.com/JeffreyWub/NPSDK.git`；源码推送被自动审批拦截，尚待明确授权，因此此处不声明已上传。
 
 - 固定布局位于 `NP_AxisGroup.Designer.cs` 与 `NP_PositionTable.Designer.cs`，统一状态栏、浅色表格、紧凑工具栏与点动区；停止为红色，前往为蓝色。
 - 工具栏增加【删除】，按当前绑定行删除，保留右键菜单、确认提示及权限检查。使用 DataRow 删除状态保留未保存配方，删除后上移、替换和定位按可见绑定行处理。
@@ -98,3 +98,17 @@ MSBuild.exe AlphaRap.sln /t:Rebuild /p:Configuration=Debug /p:Platform=x64
 - DLL：Debug / x64，568320 字节，SHA256 `239f153c0b3e6c8deee9904319556c8353d95600c50512283d9aa43d13888a47`。
 
 离线验证：轴界面专项 7/7（中英西三语 × 640/900/1320 宽度、设计与运行布局、删除确认与取消、删除最后一行、保存重载、权限和删除后重排）；原轴停止 5/5、动态手动轴发现 7/7；宿主流程 181/181、统一主保存 18 项、设计器兼容 54/54，通过。未验证真实轴运动、多 DPI 或 Visual Studio 交互式设计器重开。
+
+## 集成轴状态、伺服与独立手动速度
+
+当前 SDK 本地提交为 `2785ae538760141717c0650337cddac9c2bee21e`，分支 `codex/axis-panel-layout-20261103`。GitHub 目标仍为 `JeffreyWub/NPSDK`，由于上一轮自动审批拒绝推送，尚未上传。
+
+轴页增加 ALM、EMG、SVON、SMV、HMV、ORG、MEL、PEL、SLP、SLN 状态及三语悬停解释，增加伺服开关和按配方点号选择的两点往返。保留唯一的位置显示、回零、停止、点动及点位表。宿主不再显示旧独立调试窗口入口。
+
+手动速度默认为 10 mm/s，按 `min(ManualSpeed, MaxSpeed)` 限制；非法上限禁用手动动作。面板值只用于当前调试，不写回自动参数。轴属性中的 ManualSpeed 是机器级手动上限，仍由主 Save 保存。手动指令在调用驱动期间暂用独立速度和 100% 比例，回零高低速也受限；finally 恢复驱动内存字段，不调用自动速度 setter，也不在运行中改写自动 WorkSpeed、SpeedRatio 或回零配置。
+
+手动会话使用 FlowResourceGate 单轴独占租约。自动调用等待实际停止后才能取得同一资源；停止、捕获丢失、隐藏页面、权限变化、报警及急停取消手动意图，减速反馈仍保持占用。伺服及运动指令检查宿主权限和轴就绪，不执行初始化；运动要求伺服已使能，硬软限位只允许脱离方向。旧 MotorControlForm 的轴发现不再修改 WorkSpeed 和 SpeedRatio；该兼容窗口不再作为宿主入口。
+
+DLL：Debug / x64，584704 字节；SHA256 `34feb2412b1270ae33b71ce7265111766a4f9504dade9f2535a966c8b2a8fc2e`。
+
+离线验证：轴页 15/15、停轴 5/5、兼容手动轴发现 7/7，宿主流程 181/181、主保存 18 项、设计器 54/54、主页 14/14。三语默认包校验 2161 键、0 错误。未连接实机，未验证伺服实际使能、硬件限位/制动距离及多 DPI 或 VS 交互式设计器。

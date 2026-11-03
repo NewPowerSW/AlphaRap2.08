@@ -51,6 +51,9 @@ internal sealed class FutureStation : Flow_BaseForm
 
 internal sealed class JogDriver : MotorBaseInterface
 {
+    /// <summary>Expose a healthy enabled offline servo without touching hardware.</summary>
+    public override AxisIOState GetAxisIOState() { return new AxisIOState { SVON = true }; }
+
     public int Starts, Stops;
     private bool moving;
     /// <summary>Record a positive jog without touching hardware.</summary>
@@ -173,7 +176,7 @@ internal static partial class Cases
         Test("axis menus exclude trays and movement uses only the page-bound point table", AxisBoundPointChoices);
         Test("resource property context menus edit the clicked instance as a draft", ResourceProperties);
         Test("axis resource tabs preserve identity, points, language and add/delete/reload behavior", AxisResourceTabs);
-        Test("dynamic-only axis page exposes one fixed manual control for every owned motor", DynamicAxisManualControl);
+        Test("dynamic axis pages integrate manual controls without a duplicate dialog", DynamicAxisManualControl);
         Test("IO tabs migrate legacy files and preserve grouping through save, discard and reload", IoTabPersistence);
         Test("IO tab buttons and menus group real IO without replacing devices or losing language state", IoTabInterface);
         Test("Setting and Recipe constant tables are selectable objects with saved typed values", ConstantTableObjects);
@@ -1099,8 +1102,8 @@ internal static partial class Cases
     {
         host.GetMethod("InitialLanguageData",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
         hardware.Show(); Application.DoEvents();
-        Control panel = hardware.Controls.Find("hardwareResourcePanel",true)[0], toolbar = hardware.Controls.Find("manualToolbar",false)[0];
-        Assert(!panel.Bounds.IntersectsWith(toolbar.Bounds), "The group canvas covers the hardware navigation toolbar.");
+        Control panel = hardware.Controls.Find("hardwareResourcePanel",true)[0];
+        Assert(panel.Dock == DockStyle.Fill && hardware.Controls.Find("manualToolbar",false).Length == 0, "The integrated axis panel retains a duplicate navigation toolbar.");
         DataTable table = hardware.RecipeData.Tables[HardwareResources.PointsName(groupedAxis.Id)]; DataRow row = table.Rows[0];
         ioPage.Show(); ((TabControl)ioPage.Controls.Find("tabControl1",true)[0]).SelectedTab = (TabPage)ioPage.Controls.Find("ioResourcesPage",true)[0];
         foreach (LanguageType language in new[]{LanguageType.Chinese,LanguageType.English,LanguageType.Español})

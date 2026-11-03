@@ -10,21 +10,12 @@ namespace AlphaRap
         public Configuration.HardwareResources Resources { get { return hardwareResourcePanel.Resources; } }
 
 
-        /// <summary>创建动态轴页面和固定的全轴手动调试入口，设计时不连接硬件。</summary>
+        /// <summary>创建集成手动操作的动态轴页面，设计时不连接硬件。</summary>
         public HardForm()
         {
             InitializeComponent();
             if (UiTheme.IsDesignTime) return;
             MiddleLayer.RegisterAndApplyLanguage(this, Name);
-            MiddleLayer.LanguageChanged += ApplyManualLanguage;
-            Disposed += (sender,args) => MiddleLayer.LanguageChanged -= ApplyManualLanguage;
-            ApplyManualLanguage(null, EventArgs.Empty);
-        }
-
-        /// <summary>刷新固定调试入口的三语标题，保留轴实例和点位草稿。</summary>
-        private void ApplyManualLanguage(object sender, EventArgs args)
-        {
-            nP_ManualControl1.Text = Configuration.HardwareText.T("manualDebug");
         }
 
         /// <summary>在加载配方之前创建动态资源及其点位表结构。</summary>

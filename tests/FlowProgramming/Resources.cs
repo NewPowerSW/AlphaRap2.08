@@ -255,7 +255,7 @@ internal static partial class Cases
         editor.SetEditing(false); menu.Show(surface, new Point(5, 5)); Application.DoEvents();
         Assert(!menu.Items["nodeProperties"].Enabled, "Properties bypassed the flow-editing switch."); menu.Close();
     }
-    /// <summary>Verify the fixed manual entry discovers only the current page's real dynamic axes and retains language and point data.</summary>
+    /// <summary>Verify integrated manual controls follow real dynamic axes and retain language and point data.</summary>
     private static void DynamicAxisManualControl()
     {
         string previousSettings = SysPara.SettingDataDirectory;
@@ -270,8 +270,7 @@ internal static partial class Cases
             Assert(form.Controls.Find("legacyResources", true).Length == 0 && form.Controls.Find("configuredResources", true).Length == 0
                 && form.Controls.Find("X1_Group", true).Length == 0, "The old axis page or its page selector remains.");
             HardwareResourcePanel panel = (HardwareResourcePanel)form.Controls.Find("hardwareResourcePanel", true).Single();
-            NP_ManualControl manual = (NP_ManualControl)form.Controls.Find("nP_ManualControl1", true).Single();
-            Assert(manual.WorkMotor == null && manual.Parent.Name == "manualToolbar", "Manual control is not the fixed all-axis entry.");
+            Assert(form.Controls.Find("nP_ManualControl1", true).Length == 0 && form.Controls.Find("manualToolbar", true).Length == 0, "The duplicate manual dialog entry remains.");
             panel.BindOwner(form);
             HardwareDefinition firstDefinition = form.Resources.NewDefinition("Axis"); firstDefinition.Name = "First dynamic axis";
             HardwareEntry first = form.Resources.Put(firstDefinition);
@@ -281,22 +280,18 @@ internal static partial class Cases
             firstGroup.Points.DataSet1.Rows.Add(123.5, "Keep this point");
             DataRow point = firstGroup.Points.DataSet1.Rows[0];
             form.Show(); Application.DoEvents();
-            Control add = panel.Controls.Find("resourceAddAxis", true).Single();
-            Assert(panel.Visible && manual.Visible && manual.RectangleToScreen(manual.ClientRectangle).Bottom <= add.RectangleToScreen(add.ClientRectangle).Top,
-                "Manual control is hidden or not above the axis creation row.");
+            Assert(panel.Visible && firstGroup.Controls.Find("axisManualSpeed", true).Length == 1 && secondGroup.Controls.Find("axisSVON", true).Length == 1, "Manual controls are not integrated into each axis.");
             foreach (LanguageType language in Enum.GetValues(typeof(LanguageType)))
             {
                 SwitchLanguage(language);
-                string expected = language == LanguageType.Chinese ? "手动调试" : language == LanguageType.English ? "Manual control" : "Control manual";
-                Assert(manual.Text == expected && ReferenceEquals(point, firstGroup.Points.DataSet1.Rows[0]) && (double)point["Position"] == 123.5,
+                string expected = language == LanguageType.Chinese ? "手动速度" : language == LanguageType.English ? "Manual speed" : "Velocidad manual";
+                Assert(firstGroup.Controls.Find("axisManualSpeedLabel", true).Single().Text == expected && ReferenceEquals(point, firstGroup.Points.DataSet1.Rows[0]) && (double)point["Position"] == 123.5,
                     "Language switching changed the manual caption or lost a point draft.");
             }
             TabControl tabs = (TabControl)panel.Controls.Find("axisResourceTabs", true).Single(); tabs.SelectedIndex = 0;
-            InspectManualDialog(manual, new[] { firstGroup.Motor, secondGroup.Motor });
             form.Resources.Delete(second.Definition.Id);
             HardwareDefinition renamed = first.Definition.Copy(); renamed.Name = "Renamed dynamic axis";
             HardwareEntry current = form.Resources.Put(renamed);
-            InspectManualDialog(manual, new[] { (NP_Motor)current.Device });
             Assert(!((NP_Motor)current.Device).IsReady && ReferenceEquals(point, ((NP_AxisGroup)current.Group).Points.DataSet1.Rows[0]), "Manual discovery initialized a driver or resource editing lost point data.");
             using (Bitmap image = new Bitmap(form.Width, form.Height))
             {

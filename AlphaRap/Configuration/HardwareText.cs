@@ -46,7 +46,7 @@ namespace AlphaRap.Configuration
             { "saved",new[]{"资源定义已保存。点位请使用主界面【保存】。","Definitions saved. Use the main Save button to save points.","Definiciones guardadas. Use Guardar principal para guardar puntos."} },
             { "property",new[]{"参数","Parameter","Parámetro"} }, { "value",new[]{"值","Value","Valor"} },
             { "Name",new[]{"资源名称","Resource name","Nombre del recurso"} }, { "Vendor",new[]{"厂商","Vendor","Fabricante"} }, { "Port",new[]{"轴号 / IO 点号","Axis / IO port","Puerto de eje / E/S"} },
-            { "WorkSpeed",new[]{"运行速度","Work speed","Velocidad de trabajo"} }, { "ManualSpeed",new[]{"手动速度","Manual speed","Velocidad manual"} }, { "MaxSpeed",new[]{"最大速度","Maximum speed","Velocidad máxima"} },
+            { "WorkSpeed",new[]{"运行速度","Work speed","Velocidad de trabajo"} }, { "ManualSpeed",new[]{"手动速度上限 (mm/s)","Manual speed limit (mm/s)","Límite manual (mm/s)"} }, { "MaxSpeed",new[]{"最大速度","Maximum speed","Velocidad máxima"} },
             { "SpeedRatio",new[]{"速度比例 (%)","Speed ratio (%)","Porcentaje de velocidad (%)"} }, { "Tacc",new[]{"加速时间 (s)","Acceleration (s)","Aceleración (s)"} }, { "Tdec",new[]{"减速时间 (s)","Deceleration (s)","Deceleración (s)"} },
             { "PulseEquivalent",new[]{"指令脉冲当量","Command pulse equivalent","Equivalente de pulsos de mando"} }, { "EncoderPulseEquivalent",new[]{"编码器脉冲当量","Encoder pulse equivalent","Equivalente de pulsos del codificador"} },
             { "HomeMode",new[]{"回零模式代码","Home mode code","Código de modo de origen"} }, { "HomeDir",new[]{"回零方向","Home direction","Dirección de origen"} },

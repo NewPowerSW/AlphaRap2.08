@@ -19,6 +19,9 @@ using NPSDK.Motion;
 
 internal sealed class RuntimeManualAxisDriver : MotorBaseInterface
 {
+    /// <summary>Expose a healthy enabled offline servo without touching hardware.</summary>
+    public override AxisIOState GetAxisIOState() { return new AxisIOState { SVON = true }; }
+
     internal bool Busy, HoldAfterStop;
     internal int HomeCalls, Stops, BusyReads;
     internal Exception BusyError;

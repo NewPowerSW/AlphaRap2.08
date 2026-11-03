@@ -45,10 +45,8 @@ internal static class TypographyCases
                         if (type == typeof(HardForm))
                         {
                             frame.Show(); page.Show(); Application.DoEvents();
-                            Control manual = page.Controls.Find("nP_ManualControl1", true).Single();
-                            Control addAxis = page.Controls.Find("resourceAddAxis", true).Single();
-                            if (manual.RectangleToScreen(manual.ClientRectangle).Bottom > addAxis.RectangleToScreen(addAxis.ClientRectangle).Top)
-                                failures.Add("HardForm: manual control overlaps the axis creation row.");
+                            if (page.Controls.Find("nP_ManualControl1", true).Length != 0)
+                                failures.Add("HardForm: duplicate manual dialog entry remains.");
                             using (Bitmap image = new Bitmap(frame.Width, frame.Height))
                             {
                                 frame.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
