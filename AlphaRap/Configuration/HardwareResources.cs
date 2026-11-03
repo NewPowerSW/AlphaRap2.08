@@ -363,6 +363,7 @@ namespace AlphaRap.Configuration
                 table = new DataTable(PointsName(definition.Id)) { Namespace = owner.Text };
                 table.Columns.Add("Position",typeof(double)); table.Columns.Add("Annotation",typeof(string)); owner.RecipeData.Tables.Add(table);
             }
+            table.ExtendedProperties["AllowEmpty"] = true;
             group.BindPoints(owner.RecipeData,table,"Position");
             group.CanOperate = () => CanOperate() && !RequiresRestart;
             entry.Group = group; entry.Device = group.Motor;

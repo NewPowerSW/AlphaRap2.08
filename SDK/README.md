@@ -1,4 +1,4 @@
-# 核心程序集引用
+﻿# 核心程序集引用
 
 AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心包含 Flow_Chart、Flow_BaseForm、流程运行器、报警、运动控制和 IO；主程序使用 ProjectReference 引用 AlphaRapLibrary，输出名为 NewPowerLibrary.dll。
 
@@ -87,3 +87,14 @@ MSBuild.exe AlphaRap.sln /t:Rebuild /p:Configuration=Debug /p:Platform=x64
 界面日志模块版本使用 [NPSDK 10f9fbf551096d6e9ee795dff6d67438d30cfbe2](https://github.com/JeffreyWub/NPSDK/commit/10f9fbf551096d6e9ee795dff6d67438d30cfbe2)，分支 `codex/flow-runtime-state-20261028`，已推送并核对。核心新增严格日志追加、按文件字段名查询、跨年月与 CSV 特殊字符支持、查询来源刷新及旧报警数组兼容。TypeCollection1 的旧写入入口继续使用，IO 失败向业务调用方抛出。宿主日志定义由 Main Save 持久化到机器 Setting，详见 [日志模块使用说明](../docs/FlowLogModules.md)。
 
 本次离线验证：流程 174/174、统一主保存 17 项、设计器探针 21/21、首页及报警显示 11/11、SDK 日志 8/8、原生并行流程 35/35、核心兼容 13/13。没有连接实际设备；VS 专有设计器交互加载另需现场确认。
+
+## 轴点位界面与可见删除入口
+
+当前发布在 `3215a3b8101e15ad414796f4585e61529d7262f6` 基线上更新轴调试模板。源码本地提交为 `428e7ad4af9c3c7c0d4070361701d6232ec06733`，分支 `codex/axis-panel-layout-20261103`，目标仓库为 `https://github.com/JeffreyWub/NPSDK.git`；源码推送被自动审批拦截，尚待明确授权，因此此处不声明已上传。
+
+- 固定布局位于 `NP_AxisGroup.Designer.cs` 与 `NP_PositionTable.Designer.cs`，统一状态栏、浅色表格、紧凑工具栏与点动区；停止为红色，前往为蓝色。
+- 工具栏增加【删除】，按当前绑定行删除，保留右键菜单、确认提示及权限检查。使用 DataRow 删除状态保留未保存配方，删除后上移、替换和定位按可见绑定行处理。
+- 标准位置与说明表头沿用宿主三语桥，绑定后同步刷新，不重建数据或清除编辑值。表格列使用原生填充，缩放和绘制时不重新分配列宽。
+- DLL：Debug / x64，568320 字节，SHA256 `239f153c0b3e6c8deee9904319556c8353d95600c50512283d9aa43d13888a47`。
+
+离线验证：轴界面专项 7/7（中英西三语 × 640/900/1320 宽度、设计与运行布局、删除确认与取消、删除最后一行、保存重载、权限和删除后重排）；原轴停止 5/5、动态手动轴发现 7/7；宿主流程 181/181、统一主保存 18 项、设计器兼容 54/54，通过。未验证真实轴运动、多 DPI 或 Visual Studio 交互式设计器重开。

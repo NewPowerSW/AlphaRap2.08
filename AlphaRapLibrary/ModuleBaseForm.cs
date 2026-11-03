@@ -130,6 +130,7 @@ namespace AlphaRapLibrary
 
 		}
 
+		/// <summary>加载模块配方，普通参数表补齐默认行，允许空行集合的明细表保持为空。</summary>
 		public void ReadRecipeData(string RecipePath)
 		{
 			lock (readdata)
@@ -157,7 +158,7 @@ namespace AlphaRapLibrary
 						}
 				}
 				for (int i = 0; i < RecipeData.Tables.Count; i++)
-					if (RecipeData.Tables[i].Rows.Count == 0)
+					if (RecipeData.Tables[i].Rows.Count == 0 && !Equals(RecipeData.Tables[i].ExtendedProperties["AllowEmpty"], true))
 					{
 						DataRow NewRow = RecipeData.Tables[i].NewRow();
 

@@ -1190,7 +1190,7 @@ internal static partial class Cases
             DataGridView grid = points.Position; area = grid.GetCellDisplayRectangle(0,1,false);
             RaiseMouse(grid,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,area.Left+4,area.Top+4,0)); grid.ContextMenuStrip.Show(grid,new Point(area.Left+4,area.Top+4)); Application.DoEvents();
             Assert(ReferenceEquals(typeof(NP_PositionTable).GetField("contextRow",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(points),points.DataSet1.Rows[1]),"Point menu did not target the clicked row.");
-            Assert(points.Controls.Find("btn_DeletePost",true).Length==0 && !grid.AllowUserToDeleteRows,"Point deletion still has a button or keyboard shortcut."); grid.ContextMenuStrip.Close();
+            Assert(points.Controls.Find("btn_DeletePost",true).OfType<Button>().Single().Visible && !grid.AllowUserToDeleteRows,"Point deletion needs a visible toolbar button and must retain guarded deletion."); grid.ContextMenuStrip.Close();
             points.CanEdit = ()=>false; grid.ContextMenuStrip.Show(grid,new Point(area.Left+4,area.Top+4)); Assert(!grid.ContextMenuStrip.Items[0].Enabled,"Point deletion ignored the host permission guard."); grid.ContextMenuStrip.Close(); fixture.Close();
         }
     }

@@ -99,6 +99,10 @@ namespace AlphaRap.Configuration
             this.axisTabs.Dock = DockStyle.Fill;
             this.axisTabs.Multiline = false;
             this.axisTabs.ShowToolTips = true;
+            this.axisTabs.Font = new Font("Microsoft YaHei", 9.5F);
+            this.axisTabs.ItemSize = new Size(110, 32);
+            this.axisTabs.SizeMode = TabSizeMode.Fixed;
+            this.axisTabs.Padding = new Point(16, 6);
             this.axisTabs.ContextMenuStrip = this.resourceMenu;
             this.canvas = new FlowLayoutPanel();
             this.canvas.Name = "resourceCanvas";

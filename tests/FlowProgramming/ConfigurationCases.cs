@@ -75,7 +75,22 @@ internal static partial class ConfigurationCases
         Test("reloading a saved transaction restores all registered participant values", ReloadAll);
         Test("Setting persists independently while Recipe values follow the selected recipe file", RecipeScope);
         Test("a never-saved ToolBlock can discard its in-memory contents without creating a file", NeverSavedVpp);
+        Test("deleting every axis point saves and reloads an empty detail table", EmptyAxisPoints);
         Console.WriteLine("PASS unified save: " + completed + " cases; participants: " + string.Join(", ", participants.Select(item => item.Name)));
+    }
+
+    /// <summary>Save an empty axis point table through Main Save and keep it empty on recipe reload.</summary>
+    private static void EmptyAxisPoints()
+    {
+        NP_AxisGroup group = (NP_AxisGroup)hardware.Resources.Entries.Single(item => item.Definition.Id == axisId).Group;
+        DataTable table = group.Points.DataSet1;
+        foreach (DataRow row in table.Rows.Cast<DataRow>().ToArray()) row.Delete();
+        Assert(hardware.Resources.HasRecipeChanges(), "Deleting every saved point was not detected as a recipe draft.");
+        ChooseSave("Button1_dyn");
+        Assert(table.Rows.Count == 0 && !hardware.Resources.HasRecipeChanges(), "Main Save did not accept the empty point table.");
+        hardware.ReadRecipeData(SysPara.FilePath);
+        Assert(table.Rows.Count == 0 && group.Points.Position.Rows.Count == 0, "Recipe reload resurrected a deleted point.");
+        Assert(hardware.RecipeData.Tables["RSet"].Rows.Count > 0, "Ordinary recipe parameters lost their default row.");
     }
 
     /// <summary>Allow new configuration owners to register probes without changing the common transaction assertions.</summary>
