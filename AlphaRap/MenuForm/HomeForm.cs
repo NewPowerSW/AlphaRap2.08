@@ -46,6 +46,14 @@ namespace AlphaRap
 			MiddleLayer.MainF.tabPage10.Parent = bPlat ? null : MiddleLayer.MainF.uiTabControl1;
 		}
 
+        /// <summary>在首页报警区域显示主窗口的报警表。</summary>
+        internal void ShowAlarmCard(Control alarmCard)
+        {
+            lblAlarmPlaceholder.Visible = false;
+            alarmHost.Controls.Add(alarmCard);
+            alarmCard.BringToFront();
+        }
+
         // ---------------- 「生产信息」表格 ----------------
         // 自动设备：**表头（列）与数据行全部由代码添加**，界面不提供手工编辑（值只读）。
         // 同时**本地落盘**：{ProducPath}\ProductionData\{yyyy}\{MM}\{yyyy-MM-dd}.csv（一天一个文件）

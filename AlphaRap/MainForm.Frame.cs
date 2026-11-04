@@ -293,10 +293,11 @@ namespace AlphaRap
         private void StyleAlarmPanel()
         {
             InitializeAlarmColumnNames();
-            panelAlarmFilter.Height = UiTheme.Dpi(38);
+            panelAlarmFilter.Height = UiTheme.Dpi(55);
             panelAlarmFilter.BackColor = UiKit.Surface;
             flowAlarmFilter.Padding = UiTheme.Dpi(new Padding(8, 5, 0, 5));
             flowAlarmFilter.BackColor = UiKit.Surface;
+            flowAlarmFilter.AutoScroll = true;
             foreach (Control chip in new Control[] { btnAlarmFilterAll, btnAlarmFilterWarn, btnAlarmFilterAlarm })
             {
                 AlarmChip c = (AlarmChip)chip;
@@ -310,9 +311,8 @@ namespace AlphaRap
             btnAlarmQuery.Margin = UiTheme.Dpi(new Padding(0, 0, 8, 0));
             btnAlarmQuery.CornerRadius = UiTheme.Dpi(14);
             lblAlarmTitle.AutoSize = false;
-            lblAlarmTitle.TextAlign = ContentAlignment.MiddleLeft;
-            lblAlarmTitle.Padding = UiTheme.Dpi(new Padding(0, 0, 12, 0));
-            lblAlarmTitle.Height = panelAlarmFilter.Height;
+            lblAlarmTitle.TextAlign = ContentAlignment.TopLeft;
+            lblAlarmTitle.Padding = UiTheme.Dpi(new Padding(0, 9, 12, 0));
             lblAlarmTitle.Width = TextRenderer.MeasureText(lblAlarmTitle.Text, lblAlarmTitle.Font).Width + UiTheme.Dpi(12);
 
             UiTheme.StyleListView(WarnningMessage, 30);
@@ -333,11 +333,11 @@ namespace AlphaRap
         private void ResizeAlarmColumns(object sender, EventArgs e)
         {
             if (WarnningMessage.Columns.Count < 4) return;
-            WarnningMessage.Columns[0].Width = UiTheme.Dpi(160);
-            WarnningMessage.Columns[1].Width = UiTheme.Dpi(64);
-            WarnningMessage.Columns[2].Width = UiTheme.Dpi(80);
-            WarnningMessage.Columns[3].Width = Math.Max(UiTheme.Dpi(180),
-                WarnningMessage.ClientSize.Width - UiTheme.Dpi(304) - SystemInformation.VerticalScrollBarWidth - 2);
+            WarnningMessage.Columns[0].Width = UiTheme.Dpi(90);
+            WarnningMessage.Columns[1].Width = UiTheme.Dpi(50);
+            WarnningMessage.Columns[2].Width = UiTheme.Dpi(65);
+            WarnningMessage.Columns[3].Width = Math.Max(UiTheme.Dpi(120),
+                WarnningMessage.ClientSize.Width - UiTheme.Dpi(205) - SystemInformation.VerticalScrollBarWidth - 2);
         }
 
         /// <summary>

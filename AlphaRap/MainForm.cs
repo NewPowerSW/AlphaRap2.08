@@ -71,6 +71,7 @@ int nheightEllipse
             if (!InDesigner)
                 UiTheme.TextProvider = (form, key, zh, en, es) => MiddleLayer.LangMsg(form, key, zh, en, es);
             ApplyFrameStyle();
+            uiTabControl1.SelectedIndexChanged += DashboardTabChanged;
 
             // 以下设置圆角区域和鼠标转发，仅在运行时执行
             if (InDesigner)
@@ -644,6 +645,7 @@ int nheightEllipse
                 case MENU_PageType.Exit: OperationLog.Write("MainForm", "退出程序"); break;
             }
 
+            RestoreDashboardAlarm();
             Panel ShowPanl = panel2;
             tableLayoutPanel4.Visible = false;
 
@@ -656,6 +658,7 @@ int nheightEllipse
                     ShowhMainPage(MiddleLayer.HomeF, ShowPanl);
                     tableLayoutPanel4.Parent = panel2;
                     tableLayoutPanel4.Visible = true;
+                    PlaceDashboardAlarm(MiddleLayer.HomeF);
                     break;
                 case MENU_PageType.Vision:
                     ShowhMainPage(MiddleLayer.VPF, ShowPanl);
@@ -697,6 +700,35 @@ int nheightEllipse
                     break;
             }
         }
+        /// <summary>在首页和视觉页之间切换时保持同一张报警表可见。</summary>
+        private void DashboardTabChanged(object sender, EventArgs e)
+        {
+            if (uiTabControl1.SelectedTab != tabPage22) { RestoreDashboardAlarm(); return; }
+            foreach (Control control in plMainShow.Controls)
+            {
+                HomeForm home = control as HomeForm;
+                if (home != null) { PlaceDashboardAlarm(home); return; }
+            }
+        }
+
+        /// <summary>将报警表放入首页的报警卡片，保留现有行和筛选状态。</summary>
+        private void PlaceDashboardAlarm(HomeForm home)
+        {
+            if (home == null || uiTabControl1.SelectedTab != tabPage22) return;
+            tableLayoutPanel4.RowStyles[1].Height = 0;
+            alarmCard.Margin = Padding.Empty;
+            home.ShowAlarmCard(alarmCard);
+        }
+
+        /// <summary>离开首页时将报警表放回主框架，使视觉页仍可查看报警。</summary>
+        private void RestoreDashboardAlarm()
+        {
+            if (alarmCard.Parent == tableLayoutPanel4) return;
+            tableLayoutPanel4.Controls.Add(alarmCard, 0, 1);
+            alarmCard.Margin = UiTheme.Dpi(new Padding(0, 12, 0, 0));
+            tableLayoutPanel4.RowStyles[1].Height = UiTheme.Dpi(160);
+        }
+
         /// <summary>
         /// 切页前的安全确认：Hard / Manual 页会暂停设备。
         /// 设备正在动作时弹框确认，返回 false 表示取消切页；设备空闲时直接返回 true。

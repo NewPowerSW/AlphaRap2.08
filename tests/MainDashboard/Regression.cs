@@ -79,6 +79,7 @@ internal static class DashboardProbe
                 home.TopLevel = false; home.FormBorderStyle = FormBorderStyle.None; home.Dock = DockStyle.Fill;
                 Field<Panel>(frame, "plMainShow").Controls.Add(home);
                 home.Visible = true;
+                Invoke(frame, "PlaceDashboardAlarm", home);
                 UiTheme.TextProvider = (group, key, zh, en, es) => language == 0 ? zh : language == 1 ? en : es;
                 LicenseManager.CurrentContext = previous;
                 UiTheme.ForceDesignTimeForTest(false);
@@ -119,12 +120,17 @@ internal static class DashboardProbe
                 {
                     Control control = Field<Control>(frame, chip);
                     int center = control.Parent.PointToScreen(new Point(control.Left, control.Top + control.Height / 2)).Y;
-                    int titleCenter = alarmTitle.Parent.PointToScreen(new Point(alarmTitle.Left, alarmTitle.Top + alarmTitle.Height / 2)).Y;
+                    int titleCenter = alarmTitle.Parent.PointToScreen(new Point(alarmTitle.Left, alarmTitle.Top + 19)).Y;
                     Check(control.Height == 28 && Math.Abs(center - titleCenter) <= 1, "The alarm title/filter/query row is vertically misaligned.");
                 }
                 Control alarms = Field<Control>(frame, "alarmCard");
                 Check(frame.WarnningMessage.Parent == alarms && alarms.Visible && frame.WarnningMessage.Visible,
                     "The original alarm list is not visible on the main dashboard.");
+                Control host = Field<Control>(home, "alarmHost");
+                Check(ReferenceEquals(alarms.Parent, host), "The alarm table is not in the dashboard's lower-right card.");
+                Control chart = Field<Control>(home, "chartCard"), devices = Field<Control>(home, "deviceCard"), records = Field<Control>(home, "infoCard");
+                Check(chart.Left < devices.Left && records.Left < host.Left && chart.Top < records.Top && devices.Top < host.Top,
+                    "The dashboard cards do not form the expected two-column layout.");
                 CheckChildren(Field<Control>(frame, "tableLayoutPanel4"));
                 Rectangle alarmBounds = frame.RectangleToClient(alarms.RectangleToScreen(alarms.ClientRectangle));
                 Check(frame.ClientRectangle.Contains(alarmBounds) && frame.WarnningMessage.Height >= 64,
@@ -132,9 +138,10 @@ internal static class DashboardProbe
                 TabControl tabs = (TabControl)Field<Control>(frame, "uiTabControl1");
                 tabs.SelectedTab = Field<TabPage>(frame, "tabPage10");
                 Application.DoEvents();
-                Check(alarms.Visible && frame.WarnningMessage.Visible, "Switching to vision hid the main alarm table.");
+                Check(alarms.Visible && frame.WarnningMessage.Visible && ReferenceEquals(alarms.Parent, Field<Control>(frame, "tableLayoutPanel4")), "Switching to vision hid the main alarm table.");
                 tabs.SelectedTab = Field<TabPage>(frame, "tabPage22");
                 Application.DoEvents();
+                Check(ReferenceEquals(alarms.Parent, host) && frame.WarnningMessage.Items.Count == 2, "Returning home lost the alarm table or its records.");
                 PictureBox product = Field<PictureBox>(frame, "MENU_Product");
                 Control productParent = Field<Control>(frame, "Panl_PictureShowTop");
                 Check(ReferenceEquals(product.Parent, productParent) && product.Width >= 180 && product.Height >= 36,
