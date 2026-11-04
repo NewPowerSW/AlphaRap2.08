@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -26,6 +26,9 @@ namespace AlphaRap
         private bool _hover;
         private bool _open;
         private ContextMenuStrip _menu;
+
+        /// <summary>在底栏中使用小图标、圆角边框和紧凑间距。</summary>
+        public bool Compact { get; set; }
 
         /// <summary>用户从菜单里选定了某语言。同步 <see cref="Current"/> 不会触发它。</summary>
         public event EventHandler LanguageSelected;
@@ -64,8 +67,20 @@ namespace AlphaRap
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
+            if (Compact)
+            {
+                Rectangle bounds = new Rectangle(0, 0, Width - 1, Height - 1);
+                using (GraphicsPath path = RoundedRect(bounds, UiTheme.Dpi(5)))
+                using (SolidBrush fill = new SolidBrush(Color.FromArgb(_hover || _open ? 36 : 12, Color.White)))
+                using (Pen border = new Pen(Color.FromArgb(50, Color.White)))
+                {
+                    g.FillPath(fill, path);
+                    g.DrawPath(border, path);
+                }
+            }
+
             // 悬停 / 展开时浮出一层极淡的白，形成"可点击"的暗示
-            if (_hover || _open)
+            if (!Compact && (_hover || _open))
             {
                 Rectangle chip = new Rectangle(3, 7, Math.Max(1, Width - 7), Math.Max(1, Height - 15));
                 using (var path = RoundedRect(chip, 8))
@@ -78,22 +93,27 @@ namespace AlphaRap
 
             Size textSize = TextRenderer.MeasureText(code, Font, new Size(int.MaxValue, int.MaxValue),
                                                      TextFormatFlags.NoPadding);
-            int contentWidth = IconSize + GapIconText + textSize.Width + GapTextArrow + ArrowWidth;
+            int iconSize = Compact ? UiTheme.Dpi(12) : IconSize;
+            int iconGap = Compact ? UiTheme.Dpi(4) : GapIconText;
+            int arrowGap = Compact ? UiTheme.Dpi(5) : GapTextArrow;
+            int arrowWidth = Compact ? UiTheme.Dpi(6) : ArrowWidth;
+            int arrowHeight = Compact ? UiTheme.Dpi(3) : ArrowHeight;
+            int contentWidth = iconSize + iconGap + textSize.Width + arrowGap + arrowWidth;
             int x = (Width - contentWidth) / 2;
             int cy = Height / 2;
 
             // 地球图标
-            DrawGlobe(g, new Rectangle(x, cy - IconSize / 2, IconSize, IconSize), ForeColor);
-            x += IconSize + GapIconText;
+            DrawGlobe(g, new Rectangle(x, cy - iconSize / 2, iconSize, iconSize), ForeColor);
+            x += iconSize + iconGap;
 
             // 语言代码
             TextRenderer.DrawText(g, code, Font,
                 new Rectangle(x, cy - textSize.Height / 2, textSize.Width + 2, textSize.Height),
                 ForeColor, TextFormatFlags.NoPadding | TextFormatFlags.Left);
-            x += textSize.Width + GapTextArrow;
+            x += textSize.Width + arrowGap;
 
             // 下拉箭头
-            DrawChevron(g, x, cy - 2, ArrowWidth, ArrowHeight, ForeColor);
+            DrawChevron(g, x, cy - arrowHeight / 2, arrowWidth, arrowHeight, ForeColor);
         }
 
         /// <summary>画一个地球：外圆 + 一条经线 + 两条纬线。18~20px 下辨识度最好。</summary>

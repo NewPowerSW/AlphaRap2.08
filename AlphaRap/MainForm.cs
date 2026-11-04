@@ -1,4 +1,4 @@
-﻿using Alpha;
+using Alpha;
 using AlphaRap.Classes;
 using AlphaRapLibrary;
 using Cognex.VisionPro;
@@ -393,7 +393,7 @@ int nheightEllipse
             try
             {
                 Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-                string ver = "Version " + v.Major + "." + v.Minor + "." + v.Build;
+                string ver = v.Major + "." + v.Minor + "." + v.Build;
 
                 Rectangle wa = Screen.FromControl(this).WorkingArea;
                 toolStripStatusLabel4.Text = ver;
@@ -625,7 +625,7 @@ int nheightEllipse
 
         #endregion
 
-        #region show Form      
+        #region show Form
         public void SwitchMainPage(MENU_PageType PageType)
         {
             // 进入硬件/手动页会暂停设备、进入机器人页会停止设备：设备运行中先确认，取消则留在当前页
@@ -703,12 +703,53 @@ int nheightEllipse
         /// <summary>在首页和视觉页之间切换时保持同一张报警表可见。</summary>
         private void DashboardTabChanged(object sender, EventArgs e)
         {
+            RefreshDashboardTabs();
             if (uiTabControl1.SelectedTab != tabPage22) { RestoreDashboardAlarm(); return; }
             foreach (Control control in plMainShow.Controls)
             {
                 HomeForm home = control as HomeForm;
                 if (home != null) { PlaceDashboardAlarm(home); return; }
             }
+        }
+
+        /// <summary>显示首页页签，沿用原页签选择事件。</summary>
+        private void DashboardHomeTab_Click(object sender, EventArgs e)
+        {
+            uiTabControl1.SelectedTab = tabPage22;
+        }
+
+        /// <summary>显示视觉页签，沿用原页签选择事件。</summary>
+        private void DashboardVisionTab_Click(object sender, EventArgs e)
+        {
+            uiTabControl1.SelectedTab = tabPage10;
+        }
+
+        /// <summary>页面增减时同步可见页签。</summary>
+        private void DashboardPagesChanged(object sender, ControlEventArgs e)
+        {
+            RefreshDashboardTabs();
+        }
+
+        /// <summary>同步页签文字、可见性和选中颜色。</summary>
+        private void RefreshDashboardTabs()
+        {
+            dashboardHomeTab.Text = tabPage22.Text;
+            dashboardVisionTab.Text = tabPage10.Text;
+            dashboardVisionTab.Visible = uiTabControl1.TabPages.Contains(tabPage10);
+            dashboardHomeTab.ForeColor = uiTabControl1.SelectedTab == tabPage22 ? Color.FromArgb(0, 143, 211) : ShellInk;
+            dashboardVisionTab.ForeColor = uiTabControl1.SelectedTab == tabPage10 ? Color.FromArgb(0, 143, 211) : ShellInk;
+            dashboardHomeTab.Invalidate();
+            dashboardVisionTab.Invalidate();
+        }
+
+        /// <summary>在选中页签下绘制蓝色指示线。</summary>
+        private void DashboardTab_Paint(object sender, PaintEventArgs e)
+        {
+            Control tab = (Control)sender;
+            bool selected = tab == dashboardHomeTab ? uiTabControl1.SelectedTab == tabPage22 : uiTabControl1.SelectedTab == tabPage10;
+            if (!selected) return;
+            using (SolidBrush brush = new SolidBrush(Color.FromArgb(0, 153, 223)))
+                e.Graphics.FillRectangle(brush, UiTheme.Dpi(16), tab.Height - UiTheme.Dpi(2), tab.Width - UiTheme.Dpi(32), UiTheme.Dpi(2));
         }
 
         /// <summary>将报警表放入首页的报警卡片，保留现有行和筛选状态。</summary>
@@ -718,6 +759,7 @@ int nheightEllipse
             tableLayoutPanel4.RowStyles[1].Height = 0;
             alarmCard.Margin = Padding.Empty;
             home.ShowAlarmCard(alarmCard);
+            ResizeAlarmColumns(WarnningMessage, EventArgs.Empty);
         }
 
         /// <summary>离开首页时将报警表放回主框架，使视觉页仍可查看报警。</summary>
@@ -727,6 +769,7 @@ int nheightEllipse
             tableLayoutPanel4.Controls.Add(alarmCard, 0, 1);
             alarmCard.Margin = UiTheme.Dpi(new Padding(0, 12, 0, 0));
             tableLayoutPanel4.RowStyles[1].Height = UiTheme.Dpi(160);
+            ResizeAlarmColumns(WarnningMessage, EventArgs.Empty);
         }
 
         /// <summary>
@@ -953,9 +996,9 @@ int nheightEllipse
             {
                 if (picVirtualKeyboard == null) return;
 
-                picVirtualKeyboard.Image = AppIcons.Get(AppIcon.Keyboard, UiTheme.Dpi(18), ShellInk);
-                picVirtualKeyboard.MouseEnter += delegate { picVirtualKeyboard.BackColor = ToolbarHover; };
-                picVirtualKeyboard.MouseLeave += delegate { picVirtualKeyboard.BackColor = Color.White; };
+                picVirtualKeyboard.Image = AppIcons.Get(AppIcon.Keyboard, UiTheme.Dpi(14), Color.FromArgb(218, 239, 253));
+                picVirtualKeyboard.MouseEnter += delegate { picVirtualKeyboard.BackColor = Color.FromArgb(30, 126, 183); };
+                picVirtualKeyboard.MouseLeave += delegate { picVirtualKeyboard.BackColor = Color.FromArgb(6, 104, 166); };
                 picVirtualKeyboard.Click += delegate { ToggleVirtualKeyboard(); };
             }
             catch { }
@@ -1037,12 +1080,12 @@ int nheightEllipse
             {
                 if (btnAlarmFilterAll == null) return;
 
-                btnAlarmFilterAll.Icon = AlarmChip.CreateFunnelIcon(14, AlarmChipBrand);
-                btnAlarmFilterAll.IconSelected = AlarmChip.CreateFunnelIcon(14, Color.White);
-                btnAlarmFilterWarn.Icon = AlarmChip.CreateAlertTriangle(14, AlarmChipWarn);
-                btnAlarmFilterWarn.IconSelected = AlarmChip.CreateAlertTriangle(14, Color.White, AlarmChipWarn);
-                btnAlarmFilterAlarm.Icon = AlarmChip.CreateErrorCircle(14, AlarmChipError);
-                btnAlarmFilterAlarm.IconSelected = AlarmChip.CreateErrorCircle(14, Color.White, AlarmChipError);
+                btnAlarmFilterAll.Icon = null;
+                btnAlarmFilterAll.IconSelected = null;
+                btnAlarmFilterWarn.Icon = null;
+                btnAlarmFilterWarn.IconSelected = null;
+                btnAlarmFilterAlarm.Icon = null;
+                btnAlarmFilterAlarm.IconSelected = null;
 
                 btnAlarmFilterAll.Click += (s, e) => SetAlarmLogFilter("ALL");
                 btnAlarmFilterWarn.Click += (s, e) => SetAlarmLogFilter("OTHER");
@@ -1050,7 +1093,7 @@ int nheightEllipse
 
                 if (btnAlarmQuery != null)
                 {
-                    btnAlarmQuery.Icon = AppIcons.Get(AppIcon.Search, 13, AlarmChipQuery);
+                    btnAlarmQuery.Icon = null;
                     btnAlarmQuery.Click += (s, e) => OpenAlarmQuery();
                 }
 
@@ -1138,7 +1181,7 @@ int nheightEllipse
         }
         #endregion
 
-        #region Machine Status 
+        #region Machine Status
         /// <summary>各运行模式的状态文案（取自语言包，按 SysPara.LanguageShow）。</summary>
         private static Dictionary<RunMode, string> GetStatusTextMap(LanguageType language)
         {
@@ -1174,10 +1217,6 @@ int nheightEllipse
         /// <summary>深色状态底上的白字。</summary>
         private static readonly Color StatusWhiteInk = Color.White;
 
-        /// <summary>短文案状态牌的最小宽度（96 DPI 设计值）。</summary>
-        private const int StatusMinWidth = 192;
-        /// <summary>状态图标的边长（96 DPI 设计值）。</summary>
-        private const int StatusIconSize = 26;
         private AppIcon _statusIcon = AppIcon.Stop;
 
         // 状态文案缓存：语言或初始化状态变化时重建
@@ -1250,16 +1289,15 @@ int nheightEllipse
             }
         }
 
-        /// <summary>设置状态颜色、图标及文案，按文字和图标预留宽度，限制长文案占用的底栏空间。</summary>
+        /// <summary>更新状态颜色和文案，按当前语言保留完整文字宽度。</summary>
         private void SetStatusLook(Color fill, Color ink, string text, AppIcon icon)
         {
             if (MachineStatus.BackColor != fill) MachineStatus.BackColor = fill;
             if (MachineStatus.ForeColor != ink) MachineStatus.ForeColor = ink;
             if (MachineStatus.Text != text) MachineStatus.Text = text;
-
-            int need = TextRenderer.MeasureText(text ?? "", MachineStatus.Font).Width + MachineStatus.Padding.Horizontal;
-            int w = Math.Max(UiTheme.Dpi(StatusMinWidth), Math.Min(need, UiTheme.Dpi(360)));
-            if (MachineStatus.Width != w) MachineStatus.Width = w;
+            int width = TextRenderer.MeasureText(text ?? "", MachineStatus.Font, Size.Empty, TextFormatFlags.NoPadding).Width
+                + MachineStatus.Padding.Horizontal + MachineStatus.Margin.Horizontal + UiTheme.Dpi(8);
+            tableLayoutPanel2.ColumnStyles[0].Width = Math.Max(UiTheme.Dpi(100), width);
 
             if (_statusIcon != icon)
             {
@@ -1268,22 +1306,24 @@ int nheightEllipse
             }
         }
 
-        /// <summary>绘制状态牌轮廓与独立图标，文字区域由标签内边距留出。</summary>
+        /// <summary>绘制状态徽章及圆形状态灯，使用颜色区分待机、运行、暂停和报警。</summary>
         private void MachineStatus_Paint(object sender, PaintEventArgs e)
         {
             try
             {
                 if (MachineStatus.Width <= 2 || MachineStatus.Height <= 2) return;
                 Rectangle r = new Rectangle(0, 0, MachineStatus.Width - 1, MachineStatus.Height - 1);
-                using (GraphicsPath path = UiKit.RoundRect(r, UiTheme.Dpi(12)))
-                using (Pen p = new Pen(MachineStatus.BackColor == StatusAlarmFill ? Color.FromArgb(185, 28, 28) : Color.FromArgb(221, 229, 237), 1f))
-                    e.Graphics.DrawPath(p, path);
-                using (Brush stripe = new SolidBrush(MachineStatus.ForeColor))
-                    e.Graphics.FillRectangle(stripe, 0, UiTheme.Dpi(8), UiTheme.Dpi(4), MachineStatus.Height - UiTheme.Dpi(16));
-                int iconSize = UiTheme.Dpi(StatusIconSize);
-                Image icon = AppIcons.Get(_statusIcon, iconSize, MachineStatus.ForeColor);
-                if (icon != null)
-                    e.Graphics.DrawImageUnscaled(icon, UiTheme.Dpi(14), (MachineStatus.Height - iconSize) / 2);
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                using (GraphicsPath path = UiKit.RoundRect(r, UiTheme.Dpi(5)))
+                using (Pen border = new Pen(Color.FromArgb(55, Color.White)))
+                    e.Graphics.DrawPath(border, path);
+                Color color = MachineStatus.BackColor == StatusAlarmFill ? Color.FromArgb(255, 101, 101)
+                    : MachineStatus.BackColor == StatusRunFill ? Color.FromArgb(77, 222, 150) : Color.FromArgb(255, 211, 66);
+                int diameter = UiTheme.Dpi(8);
+                Rectangle dot = new Rectangle(UiTheme.Dpi(11), (MachineStatus.Height - diameter) / 2, diameter, diameter);
+                using (SolidBrush glow = new SolidBrush(Color.FromArgb(65, color)))
+                    e.Graphics.FillEllipse(glow, dot.X - UiTheme.Dpi(3), dot.Y - UiTheme.Dpi(3), dot.Width + UiTheme.Dpi(6), dot.Height + UiTheme.Dpi(6));
+                using (SolidBrush fill = new SolidBrush(color)) e.Graphics.FillEllipse(fill, dot);
             }
             catch { }
         }
@@ -1335,7 +1375,7 @@ int nheightEllipse
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            #region Machine Status 
+            #region Machine Status
             UpdateMachineStatus();
             #endregion
 
@@ -1344,7 +1384,7 @@ int nheightEllipse
 
 
             #region  RecipeName
-            toolStripStatusLabel5.Text = DateTime.Now.ToString("HH:mm");
+            toolStripStatusLabel5.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             toolStripStatusLabel5.ToolTipText = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             // 右上角登录芯片：用户名 · 权限 · 登录时刻（完整日期见悬停提示；芯片宽度有限，只显示到分钟）
             RefreshLoginChipText();

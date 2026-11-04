@@ -24,6 +24,9 @@ namespace AlphaRap
             lblKpiCtTitle.Text = UiTheme.T("HomeForm", "kpi_Ct", "节拍", "Cycle time", "Tiempo de ciclo");
             lblKpiYieldTitle.Text = UiTheme.T("HomeForm", "kpi_Yield", "良率", "Yield", "Rendimiento");
             lblChartTitle.Text = UiTheme.T("HomeForm", "chart_TrendToday", "产量趋势 · 今日", "Output trend · Today", "Producción · Hoy");
+            lblChartSubtitle.Text = UiTheme.T("HomeForm", "chart_HourlySubtitle", "良品 / 不良 · 按小时", "Good / NG · hourly", "OK / NG · por hora");
+            lblDeviceSubtitle.Text = UiTheme.T("HomeForm", "devices_Subtitle", "连接状态", "Connection status", "Estado de conexión");
+            lblInfoSubtitle.Text = UiTheme.T("HomeForm", "records_Subtitle", "实时托盘检测记录", "Live pallet inspection records", "Inspecciones de palés en tiempo real");
             hourlyChart.OkLegend = UiTheme.T("HomeForm", "chart_Ok", "良品", "OK", "OK");
             hourlyChart.NgLegend = UiTheme.T("HomeForm", "chart_Ng", "不良", "NG", "NG");
             hourlyChart.EmptyText = UiTheme.T("HomeForm", "chart_Empty", "暂无数据", "No data yet", "Sin datos");

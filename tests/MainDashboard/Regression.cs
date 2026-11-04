@@ -100,7 +100,7 @@ internal static class DashboardProbe
                 LicenseManager.CurrentContext = new DesignerContext();
                 Field<Label>(frame, "lbRecipeName").Text = "AllModel";
                 Field<Label>(frame, "LoginText").Text = "admin\n" + (language == 0 ? "管理员" : language == 1 ? "Administrator" : "Administrador");
-                Field<ToolStripStatusLabel>(frame, "toolStripStatusLabel5").Text = "16:51";
+                Field<ToolStripStatusLabel>(frame, "toolStripStatusLabel5").Text = "2026-11-04 09:17:15";
                 frame.Show();
                 Application.DoEvents();
                 Console.WriteLine("  Layout");
@@ -111,7 +111,13 @@ internal static class DashboardProbe
                     CheckChildren(Field<Control>(frame, field));
                 CheckChildren(Field<Control>(home, "kpiLayout"));
                 Check(Field<Control>(frame, "panel_PictureShowDown").Top == 0, "Machine commands are not at the top.");
-                Check(Field<Control>(frame, "panel4").Height == frame.ClientSize.Height, "Navigation does not span the window height.");
+                Control sidebar = Field<Control>(frame, "panel4"), brand = Field<Control>(frame, "panelBrand");
+                Check(sidebar.Top == brand.Bottom && sidebar.Bottom == frame.ClientSize.Height, "Navigation does not fill the area below the brand bar.");
+                Control commands = Field<Control>(frame, "panel_PictureShowLeft");
+                Check(commands.Parent == Field<Control>(frame, "dashboardToolbar") && commands.Top >= 0 && commands.Bottom <= 48,
+                    "Production commands are not aligned with the white tab bar.");
+                Check(commands.Visible && commands.Parent.Controls.GetChildIndex(commands) == 0,
+                    "Production commands are covered by the tabs.");
                 Color blue = Field<AlphaRap.GradientTableLayoutPanel>(frame, "panel4").GradientTop;
                 Check(blue.B > blue.R + 60 && blue.G > blue.R + 50 && Field<Control>(home, "kpiOkCard").BackColor.B > 150,
                     "The main shell and highlighted KPI did not use the blue palette.");
@@ -120,8 +126,8 @@ internal static class DashboardProbe
                 {
                     Control control = Field<Control>(frame, chip);
                     int center = control.Parent.PointToScreen(new Point(control.Left, control.Top + control.Height / 2)).Y;
-                    int titleCenter = alarmTitle.Parent.PointToScreen(new Point(alarmTitle.Left, alarmTitle.Top + 19)).Y;
-                    Check(control.Height == 28 && Math.Abs(center - titleCenter) <= 1, "The alarm title/filter/query row is vertically misaligned.");
+                    Check(control.Height == 24 && center > alarmTitle.Parent.PointToScreen(new Point(0, alarmTitle.Bottom)).Y,
+                        "Alarm filters overlap the title or have an unreadable height.");
                 }
                 Control alarms = Field<Control>(frame, "alarmCard");
                 Check(frame.WarnningMessage.Parent == alarms && alarms.Visible && frame.WarnningMessage.Visible,
@@ -142,6 +148,8 @@ internal static class DashboardProbe
                 tabs.SelectedTab = Field<TabPage>(frame, "tabPage22");
                 Application.DoEvents();
                 Check(ReferenceEquals(alarms.Parent, host) && frame.WarnningMessage.Items.Count == 2, "Returning home lost the alarm table or its records.");
+                Check(frame.WarnningMessage.Columns.Cast<ColumnHeader>().Sum(column => column.Width) <= frame.WarnningMessage.ClientSize.Width,
+                    "Alarm columns require horizontal scrolling: " + string.Join(",", frame.WarnningMessage.Columns.Cast<ColumnHeader>().Select(column => column.Width.ToString()).ToArray()) + " inside " + frame.WarnningMessage.ClientSize.Width);
                 PictureBox product = Field<PictureBox>(frame, "MENU_Product");
                 Control productParent = Field<Control>(frame, "Panl_PictureShowTop");
                 Check(ReferenceEquals(product.Parent, productParent) && product.Width >= 180 && product.Height >= 36,
@@ -168,6 +176,8 @@ internal static class DashboardProbe
                     frame.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
                     Check(image.GetPixel(20, 100).ToArgb() != image.GetPixel(300, 140).ToArgb(), "The screenshot contains only a blank form background.");
                     image.Save(Path.Combine(outputRoot, "dashboard-" + size.Width + "x" + size.Height + "-" + language + ".png"));
+                    using (Bitmap footerImage = image.Clone(new Rectangle(0, image.Height - 84, image.Width, 84), image.PixelFormat))
+                        footerImage.Save(Path.Combine(outputRoot, "footer-preview-" + size.Width + "-" + language + ".png"));
                 }
                 if (size.Width == 1600 && language == 0)
                 {
@@ -190,7 +200,7 @@ internal static class DashboardProbe
         }
     }
 
-    /// <summary>Render every machine-state appearance and require full translated text inside the compact footer badge.</summary>
+    /// <summary>Render every machine state and retain readable translated text in the compact footer badge.</summary>
     private static void CheckMachineStatus(MainForm frame, Size size, int language)
     {
         string[,] captions = {
@@ -205,13 +215,14 @@ internal static class DashboardProbe
         string[] colors = { "StatusIdleFill", "StatusInitFill", "StatusInitFill", "StatusRunFill", "StatusPauseFill", "StatusAlarmFill", "StatusPauseFill" };
         AppIcon[] icons = { AppIcon.Stop, AppIcon.Reset, AppIcon.Reset, AppIcon.Run, AppIcon.Pause, AppIcon.Alarm, AppIcon.Stop };
         Label badge = Field<Label>(frame, "MachineStatus");
-        Check(badge.Height >= 44 && badge.Font.SizeInPoints >= 14, "The machine state is too small to read at a glance.");
+        Check(badge.Height >= 24 && badge.Font.SizeInPoints >= 8.5f, "The machine state is too small to read at a glance.");
         for (int state = 0; state < colors.Length; state++)
         {
             Color fill = (Color)typeof(MainForm).GetField(colors[state], BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
             string[] inkFields = { "StatusWhiteInk", "StatusWhiteInk", "StatusWhiteInk", "StatusWhiteInk", "StatusDarkInk", "StatusWhiteInk", "StatusDarkInk" };
             Color ink = (Color)typeof(MainForm).GetField(inkFields[state], BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
             Invoke(frame, "SetStatusLook", fill, ink, captions[state, language], icons[state]);
+            Check(badge.Dock == DockStyle.Fill, "The machine status lost its footer cell.");
             Layout(Field<Control>(frame, "tableLayoutPanel2"));
             CheckChildren(Field<Control>(frame, "tableLayoutPanel2"));
             Size text = TextRenderer.MeasureText(badge.Text, badge.Font);
@@ -229,14 +240,31 @@ internal static class DashboardProbe
         Layout(Field<Control>(frame, "tableLayoutPanel2"));
     }
 
-    /// <summary>Keep active recipe and compact state aligned without a textbox-style fill or footer overlap.</summary>
+    /// <summary>Keep the recipe and utility controls inside the compact blue footer, including long recipe names.</summary>
     private static void CheckFooterIdentity(MainForm frame, Size size, int language)
     {
         Control footer = Field<Control>(frame, "tableLayoutPanel2"), recipe = Field<Control>(frame, "recipeDetails");
         Label badge = Field<Label>(frame, "MachineStatus"), name = Field<Label>(frame, "lbRecipeName"), caption = Field<Label>(frame, "lblRecipeCaption");
-        Check(ReferenceEquals(name.Parent, recipe) && name.BackColor == Color.White && name.AutoEllipsis, "Recipe still looks like a filled input field.");
+        Control sidebar = Field<Control>(frame, "panel4"), login = Field<Control>(frame, "panelLogin");
+        Check(ReferenceEquals(recipe.Parent, footer) && badge.Right <= recipe.Left && login.Bottom <= sidebar.Height,
+            "Recipe is not beside the status badge in the footer.");
+        Check(ReferenceEquals(name.Parent, recipe) && name.BackColor == Color.Transparent && name.ForeColor == Color.White && name.AutoEllipsis,
+            "Recipe identity does not match the blue footer.");
         Check(caption.Text == (language == 0 ? "当前配方" : language == 1 ? "Active recipe" : "Receta activa"), "Recipe caption lost its translation.");
-        Check(badge.Height <= 48 && recipe.Height >= badge.Height && name.Font.SizeInPoints >= 10, "Footer identity block is oversized or unreadable.");
+        Check(badge.Height <= 32 && recipe.Height >= 30 && name.Font.SizeInPoints >= 8.5f, "Status or recipe is unreadable.");
+        Control keyboard = Field<Control>(frame, "picVirtualKeyboard"), languageSwitch = Field<Control>(frame, "languageSwitch"), clock = Field<Control>(frame, "statusStrip2");
+        Check(recipe.Right <= keyboard.Left && badge.Left == footer.Padding.Left,
+            "The recipe overlaps the footer utilities.");
+        Check(!badge.Bounds.IntersectsWith(keyboard.Bounds) && !badge.Bounds.IntersectsWith(languageSwitch.Bounds) && !badge.Bounds.IntersectsWith(clock.Bounds),
+            "The full-width status covers keyboard, language, clock or version.");
+        Check(languageSwitch.Height == 24 && languageSwitch.Width >= 68 && Field<LanguageSwitch>(frame, "languageSwitch").Compact,
+            "The language selector is not a readable compact footer chip.");
+        ToolStripStatusLabel time = Field<ToolStripStatusLabel>(frame, "toolStripStatusLabel5");
+        Size timestamp = TextRenderer.MeasureText(time.Text, time.Font, Size.Empty, TextFormatFlags.NoPadding);
+        Check(timestamp.Width <= time.Width && timestamp.Height <= time.Height && time.Text.Length == 19,
+            "The complete timestamp is clipped or missing.");
+        Check(footer.Height == 40 && login.Height == 54 && Field<CardPanel>(frame, "panelLogin").CornerRadius >= 8,
+            "The footer or user card no longer matches the compact reference dimensions.");
         string previous = name.Text;
         string longName = "Long_Product_Recipe_2026_10_AOI_Dispensing_Assembly_Variant_123456789";
         Type host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
@@ -249,7 +277,7 @@ internal static class DashboardProbe
                 "Active recipe was not refreshed or its full-name tooltip was lost.");
         }
         finally { productField.SetValue(null, originalProduct); SysPara.RecipeName = originalRecipe; }
-        Layout(footer); CheckChildren(footer); CheckChildren(recipe);
+        Layout(footer); CheckChildren(footer); CheckChildren(sidebar); CheckChildren(recipe); CheckChildren(login);
         Check(recipe.Width >= 100 && name.Width <= recipe.Width && name.Text.EndsWith("123456789"), "Long recipe name was modified or displaced the status controls.");
         using (Bitmap image = new Bitmap(footer.Width, footer.Height))
         {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -227,6 +227,9 @@ namespace AlphaRap
         public bool ShowBorder { get; set; }
         public Color FillColor { get; set; }
 
+        /// <summary>卡片顶部的强调色；透明色表示不显示强调边。</summary>
+        public Color AccentColor { get; set; }
+
         /// <summary>
         /// 底部投影：卡片下沉 <see cref="ShadowDepth"/> 像素，露出下缘形成"浮起来"的层次。
         /// 卡片因此比布局格子矮一点（视觉上仍是整格），换来的是卡片不再"贴"在页面底色上。
@@ -248,6 +251,7 @@ namespace AlphaRap
             ShowBorder = true;
             ShowShadow = true;
             FillColor = UiKit.Surface;
+            AccentColor = Color.Transparent;
             ShadowColor = Color.FromArgb(58, 176, 196, 218);
             BackColor = UiKit.Surface;
         }
@@ -257,6 +261,15 @@ namespace AlphaRap
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.Clear(UiKit.ResolveParentBack(this));
+
+            GradientTableLayoutPanel gradient = Parent as GradientTableLayoutPanel;
+            if (gradient != null)
+            {
+                using (LinearGradientBrush background = new LinearGradientBrush(
+                    new Rectangle(0, -Top, Math.Max(1, Width), Math.Max(1, gradient.Height)),
+                    gradient.GradientTop, gradient.GradientBottom, LinearGradientMode.Vertical))
+                    g.FillRectangle(background, ClientRectangle);
+            }
 
             int depth = (ShowShadow && Height > UiTheme.Dpi(ShadowDepth * 4)) ? UiTheme.Dpi(ShadowDepth) : 0;
             Rectangle rect = new Rectangle(0, 0, Width - 1, Height - 1 - depth);
@@ -273,9 +286,40 @@ namespace AlphaRap
             using (GraphicsPath path = UiKit.RoundRect(rect, UiTheme.Dpi(CornerRadius)))
             {
                 using (SolidBrush b = new SolidBrush(FillColor)) g.FillPath(b, path);
+                if (AccentColor.A > 0)
+                {
+                    GraphicsState saved = g.Save();
+                    g.SetClip(path);
+                    using (SolidBrush accent = new SolidBrush(AccentColor))
+                        g.FillRectangle(accent, rect.Left, rect.Top, rect.Width, UiTheme.Dpi(3));
+                    g.Restore(saved);
+                }
                 if (ShowBorder)
                     using (Pen p = new Pen(BorderColor, 1f)) g.DrawPath(p, path);
             }
+        }
+    }
+
+    /// <summary>在状态栏中绘制固定高度的圆角时间框。</summary>
+    public class StatusClockLabel : ToolStripStatusLabel
+    {
+        /// <summary>在状态栏中央绘制时间及浅色描边。</summary>
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            if (Width < 2 || Height < 2) return;
+            Graphics graphics = e.Graphics;
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            int height = Math.Min(Height - 1, UiTheme.Dpi(24));
+            Rectangle bounds = new Rectangle(0, (Height - height) / 2, Width - 1, height);
+            using (GraphicsPath path = UiKit.RoundRect(bounds, UiTheme.Dpi(5)))
+            using (SolidBrush fill = new SolidBrush(Color.FromArgb(25, Color.White)))
+            using (Pen border = new Pen(Color.FromArgb(50, Color.White)))
+            {
+                graphics.FillPath(fill, path);
+                graphics.DrawPath(border, path);
+            }
+            TextRenderer.DrawText(graphics, Text, Font, bounds, ForeColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.NoPadding);
         }
     }
 

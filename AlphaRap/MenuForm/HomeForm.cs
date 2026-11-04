@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -26,6 +26,14 @@ namespace AlphaRap
             // 而构造函数末尾还要用 MiddleLayer.MainF —— 不提前返回的话设计器根本打不开这个窗体。
             if (UiTheme.IsDesignTime)
             {
+                BindDeviceStatuses(new List<DeviceControl.DeviceStatus>
+                {
+                    new DeviceControl.DeviceStatus { Name = "Load station", IsConnected = true },
+                    new DeviceControl.DeviceStatus { Name = "Vision inspection", IsConnected = true },
+                    new DeviceControl.DeviceStatus { Name = "Press station", IsConnected = false },
+                    new DeviceControl.DeviceStatus { Name = "ATEQ Leak Test", IsConnected = true },
+                    new DeviceControl.DeviceStatus { Name = "Unloader", IsConnected = true }
+                });
                 ApplyPageStyle();
                 return;
             }
@@ -323,6 +331,7 @@ namespace AlphaRap
         private readonly List<Label> _deviceDots = new List<Label>();
         private readonly List<Label> _deviceNames = new List<Label>();
         private readonly List<Label> _deviceStates = new List<Label>();
+        private readonly List<CardPanel> _deviceRows = new List<CardPanel>();
         private bool _rebuildingDevStatus;
 
         /// <summary>把设备清单变更转到页面线程；设计期不加载设备配置。</summary>
@@ -359,8 +368,10 @@ namespace AlphaRap
                 _deviceDots.Clear();
                 _deviceNames.Clear();
                 _deviceStates.Clear();
-                connLayout.RowCount = Math.Max(1, devices.Count);
+                _deviceRows.Clear();
+                connLayout.RowCount = devices.Count + 1;
                 for (int i = 0; i < devices.Count; i++) AddDeviceStatusRow(devices[i], i);
+                connLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
                 lblDeviceEmpty.Visible = devices.Count == 0;
                 connLayout.Visible = devices.Count > 0;
                 RefreshDeviceTexts();
@@ -372,6 +383,16 @@ namespace AlphaRap
         private void AddDeviceStatusRow(DeviceControl.DeviceStatus device, int index)
         {
             connLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, UiTheme.Dpi(40)));
+            CardPanel row = new CardPanel
+            {
+                Name = "deviceRow" + index,
+                Dock = DockStyle.Fill,
+                Margin = UiTheme.Dpi(new Padding(0, 0, 0, 5)),
+                Padding = UiTheme.Dpi(new Padding(10, 5, 10, 5)),
+                CornerRadius = 7,
+                ShowShadow = false,
+                BorderColor = Color.FromArgb(218, 230, 242)
+            };
             UiLabel dot = new UiLabel();
             dot.Name = "deviceDot" + index + "_dyn";
             dot.Text = "●";
@@ -390,15 +411,21 @@ namespace AlphaRap
             name.ForeColor = Color.FromArgb(40, 59, 83);
             UiLabel state = new UiLabel();
             state.Name = "deviceState" + index + "_dyn";
-            state.Dock = DockStyle.Fill;
+            state.Dock = DockStyle.Right;
+            state.Width = UiTheme.Dpi(100);
             state.Margin = new Padding(0);
             state.AutoEllipsis = true;
-            state.TextAlign = ContentAlignment.MiddleRight;
-            state.Font = UiTheme.Body;
+            state.TextAlign = ContentAlignment.MiddleCenter;
+            state.Font = UiKit.Regular(8f);
             state.Tag = device.IsConnected;
-            connLayout.Controls.Add(dot, 0, index);
-            connLayout.Controls.Add(name, 1, index);
-            connLayout.Controls.Add(state, 2, index);
+            dot.Dock = DockStyle.Left;
+            dot.Width = UiTheme.Dpi(16);
+            dot.Visible = false;
+            row.Controls.Add(name);
+            row.Controls.Add(state);
+            row.Controls.Add(dot);
+            connLayout.Controls.Add(row, 0, index);
+            _deviceRows.Add(row);
             _deviceDots.Add(dot);
             _deviceNames.Add(name);
             _deviceStates.Add(state);
@@ -437,7 +464,10 @@ namespace AlphaRap
                 Color color = connected ? DeviceOnline : DeviceOffline;
                 _deviceDots[i].ForeColor = color;
                 _deviceStates[i].ForeColor = color;
-                SetText(_deviceStates[i], connected ? online : offline);
+                _deviceStates[i].BackColor = connected ? Color.FromArgb(232, 247, 239) : Color.FromArgb(255, 239, 240);
+                Color border = connected ? Color.FromArgb(218, 230, 242) : Color.FromArgb(255, 170, 177);
+                if (_deviceRows[i].BorderColor != border) { _deviceRows[i].BorderColor = border; _deviceRows[i].Invalidate(); }
+                SetText(_deviceStates[i], "● " + (connected ? online : offline));
             }
         }
 
@@ -455,7 +485,7 @@ namespace AlphaRap
 			if (UiTheme.IsDesignTime) return;
 			timer1.Enabled = true;
 
-			
+
 			MiddleLayer.HardF.StopAllMotor();
 		}
 
