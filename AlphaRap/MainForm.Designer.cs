@@ -61,6 +61,7 @@ namespace AlphaRap
             this.MENU_AddUser = new System.Windows.Forms.PictureBox();
             this.MENU_Data = new System.Windows.Forms.PictureBox();
             this.MENU_Check = new System.Windows.Forms.PictureBox();
+            this.MENU_RuntimeLog = new System.Windows.Forms.PictureBox();
             this.panelLogin = new AlphaRap.CardPanel();
             this.MENU_Login = new System.Windows.Forms.PictureBox();
             this.LoginText = new System.Windows.Forms.Label();
@@ -252,7 +253,7 @@ namespace AlphaRap
             this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 336F));
             this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 168F));
+            this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 210F));
             this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.panel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.panel4.Size = new System.Drawing.Size(224, 1000);
@@ -527,6 +528,7 @@ namespace AlphaRap
             this.Panl_PictureShowDown.Controls.Add(this.MENU_AddUser);
             this.Panl_PictureShowDown.Controls.Add(this.MENU_Data);
             this.Panl_PictureShowDown.Controls.Add(this.MENU_Check);
+            this.Panl_PictureShowDown.Controls.Add(this.MENU_RuntimeLog);
             this.Panl_PictureShowDown.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Panl_PictureShowDown.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.Panl_PictureShowDown.Location = new System.Drawing.Point(0, 466);
@@ -596,6 +598,15 @@ namespace AlphaRap
             this.MENU_Check.Tag = "Check";
             this.MENU_Check.Click += new System.EventHandler(this.MENU_Click);
             this.MENU_Check.MouseEnter += new System.EventHandler(this.MouseEnter1);
+            this.MENU_RuntimeLog.Name = "MENU_RuntimeLog";
+            this.MENU_RuntimeLog.Tag = "RuntimeLog";
+            this.MENU_RuntimeLog.BackColor = System.Drawing.Color.Transparent;
+            this.MENU_RuntimeLog.Size = new System.Drawing.Size(212, 38);
+            this.MENU_RuntimeLog.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
+            this.MENU_RuntimeLog.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.MENU_RuntimeLog.TabStop = false;
+            this.MENU_RuntimeLog.Click += new System.EventHandler(this.MENU_Click);
+            this.MENU_RuntimeLog.MouseEnter += new System.EventHandler(this.MouseEnter1);
             //
             // panelLogin
             //
@@ -1415,6 +1426,7 @@ namespace AlphaRap
         private System.Windows.Forms.Label lblSystemGroup;
         private AlphaRap.CardPanel alarmCard;
         private System.Windows.Forms.Panel dashboardToolbar;
+        private System.Windows.Forms.PictureBox MENU_RuntimeLog;
         private System.Windows.Forms.Label dashboardHomeTab;
         private System.Windows.Forms.Label dashboardVisionTab;
         private System.Windows.Forms.Label lblAlarmTitle;

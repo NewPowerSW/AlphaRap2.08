@@ -33,7 +33,8 @@ namespace AlphaRap
             Stop,
             Exit,
             Run,
-            Mes
+            Mes,
+            RuntimeLog
         }
 
         /// <summary>当前选中的页面。</summary>
@@ -67,7 +68,7 @@ namespace AlphaRap
         /// <summary>主框架样式，构造函数中在 InitializeComponent 之后调用。</summary>
         private void ApplyFrameStyle()
         {
-            MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_AddUser, MENU_Rapid, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Pause, MENU_Stop, MENU_Exit, MENU_Run, MENU_Mes };
+            MENU_Picture = new PictureBox[] { MENU_Home, MENU_Product, MENU_Save, MENU_Hard, MENU_Manual, MENU_Check, MENU_System, MENU_AddUser, MENU_Rapid, MENU_Data, MENU_Vision, MENU_Login, MENU_LifeSpan, MENU_Lock, MENU_Reset, MENU_Pause, MENU_Stop, MENU_Exit, MENU_Run, MENU_Mes, MENU_RuntimeLog };
 
             // 底色层次：框架浅灰蓝 → 内容区更浅 → 卡片白
             tableLayoutPanel_Main.BackColor = ShellCanvas;
@@ -270,7 +271,7 @@ namespace AlphaRap
             return new PictureBox[]
             {
                 MENU_Home, MENU_Product, MENU_Vision, MENU_Save, MENU_Rapid, MENU_Hard, MENU_Manual,
-                MENU_LifeSpan, MENU_Mes, MENU_AddUser, MENU_Data, MENU_Check
+                MENU_LifeSpan, MENU_Mes, MENU_AddUser, MENU_Data, MENU_Check, MENU_RuntimeLog
             };
         }
 
@@ -489,6 +490,7 @@ namespace AlphaRap
             add(MENU_AddUser, "nav_AddUser", "用户", "Users", "Usuarios");
             add(MENU_Data, "nav_Data", "数据", "Data", "Datos");
             add(MENU_Check, "nav_Check", "信号", "Signals", "Señales");
+            add(MENU_RuntimeLog, "nav_RuntimeLog", "运行日志", "Runtime logs", "Registros");
 
             add(MENU_Reset, "tool_Reset", "初始化", "Initialize", "Inicializar");
             add(MENU_Run, "tool_Run", "启动", "Start", "Iniciar");
@@ -531,6 +533,7 @@ namespace AlphaRap
                 StyleNavButton(MENU_AddUser, AppIcon.AddUser);
                 StyleNavButton(MENU_Mes, AppIcon.Mes);
                 StyleNavButton(MENU_LifeSpan, AppIcon.LifeSpan);
+                StyleNavButton(MENU_RuntimeLog, AppIcon.Log);
 
                 ApplyToolbarButtonStyles();
 

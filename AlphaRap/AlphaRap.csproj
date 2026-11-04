@@ -712,6 +712,13 @@
     <Compile Include="Classes\FFUCom.cs" />
     <Compile Include="Classes\LogManagement.cs" />
     <Compile Include="Classes\OperationLog.cs" />
+    <Compile Include="Classes\RuntimeLogHistory.cs" />
+    <Compile Include="MenuForm\RuntimeLogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MenuForm\RuntimeLogForm.Designer.cs">
+      <DependentUpon>RuntimeLogForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Classes\AlarmHistory.cs" />
     <Compile Include="Classes\LogDirectories.cs" />
     <Compile Include="Classes\ProductionDataStore.cs" />

@@ -73,7 +73,8 @@ internal static class DashboardProbe
             using (MainForm frame = CreateFrame())
             using (HomeForm home = CreateHome())
             {
-                Check(typeof(MainForm).GetField("MENU_Log", BindingFlags.Instance | BindingFlags.NonPublic) == null && typeof(MainForm).Assembly.GetType("AlphaRap.LogForm") == null, "The deleted log navigation/page remains in the application.");
+                Check(typeof(MainForm).Assembly.GetType("AlphaRap.LogForm") == null && typeof(MainForm).Assembly.GetType("AlphaRap.RuntimeLogForm") != null,
+                    "Runtime logs must use the dedicated query page, preserving removal of the old path settings page.");
                 RemoveMachineLoad(frame);
                 frame.ClientSize = size;
                 home.TopLevel = false; home.FormBorderStyle = FormBorderStyle.None; home.Dock = DockStyle.Fill;
@@ -165,6 +166,10 @@ internal static class DashboardProbe
                 typeof(MainForm).GetField("MENU_SelectPage", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(frame, MainForm.MENU_PageType.Home);
                 product.Enabled = productEnabled; Invoke(frame, "RefreshMenuBackcolor");
                 CheckClick(frame, "MENU_Product", "MENU_Click");
+                CheckClick(frame, "MENU_RuntimeLog", "MENU_Click");
+                Control logNavigation = Field<Control>(frame, "MENU_RuntimeLog");
+                Check(logNavigation.Visible && ReferenceEquals(logNavigation.Parent, Field<Control>(frame, "Panl_PictureShowDown")),
+                    "Runtime log navigation is missing or clipped.");
                 CheckClick(frame, "MENU_Save", "SaveData_Click"); CheckClick(frame, "MENU_Reset", "MENU_Reset_Click");
                 CheckClick(frame, "MENU_Run", "btStart_Click"); CheckClick(frame, "MENU_Pause", "btPause_Click");
                 CheckClick(frame, "MENU_Stop", "btStop_Click"); CheckClick(frame, "AlarmReset", "btAlarmReset_Click");
@@ -190,6 +195,7 @@ internal static class DashboardProbe
                 Invoke(home, "ShowValues", 0d, 0d, "", new double[24], new double[24], 0);
                 Check(Field<Control>(home, "lblKpiOkValue").Text == "0", "Empty production data retained the previous count.");
                 Check(!Field<Control>(home, "lblKpiYieldValue").Text.Contains("NaN"), "Empty data rendered an invalid percentage.");
+                if (size.Width == 1280 && language == 0) CheckRuntimeLogNavigation(frame, home);
             }
         }
         finally
@@ -198,6 +204,26 @@ internal static class DashboardProbe
             UiTheme.ForceDesignTimeForTest(false);
             LicenseManager.CurrentContext = previous;
         }
+    }
+
+    /// <summary>Navigate to the lazy runtime log page and return home without invoking a machine Load handler.</summary>
+    private static void CheckRuntimeLogNavigation(MainForm frame, HomeForm home)
+    {
+        Type host = typeof(HomeForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
+        FieldInfo homeField = host.GetField("HomeF", BindingFlags.Public | BindingFlags.Static);
+        object original = homeField.GetValue(null);
+        RuntimeLogForm page = null;
+        try
+        {
+            homeField.SetValue(null, home);
+            frame.SwitchMainPage(MainForm.MENU_PageType.RuntimeLog);
+            page = Field<RuntimeLogForm>(frame, "runtimeLogPage");
+            Check(page != null && page.Visible && ReferenceEquals(page.Parent, Field<Control>(frame, "panel2")),
+                "Runtime log navigation did not show the dedicated page.");
+            frame.SwitchMainPage(MainForm.MENU_PageType.Home);
+            Check(home.Visible && !page.Visible, "Returning home did not hide the log page.");
+        }
+        finally { homeField.SetValue(null, original); if (page != null) page.Dispose(); }
     }
 
     /// <summary>Render every machine state and retain readable translated text in the compact footer badge.</summary>

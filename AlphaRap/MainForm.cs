@@ -59,8 +59,11 @@ int nheightEllipse
             Data,
             Vision,
             Exit,
-            LifeSpan
+            LifeSpan,
+            RuntimeLog
         }
+
+        private RuntimeLogForm runtimeLogPage;
 
         public MainForm()
         {
@@ -87,6 +90,7 @@ int nheightEllipse
             HookMouseForwarding(this);
             MiddleLayer.LanguageChanged += MainForm_LanguageChanged;
             Disposed += delegate { MiddleLayer.LanguageChanged -= MainForm_LanguageChanged; };
+            Disposed += delegate { if (runtimeLogPage != null) runtimeLogPage.Dispose(); };
         }
 
         /// <summary>语言表保存或语言切换后刷新主框架的动态文字。</summary>
@@ -694,6 +698,10 @@ int nheightEllipse
                     break;
                 case MENU_PageType.Mes:
                     ShowhMainPage(MiddleLayer.MesF, ShowPanl);
+                    break;
+                case MENU_PageType.RuntimeLog:
+                    if (runtimeLogPage == null || runtimeLogPage.IsDisposed) runtimeLogPage = new RuntimeLogForm();
+                    ShowhMainPage(runtimeLogPage, ShowPanl);
                     break;
                 case MENU_PageType.Exit:
                     Close();
@@ -1476,6 +1484,9 @@ int nheightEllipse
             MENU_SelectPage1 = PageType;
             switch (MENU_SelectPage1)
             {
+                case MENU_PageType1.RuntimeLog:
+                    ShowWord(MENU_RuntimeLog, MiddleLayer.LangMsg("MainForm", "nav_RuntimeLog", "运行日志", "Runtime logs", "Registros"));
+                    break;
                 case MENU_PageType1.Home:
                     ShowWord(this.MENU_Home, MiddleLayer.LangMsg("MainForm", "MENU_Home", "主界面", "Home", "Inicio"));
                     break;
