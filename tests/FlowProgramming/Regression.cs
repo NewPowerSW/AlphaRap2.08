@@ -162,6 +162,7 @@ internal static partial class Cases
         Test("resource constant and point menus target the actual right-click object", ContextTargets);
         Test("CASE condition and production-field drafts delete through context menus", DraftMenus);
         Test("new object methods are discovered and invoked without changing the designer catalog", ObjectContract);
+        Test("PLC wait block resolves typed bindings and reports simulation timeouts and cancellation", PlcWaitBlock);
         Test("axis methods bind only their own point tables and use typed fields", AxisMethodBindings);
         Test("Goto false means movement in progress and Home follows the driver state machine", AxisDriverSemantics);
         Test("cancelling an axis method stops the real instance before releasing its lease", AxisMethodCancellation);

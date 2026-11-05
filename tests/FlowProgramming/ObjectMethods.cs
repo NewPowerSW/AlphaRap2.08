@@ -111,6 +111,63 @@ internal static partial class Cases
         Assert(names.Contains("device.open") && names.Contains("scanner.once") && !names.Contains("hioki.result") && !scanner.IsConnected, "Inherited and specific capabilities did not match the device.");
     }
 
+    /// <summary>Exercise PLC wait discovery, saved binding validation, simulated reads and cancellation without hardware.</summary>
+    private static void PlcWaitBlock()
+    {
+        var plc = new AlphaRap.PLC.INOVANCE();
+        using (CapabilityHost container = new CapabilityHost { Name = "PlcWaitProbe", Bound = plc })
+        {
+            RegisterForm(container);
+            try
+            {
+                FlowResources resources = FlowResources.Capture();
+                FlowResource resource = resources.Items.Values.Single(item => ReferenceEquals(item.Instance, plc));
+                FlowActions actions = new FlowActions(resources) { Simulate = true };
+                FlowStep step = BoundStep(resource, "plc.wait");
+                FlowInput address = step.Inputs.Single(input => input.Name == "Address");
+                address.Reference = "D1010";
+                FlowInput expected = step.Inputs.Single(input => input.Name == "ExpectedValue");
+                expected.Source = "Parameter";
+                expected.Reference = "Recipe/Constant/PlcExpected";
+                resources.Parameters.Add(expected.Reference, -999);
+                IDictionary<string, object> result = ExecuteBound(actions, step);
+                Assert((int)result["Value"] == -999 && (bool)result["Simulated"], "The wait block lost its signed recipe value or simulation flag.");
+
+                address.Reference = "M12";
+                bool blocked = false;
+                try { actions.Validate(step); } catch (InvalidOperationException) { blocked = true; }
+                Assert(blocked, "The wait block accepted a non-bit value for a bit address.");
+
+                resources.Parameters[expected.Reference] = 1;
+                address.Reference = "Q12";
+                blocked = false;
+                try { actions.Validate(step); } catch (InvalidOperationException) { blocked = true; }
+                Assert(blocked, "The wait block accepted an unknown address prefix.");
+
+                address.Reference = "M12";
+                step.Inputs.Single(input => input.Name == "SimulateMismatch").Reference = "True";
+                FlowInput limit = step.Inputs.Single(input => input.Name == "WaitMs");
+                limit.Reference = "80";
+                string failure = null;
+                try { ExecuteBound(actions, step); } catch (TimeoutException error) { failure = error.Message; }
+                string detail = string.Format(FlowText.T("error.plcWaitTimeout"), "M12", 1, "0", 80);
+                Assert(failure == detail, "The timeout did not identify the address, expected value and last sample: " + failure);
+
+                limit.Reference = "1500";
+                using (CancellationTokenSource stop = new CancellationTokenSource())
+                {
+                    var context = new FlowExecutionContext { Parameters = resources.Parameters };
+                    Task waiting = actions.Execute(step, context, stop.Token);
+                    stop.Cancel();
+                    bool cancelled = false;
+                    try { waiting.GetAwaiter().GetResult(); } catch (OperationCanceledException) { cancelled = true; }
+                    Assert(cancelled && FlowResourceGate.CanAccess(plc), "Stopping the wait did not release the PLC after the read loop exited.");
+                }
+            }
+            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(container); }
+        }
+    }
+
     /// <summary>Require selecting an axis before choosing its own table and point index.</summary>
     private static void AxisMethodBindings()
     {

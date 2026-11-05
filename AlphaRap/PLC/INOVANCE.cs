@@ -76,6 +76,13 @@ namespace AlphaRap.PLC
         /// <param name="nCount">长度</param>
         public string ReadPlc(string nStartAddr, int nCount, string type = "int")
 		{
+			int resultCode;
+			return ReadPlc(nStartAddr, nCount, type, out resultCode);
+		}
+
+		/// <summary>读取原有 PLC 数据，并返回本次驱动结果码以区分负数数据和通信错误。</summary>
+		private string ReadPlc(string nStartAddr, int nCount, string type, out int resultCode)
+		{
 			lock(ReadPLC_Lock)
 			{
 				byte[] pBuf = new byte[16000];
@@ -115,11 +122,11 @@ namespace AlphaRap.PLC
                 #endregion
 
                 int ReadAddrd = Convert.ToInt32(nStartAddr.Substring(1));
-				int nRet = H5u_Read_Device_Block(ElemType, ReadAddrd, nCount, pBuf, 0);
+				resultCode = H5u_Read_Device_Block(ElemType, ReadAddrd, nCount, pBuf, 0);
 
-				if (nRet != 1)
+				if (resultCode != 1)
 				{
-					ReadErrorMessage = DateTime.Now.ToString() + "：ErrorCode " + nRet.ToString() + "\r\n";
+					ReadErrorMessage = DateTime.Now.ToString() + "：ErrorCode " + resultCode.ToString() + "\r\n";
 					return "-999";
 				}
 				string strData = "";
