@@ -430,8 +430,8 @@ internal static partial class Tests
         DataRow row = table.NewRow();
         row["Enable"] = true;
         foreach (string name in names) if (name != "Enable") row[name] = name.EndsWith("Low") ? -10 : 10;
-        MethodInfo read = typeof(VPForm).GetMethod("ReadVisionCriterion", BindingFlags.Static | BindingFlags.NonPublic);
-        VPForm.VisionPostData result = (VPForm.VisionPostData)read.Invoke(null, new object[] { row, 0 });
+        MethodInfo read = typeof(StationVisionForm).GetMethod("ReadVisionCriterion", BindingFlags.Static | BindingFlags.NonPublic);
+        StationVisionForm.VisionPostData result = (StationVisionForm.VisionPostData)read.Invoke(null, new object[] { row, 0 });
         Check(result.X_Low == -10 && result.R_Hi == 10, "Column mapping failed.");
         row["X_Low"] = 20;
         ExpectFailure(() => read.Invoke(null, new object[] { row, 0 }));
@@ -439,7 +439,7 @@ internal static partial class Tests
         ExpectFailure(() => read.Invoke(null, new object[] { row, 0 }));
         row = table.NewRow();
         row["Enable"] = false;
-        result = (VPForm.VisionPostData)read.Invoke(null, new object[] { row, 0 });
+        result = (StationVisionForm.VisionPostData)read.Invoke(null, new object[] { row, 0 });
         Check(!result.Enable, "Disabled criterion was rejected.");
     }
 

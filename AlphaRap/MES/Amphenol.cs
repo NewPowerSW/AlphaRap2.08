@@ -1,4 +1,4 @@
-﻿using AlphaRapLibrary;
+using AlphaRapLibrary;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -18,14 +18,14 @@ namespace AlphaRap.MES
 		/// </summary>
 		string InStation_URL
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_InURL");
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_InURL");
 		}
 		/// <summary>
 		/// 入站SfcNo
 		/// </summary>
 		string InStation_SfcNo
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_InSfcNo");
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_InSfcNo");
 		}
 		/// <summary>
 		/// 入站ProductSn
@@ -40,7 +40,7 @@ namespace AlphaRap.MES
 		/// </summary>
 		string InStation_DeviceCode
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_InDeviceCode");
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_InDeviceCode");
 		}
 		#endregion
 
@@ -54,24 +54,24 @@ namespace AlphaRap.MES
 		/// </summary>
 		string OutStation_URL
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_OutURL");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_OutURL", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_OutURL");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_OutURL", value);
 		}
 		/// <summary>
 		/// 出站OutSfcNo
 		/// </summary>
 		string OutStation_SfcNo
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_OutSfcNo");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_OutSfcNo", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_OutSfcNo");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_OutSfcNo", value);
 		}
 		/// <summary>
 		///出站OutUserID
 		/// </summary>
 		string OutStation_UserID
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_OutUserID");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_OutUserID", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_OutUserID");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_OutUserID", value);
 		}
 		/// <summary>
 		/// 出站OutProductSn
@@ -86,8 +86,8 @@ namespace AlphaRap.MES
 		/// </summary>
 		string OutStation_DeviceCode
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_OutDeviceCode");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_OutDeviceCode", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_OutDeviceCode");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_OutDeviceCode", value);
 		}
 		/// <summary>
 		/// 出站OutEditionCode
@@ -105,16 +105,16 @@ namespace AlphaRap.MES
 		/// </summary>
 		public string Binding_Url
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BindingUrl");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_BindingUrl", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BindingUrl");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_BindingUrl", value);
 		}
 		/// <summary>
 		/// 关联SfcNO
 		/// </summary>
 		public string Binding_SfcNO
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BindingSfcNO");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_BindingSfcNO", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BindingSfcNO");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_BindingSfcNO", value);
 		}
 		/// <summary>
 		/// 关联ProductSn
@@ -130,16 +130,16 @@ namespace AlphaRap.MES
 		/// </summary>
 		public string Binding_DeviceCode
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BindingDeviceCode");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_BindingDeviceCode", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BindingDeviceCode");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_BindingDeviceCode", value);
 		}
 		/// <summary>
 		/// 关联UserID
 		/// </summary>
 		public string Binding_UserID
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BindingUserID");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_BindingUserID", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BindingUserID");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_BindingUserID", value);
 		}
 		/// <summary>
 		/// 关联EditionCode
@@ -161,48 +161,48 @@ namespace AlphaRap.MES
 		/// </summary>
 		string LaserStation_URL
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_LaserMarkUrl");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_LaserMarkUrl", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_LaserMarkUrl");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_LaserMarkUrl", value);
 		}
 		/// <summary>
 		/// 镭雕Product
 		/// </summary>
 		string LaserStation_Product
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_LaserProduct");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_LaserProduct", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_LaserProduct");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_LaserProduct", value);
 		}
 		/// <summary>
 		/// 镭雕WorkStationName
 		/// </summary>
 		string LaserStation_WorkStationName
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_LaserWorkStationName");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_LaserWorkStationName", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_LaserWorkStationName");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_LaserWorkStationName", value);
 		}
 		/// <summary>
 		/// 镭雕Version
 		/// </summary>
 		string LaserStation_Version
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_LaserVersion");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_LaserVersion", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_LaserVersion");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_LaserVersion", value);
 		}
 		/// <summary>
 		/// 镭雕Side
 		/// </summary>
 		string LaserStation_Side
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_LaserSide");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_LaserSide", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_LaserSide");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_LaserSide", value);
 		}
 		/// <summary>
 		/// 镭雕PaneCode
 		/// </summary>
 		string LaserStation_PaneCode
 		{
-			get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_LaserPaneCode");
-			set => MiddleLayer.MesF.SetSettingValue("Mset", "textBox_LaserPaneCode", value);
+			get => StationApplication.Mes.GetSettingValue("Mset", "textBox_LaserPaneCode");
+			set => StationApplication.Mes.SetSettingValue("Mset", "textBox_LaserPaneCode", value);
 		}
 
 		#endregion
@@ -210,7 +210,7 @@ namespace AlphaRap.MES
 		public Amphenol()
 		{
 			InitializeComponent();
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
+            if (!UiTheme.IsDesignTime) ApplicationHost.RegisterLanguage(this, Name);
             UiTheme.ApplyDpi(this);
 		}
 		readonly Object OBJ = new object();
@@ -245,7 +245,7 @@ namespace AlphaRap.MES
 				}
 				catch (Exception ex)
 				{
-					MiddleLayer.DataF.AddLogError(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + ex.ToString());
+					ApplicationHost.Data.AddLogError(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + ex.ToString());
 					writer = null;
 					Console.Write("连接服务器失败!");
 				}
@@ -253,7 +253,7 @@ namespace AlphaRap.MES
 
 				writer.Write(payload, 0, payload.Length);
 				writer.Close();//关闭请求流
-				MiddleLayer.DataF.SaveMesLog("Send" + jsonParas);
+				ApplicationHost.Data.SaveMesLog("Send" + jsonParas);
 				HttpWebResponse response;
 				try
 				{
@@ -269,7 +269,7 @@ namespace AlphaRap.MES
 				string postContent = sRead.ReadToEnd();
 				sRead.Close();
 				textBox24.Text = postContent;
-				MiddleLayer.DataF.SaveMesLog("Receive" + postContent);
+				ApplicationHost.Data.SaveMesLog("Receive" + postContent);
 				Post_Message = postContent;
 				return postContent;//返回Json数据
 			}
@@ -292,7 +292,7 @@ namespace AlphaRap.MES
 			str.Append("\"" + "ProductSn" + "\"" + ":" + "\"" + InStation_ProductSn + "\"" + ",");
 			str.Append("\"" + "DeviceCode" + "\"" + ":" + "\"" + InStation_DeviceCode + "\"");
 			str.Append("}");
-			MiddleLayer.DataF.SaveMesLog("InStation:" + str.ToString());
+			ApplicationHost.Data.SaveMesLog("InStation:" + str.ToString());
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(InStation_URL, str.ToString(),out Post_Message).Replace("NG", "false").Replace("OK", "true"), "Result"));
 		}
 		/// <summary>
@@ -325,7 +325,7 @@ namespace AlphaRap.MES
 			str.Append("\"" + "ErrorCode" + "\"" + ":" + "\"" + "\"" + ",");
 			str.Append("\"" + "ErrorSpot" + "\"" + ":" + "\"" + "\"");
 			str.Append("}");
-			MiddleLayer.DataF.SaveMesLog("OutStation:" + str.ToString());
+			ApplicationHost.Data.SaveMesLog("OutStation:" + str.ToString());
 			Dictionary_TestList.Clear();
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(OutStation_URL, str.ToString(), out Post_Message).Replace("NG", "false").Replace("OK", "true"), "Result"));
 		}
@@ -340,7 +340,7 @@ namespace AlphaRap.MES
 			str.Append("\"" + "UserID" + "\"" + ":" + "\"" + Binding_UserID + "\"" + ",");
 			str.Append("\"" + "KeyPcbCode" + "\"" + ":" + "\"" + BindingKeyPcbCode + "\"");
 			str.Append("}");
-			MiddleLayer.DataF.SaveMesLog("Binding:" + str.ToString());
+			ApplicationHost.Data.SaveMesLog("Binding:" + str.ToString());
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(Binding_Url, str.ToString(), out Post_Message).Replace("NG", "false").Replace("OK", "true"), "Result"));
 		}
 		public bool LaserMark()
@@ -369,7 +369,7 @@ namespace AlphaRap.MES
 				}
 			}
 			str.Append("}");
-			MiddleLayer.DataF.SaveMesLog("LaserMark" + str.ToString());
+			ApplicationHost.Data.SaveMesLog("LaserMark" + str.ToString());
 			Dictionary_PCBList.Clear();
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(LaserStation_URL, str.ToString(), out Post_Message), "Result"));
 		}

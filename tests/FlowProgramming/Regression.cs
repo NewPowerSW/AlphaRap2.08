@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -266,7 +266,7 @@ internal static partial class Cases
     /// <summary>Verify runtime point-table discovery with explicit ParameterSet bindings and an unset WorkMotor.</summary>
     private static void PointBinding()
     {
-        hardware = new HardForm(); SetHost("HardF", hardware); RegisterForm(hardware);
+        hardware = CreateStationApplication().CreateHardwarePage(); SetHost("HardF", hardware); RegisterForm(hardware);
         DataTable table = hardware.RecipeData.Tables["tb_X1_Post"]; table.Rows.Clear(); table.Rows.Add(12.5, "Capture point"); hardware.RecipeData.AcceptChanges();
         NP_Motor fixtureMotor = new NP_Motor { Name = "PointFixtureAxis", Port = "0", InitializeWithSdk = false, Visible = false };
         NP_PositionTable fixturePoints = new NP_PositionTable { Name = "PointFixtureTable", DataSet = hardware.RecipeData, DataSet1 = table, WorkMotor = null, Visible = false };
@@ -574,8 +574,8 @@ internal static partial class Cases
     /// <summary>Use the real main-form timer to test the configured runtime's production readiness.</summary>
     private static void MainStartReady()
     {
-        RunMode previous = SysPara.SystemMode; bool oldReady = SysPara.UpConveyorInitialOk;
-        SysPara.SystemMode = RunMode.INITIAL; SysPara.UpConveyorInitialOk = false;
+        RunMode previous = SysPara.SystemMode;
+        SysPara.SystemMode = RunMode.INITIAL;
         try
         {
             using (MainForm main = new MainForm())
@@ -587,7 +587,7 @@ internal static partial class Cases
                 Assert(!main.Controls.Find("MENU_Run", true)[0].Enabled, "Start enabled before configured initialization completed."); station.InitialStatus = true;
             }
         }
-        finally { SysPara.SystemMode = previous; SysPara.UpConveyorInitialOk = oldReady; }
+        finally { SysPara.SystemMode = previous; }
     }
 
     /// <summary>Restore layout, identifiers, connection topology and removals from disk.</summary>
@@ -891,6 +891,20 @@ internal static partial class Cases
         }
     }
 
+    /// <summary>Use the production application's constant defaults without starting its hardware.</summary>
+    private static SystemSetting CreateStationSettings()
+    {
+        Type type = typeof(ScannerKeyenceTcp).Assembly.GetType("AlphaRap.StationApplication", true);
+        return ((MachineApplication)Activator.CreateInstance(type, true)).CreateSettingsPage();
+    }
+
+    /// <summary>Create the actual machine profile without initializing hardware.</summary>
+    private static MachineApplication CreateStationApplication()
+    {
+        Type type = typeof(ScannerKeyenceTcp).Assembly.GetType("AlphaRap.StationApplication", true);
+        return (MachineApplication)Activator.CreateInstance(type, true);
+    }
+
     /// <summary>Migrate the actual two historical fields and create all eight Setting examples once.</summary>
     private static void ConstantExamples()
     {
@@ -898,7 +912,7 @@ internal static partial class Cases
         DataSet old = new DataSet(); DataTable emptyMarker = old.Tables.Add("MSet"); emptyMarker.Rows.Add(emptyMarker.NewRow());
         DataTable flags = old.Tables.Add("PSet"); flags.Columns.Add("DisScann", typeof(bool)); flags.Columns.Add("UseTryRun", typeof(bool)); flags.Rows.Add(true, false);
         old.WriteXml(Path.Combine(ModuleManager.SettingDataDirectory, "SysSetting.xml"));
-        constantForm = new SystemSetting(); constantForm.ModuleInitialize(constantForm.Text); SetHost("SystemS", constantForm); RegisterForm(constantForm);
+        constantForm = CreateStationSettings(); constantForm.ModuleInitialize(constantForm.Text); SetHost("SystemS", constantForm); RegisterForm(constantForm);
         Assert(constantForm.Constants.Table("Setting").Select("Key <> ''").Length == 8, "The existing switches were not added as eight Setting constants.");
         Assert((bool)FlowResources.Capture().Parameters["Constants/Setting/DisScann"], "Existing scanner setting was overwritten.");
         Assert(!(bool)FlowResources.Capture().Parameters["Constants/Setting/UseTryRun"], "Existing dry-run setting was overwritten.");
@@ -921,7 +935,7 @@ internal static partial class Cases
         store.Save("Setting");
         Assert(!FlowResources.Capture().Parameters.ContainsKey("Constants/Setting/Temporary"), "Saved deletion was not published.");
         store.Delete("Setting", "Dis3D"); store.Save("Setting");
-        using (SystemSetting reloaded = new SystemSetting())
+        using (SystemSetting reloaded = CreateStationSettings())
         {
             try { reloaded.ModuleInitialize(reloaded.Text); Assert(ConstantStore.Find(reloaded.Constants.Table("Setting"), "Dis3D") == null, "Deleted examples reappeared on restart."); }
             finally { ModuleManager.ModuleList.Remove(reloaded); }

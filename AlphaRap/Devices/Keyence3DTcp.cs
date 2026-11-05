@@ -1,4 +1,4 @@
-﻿using NPClient;
+using NPClient;
 using System;
 using System.Threading;
 
@@ -161,7 +161,7 @@ namespace AlphaRap
                     {
                         _opened = false;
                         _verified = false;
-                        ShowException(MiddleLayer.LangMsg("Device", "error_3DConnect", "连接3D网口失败！", "Failed to connect to the 3D sensor.", "No se pudo conectar con el sensor 3D."), ex);
+                        ShowException(ApplicationHost.Text("Device", "error_3DConnect", "连接3D网口失败！", "Failed to connect to the 3D sensor.", "No se pudo conectar con el sensor 3D."), ex);
                     }
                 }
                 else
@@ -172,7 +172,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                ShowException(MiddleLayer.LangMsg("Device", "error_3DOpen", "打开3D网口失败！", "Failed to open the 3D sensor connection.", "No se pudo abrir la conexión del sensor 3D."), ex);
+                ShowException(ApplicationHost.Text("Device", "error_3DOpen", "打开3D网口失败！", "Failed to open the 3D sensor connection.", "No se pudo abrir la conexión del sensor 3D."), ex);
             }
         }
 
@@ -187,7 +187,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                ShowException(MiddleLayer.LangMsg("Device", "error_3DClose", "关闭3D网口失败！", "Failed to close the 3D sensor connection.", "No se pudo cerrar la conexión del sensor 3D."), ex);
+                ShowException(ApplicationHost.Text("Device", "error_3DClose", "关闭3D网口失败！", "Failed to close the 3D sensor connection.", "No se pudo cerrar la conexión del sensor 3D."), ex);
             }
         }
 
@@ -283,7 +283,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                ShowException(MiddleLayer.LangMsg("Device", "error_3DHeight", "读取高度失败！", "Failed to read the height.", "No se pudo leer la altura."), ex);
+                ShowException(ApplicationHost.Text("Device", "error_3DHeight", "读取高度失败！", "Failed to read the height.", "No se pudo leer la altura."), ex);
                 OpenKeyence3D();
                 Heightstring = "ERROR";
             }

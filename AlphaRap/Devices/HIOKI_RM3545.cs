@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Threading;
@@ -119,7 +119,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                ShowException(MiddleLayer.LangMsg("Device", "error_ResistanceSerial", "电阻计连接串口失败!", "Failed to connect to the resistance meter serial port.", "No se pudo conectar con el puerto serie del medidor de resistencia."), ex);
+                ShowException(ApplicationHost.Text("Device", "error_ResistanceSerial", "电阻计连接串口失败!", "Failed to connect to the resistance meter serial port.", "No se pudo conectar con el puerto serie del medidor de resistencia."), ex);
             }
         }
 

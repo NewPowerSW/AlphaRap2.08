@@ -1,50 +1,14 @@
-﻿using System;
-using System.Threading;
-using System.Windows.Forms;
+using System;
 
 namespace AlphaRap
 {
-    static class Program
+    internal static class Program
     {
-        /// <summary>
-        /// 应用程序的主入口点。
-        /// </summary>
+        /// <summary>以当前机器的应用实现启动通用框架。</summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
-            bool ISRuned;
-            System.Threading.Mutex mutex = new System.Threading.Mutex(true, "OnlyRunOneInstance", out ISRuned);
-            if (ISRuned)
-            {
-                // 高 DPI：必须最先执行——要在创建任何窗口之前声明 DPI 感知，
-                // 也要在创建任何窗体之前定好缩放系数（窗体构造函数里会按它把设计尺寸整体放大）
-                UiTheme.InitDpi();
-
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                MiddleLayer.ReadLanguageSettings();
-
-				#region LogShow
-				MiddleLayer.LoadingF = new LoadingForm();
-				MiddleLayer.LoadingF.Show();
-				Thread LoadingMarqueeT = new Thread(MiddleLayer.LoadingF.RefreshUI);
-				LoadingMarqueeT.Start();
-				MiddleLayer.InitialProject();
-				MiddleLayer.LoadingF.StopRefresh = true;
-				LoadingMarqueeT.Join();
-				MiddleLayer.LoadingF.Close();
-				#endregion
-
-				 //Initial Project
-
-                Application.Run(MiddleLayer.MainF);
-                MiddleLayer.DisposeProject();
-            }
-            else
-            {
-                MiddleLayer.ReadLanguageSettings();
-                MessageBox.Show(MiddleLayer.LangMsg("Program", "msg_AlreadyRunning", "程序已在运行。", "The program is already running.", "El programa ya está en ejecución."), "AlphaRap", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-            }
-        }   
-    }   
+            ApplicationHost.Run(new StationApplication());
+        }
+    }
 }

@@ -1,4 +1,4 @@
-﻿using AlphaRap;
+using AlphaRap;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -107,7 +107,7 @@ namespace AlaphaRap
                 }
                 catch (Exception ex)
                 {
-                    ShowException(MiddleLayer.LangMsg("Device", "error_SerialConnect", "连接串口失败!", "Failed to connect to the serial port.", "No se pudo conectar con el puerto serie."), ex);
+                    ShowException(ApplicationHost.Text("Device", "error_SerialConnect", "连接串口失败!", "Failed to connect to the serial port.", "No se pudo conectar con el puerto serie."), ex);
                 }
             }
         }
@@ -182,7 +182,7 @@ namespace AlaphaRap
                 }
                 catch(Exception ex) 
                 {
-                    ShowException(MiddleLayer.LangMsg("Device", "error_SerialClose", "串口关闭失败!", "Failed to close the serial port.", "No se pudo cerrar el puerto serie."), ex);
+                    ShowException(ApplicationHost.Text("Device", "error_SerialClose", "串口关闭失败!", "Failed to close the serial port.", "No se pudo cerrar el puerto serie."), ex);
                 }
             }
         }
@@ -252,7 +252,7 @@ namespace AlaphaRap
             }
             catch (Exception ex)
             {
-                ShowException(MiddleLayer.LangMsg("Device", "error_SerialRead", "串口读取数据失败!", "Failed to read data from the serial port.", "No se pudieron leer datos del puerto serie."), ex);
+                ShowException(ApplicationHost.Text("Device", "error_SerialRead", "串口读取数据失败!", "Failed to read data from the serial port.", "No se pudieron leer datos del puerto serie."), ex);
                 return null;
             }
         }

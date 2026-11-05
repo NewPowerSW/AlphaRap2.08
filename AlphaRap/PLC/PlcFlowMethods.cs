@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -58,17 +58,17 @@ namespace AlphaRap.PLC
         {
             object value;
             if (values.TryGetValue("WaitMs", out value) && FlowActions.Integer(value) <= 0)
-                throw new InvalidOperationException(FlowText.T("error.plcWaitLimit"));
+                throw new InvalidOperationException(DeviceText.T("error.plcWaitLimit"));
             if (!values.TryGetValue("Address", out value)) return;
             string address = FlowValue.Text(value);
             int index;
             if (address.Length < 2 || "DRXYSM".IndexOf(address[0]) < 0 ||
                 !int.TryParse(address.Substring(1), NumberStyles.None, CultureInfo.InvariantCulture, out index) ||
                 (IsWordAddress(address) && index == int.MaxValue))
-                throw new InvalidOperationException(string.Format(FlowText.T("error.plcWaitAddress"), address));
+                throw new InvalidOperationException(string.Format(DeviceText.T("error.plcWaitAddress"), address));
             if (IsWordAddress(address) || !values.TryGetValue("ExpectedValue", out value)) return;
             int expected = FlowActions.Integer(value);
-            if (expected != 0 && expected != 1) throw new InvalidOperationException(FlowText.T("error.plcWaitBit"));
+            if (expected != 0 && expected != 1) throw new InvalidOperationException(DeviceText.T("error.plcWaitBit"));
         }
 
         /// <summary>判断当前地址是否由驱动按字读取。</summary>
@@ -95,8 +95,8 @@ namespace AlphaRap.PLC
                 await Task.Delay((int)Math.Max(1, Math.Min(20, wait - timer.ElapsedMilliseconds)), call.Token).ConfigureAwait(false);
             }
             call.Token.ThrowIfCancellationRequested();
-            throw new TimeoutException(string.Format(FlowText.T("error.plcWaitTimeout"), address, expected,
-                last.HasValue ? last.Value.ToString(CultureInfo.InvariantCulture) : FlowText.T("error.plcWaitNoSample"), wait));
+            throw new TimeoutException(string.Format(DeviceText.T("error.plcWaitTimeout"), address, expected,
+                last.HasValue ? last.Value.ToString(CultureInfo.InvariantCulture) : DeviceText.T("error.plcWaitNoSample"), wait));
         }
 
         /// <summary>模拟固定读值，使用同一等待逻辑；不访问 PLC。</summary>
@@ -115,10 +115,10 @@ namespace AlphaRap.PLC
             bool word = IsWordAddress(address);
             int resultCode;
             string value = ReadPlc(address, word ? 2 : 1, word ? "int" : "bit", out resultCode);
-            if (resultCode != 1) throw new InvalidOperationException(string.Format(FlowText.T("error.plcWaitRead"), address, resultCode));
+            if (resultCode != 1) throw new InvalidOperationException(string.Format(DeviceText.T("error.plcWaitRead"), address, resultCode));
             int number;
             if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out number))
-                throw new InvalidOperationException(string.Format(FlowText.T("error.plcWaitValue"), address, value));
+                throw new InvalidOperationException(string.Format(DeviceText.T("error.plcWaitValue"), address, value));
             return number;
         }
 

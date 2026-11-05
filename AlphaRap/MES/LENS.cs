@@ -1,4 +1,4 @@
-﻿using AlphaRapLibrary;
+using AlphaRapLibrary;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Product_SN_Verification_URL
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Verification_URL");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Verification_URL");
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Product_SN_Verification_resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Verification_Resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Verification_Resource");
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Product_SN_Verification_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Verification_site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Verification_site");
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Product_SN_Verification_operation
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Verification_operation");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Verification_operation");
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Product_SN_Verification_item
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Verification_item");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Verification_item");
         }
 
         public bool Product_SN_Verification()
@@ -72,7 +72,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "sn" + "\"" + ":" + "\"" + Product_SN_Verification_SN + "\"" + ",");
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + Product_SN_Verification_operation + "\"");
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog(" Product_SN_Verification:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" Product_SN_Verification:" + str.ToString());
 
             return ReturnValue(Post(Product_SN_Verification_URL, str.ToString(), out Post_Message));
         }
@@ -84,7 +84,7 @@ namespace AlphaRap.MES
         /// </summary>
         string MaterialStartup_SN_URL
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_MaterialStartup_SN_URL");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_MaterialStartup_SN_URL");
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace AlphaRap.MES
         /// </summary>
         string MaterialStartup_SN_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_MaterialStartup_SN_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_MaterialStartup_SN_Site");
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace AlphaRap.MES
         /// </summary>
         string MaterialStartup_SN_Item
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_MaterialStartup_SN_Item");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_MaterialStartup_SN_Item");
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace AlphaRap.MES
         /// </summary>
         string MaterialStartup_SN_resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_MaterialStartup_SN_resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_MaterialStartup_SN_resource");
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace AlphaRap.MES
         /// </summary>
         string MaterialStartup_SN_operation
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_MaterialStartup_SN_operation");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_MaterialStartup_SN_operation");
         }
 
         public bool MaterialStartupSNInterface()
@@ -141,7 +141,7 @@ namespace AlphaRap.MES
                 str.Append("\"" + "sn" + "\"" + ":" + "\"" + MaterialStartup_SN_SN + "\"" + ",");
                 str.Append("\"" + "operation" + "\"" + ":" + "\"" + MaterialStartup_SN_operation + "\"");
                 str.Append("}");
-                MiddleLayer.DataF.SaveMesLog(" MaterialStartupSNInterface:" + str.ToString());
+                ApplicationHost.Data.SaveMesLog(" MaterialStartupSNInterface:" + str.ToString());
 
                 return ReturnValue(Post(MaterialStartup_SN_URL, str.ToString(), out Post_Message));
             }
@@ -158,7 +158,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Product_SN_Start_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Start_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Start_Url");
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Product_SN_Start_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Start_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Start_Site");
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Product_SN_Start_Shift
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Start_Shift");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Start_Shift");
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Product_SN_Start_Resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Start_Resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Start_Resource");
         } 
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Product_SN_Start_Operation
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Start_Operation");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Start_Operation");
         }
         public bool ReturnValue(string ReturnString)
         {
@@ -218,7 +218,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "operation" + "\"" + ":" + " " + "\"" + Product_SN_Start_Operation + "\"");
 
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog("Product_SN_Start_Interface:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog("Product_SN_Start_Interface:" + str.ToString());
 
             return ReturnValue(Post(Product_SN_Start_Url, str.ToString(), out Post_Message));
         }
@@ -230,7 +230,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string Integrated_Transit_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Integrated_Transit_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Integrated_Transit_Url");
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string Integrated_Transit_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Integrated_Transit_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Integrated_Transit_Site");
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string Integrated_Transit_Mo
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Integrated_Transit_Mo");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Integrated_Transit_Mo");
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string Integrated_Transit_ItemRevision
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Integrated_Transit_ItemRevision");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Integrated_Transit_ItemRevision");
         }
 
         /// <summary>
@@ -271,14 +271,14 @@ namespace AlphaRap.MES
         /// </summary>
         public string Integrated_Transit_Operation
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Integrated_Transit_Operation");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Integrated_Transit_Operation");
         }
         /// <summary>
         /// 设备号码
         /// </summary>
         public string Integrated_Transit_Resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Integrated_Transit_Resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Integrated_Transit_Resource");
         }
 
         /// <summary>
@@ -294,7 +294,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Integrated_Transit_Shift
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Integrated_Transit_Shift");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Integrated_Transit_Shift");
         }
         public Dictionary<string, string> dcParameterList = new Dictionary<string, string>();
         /// <summary>
@@ -413,7 +413,7 @@ namespace AlphaRap.MES
                 str.Append("]");
                 str.Append("}");
 
-                MiddleLayer.DataF.SaveMesLog("Integrated_Transit_Interface:" + str.ToString());
+                ApplicationHost.Data.SaveMesLog("Integrated_Transit_Interface:" + str.ToString());
 
                 return ReturnValue(Post(Integrated_Transit_Url, str.ToString(), out Post_Message));
             }
@@ -426,7 +426,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Material_Barcode_Inspection_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Url");
         }
 
         /// <summary>
@@ -434,7 +434,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Material_Barcode_Inspection_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Site");
         }
 
         /// <summary>
@@ -442,7 +442,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Material_Barcode_Inspection_Bluetooth
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Bluetooth");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Bluetooth");
         }
 
         /// <summary>
@@ -450,7 +450,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Material_Barcode_Inspection_Resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Resource");
         }
 
         /// <summary>
@@ -467,14 +467,14 @@ namespace AlphaRap.MES
         /// </summary>
         string Material_Barcode_Inspection_Camera
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Camera");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Camera");
         }
         /// <summary>
         /// 工序编码
         /// </summary>
         string Material_Barcode_Inspection_Operation
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Operation");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Barcode_Inspection_Operation");
         }
 
         public bool Material_Barcode_Inspection_interface()
@@ -489,7 +489,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "camera" + "\"" + ":" + "\"" + Material_Barcode_Inspection_Camera + "\"" + ",");
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + Material_Barcode_Inspection_Operation + "\"");
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog("Material_Barcode_Inspection_interface:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog("Material_Barcode_Inspection_interface:" + str.ToString());
 
             return ReturnValue(Post(Material_Barcode_Inspection_Url, str.ToString(), out Post_Message));
         }
@@ -502,28 +502,28 @@ namespace AlphaRap.MES
         /// </summary>
         string Material_Loading_Unloading_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Site");
         }
         /// <summary>
         /// 主物料
         /// </summary>
         string Material_Loading_Unloading_Item
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Item");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Item");
         }
         /// <summary>
         /// 物料1
         /// </summary>
         string Material_Loading_Unloading_Mocde1
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Mocde1");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Mocde1");
         }
         /// <summary>
         /// 物料批次1
         /// </summary>
         string Material_Loading_Unloading_Slot1
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Slot1");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Slot1");
         }
 
         /// <summary>
@@ -531,7 +531,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Material_Loading_Unloading_Pvdate1
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Pvdate1");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Pvdate1");
         }
 
         /// <summary>
@@ -539,7 +539,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Material_Loading_Unloading_Qty1
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Qty1");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Qty1");
         }
 
         /// <summary>
@@ -547,49 +547,49 @@ namespace AlphaRap.MES
         /// </summary>
         string Material_Loading_Unloading_Mocde2
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Mocde2");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Mocde2");
         }
         /// <summary>
         /// 物料批次2
         /// </summary>
         string Material_Loading_Unloading_Slot2
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Slot2");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Slot2");
         }
         /// <summary>
         /// 有效期2
         /// </summary>
         string Material_Loading_Unloading_Pvdate2
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Pvdate2");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Pvdate2");
         }
         /// <summary>
         /// 数量2
         /// </summary>
         string Material_Loading_Unloading_Qty2
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Qty2");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Qty2");
         }
         /// <summary>
         /// 资源
         /// </summary>
         string Material_Loading_Unloading_Resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Resource");
         }
         /// <summary>
         /// 上料/下料（1/0）
         /// </summary>
         string Material_Loading_Unloading_Function
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Function");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Function");
         }
         /// <summary>
         /// 工序编码
         /// </summary>
         string Material_Loading_Unloading_Operation
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Operation");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Material_Loading_Unloading_Operation");
         }
         public bool Material_loading_Unloading_Interface()
         {
@@ -616,7 +616,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "function" + "\"" + ":" + "\"" + Material_Loading_Unloading_Function + "\"" + ",");
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + Material_Loading_Unloading_Operation + "\"");
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog("Material_Barcode_Inspection_interface:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog("Material_Barcode_Inspection_interface:" + str.ToString());
 
             return ReturnValue(Post(Material_Barcode_Inspection_Url, str.ToString(), out Post_Message));
         }
@@ -628,7 +628,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Electrical_Measurement_Query_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Electrical_Measurement_Query_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Electrical_Measurement_Query_Url");
         }
 
         /// <summary>
@@ -636,7 +636,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Electrical_Measurement_Query_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Electrical_Measurement_Query_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Electrical_Measurement_Query_Site");
         }
 
         /// <summary>
@@ -644,7 +644,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Electrical_Measurement_Query_Operation
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Electrical_Measurement_Query_Operation");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Electrical_Measurement_Query_Operation");
         }
 
         /// <summary>
@@ -665,7 +665,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "sn" + "\"" + ":" + "\"" + Electrical_Measurement_Query_Sn + "\"" + ",");
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + Electrical_Measurement_Query_Operation + "\"");
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog(" Electrical_Measurement_Query:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" Electrical_Measurement_Query:" + str.ToString());
             return ReturnValue(Post(Electrical_Measurement_Query_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -676,21 +676,21 @@ namespace AlphaRap.MES
         /// </summary>
         string BTtext_Detection_Upload_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Url");
         }
         /// <summary>
         /// 物料编号
         /// </summary>
         string BTtext_Detection_Upload_Item
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Item");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Item");
         }
         /// <summary>
         /// 工厂编号
         /// </summary>
         string BTtext_Detection_Upload_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Site");
         }
 
         /// <summary>
@@ -698,7 +698,7 @@ namespace AlphaRap.MES
         /// </summary>
         string BTtext_Detection_Upload_Resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Resource");
         }
 
         /// <summary>
@@ -706,14 +706,14 @@ namespace AlphaRap.MES
         /// </summary>
         string BTtext_Detection_Upload_PostSNList
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_PostSNList");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_PostSNList");
         }
         /// <summary>
         /// 数据收集组名称
         /// </summary>
         string BTtext_Detection_Upload_DcGroupName
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_DcGroupName");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_DcGroupName");
         }
 
         /// <summary>
@@ -721,42 +721,42 @@ namespace AlphaRap.MES
         /// </summary>
         string BTtext_Detection_Upload_DcParameListName1
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_DcParameListName1");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_DcParameListName1");
         }
         /// <summary>
         /// 数据收集参数列表字段数值1
         /// </summary>
         string BTtext_Detection_Upload_DcParameListValue1
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_DcParameListValue1");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_DcParameListValue1");
         }
         /// <summary>
         ///数据收集参数列表字段名称2
         /// </summary>
         string BTtext_Detection_Upload_DcParameListName2
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_DcParameListName2");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_DcParameListName2");
         }
         /// <summary>
         /// 数据收集参数列表字段数值2
         /// </summary>
         string BTtext_Detection_Upload_DcParameListValue2
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_DcParameListValue2");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_DcParameListValue2");
         }
         /// <summary>
         /// 物料版本
         /// </summary>
         string BTtext_Detection_Upload_ItemRevision
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_ItemRevision");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_ItemRevision");
         }
         /// <summary>
         /// 班次
         /// </summary>
         string BTtext_Detection_Upload_Shift
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Shift");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Shift");
         }
 
         /// <summary>
@@ -764,25 +764,25 @@ namespace AlphaRap.MES
         /// </summary>
         string BTtext_Detection_Upload_SN
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_SN");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_SN");
         }
         /// <summary>
         /// 测试结果
         /// </summary>
         string BTtext_Detection_Upload_TestResult
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_TestResult");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_TestResult");
         }
         /// <summary>
         /// 工序编码
         /// </summary>
         string BTtext_Detection_Upload_Operation
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Operation");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_Operation");
         }
         string BTtext_Detection_Upload_AssembleComponents
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_AssembleComponents");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_BTtext_Detection_Upload_AssembleComponents");
         }
 
         public bool BT_test_data_detection_upload()
@@ -817,7 +817,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "assembleComponents" + "\"" + ":" + "\"" + BTtext_Detection_Upload_AssembleComponents + "\"" + ",");
             str.Append("}");
 
-            MiddleLayer.DataF.SaveMesLog(" BT_test_data_detection_upload:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" BT_test_data_detection_upload:" + str.ToString());
             return ReturnValue(Post(BTtext_Detection_Upload_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -828,7 +828,7 @@ namespace AlphaRap.MES
         /// </summary>
         string Glass_FPC_SN_Consistency_Verification_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Glass_FPC_SN_Consistency_Verification_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "textBox_Glass_FPC_SN_Consistency_Verification_Url");
         }
 
         public bool Glass_FPC_SN_Consistency_Verification()
@@ -840,7 +840,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "fpc" + "\"" + ":" + "\"" + Electrical_Measurement_Query_Sn + "\"" + ",");
             str.Append("\"" + "site" + "\"" + ":" + "\"" + Electrical_Measurement_Query_Operation + "\"");
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog(" Glass_FPC_SN_Consistency_Verification:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" Glass_FPC_SN_Consistency_Verification:" + str.ToString());
             return ReturnValue(Post(Glass_FPC_SN_Consistency_Verification_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -851,7 +851,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayBarcodeBinding_URL
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayBarcodeBinding_URL");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayBarcodeBinding_URL");
         }
 
         /// <summary>
@@ -859,7 +859,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayBarcodeBinding_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayBarcodeBinding_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayBarcodeBinding_Site");
         }
 
         /// <summary>
@@ -901,7 +901,7 @@ namespace AlphaRap.MES
             str.Append("}");
             str.Append("]");
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog(" Tray_Barcode_Binding_interface:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" Tray_Barcode_Binding_interface:" + str.ToString());
             return ReturnValue(Post(TrayBarcodeBinding_URL, str.ToString(), out Post_Message));
         }
         #endregion
@@ -912,7 +912,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayDiskBarcodeUnbinding_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiskBarcodeUnbinding_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiskBarcodeUnbinding_Url");
         }
 
         /// <summary>
@@ -920,7 +920,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayDiskBarcodeUnbinding_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiskBarcodeUnbinding_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiskBarcodeUnbinding_Site");
         }
 
         /// <summary>
@@ -942,7 +942,7 @@ namespace AlphaRap.MES
 
             str.Append("}");
 
-            MiddleLayer.DataF.SaveMesLog(" TrayDisk_BarcodeUnbinding_interface:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" TrayDisk_BarcodeUnbinding_interface:" + str.ToString());
             return ReturnValue(Post(TrayDiskBarcodeUnbinding_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -953,7 +953,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TaryDiskInformationQuery_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TaryDiskInformationQuery_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TaryDiskInformationQuery_Url");
         }
 
         /// <summary>
@@ -961,7 +961,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TaryDiskInformationQuery_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TaryDiskInformationQuery_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TaryDiskInformationQuery_Site");
         }
 
         /// <summary>
@@ -980,7 +980,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "site" + "\"" + ":" + "\"" + TaryDiskInformationQuery_Site + "\"" + ",");
             str.Append("\"" + "trayNumber" + "\"" + ":" + "\"" + TaryDiskInformationQuery_TrayNumber + "\"");
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog(" TaryDiskInformation_Interface:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" TaryDiskInformation_Interface:" + str.ToString());
             return ReturnValue(Post(TaryDiskInformationQuery_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -991,7 +991,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayStartInterface_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayStartInterface_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayStartInterface_Url");
         }
 
         /// <summary>
@@ -999,7 +999,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayStartInterface_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayStartInterface_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayStartInterface_Site");
         }
 
         /// <summary>
@@ -1015,7 +1015,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayStartInterface_Resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayStartInterface_Resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayStartInterface_Resource");
         }
         public bool Tray_Start_Interface()
         {
@@ -1025,7 +1025,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "resource" + "\"" + ":" + "\"" + TrayStartInterface_Resource + "\"" + ",");
             str.Append("\"" + "trayNumber" + "\"" + ":" + "\"" + TrayStartInterface_TrayNumber + "\"");
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog(" TrayStartInterface_Url:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" TrayStartInterface_Url:" + str.ToString());
             return ReturnValue(Post(TrayStartInterface_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -1036,7 +1036,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayDiskCompleted_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiskCompleted_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiskCompleted_Url");
         }
 
         /// <summary>
@@ -1044,7 +1044,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayDiskCompleted_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiskCompleted_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiskCompleted_Site");
         }
 
         /// <summary>
@@ -1052,14 +1052,14 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayDiskCompleted_Resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiskCompleted_Resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiskCompleted_Resource");
         }
         /// <summary>
         /// 设备编号
         /// </summary>
         public string TrayDiskCompleted_Dclist
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiskCompleted_Dclist");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiskCompleted_Dclist");
         }
         /// <summary>
         /// 工厂编码
@@ -1075,14 +1075,14 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayDiskCompleted_Operation
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiskCompleted_Operation");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiskCompleted_Operation");
         }
         /// <summary>
         /// 设备编号
         /// </summary>
         public string TrayDiskCompleted_ResultList
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiskCompleted_Dclist");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiskCompleted_Dclist");
         }
         public bool Tray_Disk_Completed_Interface()
         {
@@ -1096,7 +1096,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + TrayDiskCompleted_Operation + "\"" + ",");
             str.Append("\"" + "resultList" + "\"" + ":" + "\"" + TrayDiskCompleted_ResultList + "\"");
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog(" Tray_Disk_Completed_Interface:" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" Tray_Disk_Completed_Interface:" + str.ToString());
             return ReturnValue(Post(TrayDiskCompleted_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -1107,7 +1107,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayDiscPressingStart_Url
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiscPressingStart_Url");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiscPressingStart_Url");
         }
 
         /// <summary>
@@ -1115,7 +1115,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayDiscPressingStart_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiscPressingStart_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiscPressingStart_Site");
         }
 
         /// <summary>
@@ -1123,14 +1123,14 @@ namespace AlphaRap.MES
         /// </summary>
         public string TrayDiscPressingStart_Resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiscPressingStart_Resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiscPressingStart_Resource");
         }
         /// <summary>
         /// 设备编号
         /// </summary>
         public string TrayDiscPressingStart_Operation
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "TrayDiscPressingStart_Operation");
+            get => StationApplication.Mes.GetSettingValue("Mset", "TrayDiscPressingStart_Operation");
         }
         /// <summary>
         /// 托盘条码
@@ -1150,7 +1150,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "trayNumber" + "\"" + ":" + "\"" + TrayDiscPressingStart_Operation + "\"" + ",");
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + TrayDiscPressingStart_TrayNumber + "\"" + ",");
             str.Append("}");
-            MiddleLayer.DataF.SaveMesLog(" TrayDisc_pressingStart_Interface" + ":" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" TrayDisc_pressingStart_Interface" + ":" + str.ToString());
             return ReturnValue(Post(TrayDiscPressingStart_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -1161,7 +1161,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string Tray_PressCompletes_URL
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "Tray_PressCompletes_URL");
+            get => StationApplication.Mes.GetSettingValue("Mset", "Tray_PressCompletes_URL");
         }
 
         /// <summary>
@@ -1169,7 +1169,7 @@ namespace AlphaRap.MES
         /// </summary>
         public string Tray_PressCompletes_Site
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "Tray_PressCompletes_Site");
+            get => StationApplication.Mes.GetSettingValue("Mset", "Tray_PressCompletes_Site");
         }
 
         /// <summary>
@@ -1177,42 +1177,42 @@ namespace AlphaRap.MES
         /// </summary>
         public string Tray_PressCompletes_Resource
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "Tray_PressCompletes_Resource");
+            get => StationApplication.Mes.GetSettingValue("Mset", "Tray_PressCompletes_Resource");
         }
         /// <summary>
         /// 设备编号
         /// </summary>
         public string Tray_PressCompletes_DcGroupName
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "Tray_PressCompletes_DcGroupName");
+            get => StationApplication.Mes.GetSettingValue("Mset", "Tray_PressCompletes_DcGroupName");
         }
         /// <summary>
         /// 托盘条码
         /// </summary>
         public string Tray_PressCompletes_TrayNumber
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "Tray_PressCompletes_TrayNumber");
+            get => StationApplication.Mes.GetSettingValue("Mset", "Tray_PressCompletes_TrayNumber");
         }
         /// <summary>
         /// 设备编号
         /// </summary>
         public string Tray_PressCompletes_OPeration
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "Tray_PressCompletes_OPeration");
+            get => StationApplication.Mes.GetSettingValue("Mset", "Tray_PressCompletes_OPeration");
         }
         /// <summary>
         /// 托盘条码
         /// </summary>
         public string Tray_PressCompletes_ResultList
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "Tray_PressCompletes_ResultList");
+            get => StationApplication.Mes.GetSettingValue("Mset", "Tray_PressCompletes_ResultList");
         }
         /// <summary>
         /// 设备编号
         /// </summary>
         public string Tray_PressCompletes_AssembleComponents
         {
-            get => MiddleLayer.MesF.GetSettingValue("Mset", "Tray_PressCompletes_AssembleComponents");
+            get => StationApplication.Mes.GetSettingValue("Mset", "Tray_PressCompletes_AssembleComponents");
         }
         /// <summary>
         /// 物料条码list
@@ -1253,7 +1253,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "assembleComponents" + "\"" + ":" + Tray_PressCompletes_AssembleComponents);
             str.Append("}");
 
-            MiddleLayer.DataF.SaveMesLog(" Tray_PressCompletes_Interface" + ":" + str.ToString());
+            ApplicationHost.Data.SaveMesLog(" Tray_PressCompletes_Interface" + ":" + str.ToString());
             return ReturnValue(Post(Tray_PressCompletes_URL, str.ToString(), out Post_Message));
         }
         #endregion
@@ -1261,7 +1261,7 @@ namespace AlphaRap.MES
         public LENS()
         {
             InitializeComponent();
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
+            if (!UiTheme.IsDesignTime) ApplicationHost.RegisterLanguage(this, Name);
             UiTheme.ApplyDpi(this);
         }
         readonly Object OBJ = new object();
@@ -1296,7 +1296,7 @@ namespace AlphaRap.MES
                 }
                 catch (Exception ex)
                 {
-                    MiddleLayer.DataF.AddLogError(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + ex.ToString());
+                    ApplicationHost.Data.AddLogError(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + ex.ToString());
                     writer = null;
                     Console.Write("连接服务器失败!");
                 }
@@ -1304,7 +1304,7 @@ namespace AlphaRap.MES
 
                 writer.Write(payload, 0, payload.Length);
                 writer.Close();//关闭请求流
-                MiddleLayer.DataF.SaveMesLog("Send" + jsonParas);
+                ApplicationHost.Data.SaveMesLog("Send" + jsonParas);
                 HttpWebResponse response;
                 try
                 {
@@ -1320,7 +1320,7 @@ namespace AlphaRap.MES
                 string postContent = sRead.ReadToEnd();
                 sRead.Close();
                 textBox24.Text = postContent;
-                MiddleLayer.DataF.SaveMesLog("Receive" + postContent);
+                ApplicationHost.Data.SaveMesLog("Receive" + postContent);
                 Post_Message = postContent;
                 return postContent;//返回Json数据
             }
@@ -1341,21 +1341,21 @@ namespace AlphaRap.MES
 
         private void button2_Click_1(object sender, EventArgs e)
         {
-            Product_SN_Verification_SN = MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Verification_SN");
+            Product_SN_Verification_SN = StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Verification_SN");
             Product_SN_Verification();
             textBox24.Text = Post_Message;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Product_SN_Start_SN = MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Product_SN_Start_SN");
+            Product_SN_Start_SN = StationApplication.Mes.GetSettingValue("Mset", "textBox_Product_SN_Start_SN");
             bool r = Product_SN_Start_Interface();
-            textBox19.Text = MiddleLayer.MesF.Post_Message;
+            textBox19.Text = StationApplication.Mes.Post_Message;
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Integrated_Transit_Sn = MiddleLayer.MesF.GetSettingValue("Mset", "textBox_Integrated_Transit_Sn");
+            Integrated_Transit_Sn = StationApplication.Mes.GetSettingValue("Mset", "textBox_Integrated_Transit_Sn");
             Integrated_Transit_Item = "L5519DB";//left is L5519DA,Right is L5519DB
             Integrated_Transit_dcGroupName = "HL_ST_TESTGROUP1";
             dcParameterList.Add("SeqNo", "1");//序号
@@ -1368,7 +1368,7 @@ namespace AlphaRap.MES
 
             Integrated_Transit_testResult_ncCode = "TEST_PASS";//OK is TEST_PASS Fail is Q-ST
             bool r = Integrated_Transit_Interface();
-            textBox10.Text = MiddleLayer.MesF.Post_Message;
+            textBox10.Text = StationApplication.Mes.Post_Message;
         }
 	}
 }

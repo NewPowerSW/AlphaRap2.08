@@ -1,6 +1,6 @@
-﻿using AlphaRap.PLC;
+using AlphaRap.PLC;
 using System.Threading;
-using static AlphaRap.VPForm;
+using static AlphaRap.StationVisionForm;
 
 namespace AlphaRap.TaskProcess
 {
@@ -41,14 +41,14 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType ScrewInit_Flow1_1_FlowChartRun()
 		{
-			SysPara.GantryInitialOK = false;
+			StationData.GantryInitialOK = false;
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType ScrewInit_Flow1_2_FlowChartRun()
 		{
-			SysPara.GantryInitialOK = true;
+			StationData.GantryInitialOK = true;
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
@@ -63,7 +63,7 @@ namespace AlphaRap.TaskProcess
 			}
 			if (readPLCValue == "-999")
 			{
-				MiddleLayer.DataF.AddLogError(MiddleLayer.HomeF.GetAlarmConent("4013") + "---------------->>>" + FlowAuto_Scann2_1.text);
+				ApplicationHost.Data.AddLogError(ApplicationHost.Home.GetAlarmConent("4013") + "---------------->>>" + FlowAuto_Scann2_1.text);
 				NPSDK.Alarm.Show("4013");
 			}
 			return NPSDK.Flow_Chart.ResultType.IDLE;
@@ -133,8 +133,8 @@ namespace AlphaRap.TaskProcess
 		{
 			if (_visionFailed) return NPSDK.Flow_Chart.ResultType.IDLE;
 			string error;
-			if (!MiddleLayer.VPF.TryGetProductionStation(out _productionStation, out error)) return FailVision(error);
-			if (!MiddleLayer.VPF.TryGetProductionVisionData(out _visionCriterion, out error)) return FailVision(error);
+			if (!StationApplication.Vision.TryGetProductionStation(out _productionStation, out error)) return FailVision(error);
+			if (!StationApplication.Vision.TryGetProductionVisionData(out _visionCriterion, out error)) return FailVision(error);
 			if (!plc.WritePlc("D6210", "0")) return FailVision("清除视觉完成标志失败：" + plc.WritErrorMessage);
 			if (!_productionStation.TryRunTB(out _visionRunId)) return FailVision(_productionStation.LastError);
 			return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -234,7 +234,7 @@ namespace AlphaRap.TaskProcess
 			}
 			if (readPLCValue == "-999")
 			{
-				MiddleLayer.DataF.AddLogError(MiddleLayer.HomeF.GetAlarmConent("4013") + "---------------->>>" + FlowAuto_Heart5_3.text);
+				ApplicationHost.Data.AddLogError(ApplicationHost.Home.GetAlarmConent("4013") + "---------------->>>" + FlowAuto_Heart5_3.text);
 				NPSDK.Alarm.Show("4013");
 			}
 			return NPSDK.Flow_Chart.ResultType.IDLE;

@@ -1,0 +1,192 @@
+
+using System;
+using System.Collections.Generic;
+
+using System.Windows.Forms;
+
+namespace AlphaRap
+{
+    public class SysPara
+    {
+        //Run Parameter
+
+        //ByPass
+        public static bool bByPass = false;
+
+        //System Parameter
+        public static string MdbPath = "SystemData.mdb";
+        public static string ProgramDir = System.IO.Directory.GetCurrentDirectory();
+        public static bool Simulation;
+        public static string ProjectName;
+        public static string RecipeName;
+        public static string Product_RunMode;
+
+        //Product Message
+        public static string ProductName;
+        public static double iProductTotal;
+        public static double iProductOK;
+        public static double iProductNG;
+
+        public static double[] iProductHourlyInput = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        public static double[] iProductHourlyOutput = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        public static double[] iProductHourlyReject = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        public static double[] iProductHourlyYield = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+        public static int iCleanNumber;
+        //saveItems
+        public static int items = 1;
+        public static int items2 = 1;
+
+        //System Path
+        public static string LogFilePath;
+        public static string VisionFileDirectory;
+        public static string AlarmTableDirectory;
+        public static string SettingDataDirectory;
+        public static string RecipeDataDirectory;
+        public static string LanguageDataDirectory;
+        public static string IOPortDirectory;
+        public static string FilePath;
+
+        //Login Info = "D:\\Log\\UserLoginData\\"
+        public static PermissionType UserPermission = PermissionType.Operator;
+        public static string UserName = "None";
+        public static string UserLoginTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        public static bool bLogin = false;
+        public static bool UseFingerprint = true;
+        //RunMessage
+        public static string RunMessageTime;
+
+        //Langurage
+        public static LanguageType LanguageShow = LanguageType.English;
+        public static string LanguageName;
+        //PlatSetting
+        public static string bPlat;
+        public static List<ComponentTextInfo>[] ComponentLangurageList;
+        public static List<TStripItemTextInfo>[] TStripLangurageList;
+        public static List<CylinderCtrlTextInfo>[] CyCtrlLangList;
+        public static List<CyldCtrlLangIniData> cyCtrlLangIniDataList;
+
+        //Flow Control
+        public static bool IsMaintenanceMode = false;
+        public static bool bSaftyReady = false;
+        public static bool SystemRun = false;
+        public static RunMode SystemMode = RunMode.IDLE;
+		public static bool IsTryRun = false;
+
+        //Operation Time Record
+        public static int ScanTime = 0;
+        public static UInt64 OperationSecond = 0;
+        public static UInt64 RunSecond = 0;
+        public static UInt64 StopSecond = 0;
+        public static DateTime StartWorkTM;
+        public static DateTime EndWorkTM;
+        public static string CircleTime;
+    }
+
+    public struct ComponentTextInfo
+    {
+        public string FormName;
+        public string ComponentName;
+        public string ComponentText;
+        public Control Component;
+    }
+    public struct TStripItemTextInfo
+    {
+        public string FormName;
+        public string ComponentName;
+        public string ComponentText;
+        public ToolStripItem Component;
+    }
+    public struct CylinderCtrlTextInfo
+    {
+        public string FormName;
+        public string ComponentName;
+        public string CyOff_BtnText;
+        public string CyOn_BtnText;
+    }
+
+    public struct CyldCtrlLangIniData
+    {
+        public LanguageType Language;
+        public string ComponentName;
+        public string CyOff_BtnText;
+        public string CyOn_BtnText;
+    }
+    public struct IOPortInfo
+    {
+        public string FormName;
+        public string ComponentName;
+        public string Port;
+    }
+    public struct Pos4D
+    {
+        public double x;
+        public double y;
+        public double z;
+        public double u;
+
+        public double x2;
+        public double y2;
+        public double z2;
+        public double u2;
+
+        public double x3;
+        public double y3;
+        public double z3;
+        public double u3;
+
+        public string barcode;
+    }
+    public struct CalibrationData
+    {
+        public double PixelX;
+        public double PixelY;
+        public double MotorPosX;
+        public double MotorPosY;
+    }
+    /// <summary>一次「应用标定」的结果：是否写入、失败原因、标定质量指标。</summary>
+    public class CalibApplyInfo
+    {
+        /// <summary>是否成功写入 TB。</summary>
+        public bool Ok;
+        /// <summary>失败原因；成功时为空。</summary>
+        public string Error = "";
+        /// <summary>Cognex 是否算出有效标定（点位共线或重复时为 false）。</summary>
+        public bool Calibrated;
+        /// <summary>标定残差 RMS，单位为电机坐标单位（通常 mm）。</summary>
+        public double Rmse;
+        /// <summary>估算比例：电机单位 / 像素。</summary>
+        public double ScalePerPixel;
+        /// <summary>像素三角与电机三角方向相反，X/Y 可能接反或镜像。</summary>
+        public bool Mirrored;
+        /// <summary>参与标定的点数。</summary>
+        public int PointCount;
+    }
+    public enum PermissionType
+    {
+        Operator = 0,
+        Maintenance,		
+        Administrator,
+        None,
+    }
+    public enum LanguageType
+    {
+        Chinese = 0,
+        English,
+		Español
+	}
+    public enum RunMode
+    {
+        IDLE = 0,
+        RUN,
+        PAUSE,
+        INITIAL,
+    }
+    public enum ResultCode
+    {
+        OK = 0,
+        NG,
+        Overtime,
+        VisonNG
+    }
+}

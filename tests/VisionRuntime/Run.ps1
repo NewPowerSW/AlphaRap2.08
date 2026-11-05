@@ -11,6 +11,7 @@ $vpCompiler = 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 $vpExecutable = Join-Path $vpBuildDirectory 'VisionRuntime.Regression.exe'
 $vpReferences = @(
     (Join-Path $vpBuildDirectory 'AlphaRap.exe'),
+    (Join-Path $vpBuildDirectory 'AlphaRap.Framework.dll'),
     (Join-Path $vpBuildDirectory 'NPSDK.dll'),
     (Join-Path $vpBuildDirectory 'NewPowerLibrary.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.dll'),

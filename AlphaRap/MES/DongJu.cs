@@ -1,4 +1,4 @@
-﻿using AlphaRap.Classes;
+using AlphaRap.Classes;
 using AlphaRapLibrary;
 
 using System;
@@ -13,7 +13,7 @@ namespace AlphaRap.MES
 		public DongJu()
 		{
 			InitializeComponent();
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
+            if (!UiTheme.IsDesignTime) ApplicationHost.RegisterLanguage(this, Name);
             UiTheme.ApplyDpi(this);
 		}
 

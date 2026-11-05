@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../AlphaRap.Framework/FrameworkVersion.props" />
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
+    <PackageId>AlphaRap.Framework</PackageId>
+    <PackageVersion>$(FrameworkVersion)</PackageVersion>
+    <Authors>NewPowerSW</Authors>
+    <Description>AlphaRap .NET Framework 4.8 WinForms automation framework for x64 equipment applications.</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IsPackable>true</IsPackable>
+    <PackageReadmeFile>FrameworkPackaging.md</PackageReadmeFile>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <FrameworkOutput Condition="'$(FrameworkOutput)' == ''">$(MSBuildThisFileDirectory)../AlphaRap.Framework/bin/x64/Release</FrameworkOutput>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(FrameworkOutput)/AlphaRap.Framework.dll;$(FrameworkOutput)/NPSDK.dll;$(FrameworkOutput)/NewPowerLibrary.dll;$(FrameworkOutput)/HslCommunication.dll;$(FrameworkOutput)/DataGridViewAutoFilter.dll;$(FrameworkOutput)/LifeSpanTimer.dll;$(FrameworkOutput)/SunnyUI.dll;$(FrameworkOutput)/SunnyUI.Common.dll"
+          Pack="true" PackagePath="lib/net48/" />
+    <None Include="../docs/FrameworkPackaging.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

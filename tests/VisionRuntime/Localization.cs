@@ -135,13 +135,14 @@ internal static partial class Tests
             LicenseContext previous = LicenseManager.CurrentContext;
             LicenseManager.CurrentContext = new DesignContext();
             List<string> untranslated = new List<string>();
-            string[] pages = { "AlphaRap.SystemForm", "AlphaRap.SystemSetting", "AlphaRap.HardForm", "AlphaRap.ManualForm", "AlphaRap.CheckForm", "AlphaRap.DataForm", "AlphaRap.Parameter", "AlphaRap.ProductManagerForm", "AlphaRap.AddUserForm", "AlphaRap.UserLoginForm", "AlphaRap.MenuForm.LockForm1", "AlphaRap.MenuForm.LanguageSetting", "AlphaRap.MenuForm.AlarmSetting", "AlphaRap.MES.LENS", "AlphaRap.MES.Amphenol", "AlphaRap.MES.DongJu", "AlphaRap.Flow", "AlphaRap.SpanLife", "AlphaRap.Warning", "AlphaRap.HomeForm", "AlphaRap.PlatFormSetting", "AlphaRap.VPForm", "AlphaRap.MainForm", "AlphaRap.AlarmQueryForm", "AlphaRap.ProductionQueryForm", "AlphaRap.LoadingForm", "AlphaRap.TaskProcess.Gantry", "AlphaRap.TaskProcess.UpConveryor", "AlphaRap.TaskProcess.DownConveryor" };
+            string[] pages = { "AlphaRap.SystemForm", "AlphaRap.SystemSetting", "AlphaRap.HardForm", "AlphaRap.ManualForm", "AlphaRap.CheckForm", "AlphaRap.DataForm", "AlphaRap.Parameter", "AlphaRap.ProductManagerForm", "AlphaRap.AddUserForm", "AlphaRap.UserLoginForm", "AlphaRap.MenuForm.LockForm1", "AlphaRap.MenuForm.LanguageSetting", "AlphaRap.MenuForm.AlarmSetting", "AlphaRap.MES.LENS", "AlphaRap.MES.Amphenol", "AlphaRap.MES.DongJu", "AlphaRap.Flow", "AlphaRap.SpanLife", "AlphaRap.Warning", "AlphaRap.HomeForm", "AlphaRap.PlatFormSetting", "AlphaRap.VPForm", "AlphaRap.StationVisionForm", "AlphaRap.MainForm", "AlphaRap.AlarmQueryForm", "AlphaRap.ProductionQueryForm", "AlphaRap.LoadingForm", "AlphaRap.TaskProcess.Gantry", "AlphaRap.TaskProcess.UpConveryor", "AlphaRap.TaskProcess.DownConveryor" };
             try
             {
-                foreach (string name in pages.Where(name => typeof(VPForm).Assembly.GetType(name) != null))
+                foreach (Type pageType in pages.Select(FindPageType).Where(type => type != null))
                 {
                     LicenseManager.CurrentContext = new DesignContext();
-                    using (Form page = (Form)Activator.CreateInstance(typeof(VPForm).Assembly.GetType(name)))
+                    string name = pageType.FullName;
+                    using (Form page = (Form)Activator.CreateInstance(pageType))
                     {
                         LicenseManager.CurrentContext = previous;
                         string identity = page.Text;
@@ -168,6 +169,12 @@ internal static partial class Tests
             }
             finally { LicenseManager.CurrentContext = previous; }
         });
+    }
+
+    /// <summary>在框架及实际项目中查找页面类型。</summary>
+    private static Type FindPageType(string name)
+    {
+        return typeof(VPForm).Assembly.GetType(name) ?? typeof(StationVisionForm).Assembly.GetType(name);
     }
 
     /// <summary>托盘页语言刷新保留行对象、新名称输入和未提交的单元格值。</summary>

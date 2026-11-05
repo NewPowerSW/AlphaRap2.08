@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -66,6 +66,7 @@ internal static class StartupSmoke
         ConfigurationCases.PrepareFixture(root,args[0],args[2]);
         File.WriteAllText(Path.Combine(SysPara.SettingDataDirectory,"SysSetting.xml"),"<NewDataSet><MSet /><PSet><DisScann>true</DisScann><UseTryRun>false</UseTryRun></PSet></NewDataSet>");
         Type host = typeof(SysPara).Assembly.GetType("AlphaRap.MiddleLayer");
+        VerifyApplicationBoundary(host);
         host.GetMethod("LoadAlarmTable",BindingFlags.Static|BindingFlags.NonPublic,null,Type.EmptyTypes,null).Invoke(null,null);
         host.GetMethod("CreateProjectForms",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
         host.GetMethod("InitialLanguageData",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
@@ -96,6 +97,21 @@ internal static class StartupSmoke
                 throw new AggregateException("Startup execution and cleanup both failed.", runError, cleanupError);
             }
         }
+    }
+
+    /// <summary>Load the actual application profile and verify the framework cannot reference its implementation.</summary>
+    private static void VerifyApplicationBoundary(Type host)
+    {
+        Assembly application = typeof(AlphaRap.TaskProcess.Gantry).Assembly;
+        Assembly framework = typeof(ApplicationHost).Assembly;
+        if (framework == application || framework.GetReferencedAssemblies().Any(item => item.Name == application.GetName().Name))
+            throw new InvalidOperationException("The framework references the machine application.");
+        if (framework.GetType("AlphaRap.TaskProcess.Gantry") != null || framework.GetType("AlphaRap.PLC.INOVANCE") != null ||
+            framework.GetType("AlphaRap.MES.LENS") != null || framework.GetType("AlphaRap.ScannerKeyenceTcp") != null)
+            throw new InvalidOperationException("The framework still contains station, customer or device implementations.");
+        Type profile = application.GetType("AlphaRap.StationApplication", true);
+        host.GetField("Application").SetValue(null, Activator.CreateInstance(profile, true));
+        Console.WriteLine("PASS framework has no dependency on the application and the production profile supplies the station implementation.");
     }
 
     /// <summary>Use a deep settings directory to exercise transaction staging together with atomic flow-file writes.</summary>

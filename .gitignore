@@ -19,6 +19,7 @@ mono_crash.*
 # Build results
 
 /.vp-validation/
+/AlphaRap.Framework/bin/
 /.vp-validation-*.log
 
 AlphaRap/bin/x64/Debug/*
@@ -26,6 +27,11 @@ AlphaRapLibrary/
 Vucontrol/
 !AlphaRap/bin/x64/Debug/VisionData/
 !AlphaRap/bin/x64/Debug/*.dll
+/AlphaRap/bin/x64/Debug/AlphaRap.Framework.dll
+/AlphaRap/bin/x64/Debug/DataGridViewAutoFilter.dll
+/AlphaRap/bin/x64/Debug/LifeSpanTimer.dll
+/AlphaRap/bin/x64/Debug/SunnyUI.Common.dll
+/AlphaRap/bin/x64/Debug/SunnyUI.dll
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
@@ -37,6 +43,7 @@ bld/
 [Ll]og/
 # AlphaRap/Log 是源代码目录（XMLExpand、IniFile、ListViewWrite 等），不是运行日志
 !/AlphaRap/Log/
+!/AlphaRap.Framework/Log/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

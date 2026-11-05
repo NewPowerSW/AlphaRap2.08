@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -122,6 +122,7 @@ internal static partial class Cases
             {
                 FlowResources resources = FlowResources.Capture();
                 FlowResource resource = resources.Items.Values.Single(item => ReferenceEquals(item.Instance, plc));
+                Assert(ReferenceEquals(ApplicationHost.GetResource<AlphaRap.PLC.INOVANCE>(resource.Id), plc), "Application resource lookup replaced the registered PLC instance.");
                 FlowActions actions = new FlowActions(resources) { Simulate = true };
                 FlowStep step = BoundStep(resource, "plc.wait");
                 FlowInput address = step.Inputs.Single(input => input.Name == "Address");
@@ -150,7 +151,7 @@ internal static partial class Cases
                 limit.Reference = "80";
                 string failure = null;
                 try { ExecuteBound(actions, step); } catch (TimeoutException error) { failure = error.Message; }
-                string detail = string.Format(FlowText.T("error.plcWaitTimeout"), "M12", 1, "0", 80);
+                string detail = string.Format(ApplicationHost.Text("EquipmentFlow", "error.plcWaitTimeout", "等待 PLC 值超时。地址 {0}，期望 {1}，最近读到 {2}，等待上限 {3} ms。", "Timed out waiting for a PLC value. Address {0}, expected {1}, last read {2}, wait limit {3} ms.", "Tiempo agotado al esperar un valor del PLC. Dirección {0}, esperado {1}, última lectura {2}, límite {3} ms."), "M12", 1, "0", 80);
                 Assert(failure == detail, "The timeout did not identify the address, expected value and last sample: " + failure);
 
                 limit.Reference = "1500";

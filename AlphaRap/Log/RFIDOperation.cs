@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -691,19 +691,19 @@ namespace AlphaRap.Classes
         {
             clientRFIDHead = new TcpClient();
             clientRFIDHead.ReceiveTimeout = 3000;
-            string txtIP = MiddleLayer.ParF.GetSettingValue("PSet", "txtRFIDIP1") + "." +
-                           MiddleLayer.ParF.GetSettingValue("PSet", "txtRFIDIP2") + "." +
-                           MiddleLayer.ParF.GetSettingValue("PSet", "txtRFIDIP3") + "." +
-                           MiddleLayer.ParF.GetSettingValue("PSet", "txtRFIDIP4");
+            string txtIP = ApplicationHost.Parameters.GetSettingValue("PSet", "txtRFIDIP1") + "." +
+                           ApplicationHost.Parameters.GetSettingValue("PSet", "txtRFIDIP2") + "." +
+                           ApplicationHost.Parameters.GetSettingValue("PSet", "txtRFIDIP3") + "." +
+                           ApplicationHost.Parameters.GetSettingValue("PSet", "txtRFIDIP4");
 
             int port = 33000;
-            port = (int)MiddleLayer.ParF.GetSettingValue("PSet", "RFIDPort");
+            port = (int)ApplicationHost.Parameters.GetSettingValue("PSet", "RFIDPort");
             if (!clientRFIDHead.Connected)
             {
                 try
                 {
                     clientRFIDHead.Connect(IPAddress.Parse(txtIP), port);
-                    if (clientRFIDHead.Connected) SysPara.RFIDConnected = true;
+                    if (clientRFIDHead.Connected) StationData.RFIDConnected = true;
                 }
                 catch (Exception)
                 { }
@@ -711,13 +711,13 @@ namespace AlphaRap.Classes
         }
         public void DisconnectRFID()
         {
-            // bool bBypassBarcode = false;    //MiddleLayer.SystemS.GetSettingValue("Pset", "BypassRFID");   // Bypass需要修改
+            // bool bBypassBarcode = false;    //ApplicationHost.Settings.GetSettingValue("Pset", "BypassRFID");   // Bypass需要修改
             try
             {
                 if (clientRFIDHead.Connected)
                 {
                     clientRFIDHead.Close();
-                    SysPara.RFIDConnected = false;
+                    StationData.RFIDConnected = false;
                 }
             }
             catch (Exception)
