@@ -2,7 +2,6 @@ using System.Threading;
 using System.Windows.Forms;
 using AlphaRapLibrary;
 using NPSDK;
-using Alpha;
 
 namespace AlphaRap
 {
@@ -105,16 +104,12 @@ namespace AlphaRap
             StopAllMotor();
         }
 
-        /// <summary>显示必须先清除报警的提示，关闭后释放对话框。</summary>
+        /// <summary>请求应用提示操作员清除报警。</summary>
         private static void ShowResetAlarmWarning()
         {
-            using (OptionChoiceForm warning = new OptionChoiceForm())
-            {
-                string ok = LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar");
-                warning.fnChangeButtonsText(ok, ok);
-                warning.fnSetMessageAndButtons(LangMsg("MiddleLayer", "msg_ResetAlarmFirst", "请先清除报警！", "Please Reset Alarm Firstly!", "¡Restablezca la alarma primero!"), false, true, false);
-                warning.ShowDialog();
-            }
+            string message = LangMsg("MiddleLayer", "msg_ResetAlarmFirst", "请先清除报警！", "Please Reset Alarm Firstly!", "¡Restablezca la alarma primero!");
+            string confirm = LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar");
+            Application.ShowWarning(message, confirm);
         }
     }
 }

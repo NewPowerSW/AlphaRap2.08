@@ -33,6 +33,12 @@ namespace AlphaRap
         /// <summary>提供应用主窗口，用于可选的模块交互和 UI 线程调度。</summary>
         public virtual Form CreateWindow() { return null; }
 
+        /// <summary>显示模块发出的警告，应用可以提供自己的窗口样式。</summary>
+        public virtual void ShowWarning(string message, string confirmText)
+        {
+            MessageBox.Show(message, DisplayName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
         /// <summary>提供应用自己的首页。</summary>
         public virtual Form CreateHomePage() { return null; }
 

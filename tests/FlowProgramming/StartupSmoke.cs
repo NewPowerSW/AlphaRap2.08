@@ -109,7 +109,8 @@ internal static class StartupSmoke
         if (framework.GetType("AlphaRap.TaskProcess.Gantry") != null || framework.GetType("AlphaRap.PLC.INOVANCE") != null ||
             framework.GetType("AlphaRap.MES.LENS") != null || framework.GetType("AlphaRap.ScannerKeyenceTcp") != null ||
             framework.GetType("AlphaRap.MainForm") != null || framework.GetType("AlphaRap.HomeForm") != null ||
-            framework.GetType("AlphaRap.LoadingForm") != null || typeof(MainForm).Assembly != application)
+            framework.GetType("AlphaRap.LoadingForm") != null || framework.GetType("Alpha.OptionChoiceForm") != null ||
+            typeof(MainForm).Assembly != application || typeof(Alpha.OptionChoiceForm).Assembly != application)
             throw new InvalidOperationException("The framework still contains application windows or station implementations.");
         Type profile = application.GetType("AlphaRap.StationApplication", true);
         host.GetField("Application").SetValue(null, Activator.CreateInstance(profile, true));

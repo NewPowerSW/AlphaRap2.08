@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using AlphaRap;          // UiKit / UiTheme / FlatButton / MiddleLayer 都在这个命名空间
+using AlphaRap;
 
 namespace Alpha
 {
@@ -43,7 +43,7 @@ namespace Alpha
             UiTheme.ApplyDpi(this);
 
             // 按需创建的窗体：登记进语言表并按当前语言设置文字（按钮文字随后由 fnChangeButtonsText 覆盖）
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
+            if (!UiTheme.IsDesignTime) ApplicationHost.RegisterLanguage(this, Name);
             ControlBox = false;
 
             ApplyRoundRegion();

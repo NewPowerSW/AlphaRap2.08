@@ -706,6 +706,15 @@
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="FunctionForms\OptionChoiceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FunctionForms\OptionChoiceForm.designer.cs">
+      <DependentUpon>OptionChoiceForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="FunctionForms\OptionChoiceForm.resx">
+      <DependentUpon>OptionChoiceForm.cs</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -969,7 +978,7 @@
   </ItemGroup>
   <PropertyGroup Condition="'$(UsePackagedFramework)' == 'true'">
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <AlphaRapFrameworkPackageVersion>2.0.0</AlphaRapFrameworkPackageVersion>
+    <AlphaRapFrameworkPackageVersion>3.0.0</AlphaRapFrameworkPackageVersion>
     <RestoreSources Condition="'$(RestoreSources)' == ''">$(MSBuildThisFileDirectory)..\artifacts\framework</RestoreSources>
   </PropertyGroup>
   <ItemGroup Condition="'$(UsePackagedFramework)' == 'true'">

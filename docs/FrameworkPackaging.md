@@ -31,3 +31,8 @@ MSBuild.exe AlphaRap/AlphaRap.csproj /restore /t:Build /p:Configuration=Release 
 ### 从 1.x 升级到 2.x
 
 应用引用升级到 `AlphaRap.Framework 2.0.0` 后重新构建。FFU 使用的 `AlphaRap.Classes.NPSerialPort` 和基恩士 3D 设备使用的 `NPClient.TCPCLient` 源码由应用项目编译。自行使用这两个类的应用可沿用应用侧实现。旧版未接入流程的 `Warning`、`SpanLife` 和 `NoFocusChart`，以及旧日志工具 `LocalLogSave`、`XMLExpand` 已从框架包移除。
+
+
+### 从 2.x 升级到 3.x
+
+应用引用升级到 `AlphaRap.Framework 3.0.0` 后重新构建。统一保存使用的 `Alpha.OptionChoiceForm` 由应用项目编译。框架通过 `MachineApplication.ShowWarning` 发出警告，应用可以在这个入口使用自己的弹窗。

@@ -28,6 +28,17 @@ namespace AlphaRap
         /// <summary>创建本站主窗口。</summary>
         public override System.Windows.Forms.Form CreateWindow() { return new MainForm(); }
 
+        /// <summary>用应用的确认弹窗显示框架警告。</summary>
+        public override void ShowWarning(string message, string confirmText)
+        {
+            using (var warning = new Alpha.OptionChoiceForm())
+            {
+                warning.fnChangeButtonsText(confirmText, confirmText);
+                warning.fnSetMessageAndButtons(message, false, true, false);
+                warning.ShowDialog();
+            }
+        }
+
         /// <summary>创建本站首页及生产看板。</summary>
         public override System.Windows.Forms.Form CreateHomePage() { return new HomeForm(); }
 
