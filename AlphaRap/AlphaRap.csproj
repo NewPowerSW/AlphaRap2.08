@@ -689,6 +689,51 @@
   <ItemGroup>
     <Compile Include="PLC\PlcFlowMethods.cs" />
     <Compile Include="Tasks\AlwaysRunTask.cs" />
+    <Compile Include="MenuForm\LoadingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MenuForm\LoadingForm.designer.cs">
+      <DependentUpon>LoadingForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MKMonitor\KeyboardHook.cs" />
+    <Compile Include="MKMonitor\MouseHook.cs" />
+    <Compile Include="MKMonitor\Win32Api.cs" />
+    <Compile Include="MainForm.Frame.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MainForm.Vision.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MenuForm\HomeForm.Style.cs">
+      <DependentUpon>HomeForm.cs</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MenuForm\HomeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MenuForm\HomeForm.Designer.cs">
+      <DependentUpon>HomeForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MenuForm\LoadingForm.resx">
+      <DependentUpon>LoadingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MenuForm\HomeForm.resx">
+      <DependentUpon>HomeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="Devices\NPTCPClient.cs" />
+    <Compile Include="Devices\NPSerialPort.cs" />
     <Compile Include="Devices\FFU.cs" />
     <Compile Include="Devices\FFUCom.cs" />
     <Compile Include="Devices\MTF6000_1.cs" />
@@ -924,12 +969,15 @@
   </ItemGroup>
   <PropertyGroup Condition="'$(UsePackagedFramework)' == 'true'">
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <AlphaRapFrameworkPackageVersion>1.0.0</AlphaRapFrameworkPackageVersion>
+    <AlphaRapFrameworkPackageVersion>2.0.0</AlphaRapFrameworkPackageVersion>
     <RestoreSources Condition="'$(RestoreSources)' == ''">$(MSBuildThisFileDirectory)..\artifacts\framework</RestoreSources>
   </PropertyGroup>
   <ItemGroup Condition="'$(UsePackagedFramework)' == 'true'">
     <PackageReference Include="AlphaRap.Framework" Version="[$(AlphaRapFrameworkPackageVersion)]" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(UsePackagedFramework)' != 'true'">
+    <ResolveNuGetPackages>false</ResolveNuGetPackages>
+  </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Compile Include="GeneratedFlows\**\*.cs">

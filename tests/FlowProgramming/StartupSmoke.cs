@@ -107,8 +107,10 @@ internal static class StartupSmoke
         if (framework == application || framework.GetReferencedAssemblies().Any(item => item.Name == application.GetName().Name))
             throw new InvalidOperationException("The framework references the machine application.");
         if (framework.GetType("AlphaRap.TaskProcess.Gantry") != null || framework.GetType("AlphaRap.PLC.INOVANCE") != null ||
-            framework.GetType("AlphaRap.MES.LENS") != null || framework.GetType("AlphaRap.ScannerKeyenceTcp") != null)
-            throw new InvalidOperationException("The framework still contains station, customer or device implementations.");
+            framework.GetType("AlphaRap.MES.LENS") != null || framework.GetType("AlphaRap.ScannerKeyenceTcp") != null ||
+            framework.GetType("AlphaRap.MainForm") != null || framework.GetType("AlphaRap.HomeForm") != null ||
+            framework.GetType("AlphaRap.LoadingForm") != null || typeof(MainForm).Assembly != application)
+            throw new InvalidOperationException("The framework still contains application windows or station implementations.");
         Type profile = application.GetType("AlphaRap.StationApplication", true);
         host.GetField("Application").SetValue(null, Activator.CreateInstance(profile, true));
         Console.WriteLine("PASS framework has no dependency on the application and the production profile supplies the station implementation.");

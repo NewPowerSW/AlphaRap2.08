@@ -1,103 +1,98 @@
-﻿using Sunny.UI;
 using System;
+using System.Collections.Generic;
 using System.Threading;
-using System.Windows.Forms;
+using NPSDK;
 
 namespace AlphaRap
 {
-	public class AlarmRunTask
-	{
-		Thread AlarmTask;
-		public bool AlarmTaskIsRun = false;
-		public AlarmRunTask()
-		{
-			AlarmTask = new Thread(AlarmRunWork);
-			AlarmTask.Start();
-			AlarmTask.IsBackground = true;
-		}
-		public void StopAlarmRunTask()
-		{
-			if (AlarmTask != null)
-				AlarmTask.Join();
-		}
-		public void AlarmRunWork()
-		{
-			while (true)
-			{
-				AlarmRun();
-				Thread.Sleep(10);
-			}
-		}
-		public void AlarmRun()
-		{
-			if (!AlarmTaskIsRun)
-				return;
+    /// <summary>报警模块发布给宿主的显示记录。</summary>
+    public sealed class AlarmDisplayRow
+    {
+        public DateTime Time { get; }
+        public string Type { get; }
+        public string Code { get; }
+        public string Content { get; }
 
-			#region Alarm Message
-			if (NPSDK.Alarm.DoRefresh)
-			{
-				NPSDK.Alarm.DoRefresh = false;
-				MiddleLayer.MainF.WarnningMessage.BeginUpdate();
-				MiddleLayer.MainF.WarnningMessage.Items.Clear();
-				MiddleLayer.MainF.AlarmLogCache.Clear();
-				for (int i = 0; i < NPSDK.Alarm.AlarmList.Count; i++)
-				{
-					NPSDK.Alarm.AlarmDataClass AlarmData = NPSDK.Alarm.AlarmList[i];
-					// 显示文案按当前语言解析（见 HomeF.ResolveAlarmContent），日志文件写入原始内容
-					string showContent = MiddleLayer.HomeF.ResolveAlarmContent(AlarmData.Code, AlarmData.Content);
-					ListViewItem Alarm = new ListViewItem(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
-					Alarm.SubItems.Add(AlarmData.Type);
-					Alarm.SubItems.Add(AlarmData.Code);
-					Alarm.SubItems.Add(showContent);
+        /// <summary>保留原始报警内容供不同语言的窗口显示。</summary>
+        internal AlarmDisplayRow(DateTime time, Alarm.AlarmDataClass alarm)
+        {
+            Time = time;
+            Type = alarm.Type;
+            Code = alarm.Code;
+            Content = alarm.Content;
+        }
+    }
 
-					#region AlarmLogFile
-					string _RECIPEID = MiddleLayer.ProductF.GetRecipeValue("ProductSetting", "RECIPEID");
-					string[] data = new string[8];
-					data[0] = SysPara.UserName;
-					data[1] = _RECIPEID;
-					data[2] = SysPara.RecipeName;
-					data[3] = (SysPara.SystemMode == RunMode.RUN || SysPara.SystemMode == RunMode.PAUSE) ? "Auto" : "Manual";
-					data[4] = AlarmData.Type == "E" ? "ERROR" : "Information";
-					data[5] = AlarmData.Code;
-					data[6] = AlarmData.Content;
-					MiddleLayer.DataF.Alarm.SaveDataToFile(data);
-					#endregion
+    /// <summary>采集报警与流程日志，由订阅方显示报警快照。</summary>
+    public class AlarmRunTask
+    {
+        private readonly Thread alarmThread;
+        private volatile bool stopping;
+        public volatile bool AlarmTaskIsRun;
 
-					// E 错误：暂停运行（副作用只在此处执行一次）
-					if (AlarmData.Type == "E")
-					{
-						DateTime TWriteLogTime = DateTime.Now;
-						MiddleLayer.PauseRun();
-					}
-					// 行配色：还原为最初版本（E=整行红底 / W=整行深鲑鱼色底，黑字）
-					MainForm.ApplyAlarmRowColor(Alarm, AlarmData.Type, i);
+        /// <summary>启动报警模块的后台采集线程。</summary>
+        public AlarmRunTask()
+        {
+            alarmThread = new Thread(AlarmRunWork) { IsBackground = true };
+            alarmThread.Start();
+        }
 
-					// 缓存原始数据，供「E / 其他报警」筛选时重建列表
-					// （重建走缓存，不会再写一次日志文件、也不会重复 PauseRun）
-					MiddleLayer.MainF.AlarmLogCache.Add(new string[] {
-						Alarm.Text, AlarmData.Type, AlarmData.Code, showContent });
+        /// <summary>停止采集并等待线程退出。</summary>
+        public void StopAlarmRunTask()
+        {
+            stopping = true;
+            if (alarmThread != null && alarmThread != Thread.CurrentThread) alarmThread.Join();
+        }
 
-					// 按当前筛选条件决定是否显示
-					if (MiddleLayer.MainF.IsAlarmRowVisible(AlarmData.Type))
-						MiddleLayer.MainF.WarnningMessage.Items.Add(Alarm);
-				}
-				MiddleLayer.MainF.WarnningMessage.EndUpdate();
-				MiddleLayer.MainF.UpdateAlarmFilterCount();
-			}
-			#endregion
+        /// <summary>周期采集报警及流程日志。</summary>
+        public void AlarmRunWork()
+        {
+            while (!stopping)
+            {
+                AlarmRun();
+                Thread.Sleep(10);
+            }
+        }
 
-			#region Log
-			string Runlog = NPSDK.Flow_Module.Module_GetRunLog();
-			if (!Runlog.IsNullOrEmpty())
-			{
-			MiddleLayer.DataF.AddRunLog(Runlog);
-			}
-			string Alarmlog = NPSDK.Flow_Module.Module_GetAlarmLog();
-			if (!Alarmlog.IsNullOrEmpty())
-			{
-				MiddleLayer.DataF.AddLogError(Alarmlog);
-			}
-			#endregion
-		}
-	}
+        /// <summary>处理一次报警更新，并写出新增流程日志。</summary>
+        public void AlarmRun()
+        {
+            if (!AlarmTaskIsRun) return;
+            if (Alarm.DoRefresh) RefreshAlarms();
+
+            string runLog = Flow_Module.Module_GetRunLog();
+            if (!string.IsNullOrEmpty(runLog)) MiddleLayer.DataF.AddRunLog(runLog);
+            string alarmLog = Flow_Module.Module_GetAlarmLog();
+            if (!string.IsNullOrEmpty(alarmLog)) MiddleLayer.DataF.AddLogError(alarmLog);
+        }
+
+        /// <summary>记录报警，执行停机规则并向宿主发布本次快照。</summary>
+        private static void RefreshAlarms()
+        {
+            Alarm.DoRefresh = false;
+            var rows = new List<AlarmDisplayRow>();
+            foreach (Alarm.AlarmDataClass alarm in Alarm.AlarmList.ToArray())
+            {
+                rows.Add(new AlarmDisplayRow(DateTime.Now, alarm));
+                SaveAlarm(alarm);
+                if (alarm.Type == "E") MiddleLayer.PauseRun();
+            }
+
+            ApplicationHost.PublishAlarms(rows.AsReadOnly());
+        }
+
+        /// <summary>按既有列写入报警原文。</summary>
+        private static void SaveAlarm(Alarm.AlarmDataClass alarm)
+        {
+            string[] data = new string[8];
+            data[0] = SysPara.UserName;
+            data[1] = MiddleLayer.ProductF.GetRecipeValue("ProductSetting", "RECIPEID");
+            data[2] = SysPara.RecipeName;
+            data[3] = SysPara.SystemMode == RunMode.RUN || SysPara.SystemMode == RunMode.PAUSE ? "Auto" : "Manual";
+            data[4] = alarm.Type == "E" ? "ERROR" : "Information";
+            data[5] = alarm.Code;
+            data[6] = alarm.Content;
+            MiddleLayer.DataF.Alarm.SaveDataToFile(data);
+        }
+    }
 }

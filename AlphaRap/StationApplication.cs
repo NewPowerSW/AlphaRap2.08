@@ -25,6 +25,12 @@ namespace AlphaRap
         /// <summary>提供本站应用名称。</summary>
         public override string DisplayName { get { return "AlphaRap-SRM"; } }
 
+        /// <summary>创建本站主窗口。</summary>
+        public override System.Windows.Forms.Form CreateWindow() { return new MainForm(); }
+
+        /// <summary>创建本站首页及生产看板。</summary>
+        public override System.Windows.Forms.Form CreateHomePage() { return new HomeForm(); }
+
         /// <summary>创建保留本站固定 IO 的手动页。</summary>
         public override ManualPage CreateManualPage() { return Manual = new ManualForm(); }
 

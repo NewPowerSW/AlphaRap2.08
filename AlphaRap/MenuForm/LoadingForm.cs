@@ -21,7 +21,7 @@ namespace AlphaRap
     public partial class LoadingForm : Form
     {
         private string _Caption = string.Empty;
-        public bool StopRefresh;
+        public volatile bool StopRefresh;
 
         // ---------------- 视觉参数（设计值一律按 96 DPI 写，绘制时用 UiTheme.Dpi 换算） ----------------
         private const int PadX = 40;            // 左右留白
@@ -75,7 +75,10 @@ namespace AlphaRap
             catch { }
         }
 
-        private static string AppName { get { return MiddleLayer.Application.DisplayName; } }
+        private readonly string applicationName = "AlphaRap";
+
+        /// <summary>使用应用名称绘制启动页。</summary>
+        public LoadingForm(string applicationName) : this() { this.applicationName = applicationName; }
         private static string AppVersion { get { return ApplicationHost.ApplicationVersion; } }
 
         /// <summary>
@@ -163,7 +166,7 @@ namespace AlphaRap
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             using (SolidBrush b = new SolidBrush(Color.White))
-                g.DrawString(AppName, fTitle, b, new PointF(0, UiTheme.Dpi(9)));
+                g.DrawString(applicationName, fTitle, b, new PointF(0, UiTheme.Dpi(9)));
 
             using (SolidBrush b = new SolidBrush(Color.FromArgb(185, 255, 255, 255)))
                 g.DrawString(UiTheme.T("LoadingForm", "version", "版本 ", "Version ", "Versión ") + AppVersion, fVersion, b, new PointF(UiTheme.Dpi(3), UiTheme.Dpi(48)));

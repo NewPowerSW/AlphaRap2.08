@@ -362,7 +362,7 @@ namespace AlphaRap
 		{
 			List<string> camKeys = new List<string>();
 			for (int i = 0; i < _cameras.Count; i++) camKeys.Add(_cameras[i].Name);
-			try { MiddleLayer.MainF.SetCameraDisplays(camKeys); } catch (Exception) { }
+			try { MiddleLayer.WindowModules?.SetCameraDisplays(camKeys); } catch (Exception) { }
 
 			for (int i = 0; i < _cameras.Count; i++)
 			{
@@ -571,7 +571,7 @@ namespace AlphaRap
 			AddDisplay(st, disp);
 			// 主界面"视觉"页上同一台相机的显示也收这张图，两边看到的是同一张
 			// （MainF 尚未建好时跳过，否则一台相机都建不出来）
-			try { AddDisplay(st, MiddleLayer.MainF != null ? MiddleLayer.MainF.GetCameraDisplay(st != null ? st.CameraName : null) : null); }
+			try { AddDisplay(st, MiddleLayer.WindowModules?.GetCameraDisplay(st?.CameraName)); }
 			catch (Exception) { }
 		}
 

@@ -231,12 +231,6 @@ namespace AlphaRap
                 List<ComponentTextInfo> entries = SysPara.ComponentLangurageList[(int)LanType];
                 foreach (ComponentTextInfo entry in entries.ToArray()) ApplyRegisteredControl(entry);
             }
-            if (MainF != null)
-            {
-                MainF.NumC1.Image = LanType == LanguageType.Chinese ? MainF.NumC2.Image
-                    : LanType == LanguageType.English ? MainF.NumC3.Image : MainF.NumC4.Image;
-                MainF.NumC1.Text = LanType == LanguageType.Chinese ? "CN" : LanType == LanguageType.English ? "EN" : "ES";
-            }
             foreach (Flow_BaseForm module in Flow_Module.FlowChart_ModuleList) module.Refresh();
             NotifyLanguageChanged();
         }

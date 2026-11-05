@@ -11,31 +11,31 @@ namespace AlphaRap
     partial class MiddleLayer
     {
         /// <summary>读取配置、创建页面、登记语言并启动设备内核、配方和后台扫描。</summary>
-        public static void InitialProject()
+        public static void InitialProject(Action<string> reportProgress)
         {
             ReadLanguageSettings();
-            ShowLoadingStage("stage_Ini", "读取系统配置", "Loading system configuration", "Cargando configuración del sistema");
+            ShowLoadingStage(reportProgress, "stage_Ini", "读取系统配置", "Loading system configuration", "Cargando configuración del sistema");
             LoadMachineSettings(Application.DisplayName);
             LoadAlarmTable();
             CreateProjectForms();
-            ShowLoadingStage("stage_Languages", "载入语言表", "Loading translations", "Cargando traducciones");
+            ShowLoadingStage(reportProgress, "stage_Languages", "载入语言表", "Loading translations", "Cargando traducciones");
             InitialLanguageData();
             SwitchLanguage(SysPara.LanguageShow);
-            ShowLoadingStage("stage_Permissions", "载入权限", "Loading permissions", "Cargando permisos");
+            ShowLoadingStage(reportProgress, "stage_Permissions", "载入权限", "Loading permissions", "Cargando permisos");
             SwitchPermission(SysPara.UserPermission);
 
-            ShowLoadingStage("stage_IO", "初始化输入输出", "Initializing IO", "Inicializando E/S");
+            ShowLoadingStage(reportProgress, "stage_IO", "初始化输入输出", "Initializing IO", "Inicializando E/S");
             SDKKernal.SetSimulation(SysPara.Simulation);
             SDKKernal.InitializeComponent();
             OperationLog.Write("MainForm", "设备初始化完成（仿真=" + SysPara.Simulation + "）");
             alarmRunTask = new AlarmRunTask();
-            ShowLoadingStage("stage_Recipe", "载入配方", "Loading recipe", "Cargando receta");
+            ShowLoadingStage(reportProgress, "stage_Recipe", "载入配方", "Loading recipe", "Cargando receta");
             OpenRecipe(SysPara.FilePath);
             FlowProgramming.FlowPrograms.Install();
             FlowCtrl = new FlowControl();
             FlowCtrl.StartThread();
             ServoOn();
-            ShowLoadingStage("stage_Vision", "载入视觉算法", "Loading vision algorithms", "Cargando algoritmos de visión");
+            ShowLoadingStage(reportProgress, "stage_Vision", "载入视觉算法", "Loading vision algorithms", "Cargando algoritmos de visión");
         }
 
         /// <summary>读取机器系统参数和目录，同步模块配置目录与当前配方路径。</summary>
@@ -62,17 +62,13 @@ namespace AlphaRap
         {
             foreach (Flow_BaseForm station in Application.CreateStations()) RegisterForm(station);
             SpanLifeF = new LifeSpan.LifeSpanForm();
-            ShowLoadingStage("stage_Products", "载入型号管理", "Loading model management", "Cargando gestión de modelos");
             ProductF = RegisterForm(ProductF ?? new ProductManagerForm());
             PlatF = RegisterForm(PlatF ?? new PlatFormSetting());
             SystemS = RegisterForm(SystemS ?? Application.CreateSettingsPage());
             ParF = RegisterForm(ParF ?? Application.CreateDevicePage());
             SystemF = RegisterForm(SystemF ?? new SystemForm());
-            ShowLoadingStage("stage_Main", "载入主界面", "Loading main window", "Cargando ventana principal");
-            MainF = RegisterForm(MainF ?? new MainForm());
-            ShowLoadingStage("stage_Home", "载入主页", "Loading home page", "Cargando página de inicio");
-            HomeF = RegisterForm(HomeF ?? new HomeForm());
-            ShowLoadingStage("stage_Manual", "载入手动页面", "Loading manual controls", "Cargando controles manuales");
+            MainF = RegisterForm(MainF ?? Application.CreateWindow());
+            HomeF = RegisterForm(HomeF ?? Application.CreateHomePage());
             ManualF = RegisterForm(ManualF ?? Application.CreateManualPage());
             HardF = RegisterForm(HardF ?? Application.CreateHardwarePage());
             CheckF = RegisterForm(CheckF ?? new CheckForm());
@@ -83,14 +79,12 @@ namespace AlphaRap
             LogDirectories.RestoreAlarmPath(DataF);
             LockForm1 = new LockForm1();
             MesF = RegisterForm(MesF ?? Application.CreateMesPage());
-            MainF.SetMesPageAvailable(MesF != null);
         }
 
         /// <summary>更新启动阶段，没有启动页时不创建界面。</summary>
-        private static void ShowLoadingStage(string key, string zh, string en, string es)
+        private static void ShowLoadingStage(Action<string> reportProgress, string key, string zh, string en, string es)
         {
-            if (LoadingF == null || LoadingF.IsDisposed) return;
-            LoadingF.SetCaption(LangMsg("LoadingForm", key, zh, en, es));
+            reportProgress?.Invoke(LangMsg("LoadingForm", key, zh, en, es));
         }
 
         /// <summary>登记实际窗体并初始化模块，重复调用继续使用原实例。</summary>
@@ -107,7 +101,7 @@ namespace AlphaRap
         public static void SwitchPermission(PermissionType Permission)
         {
             SysPara.UserPermission = Permission;
-            if (MainF != null) MainF.SwitchPermission(Permission);
+            WindowModules?.SwitchPermission(Permission);
             if (DataF != null)
             {
                 DataF.UserLoginLog[0] = SysPara.UserName;
@@ -121,12 +115,9 @@ namespace AlphaRap
         /// <summary>停止后台扫描后关闭伺服，避免扫描继续访问正在关闭的设备。</summary>
         public static void DisposeProject()
         {
-            if (alarmRunTask != null) alarmRunTask.AlarmTaskIsRun = false;
+            if (alarmRunTask != null) alarmRunTask.StopAlarmRunTask();
             if (FlowCtrl != null) FlowCtrl.StopThread();
             ServoOff();
         }
-
-        /// <summary>保留外部调用约定的显示入口，页面显示由 MainForm 管理。</summary>
-        public static void show() { }
     }
 }

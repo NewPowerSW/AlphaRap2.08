@@ -431,7 +431,7 @@ namespace AlphaRap
         {
             if (SysPara.items > 1)
             {
-                MiddleLayer.MainF.SaveData();
+                MiddleLayer.WindowModules?.SaveData();
             }
         }
 

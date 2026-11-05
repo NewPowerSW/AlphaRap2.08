@@ -1,19 +1,40 @@
 using System.Reflection;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Windows.Forms;
 using AlphaRap.FlowProgramming;
 using AlphaRapLibrary;
 using NPSDK;
+using Cognex.VisionPro;
 
 namespace AlphaRap
 {
+    /// <summary>由应用窗口提供模块需要的保存、登录及视觉预览操作。</summary>
+    public interface IModuleWindow
+    {
+        /// <summary>打开应用的统一保存入口。</summary>
+        void SaveData();
+        /// <summary>刷新应用窗口的权限显示。</summary>
+        void SwitchPermission(PermissionType permission);
+        /// <summary>登录流程退出后刷新应用界面。</summary>
+        void CompleteLogin();
+        /// <summary>按当前相机配置更新应用预览区。</summary>
+        void SetCameraDisplays(IList<string> cameraNames);
+        /// <summary>取得指定相机的可选应用预览控件。</summary>
+        CogRecordDisplay GetCameraDisplay(string cameraName);
+    }
+
     /// <summary>项目提供实际页面、工位和与机器有关的生命周期行为。</summary>
     public class MachineApplication
     {
         /// <summary>机器未提供配置时使用的项目显示名称。</summary>
         public virtual string DisplayName { get { return "AlphaRap"; } }
+
+        /// <summary>提供应用主窗口，用于可选的模块交互和 UI 线程调度。</summary>
+        public virtual Form CreateWindow() { return null; }
+
+        /// <summary>提供应用自己的首页。</summary>
+        public virtual Form CreateHomePage() { return null; }
 
         /// <summary>创建通用 IO 页面，项目可返回带固定 IO 的派生页面。</summary>
         public virtual ManualPage CreateManualPage() { return new DefaultManualPage(); }
@@ -73,8 +94,8 @@ namespace AlphaRap
             get { return typeof(ApplicationHost).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion; }
         }
 
-        public static MainForm MainWindow { get { return MiddleLayer.MainF; } }
-        public static HomeForm Home { get { return MiddleLayer.HomeF; } }
+        public static Form MainWindow { get { return MiddleLayer.MainF; } }
+        public static Form Home { get { return MiddleLayer.HomeF; } }
         public static DataForm Data { get { return MiddleLayer.DataF; } }
         public static Parameter Parameters { get { return MiddleLayer.ParF; } }
         public static SystemSetting Settings { get { return MiddleLayer.SystemS; } }
@@ -114,58 +135,29 @@ namespace AlphaRap
             return MiddleLayer.LangMsg(formName, key, zh, en, es);
         }
 
-        /// <summary>在应用的 STA 入口初始化并运行框架主窗体。</summary>
-        public static void Run(MachineApplication application)
+        /// <summary>初始化设备、流程、语言、配置与模块页面，并返回应用提供的窗口。</summary>
+        public static Form Initialize(MachineApplication application, Action<string> reportProgress = null)
         {
             if (application == null) throw new ArgumentNullException(nameof(application));
-            bool firstInstance;
-            using (var mutex = new Mutex(true, "OnlyRunOneInstance", out firstInstance))
-            {
-                if (!firstInstance)
-                {
-                    MiddleLayer.ReadLanguageSettings();
-                    MessageBox.Show(Text("Program", "msg_AlreadyRunning", "程序已在运行。", "The program is already running.", "El programa ya está en ejecución."),
-                        application.DisplayName, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    return;
-                }
-                RunWindow(application);
-            }
-        }
-
-        /// <summary>在创建任何窗口前初始化 WinForms 与 DPI，退出时关闭后台扫描。</summary>
-        private static void RunWindow(MachineApplication application)
-        {
             MiddleLayer.Application = application;
-            UiTheme.InitDpi();
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            MiddleLayer.ReadLanguageSettings();
-            try
-            {
-                LoadProject();
-                Application.Run(MiddleLayer.MainF);
-            }
-            finally { MiddleLayer.DisposeProject(); }
+            MiddleLayer.InitialProject(reportProgress);
+            return MiddleLayer.MainF;
         }
 
-        /// <summary>显示启动进度，并在初始化成功或失败时释放进度线程。</summary>
-        private static void LoadProject()
+        /// <summary>关闭框架模块的后台任务与设备。</summary>
+        public static void Shutdown() { MiddleLayer.DisposeProject(); }
+
+        /// <summary>使用当前语言读取报警编号对应的文本。</summary>
+        public static string GetAlarmText(string code) { return AlarmCatalog.GetAlarmText(SysPara.LanguageShow, code); }
+
+        /// <summary>收到最新报警快照时通知应用窗口。</summary>
+        public static event Action<IReadOnlyList<AlarmDisplayRow>> AlarmRowsChanged;
+
+        /// <summary>向应用发布报警显示数据。</summary>
+        internal static void PublishAlarms(IReadOnlyList<AlarmDisplayRow> rows)
         {
-            using (var loading = new LoadingForm())
-            {
-                MiddleLayer.LoadingF = loading;
-                loading.Show();
-                var marquee = new Thread(loading.RefreshUI);
-                marquee.Start();
-                try { MiddleLayer.InitialProject(); }
-                finally
-                {
-                    loading.StopRefresh = true;
-                    marquee.Join();
-                    loading.Close();
-                    MiddleLayer.LoadingF = null;
-                }
-            }
+            var handler = AlarmRowsChanged;
+            if (handler != null) handler(rows);
         }
     }
 }

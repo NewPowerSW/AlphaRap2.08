@@ -129,7 +129,6 @@ namespace AlphaRap
         public static Label Caption(string text, float size, bool bold, Color color)
         {
             // 用 UiLabel 并显式起名：裸 Label 会被语言扫描按名字登记，
-            // 名字为空时 XMLExpand.GetElement 会拼出 "中文/窗体名/" 这种空段路径，直接抛 XPathException。
             UiLabel l = new UiLabel();
             l.Name = "uiCaption";
             l.AutoSize = true;

@@ -309,7 +309,7 @@ namespace AlphaRap
             ReadAllProductData();
             fbNewName.Value = "";
             SysPara.items++;
-            MiddleLayer.MainF.SaveData();
+            MiddleLayer.WindowModules?.SaveData();
         }
         /// <summary>
         /// 删除当前选中的物料
@@ -372,7 +372,6 @@ namespace AlphaRap
                 string filePath = SysPara.RecipeDataDirectory + "\\" + listView1.SelectedItems[0].Text + ".xml";
                 if (!MiddleLayer.OpenRecipe(filePath)) return;
                 CurrentModel.Text = SysPara.RecipeName;
-                MiddleLayer.show();
             }
         }
 

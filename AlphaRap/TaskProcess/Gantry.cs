@@ -63,7 +63,7 @@ namespace AlphaRap.TaskProcess
 			}
 			if (readPLCValue == "-999")
 			{
-				ApplicationHost.Data.AddLogError(ApplicationHost.Home.GetAlarmConent("4013") + "---------------->>>" + FlowAuto_Scann2_1.text);
+				ApplicationHost.Data.AddLogError(ApplicationHost.GetAlarmText("4013") + "---------------->>>" + FlowAuto_Scann2_1.text);
 				NPSDK.Alarm.Show("4013");
 			}
 			return NPSDK.Flow_Chart.ResultType.IDLE;
@@ -234,7 +234,7 @@ namespace AlphaRap.TaskProcess
 			}
 			if (readPLCValue == "-999")
 			{
-				ApplicationHost.Data.AddLogError(ApplicationHost.Home.GetAlarmConent("4013") + "---------------->>>" + FlowAuto_Heart5_3.text);
+				ApplicationHost.Data.AddLogError(ApplicationHost.GetAlarmText("4013") + "---------------->>>" + FlowAuto_Heart5_3.text);
 				NPSDK.Alarm.Show("4013");
 			}
 			return NPSDK.Flow_Chart.ResultType.IDLE;

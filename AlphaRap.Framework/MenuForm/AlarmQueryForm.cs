@@ -145,8 +145,7 @@ namespace AlphaRap
                 AlarmRecord record = row.Tag as AlarmRecord;
                 if (record == null) continue;
                 row.Cells[colStop.Index].Value = record.Stop ? _stopText : "";
-                if (MiddleLayer.HomeF != null)
-                    row.Cells[colContent.Index].Value = MiddleLayer.HomeF.ResolveAlarmContent(record.Code, record.Content);
+                row.Cells[colContent.Index].Value = AlarmCatalog.ResolveAlarmContent(record.Code, record.Content);
             }
         }
 

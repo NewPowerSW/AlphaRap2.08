@@ -49,7 +49,8 @@ namespace AlphaRap
 
 			bool bPlat = Convert.ToBoolean(SysPara.bPlat);
 
-			MiddleLayer.MainF.tabPage10.Parent = bPlat ? null : MiddleLayer.MainF.uiTabControl1;
+			MainForm window = MiddleLayer.MainF as MainForm;
+            if (window != null) window.tabPage10.Parent = bPlat ? null : window.uiTabControl1;
 		}
 
         /// <summary>在首页报警区域显示主窗口的报警表。</summary>
@@ -297,7 +298,7 @@ namespace AlphaRap
 		{
 			// 生产数据：累计良品 / 不良、节拍、当天每小时数量
 			string ct = !string.IsNullOrEmpty(SysPara.CircleTime) ? SysPara.CircleTime
-					  : (MiddleLayer.MainF != null ? MiddleLayer.MainF.txtCyCT.Text : "");
+					  : ((MiddleLayer.MainF as MainForm)?.txtCyCT.Text ?? "");
 			ShowValues(SysPara.iProductOK, SysPara.iProductNG, ct,
 					   SysPara.iProductHourlyOutput, SysPara.iProductHourlyReject, DateTime.Now.Hour);
 
@@ -521,70 +522,14 @@ namespace AlphaRap
 			Position[Columns, RowIndex].Value = CellValue;
 		}
 
-        private static readonly Dictionary<string, Dictionary<string, string>> AlarmTableCache = new Dictionary<string, Dictionary<string, string>>();
-        private static readonly object AlarmTableCacheLock = new object();
+        /// <summary>读取指定语言的报警文案。</summary>
+        public string GetAlarmConentOf(LanguageType language, string code) { return AlarmCatalog.GetAlarmText(language, code); }
 
-        /// <summary>按文件路径和修改时间缓存报警文本，兼容现场修改和配置目录。</summary>
-        private static Dictionary<string, string> LoadAlarmTableMap(LanguageType lang)
-        {
-            string file = AlarmCatalog.FilePath(lang, true);
-            string key = System.IO.Path.GetFullPath(file) + "|" + System.IO.File.GetLastWriteTimeUtc(file).Ticks;
-            lock (AlarmTableCacheLock)
-            {
-                Dictionary<string, string> map;
-                if (AlarmTableCache.TryGetValue(key, out map)) return map;
-                map = new Dictionary<string, string>();
-                if (!System.IO.File.Exists(file)) return map;
-                foreach (System.Xml.Linq.XElement entry in System.Xml.Linq.XElement.Load(file).Elements())
-                    map[entry.Name.LocalName.TrimStart('A')] = (string)entry.Attribute("Content") ?? "";
-                if (AlarmTableCache.Count > 12) AlarmTableCache.Clear();
-                AlarmTableCache[key] = map;
-                return map;
-            }
-        }
+        /// <summary>读取当前语言的报警文案。</summary>
+        public string GetAlarmConent(string code) { return ApplicationHost.GetAlarmText(code); }
 
-		/// <summary>按指定语言查报警表内容（找不到返回 "Error"，与旧口径一致）。</summary>
-		public string GetAlarmConentOf(LanguageType lang, string Index)
-		{
-			try
-			{
-				Dictionary<string, string> map = LoadAlarmTableMap(lang);
-				string v;
-				if (map.TryGetValue((Index ?? "").Trim(), out v)) return v;
-			}
-			catch (Exception) { }
-			return "Error";
-		}
-
-		public string GetAlarmConent(string Index)
-		{
-			// 按当前语言取对应的报警表文件（AlarmTable\{Chinese|English|Español}.xml）
-			return GetAlarmConentOf(SysPara.LanguageShow, Index);
-		}
-
-		/// <summary>
-		/// 报警列表显示用的文案：按编号在三种语言的报警表中做前缀匹配，匹配到则把前缀换成当前语言的内容并保留后面的细节
-		/// （如 NPSDK 初始化失败报警中的 Name= / Port=），匹配不到则原样返回。
-		/// </summary>
-		public string ResolveAlarmContent(string code, string stored)
-		{
-			try
-			{
-				if (string.IsNullOrEmpty(stored)) return stored;
-				string cur = GetAlarmConentOf(SysPara.LanguageShow, code);
-				if (cur == "Error" || string.IsNullOrEmpty(cur) || cur == stored) return stored;
-
-				LanguageType[] all = (LanguageType[])Enum.GetValues(typeof(LanguageType));
-				foreach (LanguageType lang in all)
-				{
-					string t = GetAlarmConentOf(lang, code);
-					if (t != "Error" && !string.IsNullOrEmpty(t) && stored.StartsWith(t, StringComparison.Ordinal))
-						return cur + stored.Substring(t.Length);
-				}
-			}
-			catch (Exception) { }
-			return stored;
-		}
+        /// <summary>切换报警显示语言时保留原有细节。</summary>
+        public string ResolveAlarmContent(string code, string stored) { return AlarmCatalog.ResolveAlarmContent(code, stored); }
 
 		public bool TestJIG_Clear = false;
 		public void refleshDatagriviewColor(DataGridView Position, int Row, int Columns, Color CellColor)

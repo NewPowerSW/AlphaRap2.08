@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using static AlphaRap.MainForm;
 using System.Threading;
 
 namespace AlphaRap
@@ -261,9 +260,7 @@ namespace AlphaRap
             {
                 SysPara.UserName = MiddleLayer.AddF.ReadAllUserData();
                 SysPara.UserPermission = PermissionType.Operator;
-                MiddleLayer.MainF.SwitchPermission(SysPara.UserPermission);
-                MiddleLayer.MainF.SwitchMainPage(MENU_PageType.Home);
-                MiddleLayer.MainF.RefreshMenuBackcolor();
+                MiddleLayer.WindowModules?.CompleteLogin();
                 SysPara.bLogin = false;
             }
         }

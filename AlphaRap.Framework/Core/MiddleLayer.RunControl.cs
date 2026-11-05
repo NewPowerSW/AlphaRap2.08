@@ -58,7 +58,6 @@ namespace AlphaRap
             if (SysPara.SystemRun && SysPara.SystemMode == RunMode.PAUSE)
             {
                 AlarmClear();
-                SetHightSpeed();
                 SysPara.SystemMode = RunMode.RUN;
                 Flow_Module.Module_StartRun();
                 Application.ResumeLegacyOutputs();
@@ -117,11 +116,5 @@ namespace AlphaRap
                 warning.ShowDialog();
             }
         }
-
-        /// <summary>保留应用流程的高速切换入口，具体倍率由应用配置。</summary>
-        public static void SetHightSpeed() { }
-
-        /// <summary>保留应用流程的低速切换入口，具体倍率由应用配置。</summary>
-        public static void SetLowSpeed() { }
     }
 }

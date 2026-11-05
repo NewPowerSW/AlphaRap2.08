@@ -68,9 +68,10 @@ internal static class TypographyCases
     /// <summary>Include application pages and parameterless flow/configuration editors already supported in design mode.</summary>
     private static IEnumerable<Type> PageTypes()
     {
-        string[] names = { "SystemForm", "SystemSetting", "HardForm", "ManualForm", "CheckForm", "DataForm", "Parameter", "ProductManagerForm", "AddUserForm", "UserLoginForm", "MenuForm.LockForm1", "MenuForm.LanguageSetting", "MenuForm.AlarmSetting", "MES.LENS", "MES.Amphenol", "MES.DongJu", "Flow", "SpanLife", "Warning", "HomeForm", "RuntimeLogForm", "PlatFormSetting", "VPForm", "AlarmQueryForm", "ProductionQueryForm", "LoadingForm", "TaskProcess.Gantry", "TaskProcess.UpConveryor", "TaskProcess.DownConveryor" };
-        Assembly assembly = typeof(HomeForm).Assembly;
-        return names.Select(name => assembly.GetType("AlphaRap." + name, false)).Where(type => type != null).Concat(assembly.GetTypes().Where(type =>
+        string[] names = { "SystemForm", "SystemSetting", "HardForm", "ManualForm", "CheckForm", "DataForm", "Parameter", "ProductManagerForm", "AddUserForm", "UserLoginForm", "MenuForm.LockForm1", "MenuForm.LanguageSetting", "MenuForm.AlarmSetting", "MES.LENS", "MES.Amphenol", "MES.DongJu", "Flow", "HomeForm", "RuntimeLogForm", "PlatFormSetting", "VPForm", "AlarmQueryForm", "ProductionQueryForm", "LoadingForm", "TaskProcess.Gantry", "TaskProcess.UpConveryor", "TaskProcess.DownConveryor" };
+        Assembly assembly = typeof(ApplicationHost).Assembly;
+        Assembly application = typeof(HomeForm).Assembly;
+        return names.Select(name => assembly.GetType("AlphaRap." + name, false) ?? application.GetType("AlphaRap." + name, false)).Where(type => type != null).Concat(assembly.GetTypes().Where(type =>
             !type.IsAbstract && !type.IsNested && typeof(Control).IsAssignableFrom(type) && type.GetConstructor(Type.EmptyTypes) != null
             && (type.Namespace == "AlphaRap.FlowProgramming" || type.Namespace == "AlphaRap.Configuration"))).Distinct();
     }

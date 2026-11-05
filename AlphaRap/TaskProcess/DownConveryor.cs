@@ -105,7 +105,7 @@ namespace AlphaRap.TaskProcess
 			}
 			if (DownConveyorAuto_Flow1_4.FlowChart_ElapsedMilliseconds > 5000)
 			{
-				ApplicationHost.MainWindow.AddErrorLog("Alarm:" + ApplicationHost.Home.GetAlarmConent("4") + "- " + "Position:" + DownConveyorAuto_Flow1_4.text);
+				ApplicationHost.Data.AddLogError("Alarm:" + ApplicationHost.GetAlarmText("4") + "- " + "Position:" + DownConveyorAuto_Flow1_4.text);
 				NPSDK.Alarm.Show("4");
 			}
 			return NPSDK.Flow_Chart.ResultType.IDLE;
@@ -226,7 +226,7 @@ namespace AlphaRap.TaskProcess
 			}
 			if (DownConveyorAuto_Flow2_7.FlowChart_ElapsedMilliseconds > 5000)
 			{
-				ApplicationHost.MainWindow.AddErrorLog("Alarm:" + ApplicationHost.Home.GetAlarmConent("11") + "- " + "Position:" + DownConveyorAuto_Flow2_7.text);
+				ApplicationHost.Data.AddLogError("Alarm:" + ApplicationHost.GetAlarmText("11") + "- " + "Position:" + DownConveyorAuto_Flow2_7.text);
 				NPSDK.Alarm.Show("11");
 			}
 			return NPSDK.Flow_Chart.ResultType.IDLE;
@@ -258,7 +258,7 @@ namespace AlphaRap.TaskProcess
 			}
 			if (DownConveyorAuto_Flow3_0.FlowChart_ElapsedMilliseconds > 8000)
 			{
-				ApplicationHost.MainWindow.AddErrorLog("Alarm:" + ApplicationHost.Home.GetAlarmConent("12") + "- " + "Position:" + DownConveyorAuto_Flow3_0.text);
+				ApplicationHost.Data.AddLogError("Alarm:" + ApplicationHost.GetAlarmText("12") + "- " + "Position:" + DownConveyorAuto_Flow3_0.text);
 				NPSDK.Alarm.Show("12");
 			}
 			return NPSDK.Flow_Chart.ResultType.IDLE;
