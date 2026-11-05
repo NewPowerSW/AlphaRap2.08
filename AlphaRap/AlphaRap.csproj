@@ -689,10 +689,10 @@
   <ItemGroup>
     <Compile Include="PLC\PlcFlowMethods.cs" />
     <Compile Include="Tasks\AlwaysRunTask.cs" />
-    <Compile Include="Classes\FFU.cs" />
-    <Compile Include="Classes\FFUCom.cs" />
-    <Compile Include="Classes\MTF6000_1.cs" />
-    <Compile Include="Classes\MTF6000_2.cs" />
+    <Compile Include="Devices\FFU.cs" />
+    <Compile Include="Devices\FFUCom.cs" />
+    <Compile Include="Devices\MTF6000_1.cs" />
+    <Compile Include="Devices\MTF6000_2.cs" />
     <Compile Include="Devices\HIOKI_RM3545.cs" />
     <Compile Include="Log\RFIDCsvObj.cs" />
     <Compile Include="Log\RFIDFinalStation.cs" />

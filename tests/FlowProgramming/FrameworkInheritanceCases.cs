@@ -97,6 +97,7 @@ internal static partial class Cases
         Test("derived DataForm and PLC tools reuse their actual objects while preserving standard capabilities", FrameworkDataAndPlc);
         Test("derived VPP methods preserve standard vision actions without exposing configuration helpers", FrameworkVisionInheritance);
         Test("mapped built-in device methods remain single curated tools after inheritance discovery", FrameworkMappedDevices);
+        Test("FFU and MTF devices bind named instances and expose standard flow tools", FrameworkFormerStationDevices);
     }
 
     /// <summary>Capture actual field instances and remove their page reliably after each case.</summary>
@@ -174,4 +175,37 @@ internal static partial class Cases
             foreach (string id in standard[index]) Assert(methods.Count(method => method.Id == id) == 1, "A standard mapped device action changed: " + id);
         }
     }
+
+    /// <summary>Verify device discovery and binding without opening physical hardware.</summary>
+    private static void FrameworkFormerStationDevices()
+    {
+        Type[] types = { typeof(NP_PressureSensor.FFU), typeof(AlphaRap.Classes.FFUCom),
+            typeof(AtlasLibrary.MTF6000_1), typeof(AtlasLibrary.MTF6000_2) };
+        string[] actions = { "DataReceiveFunction", "GetFFUSpeed", "SendCommand", "SendCommand" };
+        for (int index = 0; index < types.Length; index++)
+        {
+            Type type = types[index];
+            Assert(DeviceControl.ScanDeviceTypes().Contains(type), "Device discovery missed " + type.FullName);
+            using (Form form = new Form())
+            using (DeviceControl panel = new DeviceControl { Name = "StationDevice", SingleDevice = true, AutoOpen = false })
+            {
+                form.Controls.Add(panel);
+                string name = "Offline " + type.Name;
+                Assert(panel.BindDevice(type.Name, name) == "", "Device binding failed: " + type.Name);
+                AlphaRap.AbstractDevice device = panel.Device;
+                Assert(device.GetType() == type && device.DeviceName == name && !device.IsConnected,
+                    "Device manager did not create the expected disconnected named instance.");
+                Assert(DeviceControl.GetFlowDevices().Values.Contains(device), "Flow tools did not reuse the managed instance.");
+                List<FlowMethod> tools = device.GetFlowMethods().ToList();
+                Assert(tools.Any(tool => tool.Id == "device.open") && tools.Any(tool => tool.Id == "device.close")
+                    && tools.Any(tool => tool.Id.StartsWith("auto.") && tool.Title[0].StartsWith(actions[index] + "(")),
+                    "Missing standard or device-specific flow action for " + type.Name);
+                device.Close();
+                device.Open();
+                device.Close();
+                Assert(!device.IsConnected, "A device without a configured endpoint reported connected.");
+            }
+        }
+    }
+
 }

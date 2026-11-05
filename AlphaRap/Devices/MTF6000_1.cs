@@ -1,4 +1,6 @@
-﻿using System;
+using AlphaRap;
+using AlphaRap.FlowProgramming;
+using System;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
@@ -8,13 +10,12 @@ using System.Windows.Forms;
 
 namespace AtlasLibrary
 {
-	public class MTF6000_1
+	public class MTF6000_1 : AbstractDevice
 	{
-		private static ManualResetEvent TimeoutObject = new ManualResetEvent(false);
-		Socket clientSocket;
+		private Socket clientSocket;
 		public bool bConnectStatus;
 		private string sReadData = null;
-		System.Timers.Timer time;
+		private System.Timers.Timer time;
 
 		private readonly object read = new object();
 		private readonly object reading = new object();
@@ -22,6 +23,26 @@ namespace AtlasLibrary
 		private const string KeepAliveSend = "002099990010        \0";
 		private const string UnSubscribeSend = "002900090010        120100100\0";
 		private const string SubscribeSend = "006000080010        1201001310000000000000000000000000000001\0";
+
+		/// <summary>创建可由旧代码直接使用的拧紧控制器。</summary>
+		public MTF6000_1() : this(nameof(MTF6000_1)) { }
+
+		/// <summary>创建由设备管理器命名的拧紧控制器。</summary>
+		public MTF6000_1(string deviceName) : base(deviceName) { }
+
+		public string IP { get; set; } = string.Empty;
+		public int Port { get; set; }
+
+		public override bool IsConnected
+		{
+			get { lock (read) return bConnectStatus && clientSocket != null && clientSocket.Connected; }
+		}
+
+		/// <summary>使用设备面板配置的地址打开连接。</summary>
+		public override void Open() { Atlas_Connect(IP, Port); }
+
+		/// <summary>关闭连接并停止心跳。</summary>
+		public override void Close() { Disconnect(); }
 
 		public struct _Result
 		{
@@ -31,110 +52,121 @@ namespace AtlasLibrary
 			public bool TotalStatus;
 		}
 		public _Result Atlas_ResultStruct = new _Result();
+		/// <summary>建立 TCP 会话并启动本机型的心跳定时器。</summary>
+		[FlowToolIgnore]
 		public void Atlas_Connect(string IP, int Port)
 		{
-			if (!bConnectStatus)
+			lock (read)
 			{
-				clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-				IPAddress ip = IPAddress.Parse(IP);
+				if (IsConnected) return;
+				Disconnect();
+
+				IPAddress address;
+				if (!IPAddress.TryParse(IP, out address) || address.AddressFamily != AddressFamily.InterNetwork ||
+					Port <= 0 || Port > IPEndPoint.MaxPort) return;
 
 				try
 				{
-					clientSocket.SendTimeout = 200;
-					clientSocket.ReceiveTimeout = 200;
-
-					clientSocket.BeginConnect(ip, Port, new AsyncCallback(CallBackMethod), clientSocket);
-					if (TimeoutObject.WaitOne(1000, false))
+					clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
 					{
-						Thread.Sleep(1000);
-						bConnectStatus = true;
+						SendTimeout = 200,
+						ReceiveTimeout = 200
+					};
+					ConnectSocket(address, Port);
+					Thread.Sleep(1000);
+					bConnectStatus = true;
 
-						String A = SendCommand(StartCommunicateSend);
-						time = new System.Timers.Timer(Convert.ToInt32(5000));//实例化Timer类，设置间隔时间为7000毫秒；
-						time.Elapsed += new System.Timers.ElapsedEventHandler(theout);//到达时间的时候执行事件；
-						time.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
-						time.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件；
-						time.Start();
-					}
-					else
-					{
-						bConnectStatus = false;
-					}
+					SendCommand(StartCommunicateSend);
+					if (!IsConnected) { Disconnect(); return; }
+
+					time = new System.Timers.Timer(5000);
+					time.Elapsed += theout;
+					time.Start();
 				}
-				catch (Exception)
+				catch (SocketException error)
 				{
-					bConnectStatus = false;
-					return;
+					Disconnect();
+					Debug.WriteLine(error.Message);
 				}
 			}
 		}
 
-		public void Disconnect()
+		/// <summary>限制 TCP 连接等待时间，并读取当前连接尝试的实际结果。</summary>
+		private void ConnectSocket(IPAddress address, int port)
 		{
-			bConnectStatus = false;
-			time.Stop();
-			time.Enabled = false;
-			time.AutoReset = false;
-			clientSocket.Disconnect(true);
+			IAsyncResult attempt = clientSocket.BeginConnect(address, port, null, null);
+			using (WaitHandle completed = attempt.AsyncWaitHandle)
+			{
+				if (!completed.WaitOne(1000)) throw new SocketException((int)SocketError.TimedOut);
+				clientSocket.EndConnect(attempt);
+			}
 		}
 
-		private void CallBackMethod(IAsyncResult asyncresult)
+		/// <summary>释放当前套接字和心跳，允许断开后再次连接。</summary>
+		[FlowToolIgnore]
+		public void Disconnect()
 		{
-			//使阻塞的线程继续        
-			TimeoutObject.Set();
+			lock (read)
+			{
+				bConnectStatus = false;
+				System.Timers.Timer timer = time;
+				time = null;
+				timer?.Dispose();
+				Socket socket = clientSocket;
+				clientSocket = null;
+				socket?.Dispose();
+			}
 		}
+
+		/// <summary>在设备命令之间发送当前会话的心跳。</summary>
+		[FlowToolIgnore]
 		public void theout(object source, System.Timers.ElapsedEventArgs e)
 		{
 			lock (reading)
-			{
-				SendCommand(KeepAliveSend, 100);
-			}
+				lock (read)
+					if (ReferenceEquals(source, time)) SendCommand(KeepAliveSend, 100);
 		}
 
+		/// <summary>发送一条拧紧协议命令并读取响应。</summary>
 		public string SendCommand(string commandStr, int timeout = 0)
 		{
 			lock (read)
 			{
-				Stopwatch timer = new Stopwatch();
-				timer.Reset();
-
+				if (!IsConnected) return string.Empty;
+				sReadData = string.Empty;
 				try
 				{
-					sReadData = "";
-					if (!bConnectStatus) // 未連線則先連線
-					{
-						return "";
-					}
-					if (bConnectStatus && clientSocket != null)
-					{
-						string lon = commandStr;   // CR is terminator
-						Byte[] command = ASCIIEncoding.ASCII.GetBytes(lon);
-						clientSocket.Send(command);
-					}
-					Thread.Sleep((int)timeout);
+					byte[] command = Encoding.ASCII.GetBytes(commandStr);
+					clientSocket.Send(command);
+					Thread.Sleep(timeout);
 					ReceiveData();
-					sReadData.Trim();
 					return sReadData;
 				}
 				catch (Exception)
 				{
 					bConnectStatus = false;
-
 					return "ERROR";
 				}
 			}
 		}
 
+		/// <summary>读取当前套接字的响应内容。</summary>
+		[FlowToolIgnore]
 		public void ReceiveData()
 		{
-			try
+			lock (read)
 			{
-				byte[] result = new byte[1024];
-				int receiveLength = clientSocket.Receive(result);
-				sReadData = sReadData + Encoding.ASCII.GetString(result, 0, receiveLength).Trim();
-			}
-			catch (SocketException)
-			{
+				if (clientSocket == null) return;
+				try
+				{
+					byte[] buffer = new byte[1024];
+					int count = clientSocket.Receive(buffer);
+					if (count == 0) bConnectStatus = false;
+					sReadData += Encoding.ASCII.GetString(buffer, 0, count).Trim();
+				}
+				catch (SocketException)
+				{
+				}
 			}
 		}
 
