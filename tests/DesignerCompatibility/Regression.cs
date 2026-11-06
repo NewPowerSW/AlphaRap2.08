@@ -69,6 +69,7 @@ internal static class Cases
         Test("visual classes have complete project metadata and public parameterless constructors", ProjectMetadata);
         Test("InitializeComponent contains only explicit designer-supported UI initialization", DesignerSource);
         Test("constant and hardware editor field names preserve their control identities on designer save", EditorIdentities);
+        Test("FlowChart captions fit below the elapsed-time row in default and compact nodes", FlowChartCaptionLayout);
         foreach (Type type in visualTypes)
         {
             Type current = type;
@@ -78,6 +79,65 @@ internal static class Cases
         Console.WriteLine("RESULT: " + passed + "/" + (passed + failed) + " passed");
         Console.WriteLine("This probe does not replace Visual Studio's C# source designer loading.");
         return failed == 0 ? 0 : 1;
+    }
+
+    /// <summary>验证默认设计器节点和已绑定的窄节点都完整显示标题。</summary>
+    private static void FlowChartCaptionLayout()
+    {
+        using (Form host = new Form())
+        using (Font stationFont = new Font("Segoe UI", 10.8F, FontStyle.Bold))
+        using (Flow_Chart node = new Flow_Chart { text = "FlowChart" })
+        {
+            host.Controls.Add(node);
+            VerifyFlowChartCaption(node);
+
+            node.Size = new Size(112, 35);
+            node.Font = stationFont;
+            VerifyFlowChartCaption(node);
+
+            node.ProgramBindingLabel = "Code";
+            node.BeginProgramTiming();
+            node.PauseProgramTiming(true);
+            VerifyFlowChartCaption(node);
+        }
+    }
+
+    /// <summary>对照居中绘制的标题像素范围，确认预留空间后标题完整且位于耗时下方。</summary>
+    private static void VerifyFlowChartCaption(Flow_Chart node)
+    {
+        Button button = (Button)node.Controls.Find("button1", true).Single();
+        Control elapsed = node.Controls.Find("elapsedTime", true).Single();
+        Rectangle caption = FlowChartCaptionInk(button);
+        Padding padding = button.Padding;
+        button.Padding = Padding.Empty;
+        Rectangle centered = FlowChartCaptionInk(button);
+        button.Padding = padding;
+        Check(!caption.IsEmpty && caption.Size == centered.Size, "Reserving the elapsed-time row clipped the caption.");
+        Check(caption.Top >= elapsed.Bottom, "The elapsed-time label covers part of the caption.");
+    }
+
+    /// <summary>对比有无标题的按钮位图，排除边框和背景像素。</summary>
+    private static Rectangle FlowChartCaptionInk(Button button)
+    {
+        using (Bitmap caption = new Bitmap(button.Width, button.Height))
+        using (Bitmap blank = new Bitmap(button.Width, button.Height))
+        {
+            string text = button.Text;
+            button.DrawToBitmap(caption, button.ClientRectangle);
+            button.Text = "";
+            button.DrawToBitmap(blank, button.ClientRectangle);
+            button.Text = text;
+
+            Rectangle ink = Rectangle.Empty;
+            for (int y = 0; y < caption.Height; y++)
+                for (int x = 0; x < caption.Width; x++)
+                {
+                    if (caption.GetPixel(x, y) == blank.GetPixel(x, y)) continue;
+                    Rectangle pixel = new Rectangle(x, y, 1, 1);
+                    ink = ink.IsEmpty ? pixel : Rectangle.Union(ink, pixel);
+                }
+            return ink;
+        }
     }
 
     /// <summary>从拥有源码的项目发现其真实设计器类型。</summary>

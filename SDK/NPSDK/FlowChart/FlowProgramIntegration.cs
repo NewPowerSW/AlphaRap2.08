@@ -90,7 +90,6 @@ namespace NPSDK
         private bool programBreakpointPaintAttached;
         private string programBindingLabel = "";
         private string programStatusMessage = "";
-        private Padding? programOriginalPadding;
         private bool programBindingPaintAttached;
         private bool programTimingStarted;
         private int programStateRevision;
@@ -126,7 +125,7 @@ namespace NPSDK
             UpdateProgramLabel();
         }
 
-        /// <summary>沿用设计器的状态标签和按钮，为类型提示保留一行且保持原鼠标交互。</summary>
+        /// <summary>更新标题上方的状态和耗时，普通节点与已绑定节点共用设计器预留的标题空间。</summary>
         private void UpdateProgramLabel()
         {
             if (IsDisposed) return;
@@ -140,11 +139,6 @@ namespace NPSDK
                 button1.Paint += DrawProgramBinding;
                 programBindingPaintAttached = true;
             }
-            if (!programOriginalPadding.HasValue) programOriginalPadding = button1.Padding;
-            Padding padding = programOriginalPadding.Value;
-            if (programBindingLabel.Length > 0)
-                padding.Top += Math.Min(label1.PreferredHeight + 2, Math.Max(0, button1.Height - button1.Font.Height - 8));
-            button1.Padding = padding;
             button1.Invalidate();
         }
 

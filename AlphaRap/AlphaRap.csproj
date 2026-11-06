@@ -999,7 +999,7 @@
   </ItemGroup>
   <PropertyGroup Condition="'$(UsePackagedFramework)' == 'true'">
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <AlphaRapFrameworkPackageVersion>6.0.1</AlphaRapFrameworkPackageVersion>
+    <AlphaRapFrameworkPackageVersion>6.0.2</AlphaRapFrameworkPackageVersion>
     <RestoreSources Condition="'$(RestoreSources)' == ''">$(MSBuildThisFileDirectory)..\artifacts\framework</RestoreSources>
   </PropertyGroup>
   <ItemGroup Condition="'$(UsePackagedFramework)' == 'true'">
