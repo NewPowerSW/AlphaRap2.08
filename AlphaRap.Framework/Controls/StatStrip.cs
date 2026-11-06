@@ -7,21 +7,6 @@ using System.Windows.Forms;
 
 namespace AlphaRap
 {
-    /// <summary>一张统计格的内容：标题 + 数值 + 数值颜色。</summary>
-    public sealed class StatItem
-    {
-        public string Title;
-        public string Value;
-        public Color Accent;
-
-        public StatItem(string title, string value, Color accent)
-        {
-            Title = title;
-            Value = value;
-            Accent = accent;
-        }
-    }
-
     /// <summary>
     /// 统计数字条：一张白色圆角卡片内等分若干格，格与格之间一条细分隔线，
     /// 每格「灰色小标题 + 彩色大数字」。全部自绘，不创建子控件（避免与设计器和 Dpi 缩放互相干扰）。
@@ -104,6 +89,21 @@ namespace AlphaRap
                     new Rectangle(x, UiTheme.Dpi(46), cellW - UiTheme.Dpi(16), Height - UiTheme.Dpi(52)),
                     it.Accent, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
             }
+        }
+    }
+
+    /// <summary>一张统计格的内容：标题 + 数值 + 数值颜色。</summary>
+    public sealed class StatItem
+    {
+        public string Title;
+        public string Value;
+        public Color Accent;
+
+        public StatItem(string title, string value, Color accent)
+        {
+            Title = title;
+            Value = value;
+            Accent = accent;
         }
     }
 }
