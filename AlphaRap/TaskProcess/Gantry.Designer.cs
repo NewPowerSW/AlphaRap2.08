@@ -50,12 +50,7 @@
             this.FlowAuto_Vison3_4 = new NPSDK.Flow_Chart();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.heartbeatCanvas = new AlphaRap.FlowProgramming.FlowDocumentCanvas();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.FlowAuto_MES4_5 = new NPSDK.Flow_Chart();
-            this.FlowAuto_MES4_1 = new NPSDK.Flow_Chart();
-            this.FlowAuto_MES4_2 = new NPSDK.Flow_Chart();
-            this.FlowAuto_MES4_3 = new NPSDK.Flow_Chart();
-            this.FlowAuto_MES4_4 = new NPSDK.Flow_Chart();
+            this.flowBranchEditor1 = new AlphaRap.FlowProgramming.FlowBranchEditor();
             this.InitialPage.SuspendLayout();
             this.AutoPage.SuspendLayout();
             this.FlowChartTable.SuspendLayout();
@@ -63,7 +58,6 @@
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage4.SuspendLayout();
-            this.tabPage3.SuspendLayout();
             this.SuspendLayout();
             // 
             // InitialPage
@@ -74,14 +68,12 @@
             this.InitialPage.Controls.Add(this.GantryInit_Flow1_2);
             this.InitialPage.Controls.Add(this.GantryInit_Flow1_6);
             this.InitialPage.Controls.Add(this.GantryInit_Flow1_1);
-            this.InitialPage.Location = new System.Drawing.Point(4, 36);
-            this.InitialPage.Size = new System.Drawing.Size(1231, 646);
+            this.InitialPage.Size = new System.Drawing.Size(1231, 651);
             // 
             // AutoPage
             // 
             this.AutoPage.Controls.Add(this.tabControl1);
-            this.AutoPage.Location = new System.Drawing.Point(4, 36);
-            this.AutoPage.Size = new System.Drawing.Size(1231, 646);
+            this.AutoPage.Click += new System.EventHandler(this.AutoPage_Click);
             // 
             // FlowChartTable
             // 
@@ -96,7 +88,7 @@
             this.GantryInit_Flow1_1.Casse1 = null;
             this.GantryInit_Flow1_1.Casse2 = null;
             this.GantryInit_Flow1_1.Casse3 = null;
-            this.GantryInit_Flow1_1.FlowChart_ElapsedMilliseconds = ((long)(7543));
+            this.GantryInit_Flow1_1.FlowChart_ElapsedMilliseconds = ((long)(772479));
             this.GantryInit_Flow1_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_1.Location = new System.Drawing.Point(392, 117);
             this.GantryInit_Flow1_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -116,7 +108,7 @@
             this.GantryInit_Flow1_2.Casse1 = null;
             this.GantryInit_Flow1_2.Casse2 = null;
             this.GantryInit_Flow1_2.Casse3 = null;
-            this.GantryInit_Flow1_2.FlowChart_ElapsedMilliseconds = ((long)(7540));
+            this.GantryInit_Flow1_2.FlowChart_ElapsedMilliseconds = ((long)(772476));
             this.GantryInit_Flow1_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_2.Location = new System.Drawing.Point(392, 178);
             this.GantryInit_Flow1_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -136,7 +128,7 @@
             this.GantryInit_Flow1_3.Casse1 = null;
             this.GantryInit_Flow1_3.Casse2 = null;
             this.GantryInit_Flow1_3.Casse3 = null;
-            this.GantryInit_Flow1_3.FlowChart_ElapsedMilliseconds = ((long)(7536));
+            this.GantryInit_Flow1_3.FlowChart_ElapsedMilliseconds = ((long)(772475));
             this.GantryInit_Flow1_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_3.Location = new System.Drawing.Point(392, 239);
             this.GantryInit_Flow1_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -156,7 +148,7 @@
             this.GantryInit_Flow1_4.Casse1 = null;
             this.GantryInit_Flow1_4.Casse2 = null;
             this.GantryInit_Flow1_4.Casse3 = null;
-            this.GantryInit_Flow1_4.FlowChart_ElapsedMilliseconds = ((long)(7533));
+            this.GantryInit_Flow1_4.FlowChart_ElapsedMilliseconds = ((long)(772473));
             this.GantryInit_Flow1_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_4.Location = new System.Drawing.Point(392, 300);
             this.GantryInit_Flow1_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -176,7 +168,7 @@
             this.GantryInit_Flow1_5.Casse1 = null;
             this.GantryInit_Flow1_5.Casse2 = null;
             this.GantryInit_Flow1_5.Casse3 = null;
-            this.GantryInit_Flow1_5.FlowChart_ElapsedMilliseconds = ((long)(7526));
+            this.GantryInit_Flow1_5.FlowChart_ElapsedMilliseconds = ((long)(772469));
             this.GantryInit_Flow1_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_5.Location = new System.Drawing.Point(392, 361);
             this.GantryInit_Flow1_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -196,7 +188,7 @@
             this.GantryInit_Flow1_6.Casse1 = null;
             this.GantryInit_Flow1_6.Casse2 = null;
             this.GantryInit_Flow1_6.Casse3 = null;
-            this.GantryInit_Flow1_6.FlowChart_ElapsedMilliseconds = ((long)(7526));
+            this.GantryInit_Flow1_6.FlowChart_ElapsedMilliseconds = ((long)(772469));
             this.GantryInit_Flow1_6.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_6.Location = new System.Drawing.Point(392, 422);
             this.GantryInit_Flow1_6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -212,12 +204,11 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage4);
-            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(4, 4);
+            this.tabControl1.Location = new System.Drawing.Point(3, 3);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1223, 638);
+            this.tabControl1.Size = new System.Drawing.Size(786, 409);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -227,10 +218,10 @@
             this.tabPage1.Controls.Add(this.FlowAuto_Scann2_3);
             this.tabPage1.Controls.Add(this.FlowAuto_Scann2_2);
             this.tabPage1.Controls.Add(this.FlowAuto_Scann2_1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 36);
+            this.tabPage1.Location = new System.Drawing.Point(4, 31);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(1215, 598);
+            this.tabPage1.Size = new System.Drawing.Size(778, 374);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "扫码流程";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -244,7 +235,7 @@
             this.FlowAuto_Scann2_5.Casse1 = null;
             this.FlowAuto_Scann2_5.Casse2 = null;
             this.FlowAuto_Scann2_5.Casse3 = null;
-            this.FlowAuto_Scann2_5.FlowChart_ElapsedMilliseconds = ((long)(7534));
+            this.FlowAuto_Scann2_5.FlowChart_ElapsedMilliseconds = ((long)(772468));
             this.FlowAuto_Scann2_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Scann2_5.Location = new System.Drawing.Point(493, 229);
             this.FlowAuto_Scann2_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -264,7 +255,7 @@
             this.FlowAuto_Scann2_1.Casse1 = null;
             this.FlowAuto_Scann2_1.Casse2 = null;
             this.FlowAuto_Scann2_1.Casse3 = null;
-            this.FlowAuto_Scann2_1.FlowChart_ElapsedMilliseconds = ((long)(7534));
+            this.FlowAuto_Scann2_1.FlowChart_ElapsedMilliseconds = ((long)(772468));
             this.FlowAuto_Scann2_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Scann2_1.Location = new System.Drawing.Point(205, 53);
             this.FlowAuto_Scann2_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -284,7 +275,7 @@
             this.FlowAuto_Scann2_2.Casse1 = null;
             this.FlowAuto_Scann2_2.Casse2 = null;
             this.FlowAuto_Scann2_2.Casse3 = null;
-            this.FlowAuto_Scann2_2.FlowChart_ElapsedMilliseconds = ((long)(7534));
+            this.FlowAuto_Scann2_2.FlowChart_ElapsedMilliseconds = ((long)(772531));
             this.FlowAuto_Scann2_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Scann2_2.Location = new System.Drawing.Point(205, 110);
             this.FlowAuto_Scann2_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -304,7 +295,7 @@
             this.FlowAuto_Scann2_3.Casse1 = null;
             this.FlowAuto_Scann2_3.Casse2 = null;
             this.FlowAuto_Scann2_3.Casse3 = null;
-            this.FlowAuto_Scann2_3.FlowChart_ElapsedMilliseconds = ((long)(7533));
+            this.FlowAuto_Scann2_3.FlowChart_ElapsedMilliseconds = ((long)(772531));
             this.FlowAuto_Scann2_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Scann2_3.Location = new System.Drawing.Point(205, 165);
             this.FlowAuto_Scann2_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -324,7 +315,7 @@
             this.FlowAuto_Scann2_4.Casse1 = null;
             this.FlowAuto_Scann2_4.Casse2 = null;
             this.FlowAuto_Scann2_4.Casse3 = null;
-            this.FlowAuto_Scann2_4.FlowChart_ElapsedMilliseconds = ((long)(7533));
+            this.FlowAuto_Scann2_4.FlowChart_ElapsedMilliseconds = ((long)(772530));
             this.FlowAuto_Scann2_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Scann2_4.Location = new System.Drawing.Point(205, 229);
             this.FlowAuto_Scann2_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -342,10 +333,10 @@
             this.tabPage2.Controls.Add(this.FlowAuto_Vison3_3);
             this.tabPage2.Controls.Add(this.FlowAuto_Vison3_2);
             this.tabPage2.Controls.Add(this.FlowAuto_Vison3_1);
-            this.tabPage2.Location = new System.Drawing.Point(4, 36);
+            this.tabPage2.Location = new System.Drawing.Point(4, 31);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(1215, 598);
+            this.tabPage2.Size = new System.Drawing.Size(778, 374);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "拍照流程";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -359,7 +350,7 @@
             this.FlowAuto_Vison3_5.Casse1 = null;
             this.FlowAuto_Vison3_5.Casse2 = null;
             this.FlowAuto_Vison3_5.Casse3 = null;
-            this.FlowAuto_Vison3_5.FlowChart_ElapsedMilliseconds = ((long)(7525));
+            this.FlowAuto_Vison3_5.FlowChart_ElapsedMilliseconds = ((long)(772525));
             this.FlowAuto_Vison3_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Vison3_5.Location = new System.Drawing.Point(581, 315);
             this.FlowAuto_Vison3_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -379,7 +370,7 @@
             this.FlowAuto_Vison3_1.Casse1 = null;
             this.FlowAuto_Vison3_1.Casse2 = null;
             this.FlowAuto_Vison3_1.Casse3 = null;
-            this.FlowAuto_Vison3_1.FlowChart_ElapsedMilliseconds = ((long)(7525));
+            this.FlowAuto_Vison3_1.FlowChart_ElapsedMilliseconds = ((long)(772524));
             this.FlowAuto_Vison3_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Vison3_1.Location = new System.Drawing.Point(238, 132);
             this.FlowAuto_Vison3_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -399,7 +390,7 @@
             this.FlowAuto_Vison3_2.Casse1 = null;
             this.FlowAuto_Vison3_2.Casse2 = null;
             this.FlowAuto_Vison3_2.Casse3 = null;
-            this.FlowAuto_Vison3_2.FlowChart_ElapsedMilliseconds = ((long)(7524));
+            this.FlowAuto_Vison3_2.FlowChart_ElapsedMilliseconds = ((long)(772523));
             this.FlowAuto_Vison3_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Vison3_2.Location = new System.Drawing.Point(238, 193);
             this.FlowAuto_Vison3_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -419,7 +410,7 @@
             this.FlowAuto_Vison3_3.Casse1 = null;
             this.FlowAuto_Vison3_3.Casse2 = null;
             this.FlowAuto_Vison3_3.Casse3 = null;
-            this.FlowAuto_Vison3_3.FlowChart_ElapsedMilliseconds = ((long)(7524));
+            this.FlowAuto_Vison3_3.FlowChart_ElapsedMilliseconds = ((long)(772523));
             this.FlowAuto_Vison3_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Vison3_3.Location = new System.Drawing.Point(238, 254);
             this.FlowAuto_Vison3_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -439,7 +430,7 @@
             this.FlowAuto_Vison3_4.Casse1 = null;
             this.FlowAuto_Vison3_4.Casse2 = null;
             this.FlowAuto_Vison3_4.Casse3 = null;
-            this.FlowAuto_Vison3_4.FlowChart_ElapsedMilliseconds = ((long)(7523));
+            this.FlowAuto_Vison3_4.FlowChart_ElapsedMilliseconds = ((long)(772522));
             this.FlowAuto_Vison3_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Vison3_4.Location = new System.Drawing.Point(238, 315);
             this.FlowAuto_Vison3_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -453,127 +444,36 @@
             // tabPage4
             // 
             this.tabPage4.Controls.Add(this.heartbeatCanvas);
-            this.heartbeatCanvas.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.heartbeatCanvas.Name = "heartbeatCanvas";
-            this.heartbeatCanvas.DocumentKey = "gantry.automatic.heartbeat";
-            this.heartbeatCanvas.ModuleId = "AlphaRap.TaskProcess.Gantry/Gantry";
-            this.heartbeatCanvas.LegacyParentPath = "/FlowChartTable/AutoPage/tabControl1/tabPage4";
-            this.tabPage4.Location = new System.Drawing.Point(4, 36);
+            this.tabPage4.Location = new System.Drawing.Point(4, 31);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(1215, 598);
+            this.tabPage4.Size = new System.Drawing.Size(778, 374);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "心跳";
             this.tabPage4.UseVisualStyleBackColor = true;
-            //
-            // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.FlowAuto_MES4_5);
-            this.tabPage3.Controls.Add(this.FlowAuto_MES4_4);
-            this.tabPage3.Controls.Add(this.FlowAuto_MES4_3);
-            this.tabPage3.Controls.Add(this.FlowAuto_MES4_2);
-            this.tabPage3.Controls.Add(this.FlowAuto_MES4_1);
-            this.tabPage3.Location = new System.Drawing.Point(4, 36);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(1215, 598);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "MES流程";
-            this.tabPage3.UseVisualStyleBackColor = true;
+            // heartbeatCanvas
             // 
-            // FlowAuto_MES4_5
+            this.heartbeatCanvas.AutoScroll = true;
+            this.heartbeatCanvas.BackColor = System.Drawing.SystemColors.Window;
+            this.heartbeatCanvas.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.heartbeatCanvas.DocumentKey = "gantry.automatic.heartbeat";
+            this.heartbeatCanvas.LegacyParentPath = "/FlowChartTable/AutoPage/tabControl1/tabPage4";
+            this.heartbeatCanvas.Location = new System.Drawing.Point(0, 0);
+            this.heartbeatCanvas.ModuleId = "AlphaRap.TaskProcess.Gantry/Gantry";
+            this.heartbeatCanvas.Name = "heartbeatCanvas";
+            this.heartbeatCanvas.Size = new System.Drawing.Size(778, 374);
+            this.heartbeatCanvas.TabIndex = 0;
             // 
-            this.FlowAuto_MES4_5.AlarmCode = "4004";
-            this.FlowAuto_MES4_5.AlarmStaus = false;
-            this.FlowAuto_MES4_5.AlarmTimeOut = 3000;
-            this.FlowAuto_MES4_5.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.FlowAuto_MES4_5.Casse1 = null;
-            this.FlowAuto_MES4_5.Casse2 = null;
-            this.FlowAuto_MES4_5.Casse3 = null;
-            this.FlowAuto_MES4_5.FlowChart_ElapsedMilliseconds = ((long)(7505));
-            this.FlowAuto_MES4_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FlowAuto_MES4_5.Location = new System.Drawing.Point(586, 277);
-            this.FlowAuto_MES4_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.FlowAuto_MES4_5.Name = "FlowAuto_MES4_5";
-            this.FlowAuto_MES4_5.Next = this.FlowAuto_MES4_1;
-            this.FlowAuto_MES4_5.Size = new System.Drawing.Size(183, 35);
-            this.FlowAuto_MES4_5.TabIndex = 36;
-            this.FlowAuto_MES4_5.text = "Loop4.5";
+            // flowBranchEditor1
             // 
-            // FlowAuto_MES4_1
-            // 
-            this.FlowAuto_MES4_1.AlarmCode = "4004";
-            this.FlowAuto_MES4_1.AlarmStaus = false;
-            this.FlowAuto_MES4_1.AlarmTimeOut = 3000;
-            this.FlowAuto_MES4_1.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.FlowAuto_MES4_1.Casse1 = null;
-            this.FlowAuto_MES4_1.Casse2 = null;
-            this.FlowAuto_MES4_1.Casse3 = null;
-            this.FlowAuto_MES4_1.FlowChart_ElapsedMilliseconds = ((long)(7504));
-            this.FlowAuto_MES4_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FlowAuto_MES4_1.Location = new System.Drawing.Point(243, 94);
-            this.FlowAuto_MES4_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.FlowAuto_MES4_1.Name = "FlowAuto_MES4_1";
-            this.FlowAuto_MES4_1.Next = this.FlowAuto_MES4_2;
-            this.FlowAuto_MES4_1.Size = new System.Drawing.Size(276, 35);
-            this.FlowAuto_MES4_1.TabIndex = 32;
-            this.FlowAuto_MES4_1.text = "等到MES信号4.1";
-            // 
-            // FlowAuto_MES4_2
-            // 
-            this.FlowAuto_MES4_2.AlarmCode = "4004";
-            this.FlowAuto_MES4_2.AlarmStaus = false;
-            this.FlowAuto_MES4_2.AlarmTimeOut = 3000;
-            this.FlowAuto_MES4_2.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.FlowAuto_MES4_2.Casse1 = null;
-            this.FlowAuto_MES4_2.Casse2 = null;
-            this.FlowAuto_MES4_2.Casse3 = null;
-            this.FlowAuto_MES4_2.FlowChart_ElapsedMilliseconds = ((long)(7503));
-            this.FlowAuto_MES4_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FlowAuto_MES4_2.Location = new System.Drawing.Point(243, 155);
-            this.FlowAuto_MES4_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.FlowAuto_MES4_2.Name = "FlowAuto_MES4_2";
-            this.FlowAuto_MES4_2.Next = this.FlowAuto_MES4_3;
-            this.FlowAuto_MES4_2.Size = new System.Drawing.Size(276, 35);
-            this.FlowAuto_MES4_2.TabIndex = 33;
-            this.FlowAuto_MES4_2.text = "启动MES上传4.2";
-            // 
-            // FlowAuto_MES4_3
-            // 
-            this.FlowAuto_MES4_3.AlarmCode = "4004";
-            this.FlowAuto_MES4_3.AlarmStaus = false;
-            this.FlowAuto_MES4_3.AlarmTimeOut = 3000;
-            this.FlowAuto_MES4_3.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.FlowAuto_MES4_3.Casse1 = null;
-            this.FlowAuto_MES4_3.Casse2 = null;
-            this.FlowAuto_MES4_3.Casse3 = null;
-            this.FlowAuto_MES4_3.FlowChart_ElapsedMilliseconds = ((long)(7503));
-            this.FlowAuto_MES4_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FlowAuto_MES4_3.Location = new System.Drawing.Point(243, 216);
-            this.FlowAuto_MES4_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.FlowAuto_MES4_3.Name = "FlowAuto_MES4_3";
-            this.FlowAuto_MES4_3.Next = this.FlowAuto_MES4_4;
-            this.FlowAuto_MES4_3.Size = new System.Drawing.Size(276, 35);
-            this.FlowAuto_MES4_3.TabIndex = 34;
-            this.FlowAuto_MES4_3.text = "获取上传结果4.3";
-            // 
-            // FlowAuto_MES4_4
-            // 
-            this.FlowAuto_MES4_4.AlarmCode = "4004";
-            this.FlowAuto_MES4_4.AlarmStaus = false;
-            this.FlowAuto_MES4_4.AlarmTimeOut = 3000;
-            this.FlowAuto_MES4_4.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.FlowAuto_MES4_4.Casse1 = null;
-            this.FlowAuto_MES4_4.Casse2 = null;
-            this.FlowAuto_MES4_4.Casse3 = null;
-            this.FlowAuto_MES4_4.FlowChart_ElapsedMilliseconds = ((long)(7502));
-            this.FlowAuto_MES4_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FlowAuto_MES4_4.Location = new System.Drawing.Point(243, 277);
-            this.FlowAuto_MES4_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.FlowAuto_MES4_4.Name = "FlowAuto_MES4_4";
-            this.FlowAuto_MES4_4.Next = this.FlowAuto_MES4_5;
-            this.FlowAuto_MES4_4.Size = new System.Drawing.Size(276, 35);
-            this.FlowAuto_MES4_4.TabIndex = 35;
-            this.FlowAuto_MES4_4.text = "结果传给PLC4.4";
-            this.FlowAuto_MES4_4.FlowChartRun += new NPSDK.Flow_Chart.FlowChartHandle(this.FlowAuto_MES4_4_FlowChartRun);
+            this.flowBranchEditor1.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.flowBranchEditor1.Location = new System.Drawing.Point(0, 0);
+            this.flowBranchEditor1.Margin = new System.Windows.Forms.Padding(0, 3, 0, 8);
+            this.flowBranchEditor1.MinimumSize = new System.Drawing.Size(600, 40);
+            this.flowBranchEditor1.Name = "flowBranchEditor1";
+            this.flowBranchEditor1.Padding = new System.Windows.Forms.Padding(4);
+            this.flowBranchEditor1.Size = new System.Drawing.Size(600, 43);
+            this.flowBranchEditor1.TabIndex = 36;
             // 
             // Gantry
             // 
@@ -588,7 +488,6 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
-            this.tabPage3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -613,13 +512,8 @@
 		private NPSDK.Flow_Chart FlowAuto_Vison3_2;
 		private NPSDK.Flow_Chart FlowAuto_Vison3_3;
 		private NPSDK.Flow_Chart FlowAuto_Vison3_4;
-		private System.Windows.Forms.TabPage tabPage3;
-		private NPSDK.Flow_Chart FlowAuto_MES4_5;
-		private NPSDK.Flow_Chart FlowAuto_MES4_1;
-		private NPSDK.Flow_Chart FlowAuto_MES4_2;
-		private NPSDK.Flow_Chart FlowAuto_MES4_3;
-		private NPSDK.Flow_Chart FlowAuto_MES4_4;
 		private System.Windows.Forms.TabPage tabPage4;
 		private NPSDK.Flow_Chart GantryInit_Flow1_5;
-	}
+        private FlowProgramming.FlowBranchEditor flowBranchEditor1;
+    }
 }

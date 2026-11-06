@@ -32,9 +32,11 @@
             this.picPageIcon = new System.Windows.Forms.PictureBox();
             this.tblCards = new System.Windows.Forms.TableLayoutPanel();
             this.cardUsers = new AlphaRap.CardPanel();
+            this.cardModify = new AlphaRap.CardPanel();
+            this.cardAdd = new AlphaRap.CardPanel();
+            this.cardRights = new AlphaRap.CardPanel();
             this.dgvUserList = new System.Windows.Forms.DataGridView();
             this.lblUsersCaption = new AlphaRap.UiLabel();
-            this.cardModify = new AlphaRap.CardPanel();
             this.tblModify = new System.Windows.Forms.TableLayoutPanel();
             this.lblModifyPermission = new AlphaRap.UiLabel();
             this.cbSelectedPermission = new System.Windows.Forms.ComboBox();
@@ -43,7 +45,6 @@
             this.btnModifyPermission = new AlphaRap.FlatButton();
             this.btnDeleteUser = new AlphaRap.FlatButton();
             this.lblModifyCaption = new AlphaRap.UiLabel();
-            this.cardAdd = new AlphaRap.CardPanel();
             this.tblAdd = new System.Windows.Forms.TableLayoutPanel();
             this.lblAddPermission = new AlphaRap.UiLabel();
             this.cbAddUserPermission = new System.Windows.Forms.ComboBox();
@@ -55,7 +56,6 @@
             this.textPasswordConfirm = new AlphaRap.FieldBox();
             this.btnAddUser = new AlphaRap.FlatButton();
             this.lblAddCaption = new AlphaRap.UiLabel();
-            this.cardRights = new AlphaRap.CardPanel();
             this.dgvRightsConfig = new System.Windows.Forms.DataGridView();
             this.pnlRightsBar = new System.Windows.Forms.Panel();
             this.lblRightsHint = new AlphaRap.UiLabel();
@@ -65,13 +65,9 @@
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPageIcon)).BeginInit();
             this.tblCards.SuspendLayout();
-            this.cardUsers.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUserList)).BeginInit();
-            this.cardModify.SuspendLayout();
             this.tblModify.SuspendLayout();
-            this.cardAdd.SuspendLayout();
             this.tblAdd.SuspendLayout();
-            this.cardRights.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvRightsConfig)).BeginInit();
             this.pnlRightsBar.SuspendLayout();
             this.SuspendLayout();
@@ -164,10 +160,9 @@
             // 
             // cardUsers
             // 
+            this.cardUsers.AccentColor = System.Drawing.Color.Transparent;
             this.cardUsers.BackColor = System.Drawing.Color.White;
             this.cardUsers.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
-            this.cardUsers.Controls.Add(this.dgvUserList);
-            this.cardUsers.Controls.Add(this.lblUsersCaption);
             this.cardUsers.CornerRadius = 10;
             this.cardUsers.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cardUsers.FillColor = System.Drawing.Color.White;
@@ -180,6 +175,60 @@
             this.cardUsers.ShowShadow = true;
             this.cardUsers.Size = new System.Drawing.Size(436, 360);
             this.cardUsers.TabIndex = 0;
+            // 
+            // cardModify
+            // 
+            this.cardModify.AccentColor = System.Drawing.Color.Transparent;
+            this.cardModify.BackColor = System.Drawing.Color.White;
+            this.cardModify.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
+            this.cardModify.CornerRadius = 10;
+            this.cardModify.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cardModify.FillColor = System.Drawing.Color.White;
+            this.cardModify.Location = new System.Drawing.Point(448, 0);
+            this.cardModify.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.cardModify.Name = "cardModify";
+            this.cardModify.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
+            this.cardModify.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
+            this.cardModify.ShowBorder = true;
+            this.cardModify.ShowShadow = true;
+            this.cardModify.Size = new System.Drawing.Size(410, 360);
+            this.cardModify.TabIndex = 1;
+            // 
+            // cardAdd
+            // 
+            this.cardAdd.AccentColor = System.Drawing.Color.Transparent;
+            this.cardAdd.BackColor = System.Drawing.Color.White;
+            this.cardAdd.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
+            this.cardAdd.CornerRadius = 10;
+            this.cardAdd.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cardAdd.FillColor = System.Drawing.Color.White;
+            this.cardAdd.Location = new System.Drawing.Point(870, 0);
+            this.cardAdd.Margin = new System.Windows.Forms.Padding(0);
+            this.cardAdd.Name = "cardAdd";
+            this.cardAdd.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
+            this.cardAdd.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
+            this.cardAdd.ShowBorder = true;
+            this.cardAdd.ShowShadow = true;
+            this.cardAdd.Size = new System.Drawing.Size(450, 360);
+            this.cardAdd.TabIndex = 2;
+            // 
+            // cardRights
+            // 
+            this.cardRights.AccentColor = System.Drawing.Color.Transparent;
+            this.cardRights.BackColor = System.Drawing.Color.White;
+            this.cardRights.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
+            this.cardRights.CornerRadius = 10;
+            this.cardRights.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cardRights.FillColor = System.Drawing.Color.White;
+            this.cardRights.Location = new System.Drawing.Point(20, 428);
+            this.cardRights.Margin = new System.Windows.Forms.Padding(0);
+            this.cardRights.Name = "cardRights";
+            this.cardRights.Padding = new System.Windows.Forms.Padding(14, 10, 14, 12);
+            this.cardRights.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
+            this.cardRights.ShowBorder = true;
+            this.cardRights.ShowShadow = true;
+            this.cardRights.Size = new System.Drawing.Size(1320, 334);
+            this.cardRights.TabIndex = 2;
             // 
             // dgvUserList
             // 
@@ -206,25 +255,6 @@
             this.lblUsersCaption.TabIndex = 0;
             this.lblUsersCaption.Text = "用户列表";
             this.lblUsersCaption.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // cardModify
-            // 
-            this.cardModify.BackColor = System.Drawing.Color.White;
-            this.cardModify.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
-            this.cardModify.Controls.Add(this.tblModify);
-            this.cardModify.Controls.Add(this.lblModifyCaption);
-            this.cardModify.CornerRadius = 10;
-            this.cardModify.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cardModify.FillColor = System.Drawing.Color.White;
-            this.cardModify.Location = new System.Drawing.Point(448, 0);
-            this.cardModify.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
-            this.cardModify.Name = "cardModify";
-            this.cardModify.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
-            this.cardModify.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
-            this.cardModify.ShowBorder = true;
-            this.cardModify.ShowShadow = true;
-            this.cardModify.Size = new System.Drawing.Size(410, 360);
-            this.cardModify.TabIndex = 1;
             // 
             // tblModify
             // 
@@ -364,25 +394,6 @@
             this.lblModifyCaption.TabIndex = 1;
             this.lblModifyCaption.Text = "修改用户权限";
             this.lblModifyCaption.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // cardAdd
-            // 
-            this.cardAdd.BackColor = System.Drawing.Color.White;
-            this.cardAdd.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
-            this.cardAdd.Controls.Add(this.tblAdd);
-            this.cardAdd.Controls.Add(this.lblAddCaption);
-            this.cardAdd.CornerRadius = 10;
-            this.cardAdd.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cardAdd.FillColor = System.Drawing.Color.White;
-            this.cardAdd.Location = new System.Drawing.Point(870, 0);
-            this.cardAdd.Margin = new System.Windows.Forms.Padding(0);
-            this.cardAdd.Name = "cardAdd";
-            this.cardAdd.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
-            this.cardAdd.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
-            this.cardAdd.ShowBorder = true;
-            this.cardAdd.ShowShadow = true;
-            this.cardAdd.Size = new System.Drawing.Size(450, 360);
-            this.cardAdd.TabIndex = 2;
             // 
             // tblAdd
             // 
@@ -564,26 +575,6 @@
             this.lblAddCaption.Text = "新增用户";
             this.lblAddCaption.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // cardRights
-            // 
-            this.cardRights.BackColor = System.Drawing.Color.White;
-            this.cardRights.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
-            this.cardRights.Controls.Add(this.dgvRightsConfig);
-            this.cardRights.Controls.Add(this.pnlRightsBar);
-            this.cardRights.Controls.Add(this.lblRightsCaption);
-            this.cardRights.CornerRadius = 10;
-            this.cardRights.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cardRights.FillColor = System.Drawing.Color.White;
-            this.cardRights.Location = new System.Drawing.Point(20, 428);
-            this.cardRights.Margin = new System.Windows.Forms.Padding(0);
-            this.cardRights.Name = "cardRights";
-            this.cardRights.Padding = new System.Windows.Forms.Padding(14, 10, 14, 12);
-            this.cardRights.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));
-            this.cardRights.ShowBorder = true;
-            this.cardRights.ShowShadow = true;
-            this.cardRights.Size = new System.Drawing.Size(1320, 334);
-            this.cardRights.TabIndex = 2;
-            // 
             // dgvRightsConfig
             // 
             this.dgvRightsConfig.AllowUserToAddRows = false;
@@ -616,7 +607,7 @@
             this.lblRightsHint.Font = new System.Drawing.Font("微软雅黑", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblRightsHint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(122)))), ((int)(((byte)(138)))), ((int)(((byte)(155)))));
             this.lblRightsHint.Location = new System.Drawing.Point(0, 0);
-            this.lblRightsHint.Name = "lblRightsHint_dyn";
+            this.lblRightsHint.Name = "lblRightsHint";
             this.lblRightsHint.Size = new System.Drawing.Size(1122, 50);
             this.lblRightsHint.TabIndex = 0;
             this.lblRightsHint.Text = "勾选各权限允许的功能后，使用主界面【保存】统一保存。";
@@ -673,13 +664,9 @@
             this.pnlHeader.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPageIcon)).EndInit();
             this.tblCards.ResumeLayout(false);
-            this.cardUsers.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvUserList)).EndInit();
-            this.cardModify.ResumeLayout(false);
             this.tblModify.ResumeLayout(false);
-            this.cardAdd.ResumeLayout(false);
             this.tblAdd.ResumeLayout(false);
-            this.cardRights.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvRightsConfig)).EndInit();
             this.pnlRightsBar.ResumeLayout(false);
             this.ResumeLayout(false);

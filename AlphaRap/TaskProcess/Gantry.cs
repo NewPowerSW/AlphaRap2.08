@@ -33,6 +33,7 @@ namespace AlphaRap.TaskProcess
 		}
 		public override void StopRun()
 		{
+
 			if (_productionStation != null) _productionStation.CancelRun(_visionRunId);
 			_productionStation = null;
 			_visionRunId = 0;
@@ -113,14 +114,14 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_2_FlowChartRun()
 		{
-            NPSDK.Alarm.Show("3021");
-            return NPSDK.Flow_Chart.ResultType.IDLE;
+          
+            return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_3_FlowChartRun()
 		{
 			
-			return NPSDK.Flow_Chart.ResultType.IDLE;
+			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType GantryInit_Flow1_4_FlowChartRun()
@@ -137,6 +138,7 @@ namespace AlphaRap.TaskProcess
 			if (!StationApplication.Vision.TryGetProductionVisionData(out _visionCriterion, out error)) return FailVision(error);
 			if (!plc.WritePlc("D6210", "0")) return FailVision("清除视觉完成标志失败：" + plc.WritErrorMessage);
 			if (!_productionStation.TryRunTB(out _visionRunId)) return FailVision(_productionStation.LastError);
+
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
@@ -249,5 +251,12 @@ namespace AlphaRap.TaskProcess
 		{
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
-	}
+
+        private void AutoPage_Click(object sender, System.EventArgs e)
+        {
+
+        }
+
+      
+    }
 }

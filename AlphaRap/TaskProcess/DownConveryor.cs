@@ -295,5 +295,10 @@ namespace AlphaRap.TaskProcess
 		{
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
-	}
+
+        private NPSDK.Flow_Chart.ResultType flow_Chart1_FlowChartRun()
+        {
+            return NPSDK.Flow_Chart.ResultType.NEXT;
+        }
+    }
 }

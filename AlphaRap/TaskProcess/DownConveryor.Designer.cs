@@ -72,8 +72,7 @@
             this.InitialPage.Controls.Add(this.DownConveyInit_Flow1_4);
             this.InitialPage.Controls.Add(this.DownConveyInit_Flow1_3);
             this.InitialPage.Controls.Add(this.DownConveyInit_Flow1_2);
-            this.InitialPage.Location = new System.Drawing.Point(4, 36);
-            this.InitialPage.Size = new System.Drawing.Size(1274, 691);
+            this.InitialPage.Size = new System.Drawing.Size(1274, 696);
             // 
             // AutoPage
             // 
@@ -102,8 +101,6 @@
             this.AutoPage.Controls.Add(this.DownConveyorAuto_Flow1_2);
             this.AutoPage.Controls.Add(this.DownConveyorAuto_Flow1_5);
             this.AutoPage.Controls.Add(this.DownConveyorAuto_Flow1_1);
-            this.AutoPage.Location = new System.Drawing.Point(4, 36);
-            this.AutoPage.Size = new System.Drawing.Size(1274, 691);
             // 
             // FlowChartTable
             // 
@@ -118,7 +115,7 @@
             this.DownConveyInit_Flow1_3.Casse1 = null;
             this.DownConveyInit_Flow1_3.Casse2 = null;
             this.DownConveyInit_Flow1_3.Casse3 = null;
-            this.DownConveyInit_Flow1_3.FlowChart_ElapsedMilliseconds = ((long)(365962));
+            this.DownConveyInit_Flow1_3.FlowChart_ElapsedMilliseconds = ((long)(4269));
             this.DownConveyInit_Flow1_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyInit_Flow1_3.Location = new System.Drawing.Point(406, 276);
             this.DownConveyInit_Flow1_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -138,7 +135,7 @@
             this.DownConveyInit_Flow1_4.Casse1 = null;
             this.DownConveyInit_Flow1_4.Casse2 = null;
             this.DownConveyInit_Flow1_4.Casse3 = null;
-            this.DownConveyInit_Flow1_4.FlowChart_ElapsedMilliseconds = ((long)(365960));
+            this.DownConveyInit_Flow1_4.FlowChart_ElapsedMilliseconds = ((long)(4268));
             this.DownConveyInit_Flow1_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyInit_Flow1_4.Location = new System.Drawing.Point(406, 339);
             this.DownConveyInit_Flow1_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -158,7 +155,7 @@
             this.DownConveyInit_Flow1_5.Casse1 = null;
             this.DownConveyInit_Flow1_5.Casse2 = null;
             this.DownConveyInit_Flow1_5.Casse3 = null;
-            this.DownConveyInit_Flow1_5.FlowChart_ElapsedMilliseconds = ((long)(365959));
+            this.DownConveyInit_Flow1_5.FlowChart_ElapsedMilliseconds = ((long)(4268));
             this.DownConveyInit_Flow1_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyInit_Flow1_5.Location = new System.Drawing.Point(406, 402);
             this.DownConveyInit_Flow1_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -178,7 +175,7 @@
             this.DownConveyInit_Flow1_6.Casse1 = null;
             this.DownConveyInit_Flow1_6.Casse2 = null;
             this.DownConveyInit_Flow1_6.Casse3 = null;
-            this.DownConveyInit_Flow1_6.FlowChart_ElapsedMilliseconds = ((long)(365958));
+            this.DownConveyInit_Flow1_6.FlowChart_ElapsedMilliseconds = ((long)(4267));
             this.DownConveyInit_Flow1_6.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyInit_Flow1_6.Location = new System.Drawing.Point(406, 465);
             this.DownConveyInit_Flow1_6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -198,7 +195,7 @@
             this.DownConveyInit_Flow1_2.Casse1 = null;
             this.DownConveyInit_Flow1_2.Casse2 = null;
             this.DownConveyInit_Flow1_2.Casse3 = null;
-            this.DownConveyInit_Flow1_2.FlowChart_ElapsedMilliseconds = ((long)(365949));
+            this.DownConveyInit_Flow1_2.FlowChart_ElapsedMilliseconds = ((long)(4263));
             this.DownConveyInit_Flow1_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyInit_Flow1_2.Location = new System.Drawing.Point(406, 213);
             this.DownConveyInit_Flow1_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -218,7 +215,7 @@
             this.DownConveyInit_Flow1_1.Casse1 = null;
             this.DownConveyInit_Flow1_1.Casse2 = null;
             this.DownConveyInit_Flow1_1.Casse3 = null;
-            this.DownConveyInit_Flow1_1.FlowChart_ElapsedMilliseconds = ((long)(365944));
+            this.DownConveyInit_Flow1_1.FlowChart_ElapsedMilliseconds = ((long)(4260));
             this.DownConveyInit_Flow1_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyInit_Flow1_1.Location = new System.Drawing.Point(406, 150);
             this.DownConveyInit_Flow1_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -238,7 +235,7 @@
             this.DownConveyorAuto_Flow3_0.Casse1 = null;
             this.DownConveyorAuto_Flow3_0.Casse2 = null;
             this.DownConveyorAuto_Flow3_0.Casse3 = null;
-            this.DownConveyorAuto_Flow3_0.FlowChart_ElapsedMilliseconds = ((long)(365949));
+            this.DownConveyorAuto_Flow3_0.FlowChart_ElapsedMilliseconds = ((long)(4260));
             this.DownConveyorAuto_Flow3_0.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow3_0.Location = new System.Drawing.Point(592, 321);
             this.DownConveyorAuto_Flow3_0.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -258,7 +255,7 @@
             this.DownConveyorAuto_Flow3_1.Casse1 = null;
             this.DownConveyorAuto_Flow3_1.Casse2 = null;
             this.DownConveyorAuto_Flow3_1.Casse3 = null;
-            this.DownConveyorAuto_Flow3_1.FlowChart_ElapsedMilliseconds = ((long)(365948));
+            this.DownConveyorAuto_Flow3_1.FlowChart_ElapsedMilliseconds = ((long)(4259));
             this.DownConveyorAuto_Flow3_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow3_1.Location = new System.Drawing.Point(592, 370);
             this.DownConveyorAuto_Flow3_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -278,7 +275,7 @@
             this.DownConveyorAuto_Flow3_2.Casse1 = null;
             this.DownConveyorAuto_Flow3_2.Casse2 = null;
             this.DownConveyorAuto_Flow3_2.Casse3 = null;
-            this.DownConveyorAuto_Flow3_2.FlowChart_ElapsedMilliseconds = ((long)(365948));
+            this.DownConveyorAuto_Flow3_2.FlowChart_ElapsedMilliseconds = ((long)(4258));
             this.DownConveyorAuto_Flow3_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow3_2.Location = new System.Drawing.Point(592, 419);
             this.DownConveyorAuto_Flow3_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -298,7 +295,7 @@
             this.DownConveyorAuto_Flow3_3.Casse1 = null;
             this.DownConveyorAuto_Flow3_3.Casse2 = null;
             this.DownConveyorAuto_Flow3_3.Casse3 = null;
-            this.DownConveyorAuto_Flow3_3.FlowChart_ElapsedMilliseconds = ((long)(365947));
+            this.DownConveyorAuto_Flow3_3.FlowChart_ElapsedMilliseconds = ((long)(4258));
             this.DownConveyorAuto_Flow3_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow3_3.Location = new System.Drawing.Point(592, 468);
             this.DownConveyorAuto_Flow3_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -318,7 +315,7 @@
             this.DownConveyorAuto_Flow3_4.Casse1 = null;
             this.DownConveyorAuto_Flow3_4.Casse2 = null;
             this.DownConveyorAuto_Flow3_4.Casse3 = null;
-            this.DownConveyorAuto_Flow3_4.FlowChart_ElapsedMilliseconds = ((long)(365947));
+            this.DownConveyorAuto_Flow3_4.FlowChart_ElapsedMilliseconds = ((long)(4257));
             this.DownConveyorAuto_Flow3_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow3_4.Location = new System.Drawing.Point(940, 468);
             this.DownConveyorAuto_Flow3_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -338,7 +335,7 @@
             this.DownConveyorAuto_Flow3_5.Casse1 = null;
             this.DownConveyorAuto_Flow3_5.Casse2 = null;
             this.DownConveyorAuto_Flow3_5.Casse3 = null;
-            this.DownConveyorAuto_Flow3_5.FlowChart_ElapsedMilliseconds = ((long)(365947));
+            this.DownConveyorAuto_Flow3_5.FlowChart_ElapsedMilliseconds = ((long)(4256));
             this.DownConveyorAuto_Flow3_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow3_5.Location = new System.Drawing.Point(940, 29);
             this.DownConveyorAuto_Flow3_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -358,7 +355,7 @@
             this.DownConveyorAuto_Flow1_1.Casse1 = null;
             this.DownConveyorAuto_Flow1_1.Casse2 = null;
             this.DownConveyorAuto_Flow1_1.Casse3 = null;
-            this.DownConveyorAuto_Flow1_1.FlowChart_ElapsedMilliseconds = ((long)(365946));
+            this.DownConveyorAuto_Flow1_1.FlowChart_ElapsedMilliseconds = ((long)(4256));
             this.DownConveyorAuto_Flow1_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow1_1.Location = new System.Drawing.Point(136, 29);
             this.DownConveyorAuto_Flow1_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -378,7 +375,7 @@
             this.DownConveyorAuto_Flow1_2.Casse1 = this.DownConveyorAuto_Flow1_3;
             this.DownConveyorAuto_Flow1_2.Casse2 = null;
             this.DownConveyorAuto_Flow1_2.Casse3 = null;
-            this.DownConveyorAuto_Flow1_2.FlowChart_ElapsedMilliseconds = ((long)(365941));
+            this.DownConveyorAuto_Flow1_2.FlowChart_ElapsedMilliseconds = ((long)(4291));
             this.DownConveyorAuto_Flow1_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow1_2.Location = new System.Drawing.Point(136, 77);
             this.DownConveyorAuto_Flow1_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -398,7 +395,7 @@
             this.DownConveyorAuto_Flow1_3.Casse1 = null;
             this.DownConveyorAuto_Flow1_3.Casse2 = null;
             this.DownConveyorAuto_Flow1_3.Casse3 = null;
-            this.DownConveyorAuto_Flow1_3.FlowChart_ElapsedMilliseconds = ((long)(365945));
+            this.DownConveyorAuto_Flow1_3.FlowChart_ElapsedMilliseconds = ((long)(4255));
             this.DownConveyorAuto_Flow1_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow1_3.Location = new System.Drawing.Point(443, 76);
             this.DownConveyorAuto_Flow1_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -418,7 +415,7 @@
             this.DownConveyorAuto_Flow2_5.Casse1 = null;
             this.DownConveyorAuto_Flow2_5.Casse2 = null;
             this.DownConveyorAuto_Flow2_5.Casse3 = null;
-            this.DownConveyorAuto_Flow2_5.FlowChart_ElapsedMilliseconds = ((long)(365944));
+            this.DownConveyorAuto_Flow2_5.FlowChart_ElapsedMilliseconds = ((long)(4254));
             this.DownConveyorAuto_Flow2_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow2_5.Location = new System.Drawing.Point(592, 76);
             this.DownConveyorAuto_Flow2_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -438,7 +435,7 @@
             this.DownConveyorAuto_Flow2_6.Casse1 = null;
             this.DownConveyorAuto_Flow2_6.Casse2 = null;
             this.DownConveyorAuto_Flow2_6.Casse3 = null;
-            this.DownConveyorAuto_Flow2_6.FlowChart_ElapsedMilliseconds = ((long)(365943));
+            this.DownConveyorAuto_Flow2_6.FlowChart_ElapsedMilliseconds = ((long)(4294));
             this.DownConveyorAuto_Flow2_6.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow2_6.Location = new System.Drawing.Point(592, 125);
             this.DownConveyorAuto_Flow2_6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -458,7 +455,7 @@
             this.DownConveyorAuto_Flow2_7.Casse1 = null;
             this.DownConveyorAuto_Flow2_7.Casse2 = null;
             this.DownConveyorAuto_Flow2_7.Casse3 = null;
-            this.DownConveyorAuto_Flow2_7.FlowChart_ElapsedMilliseconds = ((long)(365942));
+            this.DownConveyorAuto_Flow2_7.FlowChart_ElapsedMilliseconds = ((long)(4293));
             this.DownConveyorAuto_Flow2_7.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow2_7.Location = new System.Drawing.Point(592, 174);
             this.DownConveyorAuto_Flow2_7.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -478,7 +475,7 @@
             this.DownConveyorAuto_Flow2_8.Casse1 = null;
             this.DownConveyorAuto_Flow2_8.Casse2 = null;
             this.DownConveyorAuto_Flow2_8.Casse3 = null;
-            this.DownConveyorAuto_Flow2_8.FlowChart_ElapsedMilliseconds = ((long)(365942));
+            this.DownConveyorAuto_Flow2_8.FlowChart_ElapsedMilliseconds = ((long)(4293));
             this.DownConveyorAuto_Flow2_8.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow2_8.Location = new System.Drawing.Point(592, 223);
             this.DownConveyorAuto_Flow2_8.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -498,7 +495,7 @@
             this.DownConveyorAuto_Flow2_9.Casse1 = null;
             this.DownConveyorAuto_Flow2_9.Casse2 = null;
             this.DownConveyorAuto_Flow2_9.Casse3 = null;
-            this.DownConveyorAuto_Flow2_9.FlowChart_ElapsedMilliseconds = ((long)(365942));
+            this.DownConveyorAuto_Flow2_9.FlowChart_ElapsedMilliseconds = ((long)(4292));
             this.DownConveyorAuto_Flow2_9.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow2_9.Location = new System.Drawing.Point(592, 272);
             this.DownConveyorAuto_Flow2_9.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -518,7 +515,7 @@
             this.DownConveyorAuto_Flow1_4.Casse1 = null;
             this.DownConveyorAuto_Flow1_4.Casse2 = null;
             this.DownConveyorAuto_Flow1_4.Casse3 = null;
-            this.DownConveyorAuto_Flow1_4.FlowChart_ElapsedMilliseconds = ((long)(365941));
+            this.DownConveyorAuto_Flow1_4.FlowChart_ElapsedMilliseconds = ((long)(4290));
             this.DownConveyorAuto_Flow1_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow1_4.Location = new System.Drawing.Point(136, 125);
             this.DownConveyorAuto_Flow1_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -538,7 +535,7 @@
             this.DownConveyorAuto_Flow1_5.Casse1 = null;
             this.DownConveyorAuto_Flow1_5.Casse2 = null;
             this.DownConveyorAuto_Flow1_5.Casse3 = null;
-            this.DownConveyorAuto_Flow1_5.FlowChart_ElapsedMilliseconds = ((long)(365940));
+            this.DownConveyorAuto_Flow1_5.FlowChart_ElapsedMilliseconds = ((long)(4289));
             this.DownConveyorAuto_Flow1_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow1_5.Location = new System.Drawing.Point(136, 173);
             this.DownConveyorAuto_Flow1_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -558,7 +555,7 @@
             this.DownConveyorAuto_Flow1_6.Casse1 = null;
             this.DownConveyorAuto_Flow1_6.Casse2 = null;
             this.DownConveyorAuto_Flow1_6.Casse3 = null;
-            this.DownConveyorAuto_Flow1_6.FlowChart_ElapsedMilliseconds = ((long)(365940));
+            this.DownConveyorAuto_Flow1_6.FlowChart_ElapsedMilliseconds = ((long)(4289));
             this.DownConveyorAuto_Flow1_6.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow1_6.Location = new System.Drawing.Point(136, 221);
             this.DownConveyorAuto_Flow1_6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -578,7 +575,7 @@
             this.DownConveyorAuto_Flow1_7.Casse1 = null;
             this.DownConveyorAuto_Flow1_7.Casse2 = null;
             this.DownConveyorAuto_Flow1_7.Casse3 = null;
-            this.DownConveyorAuto_Flow1_7.FlowChart_ElapsedMilliseconds = ((long)(365939));
+            this.DownConveyorAuto_Flow1_7.FlowChart_ElapsedMilliseconds = ((long)(4288));
             this.DownConveyorAuto_Flow1_7.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow1_7.Location = new System.Drawing.Point(136, 269);
             this.DownConveyorAuto_Flow1_7.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -598,7 +595,7 @@
             this.DownConveyorAuto_Flow1_8.Casse1 = null;
             this.DownConveyorAuto_Flow1_8.Casse2 = null;
             this.DownConveyorAuto_Flow1_8.Casse3 = null;
-            this.DownConveyorAuto_Flow1_8.FlowChart_ElapsedMilliseconds = ((long)(365939));
+            this.DownConveyorAuto_Flow1_8.FlowChart_ElapsedMilliseconds = ((long)(4287));
             this.DownConveyorAuto_Flow1_8.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow1_8.Location = new System.Drawing.Point(136, 317);
             this.DownConveyorAuto_Flow1_8.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -618,7 +615,7 @@
             this.DownConveyorAuto_Flow1_9.Casse1 = null;
             this.DownConveyorAuto_Flow1_9.Casse2 = null;
             this.DownConveyorAuto_Flow1_9.Casse3 = null;
-            this.DownConveyorAuto_Flow1_9.FlowChart_ElapsedMilliseconds = ((long)(365939));
+            this.DownConveyorAuto_Flow1_9.FlowChart_ElapsedMilliseconds = ((long)(4287));
             this.DownConveyorAuto_Flow1_9.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow1_9.Location = new System.Drawing.Point(136, 365);
             this.DownConveyorAuto_Flow1_9.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -638,7 +635,7 @@
             this.DownConveyorAuto_Flow2_0.Casse1 = null;
             this.DownConveyorAuto_Flow2_0.Casse2 = null;
             this.DownConveyorAuto_Flow2_0.Casse3 = null;
-            this.DownConveyorAuto_Flow2_0.FlowChart_ElapsedMilliseconds = ((long)(365938));
+            this.DownConveyorAuto_Flow2_0.FlowChart_ElapsedMilliseconds = ((long)(4286));
             this.DownConveyorAuto_Flow2_0.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow2_0.Location = new System.Drawing.Point(136, 413);
             this.DownConveyorAuto_Flow2_0.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -658,7 +655,7 @@
             this.DownConveyorAuto_Flow2_1.Casse1 = null;
             this.DownConveyorAuto_Flow2_1.Casse2 = null;
             this.DownConveyorAuto_Flow2_1.Casse3 = null;
-            this.DownConveyorAuto_Flow2_1.FlowChart_ElapsedMilliseconds = ((long)(365938));
+            this.DownConveyorAuto_Flow2_1.FlowChart_ElapsedMilliseconds = ((long)(4286));
             this.DownConveyorAuto_Flow2_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow2_1.Location = new System.Drawing.Point(136, 461);
             this.DownConveyorAuto_Flow2_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -678,7 +675,7 @@
             this.DownConveyorAuto_Flow2_2.Casse1 = null;
             this.DownConveyorAuto_Flow2_2.Casse2 = null;
             this.DownConveyorAuto_Flow2_2.Casse3 = null;
-            this.DownConveyorAuto_Flow2_2.FlowChart_ElapsedMilliseconds = ((long)(365938));
+            this.DownConveyorAuto_Flow2_2.FlowChart_ElapsedMilliseconds = ((long)(4285));
             this.DownConveyorAuto_Flow2_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow2_2.Location = new System.Drawing.Point(136, 509);
             this.DownConveyorAuto_Flow2_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -698,7 +695,7 @@
             this.DownConveyorAuto_Flow2_3.Casse1 = null;
             this.DownConveyorAuto_Flow2_3.Casse2 = null;
             this.DownConveyorAuto_Flow2_3.Casse3 = null;
-            this.DownConveyorAuto_Flow2_3.FlowChart_ElapsedMilliseconds = ((long)(365937));
+            this.DownConveyorAuto_Flow2_3.FlowChart_ElapsedMilliseconds = ((long)(4284));
             this.DownConveyorAuto_Flow2_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow2_3.Location = new System.Drawing.Point(136, 557);
             this.DownConveyorAuto_Flow2_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -718,7 +715,7 @@
             this.DownConveyorAuto_Flow2_4.Casse1 = null;
             this.DownConveyorAuto_Flow2_4.Casse2 = null;
             this.DownConveyorAuto_Flow2_4.Casse3 = null;
-            this.DownConveyorAuto_Flow2_4.FlowChart_ElapsedMilliseconds = ((long)(365936));
+            this.DownConveyorAuto_Flow2_4.FlowChart_ElapsedMilliseconds = ((long)(4283));
             this.DownConveyorAuto_Flow2_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DownConveyorAuto_Flow2_4.Location = new System.Drawing.Point(136, 605);
             this.DownConveyorAuto_Flow2_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -775,5 +772,5 @@
 		private NPSDK.Flow_Chart DownConveyorAuto_Flow2_2;
 		private NPSDK.Flow_Chart DownConveyorAuto_Flow2_3;
 		private NPSDK.Flow_Chart DownConveyorAuto_Flow2_4;
-	}
+    }
 }

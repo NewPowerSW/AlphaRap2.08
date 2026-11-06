@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<Manifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Version>1</Version>
+  <Generator>AlphaRap.FlowSourceGenerator</Generator>
+  <Files>
+    <OwnedFile>
+      <ModuleId>AlphaRap.TaskProcess.DownConveryor/DownConveryor</ModuleId>
+      <FileName>DownConveryor.7eafcd341e111ac5.Flow.g.cs</FileName>
+      <Sha256>577af5b21530a4b6a486356e59bf2d9900b8a5ba99ab7e56edc55a827938a280</Sha256>
+    </OwnedFile>
+    <OwnedFile>
+      <ModuleId>AlphaRap.TaskProcess.Gantry/Gantry</ModuleId>
+      <FileName>Gantry.25a0f67215347d06.Flow.g.cs</FileName>
+      <Sha256>9253e8e2f4b7ac1659a898786a98b044e05f4c90c59b00a74c8858d7e3f8558b</Sha256>
+    </OwnedFile>
+    <OwnedFile>
+      <ModuleId>AlphaRap.TaskProcess.UpConveryor/UpConveryor</ModuleId>
+      <FileName>UpConveryor.4b03976aac9c06b9.Flow.g.cs</FileName>
+      <Sha256>81b4d374f117f2835cc14c17baa8072484a9d817f3a57ddfe3c7307817407ee3</Sha256>
+    </OwnedFile>
+  </Files>
+</Manifest>
