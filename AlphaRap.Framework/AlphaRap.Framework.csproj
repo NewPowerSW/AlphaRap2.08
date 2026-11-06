@@ -396,10 +396,6 @@
     <Reference Include="HslCommunication">
       <HintPath>..\SDK\lib\HslCommunication.dll</HintPath>
     </Reference>
-    <Reference Include="NPSDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SDK\lib\NPSDK.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="SunnyUI, Version=3.2.0.0, Culture=neutral, PublicKeyToken=27d7d2e821d97aeb, processorArchitecture=MSIL">
@@ -965,6 +961,12 @@
     <Content Include="Resources\timg.png" />
   </ItemGroup>
   <Import Project="FrameworkVersion.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\SDK\NPSDK\NPSDK.csproj">
+      <Name>NPSDK</Name>
+      <Project>{8B53AD67-F092-4865-B25F-E738D32BE354}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateFrameworkAssemblyInfo" BeforeTargets="CoreCompile">
     <ItemGroup>

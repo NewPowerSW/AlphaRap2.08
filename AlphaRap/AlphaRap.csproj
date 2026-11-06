@@ -481,10 +481,6 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Condition="'$(UsePackagedFramework)' != 'true'" Include="NPSDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SDK\lib\NPSDK.dll</HintPath>
-    </Reference>
     <Reference Include="NP_PressureSensor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\x64\Debug\NP_PressureSensor.dll</HintPath>
@@ -992,6 +988,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Condition="'$(UsePackagedFramework)' != 'true'" Include="..\SDK\NPSDK\NPSDK.csproj">
+      <Name>NPSDK</Name>
+      <Project>{8B53AD67-F092-4865-B25F-E738D32BE354}</Project>
+    </ProjectReference>
     <ProjectReference Condition="'$(UsePackagedFramework)' != 'true'" Include="..\AlphaRap.Framework\AlphaRap.Framework.csproj">
       <Name>AlphaRap.Framework</Name>
       <Project>{3390AAC4-C0A3-43CC-B784-179F1844189D}</Project>
@@ -999,7 +999,7 @@
   </ItemGroup>
   <PropertyGroup Condition="'$(UsePackagedFramework)' == 'true'">
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <AlphaRapFrameworkPackageVersion>6.0.0</AlphaRapFrameworkPackageVersion>
+    <AlphaRapFrameworkPackageVersion>6.0.1</AlphaRapFrameworkPackageVersion>
     <RestoreSources Condition="'$(RestoreSources)' == ''">$(MSBuildThisFileDirectory)..\artifacts\framework</RestoreSources>
   </PropertyGroup>
   <ItemGroup Condition="'$(UsePackagedFramework)' == 'true'">

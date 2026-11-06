@@ -1,0 +1,21 @@
+using System.Runtime.InteropServices;
+
+namespace APS168_W32
+{
+	public struct PTHCE
+	{
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+		public byte[] Index;
+
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+		public double[] Center;
+
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+		public double[] Normal;
+
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+		public double[] End;
+
+		public short Dir;
+	}
+}

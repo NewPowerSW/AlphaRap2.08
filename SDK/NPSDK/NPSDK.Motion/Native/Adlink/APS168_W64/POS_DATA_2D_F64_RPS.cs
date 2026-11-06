@@ -1,0 +1,15 @@
+namespace APS168_W64
+{
+	public struct POS_DATA_2D_F64_RPS
+	{
+		public uint u32_opt;
+
+		public double f64_x;
+
+		public double f64_y;
+
+		public double f64_theta;
+
+		public uint crpi;
+	}
+}

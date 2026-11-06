@@ -1,6 +1,8 @@
 ﻿# 核心程序集引用
 
-AlphaRap 与 AlphaRap.Framework 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心包含 Flow_Chart、Flow_BaseForm、流程运行器、报警、运动控制和 IO。主程序通过 AlphaRap.Framework 使用模块基类和模块注册。
+从 AlphaRap.Framework 6.0.1 起，打开 `AlphaRap.sln` 可以一起维护 `SDK/NPSDK/NPSDK.csproj`、框架和应用。源码构建通过项目引用编译 NPSDK。框架包包含本次编译产出的 `NPSDK.dll`，仅引用框架包的应用从包中取得该程序集。
+
+随解决方案纳入的 NPSDK 源码基于 `9e97db56b394acba4b2799228edd9d203e771f54`。项目引用共用 `SDK/lib/HslCommunication.dll`。核心包含 Flow_Chart、Flow_BaseForm、流程运行器、报警、运动控制和 IO。主程序通过 AlphaRap.Framework 使用模块基类和模块注册。
 
 ## 当前发布来源
 

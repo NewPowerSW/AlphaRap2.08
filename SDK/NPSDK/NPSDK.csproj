@@ -1,0 +1,389 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8B53AD67-F092-4865-B25F-E738D32BE354}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>NPSDK</RootNamespace>
+    <AssemblyName>NPSDK</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+    <LangVersion>10.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+    <NPAdlink Condition="'$(NPAdlink)' == ''">true</NPAdlink>
+    <NPLeadshine Condition="'$(NPLeadshine)' == ''">true</NPLeadshine>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants Condition="'$(NPAdlink)' != 'false'">$(DefineConstants);NP_VENDOR_ADLINK</DefineConstants>
+    <DefineConstants Condition="'$(NPLeadshine)' != 'false'">$(DefineConstants);NP_VENDOR_LEADSHINE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="HslCommunication">
+      <HintPath>..\lib\HslCommunication.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FlowChart\FlowObject.cs" />
+    <Compile Include="FlowChart\FlowCodeCatalog.cs" />
+    <Compile Include="FlowChart\FlowCodeNode.cs" />
+    <Compile Include="FlowChart\FlowCodeContext.cs" />
+    <Compile Include="FlowChart\FlowCodeResources.cs" />
+    <Compile Include="FlowChart\FlowResourceBinding.cs" />
+    <Compile Include="Alarm.cs" />
+    <Compile Include="FlowChart\FlowProgramIntegration.cs" />
+    <Compile Include="FlowChart\FlowProgramModel.cs" />
+    <Compile Include="FlowChart\FlowProgramRuntime.cs" />
+    <Compile Include="FlowChart\FlowProgramGroup.cs" />
+    <Compile Include="FlowChart\FlowResourceGate.cs" />
+    <Compile Include="DataSave\Data.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DataSave\Data.Designer.cs">
+      <DependentUpon>Data.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataSave\DataManager\CCSVObj.cs" />
+    <Compile Include="DataSave\DataManager\FileDataControl.cs" />
+    <Compile Include="DataSave\DataManager\TextLogWrite.cs" />
+    <Compile Include="DataSave\TypeCollection1.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DataSave\TypeCollection1.Records.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>TypeCollection1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataSave\TypeCollection1.Designer.cs">
+      <DependentUpon>TypeCollection1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FlowChart\FlowBaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FlowChart\FlowBaseForm.Designer.cs">
+      <DependentUpon>FlowBaseForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FlowChart\FlowChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FlowChart\FlowChart.Designer.cs">
+      <DependentUpon>FlowChart.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FlowChart\Flow_Module.cs" />
+    <Compile Include="FlowChart\FundStatusConverter.cs" />
+    <Compile Include="Form\MotorControlForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\MotorControlForm.designer.cs">
+      <DependentUpon>MotorControlForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GetTickCountEx.cs" />
+    <Compile Include="JTimer.cs" />
+    <Compile Include="FlowChart\LocalLogSave.cs" />
+    <Compile Include="NPSDK.Motion\Common\NPVendor.cs" />
+    <Compile Include="NPSDK.Motion\Common\MotionVendorConverter.cs" />
+    <Compile Include="NPSDK.Motion\Common\NPHub.cs" />
+    <Compile Include="NPSDK.Motion\Common\MotionSDK.cs" />
+    <Compile Include="NPSDK.Motion\Forms\MotorParaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\Base\NPControlBase.cs" />
+    <Compile Include="NPSDK.Motion\Controls\NpIoPropertyConverter.cs" />
+    <Compile Include="NPSDK.Motion\Controls\NP_Input.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_Output.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_Motor.Manual.cs"><DependentUpon>NP_Motor.cs</DependentUpon></Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_Motor.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_MotorJog.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_JogOption.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_Home.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\PositionColumn.cs" />
+    <Compile Include="NPSDK.Motion\Controls\NP_AxisGroup.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_AxisGroup.Designer.cs"><DependentUpon>NP_AxisGroup.cs</DependentUpon></Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_IoGroup.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_IoGroup.Designer.cs"><DependentUpon>NP_IoGroup.cs</DependentUpon></Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_GroupText.cs"></Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_PositionTable.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_PositionTable.Designer.cs">
+      <DependentUpon>NP_PositionTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_PositionShow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_MotionIOStatus.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_ManualControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Controls\NP_Cylinder.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Condition="'$(NPLeadshine)' != 'false'" Include="NPSDK.Motion\Vendors\Leadshine\LeadshineNP_Input.cs" />
+    <Compile Condition="'$(NPLeadshine)' != 'false'" Include="NPSDK.Motion\Vendors\Leadshine\LeadshineNP_Output.cs" />
+    <Compile Condition="'$(NPLeadshine)' != 'false'" Include="NPSDK.Motion\Vendors\Leadshine\LeadshineNP_Motor.cs" />
+    <Compile Include="NPSDK.Motion\Vendors\Adlink\AdlinkNP_Input.cs" />
+    <Compile Include="NPSDK.Motion\Vendors\Adlink\AdlinkNP_Motor.cs" />
+    <Compile Include="NPSDK.Motion\Vendors\Adlink\AdlinkNP_Output.cs" />
+    <Compile Include="NPSDK.Motion\Vendors\Keyence\KeyenceHostLink.cs" />
+    <Compile Include="NPSDK.Motion\Vendors\Keyence\KeyenceNP_Input.cs" />
+    <Compile Include="NPSDK.Motion\Vendors\Keyence\KeyenceNP_Output.cs" />
+    <Compile Include="NPSDK.Motion\Vendors\Omron\AbstractDevice.cs" />
+    <Compile Include="NPSDK.Motion\Vendors\Omron\OmronPLC.cs" />
+    <Compile Include="NPSDK.Motion\Vendors\Omron\OmronNP_Input.cs" />
+    <Compile Include="NPSDK.Motion\Vendors\Omron\OmronNP_Output.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\APS168.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\ASYNCALL.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\DEBUG_DATA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\DEBUG_STATE.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\DI_DATA_EX.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\DO_DATA_EX.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\EC_MODULE_INFO.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\EC_Sub_MODULE_INFO.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\EC_Sub_MODULE_OD_INFO.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\HOME_PARA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\JOG_DATA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\LATCH_POINT.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\LPSTS.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\MCMP_POINT.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\MOVE_PARA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\OD_DESC_ENTRY.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PDO_OFFSET.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PNT_DATA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PNT_DATA_2D.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PNT_DATA_2D_EXT.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PNT_DATA_2D_F64.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PNT_DATA_4DL.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\POINT_DATA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\POINT_DATA2.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\POINT_DATA3.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\POINT_DATA_EX.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\POS_DATA_2D.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\POS_DATA_2D_F64.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\POS_DATA_2D_F64_RPS.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\POS_DATA_2D_RPS.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PTA2CA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PTA2CE.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PTA3CA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PTA3CE.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PTDWL.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PTHCA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PTHCE.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PTINFO.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PTLINE.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\PTSTS.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\SAMP_PARAM.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\Speed_profile.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\STR_SAMP_DATA_4CH.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\STR_SAMP_DATA_8CH.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\TSK_INFO.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W32\VAO_DATA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\APS168.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\ASYNCALL.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\DEBUG_DATA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\DEBUG_STATE.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\DI_DATA_EX.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\DO_DATA_EX.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\EC_MODULE_INFO.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\EC_Sub_MODULE_INFO.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\EC_Sub_MODULE_OD_INFO.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\HOME_PARA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\JOG_DATA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\LATCH_POINT.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\LPSTS.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\MCMP_POINT.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\MOVE_PARA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\OD_DESC_ENTRY.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PDO_OFFSET.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PNT_DATA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PNT_DATA_2D.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PNT_DATA_2D_EXT.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PNT_DATA_2D_F64.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PNT_DATA_4DL.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\POINT_DATA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\POINT_DATA2.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\POINT_DATA3.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\POINT_DATA_EX.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\POS_DATA_2D.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\POS_DATA_2D_F64.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\POS_DATA_2D_F64_RPS.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\POS_DATA_2D_RPS.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PTA2CA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PTA2CE.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PTA3CA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PTA3CE.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PTDWL.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PTHCA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PTHCE.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PTINFO.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PTLINE.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\PTSTS.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\SAMP_PARAM.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\Speed_profile.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\STR_SAMP_DATA_4CH.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\STR_SAMP_DATA_8CH.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\TSK_INFO.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS168_W64\VAO_DATA.cs" />
+    <Compile Condition="'$(NPAdlink)' != 'false'" Include="NPSDK.Motion\Native\Adlink\APS_Define_W32\APS_Define.cs" />
+    <Compile Include="NPSDK.Motion\Interface\AxisIOState.cs" />
+    <Compile Include="NPSDK.Motion\Interface\ControlBaseInterface.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NPSDK.Motion\Interface\DESEncryption.cs" />
+    <Compile Include="NPSDK.Motion\Interface\IOBaseInterface.cs" />
+    <Compile Include="NPSDK.Motion\Interface\IOCardType.cs" />
+    <Compile Include="NPSDK.Motion\Interface\MotionCardType.cs" />
+    <Compile Include="NPSDK.Motion\Interface\MotionState.cs" />
+    <Compile Include="NPSDK.Motion\Interface\MotorBaseInterface.cs" />
+    <Compile Include="NPSDK.Motion\Interface\MotorMaxSPDPara.cs" />
+    <Compile Include="NPSDK.Motion\Interface\MotorSPDPara.cs" />
+    <Compile Include="NPSDK.Motion\Interface\NPMotionState.cs" />
+    <Compile Include="NPSDK.Motion\Interface\NPSDKPara.cs" />
+    <Compile Include="NPSDK.Motion\Interface\PDMCOUNTCALLBACK.cs" />
+    <Compile Include="NPSDK.Motion\Interface\PDMSTOPCALLBACK.cs" />
+    <Compile Include="NPSDK.Motion\Interface\PINTCALLBACK.cs" />
+    <Compile Include="NPSDK.Motion\Interface\PTRGCALLBACK.cs" />
+    <Compile Include="NPSDK.Motion\Interface\PulseModeType.cs" />
+    <Compile Include="NPSDK.Motion\Interface\NSDK.cs" />
+    <Compile Include="NPSDK.Motion\Interface\SDKKernal.cs" />
+    <Compile Include="NPSDK.Motion\Interface\SDKPara.cs" />
+    <Compile Include="NPSDK.Motion\Interface\StateObject.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="FlowChart\Scope.cs" />
+    <Compile Include="FlowChart\ScopeDropDownEditor.cs" />
+    <Compile Include="FlowChart\ScopeEditorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FlowChart\ScopeEditorControl.Designer.cs">
+      <DependentUpon>ScopeEditorControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Resource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
+    <Compile Include="TcpipClient.cs" />
+    <Compile Include="NPSDK.Motion\Native\Leadshine\csLTDMC\LTDMC.cs" />
+    <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataSave\Data.resx">
+      <DependentUpon>Data.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FlowChart\FlowBaseForm.resx">
+      <DependentUpon>FlowBaseForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FlowChart\FlowChart.en.resx">
+      <DependentUpon>FlowChart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FlowChart\FlowChart.resx">
+      <DependentUpon>FlowChart.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form\MotorControlForm.resx">
+      <DependentUpon>MotorControlForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NPSDK.Motion\Controls\NP_JogOption.resx">
+      <DependentUpon>NP_JogOption.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FlowChart\ScopeEditorControl.resx">
+      <DependentUpon>ScopeEditorControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Clockwise.jpg" />
+    <Content Include="Resources\CounterClockWise.jpg" />
+    <Content Include="Resources\Down.jpg" />
+    <Content Include="Resources\Forward.jpg" />
+    <Content Include="Resources\ledoff.png" />
+    <Content Include="Resources\ledon.png" />
+    <Content Include="Resources\Left.jpg" />
+    <Content Include="Resources\off.png" />
+    <Content Include="Resources\on.png" />
+    <Content Include="Resources\Reverse.jpg" />
+    <Content Include="Resources\Right.jpg" />
+    <Content Include="Resources\Up.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

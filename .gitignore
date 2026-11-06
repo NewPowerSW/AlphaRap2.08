@@ -20,6 +20,7 @@ mono_crash.*
 
 /.vp-validation/
 /AlphaRap.Framework/bin/
+/SDK/NPSDK/bin/
 /.vp-validation-*.log
 
 AlphaRap/bin/x64/Debug/*
@@ -30,6 +31,7 @@ Vucontrol/
 /AlphaRap/bin/x64/Debug/AlphaRap.Framework.dll
 /AlphaRap/bin/x64/Debug/DataGridViewAutoFilter.dll
 /AlphaRap/bin/x64/Debug/LifeSpanTimer.dll
+/AlphaRap/bin/x64/Debug/NPSDK.dll
 /AlphaRap/bin/x64/Debug/SunnyUI.Common.dll
 /AlphaRap/bin/x64/Debug/SunnyUI.dll
 [Dd]ebugPublic/

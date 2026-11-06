@@ -2,19 +2,19 @@
 
 - **AlphaRap.Framework** 提供设备和控件发现、流程、动态资源、视觉、配方、权限、报警和日志等通用模块与编辑页。
 - **AlphaRap** 是本机应用，负责进程启动、主窗体、首页、页面导航、整机运行和配方切换，并拥有设备驱动、PLC、固定 IO、工位事件、视觉配方表及客户 MES。
-- **NPSDK** 是框架使用的公共依赖。模块基类和模块注册由框架提供，引用方向为应用 → 框架 → NPSDK。
+- **NPSDK** 提供流程控件、运动和 IO，源码工程位于 `SDK/NPSDK`。框架和应用的源码构建均引用该项目。模块基类和模块注册由框架提供。
 
 应用入口调用 `ApplicationHost.Initialize(profile)`，由 `MachineApplication.Initialize` 组装页面和启动模块。应用将窗口赋给 `ApplicationHost.MainWindow`，通过 `ApplicationHost.RegisterModule(page)` 登记真实页面，并在退出时通过 `ApplicationHost.Shutdown()` 调用应用的清理逻辑。窗口可实现 `IModuleWindow` 接入统一保存、权限更新和视觉预览。Device 派生类和 NP 控件派生类仍按已有规则发现，站点的 `FlowChartRun` 事件直接进入工具箱。项目代码可以访问设计器创建的字段，也可以通过 `ApplicationHost.GetResource<T>(id)` 取得流程目录里的同一个动态实例。
 
 ## 构建和发布
 
-仓库开发时从 `AlphaRap.sln` 以 Debug/x64 构建框架和应用。发框架包时，使用安装了 .NET Framework 4.8 开发工具、Cognex VisionPro SDK、原有 NuGet 依赖和 .NET SDK 的开发机：
+仓库开发时从 `AlphaRap.sln` 以 Debug/x64 构建 NPSDK、框架和应用。打包需要 .NET Framework 4.7.1 和 4.8 开发工具、Cognex VisionPro SDK、原有 NuGet 依赖以及 .NET SDK。
 
 ```powershell
 ./build/Pack-Framework.ps1
 ```
 
-生成 `artifacts/framework/AlphaRap.Framework.<版本>.nupkg` 及 SHA-256 文件。包只含框架和框架使用的共享程序集。设备驱动、站点 EXE、配方、报警及语言文件由应用发布。Cognex 运行库、授权和机器的原生硬件驱动随现场部署环境提供。
+生成 `artifacts/framework/AlphaRap.Framework.<版本>.nupkg` 及 SHA-256 文件。包包含框架及其共享程序集，其中 `NPSDK.dll` 由同一次 Release/x64 构建生成。设备驱动、站点 EXE、配方、报警及语言文件由应用发布。Cognex 运行库、授权和机器的原生硬件驱动随现场部署环境提供。
 
 应用也可以仅引用本地版本包。以下命令在当前仓库验证这个入口：
 
