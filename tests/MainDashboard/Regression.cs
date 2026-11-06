@@ -73,7 +73,7 @@ internal static class DashboardProbe
             using (MainForm frame = CreateFrame())
             using (HomeForm home = CreateHome())
             {
-                Check(typeof(MainForm).Assembly.GetType("AlphaRap.LogForm") == null && typeof(MainForm).Assembly.GetType("AlphaRap.RuntimeLogForm") != null,
+                Check(typeof(MainForm).Assembly.GetType("AlphaRap.LogForm") == null && typeof(ApplicationHost).Assembly.GetType("AlphaRap.RuntimeLogForm") != null,
                     "Runtime logs must use the dedicated query page, preserving removal of the old path settings page.");
                 RemoveMachineLoad(frame);
                 frame.ClientSize = size;
@@ -209,7 +209,7 @@ internal static class DashboardProbe
     /// <summary>Navigate to the lazy runtime log page and return home without invoking a machine Load handler.</summary>
     private static void CheckRuntimeLogNavigation(MainForm frame, HomeForm home)
     {
-        Type host = typeof(HomeForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
+        Type host = typeof(ApplicationHost).Assembly.GetType("AlphaRap.MiddleLayer", true);
         FieldInfo homeField = host.GetField("HomeF", BindingFlags.Public | BindingFlags.Static);
         object original = homeField.GetValue(null);
         RuntimeLogForm page = null;
@@ -293,7 +293,7 @@ internal static class DashboardProbe
             "The footer or user card no longer matches the compact reference dimensions.");
         string previous = name.Text;
         string longName = "Long_Product_Recipe_2026_10_AOI_Dispensing_Assembly_Variant_123456789";
-        Type host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
+        Type host = typeof(ApplicationHost).Assembly.GetType("AlphaRap.MiddleLayer", true);
         FieldInfo productField = host.GetField("ProductF", BindingFlags.Public | BindingFlags.Static);
         object originalProduct = productField.GetValue(null); string originalRecipe = SysPara.RecipeName;
         try

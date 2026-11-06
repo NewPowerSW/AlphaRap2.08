@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 
 namespace AlphaRap.TaskProcess
 {
@@ -27,8 +27,8 @@ namespace AlphaRap.TaskProcess
 			ConveyorStop(2);
 
 			//SMEMA交互off
-			MiddleLayer.ManualF.OB_UpConveyor_LocalMachineReady_SMEMA.Off();
-			MiddleLayer.ManualF.OB_UpConveyor_LocalMachineAvailable_SMEMA.Off();
+			StationApplication.Manual.OB_UpConveyor_LocalMachineReady_SMEMA.Off();
+			StationApplication.Manual.OB_UpConveyor_LocalMachineAvailable_SMEMA.Off();
 		}
 		#region 流道
 
@@ -49,13 +49,13 @@ namespace AlphaRap.TaskProcess
 					UpConveyor2StartStatus = true;
 				}
 
-				if (!MiddleLayer.ManualF.IB_UpConveyor_Work_BoardAlarm.IsOn())
+				if (!StationApplication.Manual.IB_UpConveyor_Work_BoardAlarm.IsOn())
 				{
-					MiddleLayer.ManualF.OB_UpConveyor_Work_ConveyorForward.On();
+					StationApplication.Manual.OB_UpConveyor_Work_ConveyorForward.On();
 				}
 				else
 				{
-					MiddleLayer.ManualF.OB_Upconveyor_AlarmClear.On();
+					StationApplication.Manual.OB_Upconveyor_AlarmClear.On();
 					Thread.Sleep(300);
 					NPSDK.Alarm.Show("7020");
 				}
@@ -69,7 +69,7 @@ namespace AlphaRap.TaskProcess
 				{
 					if (UpConveyor2StartStatus == false)
 					{
-						MiddleLayer.ManualF.OB_UpConveyor_Work_ConveyorForward.Off();
+						StationApplication.Manual.OB_UpConveyor_Work_ConveyorForward.Off();
 					}
 
 					UpConveyor1StartStatus = false;
@@ -79,7 +79,7 @@ namespace AlphaRap.TaskProcess
 				{
 					if (UpConveyor1StartStatus == false)
 					{
-						MiddleLayer.ManualF.OB_UpConveyor_Work_ConveyorForward.Off();
+						StationApplication.Manual.OB_UpConveyor_Work_ConveyorForward.Off();
 					}
 
 					UpConveyor2StartStatus = false;
@@ -101,22 +101,22 @@ namespace AlphaRap.TaskProcess
 		{
 			UpConveyorProductReady = false;
 			BufferConveyorReady = false;
-			SysPara.UpConveyorInitialOk = false;
+			StationData.UpConveyorInitialOk = false;
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow1_3_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Buffer_ConveyorForward.Off();
-			MiddleLayer.ManualF.OB_UpConveyor_Buffer_ConveyorReverse.Off();
+			StationApplication.Manual.OB_UpConveyor_Buffer_ConveyorForward.Off();
+			StationApplication.Manual.OB_UpConveyor_Buffer_ConveyorReverse.Off();
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow1_4_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Work_ConveyorForward.Off();
-			MiddleLayer.ManualF.OB_UpConveyor_Work_ConveyorReverse.Off();
+			StationApplication.Manual.OB_UpConveyor_Work_ConveyorForward.Off();
+			StationApplication.Manual.OB_UpConveyor_Work_ConveyorReverse.Off();
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
@@ -128,15 +128,15 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow2_3_FlowChartRun()
 		{
-			SysPara.UpConveyorInitialOk = true;
+			StationData.UpConveyorInitialOk = true;
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow1_6_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Buffer_Stop_Cylinder.On();
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Buffer_StopUp_Sensor.IsOn();
+			StationApplication.Manual.OB_UpConveyor_Buffer_Stop_Cylinder.On();
+			bool r = StationApplication.Manual.IB_UpConveyor_Buffer_StopUp_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -147,8 +147,8 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow1_7_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Work_Jacking_Cylinder.Off();
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_JackingDown_Sensor.IsOn();
+			StationApplication.Manual.OB_UpConveyor_Work_Jacking_Cylinder.Off();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_JackingDown_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -159,9 +159,9 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow1_8_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Work_Stop_Cylinder.On();
+			StationApplication.Manual.OB_UpConveyor_Work_Stop_Cylinder.On();
 
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_StopUp_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_StopUp_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -172,8 +172,8 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow2_1_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Buffer_ConveyorForward.On();
-			MiddleLayer.ManualF.OB_UpConveyor_Work_ConveyorForward.On();
+			StationApplication.Manual.OB_UpConveyor_Buffer_ConveyorForward.On();
+			StationApplication.Manual.OB_UpConveyor_Work_ConveyorForward.On();
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
@@ -182,8 +182,8 @@ namespace AlphaRap.TaskProcess
 		{
 			if (UPConveyInit_Flow2_2.FlowChart_ElapsedMilliseconds > 3000)
 			{
-				MiddleLayer.ManualF.OB_UpConveyor_Buffer_ConveyorForward.Off();
-				MiddleLayer.ManualF.OB_UpConveyor_Work_ConveyorForward.Off();
+				StationApplication.Manual.OB_UpConveyor_Buffer_ConveyorForward.Off();
+				StationApplication.Manual.OB_UpConveyor_Work_ConveyorForward.Off();
 
 				return NPSDK.Flow_Chart.ResultType.NEXT;
 			}
@@ -192,7 +192,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_02_FlowChartRun()
 		{
-			if (!MiddleLayer.ManualF.IB_UpConveyor_Buffer_BoardStop_Sensor.IsOn())
+			if (!StationApplication.Manual.IB_UpConveyor_Buffer_BoardStop_Sensor.IsOn())
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
 			}
@@ -201,9 +201,9 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_04_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Buffer_Stop_Cylinder.On();
+			StationApplication.Manual.OB_UpConveyor_Buffer_Stop_Cylinder.On();
 
-			bool Buffer_StopUp_Sensor_Staus = MiddleLayer.ManualF.IB_UpConveyor_Buffer_StopUp_Sensor.IsOn();
+			bool Buffer_StopUp_Sensor_Staus = StationApplication.Manual.IB_UpConveyor_Buffer_StopUp_Sensor.IsOn();
 			if (Buffer_StopUp_Sensor_Staus)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -214,14 +214,14 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_05_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_LocalMachineReady_SMEMA.On();
+			StationApplication.Manual.OB_UpConveyor_LocalMachineReady_SMEMA.On();
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_06_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_UpMachineAvailable_SMEMA.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_UpMachineAvailable_SMEMA.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -238,7 +238,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_08_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Buffer_BoardIn_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Buffer_BoardIn_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -248,7 +248,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_09_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Buffer_BoardIn_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Buffer_BoardIn_Sensor.IsOn();
 			if (!r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -259,14 +259,14 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_10_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_LocalMachineReady_SMEMA.Off();
+			StationApplication.Manual.OB_UpConveyor_LocalMachineReady_SMEMA.Off();
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_11_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Buffer_BoardSpeedSwitch_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -276,14 +276,14 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_12_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.On();
+			StationApplication.Manual.OB_UpConveyor_Buffer_ConveyorSpeedSwitch.On();
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_13_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Buffer_BoardStop_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Buffer_BoardStop_Sensor.IsOn();
 			if (r)
 			{
 				Thread.Sleep(1500);
@@ -323,8 +323,8 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow1_17_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Buffer_Stop_Cylinder.Off();
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Buffer_StopDown_Sensor.IsOn();
+			StationApplication.Manual.OB_UpConveyor_Buffer_Stop_Cylinder.Off();
+			bool r = StationApplication.Manual.IB_UpConveyor_Buffer_StopDown_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -377,7 +377,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_02_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_BoardStop_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_BoardStop_Sensor.IsOn();
 
 			if (!r)
 			{
@@ -388,9 +388,9 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_04_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Work_Stop_Cylinder.On();
+			StationApplication.Manual.OB_UpConveyor_Work_Stop_Cylinder.On();
 
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_StopUp_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_StopUp_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -424,7 +424,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_08_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_BoardOut_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_BoardOut_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -434,7 +434,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_09_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_BoardOut_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_BoardOut_Sensor.IsOn();
 			if (!r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -453,7 +453,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_11_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_BoardSpeedSwitch_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -463,14 +463,14 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_12_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Work_ConveyorSpedSwitch.On();
+			StationApplication.Manual.OB_UpConveyor_Work_ConveyorSpedSwitch.On();
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_13_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_BoardStop_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_BoardStop_Sensor.IsOn();
 			if (r)
 			{
 				Thread.Sleep(1500);
@@ -489,8 +489,8 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_15_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Work_Jacking_Cylinder.On();
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_JackingUp_Sensor.IsOn();
+			StationApplication.Manual.OB_UpConveyor_Work_Jacking_Cylinder.On();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_JackingUp_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -522,14 +522,14 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_18_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Work_Jacking_Cylinder.On();
+			StationApplication.Manual.OB_UpConveyor_Work_Jacking_Cylinder.On();
 
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_19_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_DownMachineReady_SMEMA.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_DownMachineReady_SMEMA.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -539,9 +539,9 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_20_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Work_Stop_Cylinder.Off();
+			StationApplication.Manual.OB_UpConveyor_Work_Stop_Cylinder.Off();
 
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_StopDown_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_StopDown_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -552,8 +552,8 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_21_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Work_Jacking_Cylinder.Off();
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_JackingDown_Sensor.IsOn();
+			StationApplication.Manual.OB_UpConveyor_Work_Jacking_Cylinder.Off();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_JackingDown_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -564,7 +564,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_23_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_BoardOut_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_BoardOut_Sensor.IsOn();
 			if (r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -574,7 +574,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_24_FlowChartRun_1()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_Work_BoardOut_Sensor.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_Work_BoardOut_Sensor.IsOn();
 			if (!r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -585,7 +585,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyAuto_Flow2_25_FlowChartRun()
 		{
-			bool r = MiddleLayer.ManualF.IB_UpConveyor_DownMachineReady_SMEMA.IsOn();
+			bool r = StationApplication.Manual.IB_UpConveyor_DownMachineReady_SMEMA.IsOn();
 			if (!r)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
@@ -624,7 +624,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow1_2_FlowChartRun()
 		{
-			if (SysPara.GantryInitialOK)
+			if (StationData.GantryInitialOK)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
 			}
@@ -634,7 +634,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow2_21_FlowChartRun()
 		{
-			if(SysPara.DownConveyorInitialOk)
+			if(StationData.DownConveyorInitialOk)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;
 			}
@@ -643,17 +643,17 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow1_9_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Work_ConveyorReverse.On();
+			StationApplication.Manual.OB_UpConveyor_Work_ConveyorReverse.On();
 			Thread.Sleep(1500);
-			MiddleLayer.ManualF.OB_UpConveyor_Work_ConveyorReverse.Off();
+			StationApplication.Manual.OB_UpConveyor_Work_ConveyorReverse.Off();
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}
 
 		private NPSDK.Flow_Chart.ResultType UPConveyInit_Flow2_0_FlowChartRun()
 		{
-			MiddleLayer.ManualF.OB_UpConveyor_Buffer_Stop_Cylinder.On();
+			StationApplication.Manual.OB_UpConveyor_Buffer_Stop_Cylinder.On();
 
-			bool Buffer_StopUp_Sensor_Staus = MiddleLayer.ManualF.IB_UpConveyor_Buffer_StopUp_Sensor.IsOn();
+			bool Buffer_StopUp_Sensor_Staus = StationApplication.Manual.IB_UpConveyor_Buffer_StopUp_Sensor.IsOn();
 			if (Buffer_StopUp_Sensor_Staus)
 			{
 				return NPSDK.Flow_Chart.ResultType.NEXT;

@@ -57,6 +57,15 @@ internal sealed class ProbeFlow : Flow_BaseForm
 
 internal static partial class Tests
 {
+    private sealed class ProbeApplication : MachineApplication
+    {
+        public bool Ready;
+        public override bool IsLegacyInitialized { get { return Ready; } }
+
+        /// <summary>记录框架要求应用清除旧式初始化状态。</summary>
+        public override void ResetLegacyInitialization() { Ready = false; }
+    }
+
     /// <summary>隔离模块、流程、设备列表和运行状态，保证离线测试不会触及真实设备。</summary>
     private sealed class MachineFixture : IDisposable
     {
@@ -66,7 +75,7 @@ internal static partial class Tests
         private readonly Dictionary<FieldInfo, object> _fields = new Dictionary<FieldInfo, object>();
         private readonly RunMode _mode = SysPara.SystemMode;
         private readonly bool _running = SysPara.SystemRun;
-        private readonly bool _initialized = SysPara.UpConveyorInitialOk;
+        public readonly ProbeApplication Application = new ProbeApplication();
         private readonly bool _allStop = Flow_Module.AllStop;
         private readonly bool _allPause = Flow_Module.AllPause;
         public readonly ProbeModule Module;
@@ -75,11 +84,11 @@ internal static partial class Tests
         /// <summary>建立只包含回调替身的运行环境，所有硬件列表置空。</summary>
         public MachineFixture()
         {
-            foreach (string name in new[] { "VPF", "ManualF", "DataF", "MainF" })
+            foreach (string name in new[] { "VPF", "ManualF", "DataF", "MainF", "Application" })
             {
                 FieldInfo field = LanguageHost.GetField(name);
                 _fields.Add(field, field.GetValue(null));
-                field.SetValue(null, null);
+                field.SetValue(null, name == "Application" ? Application : null);
             }
             ModuleManager.ModuleList = new List<ModuleBaseForm>();
             Flow_Module.FlowChart_ModuleList = new List<Flow_BaseForm>();
@@ -90,7 +99,6 @@ internal static partial class Tests
             if (!Flow_Module.FlowChart_ModuleList.Contains(Flow)) Flow_Module.FlowChart_ModuleList.Add(Flow);
             SysPara.SystemMode = RunMode.IDLE;
             SysPara.SystemRun = false;
-            SysPara.UpConveyorInitialOk = false;
             Alarm.Clear();
         }
 
@@ -103,7 +111,6 @@ internal static partial class Tests
             foreach (KeyValuePair<FieldInfo, object> field in _fields) field.Key.SetValue(null, field.Value);
             SysPara.SystemMode = _mode;
             SysPara.SystemRun = _running;
-            SysPara.UpConveyorInitialOk = _initialized;
             Flow_Module.AllStop = _allStop;
             Flow_Module.AllPause = _allPause;
             Alarm.Clear();
@@ -123,13 +130,13 @@ internal static partial class Tests
         {
             using (ProbeModule module = new ProbeModule())
             {
-                MethodInfo create = LanguageHost.GetMethod("CreateForm");
-                object first = create.Invoke(null, new object[] { module, "VPForm" });
-                object second = create.Invoke(null, new object[] { module, "VPForm" });
+                MethodInfo create = LanguageHost.GetMethod("RegisterForm", BindingFlags.Static | BindingFlags.NonPublic).MakeGenericMethod(typeof(ProbeModule));
+                object first = create.Invoke(null, new object[] { module });
+                object second = create.Invoke(null, new object[] { module });
                 Check(ReferenceEquals(first, module) && ReferenceEquals(second, module), "Factory did not reuse the supplied instance.");
                 Check(module.InitializeCount == 1, "Factory initialized the same module twice.");
                 Check(((System.Collections.IList)forms.GetValue(null)).Count == 1, "Factory registered the same instance twice.");
-                Check(create.Invoke(null, new object[] { null, "UnknownForm" }) == null, "Unknown form lookup changed compatibility behavior.");
+                Check(create.Invoke(null, new object[] { null }) == null, "An optional empty form was registered.");
             }
         }
         finally { forms.SetValue(null, previous); ModuleManager.ModuleList = previousModules; }
@@ -141,9 +148,9 @@ internal static partial class Tests
         using (MachineFixture machine = new MachineFixture())
         {
             SysPara.SystemRun = true;
-            SysPara.UpConveyorInitialOk = true;
+            machine.Application.Ready = true;
             LanguageHost.GetMethod("Initial").Invoke(null, null);
-            Check(SysPara.SystemMode == RunMode.INITIAL && !SysPara.SystemRun && !SysPara.UpConveyorInitialOk, "Initialization retained stale running state.");
+            Check(SysPara.SystemMode == RunMode.INITIAL && !SysPara.SystemRun && !machine.Application.Ready, "Initialization retained stale running state.");
             Check(machine.Flow.InitialCount == 1 && machine.Flow.StopCount == 1, "Initialization repeated a flow command.");
         }
     }
@@ -155,9 +162,9 @@ internal static partial class Tests
         {
             SysPara.SystemMode = RunMode.RUN;
             SysPara.SystemRun = true;
-            SysPara.UpConveyorInitialOk = true;
+            machine.Application.Ready = true;
             LanguageHost.GetMethod("StopRun").Invoke(null, null);
-            Check(SysPara.SystemMode == RunMode.IDLE && !SysPara.SystemRun && !SysPara.UpConveyorInitialOk, "Stop did not reset the run state.");
+            Check(SysPara.SystemMode == RunMode.IDLE && !SysPara.SystemRun && !machine.Application.Ready, "Stop did not reset the run state.");
             Check(machine.Flow.StopCount == 1 && machine.Module.StopManualTask.IsCancellationRequested, "Stop repeated a flow command or missed manual cancellation.");
         }
     }
@@ -169,9 +176,9 @@ internal static partial class Tests
         {
             SysPara.SystemMode = RunMode.RUN;
             SysPara.SystemRun = true;
-            SysPara.UpConveyorInitialOk = true;
+            machine.Application.Ready = true;
             LanguageHost.GetMethod("PauseRun").Invoke(null, null);
-            Check(SysPara.SystemMode == RunMode.PAUSE && SysPara.SystemRun && SysPara.UpConveyorInitialOk, "Pause lost the state needed for resume.");
+            Check(SysPara.SystemMode == RunMode.PAUSE && SysPara.SystemRun && machine.Application.Ready, "Pause lost the state needed for resume.");
             Check(machine.Flow.PauseCount == 1 && machine.Module.StopManualTask.IsCancellationRequested, "Pause missed a flow or manual task.");
         }
     }

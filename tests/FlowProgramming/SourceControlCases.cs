@@ -455,6 +455,8 @@ internal static partial class Cases
                     Caption = "Old MES " + i, ParentPath = "/FlowChartTable/AutoPage/tabControl1/tabPage3", X = 223, Y = 80 + i * 55 });
                 for (int i = 0; i < 5; i++) saved.Steps[i].Next = saved.Steps[(i + 1) % 5].Id;
                 saved.AutoEntry = saved.Steps[0].Id;
+                TabPage sourcePage = page.Controls.Find("tabPage3", true).OfType<TabPage>().SingleOrDefault();
+                string sourceCaption = sourcePage == null ? null : sourcePage.Text;
                 RegisterSourcePageLanguage(page, page.Name);
                 FlowModuleEditor owner = new FlowModuleEditor(page, saved);
                 Assert(owner.Program.Steps.Count == source.Length && SourceCharts(page).Count() == source.Length
@@ -464,12 +466,13 @@ internal static partial class Cases
                 foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
                 {
                     SwitchLanguage(language);
-                    Assert(page.Controls.Find("tabPage3", true).Cast<TabPage>().All(tab => tab.Text != "MES流程"),
+                    Assert(sourcePage == null || sourceCaption == "MES流程" || sourcePage.Text != "MES流程",
                         "The old Gantry MES language key overwrote the screw page.");
                 }
                 SwitchLanguage(LanguageType.Chinese);
                 page.Size = new Size(1280, 780); page.FlowChartTable.SelectedTab = page.AutoPage;
-                TabPage screw = page.Controls.Find("tabPage3", true).OfType<TabPage>().SingleOrDefault();
+                Assert(sourcePage == null || sourcePage.Text == sourceCaption, "The Chinese page title no longer matches the application designer.");
+                TabPage screw = sourcePage;
                 if (screw != null) ((TabControl)screw.Parent).SelectedTab = screw;
                 page.Show(); Application.DoEvents();
                 using (Bitmap bitmap = new Bitmap(page.Width, page.Height))

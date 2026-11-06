@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Reflection;
@@ -21,7 +21,7 @@ namespace AlphaRap
     public partial class LoadingForm : Form
     {
         private string _Caption = string.Empty;
-        public bool StopRefresh;
+        public volatile bool StopRefresh;
 
         // ---------------- 视觉参数（设计值一律按 96 DPI 写，绘制时用 UiTheme.Dpi 换算） ----------------
         private const int PadX = 40;            // 左右留白
@@ -75,23 +75,14 @@ namespace AlphaRap
             catch { }
         }
 
-        private static string AppName { get { return "AlphaRap-SRM"; } }
+        private readonly string applicationName = "AlphaRap";
 
-        private static string AppVersion
-        {
-            get
-            {
-                try
-                {
-                    Version v = Assembly.GetExecutingAssembly().GetName().Version;
-                    return v.Major + "." + v.Minor + "." + v.Build;
-                }
-                catch { return "1.0.0"; }
-            }
-        }
+        /// <summary>使用应用名称绘制启动页。</summary>
+        public LoadingForm(string applicationName) : this() { this.applicationName = applicationName; }
+        private static string AppVersion { get { return ApplicationHost.ApplicationVersion; } }
 
         /// <summary>
-        /// 加载动画。**在后台线程里跑**，直到 Program.Main 把 <see cref="StopRefresh"/> 置位。
+        /// 加载动画。**在后台线程里跑**，直到应用启动入口 把 <see cref="StopRefresh"/> 置位。
         /// </summary>
         public void RefreshUI()
         {
@@ -175,7 +166,7 @@ namespace AlphaRap
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             using (SolidBrush b = new SolidBrush(Color.White))
-                g.DrawString(AppName, fTitle, b, new PointF(0, UiTheme.Dpi(9)));
+                g.DrawString(applicationName, fTitle, b, new PointF(0, UiTheme.Dpi(9)));
 
             using (SolidBrush b = new SolidBrush(Color.FromArgb(185, 255, 255, 255)))
                 g.DrawString(UiTheme.T("LoadingForm", "version", "版本 ", "Version ", "Versión ") + AppVersion, fVersion, b, new PointF(UiTheme.Dpi(3), UiTheme.Dpi(48)));

@@ -219,8 +219,8 @@ internal static class RuntimeLogProbe
         try
         {
             LicenseManager.CurrentContext = new DesignerContext(); UiTheme.ForceDesignTimeForTest(true);
-            data = new DataForm(); page = new RuntimeLogForm();
-            data.LogRun.SavePath = runRoot; data.LogError.SavePath = errorRoot; sourceField.SetValue(null, data);
+            data = new StationDataForm(); page = new RuntimeLogForm();
+            data.GetLogSource("LogRun").SavePath = runRoot; data.GetLogSource("LogError").SavePath = errorRoot; sourceField.SetValue(null, data);
             Console.WriteLine("  Isolated runtime sources ready");
             UiTheme.ForceDesignTimeForTest(false); LicenseManager.CurrentContext = previous;
             page.Show(); PumpUntil(() => !Field<bool>(page, "loading"));

@@ -62,22 +62,8 @@ internal static class Cases
         SysPara.RecipeDataDirectory = Path.Combine(configurationRoot, "Recipes");
         SysPara.VisionFileDirectory = Path.Combine(configurationRoot, "VisionData");
         SysPara.RecipeName = "DesignerProbe"; SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, "DesignerProbe.xml");
-        XDocument project = XDocument.Load(Path.Combine(projectRoot, "AlphaRap", "AlphaRap.csproj"));
-        XNamespace ns = project.Root.Name.Namespace;
-        Type[] types = typeof(SystemSetting).Assembly.GetTypes();
-        foreach (XElement item in project.Descendants(ns + "Compile"))
-        {
-            string source = (string)item.Attribute("Include");
-            if (source == null || source.EndsWith(".Designer.cs", StringComparison.OrdinalIgnoreCase)) continue;
-            string file = Path.Combine(projectRoot, "AlphaRap", source);
-            string designer = file.Substring(0, file.Length - 3) + ".Designer.cs";
-            if (!File.Exists(file) || !File.Exists(designer)) continue;
-            Type type = types.SingleOrDefault(candidate => candidate.Name == Path.GetFileNameWithoutExtension(source) && !candidate.IsAbstract && typeof(Control).IsAssignableFrom(candidate));
-            if (type == null || type.GetConstructor(Type.EmptyTypes) == null) continue;
-            sourcePaths[type] = source;
-        }
-        foreach (Type type in types.Where(type => !type.IsAbstract && !type.IsNested && typeof(Control).IsAssignableFrom(type) && type.Namespace == "AlphaRap.FlowProgramming"))
-            if (!sourcePaths.ContainsKey(type)) sourcePaths[type] = "FlowProgramming\\" + type.Name + ".cs";
+        DiscoverVisualTypes(typeof(SystemSetting).Assembly);
+        DiscoverVisualTypes(typeof(AlphaRap.TaskProcess.Gantry).Assembly);
         visualTypes = sourcePaths.Keys.OrderBy(type => type.FullName).ToArray();
         Test("every flow source is included once and compiled sources exist", ProjectSources);
         Test("visual classes have complete project metadata and public parameterless constructors", ProjectMetadata);
@@ -94,11 +80,46 @@ internal static class Cases
         return failed == 0 ? 0 : 1;
     }
 
+    /// <summary>从拥有源码的项目发现其真实设计器类型。</summary>
+    private static void DiscoverVisualTypes(Assembly assembly)
+    {
+        string root = ProjectDirectory(assembly);
+        XDocument project = ReadProject(assembly);
+        XNamespace ns = project.Root.Name.Namespace;
+        Type[] types = assembly.GetTypes();
+        foreach (XElement item in project.Descendants(ns + "Compile"))
+        {
+            string source = (string)item.Attribute("Include");
+            if (source == null || source.EndsWith(".Designer.cs", StringComparison.OrdinalIgnoreCase)) continue;
+            string file = Path.Combine(root, source);
+            string designer = file.Substring(0, file.Length - 3) + ".Designer.cs";
+            if (!File.Exists(file) || !File.Exists(designer)) continue;
+            Type type = types.SingleOrDefault(candidate => candidate.Name == Path.GetFileNameWithoutExtension(source) &&
+                !candidate.IsAbstract && typeof(Control).IsAssignableFrom(candidate));
+            if (type == null || type.GetConstructor(Type.EmptyTypes) == null) continue;
+            sourcePaths[type] = source;
+        }
+        foreach (Type type in types.Where(type => !type.IsAbstract && !type.IsNested && typeof(Control).IsAssignableFrom(type) && type.Namespace == "AlphaRap.FlowProgramming"))
+            if (!sourcePaths.ContainsKey(type)) sourcePaths[type] = "FlowProgramming\\" + type.Name + ".cs";
+    }
+
+    /// <summary>定位拥有此程序集源码的项目目录。</summary>
+    private static string ProjectDirectory(Assembly assembly)
+    {
+        return Path.Combine(projectRoot, assembly.GetName().Name);
+    }
+
+    /// <summary>读取对应程序集的 MSBuild 源文件声明。</summary>
+    private static XDocument ReadProject(Assembly assembly)
+    {
+        return XDocument.Load(Path.Combine(ProjectDirectory(assembly), assembly.GetName().Name + ".csproj"));
+    }
+
     /// <summary>Check the current source tree against the project, so a previously built assembly cannot hide missing or stale flow files.</summary>
     private static void ProjectSources()
     {
-        string root = Path.Combine(projectRoot, "AlphaRap");
-        XDocument project = XDocument.Load(Path.Combine(root, "AlphaRap.csproj"));
+        string root = ProjectDirectory(typeof(SystemSetting).Assembly);
+        XDocument project = ReadProject(typeof(SystemSetting).Assembly);
         XNamespace ns = project.Root.Name.Namespace;
         string[] sources = project.Descendants(ns + "Compile").Select(item => (string)item.Attribute("Include"))
             .Where(path => path != null && path.StartsWith("FlowProgramming\\", StringComparison.OrdinalIgnoreCase)).ToArray();
@@ -118,25 +139,27 @@ internal static class Cases
     {
         Check(new[] { typeof(FlowNodeForm), typeof(FlowToolboxControl), typeof(FlowBranchEditor), typeof(FlowInputRow), typeof(FlowSourceForm), typeof(SystemSetting) }
             .All(type => visualTypes.Contains(type)), "A supported FlowProgramming editor or SystemSetting was omitted from discovery.");
-        XDocument project = XDocument.Load(Path.Combine(projectRoot, "AlphaRap", "AlphaRap.csproj"));
+        XDocument project = ReadProject(typeof(SystemSetting).Assembly);
         XNamespace ns = project.Root.Name.Namespace;
         foreach (Type type in visualTypes)
         {
+            XDocument owner = type.Assembly == typeof(SystemSetting).Assembly ? project : ReadProject(type.Assembly);
+            string root = ProjectDirectory(type.Assembly);
             string source = SourceName(type);
-            XElement item = project.Descendants(ns + "Compile").SingleOrDefault(entry => string.Equals((string)entry.Attribute("Include"), source, StringComparison.OrdinalIgnoreCase));
-            Check(item != null && File.Exists(Path.Combine(projectRoot, "AlphaRap", source)), "Missing source or Compile entry: " + source);
+            XElement item = owner.Descendants(ns + "Compile").SingleOrDefault(entry => string.Equals((string)entry.Attribute("Include"), source, StringComparison.OrdinalIgnoreCase));
+            Check(item != null && File.Exists(Path.Combine(root, source)), "Missing source or Compile entry: " + source);
             Check(type.GetConstructor(Type.EmptyTypes) != null, "No public parameterless design constructor: " + type.FullName);
             if (type.Name == "FlowLanguageForm") continue;
             string expected = typeof(Form).IsAssignableFrom(type) ? "Form" : "UserControl";
             Check((string)item.Element(ns + "SubType") == expected, "Incorrect SubType for " + source + "; expected " + expected + ".");
             string designer = source.Substring(0, source.Length - 3) + ".Designer.cs";
-            XElement child = project.Descendants(ns + "Compile").SingleOrDefault(entry => string.Equals((string)entry.Attribute("Include"), designer, StringComparison.OrdinalIgnoreCase));
+            XElement child = owner.Descendants(ns + "Compile").SingleOrDefault(entry => string.Equals((string)entry.Attribute("Include"), designer, StringComparison.OrdinalIgnoreCase));
             Check(child != null && (string)child.Element(ns + "DependentUpon") == Path.GetFileName(source), "Missing Designer dependency: " + designer);
-            string designerPath = Path.Combine(projectRoot, "AlphaRap", designer);
+            string designerPath = Path.Combine(root, designer);
             Check(File.Exists(designerPath), "Missing Designer source: " + designerPath);
             if (!File.ReadAllText(designerPath).Contains("ComponentResourceManager")) continue;
             string resource = designer.Substring(0, designer.Length - ".Designer.cs".Length) + ".resx";
-            XElement embedded = project.Descendants(ns + "EmbeddedResource").SingleOrDefault(entry => string.Equals((string)entry.Attribute("Include"), resource, StringComparison.OrdinalIgnoreCase));
+            XElement embedded = owner.Descendants(ns + "EmbeddedResource").SingleOrDefault(entry => string.Equals((string)entry.Attribute("Include"), resource, StringComparison.OrdinalIgnoreCase));
             Check(embedded != null && (string)embedded.Element(ns + "DependentUpon") == Path.GetFileName(source), "Missing designer resource dependency: " + resource);
         }
         HashSet<string> controlNames = new HashSet<string>(typeof(SystemSetting).Assembly.GetTypes().Where(type => typeof(Control).IsAssignableFrom(type)).Select(type => type.Name));
@@ -144,7 +167,7 @@ internal static class Cases
         {
             string source = (string)item.Attribute("Include");
             if (source == null || !source.StartsWith("FlowProgramming\\", StringComparison.OrdinalIgnoreCase) || source.EndsWith(".Designer.cs", StringComparison.OrdinalIgnoreCase)) continue;
-            string path = Path.Combine(projectRoot, "AlphaRap", source);
+            string path = Path.Combine(ProjectDirectory(typeof(SystemSetting).Assembly), source);
             if (!File.Exists(path)) continue;
             Match declaration = Regex.Match(Sanitize(File.ReadAllText(path)), @"\bpartial\s+class\s+(?<name>[A-Za-z_]\w*)");
             if (!declaration.Success || !controlNames.Contains(declaration.Groups["name"].Value) || Path.GetFileNameWithoutExtension(source) == declaration.Groups["name"].Value) continue;
@@ -164,7 +187,7 @@ internal static class Cases
             Check(!Regex.IsMatch(body, @"\bnew\s+(?:global::)?[A-Za-z_][\w.<>]*(?:\s*\([^;{}]*\))?\s*\{"), "Object initializer inside InitializeComponent: " + file);
             foreach (Match local in Regex.Matches(body, @"(?m)^\s*(?<type>(?:global::)?[A-Za-z_][\w.:<>]*)\s+(?<name>[A-Za-z_]\w*)\s*="))
                 Check((local.Groups["type"].Value.EndsWith("ComponentResourceManager", StringComparison.Ordinal) && local.Groups["name"].Value == "resources")
-                    || (type == typeof(DataForm) && local.Groups["type"].Value == "DataSave.DataFormat" && Regex.IsMatch(local.Groups["name"].Value, @"^dataFormat[0-9]+$")),
+                    || (type == typeof(StationDataForm) && local.Groups["type"].Value == "DataSave.DataFormat" && Regex.IsMatch(local.Groups["name"].Value, @"^dataFormat[0-9]+$")),
                     "Business or inferred local variable inside InitializeComponent: " + file);
             Check(!Regex.IsMatch(body, @"\b(?:if|for|foreach|while|switch|try|using)\s*\("), "Business control flow inside InitializeComponent: " + file);
             Check(!body.Contains("=>"), "Lambda inside InitializeComponent: " + file);
@@ -293,7 +316,7 @@ internal static class Cases
     /// <summary>Verify lifecycle guards still protect sited pages after the constructor's design license is no longer current.</summary>
     private static void VerifySitedLifecycle(Control preview)
     {
-        string[] guarded = { "AddUserForm", "ProductManagerForm", "DeviceControl", "MainForm", "CheckForm", "AlarmSetting", "LanguageSetting", "SystemForm" };
+        string[] guarded = { "AddUserForm", "ProductManagerForm", "DeviceControl", "MainForm", "CheckForm", "AlarmSetting", "LanguageSetting", "SystemForm", "VPForm", "StationVisionForm" };
         if (!guarded.Contains(preview.GetType().Name)) return;
         Check(preview.Site != null && preview.Site.DesignMode, "The preview is not attached to a genuine design site.");
         string before = ConfigurationTree();
@@ -333,7 +356,7 @@ internal static class Cases
     /// <summary>Verify moving schema initialization out of the Designer preserves both independent constant scopes and legacy boolean defaults.</summary>
     private static void SystemSettingSchema()
     {
-        using (SystemSetting page = new SystemSetting())
+        using (SystemSetting page = ((MachineApplication)Activator.CreateInstance(typeof(AlphaRap.TaskProcess.Gantry).Assembly.GetType("AlphaRap.StationApplication", true), true)).CreateSettingsPage())
         {
             try
             {
@@ -373,7 +396,7 @@ internal static class Cases
     private static string DesignerPath(Type type)
     {
         string source = SourceName(type);
-        return Path.Combine(projectRoot, "AlphaRap", source.Substring(0, source.Length - 3) + ".Designer.cs");
+        return Path.Combine(ProjectDirectory(type.Assembly), source.Substring(0, source.Length - 3) + ".Designer.cs");
     }
 
     /// <summary>Report independent failures with their original exception and continue checking the remaining visual classes.</summary>

@@ -293,7 +293,7 @@ namespace AlphaRap
             this.lblBrandName.Name = "lblBrandName";
             this.lblBrandName.Size = new System.Drawing.Size(150, 24);
             this.lblBrandName.TabIndex = 221;
-            this.lblBrandName.Text = "AlphaRap-SRM";
+            this.lblBrandName.Text = "AlphaRap";
             //
             // lblBrandCaption
             //
@@ -1328,7 +1328,7 @@ namespace AlphaRap
             this.toolStripStatusLabel3.ForeColor = System.Drawing.Color.White;
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(100, 53);
-            this.toolStripStatusLabel3.Text = "AlphaRap-SRM";
+            this.toolStripStatusLabel3.Text = "AlphaRap";
             this.toolStripStatusLabel3.Visible = false;
             //
             // toolStripStatusLabel4

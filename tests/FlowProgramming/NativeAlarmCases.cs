@@ -198,7 +198,7 @@ internal static partial class Cases
     /// <summary>Inspect the actual reported business node and its compiled event without invoking its hardware callback.</summary>
     private static void ActualConveyorNativeAlarm()
     {
-        Type type = typeof(MainForm).Assembly.GetType("AlphaRap.TaskProcess.DownConveryor", true);
+        Type type = typeof(AlphaRap.TaskProcess.DownConveryor);
         using (Flow_BaseForm page = (Flow_BaseForm)Activator.CreateInstance(type))
         {
             FlowModuleEditor owner = new FlowModuleEditor(page, new FlowProgram { ModuleId = type.FullName + "/" + page.Name });

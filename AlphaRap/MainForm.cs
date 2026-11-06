@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 
 namespace AlphaRap
 {
-    public partial class MainForm : ModuleBaseForm
+    public partial class MainForm : ModuleBaseForm, IModuleWindow
     {
         #region test
         [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
@@ -73,6 +73,7 @@ int nheightEllipse
             // 主框架样式（设计期也执行，使设计视图与运行时一致）；按钮文字取自语言包
             if (!InDesigner)
                 UiTheme.TextProvider = (form, key, zh, en, es) => MiddleLayer.LangMsg(form, key, zh, en, es);
+            if (!InDesigner) lblBrandName.Text = MiddleLayer.Application.DisplayName;
             ApplyFrameStyle();
             uiTabControl1.SelectedIndexChanged += DashboardTabChanged;
 
@@ -88,6 +89,8 @@ int nheightEllipse
 
             // 把整个控件树的鼠标事件转发到主窗体，这样无论按在哪个子控件上都能拖动/缩放
             HookMouseForwarding(this);
+            ApplicationHost.AlarmRowsChanged += ApplyAlarmRows;
+            Disposed += delegate { ApplicationHost.AlarmRowsChanged -= ApplyAlarmRows; };
             MiddleLayer.LanguageChanged += MainForm_LanguageChanged;
             Disposed += delegate { MiddleLayer.LanguageChanged -= MainForm_LanguageChanged; };
             Disposed += delegate { if (runtimeLogPage != null) runtimeLogPage.Dispose(); };
@@ -96,9 +99,43 @@ int nheightEllipse
         /// <summary>语言表保存或语言切换后刷新主框架的动态文字。</summary>
         private void MainForm_LanguageChanged(object sender, EventArgs e)
         {
+            UpdateLanguageIndicator();
             _statusTextMap = null;
             SyncLanguageTexts();
             UpdateMachineStatus();
+        }
+
+        /// <summary>完成登录窗口返回后的权限和页面刷新。</summary>
+        public void CompleteLogin()
+        {
+            SwitchPermission(SysPara.UserPermission);
+            SwitchMainPage(MENU_PageType.Home);
+            RefreshMenuBackcolor();
+        }
+
+        /// <summary>用当前语言更新主窗口的语言指示。</summary>
+        private void UpdateLanguageIndicator()
+        {
+            LanguageType language = SysPara.LanguageShow;
+            NumC1.Image = language == LanguageType.Chinese ? NumC2.Image : language == LanguageType.English ? NumC3.Image : NumC4.Image;
+            NumC1.Text = language == LanguageType.Chinese ? "CN" : language == LanguageType.English ? "EN" : "ES";
+        }
+
+        /// <summary>在 UI 线程更新报警缓存和当前筛选视图。</summary>
+        private void ApplyAlarmRows(IReadOnlyList<AlarmDisplayRow> rows)
+        {
+            if (IsDisposed || !IsHandleCreated) return;
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() => ApplyAlarmRows(rows)));
+                return;
+            }
+
+            AlarmLogCache.Clear();
+            foreach (AlarmDisplayRow row in rows)
+                AlarmLogCache.Add(new[] { row.Time.ToString("yyyy/MM/dd HH:mm:ss"), row.Type, row.Code,
+                    AlarmCatalog.ResolveAlarmContent(row.Code, row.Content) });
+            RebuildAlarmLogFromCache();
         }
 
         /// <summary>是否运行在 VS 的 WinForms 设计器中（设计期跳过运行期逻辑）。</summary>
@@ -287,6 +324,7 @@ int nheightEllipse
         {
             if (InDesigner || DesignMode) return;
             ApplyInitialWindowSize();
+            SetMesPageAvailable(MiddleLayer.MesF != null);
 
             // 顶栏机器状态徽章：圆角胶囊，尺寸变化时重算
             MachineStatus.Resize += (s, ev) => ApplyPillRegion(MachineStatus, 12);
@@ -350,7 +388,7 @@ int nheightEllipse
             k_hook.KeyDownEvent += new KeyEventHandler(hook_KeyDown);
             k_hook.Start();
 
-            MiddleLayer.alarmRunTask.AlarmTaskIsRun = true;
+            if (MiddleLayer.alarmRunTask != null) MiddleLayer.alarmRunTask.AlarmTaskIsRun = true;
 
             // 按最终确定的语言刷新报警工具条和语言切换器
             SyncLanguageTexts();
@@ -396,20 +434,18 @@ int nheightEllipse
         {
             try
             {
-                Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-                string ver = v.Major + "." + v.Minor + "." + v.Build;
 
                 Rectangle wa = Screen.FromControl(this).WorkingArea;
-                toolStripStatusLabel4.Text = ver;
+                toolStripStatusLabel4.Text = ApplicationHost.ApplicationVersion;
                 toolStripStatusLabel4.ToolTipText = string.Format(
-                    "   DPI {0:0}%   winDPI {1}   aware {2}/{3}   mon {4} sys {5}   {6}x{7} -> {8}x{9}",
+                    MiddleLayer.LangMsg("MainForm", "frameworkVersion", "框架版本 {9}", "Framework {9}", "Marco {9}") + "   DPI {0:0}%   winDPI {1}   aware {2}/{3}   mon {4} sys {5}   {6}x{7} -> {8}x{9}",
                     UiTheme.Scale * 100f, UiTheme.DpiOfWindow(this),
                     UiTheme.AwareAtInit ? "Y" : "N", UiTheme.DpiPath,
                     UiTheme.DpiMonitor, UiTheme.DpiSystem,
-                    wa.Width, wa.Height, Width, Height);
+                    wa.Width, wa.Height, Width, Height, ApplicationHost.FrameworkVersion);
 
                 DateTime built = File.GetLastWriteTime(Application.ExecutablePath);
-                toolStripStatusLabel3.Text = "AlphaRap-SRM";
+                toolStripStatusLabel3.Text = MiddleLayer.Application.DisplayName;
                 toolStripStatusLabel4.ToolTipText += "\nBuild " + built.ToString("yyyy/MM/dd HH:mm");
             }
             catch (Exception ex)
@@ -662,7 +698,7 @@ int nheightEllipse
                     ShowhMainPage(MiddleLayer.HomeF, ShowPanl);
                     tableLayoutPanel4.Parent = panel2;
                     tableLayoutPanel4.Visible = true;
-                    PlaceDashboardAlarm(MiddleLayer.HomeF);
+                    PlaceDashboardAlarm(MiddleLayer.HomeF as HomeForm);
                     break;
                 case MENU_PageType.Vision:
                     ShowhMainPage(MiddleLayer.VPF, ShowPanl);
@@ -697,7 +733,7 @@ int nheightEllipse
                     ShowhMainPage(MiddleLayer.SpanLifeF, ShowPanl);
                     break;
                 case MENU_PageType.Mes:
-                    ShowhMainPage(MiddleLayer.MesF, ShowPanl);
+                    if (MiddleLayer.MesF != null) ShowhMainPage(MiddleLayer.MesF, ShowPanl);
                     break;
                 case MENU_PageType.RuntimeLog:
                     if (runtimeLogPage == null || runtimeLogPage.IsDisposed) runtimeLogPage = new RuntimeLogForm();
@@ -1114,6 +1150,12 @@ int nheightEllipse
 
         #endregion
         /// <summary>在指定面板中显示页面窗体（Dock 铺满）。</summary>
+        internal void SetMesPageAvailable(bool available)
+        {
+            MENU_Mes.Visible = available;
+        }
+
+        /// <summary>在主界面承载区显示已创建的页面。</summary>
         public void ShowhMainPage(dynamic ShowPage, Panel ShowPanl)
         {
             ShowPanl.Focus();
@@ -1178,7 +1220,7 @@ int nheightEllipse
                     MENU_Check.Enabled = Convert.ToBoolean(readData.Rows[0]["Check"]);
                     MENU_System.Enabled = Convert.ToBoolean(readData.Rows[0]["System"]);
                     MENU_AddUser.Enabled = (Permission == PermissionType.Administrator);
-                    MENU_Mes.Enabled = Convert.ToBoolean(readData.Rows[0]["Mes"]);
+                    MENU_Mes.Enabled = MiddleLayer.MesF != null && Convert.ToBoolean(readData.Rows[0]["Mes"]);
                     MENU_Rapid.Enabled = Convert.ToBoolean(readData.Rows[0]["Rapid"]);
                     MENU_Data.Enabled = Convert.ToBoolean(readData.Rows[0]["Data"]);
                     MENU_Vision.Enabled = Convert.ToBoolean(readData.Rows[0]["Vision"]);
@@ -1353,7 +1395,7 @@ int nheightEllipse
                     NPSDK.Alarm.AlarmDataClass a = list[i];   // 结构体，不会为 null
                     if (a.Type != "E") continue;
                     count++;
-                    latest = a.Code + "  " + MiddleLayer.HomeF.ResolveAlarmContent(a.Code, a.Content);
+                    latest = a.Code + "  " + AlarmCatalog.ResolveAlarmContent(a.Code, a.Content);
                     if (!string.IsNullOrEmpty(a.Solution))
                         latest += "\r\n" + MiddleLayer.LangMsg("MainForm", "msg_AlarmSolution", "处理方法：", "Solution: ", "Solución: ") + a.Solution;
                 }
@@ -1843,7 +1885,6 @@ int nheightEllipse
             if
              (dr == DialogResult.Yes)
             {
-                MiddleLayer.gEXIT = true;
                 SwitchMainPage(MENU_PageType.Home);
                 MiddleLayer.FlowCtrl.bStopWork = true;
                 Close();

@@ -1,0 +1,115 @@
+using System.Threading;
+using System.Windows.Forms;
+using AlphaRapLibrary;
+using NPSDK;
+
+namespace AlphaRap
+{
+    partial class MiddleLayer
+    {
+        public static bool MachineInitialReady { get { return FlowProgramming.FlowPrograms.HasPrograms ? FlowProgramming.FlowPrograms.IsInitialized : Application.IsLegacyInitialized; } }
+        /// <summary>确认运行中重新初始化的请求，按当前状态只发送一次初始化指令。</summary>
+        public static void Initial()
+        {
+            if (ContinueInitializationIfActive()) return;
+            if (!FlowProgramming.FlowPrograms.CanStartMachine(true)) return;
+            if (FlowProgramming.FlowPrograms.HasPrograms) FlowProgramming.FlowPrograms.BeginBatch();
+            if (Alarm.IsError) { ShowResetAlarmWarning(); return; }
+            if (SysPara.SystemMode == RunMode.RUN)
+            {
+                DialogResult choice = MessageBox.Show(
+                    LangMsg("MiddleLayer", "msg_Reinitialize", "正在自动生产，确认退出自动生产并执行初始化吗？", "Exit automatic production and initialize?", "¿Salir de producción automática e inicializar?"),
+                    LangMsg("MiddleLayer", "msg_InitializeTitle", "初始化", "Initialize", "Inicializar"),
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                if (choice != DialogResult.OK) return;
+            }
+
+            bool paused = SysPara.SystemMode == RunMode.PAUSE;
+            SysPara.SystemRun = false;
+            Application.ResetLegacyInitialization();
+            SysPara.SystemMode = RunMode.INITIAL;
+            if (paused) Alarm.Clear();
+            else
+            {
+                Flow_Module.Module_StopRun();
+                Thread.Sleep(500);
+            }
+            Flow_Module.Module_InitialRun();
+        }
+
+        /// <summary>初始化暂停时沿用初始化按钮继续同一会话，报警未清除或旧调用未退出时保留等待。</summary>
+        private static bool ContinueInitializationIfActive()
+        {
+            if (!FlowProgramming.FlowPrograms.HasInitializationSession) return false;
+            try { FlowProgramming.FlowPrograms.ContinueInitialization(); }
+            catch (System.Exception error) { MessageBox.Show(error.Message, FlowProgramming.FlowText.T("title")); }
+            return true;
+        }
+
+        /// <summary>触发自动流程；暂停后恢复同一流程会话。</summary>
+        public static void StartRun()
+        {
+            if (!FlowProgramming.FlowPrograms.CanStartMachine(false)) return;
+            AlarmClear();
+            Thread.Sleep(200);
+            if (Alarm.IsError) { ShowResetAlarmWarning(); return; }
+
+            if (SysPara.SystemRun && SysPara.SystemMode == RunMode.PAUSE)
+            {
+                AlarmClear();
+                SysPara.SystemMode = RunMode.RUN;
+                Flow_Module.Module_StartRun();
+                Application.ResumeLegacyOutputs();
+                return;
+            }
+            if (SysPara.SystemRun || SysPara.SystemMode != RunMode.INITIAL) return;
+            SysPara.SystemMode = RunMode.RUN;
+            AlarmClear();
+            if (!FlowProgramming.FlowPrograms.HasPrograms)
+            {
+                Flow_Module.Module_StopRun();
+                Thread.Sleep(500);
+            }
+            Flow_Module.Module_StartRun();
+            SysPara.SystemRun = true;
+        }
+
+        /// <summary>暂停自动或未完成的初始化流程，取消手动动作并通知应用暂停旧式输出。</summary>
+        public static void PauseRun()
+        {
+            bool pauseOutputs = SysPara.SystemMode == RunMode.RUN
+                || (SysPara.SystemMode == RunMode.INITIAL && !MachineInitialReady);
+            if (pauseOutputs) SysPara.SystemMode = RunMode.PAUSE;
+            Flow_Module.Module_PauseRun();
+            if (!FlowProgramming.FlowPrograms.HasPrograms) StopManualRun();
+            if (pauseOutputs && !FlowProgramming.FlowPrograms.HasPrograms) Application.PauseLegacyOutputs();
+        }
+
+        /// <summary>退出自动和初始化状态，停止流程、手动动作及所有电机。</summary>
+        public static void StopRun()
+        {
+            SysPara.SystemRun = false;
+            Application.ResetLegacyInitialization();
+            SysPara.SystemMode = RunMode.IDLE;
+            Flow_Module.Module_StopRun();
+            StopManualRun();
+            Application.StopLegacyOutputs();
+        }
+
+        /// <summary>取消所有模块的手动任务并停止所有电机。</summary>
+        public static void StopManualRun()
+        {
+            foreach (ModuleBaseForm module in ModuleManager.ModuleList)
+                if (module.StopManualTask != null) module.StopManualTask.Cancel();
+            StopAllMotor();
+        }
+
+        /// <summary>请求应用提示操作员清除报警。</summary>
+        private static void ShowResetAlarmWarning()
+        {
+            string message = LangMsg("MiddleLayer", "msg_ResetAlarmFirst", "请先清除报警！", "Please Reset Alarm Firstly!", "¡Restablezca la alarma primero!");
+            string confirm = LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar");
+            Application.ShowWarning(message, confirm);
+        }
+    }
+}

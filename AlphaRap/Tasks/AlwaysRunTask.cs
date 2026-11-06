@@ -1,73 +1,16 @@
-﻿using System;
-using System.Windows.Forms;
-using System.Threading;
 namespace AlphaRap
 {
-	class AlwaysRunTask
-	{
-		private JTimer BlinkTM = new JTimer();
-		private bool BlinkIsOn = false;
-		private const int BlinkTime = 500;
-		public bool BuzzerNeedWork = true;
+    internal sealed class AlwaysRunTask
+    {
+        private readonly JTimer blinkTimer = new JTimer();
+        private bool blinkIsOn;
 
-		Thread FlowControlThread = null;
-
-		public AlwaysRunTask()
-		{
-		}
-
-		public void StartAlwaysRun()
-		{
-			FlowControlThread = new Thread(AlwaysRunWork);
-			FlowControlThread.Start();
-		}
-
-		public void AlwaysRunWork()
-		{
-			while (!MiddleLayer.gEXIT)
-			{
-				AlwaysRun();
-			}
-		}
-		public void AlwaysRun()
-		{
-			if (SysPara.Simulation)
-				return;
-
-			#region BlinkTimer
-			if (BlinkTM.IsOn(BlinkTime))
-			{
-				BlinkIsOn = !BlinkIsOn;
-				BlinkTM.Restart();
-			}
-			#endregion
-
-		}
-
-		public static void RefreshDifferentThreadUI(Control control, Action action)
-		{
-			if (control.InvokeRequired)
-			{
-				Action refreshUI = new Action(action);
-				control.Invoke(refreshUI);
-			}
-			else
-			{
-				action.Invoke();
-			}
-		}
-
-		public void BuzzOff()
-		{
-			if (BuzzerNeedWork)
-			{
-				BuzzerNeedWork = false;
-				MiddleLayer.ManualF.OB_Buzz.On();
-			}
-			else
-			{
-				BuzzerNeedWork = true;
-			}
-		}
-	}
+        /// <summary>更新本站的闪烁时基，仿真时不执行外围任务。</summary>
+        public void AlwaysRun()
+        {
+            if (SysPara.Simulation || !blinkTimer.IsOn(500)) return;
+            blinkIsOn = !blinkIsOn;
+            blinkTimer.Restart();
+        }
+    }
 }

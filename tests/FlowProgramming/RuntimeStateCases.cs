@@ -126,7 +126,7 @@ internal static partial class Cases
         ControlBaseInterface[] previousControls = SDKPara.ControlsSnapshot();
         object previousMain = host.GetField("MainF").GetValue(null), previousData = host.GetField("DataF").GetValue(null);
         bool previousSimulation = SysPara.Simulation, previousRun = SysPara.SystemRun, previousDebug = FlowPrograms.DebugEnabled;
-        bool previousUpInitial = SysPara.UpConveyorInitialOk, previousAllStop = Flow_Module.AllStop, previousAllPause = Flow_Module.AllPause;
+        bool previousAllStop = Flow_Module.AllStop, previousAllPause = Flow_Module.AllPause;
         RunMode previousMode = SysPara.SystemMode;
         bool previousAlarmError = Alarm.IsError, previousAlarmWarning = Alarm.IsWarning, previousAlarmInformation = Alarm.IsInformation;
         var previousAlarms = Alarm.AlarmList.ToArray(); var appAlarms = (List<string>)host.GetField("AlarmList").GetValue(null);
@@ -163,7 +163,7 @@ internal static partial class Cases
                 loadField.SetValue(hardware.Resources, previousLoadError);
                 SetHost("MainF", previousMain); SetHost("DataF", previousData);
                 SysPara.Simulation = previousSimulation; SysPara.SystemRun = previousRun; SysPara.SystemMode = previousMode; FlowPrograms.DebugEnabled = previousDebug;
-                SysPara.UpConveyorInitialOk = previousUpInitial; Flow_Module.AllStop = previousAllStop; Flow_Module.AllPause = previousAllPause;
+                Flow_Module.AllStop = previousAllStop; Flow_Module.AllPause = previousAllPause;
                 Alarm.AlarmList.Clear(); Alarm.AlarmList.AddRange(previousAlarms);
                 Alarm.IsError = previousAlarmError; Alarm.IsWarning = previousAlarmWarning; Alarm.IsInformation = previousAlarmInformation;
                 definitions.Clear(); definitions.AddRange(previousDefinitions); Alarm.DoRefresh = previousRefresh; Alarm.DoStop = previousDoStop;

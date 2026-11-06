@@ -42,7 +42,7 @@
 
 [DeviceControl](../AlphaRap/Controls/DeviceControl.cs) 已有设备类型发现、多个实际实例、参数编辑和 XML 保存。类型清单为 ScannerKeyenceTcp、ATEQ_F620、HIOKI_RM3545、Keyence3DTcp、ModBus_RTU。实例身份应来自资源目录，连接由设备会话复用；浏览动作目录不新建设备、不触发 Open。
 
-还存在 Device 目录外的能力：[Gantry](../AlphaRap/TaskProcess/Gantry.cs) 的 INOVANCE PLC、MiddleLayer 的 Atlas 对象，以及 Classes 中 FFU、MTF6000 等封装。它们是待适配资源候选，不意味着每个类都已在当前设备上启用。只扫描 AbstractDevice 会漏掉这部分功能。
+FFU、FFUCom 和两个 MTF6000 驱动位于应用的 [Devices](../AlphaRap/Devices) 目录，通过 AbstractDevice 接入设备管理和流程工具箱。INOVANCE PLC 通过自己的流程接口提供读写和等待能力。
 
 动作目录按“功能 → 已配置实例 → 动作”组织，方法签名放在高级说明中。例如扫码一次、读取气密结果、读取电阻结果、3D 触发/切程序、PLC 读写。HIOKI 的 ref 参数应映射为具名结果，Modbus 字节数组提供协议解析动作；事件回调不出现在普通动作菜单。设备异步事件必须携带会话/请求标识，防止上一条消息被当成本次结果。
 

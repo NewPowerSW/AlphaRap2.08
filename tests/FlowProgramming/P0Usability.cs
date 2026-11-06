@@ -158,7 +158,7 @@ internal static partial class Cases
             methods.AddRange(vision.GetFlowMethods(true));
             foreach (string name in new[] { "AlphaRap.ScannerKeyenceTcp", "AlphaRap.Keyence3DTcp", "AlphaRap.HIOKI_RM3545", "AlaphaRap.ATEQ_F620", "AlaphaRap.ModBus_RTU", "AlphaRap.PLC.INOVANCE" })
             {
-                Type type = typeof(SysPara).Assembly.GetType(name, true);
+                Type type = typeof(ScannerKeyenceTcp).Assembly.GetType(name, true);
                 object instance = FormatterServices.GetUninitializedObject(type);
                 if (name == "AlphaRap.HIOKI_RM3545") type.GetProperty("ChannelNum").SetValue(instance, 7, null);
                 methods.AddRange(((IFlowObject)instance).GetFlowMethods(true));

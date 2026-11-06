@@ -7,7 +7,7 @@ $dashboardOutput = Join-Path $dashboardRoot ('.vp-validation/main-dashboard/' + 
 New-Item -ItemType Directory -Path $dashboardOutput -Force | Out-Null
 $dashboardExecutable = Join-Path $dashboardOutput 'MainDashboard.Regression.exe'
 $dashboardArguments = @('/nologo', '/target:exe', '/platform:x64', "/out:$dashboardExecutable", '/r:System.Data.dll', '/r:System.Drawing.dll', '/r:System.Windows.Forms.dll', '/r:System.Xml.Linq.dll')
-foreach ($dashboardAssembly in @('AlphaRap.exe', 'NPSDK.dll', 'NewPowerLibrary.dll')) { $dashboardArguments += '/r:' + (Join-Path $dashboardAssemblies $dashboardAssembly) }
+foreach ($dashboardAssembly in @('AlphaRap.exe', 'AlphaRap.Framework.dll', 'NPSDK.dll', 'NewPowerLibrary.dll')) { $dashboardArguments += '/r:' + (Join-Path $dashboardAssemblies $dashboardAssembly) }
 $dashboardArguments += Join-Path $PSScriptRoot 'Regression.cs'
 $dashboardArguments += Join-Path $PSScriptRoot 'Typography.cs'
 & 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe' @dashboardArguments
