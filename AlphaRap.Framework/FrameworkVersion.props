@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <FrameworkVersion>6.0.2</FrameworkVersion>
+    <FrameworkVersion>6.0.3</FrameworkVersion>
     <FrameworkAssemblyVersion>6.0.0.0</FrameworkAssemblyVersion>
   </PropertyGroup>
 </Project>

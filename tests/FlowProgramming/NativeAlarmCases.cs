@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -152,7 +153,8 @@ internal static partial class Cases
             owner.Start(owner.Program.Steps.Single().Id, false, true);
             Wait(owner.Runtime.Completion); owner.RefreshElapsed();
             long elapsed = page.Node.FlowChart_ElapsedMilliseconds;
-            Assert(owner.Runtime.Error == null && elapsed >= 100 && elapsed < 2000 && page.Node.Controls.Find("elapsedTime", true).Single().Text.EndsWith(" s"),
+            string displayed = page.Node.Controls.Find("elapsedTime", true).Single().Text;
+            Assert(owner.Runtime.Error == null && elapsed >= 100 && elapsed < 2000 && displayed == (elapsed / 1000.0).ToString("F2", CultureInfo.InvariantCulture),
                 "A native event could not use the same elapsed clock displayed in the node corner.");
             NativePump(100);
             Assert(page.Node.FlowChart_ElapsedMilliseconds == elapsed, "A completed node kept accumulating time.");
@@ -172,7 +174,7 @@ internal static partial class Cases
             {
                 ActionUntil(() => page.Node.FlowChart_ElapsedMilliseconds >= 40, "The continued node clock did not advance.");
                 owner.Handle(FlowProgramCommand.Pause); NativePump(80);
-                Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && page.Node.Controls.Find("elapsedTime", true).Single().Text == "0.00 s",
+                Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && page.Node.Controls.Find("elapsedTime", true).Single().Text == "0.00",
                     "A pause did not reset and hold the active clock at zero.");
                 owner.Handle(FlowProgramCommand.Resume);
             }

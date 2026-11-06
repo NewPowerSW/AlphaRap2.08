@@ -107,6 +107,7 @@ internal static class Cases
     {
         Button button = (Button)node.Controls.Find("button1", true).Single();
         Control elapsed = node.Controls.Find("elapsedTime", true).Single();
+        Check(elapsed.Text == "0.00", "The elapsed-time label should display only the numeric value.");
         Rectangle caption = FlowChartCaptionInk(button);
         Padding padding = button.Padding;
         button.Padding = Padding.Empty;

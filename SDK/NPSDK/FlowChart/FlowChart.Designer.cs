@@ -57,7 +57,7 @@
             this.elapsedTime.ForeColor = System.Drawing.Color.Black;
             this.elapsedTime.TextAlign = System.Drawing.ContentAlignment.TopRight;
             this.elapsedTime.Name = "elapsedTime";
-            this.elapsedTime.Text = "0.00 s";
+            this.elapsedTime.Text = "0.00";
 			// 
 			// Flow_Chart
 			// 

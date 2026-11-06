@@ -180,7 +180,7 @@ namespace NPSDK
             if (IsDisposed) return;
             if (IsHandleCreated && InvokeRequired) { BeginInvoke(new Action(RefreshProgramTiming)); return; }
             string text;
-            lock (Elapsedtimer) text = programTimingStarted ? (Elapsedtimer.ElapsedMilliseconds / 1000.0).ToString("F2", CultureInfo.InvariantCulture) + " s" : "";
+            lock (Elapsedtimer) text = programTimingStarted ? (Elapsedtimer.ElapsedMilliseconds / 1000.0).ToString("F2", CultureInfo.InvariantCulture) : "";
             if (elapsedTime.Text == text) return;
             elapsedTime.Text = text;
             UpdateProgramLabel();
