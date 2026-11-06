@@ -2,13 +2,13 @@
 
 - **AlphaRap.Framework** 提供设备和控件发现、流程、动态资源、视觉、配方、权限、报警和日志等通用模块与编辑页。
 - **AlphaRap** 是本机应用，负责进程启动、主窗体、首页和页面导航，并拥有设备驱动、PLC、固定 IO、工位事件、视觉配方表及客户 MES。
-- **AlphaRapLibrary 和 NPSDK** 是框架使用的公共依赖。引用方向为应用 → 框架 → 公共依赖。
+- **NPSDK** 是框架使用的公共依赖。模块基类和模块注册由框架提供，引用方向为应用 → 框架 → NPSDK。
 
 应用入口调用 `ApplicationHost.Initialize(profile)` 初始化模块，随后用自己的窗口运行 WinForms 消息循环，退出时调用 `ApplicationHost.Shutdown()`。应用可继承 `MachineApplication` 提供窗口与工位。窗口可实现 `IModuleWindow` 接入统一保存、权限更新和视觉预览。Device 派生类和 NP 控件派生类仍按已有规则发现，站点的 `FlowChartRun` 事件继续直接进入工具箱。项目代码可直接访问设计器创建的字段，也可通过 `ApplicationHost.GetResource<T>(id)` 取得流程目录里的同一个动态实例。稳定资源键沿用原流程引用。
 
 ## 构建和发布
 
-仓库开发时从 `AlphaRap.sln` 以 Debug/x64 构建框架、应用及公共依赖。发框架包时，使用安装了 .NET Framework 4.8 开发工具、Cognex VisionPro SDK、原有 NuGet 依赖和 .NET SDK 的开发机：
+仓库开发时从 `AlphaRap.sln` 以 Debug/x64 构建框架和应用。发框架包时，使用安装了 .NET Framework 4.8 开发工具、Cognex VisionPro SDK、原有 NuGet 依赖和 .NET SDK 的开发机：
 
 ```powershell
 ./build/Pack-Framework.ps1
@@ -41,3 +41,7 @@ MSBuild.exe AlphaRap/AlphaRap.csproj /restore /t:Build /p:Configuration=Release 
 ### 从 3.x 升级到 4.x
 
 应用通过 `MachineApplication.CreateDataPage` 提供自己的数据页，并在派生页中用 `RegisterLogSources` 登记固定日志组件。AlphaRap 的六个固定日志定义位于 `StationDataForm`。写入使用 `WriteLog` 或 `WriteDistinctLog`，可通过 `GetLogSource` 取得原始组件。既有日志目录、CSV 列和 `log/builtin/` 流程键沿用原值。
+
+### 从 4.x 升级到 5.x
+
+应用和扩展使用 AlphaRap.Framework 5.0.0 重新构建。ModuleBaseForm 和 ModuleManager 由 AlphaRap.Framework.dll 提供，沿用 AlphaRapLibrary 命名空间。项目可移除 NewPowerLibrary.dll 的直接引用，旧二进制扩展须重新编译。

@@ -14,7 +14,7 @@
     <FrameworkOutput Condition="'$(FrameworkOutput)' == ''">$(MSBuildThisFileDirectory)../AlphaRap.Framework/bin/x64/Release</FrameworkOutput>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="$(FrameworkOutput)/AlphaRap.Framework.dll;$(FrameworkOutput)/NPSDK.dll;$(FrameworkOutput)/NewPowerLibrary.dll;$(FrameworkOutput)/HslCommunication.dll;$(FrameworkOutput)/DataGridViewAutoFilter.dll;$(FrameworkOutput)/LifeSpanTimer.dll;$(FrameworkOutput)/SunnyUI.dll;$(FrameworkOutput)/SunnyUI.Common.dll"
+    <None Include="$(FrameworkOutput)/AlphaRap.Framework.dll;$(FrameworkOutput)/NPSDK.dll;$(FrameworkOutput)/HslCommunication.dll;$(FrameworkOutput)/DataGridViewAutoFilter.dll;$(FrameworkOutput)/LifeSpanTimer.dll;$(FrameworkOutput)/SunnyUI.dll;$(FrameworkOutput)/SunnyUI.Common.dll"
           Pack="true" PackagePath="lib/net48/" />
     <None Include="../docs/FrameworkPackaging.md" Pack="true" PackagePath="/" />
   </ItemGroup>

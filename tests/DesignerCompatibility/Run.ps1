@@ -7,7 +7,7 @@ $designerOutputRoot = Join-Path $designerProjectRoot '.vp-validation/designer-co
 New-Item -ItemType Directory -Path $designerOutputRoot -Force | Out-Null
 $designerExecutable = Join-Path $designerOutputRoot 'DesignerCompatibility.Regression.exe'
 $designerArguments = @('/nologo', '/target:exe', '/platform:x64', "/out:$designerExecutable", '/r:System.Data.dll', '/r:System.Design.dll', '/r:System.Drawing.dll', '/r:System.Windows.Forms.dll', '/r:System.Xml.Linq.dll')
-foreach ($designerAssembly in @('AlphaRap.exe', 'AlphaRap.Framework.dll', 'NPSDK.dll', 'NewPowerLibrary.dll')) { $designerArguments += '/r:' + (Join-Path $designerAssemblyRoot $designerAssembly) }
+foreach ($designerAssembly in @('AlphaRap.exe', 'AlphaRap.Framework.dll', 'NPSDK.dll')) { $designerArguments += '/r:' + (Join-Path $designerAssemblyRoot $designerAssembly) }
 $designerArguments += Join-Path $PSScriptRoot 'Regression.cs'
 & 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe' @designerArguments
 if ($LASTEXITCODE -ne 0) { throw 'Designer compatibility regression compilation failed.' }

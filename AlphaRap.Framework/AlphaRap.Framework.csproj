@@ -621,6 +621,13 @@
     </Compile>
     <Compile Include="Core\MiddleLayer.cs" />
     <Compile Include="Core\ApplicationHost.cs" />
+    <Compile Include="Core\ModuleBaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Core\ModuleBaseForm.Designer.cs">
+      <DependentUpon>ModuleBaseForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\ModuleManager.cs" />
     <Compile Include="Properties\ApplicationAssemblyAccess.cs" />
     <Compile Include="MenuForm\ManualPage.cs" />
     <Compile Include="MenuForm\DefaultManualPage.cs">
@@ -818,6 +825,9 @@
     <EmbeddedResource Include="FlowProgramming\FlowSourceForm.resx">
       <DependentUpon>FlowSourceForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Core\ModuleBaseForm.resx">
+      <DependentUpon>ModuleBaseForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Configuration\ConstantEditForm.resx">
       <DependentUpon>ConstantEditForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -973,12 +983,6 @@
     <Content Include="Resources\Picture\Untitled.png" />
     <Content Include="Resources\timg %282%29.png" />
     <Content Include="Resources\timg.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AlphaRapLibrary\AlphaRapLibrary.csproj">
-      <Project>{46B43E85-8B46-4186-956A-DCD82FC781B7}</Project>
-      <Name>AlphaRapLibrary</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="FrameworkVersion.props" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

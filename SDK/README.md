@@ -1,6 +1,6 @@
 ﻿# 核心程序集引用
 
-AlphaRap 与 AlphaRapLibrary 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心包含 Flow_Chart、Flow_BaseForm、流程运行器、报警、运动控制和 IO；主程序使用 ProjectReference 引用 AlphaRapLibrary，输出名为 NewPowerLibrary.dll。
+AlphaRap 与 AlphaRap.Framework 统一引用仓库内 `SDK/lib/NPSDK.dll`。核心包含 Flow_Chart、Flow_BaseForm、流程运行器、报警、运动控制和 IO。主程序通过 AlphaRap.Framework 使用模块基类和模块注册。
 
 ## 当前发布来源
 

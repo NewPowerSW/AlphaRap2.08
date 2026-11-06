@@ -973,10 +973,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Condition="'$(UsePackagedFramework)' != 'true'" Include="..\AlphaRapLibrary\AlphaRapLibrary.csproj">
-      <Project>{46B43E85-8B46-4186-956A-DCD82FC781B7}</Project>
-      <Name>AlphaRapLibrary</Name>
-    </ProjectReference>
     <ProjectReference Condition="'$(UsePackagedFramework)' != 'true'" Include="..\AlphaRap.Framework\AlphaRap.Framework.csproj">
       <Name>AlphaRap.Framework</Name>
       <Project>{3390AAC4-C0A3-43CC-B784-179F1844189D}</Project>
@@ -984,7 +980,7 @@
   </ItemGroup>
   <PropertyGroup Condition="'$(UsePackagedFramework)' == 'true'">
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <AlphaRapFrameworkPackageVersion>4.0.0</AlphaRapFrameworkPackageVersion>
+    <AlphaRapFrameworkPackageVersion>5.0.0</AlphaRapFrameworkPackageVersion>
     <RestoreSources Condition="'$(RestoreSources)' == ''">$(MSBuildThisFileDirectory)..\artifacts\framework</RestoreSources>
   </PropertyGroup>
   <ItemGroup Condition="'$(UsePackagedFramework)' == 'true'">

@@ -13,7 +13,6 @@ $vpReferences = @(
     (Join-Path $vpBuildDirectory 'AlphaRap.exe'),
     (Join-Path $vpBuildDirectory 'AlphaRap.Framework.dll'),
     (Join-Path $vpBuildDirectory 'NPSDK.dll'),
-    (Join-Path $vpBuildDirectory 'NewPowerLibrary.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.Core.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.CalibFix.dll'),
