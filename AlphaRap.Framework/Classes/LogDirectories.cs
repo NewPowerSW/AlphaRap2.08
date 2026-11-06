@@ -16,7 +16,8 @@ namespace AlphaRap
         internal static void RestoreAlarmPath(DataForm data)
         {
             string directory = LegacyPath("AlarmPath");
-            if (directory.Length > 0) data.Alarm.SavePath = directory;
+            var alarm = data?.GetLogSource("Alarm");
+            if (alarm != null && directory.Length > 0) alarm.SavePath = directory;
         }
 
         /// <summary>按配置目录读取一次旧路径文件，不创建窗体、不修改旧文件。</summary>

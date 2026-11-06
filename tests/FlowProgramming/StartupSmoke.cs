@@ -69,6 +69,9 @@ internal static class StartupSmoke
         VerifyApplicationBoundary(host);
         host.GetMethod("LoadAlarmTable",BindingFlags.Static|BindingFlags.NonPublic,null,Type.EmptyTypes,null).Invoke(null,null);
         host.GetMethod("CreateProjectForms",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
+        var stationData = (DataForm)host.GetField("DataF").GetValue(null);
+        foreach (string log in new[] { "MESLOG", "Alarm", "LogRun", "LogError", "UserLogin", "OperationLog" })
+            stationData.GetLogSource(log).SavePath = Path.Combine(root, "Logs", log);
         host.GetMethod("InitialLanguageData",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
         host.GetMethod("SwitchLanguage",BindingFlags.Static|BindingFlags.Public).Invoke(null,new object[]{LanguageType.Chinese});
         host.GetField("alarmRunTask",BindingFlags.Static|BindingFlags.Public).SetValue(null,System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(AlarmRunTask)));
@@ -172,6 +175,8 @@ internal static class StartupSmoke
         foreach (FlowModuleEditor sample in FlowPrograms.Modules) sample.Program.Mode = "Disabled";
         HardForm hardware = (HardForm)host.GetField("HardF",BindingFlags.Static|BindingFlags.Public).GetValue(null);
         DataForm data = (DataForm)host.GetField("DataF",BindingFlags.Static|BindingFlags.Public).GetValue(null);
+        if (!(data is StationDataForm) || data.GetLogSource("Alarm") == null)
+            throw new InvalidOperationException("Startup did not register the application data page and its alarm writer.");
         HardwareDefinition definition = hardware.Resources.NewDefinition("Axis");
         definition.ControlType = HardwareControlTypes.Identity(typeof(StartupDerivedAxis));
         NP_AxisGroup axis = (NP_AxisGroup)hardware.Resources.Put(definition).Group; axis.Points.DataSet1.Rows.Add(21,"Main save point");

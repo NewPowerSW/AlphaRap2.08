@@ -17,6 +17,7 @@ internal static partial class Cases
     /// <summary>Exercise configurable log modules without devices or production paths.</summary>
     private static void RegisterLogModuleCases()
     {
+        Test("the application owns six fixed log schemas and preserves their flow keys", StationLogSources);
         Test("log drafts publish only through Main Save and reload independently of recipes", LogDraftLifetime);
         Test("mixed flow binds numeric output to a selected log module and persists one record", LogFlowBinding);
         Test("log simulation and conversion failures never pollute production logs", LogSimulation);
@@ -38,7 +39,7 @@ internal static partial class Cases
         {
             Folder = Path.Combine(root, "logs-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(Folder);
             SysPara.SettingDataDirectory = Folder; previous = host.GetField("DataF").GetValue(null);
-            Form = new DataForm(); SetHost("DataF", Form);
+            Form = new StationDataForm(); SetHost("DataF", Form);
         }
         /// <summary>Restore host state without removing test evidence.</summary>
         public void Dispose() { SetHost("DataF", previous); Form.Dispose(); SysPara.SettingDataDirectory = settings; }
@@ -57,6 +58,29 @@ internal static partial class Cases
         internal void Method(string name, params object[] args) { typeof(DataForm).GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(Form, args); }
     }
 
+    /// <summary>Only the application supplies fixed components and their legacy resource keys.</summary>
+    private static void StationLogSources()
+    {
+        using (LogFixture fixture = new LogFixture())
+        using (DataForm framework = new DataForm())
+        {
+            string[] names = { "MESLOG", "Alarm", "LogRun", "LogError", "UserLogin", "OperationLog" };
+            Assert(!framework.GetFlowLogs().Any() && names.All(name => framework.GetLogSource(name) == null),
+                "The generic framework data page instantiated station log components.");
+            Assert(fixture.Form.Name == "DataForm" && fixture.Form.Text == "DataForm", "The data page language identity changed.");
+            Assert(fixture.Form.GetFlowLogs().Select(log => log.Id).SequenceEqual(names.Select(name => "log/builtin/" + name)),
+                "An application log key or ordering changed.");
+            Assert(names.All(name => fixture.Form.GetLogSource(name).SavePath == @"D:\Log\" + name),
+                "A legacy station log directory changed.");
+            TypeCollection1 mes = fixture.Form.GetLogSource("MESLOG");
+            mes.SavePath = Path.Combine(fixture.Folder, "mes-records");
+            fixture.Form.WriteDistinctLog("MESLOG", "one MES transaction");
+            fixture.Form.WriteDistinctLog("MESLOG", "one MES transaction");
+            List<string[]> rows = mes.ReadDataFromToFile(DateTime.Today, DateTime.Today);
+            Assert(rows.Count == 2 && rows[1][1] == "one MES transaction", "MES logging lost its schema or duplicate filtering.");
+        }
+    }
+
     /// <summary>Draft changes are visible in the toolbox but not executable until committed.</summary>
     private static void LogDraftLifetime()
     {
@@ -71,7 +95,7 @@ internal static partial class Cases
             string recipe = SysPara.FilePath; SysPara.FilePath = Path.Combine(fixture.Folder, "OtherRecipe.xml");
             try { using (DataForm fresh = new DataForm()) Assert(fresh.GetLogModules(false).Single().Id == definition.Id, "Recipe switch changed machine log definitions."); }
             finally { SysPara.FilePath = recipe; }
-            Assert(fixture.Form.Alarm.Items.Count == 8 && fixture.Form.Alarm.Text == "Alarm", "Built-in alarm log changed.");
+            Assert(fixture.Form.GetLogSource("Alarm").Items.Count == 8 && fixture.Form.GetLogSource("Alarm").Text == "Alarm", "Built-in alarm log changed.");
         }
     }
 
@@ -149,7 +173,7 @@ internal static partial class Cases
         {
             LogModuleDefinition definition = fixture.Definition(); definition.Name = "Alarm";
             bool rejected = false; try { fixture.Form.SetLogModulesDraft(new List<LogModuleDefinition> { definition }); } catch { rejected = true; }
-            Assert(rejected && fixture.Form.Alarm.Items.Count == 8, "Custom module replaced the alarm schema.");
+            Assert(rejected && fixture.Form.GetLogSource("Alarm").Items.Count == 8, "Custom module replaced the alarm schema.");
             definition.Name = "Custom"; definition.Fields.Add(new ProductionField { Name = "Time" }); rejected = false;
             try { fixture.Form.SetLogModulesDraft(new List<LogModuleDefinition> { definition }); } catch { rejected = true; }
             Assert(rejected && !fixture.Form.GetLogModules().Any(), "Reserved Time was accepted.");
@@ -168,10 +192,10 @@ internal static partial class Cases
             bool blocked = false; try { fixture.Form.SetLogModulesDraft(new List<LogModuleDefinition>()); } catch (InvalidOperationException) { blocked = true; }
             Assert(blocked, "A bound log definition was removed."); owner.Delete(node.Id);
             fixture.Form.SetLogModulesDraft(new List<LogModuleDefinition>());
-            string path = Path.Combine(fixture.Folder, "blocked"); File.WriteAllText(path, "file"); fixture.Form.LogRun.SavePath = path;
+            string path = Path.Combine(fixture.Folder, "blocked"); File.WriteAllText(path, "file"); fixture.Form.GetLogSource("LogRun").SavePath = path;
             blocked = false; try { fixture.Form.AddRunLog("retry same message"); } catch (IOException) { blocked = true; }
-            fixture.Form.LogRun.SavePath = Path.Combine(fixture.Folder, "retry"); fixture.Form.AddRunLog("retry same message");
-            Assert(blocked && fixture.Form.LogRun.ReadDataFromToFile(DateTime.Today, DateTime.Today).Count == 2, "A failed log was marked as successfully recorded.");
+            fixture.Form.GetLogSource("LogRun").SavePath = Path.Combine(fixture.Folder, "retry"); fixture.Form.AddRunLog("retry same message");
+            Assert(blocked && fixture.Form.GetLogSource("LogRun").ReadDataFromToFile(DateTime.Today, DateTime.Today).Count == 2, "A failed log was marked as successfully recorded.");
         }
     }
 
@@ -200,8 +224,8 @@ internal static partial class Cases
                 File.WriteAllText(file, xml);
                 Type directories = typeof(DataForm).Assembly.GetType("AlphaRap.LogDirectories", true);
                 directories.GetMethod("RestoreAlarmPath", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { fixture.Form });
-                Assert(AlarmHistory.RootPath() == alarm && fixture.Form.Alarm.SavePath == alarm, "Alarm history does not use the actual writer directory.");
-                fixture.Form.Alarm.SaveDataToFile(new[] { "operator", "R1", "Recipe", "Auto", "ERROR", "2019", "kept after page removal" });
+                Assert(AlarmHistory.RootPath() == alarm && fixture.Form.GetLogSource("Alarm").SavePath == alarm, "Alarm history does not use the actual writer directory.");
+                fixture.Form.GetLogSource("Alarm").SaveDataToFile(new[] { "operator", "R1", "Recipe", "Auto", "ERROR", "2019", "kept after page removal" });
                 int count; List<AlarmRecord> records = AlarmHistory.Query(DateTime.Today, DateTime.Today, AlarmHistory.FilterAll, "", "", out count);
                 Assert(records.Count == 1 && records[0].Code == "2019" && count == 1, "Removing the path page broke alarm write/query.");
                 ProductionDataStore.SetRoot("");

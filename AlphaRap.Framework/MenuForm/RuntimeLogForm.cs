@@ -119,7 +119,8 @@ namespace AlphaRap
             DateTime from = dateFrom.Value.Date, to = dateTo.Value.Date;
             string level = levelFilter.SelectedIndex == 1 ? RuntimeLogHistory.Run : levelFilter.SelectedIndex == 2 ? RuntimeLogHistory.Error : RuntimeLogHistory.All;
             string keyword = keywordFilter.Text;
-            string runDirectory = MiddleLayer.DataF.LogRun.SavePath, errorDirectory = MiddleLayer.DataF.LogError.SavePath;
+            string runDirectory = MiddleLayer.DataF.GetLogSource("LogRun")?.SavePath;
+            string errorDirectory = MiddleLayer.DataF.GetLogSource("LogError")?.SavePath;
             loading = true;
             btnQuery.Enabled = btnExport.Enabled = false;
             RefreshStatus();

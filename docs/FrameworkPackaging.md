@@ -36,3 +36,8 @@ MSBuild.exe AlphaRap/AlphaRap.csproj /restore /t:Build /p:Configuration=Release 
 ### 从 2.x 升级到 3.x
 
 应用引用升级到 `AlphaRap.Framework 3.0.0` 后重新构建。统一保存使用的 `Alpha.OptionChoiceForm` 由应用项目编译。框架通过 `MachineApplication.ShowWarning` 发出警告，应用可以在这个入口使用自己的弹窗。
+
+
+### 从 3.x 升级到 4.x
+
+应用通过 `MachineApplication.CreateDataPage` 提供自己的数据页，并在派生页中用 `RegisterLogSources` 登记固定日志组件。AlphaRap 的六个固定日志定义位于 `StationDataForm`。写入使用 `WriteLog` 或 `WriteDistinctLog`，可通过 `GetLogSource` 取得原始组件。既有日志目录、CSV 列和 `log/builtin/` 流程键沿用原值。

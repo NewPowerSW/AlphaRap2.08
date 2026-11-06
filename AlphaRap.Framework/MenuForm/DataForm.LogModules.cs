@@ -13,26 +13,61 @@ namespace AlphaRap
         private readonly LogModuleStore logStore = new LogModuleStore();
         private readonly List<TypeCollection1> customLogs = new List<TypeCollection1>();
 
+        private readonly List<RegisteredLog> registeredLogs = new List<RegisteredLog>();
+
+        private sealed class RegisteredLog
+        {
+            internal readonly string Id;
+            internal readonly TypeCollection1 Source;
+            internal readonly string Directory;
+            internal string LastMessage = string.Empty;
+
+            /// <summary>记录应用登记的日志实例与根目录。</summary>
+            internal RegisteredLog(string id, TypeCollection1 source)
+            {
+                Id = id;
+                Source = source;
+                Directory = source.SavePath;
+            }
+        }
+
+        /// <summary>登记应用的固定日志实例，并沿用给定的流程资源键。</summary>
+        protected void RegisterLogSources(params KeyValuePair<string, TypeCollection1>[] sources)
+        {
+            foreach (KeyValuePair<string, TypeCollection1> entry in sources)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Key) || entry.Value == null || string.IsNullOrWhiteSpace(entry.Value.SavePath) ||
+                    FindRegisteredLog(entry.Key) != null || registeredLogs.Any(log => ReferenceEquals(log.Source, entry.Value)))
+                    throw new InvalidOperationException(FlowText.T("logInvalid"));
+
+                registeredLogs.Add(new RegisteredLog(entry.Key, entry.Value));
+            }
+
+            if (!UiTheme.IsDesignTime) RefreshLogSources(false);
+        }
+
+        /// <summary>按稳定键取得应用登记的日志实例，未登记时返回空。</summary>
+        public TypeCollection1 GetLogSource(string id) { return FindRegisteredLog(id)?.Source; }
+
+        /// <summary>在应用固定日志中查找指定资源键。</summary>
+        private RegisteredLog FindRegisteredLog(string id) { return registeredLogs.Find(log => log.Id == id); }
+
+        /// <summary>释放数据页持有的固定日志组件和动态查询对象。</summary>
+        private void DisposeLogSources()
+        {
+            foreach (RegisteredLog log in registeredLogs) log.Source.Dispose();
+            foreach (TypeCollection1 log in customLogs) log.Dispose();
+        }
+
         /// <summary>读取日志配置独立副本，模块身份不随名称或配方改变。</summary>
         public List<LogModuleDefinition> GetLogModules(bool includeDraft = true) { return logStore.Read(includeDraft); }
-
-        /// <summary>保留内置报警、MES 和操作日志，动态模块只追加到数据查询入口。</summary>
-        private IEnumerable<KeyValuePair<string, TypeCollection1>> BuiltinLogs()
-        {
-            yield return new KeyValuePair<string, TypeCollection1>("MESLOG", MESLOG);
-            yield return new KeyValuePair<string, TypeCollection1>("Alarm", Alarm);
-            yield return new KeyValuePair<string, TypeCollection1>("LogRun", LogRun);
-            yield return new KeyValuePair<string, TypeCollection1>("LogError", LogError);
-            yield return new KeyValuePair<string, TypeCollection1>("UserLogin", UserLogin);
-            yield return new KeyValuePair<string, TypeCollection1>("OperationLog", UserOperationLog);
-        }
 
         /// <summary>按实例提供日志模块能力；编辑读取草稿，运行只读取已保存定义。</summary>
         public IEnumerable<FlowLogModule> GetFlowLogs(bool includeDraft = false)
         {
-            foreach (KeyValuePair<string, TypeCollection1> entry in BuiltinLogs())
-                yield return new FlowLogModule("builtin/" + entry.Key, entry.Value,
-                    entry.Value.Items.Skip(1).Select(field => new ProductionField { Name = field.Name, Type = "Text" }));
+            foreach (RegisteredLog entry in registeredLogs)
+                yield return new FlowLogModule("builtin/" + entry.Id, entry.Source,
+                    entry.Source.Items.Skip(1).Select(field => new ProductionField { Name = field.Name, Type = "Text" }));
             List<LogModuleDefinition> definitions = logStore.Read(includeDraft); ValidateBuiltinLogs(definitions);
             foreach (LogModuleDefinition definition in definitions)
                 yield return new FlowLogModule(definition.Id, FlowLogModule.Create(definition), definition.Fields);
@@ -67,8 +102,9 @@ namespace AlphaRap
             {
                 if (module == null || string.IsNullOrWhiteSpace(module.Directory)) throw new InvalidOperationException(FlowText.T("logInvalid"));
                 string path = LogDirectory(module.Directory);
-                if (BuiltinLogs().Any(entry => string.Equals(entry.Value.Text, module.Name, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(LogDirectory(entry.Value.SavePath), path, StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException(FlowText.T("logInvalid"));
+                if (registeredLogs.Any(entry => string.Equals(entry.Source.Text, module.Name, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(LogDirectory(entry.Source.SavePath), path, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(LogDirectory(entry.Directory), path, StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException(FlowText.T("logInvalid"));
             }
         }
 
@@ -81,11 +117,12 @@ namespace AlphaRap
         /// <summary>保持内置日志实例，替换动态查询对象并释放旧组件。</summary>
         private void RefreshLogSources(bool includeDraft)
         {
+            List<LogModuleDefinition> definitions = logStore.Read(includeDraft);
+            ValidateBuiltinLogs(definitions);
             data1.ParameterSet.Clear();
-            foreach (KeyValuePair<string, TypeCollection1> entry in BuiltinLogs()) data1.ParameterSet.Add(entry.Value);
+            foreach (RegisteredLog entry in registeredLogs) data1.ParameterSet.Add(entry.Source);
             foreach (TypeCollection1 log in customLogs) log.Dispose();
             customLogs.Clear();
-            List<LogModuleDefinition> definitions = logStore.Read(includeDraft); ValidateBuiltinLogs(definitions);
             foreach (LogModuleDefinition definition in definitions)
             {
                 TypeCollection1 log = FlowLogModule.Create(definition); customLogs.Add(log); data1.ParameterSet.Add(log);

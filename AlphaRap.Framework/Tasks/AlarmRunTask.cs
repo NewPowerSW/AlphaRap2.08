@@ -92,7 +92,7 @@ namespace AlphaRap
             data[4] = alarm.Type == "E" ? "ERROR" : "Information";
             data[5] = alarm.Code;
             data[6] = alarm.Content;
-            MiddleLayer.DataF.Alarm.SaveDataToFile(data);
+            MiddleLayer.DataF.WriteLog("Alarm", data);
         }
     }
 }

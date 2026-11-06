@@ -49,8 +49,7 @@ namespace AlphaRap
         /// <summary>报警历史与实际报警写盘使用同一个 DataForm 日志目录。</summary>
         public static string RootPath()
         {
-            if (MiddleLayer.DataF == null || MiddleLayer.DataF.Alarm == null) return "";
-            return (MiddleLayer.DataF.Alarm.SavePath ?? "").Trim();
+            return (MiddleLayer.DataF?.GetLogSource("Alarm")?.SavePath ?? "").Trim();
         }
 
         /// <summary>实际报警日志目录是否存在。</summary>

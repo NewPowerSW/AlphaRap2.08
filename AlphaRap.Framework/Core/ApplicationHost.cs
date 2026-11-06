@@ -45,6 +45,9 @@ namespace AlphaRap
         /// <summary>创建通用 IO 页面，项目可返回带固定 IO 的派生页面。</summary>
         public virtual ManualPage CreateManualPage() { return new DefaultManualPage(); }
 
+        /// <summary>创建通用数据页，应用可登记自己的固定日志。</summary>
+        public virtual DataForm CreateDataPage() { return new DataForm(); }
+
         /// <summary>创建视觉管理页面，项目可扩展配方和默认视觉站。</summary>
         public virtual VPForm CreateVisionPage() { return new VPForm(); }
 

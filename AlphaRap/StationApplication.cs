@@ -45,6 +45,9 @@ namespace AlphaRap
         /// <summary>创建保留本站固定 IO 的手动页。</summary>
         public override ManualPage CreateManualPage() { return Manual = new ManualForm(); }
 
+        /// <summary>创建并登记本站的固定日志数据页。</summary>
+        public override DataForm CreateDataPage() { return new StationDataForm(); }
+
         /// <summary>创建保留旧配方视觉表的项目页面。</summary>
         public override VPForm CreateVisionPage() { return Vision = new StationVisionForm(); }
 

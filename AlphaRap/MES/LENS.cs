@@ -72,7 +72,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "sn" + "\"" + ":" + "\"" + Product_SN_Verification_SN + "\"" + ",");
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + Product_SN_Verification_operation + "\"");
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog(" Product_SN_Verification:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " Product_SN_Verification:" + str.ToString());
 
             return ReturnValue(Post(Product_SN_Verification_URL, str.ToString(), out Post_Message));
         }
@@ -141,7 +141,7 @@ namespace AlphaRap.MES
                 str.Append("\"" + "sn" + "\"" + ":" + "\"" + MaterialStartup_SN_SN + "\"" + ",");
                 str.Append("\"" + "operation" + "\"" + ":" + "\"" + MaterialStartup_SN_operation + "\"");
                 str.Append("}");
-                ApplicationHost.Data.SaveMesLog(" MaterialStartupSNInterface:" + str.ToString());
+                ApplicationHost.Data.WriteDistinctLog("MESLOG", " MaterialStartupSNInterface:" + str.ToString());
 
                 return ReturnValue(Post(MaterialStartup_SN_URL, str.ToString(), out Post_Message));
             }
@@ -218,7 +218,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "operation" + "\"" + ":" + " " + "\"" + Product_SN_Start_Operation + "\"");
 
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog("Product_SN_Start_Interface:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", "Product_SN_Start_Interface:" + str.ToString());
 
             return ReturnValue(Post(Product_SN_Start_Url, str.ToString(), out Post_Message));
         }
@@ -413,7 +413,7 @@ namespace AlphaRap.MES
                 str.Append("]");
                 str.Append("}");
 
-                ApplicationHost.Data.SaveMesLog("Integrated_Transit_Interface:" + str.ToString());
+                ApplicationHost.Data.WriteDistinctLog("MESLOG", "Integrated_Transit_Interface:" + str.ToString());
 
                 return ReturnValue(Post(Integrated_Transit_Url, str.ToString(), out Post_Message));
             }
@@ -489,7 +489,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "camera" + "\"" + ":" + "\"" + Material_Barcode_Inspection_Camera + "\"" + ",");
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + Material_Barcode_Inspection_Operation + "\"");
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog("Material_Barcode_Inspection_interface:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", "Material_Barcode_Inspection_interface:" + str.ToString());
 
             return ReturnValue(Post(Material_Barcode_Inspection_Url, str.ToString(), out Post_Message));
         }
@@ -616,7 +616,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "function" + "\"" + ":" + "\"" + Material_Loading_Unloading_Function + "\"" + ",");
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + Material_Loading_Unloading_Operation + "\"");
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog("Material_Barcode_Inspection_interface:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", "Material_Barcode_Inspection_interface:" + str.ToString());
 
             return ReturnValue(Post(Material_Barcode_Inspection_Url, str.ToString(), out Post_Message));
         }
@@ -665,7 +665,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "sn" + "\"" + ":" + "\"" + Electrical_Measurement_Query_Sn + "\"" + ",");
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + Electrical_Measurement_Query_Operation + "\"");
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog(" Electrical_Measurement_Query:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " Electrical_Measurement_Query:" + str.ToString());
             return ReturnValue(Post(Electrical_Measurement_Query_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -817,7 +817,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "assembleComponents" + "\"" + ":" + "\"" + BTtext_Detection_Upload_AssembleComponents + "\"" + ",");
             str.Append("}");
 
-            ApplicationHost.Data.SaveMesLog(" BT_test_data_detection_upload:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " BT_test_data_detection_upload:" + str.ToString());
             return ReturnValue(Post(BTtext_Detection_Upload_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -840,7 +840,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "fpc" + "\"" + ":" + "\"" + Electrical_Measurement_Query_Sn + "\"" + ",");
             str.Append("\"" + "site" + "\"" + ":" + "\"" + Electrical_Measurement_Query_Operation + "\"");
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog(" Glass_FPC_SN_Consistency_Verification:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " Glass_FPC_SN_Consistency_Verification:" + str.ToString());
             return ReturnValue(Post(Glass_FPC_SN_Consistency_Verification_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -901,7 +901,7 @@ namespace AlphaRap.MES
             str.Append("}");
             str.Append("]");
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog(" Tray_Barcode_Binding_interface:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " Tray_Barcode_Binding_interface:" + str.ToString());
             return ReturnValue(Post(TrayBarcodeBinding_URL, str.ToString(), out Post_Message));
         }
         #endregion
@@ -942,7 +942,7 @@ namespace AlphaRap.MES
 
             str.Append("}");
 
-            ApplicationHost.Data.SaveMesLog(" TrayDisk_BarcodeUnbinding_interface:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " TrayDisk_BarcodeUnbinding_interface:" + str.ToString());
             return ReturnValue(Post(TrayDiskBarcodeUnbinding_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -980,7 +980,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "site" + "\"" + ":" + "\"" + TaryDiskInformationQuery_Site + "\"" + ",");
             str.Append("\"" + "trayNumber" + "\"" + ":" + "\"" + TaryDiskInformationQuery_TrayNumber + "\"");
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog(" TaryDiskInformation_Interface:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " TaryDiskInformation_Interface:" + str.ToString());
             return ReturnValue(Post(TaryDiskInformationQuery_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -1025,7 +1025,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "resource" + "\"" + ":" + "\"" + TrayStartInterface_Resource + "\"" + ",");
             str.Append("\"" + "trayNumber" + "\"" + ":" + "\"" + TrayStartInterface_TrayNumber + "\"");
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog(" TrayStartInterface_Url:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " TrayStartInterface_Url:" + str.ToString());
             return ReturnValue(Post(TrayStartInterface_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -1096,7 +1096,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + TrayDiskCompleted_Operation + "\"" + ",");
             str.Append("\"" + "resultList" + "\"" + ":" + "\"" + TrayDiskCompleted_ResultList + "\"");
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog(" Tray_Disk_Completed_Interface:" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " Tray_Disk_Completed_Interface:" + str.ToString());
             return ReturnValue(Post(TrayDiskCompleted_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -1150,7 +1150,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "trayNumber" + "\"" + ":" + "\"" + TrayDiscPressingStart_Operation + "\"" + ",");
             str.Append("\"" + "operation" + "\"" + ":" + "\"" + TrayDiscPressingStart_TrayNumber + "\"" + ",");
             str.Append("}");
-            ApplicationHost.Data.SaveMesLog(" TrayDisc_pressingStart_Interface" + ":" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " TrayDisc_pressingStart_Interface" + ":" + str.ToString());
             return ReturnValue(Post(TrayDiscPressingStart_Url, str.ToString(), out Post_Message));
         }
         #endregion
@@ -1253,7 +1253,7 @@ namespace AlphaRap.MES
             str.Append("\"" + "assembleComponents" + "\"" + ":" + Tray_PressCompletes_AssembleComponents);
             str.Append("}");
 
-            ApplicationHost.Data.SaveMesLog(" Tray_PressCompletes_Interface" + ":" + str.ToString());
+            ApplicationHost.Data.WriteDistinctLog("MESLOG", " Tray_PressCompletes_Interface" + ":" + str.ToString());
             return ReturnValue(Post(Tray_PressCompletes_URL, str.ToString(), out Post_Message));
         }
         #endregion
@@ -1304,7 +1304,7 @@ namespace AlphaRap.MES
 
                 writer.Write(payload, 0, payload.Length);
                 writer.Close();//关闭请求流
-                ApplicationHost.Data.SaveMesLog("Send" + jsonParas);
+                ApplicationHost.Data.WriteDistinctLog("MESLOG", "Send" + jsonParas);
                 HttpWebResponse response;
                 try
                 {
@@ -1320,7 +1320,7 @@ namespace AlphaRap.MES
                 string postContent = sRead.ReadToEnd();
                 sRead.Close();
                 textBox24.Text = postContent;
-                ApplicationHost.Data.SaveMesLog("Receive" + postContent);
+                ApplicationHost.Data.WriteDistinctLog("MESLOG", "Receive" + postContent);
                 Post_Message = postContent;
                 return postContent;//返回Json数据
             }

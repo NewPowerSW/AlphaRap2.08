@@ -187,7 +187,7 @@ internal static class Cases
             Check(!Regex.IsMatch(body, @"\bnew\s+(?:global::)?[A-Za-z_][\w.<>]*(?:\s*\([^;{}]*\))?\s*\{"), "Object initializer inside InitializeComponent: " + file);
             foreach (Match local in Regex.Matches(body, @"(?m)^\s*(?<type>(?:global::)?[A-Za-z_][\w.:<>]*)\s+(?<name>[A-Za-z_]\w*)\s*="))
                 Check((local.Groups["type"].Value.EndsWith("ComponentResourceManager", StringComparison.Ordinal) && local.Groups["name"].Value == "resources")
-                    || (type == typeof(DataForm) && local.Groups["type"].Value == "DataSave.DataFormat" && Regex.IsMatch(local.Groups["name"].Value, @"^dataFormat[0-9]+$")),
+                    || (type == typeof(StationDataForm) && local.Groups["type"].Value == "DataSave.DataFormat" && Regex.IsMatch(local.Groups["name"].Value, @"^dataFormat[0-9]+$")),
                     "Business or inferred local variable inside InitializeComponent: " + file);
             Check(!Regex.IsMatch(body, @"\b(?:if|for|foreach|while|switch|try|using)\s*\("), "Business control flow inside InitializeComponent: " + file);
             Check(!body.Contains("=>"), "Lambda inside InitializeComponent: " + file);

@@ -798,6 +798,12 @@
     <Compile Include="StationData.cs" />
     <Compile Include="Devices\DeviceText.cs" />
     <Compile Include="Devices\DeviceFlowMethods.cs" />
+    <Compile Include="MenuForm\StationDataForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MenuForm\StationDataForm.Designer.cs">
+      <DependentUpon>StationDataForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MenuForm\StationVisionForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -978,7 +984,7 @@
   </ItemGroup>
   <PropertyGroup Condition="'$(UsePackagedFramework)' == 'true'">
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <AlphaRapFrameworkPackageVersion>3.0.0</AlphaRapFrameworkPackageVersion>
+    <AlphaRapFrameworkPackageVersion>4.0.0</AlphaRapFrameworkPackageVersion>
     <RestoreSources Condition="'$(RestoreSources)' == ''">$(MSBuildThisFileDirectory)..\artifacts\framework</RestoreSources>
   </PropertyGroup>
   <ItemGroup Condition="'$(UsePackagedFramework)' == 'true'">

@@ -75,7 +75,7 @@ namespace AlphaRap
             AddF = RegisterForm(AddF ?? new AddUserForm());
             VPF = RegisterForm(VPF ?? Application.CreateVisionPage());
             FlowF = new Flow();
-            DataF = RegisterForm(DataF ?? new DataForm());
+            DataF = RegisterForm(DataF ?? Application.CreateDataPage());
             LogDirectories.RestoreAlarmPath(DataF);
             LockForm1 = new LockForm1();
             MesF = RegisterForm(MesF ?? Application.CreateMesPage());
@@ -102,12 +102,7 @@ namespace AlphaRap
         {
             SysPara.UserPermission = Permission;
             WindowModules?.SwitchPermission(Permission);
-            if (DataF != null)
-            {
-                DataF.UserLoginLog[0] = SysPara.UserName;
-                DataF.UserLoginLog[1] = Permission.ToString();
-                DataF.SaveUserLoginLog(DataF.UserLoginLog);
-            }
+            DataF?.WriteLog("UserLogin", SysPara.UserName, Permission.ToString());
             OperationLog.Write("UserLoginForm", (SysPara.UserName == "None" ? "注销" : "登录")
                 + "　工号：" + SysPara.UserName + "　权限：" + Permission);
         }

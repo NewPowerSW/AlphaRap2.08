@@ -253,7 +253,7 @@ namespace AlphaRap.MES
 
 				writer.Write(payload, 0, payload.Length);
 				writer.Close();//关闭请求流
-				ApplicationHost.Data.SaveMesLog("Send" + jsonParas);
+				ApplicationHost.Data.WriteDistinctLog("MESLOG", "Send" + jsonParas);
 				HttpWebResponse response;
 				try
 				{
@@ -269,7 +269,7 @@ namespace AlphaRap.MES
 				string postContent = sRead.ReadToEnd();
 				sRead.Close();
 				textBox24.Text = postContent;
-				ApplicationHost.Data.SaveMesLog("Receive" + postContent);
+				ApplicationHost.Data.WriteDistinctLog("MESLOG", "Receive" + postContent);
 				Post_Message = postContent;
 				return postContent;//返回Json数据
 			}
@@ -292,7 +292,7 @@ namespace AlphaRap.MES
 			str.Append("\"" + "ProductSn" + "\"" + ":" + "\"" + InStation_ProductSn + "\"" + ",");
 			str.Append("\"" + "DeviceCode" + "\"" + ":" + "\"" + InStation_DeviceCode + "\"");
 			str.Append("}");
-			ApplicationHost.Data.SaveMesLog("InStation:" + str.ToString());
+			ApplicationHost.Data.WriteDistinctLog("MESLOG", "InStation:" + str.ToString());
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(InStation_URL, str.ToString(),out Post_Message).Replace("NG", "false").Replace("OK", "true"), "Result"));
 		}
 		/// <summary>
@@ -325,7 +325,7 @@ namespace AlphaRap.MES
 			str.Append("\"" + "ErrorCode" + "\"" + ":" + "\"" + "\"" + ",");
 			str.Append("\"" + "ErrorSpot" + "\"" + ":" + "\"" + "\"");
 			str.Append("}");
-			ApplicationHost.Data.SaveMesLog("OutStation:" + str.ToString());
+			ApplicationHost.Data.WriteDistinctLog("MESLOG", "OutStation:" + str.ToString());
 			Dictionary_TestList.Clear();
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(OutStation_URL, str.ToString(), out Post_Message).Replace("NG", "false").Replace("OK", "true"), "Result"));
 		}
@@ -340,7 +340,7 @@ namespace AlphaRap.MES
 			str.Append("\"" + "UserID" + "\"" + ":" + "\"" + Binding_UserID + "\"" + ",");
 			str.Append("\"" + "KeyPcbCode" + "\"" + ":" + "\"" + BindingKeyPcbCode + "\"");
 			str.Append("}");
-			ApplicationHost.Data.SaveMesLog("Binding:" + str.ToString());
+			ApplicationHost.Data.WriteDistinctLog("MESLOG", "Binding:" + str.ToString());
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(Binding_Url, str.ToString(), out Post_Message).Replace("NG", "false").Replace("OK", "true"), "Result"));
 		}
 		public bool LaserMark()
@@ -369,7 +369,7 @@ namespace AlphaRap.MES
 				}
 			}
 			str.Append("}");
-			ApplicationHost.Data.SaveMesLog("LaserMark" + str.ToString());
+			ApplicationHost.Data.WriteDistinctLog("MESLOG", "LaserMark" + str.ToString());
 			Dictionary_PCBList.Clear();
 			return Convert.ToBoolean(parseJsonOfTerminal(Post(LaserStation_URL, str.ToString(), out Post_Message), "Result"));
 		}
