@@ -132,7 +132,6 @@ namespace AlphaRap
             this.tabControl1.Font = new System.Drawing.Font("微软雅黑", 10F);
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(1240, 572);
             this.tabControl1.TabIndex = 0;
             // 
