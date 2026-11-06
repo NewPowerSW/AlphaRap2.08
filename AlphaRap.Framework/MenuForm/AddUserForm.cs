@@ -12,7 +12,7 @@ using AlphaRap.Configuration;
 namespace AlphaRap
 {
     /// <summary>
-    /// 用户管理页（嵌入 MainForm 的单例页面，通过 MiddleLayer.AddF 访问）：用户列表、新增 / 修改 / 删除用户、权限设置，
+    /// 用户管理页（由应用登记为权限模块页面）：用户列表、新增 / 修改 / 删除用户、权限设置，
     /// 三块为白色圆角卡片，随宿主面板缩放。
     /// </summary>
     public partial class AddUserForm : Form
@@ -31,8 +31,8 @@ namespace AlphaRap
             if (UiTheme.IsDesignTime) return;
             cbSelectedPermission.FormattingEnabled = true;
             cbAddUserPermission.FormattingEnabled = true;
-            cbSelectedPermission.Format += delegate(object sender, ListControlConvertEventArgs e) { e.Value = MiddleLayer.PermissionText(e.ListItem); };
-            cbAddUserPermission.Format += delegate(object sender, ListControlConvertEventArgs e) { e.Value = MiddleLayer.PermissionText(e.ListItem); };
+            cbSelectedPermission.Format += delegate(object sender, ListControlConvertEventArgs e) { e.Value = FrameworkLanguage.PermissionText(e.ListItem); };
+            cbAddUserPermission.Format += delegate(object sender, ListControlConvertEventArgs e) { e.Value = FrameworkLanguage.PermissionText(e.ListItem); };
             dgvUserList.CellFormatting += PermissionCellFormatting;
             dgvRightsConfig.CellFormatting += PermissionCellFormatting;
             dgvUserList.DataBindingComplete += delegate { ApplyLanguage(); };
@@ -54,8 +54,8 @@ namespace AlphaRap
 
             // 切语言时重新套一次本页文案（理由同 ProductManagerForm：
             // 页面正显示着时切语言不会触发 VisibleChanged）。
-            MiddleLayer.LanguageChanged += AddUserForm_LanguageChanged;
-            Disposed += delegate { MiddleLayer.LanguageChanged -= AddUserForm_LanguageChanged; };
+            FrameworkLanguage.LanguageChanged += AddUserForm_LanguageChanged;
+            Disposed += delegate { FrameworkLanguage.LanguageChanged -= AddUserForm_LanguageChanged; };
 
             // 三个输入框和权限下拉框任意一个变化时，重新判断"新增用户"按钮是否可用
             textAddUserName.ValueChanged += AddUser_TextChanged;
@@ -87,7 +87,7 @@ namespace AlphaRap
 
         /// <summary>
         /// 页面每次显示时重新套一次文案。
-        /// 必须这么做：本页在启动阶段就被创建（MiddleLayer.InitialProject 里 CreateForm），
+        /// 必须这么做：本页在启动阶段由应用创建，
         /// 早于语言表扫描，它注册进 XML 的文案只会是创建那一刻的语言；
         /// 之后切换语言虽然会应用 XML 里的旧文案，但本页一显示就会被这里纠正过来。
         /// </summary>
@@ -131,13 +131,13 @@ namespace AlphaRap
             try
             {
                 // 保存权限后用于还原的提示文字；静态文案见 LanguageData\*.xml 的 AddUserForm 段
-                _rightsHintText = MiddleLayer.LangMsg("AddUserForm", "msg_RightsMainSaveHint",
+                _rightsHintText = FrameworkLanguage.LangMsg("AddUserForm", "msg_RightsMainSaveHint",
                     "勾选各权限允许的功能后，使用主界面【保存】统一保存。",
                     "Select the allowed functions, then use Save on the main window.",
                     "Seleccione las funciones permitidas y use Guardar en la ventana principal.");
                 ResetRightsHint();
-                MiddleLayer.RefreshUserHeaders(dgvUserList);
-                MiddleLayer.RefreshUserHeaders(dgvRightsConfig);
+                FrameworkLanguage.RefreshUserHeaders(dgvUserList);
+                FrameworkLanguage.RefreshUserHeaders(dgvRightsConfig);
                 cbSelectedPermission.FormatInfo = System.Globalization.CultureInfo.GetCultureInfo(
                     SysPara.LanguageShow == LanguageType.Chinese ? "zh-CN" : SysPara.LanguageShow == LanguageType.English ? "en-US" : "es-ES");
                 cbAddUserPermission.FormatInfo = cbSelectedPermission.FormatInfo;
@@ -150,7 +150,7 @@ namespace AlphaRap
         {
             DataGridView grid = (DataGridView)sender;
             if (e.ColumnIndex < 0 || grid.Columns[e.ColumnIndex].DataPropertyName != "Permission") return;
-            e.Value = MiddleLayer.PermissionText(e.Value);
+            e.Value = FrameworkLanguage.PermissionText(e.Value);
             e.FormattingApplied = true;
         }
 
@@ -203,7 +203,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, MiddleLayer.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, FrameworkLanguage.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             return gUser;
@@ -281,8 +281,8 @@ namespace AlphaRap
             if (CheckUserWhetherExist(textAddUserName.Value))
             {
                 MessageBox.Show(
-                    MiddleLayer.LangMsg("AddUserForm", "msg_UserExists", "用户名已经存在！", "The user name already exist!", "¡El nombre de usuario ya existe!"),
-                    MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                    FrameworkLanguage.LangMsg("AddUserForm", "msg_UserExists", "用户名已经存在！", "The user name already exist!", "¡El nombre de usuario ya existe!"),
+                    FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 textAddUserName.FocusInput();
                 return;
@@ -291,8 +291,8 @@ namespace AlphaRap
             if ((textPassword.Value.Length < 8) && cbAddUserPermission.SelectedItem.ToString() != ((PermissionType.Operator).ToString()))
             {
                 MessageBox.Show(
-                    MiddleLayer.LangMsg("AddUserForm", "msg_PasswordShort", "密码少于8个字符！", "Password less than 8 characters!", "Contraseña de menos de 8 caracteres!"),
-                    MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                    FrameworkLanguage.LangMsg("AddUserForm", "msg_PasswordShort", "密码少于8个字符！", "Password less than 8 characters!", "Contraseña de menos de 8 caracteres!"),
+                    FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 textPassword.FocusInput();
                 return;
@@ -300,8 +300,8 @@ namespace AlphaRap
             if (textPassword.Value != textPasswordConfirm.Value && cbAddUserPermission.SelectedItem.ToString() != ((PermissionType.Operator).ToString()))
             {
                 MessageBox.Show(
-                    MiddleLayer.LangMsg("AddUserForm", "msg_PasswordMismatch", "密码与密码确认不匹配！", "Password not match!", "¡La contraseña y la contraseña no coinciden!"),
-                    MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                    FrameworkLanguage.LangMsg("AddUserForm", "msg_PasswordMismatch", "密码与密码确认不匹配！", "Password not match!", "¡La contraseña y la contraseña no coinciden!"),
+                    FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 textPassword.FocusInput();
                 return;
@@ -567,7 +567,7 @@ namespace AlphaRap
         /// <summary>获取权限配置提示的三语文案，业务角色与列名不参与翻译。</summary>
         private static string PermissionText(string key, string chinese, string english, string spanish)
         {
-            return MiddleLayer.LangMsg("AddUserForm", key, chinese, english, spanish);
+            return FrameworkLanguage.LangMsg("AddUserForm", key, chinese, english, spanish);
         }
 
         /// <summary>记录权限编辑状态，配置由主界面保存或放弃。</summary>
@@ -590,7 +590,7 @@ namespace AlphaRap
         {
             if (SysPara.items != 1)
             {
-                MiddleLayer.WindowModules?.SaveData();
+                ApplicationHost.ModuleWindow?.SaveData();
             }
         }
     }

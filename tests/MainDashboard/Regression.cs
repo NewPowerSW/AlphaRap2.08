@@ -213,7 +213,7 @@ internal static class DashboardProbe
     /// <summary>Navigate to the lazy runtime log page and return home without invoking a machine Load handler.</summary>
     private static void CheckRuntimeLogNavigation(MainForm frame, HomeForm home)
     {
-        Type host = typeof(ApplicationHost).Assembly.GetType("AlphaRap.MiddleLayer", true);
+        Type host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
         FieldInfo homeField = host.GetField("HomeF", BindingFlags.Public | BindingFlags.Static);
         object original = homeField.GetValue(null);
         RuntimeLogForm page = null;
@@ -297,7 +297,7 @@ internal static class DashboardProbe
             "The footer or user card no longer matches the compact reference dimensions.");
         string previous = name.Text;
         string longName = "Long_Product_Recipe_2026_10_AOI_Dispensing_Assembly_Variant_123456789";
-        Type host = typeof(ApplicationHost).Assembly.GetType("AlphaRap.MiddleLayer", true);
+        Type host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
         FieldInfo productField = host.GetField("ProductF", BindingFlags.Public | BindingFlags.Static);
         object originalProduct = productField.GetValue(null); string originalRecipe = SysPara.RecipeName;
         try
@@ -333,10 +333,10 @@ internal static class DashboardProbe
         RunMode previousMode = SysPara.SystemMode;
         bool previousAlarm = NPSDK.Alarm.IsError;
         System.Globalization.CultureInfo previousCulture = System.Threading.Thread.CurrentThread.CurrentUICulture;
-        Type middleLayer = typeof(SysPara).Assembly.GetType("AlphaRap.MiddleLayer");
-        MethodInfo reloadLanguage = middleLayer.GetMethod("ReloadLanguageData", BindingFlags.Static | BindingFlags.NonPublic);
-        MethodInfo switchLanguage = middleLayer.GetMethod("SwitchLanguage", BindingFlags.Static | BindingFlags.Public);
-        MethodInfo registerLanguage = middleLayer.GetMethod("RegisterLanguage", BindingFlags.Static | BindingFlags.Public);
+        Type languageHost = typeof(ApplicationHost).Assembly.GetType("AlphaRap.FrameworkLanguage", true);
+        MethodInfo reloadLanguage = languageHost.GetMethod("ReloadLanguageData", BindingFlags.Static | BindingFlags.NonPublic);
+        MethodInfo switchLanguage = languageHost.GetMethod("SwitchLanguage", BindingFlags.Static | BindingFlags.Public);
+        MethodInfo registerLanguage = languageHost.GetMethod("RegisterLanguage", BindingFlags.Static | BindingFlags.Public);
         string languageDirectory = Path.Combine(outputRoot, "stopping-languages");
         Directory.CreateDirectory(languageDirectory);
         foreach (string language in new[] { "Chinese", "English", "Español" })

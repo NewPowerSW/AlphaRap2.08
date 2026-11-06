@@ -30,9 +30,9 @@ namespace AlphaRap
             if (UiTheme.IsDesignTime) return;
             Constants = new ConstantStore(this, settings);
             ConstantText.Apply(this);
-            MiddleLayer.RegisterAndApplyLanguage(this, Name);
-            MiddleLayer.LanguageChanged += ApplyLanguage;
-            Disposed += (sender, args) => MiddleLayer.LanguageChanged -= ApplyLanguage;
+            FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
+            FrameworkLanguage.LanguageChanged += ApplyLanguage;
+            Disposed += (sender, args) => FrameworkLanguage.LanguageChanged -= ApplyLanguage;
             scopes.SelectedIndexChanged += (sender, args) => BindScope();
             searchValue.TextChanged += (sender, args) => Filter();
             add.Click += (sender, args) => Execute(() => EditConstant(null));
@@ -157,7 +157,7 @@ namespace AlphaRap
         private void ApplyLanguage(object sender, EventArgs args)
         {
             ConstantText.Apply(this);
-            constantDelete.Text = MiddleLayer.LangMsg(Name, constantDelete.Name, "删除", "Delete", "Eliminar");
+            constantDelete.Text = FrameworkLanguage.LangMsg(Name, constantDelete.Name, "删除", "Delete", "Eliminar");
             recipeCaption.Text = string.Format(ConstantText.T("context"), SysPara.RecipeName);
             constants.Invalidate();
         }

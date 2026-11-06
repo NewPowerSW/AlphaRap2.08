@@ -172,7 +172,7 @@ namespace AlphaRap
             _refreshingProduction = true;
             try
             {
-                _productionCheck.Text = MiddleLayer.LangMsg(LangForm, "vpRow_Production",
+                _productionCheck.Text = FrameworkLanguage.LangMsg(LangForm, "vpRow_Production",
                     "生产定位", "Production positioning", "Posicionamiento de producción");
                 _productionCheck.Checked = Owner != null && Owner.IsProductionVpp(Vpp);
             }
@@ -203,7 +203,7 @@ namespace AlphaRap
         /// <summary>取当前语言的文案（LanguageData\{语言}.xml），没有该键时使用底稿。</summary>
         private static string LangText(string key, string zh, string en, string es)
         {
-            return MiddleLayer.LangMsg(LangForm, key, zh, en, es);
+            return FrameworkLanguage.LangMsg(LangForm, key, zh, en, es);
         }
     }
 }

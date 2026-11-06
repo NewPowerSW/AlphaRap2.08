@@ -22,6 +22,33 @@ namespace AlphaRap
         internal static StationVisionForm Vision { get; private set; }
         internal static LENS Mes { get; private set; }
 
+        /// <summary>组装本机页面并启动设备和后台任务。</summary>
+        public override void Initialize(Action<string> reportProgress)
+        {
+            MiddleLayer.Application = this;
+            MiddleLayer.InitialProject(reportProgress);
+        }
+
+        /// <summary>关闭由本站启动的后台任务和伺服。</summary>
+        public override void Shutdown() { MiddleLayer.DisposeProject(); }
+
+        /// <summary>按本站运行状态暂停流程和输出。</summary>
+        public override void PauseMachine() { MiddleLayer.PauseRun(); }
+
+        /// <summary>按本站运行规则停止流程、手动动作和电机。</summary>
+        public override void StopMachine() { MiddleLayer.StopRun(); }
+
+        /// <summary>检查本站配方草稿并切换模块和视觉配置。</summary>
+        public override bool ChangeRecipe(string path) { return MiddleLayer.OpenRecipe(path); }
+
+        /// <summary>按本站日志格式记录登录或注销。</summary>
+        public override void OnPermissionChanged(PermissionType permission)
+        {
+            ApplicationHost.Data?.WriteLog("UserLogin", SysPara.UserName, permission.ToString());
+            OperationLog.Write("UserLoginForm", (SysPara.UserName == "None" ? "注销" : "登录")
+                + "　工号：" + SysPara.UserName + "　权限：" + permission);
+        }
+
         /// <summary>提供本站应用名称。</summary>
         public override string DisplayName { get { return "AlphaRap-SRM"; } }
 

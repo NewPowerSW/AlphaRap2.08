@@ -32,7 +32,7 @@ namespace AlphaRap.FlowProgramming
                 if (entry != null) selectedEntryId = entry.Id;
             };
             entries.ItemDrag += DragEntry;
-            MiddleLayer.LanguageChanged += LanguageChanged;
+            FrameworkLanguage.LanguageChanged += LanguageChanged;
             languageSubscribed = true;
             RefreshLanguage();
         }
@@ -122,7 +122,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>解除语言事件并释放控件模板。</summary>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && languageSubscribed) { MiddleLayer.LanguageChanged -= LanguageChanged; languageSubscribed = false; }
+            if (disposing && languageSubscribed) { FrameworkLanguage.LanguageChanged -= LanguageChanged; languageSubscribed = false; }
             base.Dispose(disposing);
         }
     }

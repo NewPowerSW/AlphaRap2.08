@@ -42,7 +42,7 @@ namespace AlphaRap
 
 			// 主界面【保存】选"否"时，DeviceControl.ReloadAll() 会先发这个通知 —— 页签集合本身也要回滚
 			DeviceControl.ReloadPanelsRequested += Parameter_ReloadPanelsRequested;
-			MiddleLayer.LanguageChanged += Parameter_LanguageChanged;
+			FrameworkLanguage.LanguageChanged += Parameter_LanguageChanged;
 		}
 
 		#region 生命周期
@@ -85,7 +85,7 @@ namespace AlphaRap
 		{
 			DeviceControl.UnregisterPanelHost(this.Name);
 			DeviceControl.ReloadPanelsRequested -= Parameter_ReloadPanelsRequested;
-			MiddleLayer.LanguageChanged -= Parameter_LanguageChanged;
+			FrameworkLanguage.LanguageChanged -= Parameter_LanguageChanged;
 		}
 
 		private void Parameter_ReloadPanelsRequested(object sender, EventArgs e)

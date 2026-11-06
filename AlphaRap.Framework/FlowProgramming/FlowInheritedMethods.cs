@@ -247,7 +247,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>通过框架语言入口报告模拟签名错误。</summary>
         internal static string T(string key)
         {
-            return MiddleLayer.LangMsg("EquipmentFlow", "autoTool_" + key,
+            return FrameworkLanguage.LangMsg("EquipmentFlow", "autoTool_" + key,
                 "模拟方法的参数与返回类型必须和实际方法一致：", "The simulation method must match the real method's parameters and return type:",
                 "El método de simulación debe coincidir con los parámetros y el tipo de retorno del método real:");
         }

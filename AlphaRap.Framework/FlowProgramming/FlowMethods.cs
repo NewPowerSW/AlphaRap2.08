@@ -71,7 +71,7 @@ namespace AlphaRap.FlowProgramming
             if (words == null || words.Length != 3) return fallback;
             if (words[0] == words[1] && words[1] == words[2]) return words[0];
             if (UiTheme.IsDesignTime) return words[0];
-            return MiddleLayer.LangMsg("EquipmentFlow", key, words[0], words[1], words[2]);
+            return FrameworkLanguage.LangMsg("EquipmentFlow", key, words[0], words[1], words[2]);
         }
     }
 }

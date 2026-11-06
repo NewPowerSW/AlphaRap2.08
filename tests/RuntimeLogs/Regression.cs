@@ -212,15 +212,13 @@ internal static class RuntimeLogProbe
     private static void AsyncPage()
     {
         LicenseContext previous = LicenseManager.CurrentContext;
-        Type host = typeof(DataForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
-        FieldInfo sourceField = host.GetField("DataF", BindingFlags.Public | BindingFlags.Static);
-        object previousData = sourceField.GetValue(null);
         RuntimeLogForm page = null; DataForm data = null;
         try
         {
             LicenseManager.CurrentContext = new DesignerContext(); UiTheme.ForceDesignTimeForTest(true);
             data = new StationDataForm(); page = new RuntimeLogForm();
-            data.GetLogSource("LogRun").SavePath = runRoot; data.GetLogSource("LogError").SavePath = errorRoot; sourceField.SetValue(null, data);
+            data.GetLogSource("LogRun").SavePath = runRoot; data.GetLogSource("LogError").SavePath = errorRoot;
+            ApplicationHost.RegisterModule(data);
             Console.WriteLine("  Isolated runtime sources ready");
             UiTheme.ForceDesignTimeForTest(false); LicenseManager.CurrentContext = previous;
             page.Show(); PumpUntil(() => !Field<bool>(page, "loading"));
@@ -244,7 +242,7 @@ internal static class RuntimeLogProbe
         finally
         {
             if (page != null) page.Dispose(); if (data != null) data.Dispose();
-            sourceField.SetValue(null, previousData); UiTheme.ForceDesignTimeForTest(false); LicenseManager.CurrentContext = previous;
+            UiTheme.ForceDesignTimeForTest(false); LicenseManager.CurrentContext = previous;
         }
     }
 

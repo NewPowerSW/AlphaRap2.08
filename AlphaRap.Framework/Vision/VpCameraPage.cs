@@ -154,7 +154,7 @@ namespace AlphaRap
         /// <summary>取当前语言的文案（LanguageData\{语言}.xml），没有该键时使用底稿。</summary>
         private static string LangText(string key, string baseText)
         {
-            return MiddleLayer.LangText(LangForm, key, baseText);
+            return FrameworkLanguage.LangText(LangForm, key, baseText);
         }
     }
 }

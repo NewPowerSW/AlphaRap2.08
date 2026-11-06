@@ -65,7 +65,7 @@ internal static class StartupSmoke
         SysPara.SystemMode = RunMode.IDLE; SysPara.Simulation = true;
         ConfigurationCases.PrepareFixture(root,args[0],args[2]);
         File.WriteAllText(Path.Combine(SysPara.SettingDataDirectory,"SysSetting.xml"),"<NewDataSet><MSet /><PSet><DisScann>true</DisScann><UseTryRun>false</UseTryRun></PSet></NewDataSet>");
-        Type host = typeof(SysPara).Assembly.GetType("AlphaRap.MiddleLayer");
+        Type host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
         VerifyApplicationBoundary(host);
         host.GetMethod("LoadAlarmTable",BindingFlags.Static|BindingFlags.NonPublic,null,Type.EmptyTypes,null).Invoke(null,null);
         host.GetMethod("CreateProjectForms",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
@@ -73,11 +73,13 @@ internal static class StartupSmoke
         foreach (string log in new[] { "MESLOG", "Alarm", "LogRun", "LogError", "UserLogin", "OperationLog" })
             stationData.GetLogSource(log).SavePath = Path.Combine(root, "Logs", log);
         host.GetMethod("InitialLanguageData",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
-        host.GetMethod("SwitchLanguage",BindingFlags.Static|BindingFlags.Public).Invoke(null,new object[]{LanguageType.Chinese});
+        typeof(ApplicationHost).Assembly.GetType("AlphaRap.FrameworkLanguage", true).GetMethod("SwitchLanguage").Invoke(null, new object[] { LanguageType.Chinese });
         host.GetField("alarmRunTask",BindingFlags.Static|BindingFlags.Public).SetValue(null,System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(AlarmRunTask)));
         SystemSetting setting = (SystemSetting)host.GetField("SystemS",BindingFlags.Static|BindingFlags.Public).GetValue(null);
         if (setting.Constants.Table("Setting").Select("Key <> ''").Length!=8 || !(bool)setting.GetSettingValue("PSet","DisScann")) throw new InvalidOperationException("Legacy settings migration changed the original flag.");
         MainForm main = (MainForm)host.GetField("MainF",BindingFlags.Static|BindingFlags.Public).GetValue(null);
+        if (!ReferenceEquals(ApplicationHost.MainWindow, main) || !ReferenceEquals(ApplicationHost.Data, stationData))
+            throw new InvalidOperationException("The framework did not receive the application's live page instances.");
         Exception runError = null;
         try
         {
@@ -113,10 +115,13 @@ internal static class StartupSmoke
             framework.GetType("AlphaRap.MES.LENS") != null || framework.GetType("AlphaRap.ScannerKeyenceTcp") != null ||
             framework.GetType("AlphaRap.MainForm") != null || framework.GetType("AlphaRap.HomeForm") != null ||
             framework.GetType("AlphaRap.LoadingForm") != null || framework.GetType("Alpha.OptionChoiceForm") != null ||
+            framework.GetType("AlphaRap.MiddleLayer") != null || host.Assembly != application ||
             typeof(MainForm).Assembly != application || typeof(Alpha.OptionChoiceForm).Assembly != application)
             throw new InvalidOperationException("The framework still contains application windows or station implementations.");
         Type profile = application.GetType("AlphaRap.StationApplication", true);
-        host.GetField("Application").SetValue(null, Activator.CreateInstance(profile, true));
+        object station = Activator.CreateInstance(profile, true);
+        host.GetField("Application").SetValue(null, station);
+        typeof(ApplicationHost).GetField("application", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, station);
         Console.WriteLine("PASS framework has no dependency on the application and the production profile supplies the station implementation.");
     }
 

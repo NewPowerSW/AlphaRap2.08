@@ -405,7 +405,7 @@ internal static partial class Cases
     {
         string name = "PageLanguages_" + Guid.NewGuid().ToString("N");
         if (SysPara.ComponentLangurageList == null) host.GetMethod("InitialLanguageData", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, null);
-        host.GetMethod("LangMsg").Invoke(null, new object[] { name, "oldTab", "MES流程", "MES workflow", "Flujo MES" });
+        ApplicationHost.Text(name, "oldTab", "MES流程", "MES workflow", "Flujo MES");
         using (ContainerRevisionPage page = new ContainerRevisionPage(name, "oldTab"))
         {
             page.PointPage.Text = "打螺丝";
@@ -416,7 +416,7 @@ internal static partial class Cases
                 Assert(page.PointPage.Text == "打螺丝", "A deleted MES translation replaced the new source page title.");
             }
             string key = SysPara.ComponentLangurageList[0].Single(item => ReferenceEquals(item.Component, page.PointPage)).ComponentName;
-            MethodInfo setText = host.GetMethod("SetLangText", BindingFlags.Static | BindingFlags.NonPublic);
+            MethodInfo setText = LanguageHost.GetMethod("SetLangText", BindingFlags.Static | BindingFlags.NonPublic);
             setText.Invoke(null, new object[] { LanguageType.English, name, key, "Screw fastening" });
             setText.Invoke(null, new object[] { LanguageType.Español, name, key, "Atornillado" });
             RegisterSourcePageLanguage(page, name);
@@ -424,7 +424,7 @@ internal static partial class Cases
             RegisterSourcePageLanguage(page, name);
             SwitchLanguage(LanguageType.Español); Assert(page.PointPage.Text == "Atornillado", "Re-registering a translated page changed its language identity.");
             SwitchLanguage(LanguageType.Chinese); Assert(page.PointPage.Text == "打螺丝", "Chinese source title was lost.");
-            Assert((string)host.GetMethod("LangText").Invoke(null, new object[] { name, "oldTab", "" }) == "MES流程", "The migration overwrote the old site translation.");
+            Assert(ApplicationHost.Text(name, "oldTab", "") == "MES流程", "The migration overwrote the old site translation.");
         }
         using (ContainerRevisionPage unchanged = new ContainerRevisionPage(name, "oldTab"))
         {
@@ -485,7 +485,7 @@ internal static partial class Cases
     /// <summary>Exercise the same language registration used by startup without initializing hardware.</summary>
     private static void RegisterSourcePageLanguage(Control page, string name)
     {
-        host.GetMethod("RegisterAndApplyLanguage").Invoke(null, new object[] { page, name });
+        ApplicationHost.RegisterLanguage(page, name);
     }
 
     /// <summary>Enumerate actual node instances while excluding internal node decorations.</summary>

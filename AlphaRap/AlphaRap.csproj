@@ -793,6 +793,25 @@
       <SubType>Code</SubType>
       <DependentUpon>Gantry.cs</DependentUpon>
     </Compile>
+    <Compile Include="Core\MiddleLayer.cs" />
+    <Compile Include="Core\MiddleLayer.Startup.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.RunControl.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.Modules.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.Motion.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.Recipe.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Core\MiddleLayer.Alarms.cs">
+      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="StationApplication.cs" />
     <Compile Include="StationData.cs" />
@@ -980,7 +999,7 @@
   </ItemGroup>
   <PropertyGroup Condition="'$(UsePackagedFramework)' == 'true'">
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <AlphaRapFrameworkPackageVersion>5.0.0</AlphaRapFrameworkPackageVersion>
+    <AlphaRapFrameworkPackageVersion>6.0.0</AlphaRapFrameworkPackageVersion>
     <RestoreSources Condition="'$(RestoreSources)' == ''">$(MSBuildThisFileDirectory)..\artifacts\framework</RestoreSources>
   </PropertyGroup>
   <ItemGroup Condition="'$(UsePackagedFramework)' == 'true'">

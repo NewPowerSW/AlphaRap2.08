@@ -187,7 +187,7 @@ internal static partial class ConfigurationCases
         ChangeAll(2); Dictionary<string, byte[]> before = Snapshot();
         foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
         {
-            host.GetMethod("SwitchLanguage", BindingFlags.Static | BindingFlags.Public).Invoke(null, new object[] { language });
+            typeof(ApplicationHost).Assembly.GetType("AlphaRap.FrameworkLanguage", true).GetMethod("SwitchLanguage").Invoke(null, new object[] { language });
             Application.DoEvents();
             foreach (ParticipantProbe probe in participants) { probe.AssertDraft(2); probe.AssertPublished(1); }
             AssertFiles(before);

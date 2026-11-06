@@ -15,7 +15,7 @@ namespace AlphaRap.MenuForm
         {
             InitializeComponent();
             UiTheme.ApplyDpi(this);
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
+            if (!UiTheme.IsDesignTime) FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
         }
 
         /// <summary>设置页面初始编辑状态。</summary>
@@ -30,7 +30,7 @@ namespace AlphaRap.MenuForm
                 dtTable = AlarmCatalog.Load();
                 bindingSource1.DataSource = dtTable;
                 dgvData.DataSource = bindingSource1;
-                MiddleLayer.RegisterAndApplyLanguage(dgvData, Name);
+                FrameworkLanguage.RegisterAndApplyLanguage(dgvData, Name);
                 SetEditing(false);
             }
             catch (Exception ex) { ShowError(ex.Message); }
@@ -52,7 +52,7 @@ namespace AlphaRap.MenuForm
         private void btnRemove_Click(object sender, EventArgs e)
         {
             if (dgvData.CurrentRow == null || dgvData.CurrentRow.IsNewRow) return;
-            string message = MiddleLayer.LangMsg(Name, "msg_DeleteConfirm", "确认删除当前报警行吗？", "Delete the selected alarm?", "¿Eliminar la alarma seleccionada?");
+            string message = FrameworkLanguage.LangMsg(Name, "msg_DeleteConfirm", "确认删除当前报警行吗？", "Delete the selected alarm?", "¿Eliminar la alarma seleccionada?");
             if (MessageBox.Show(message, Text, MessageBoxButtons.YesNo) != DialogResult.Yes) return;
             dgvData.Rows.Remove(dgvData.CurrentRow);
             dtTable.AcceptChanges();
@@ -66,7 +66,7 @@ namespace AlphaRap.MenuForm
             bindingSource1.EndEdit();
             string error = ValidateRows();
             if (error != null) { ShowError(error); return; }
-            string message = MiddleLayer.LangMsg(Name, "msg_SaveConfirm", "保存报警表吗？", "Save the alarm table?", "¿Guardar la tabla de alarmas?");
+            string message = FrameworkLanguage.LangMsg(Name, "msg_SaveConfirm", "保存报警表吗？", "Save the alarm table?", "¿Guardar la tabla de alarmas?");
             if (MessageBox.Show(message, Text, MessageBoxButtons.YesNo) != DialogResult.Yes) return;
             try
             {
@@ -86,8 +86,8 @@ namespace AlphaRap.MenuForm
                 string id = Convert.ToString(row["AlarID"]).Trim();
                 string reason = ValidateField("AlarID", id) ?? ValidateField("Type", Convert.ToString(row["Type"]))
                     ?? ValidateField("DoStop", Convert.ToString(row["DoStop"]));
-                if (!keys.Add(id)) reason = MiddleLayer.LangMsg(Name, "msg_Duplicate", "报警编号重复", "Duplicate alarm ID", "ID de alarma duplicado");
-                if (reason != null) return string.Format(MiddleLayer.LangMsg(Name, "msg_RowError", "第 {0} 行：{1}", "Row {0}: {1}", "Fila {0}: {1}"), dtTable.Rows.IndexOf(row) + 1, reason);
+                if (!keys.Add(id)) reason = FrameworkLanguage.LangMsg(Name, "msg_Duplicate", "报警编号重复", "Duplicate alarm ID", "ID de alarma duplicado");
+                if (reason != null) return string.Format(FrameworkLanguage.LangMsg(Name, "msg_RowError", "第 {0} 行：{1}", "Row {0}: {1}", "Fila {0}: {1}"), dtTable.Rows.IndexOf(row) + 1, reason);
             }
             return null;
         }
@@ -99,13 +99,13 @@ namespace AlphaRap.MenuForm
             if (field == "AlarID")
             {
                 try { System.Xml.XmlConvert.VerifyNCName(value); }
-                catch (Exception) { return MiddleLayer.LangMsg(Name, "msg_InvalidID", "报警编号必须是有效的 XML 名称，例如 A4013", "Alarm ID must be a valid XML name, e.g. A4013", "El ID de alarma debe ser un nombre XML válido, p. ej. A4013"); }
+                catch (Exception) { return FrameworkLanguage.LangMsg(Name, "msg_InvalidID", "报警编号必须是有效的 XML 名称，例如 A4013", "Alarm ID must be a valid XML name, e.g. A4013", "El ID de alarma debe ser un nombre XML válido, p. ej. A4013"); }
             }
             if (field == "Type" && !new[] { "E", "I", "Q", "W", "K" }.Contains(value.ToUpperInvariant()))
-                return MiddleLayer.LangMsg(Name, "msg_InvalidType", "类型必须为 E、I、Q、W 或 K", "Type must be E, I, Q, W or K", "El tipo debe ser E, I, Q, W o K");
+                return FrameworkLanguage.LangMsg(Name, "msg_InvalidType", "类型必须为 E、I、Q、W 或 K", "Type must be E, I, Q, W or K", "El tipo debe ser E, I, Q, W o K");
             bool stop;
             if (field == "DoStop" && !bool.TryParse(value, out stop))
-                return MiddleLayer.LangMsg(Name, "msg_InvalidStop", "停机标志必须为 True 或 False", "Stop flag must be True or False", "El indicador de parada debe ser True o False");
+                return FrameworkLanguage.LangMsg(Name, "msg_InvalidStop", "停机标志必须为 True 或 False", "Stop flag must be True or False", "El indicador de parada debe ser True o False");
             return null;
         }
 
@@ -144,7 +144,7 @@ namespace AlphaRap.MenuForm
         /// <summary>显示报警表操作失败的原因。</summary>
         private void ShowError(string error)
         {
-            MessageBox.Show(error, MiddleLayer.LangMsg(Name, "msg_ErrorTitle", "报警表错误", "Alarm table error", "Error en la tabla de alarmas"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(error, FrameworkLanguage.LangMsg(Name, "msg_ErrorTitle", "报警表错误", "Alarm table error", "Error en la tabla de alarmas"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
 }

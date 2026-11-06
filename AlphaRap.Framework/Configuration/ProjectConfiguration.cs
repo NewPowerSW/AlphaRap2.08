@@ -26,10 +26,12 @@ namespace AlphaRap.Configuration
         public static void Validate()
         {
             FlowPrograms.RequireIdle();
-            if (MiddleLayer.SystemS != null) MiddleLayer.SystemS.ValidateConstants();
-            if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) MiddleLayer.HardF.Resources.ValidateForSave();
-            if (MiddleLayer.DataF != null) { MiddleLayer.DataF.ValidateProductionDraft(); MiddleLayer.DataF.ValidateLogModulesDraft(); }
-            if (MiddleLayer.VPF != null) MiddleLayer.VPF.ValidateVisionDraft();
+            ApplicationHost.Settings?.ValidateConstants();
+            ApplicationHost.FindModule<HardForm>()?.Resources?.ValidateForSave();
+            DataForm data = ApplicationHost.Data;
+            data?.ValidateProductionDraft();
+            data?.ValidateLogModulesDraft();
+            ApplicationHost.FindModule<VPForm>()?.ValidateVisionDraft();
             FlowPrograms.ValidateForSave();
         }
 
@@ -45,10 +47,12 @@ namespace AlphaRap.Configuration
                 module.RecipeData.AcceptChanges();
                 module.SettingData.AcceptChanges();
             }
-            if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) MiddleLayer.HardF.Resources.AcceptSaved();
-            if (MiddleLayer.DataF != null) { MiddleLayer.DataF.AcceptProductionDraft(); MiddleLayer.DataF.AcceptLogModulesDraft(); }
-            if (MiddleLayer.VPF != null) MiddleLayer.VPF.AcceptSaved();
-            if (MiddleLayer.AddF != null) MiddleLayer.AddF.AcceptPermissionSave();
+            ApplicationHost.FindModule<HardForm>()?.Resources?.AcceptSaved();
+            DataForm data = ApplicationHost.Data;
+            data?.AcceptProductionDraft();
+            data?.AcceptLogModulesDraft();
+            ApplicationHost.FindModule<VPForm>()?.AcceptSaved();
+            ApplicationHost.FindModule<AddUserForm>()?.AcceptPermissionSave();
             FlowPrograms.PublishSaved(snapshot);
             FlowSourceGenerator.AcceptSaved();
         }
@@ -77,14 +81,20 @@ namespace AlphaRap.Configuration
             }
             recipe.AcceptChanges();
             files.Add(new PendingFile { Path=SysPara.FilePath,Write=recipe.WriteXml });
-            if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) files.Add(new PendingFile { Path=MiddleLayer.HardF.Resources.PathName,Write=MiddleLayer.HardF.Resources.WriteDraft });
-            if (MiddleLayer.DataF != null) files.Add(new PendingFile { Path=DataForm.ProductionSchemaPath,Write=MiddleLayer.DataF.WriteProductionDraft });
-            if (MiddleLayer.DataF != null) files.Add(new PendingFile { Path=LogModuleStore.FilePath,Write=MiddleLayer.DataF.WriteLogModulesDraft });
+            HardwareResources resources = ApplicationHost.FindModule<HardForm>()?.Resources;
+            if (resources != null) files.Add(new PendingFile { Path=resources.PathName,Write=resources.WriteDraft });
+            DataForm data = ApplicationHost.Data;
+            if (data != null)
+            {
+                files.Add(new PendingFile { Path=DataForm.ProductionSchemaPath,Write=data.WriteProductionDraft });
+                files.Add(new PendingFile { Path=LogModuleStore.FilePath,Write=data.WriteLogModulesDraft });
+            }
             files.Add(new PendingFile { Path=FlowPrograms.FilePath,Write=path => FlowProgramFile.Save(path,snapshot) });
             files.AddRange(FlowSourceGenerator.Prepare(snapshot));
-            if (MiddleLayer.VPF != null) files.AddRange(MiddleLayer.VPF.PrepareConfigurationSave());
+            VPForm vision = ApplicationHost.FindModule<VPForm>();
+            if (vision != null) files.AddRange(vision.PrepareConfigurationSave());
             files.Add(DeviceControl.PrepareConfigurationSave());
-            PendingFile permissions = MiddleLayer.AddF == null ? null : MiddleLayer.AddF.PreparePermissionSave();
+            PendingFile permissions = ApplicationHost.FindModule<AddUserForm>()?.PreparePermissionSave();
             if (permissions != null) files.Add(permissions);
             foreach (PendingFile file in files) file.Path = System.IO.Path.GetFullPath(file.Path);
             if (files.GroupBy(file => file.Path,StringComparer.OrdinalIgnoreCase).Any(group => group.Count()>1))
@@ -138,7 +148,7 @@ namespace AlphaRap.Configuration
             }
             catch (Exception error)
             {
-                throw new IOException(string.Format(MiddleLayer.LangMsg("ProjectConfiguration","msg_CommitFailed",
+                throw new IOException(string.Format(FrameworkLanguage.LangMsg("ProjectConfiguration","msg_CommitFailed",
                     "无法提交配置文件：{0}","Cannot commit configuration file: {0}","No se puede confirmar el archivo de configuración: {0}"),file.Path),error);
             }
         }
@@ -150,7 +160,7 @@ namespace AlphaRap.Configuration
             byte[] current = File.Exists(file.Path) ? File.ReadAllBytes(file.Path) : null;
             if (current == null && file.ExpectedOriginal == null) return;
             if (current != null && file.ExpectedOriginal != null && current.SequenceEqual(file.ExpectedOriginal)) return;
-            throw new IOException(string.Format(MiddleLayer.LangMsg("ProjectConfiguration","msg_ExternalSourceChange",
+            throw new IOException(string.Format(FrameworkLanguage.LangMsg("ProjectConfiguration","msg_ExternalSourceChange",
                 "源码或生成清单在保存准备后被修改，请保留文件并重新处理：{0}","Source or generation manifest changed after save preparation; preserve the file and resolve the conflict: {0}","El código o manifiesto cambió después de preparar el guardado; conserve el archivo y resuelva el conflicto: {0}"),file.Path));
         }
 
@@ -172,7 +182,7 @@ namespace AlphaRap.Configuration
                 {
                     byte[] current = File.Exists(file.Path) ? File.ReadAllBytes(file.Path) : null;
                     if (current == null || file.PreparedContents == null || !current.SequenceEqual(file.PreparedContents))
-                        throw new IOException(string.Format(MiddleLayer.LangMsg("ProjectConfiguration","msg_SourceRollbackConflict",
+                        throw new IOException(string.Format(FrameworkLanguage.LangMsg("ProjectConfiguration","msg_SourceRollbackConflict",
                             "回滚期间检测到外部源码修改，已保留该文件，请手动恢复：{0}","External source changes were detected during rollback; the file was preserved for manual recovery: {0}","Se detectaron cambios externos durante la reversión; se conservó el archivo para recuperación manual: {0}"),file.Path));
                 }
                 if (file.Original == null) File.Delete(file.Path);
@@ -187,17 +197,19 @@ namespace AlphaRap.Configuration
             FlowPrograms.RequireIdle();
             Action discardSource = FlowSourceGenerator.PrepareDiscard();
             DeviceControl.ValidateConfigurationReload();
-            Action discardPermissions = MiddleLayer.AddF == null ? null : MiddleLayer.AddF.PreparePermissionDiscard();
-            if (MiddleLayer.VPF != null) MiddleLayer.VPF.RevertVpConfig();
+            Action discardPermissions = ApplicationHost.FindModule<AddUserForm>()?.PreparePermissionDiscard();
+            ApplicationHost.FindModule<VPForm>()?.RevertVpConfig();
             DeviceControl.ReloadAll();
             if (discardPermissions != null) discardPermissions();
-            if (MiddleLayer.HardF != null && MiddleLayer.HardF.Resources != null) MiddleLayer.HardF.Resources.DiscardChanges();
+            ApplicationHost.FindModule<HardForm>()?.Resources?.DiscardChanges();
             foreach (ModuleBaseForm module in ModuleManager.ModuleList)
             {
                 module.ReadRecipeData(SysPara.FilePath);
                 module.ReadSettingData();
             }
-            if (MiddleLayer.DataF != null) { MiddleLayer.DataF.DiscardProductionDraft(); MiddleLayer.DataF.DiscardLogModulesDraft(); }
+            DataForm data = ApplicationHost.Data;
+            data?.DiscardProductionDraft();
+            data?.DiscardLogModulesDraft();
             FlowPrograms.DiscardChanges();
             discardSource();
         }

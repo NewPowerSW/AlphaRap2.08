@@ -1,16 +1,16 @@
 # MiddleLayer 开发说明
 
-对外继续使用 `MiddleLayer.xxx`。功能实现按以下文件维护：
+`AlphaRap/Core` 中的 `MiddleLayer` 负责本机应用组装与整机运行。应用从 `StationApplication` 接入框架的 `ApplicationHost`，通过 `RegisterModule` 登记实际页面。
 
 - `MiddleLayer.cs`：共享页面、任务引用和运行标记。
-- `MiddleLayer.Startup.cs`：机器配置、页面创建、启动顺序、权限及退出清理。
+- `MiddleLayer.Startup.cs`：机器配置、页面创建、启动顺序及退出清理。
 - `MiddleLayer.RunControl.cs`：初始化、启动、暂停、停止及操作提示。
 - `MiddleLayer.Modules.cs`：模块周期和复位回调、异常隔离及停止策略。
-- `MiddleLayer.Motion.cs`：伺服、电机保护和输送线暂停快照。
+- `MiddleLayer.Motion.cs`：整机模块的伺服启停。
 - `MiddleLayer.Recipe.cs`：模块配方读取、托盘刷新和视觉模型切换。
-- `MiddleLayer.Alarms.cs`：电机报警复位与 SDK 报警表加载。
-- `MiddleLayer.Language.cs`：控件登记、显示刷新、语言切换通知及权限显示。
-- `MiddleLayer.LanguageText.cs`：三语文本索引、消息底稿和 XML 缓存。
+- `MiddleLayer.Alarms.cs`：整机报警复位和启动时加载报警表。
+
+通用语言登记和三语索引由框架的 `FrameworkLanguage` 提供，轴保护由 `MotorProtection` 提供。应用通过 `MachineApplication` 接收框架页面发出的整机请求。
 
 ## 运行约定
 

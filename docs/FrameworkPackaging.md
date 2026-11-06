@@ -1,10 +1,10 @@
 # AlphaRap 框架与应用
 
 - **AlphaRap.Framework** 提供设备和控件发现、流程、动态资源、视觉、配方、权限、报警和日志等通用模块与编辑页。
-- **AlphaRap** 是本机应用，负责进程启动、主窗体、首页和页面导航，并拥有设备驱动、PLC、固定 IO、工位事件、视觉配方表及客户 MES。
+- **AlphaRap** 是本机应用，负责进程启动、主窗体、首页、页面导航、整机运行和配方切换，并拥有设备驱动、PLC、固定 IO、工位事件、视觉配方表及客户 MES。
 - **NPSDK** 是框架使用的公共依赖。模块基类和模块注册由框架提供，引用方向为应用 → 框架 → NPSDK。
 
-应用入口调用 `ApplicationHost.Initialize(profile)` 初始化模块，随后用自己的窗口运行 WinForms 消息循环，退出时调用 `ApplicationHost.Shutdown()`。应用可继承 `MachineApplication` 提供窗口与工位。窗口可实现 `IModuleWindow` 接入统一保存、权限更新和视觉预览。Device 派生类和 NP 控件派生类仍按已有规则发现，站点的 `FlowChartRun` 事件继续直接进入工具箱。项目代码可直接访问设计器创建的字段，也可通过 `ApplicationHost.GetResource<T>(id)` 取得流程目录里的同一个动态实例。稳定资源键沿用原流程引用。
+应用入口调用 `ApplicationHost.Initialize(profile)`，由 `MachineApplication.Initialize` 组装页面和启动模块。应用将窗口赋给 `ApplicationHost.MainWindow`，通过 `ApplicationHost.RegisterModule(page)` 登记真实页面，并在退出时通过 `ApplicationHost.Shutdown()` 调用应用的清理逻辑。窗口可实现 `IModuleWindow` 接入统一保存、权限更新和视觉预览。Device 派生类和 NP 控件派生类仍按已有规则发现，站点的 `FlowChartRun` 事件直接进入工具箱。项目代码可以访问设计器创建的字段，也可以通过 `ApplicationHost.GetResource<T>(id)` 取得流程目录里的同一个动态实例。
 
 ## 构建和发布
 
@@ -45,3 +45,7 @@ MSBuild.exe AlphaRap/AlphaRap.csproj /restore /t:Build /p:Configuration=Release 
 ### 从 4.x 升级到 5.x
 
 应用和扩展使用 AlphaRap.Framework 5.0.0 重新构建。ModuleBaseForm 和 ModuleManager 由 AlphaRap.Framework.dll 提供，沿用 AlphaRapLibrary 命名空间。项目可移除 NewPowerLibrary.dll 的直接引用，旧二进制扩展须重新编译。
+
+### 从 5.x 升级到 6.x
+
+`MiddleLayer` 由应用项目编译。自定义应用升级后需实现 `MachineApplication.Initialize` 和 `Shutdown`，自行决定模块组装和启停顺序。通用页面通过 `ApplicationHost.FindModule<T>()` 获取已登记的同一实例，语言初始化可调用 `ApplicationHost.InitializeLanguage(language)`。应用通过 `PauseMachine`、`StopMachine` 和 `ChangeRecipe` 分别处理报警暂停、流程停止和配方页发出的切换请求。使用 `FlowControl` 构造参数接入应用的周期任务和初始化复位。

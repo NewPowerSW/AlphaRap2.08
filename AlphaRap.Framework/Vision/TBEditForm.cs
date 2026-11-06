@@ -23,8 +23,8 @@ namespace AlphaRap
         private void TBEditForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             DialogResult = MessageBox.Show(
-                MiddleLayer.LangMsg("TBEditForm", "msg_KeepDraft", "保留 ToolBlock 修改吗？修改由主界面【保存】统一保存。", "Keep the ToolBlock changes? Use Save in the main window to save them.", "¿Conservar los cambios de ToolBlock? Use Guardar en la ventana principal para guardarlos."),
-                MiddleLayer.LangMsg("TBEditForm", "msg_DraftTitle", "算法草稿", "Algorithm draft", "Borrador del algoritmo"),
+                FrameworkLanguage.LangMsg("TBEditForm", "msg_KeepDraft", "保留 ToolBlock 修改吗？修改由主界面【保存】统一保存。", "Keep the ToolBlock changes? Use Save in the main window to save them.", "¿Conservar los cambios de ToolBlock? Use Guardar en la ventana principal para guardarlos."),
+                FrameworkLanguage.LangMsg("TBEditForm", "msg_DraftTitle", "算法草稿", "Algorithm draft", "Borrador del algoritmo"),
                 MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
             if (DialogResult == DialogResult.Cancel) { e.Cancel = true; return; }
             try

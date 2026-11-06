@@ -68,8 +68,8 @@ namespace AlphaRap.FlowProgramming
         /// <summary>在 UI 线程创建通用控制器，不检查具体工位类名。</summary>
         public static FlowModuleEditor Attach(Flow_BaseForm form)
         {
-            if (MiddleLayer.MainF != null && MiddleLayer.MainF.IsHandleCreated && MiddleLayer.MainF.InvokeRequired)
-                return (FlowModuleEditor)MiddleLayer.MainF.Invoke(new Func<FlowModuleEditor>(() => Attach(form)));
+            if (ApplicationHost.MainWindow != null && ApplicationHost.MainWindow.IsHandleCreated && ApplicationHost.MainWindow.InvokeRequired)
+                return (FlowModuleEditor)ApplicationHost.MainWindow.Invoke(new Func<FlowModuleEditor>(() => Attach(form)));
             FlowModuleEditor existing;
             if (modules.TryGetValue(form, out existing)) return existing;
             string id = form.GetType().FullName + "/" + form.Name;
@@ -446,14 +446,14 @@ namespace AlphaRap.FlowProgramming
             Runtime.AlarmRequested += code => { if (!simulating) Alarm.Show(string.IsNullOrWhiteSpace(code) ? "2019" : code); };
             Runtime.Finished += Finish;
             Runtime.PauseRequested += ResetActiveTiming;
-            MiddleLayer.LanguageChanged += RefreshBindingHints;
+            FrameworkLanguage.LanguageChanged += RefreshBindingHints;
             Form.Disposed += DisposeEditor;
         }
 
         /// <summary>释放编辑器提示和为撤销暂存的脱离画布节点。</summary>
         private void DisposeEditor(object sender, EventArgs args)
         {
-            MiddleLayer.LanguageChanged -= RefreshBindingHints;
+            FrameworkLanguage.LanguageChanged -= RefreshBindingHints;
             bindingHints.Dispose();
             foreach (Flow_Chart node in removedNodes.Values)
                 if (node.Parent == null) node.Dispose();
@@ -973,7 +973,7 @@ namespace AlphaRap.FlowProgramming
             }
             if (published.Mode == "Disabled") { Form.InitialStatus = true; Form.RunningStatus = false; return true; }
             Action start = () => StartEntries(command == FlowProgramCommand.Initialize ? published.InitialEntries : published.AutoEntries, SysPara.Simulation, command == FlowProgramCommand.Initialize, true, FlowPrograms.DebugEnabled);
-            if (MiddleLayer.MainF != null && MiddleLayer.MainF.InvokeRequired) MiddleLayer.MainF.Invoke(start); else start();
+            if (ApplicationHost.MainWindow != null && ApplicationHost.MainWindow.InvokeRequired) ApplicationHost.MainWindow.Invoke(start); else start();
             return true;
         }
 

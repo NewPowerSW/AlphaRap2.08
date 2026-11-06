@@ -20,7 +20,7 @@ namespace AlphaRap
             if (string.IsNullOrEmpty(action)) return;
             try
             {
-                if (MiddleLayer.DataF != null) MiddleLayer.DataF.AddOperationLog(formName, action);
+                if (ApplicationHost.Data != null) ApplicationHost.Data.AddOperationLog(formName, action);
             }
             catch (Exception) { }
         }

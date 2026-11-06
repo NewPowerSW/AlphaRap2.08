@@ -111,7 +111,7 @@ namespace AlphaRap
         /// <summary>取当前语言的文案（LanguageData\{语言}.xml），没有该键时使用底稿。</summary>
         private static string LangText(string key, string baseText)
         {
-            return MiddleLayer.LangText(LangForm, key, baseText);
+            return FrameworkLanguage.LangText(LangForm, key, baseText);
         }
 
         /// <summary>曝光框的默认值：标定的曝光，没有标定时用相机的默认曝光（未设置时为 10）。</summary>

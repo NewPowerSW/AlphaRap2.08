@@ -5,7 +5,7 @@ using System.Xml;
 
 namespace AlphaRap
 {
-    partial class MiddleLayer
+    internal static partial class FrameworkLanguage
     {
         private static readonly LanguageType[] Languages = (LanguageType[])Enum.GetValues(typeof(LanguageType));
         private static XmlDocument[] _langDocs;

@@ -11,7 +11,7 @@ namespace AlphaRap.FlowProgramming
         public FlowLanguageForm()
         {
             if (UiTheme.IsDesignTime) return;
-            MiddleLayer.LanguageChanged += LanguageChanged;
+            FrameworkLanguage.LanguageChanged += LanguageChanged;
             languageSubscribed = true;
         }
 
@@ -19,7 +19,7 @@ namespace AlphaRap.FlowProgramming
         protected override void OnLoad(EventArgs e)
         {
             ApplyTexts(this);
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, "EquipmentFlow");
+            if (!UiTheme.IsDesignTime) FrameworkLanguage.RegisterAndApplyLanguage(this, "EquipmentFlow");
             base.OnLoad(e);
         }
 
@@ -37,7 +37,7 @@ namespace AlphaRap.FlowProgramming
             string scope = owner is FlowLanguageForm || owner == null ? "EquipmentFlow" : owner.Name;
             string[] words;
             if (key != null && FlowText.Defaults.TryGetValue(key, out words))
-                parent.Text = UiTheme.IsDesignTime ? words[0] : MiddleLayer.LangMsg(scope, parent.Name, words[0], words[1], words[2]);
+                parent.Text = UiTheme.IsDesignTime ? words[0] : FrameworkLanguage.LangMsg(scope, parent.Name, words[0], words[1], words[2]);
             DataGridView grid = parent as DataGridView;
             if (grid != null)
                 foreach (DataGridViewColumn column in grid.Columns) ApplyColumnText(grid, column, scope);
@@ -45,7 +45,7 @@ namespace AlphaRap.FlowProgramming
             if (parent.ContextMenuStrip != null)
                 foreach (ToolStripItem item in parent.ContextMenuStrip.Items)
                     if (FlowText.Defaults.TryGetValue(item.Tag as string ?? "", out words))
-                        item.Text = UiTheme.IsDesignTime ? words[0] : MiddleLayer.LangMsg(scope, item.Name, words[0], words[1], words[2]);
+                        item.Text = UiTheme.IsDesignTime ? words[0] : FrameworkLanguage.LangMsg(scope, item.Name, words[0], words[1], words[2]);
         }
 
         /// <summary>按表名和列名登记固定表头。</summary>
@@ -54,7 +54,7 @@ namespace AlphaRap.FlowProgramming
             string[] words;
             string key = column.Tag as string;
             if (key == null || !FlowText.Defaults.TryGetValue(key, out words)) return;
-            column.HeaderText = UiTheme.IsDesignTime ? words[0] : MiddleLayer.LangMsg(scope, grid.Name + "_" + column.Name, words[0], words[1], words[2]);
+            column.HeaderText = UiTheme.IsDesignTime ? words[0] : FrameworkLanguage.LangMsg(scope, grid.Name + "_" + column.Name, words[0], words[1], words[2]);
         }
 
         /// <summary>释放窗口时解除静态语言事件。</summary>
@@ -62,7 +62,7 @@ namespace AlphaRap.FlowProgramming
         {
             if (disposing && languageSubscribed)
             {
-                MiddleLayer.LanguageChanged -= LanguageChanged;
+                FrameworkLanguage.LanguageChanged -= LanguageChanged;
                 languageSubscribed = false;
             }
             base.Dispose(disposing);

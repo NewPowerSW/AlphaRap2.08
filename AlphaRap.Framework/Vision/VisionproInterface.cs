@@ -28,7 +28,7 @@ namespace AlphaRap
             ImageFormat = (imageFormat ?? "bmp").Trim().TrimStart('.').ToLowerInvariant();
             if (ImageFormat == "jpeg") ImageFormat = "jpg";
             if (ImageFormat != "bmp" && ImageFormat != "jpg")
-                throw new ArgumentException(MiddleLayer.LangMsg("Vision", "error_ImageFormat", "照片格式只支持 BMP 或 JPG。", "Image format must be BMP or JPG.", "El formato de imagen debe ser BMP o JPG."), "imageFormat");
+                throw new ArgumentException(FrameworkLanguage.LangMsg("Vision", "error_ImageFormat", "照片格式只支持 BMP 或 JPG。", "Image format must be BMP or JPG.", "El formato de imagen debe ser BMP o JPG."), "imageFormat");
             CapturedAt = DateTime.Now;
         }
     }
@@ -98,7 +98,7 @@ namespace AlphaRap
         {
             lock (_operationLock)
             {
-                if (!CanModifyToolBlock()) throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_BusySave", "工位正在运行或编辑，不能保存 VPP。", "Station is running or being edited; VPP cannot be saved.", "La estación está ejecutándose o en edición; no se puede guardar el VPP."));
+                if (!CanModifyToolBlock()) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_BusySave", "工位正在运行或编辑，不能保存 VPP。", "Station is running or being edited; VPP cannot be saved.", "La estación está ejecutándose o en edición; no se puede guardar el VPP."));
                 return new ToolBlockSnapshot { ToolBlock = TB == null ? null : (CogToolBlock)CogSerializer.DeepCopyObject(TB), Path = TBPath,
                     Signature = ModelSignature, Loaded = IsLoadTBOk, Dirty = _hasToolBlockDraft, WasSaved = _toolBlockWasSaved, Revision = _toolBlockRevision };
             }
@@ -109,7 +109,7 @@ namespace AlphaRap
         {
             lock (_operationLock)
             {
-                if (!CanModifyToolBlock()) throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_BusyDiscard", "工位正在运行或编辑，不能放弃修改。", "Station is running or being edited; changes cannot be discarded.", "La estación está ejecutándose o en edición; no se pueden descartar los cambios."));
+                if (!CanModifyToolBlock()) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_BusyDiscard", "工位正在运行或编辑，不能放弃修改。", "Station is running or being edited; changes cannot be discarded.", "La estación está ejecutándose o en edición; no se pueden descartar los cambios."));
                 TB = snapshot.ToolBlock; TBPath = snapshot.Path; IsLoadTBOk = snapshot.Loaded;
                 ModelSignature = snapshot.Signature; _hasToolBlockDraft = snapshot.Dirty;
                 _toolBlockWasSaved = snapshot.WasSaved;
@@ -244,7 +244,7 @@ namespace AlphaRap
         {
             lock (_operationLock)
             {
-                if (!CanModifyToolBlock()) return FailOperation(MiddleLayer.LangMsg("Vision", "error_BusyDiscard", "工位正在运行或编辑，不能放弃修改。", "Station is running or being edited; changes cannot be discarded.", "La estación está ejecutándose o en edición; no se pueden descartar los cambios."), out error);
+                if (!CanModifyToolBlock()) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_BusyDiscard", "工位正在运行或编辑，不能放弃修改。", "Station is running or being edited; changes cannot be discarded.", "La estación está ejecutándose o en edición; no se pueden descartar los cambios."), out error);
                 CogToolBlock edited = TB;
                 bool wasLoaded = IsLoadTBOk;
                 string previousSignature = ModelSignature;
@@ -252,7 +252,7 @@ namespace AlphaRap
                 bool wasSaved = _toolBlockWasSaved;
                 if (!File.Exists(TBPath))
                 {
-                    if (_toolBlockWasSaved) return FailOperation(MiddleLayer.LangMsg("Vision", "error_DiscardMissing", "已保存的 VPP 文件不存在或不可读，算法草稿已保留：", "The saved VPP file is missing or unreadable; the algorithm draft was preserved: ", "El archivo VPP guardado no existe o no se puede leer; se conservó el borrador del algoritmo: ") + TBPath, out error);
+                    if (_toolBlockWasSaved) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_DiscardMissing", "已保存的 VPP 文件不存在或不可读，算法草稿已保留：", "The saved VPP file is missing or unreadable; the algorithm draft was preserved: ", "El archivo VPP guardado no existe o no se puede leer; se conservó el borrador del algoritmo: ") + TBPath, out error);
                     TB = null;
                     IsLoadTBOk = false;
                     ModelSignature = "";
@@ -277,7 +277,7 @@ namespace AlphaRap
         {
             lock (_operationLock)
             {
-                if (!CanModifyToolBlock()) return FailOperation(MiddleLayer.LangMsg("Vision", "error_BusyLoad", "工位正在运行或编辑，不能加载 VPP。", "Station is running or being edited; VPP cannot be loaded.", "La estación está ejecutándose o en edición; no se puede cargar el VPP."), out error);
+                if (!CanModifyToolBlock()) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_BusyLoad", "工位正在运行或编辑，不能加载 VPP。", "Station is running or being edited; VPP cannot be loaded.", "La estación está ejecutándose o en edición; no se puede cargar el VPP."), out error);
                 TB = null;
                 TBPath = path;
                 IsLoadTBOk = false;
@@ -288,9 +288,9 @@ namespace AlphaRap
                 _lastRunResult = null;
                 try
                 {
-                    if (!File.Exists(path)) return FailOperation(MiddleLayer.LangMsg("Vision", "error_FileMissing", "VPP 文件不存在：", "VPP file does not exist: ", "El archivo VPP no existe: ") + path, out error);
+                    if (!File.Exists(path)) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_FileMissing", "VPP 文件不存在：", "VPP file does not exist: ", "El archivo VPP no existe: ") + path, out error);
                     TB = CogSerializer.LoadObjectFromFile(path) as CogToolBlock;
-                    if (TB == null) return FailOperation(MiddleLayer.LangMsg("Vision", "error_InvalidTB", "文件不是有效的 ToolBlock：", "File is not a valid ToolBlock: ", "El archivo no es un ToolBlock válido: ") + path, out error);
+                    if (TB == null) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_InvalidTB", "文件不是有效的 ToolBlock：", "File is not a valid ToolBlock: ", "El archivo no es un ToolBlock válido: ") + path, out error);
                     ModelSignature = ComputeFileSignature(path);
                     _hasToolBlockDraft = false;
                     _toolBlockWasSaved = true;
@@ -298,7 +298,7 @@ namespace AlphaRap
                     LastError = error = "";
                     return true;
                 }
-                catch (Exception ex) { return FailOperation(MiddleLayer.LangMsg("Vision", "error_Load", "加载 VPP 失败：", "VPP load failed: ", "Error al cargar VPP: ") + path + "；" + ex.Message, out error); }
+                catch (Exception ex) { return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_Load", "加载 VPP 失败：", "VPP load failed: ", "Error al cargar VPP: ") + path + "；" + ex.Message, out error); }
             }
         }
 
@@ -307,7 +307,7 @@ namespace AlphaRap
         {
             lock (_operationLock)
             {
-                if (!CanModifyToolBlock()) return FailOperation(MiddleLayer.LangMsg("Vision", "error_BusyCreate", "工位正在运行或编辑，不能新建 VPP。", "Station is running or being edited; VPP cannot be created.", "La estación está ejecutándose o en edición; no se puede crear un VPP."), out error);
+                if (!CanModifyToolBlock()) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_BusyCreate", "工位正在运行或编辑，不能新建 VPP。", "Station is running or being edited; VPP cannot be created.", "La estación está ejecutándose o en edición; no se puede crear un VPP."), out error);
                 if (File.Exists(path)) return TryLoadTB(path, out error);
                 TB = new CogToolBlock();
                 TBPath = path;
@@ -340,8 +340,8 @@ namespace AlphaRap
         {
             lock (_operationLock)
             {
-                if (!CanModifyToolBlock()) return FailOperation(MiddleLayer.LangMsg("Vision", "error_BusySave", "工位正在运行或编辑，不能保存 VPP。", "Station is running or being edited; VPP cannot be saved.", "La estación está ejecutándose o en edición; no se puede guardar el VPP."), out error);
-                if (!IsLoadTBOk || TB == null) return FailOperation(MiddleLayer.LangMsg("Vision", "error_NotLoadedSave", "ToolBlock 未加载，不能保存。", "ToolBlock is not loaded; cannot save.", "ToolBlock no está cargado; no se puede guardar."), out error);
+                if (!CanModifyToolBlock()) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_BusySave", "工位正在运行或编辑，不能保存 VPP。", "Station is running or being edited; VPP cannot be saved.", "La estación está ejecutándose o en edición; no se puede guardar el VPP."), out error);
+                if (!IsLoadTBOk || TB == null) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_NotLoadedSave", "ToolBlock 未加载，不能保存。", "ToolBlock is not loaded; cannot save.", "ToolBlock no está cargado; no se puede guardar."), out error);
                 string temp = null;
                 try
                 {
@@ -361,7 +361,7 @@ namespace AlphaRap
                     LastError = error = "";
                     return true;
                 }
-                catch (Exception ex) { return FailOperation(MiddleLayer.LangMsg("Vision", "error_Save", "保存 VPP 失败：", "VPP save failed: ", "Error al guardar VPP: ") + path + "；" + ex.Message, out error); }
+                catch (Exception ex) { return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_Save", "保存 VPP 失败：", "VPP save failed: ", "Error al guardar VPP: ") + path + "；" + ex.Message, out error); }
                 finally { DeleteTempFile(temp); }
             }
         }
@@ -426,8 +426,8 @@ namespace AlphaRap
             {
                 runId = 0;
                 string error;
-                if (_isRunning || _editingThreadId != 0) return FailOperation(MiddleLayer.LangMsg("Vision", "error_BusyCapture", "工位忙碌，不能重复拍照。", "Station is busy; cannot capture again.", "La estación está ocupada; no se puede repetir la captura."), out error);
-                if (!IsLoadTBOk || TB == null) return FailOperation(MiddleLayer.LangMsg("Vision", "error_NotLoadedPath", "ToolBlock 未加载：", "ToolBlock is not loaded: ", "ToolBlock no está cargado: ") + TBPath, out error);
+                if (_isRunning || _editingThreadId != 0) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_BusyCapture", "工位忙碌，不能重复拍照。", "Station is busy; cannot capture again.", "La estación está ocupada; no se puede repetir la captura."), out error);
+                if (!IsLoadTBOk || TB == null) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_NotLoadedPath", "ToolBlock 未加载：", "ToolBlock is not loaded: ", "ToolBlock no está cargado: ") + TBPath, out error);
                 runId = ++_nextRunId;
                 long requestId = runId;
                 IsAccept = false;
@@ -440,7 +440,7 @@ namespace AlphaRap
                     _isRunning = false;
                     _lastRunResult = new VisionRunResult(runId, VisionRunState.Faulted, ex.Message) { Capture = capture };
                     runId = 0;
-                    return FailOperation(MiddleLayer.LangMsg("Vision", "error_Start", "启动视觉任务失败：", "Could not start vision task: ", "No se pudo iniciar la tarea de visión: ") + ex.Message, out error);
+                    return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_Start", "启动视觉任务失败：", "Could not start vision task: ", "No se pudo iniciar la tarea de visión: ") + ex.Message, out error);
                 }
             }
         }
@@ -479,19 +479,19 @@ namespace AlphaRap
         protected virtual VisionRunResult CaptureRunResult(long runId)
         {
             return new VisionRunResult(runId, IsAccept ? VisionRunState.Succeeded : VisionRunState.Rejected,
-                IsAccept ? "" : MiddleLayer.LangMsg("Vision", "error_Rejected", "ToolBlock 判定 NG。", "ToolBlock result is NG.", "El resultado de ToolBlock es NG."));
+                IsAccept ? "" : FrameworkLanguage.LangMsg("Vision", "error_Rejected", "ToolBlock 判定 NG。", "ToolBlock result is NG.", "El resultado de ToolBlock es NG."));
         }
 
         /// <summary>使指定请求超时失效；底层任务退出前仍保持工位忙碌。</summary>
         public void TimeoutRun(long runId)
         {
-            InvalidateRun(runId, VisionRunState.TimedOut, MiddleLayer.LangMsg("Vision", "error_TimedOut", "视觉运行超时。", "Vision operation timed out.", "La operación de visión agotó el tiempo de espera."));
+            InvalidateRun(runId, VisionRunState.TimedOut, FrameworkLanguage.LangMsg("Vision", "error_TimedOut", "视觉运行超时。", "Vision operation timed out.", "La operación de visión agotó el tiempo de espera."));
         }
 
         /// <summary>取消指定请求的结果接收，阻止迟到结果被生产流程采用。</summary>
         public void CancelRun(long runId)
         {
-            InvalidateRun(runId, VisionRunState.Cancelled, MiddleLayer.LangMsg("Vision", "error_Cancelled", "视觉运行已取消。", "Vision operation cancelled.", "Operación de visión cancelada."));
+            InvalidateRun(runId, VisionRunState.Cancelled, FrameworkLanguage.LangMsg("Vision", "error_Cancelled", "视觉运行已取消。", "Vision operation cancelled.", "Operación de visión cancelada."));
         }
 
         /// <summary>仅将仍在运行的同编号请求置为终止状态。</summary>
@@ -591,10 +591,10 @@ namespace AlphaRap
         public static CalibApplyInfo CheckCalibration(List<CalibrationData> data)
         {
             CalibApplyInfo info = new CalibApplyInfo();
-            if (data == null) { info.Error = MiddleLayer.LangMsg("Vision", "error_NoPoints", "没有标定点", "No calibration points", "No hay puntos de calibración"); return info; }
+            if (data == null) { info.Error = FrameworkLanguage.LangMsg("Vision", "error_NoPoints", "没有标定点", "No calibration points", "No hay puntos de calibración"); return info; }
 
             info.PointCount = data.Count;
-            if (data.Count < 3) { info.Error = MiddleLayer.LangMsg("Vision", "error_TooFewPoints", "标定点不足 3 个，无法计算标定", "At least 3 points are required to calculate calibration.", "Se requieren al menos 3 puntos para calcular la calibración."); return info; }
+            if (data.Count < 3) { info.Error = FrameworkLanguage.LangMsg("Vision", "error_TooFewPoints", "标定点不足 3 个，无法计算标定", "At least 3 points are required to calculate calibration.", "Se requieren al menos 3 puntos para calcular la calibración."); return info; }
 
             if (!RunTempCalibration(data, info)) return info;
 
@@ -615,7 +615,7 @@ namespace AlphaRap
                 info.Rmse = calib.ComputedRMSError;
                 if (info.Calibrated) return true;
 
-                info.Error = MiddleLayer.LangMsg("Vision", "error_InvalidPoints", "点位算不出有效标定（可能全部共线或重复）", "Cannot calculate a valid calibration; points may be collinear or duplicated.", "No se puede calcular una calibración válida; los puntos pueden ser colineales o duplicados.");
+                info.Error = FrameworkLanguage.LangMsg("Vision", "error_InvalidPoints", "点位算不出有效标定（可能全部共线或重复）", "Cannot calculate a valid calibration; points may be collinear or duplicated.", "No se puede calcular una calibración válida; los puntos pueden ser colineales o duplicados.");
                 return false;
             }
             catch (Exception ex)
@@ -729,10 +729,10 @@ namespace AlphaRap
         {
             info = new CalibApplyInfo();
             if (CalibData != null) info.PointCount = CalibData.Count;
-            if (CalibData == null || CalibData.Count < 3) { info.Error = MiddleLayer.LangMsg("Vision", "error_MinPoints", "标定点不足 3 个", "Fewer than 3 calibration points", "Hay menos de 3 puntos de calibración"); return false; }
+            if (CalibData == null || CalibData.Count < 3) { info.Error = FrameworkLanguage.LangMsg("Vision", "error_MinPoints", "标定点不足 3 个", "Fewer than 3 calibration points", "Hay menos de 3 puntos de calibración"); return false; }
             lock (_operationLock)
             {
-                if (_isRunning || _editingThreadId != 0) { info.Error = MiddleLayer.LangMsg("Vision", "error_BusyCalibrate", "工位正在运行或编辑，不能应用标定。", "Station is running or being edited; calibration cannot be applied.", "La estación está ejecutándose o en edición; no se puede aplicar la calibración."); return false; }
+                if (_isRunning || _editingThreadId != 0) { info.Error = FrameworkLanguage.LangMsg("Vision", "error_BusyCalibrate", "工位正在运行或编辑，不能应用标定。", "Station is running or being edited; calibration cannot be applied.", "La estación está ejecutándose o en edición; no se puede aplicar la calibración."); return false; }
                 CogCalibNPointToNPointTool tool;
                 if (!TryGetCalibTool(ToolName, out tool, info)) return false;
                 CogToolBlock original = TB;
@@ -744,7 +744,7 @@ namespace AlphaRap
                     tool.Calibration.Calibrate();
                     info.Calibrated = tool.Calibration.Calibrated;
                     info.Rmse = tool.Calibration.ComputedRMSError;
-                    if (!info.Calibrated) { info.Error = MiddleLayer.LangMsg("Vision", "error_InvalidCalibration", "标定点无效，未修改原算法。", "Invalid calibration points; original algorithm was preserved.", "Puntos de calibración no válidos; se conservó el algoritmo original."); return false; }
+                    if (!info.Calibrated) { info.Error = FrameworkLanguage.LangMsg("Vision", "error_InvalidCalibration", "标定点无效，未修改原算法。", "Invalid calibration points; original algorithm was preserved.", "Puntos de calibración no válidos; se conservó el algoritmo original."); return false; }
                     TB = candidate;
                     string error;
                     if (save && !TrySaveTB(out error)) { TB = original; info.Error = error; return false; }
@@ -762,15 +762,15 @@ namespace AlphaRap
         private bool TryGetCalibTool(string toolName, out CogCalibNPointToNPointTool tool, CalibApplyInfo info)
         {
             tool = null;
-            if (TB == null || !IsLoadTBOk) { info.Error = MiddleLayer.LangMsg("Vision", "error_NotLoaded", "ToolBlock 未加载", "ToolBlock is not loaded", "ToolBlock no está cargado"); return false; }
-            if (string.IsNullOrEmpty(toolName)) { info.Error = MiddleLayer.LangMsg("Vision", "error_ToolNameEmpty", "标定工具名为空", "Calibration tool name is empty", "El nombre de la herramienta de calibración está vacío"); return false; }
+            if (TB == null || !IsLoadTBOk) { info.Error = FrameworkLanguage.LangMsg("Vision", "error_NotLoaded", "ToolBlock 未加载", "ToolBlock is not loaded", "ToolBlock no está cargado"); return false; }
+            if (string.IsNullOrEmpty(toolName)) { info.Error = FrameworkLanguage.LangMsg("Vision", "error_ToolNameEmpty", "标定工具名为空", "Calibration tool name is empty", "El nombre de la herramienta de calibración está vacío"); return false; }
 
             try { tool = TB.Tools[toolName] as CogCalibNPointToNPointTool; }
             catch (Exception) { tool = null; }
 
             if (tool != null) return true;
 
-            info.Error = MiddleLayer.LangMsg("Vision", "error_NoCalibToolA", "TB 里没有名为「", "ToolBlock has no CogCalibNPointToNPointTool named \"", "ToolBlock no contiene una herramienta CogCalibNPointToNPointTool llamada \"") + toolName + MiddleLayer.LangMsg("Vision", "error_NoCalibToolB", "」的 CogCalibNPointToNPointTool", "\".", "\".");
+            info.Error = FrameworkLanguage.LangMsg("Vision", "error_NoCalibToolA", "TB 里没有名为「", "ToolBlock has no CogCalibNPointToNPointTool named \"", "ToolBlock no contiene una herramienta CogCalibNPointToNPointTool llamada \"") + toolName + FrameworkLanguage.LangMsg("Vision", "error_NoCalibToolB", "」的 CogCalibNPointToNPointTool", "\".", "\".");
             return false;
         }
 
@@ -802,7 +802,7 @@ namespace AlphaRap
                         : CogCameraDevices.ResolveIndex(RunLiveCCDSN, out bindError);
                     if (ccdIndex < 0)
                     {
-                        MessageBox.Show(string.IsNullOrEmpty(bindError) ? MiddleLayer.LangMsg("Vision", "error_CameraUnavailable", "相机不可用。", "Camera unavailable.", "Cámara no disponible.") : bindError);
+                        MessageBox.Show(string.IsNullOrEmpty(bindError) ? FrameworkLanguage.LangMsg("Vision", "error_CameraUnavailable", "相机不可用。", "Camera unavailable.", "Cámara no disponible.") : bindError);
                         return;
                     }
 
@@ -810,8 +810,8 @@ namespace AlphaRap
                     if (CCD_Graber == null)
                         throw new Exception("Failed to create the CogFrameGrabbers object.");
                     if (ccdIndex >= CCD_Graber.Count)
-                        throw new Exception(MiddleLayer.LangMsg("Vision", "error_ChannelRangeA", "相机 SN 解析到的通道 ", "Camera SN resolved to channel ", "El SN de cámara corresponde al canal ") + ccdIndex + MiddleLayer.LangMsg("Vision", "error_ChannelRangeB", " 超出范围（当前只有 ", " which is out of range (available devices: ", " fuera de rango (dispositivos disponibles: ")
-                            + CCD_Graber.Count + MiddleLayer.LangMsg("Vision", "error_ChannelRangeC", " 台设备）。请重新选择相机 SN。", "). Select the camera SN again.", "). Seleccione de nuevo el SN de cámara."));
+                        throw new Exception(FrameworkLanguage.LangMsg("Vision", "error_ChannelRangeA", "相机 SN 解析到的通道 ", "Camera SN resolved to channel ", "El SN de cámara corresponde al canal ") + ccdIndex + FrameworkLanguage.LangMsg("Vision", "error_ChannelRangeB", " 超出范围（当前只有 ", " which is out of range (available devices: ", " fuera de rango (dispositivos disponibles: ")
+                            + CCD_Graber.Count + FrameworkLanguage.LangMsg("Vision", "error_ChannelRangeC", " 台设备）。请重新选择相机 SN。", "). Select the camera SN again.", "). Seleccione de nuevo el SN de cámara."));
 
                     ICogFrameGrabber frameGrabber = CCD_Graber[ccdIndex];
                     ICogAcqFifo Fifo = frameGrabber.CreateAcqFifo(frameGrabber.AvailableVideoFormats[0], CogAcqFifoPixelFormatConstants.Format8Grey, 0, true);

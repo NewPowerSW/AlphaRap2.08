@@ -35,8 +35,8 @@ namespace AlphaRap
                 }, MatchedCount = 2 });
                 return;
             }
-            MiddleLayer.RegisterAndApplyLanguage(this, Name);
-            MiddleLayer.LanguageChanged += LanguageChanged;
+            FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
+            FrameworkLanguage.LanguageChanged += LanguageChanged;
             languageSubscribed = true;
         }
 
@@ -107,7 +107,7 @@ namespace AlphaRap
                 lblStatus.Text = T("range_Error", "请选择有效日期范围，最多 366 天。", "Choose a valid date range of up to 366 days.", "Seleccione un intervalo válido de hasta 366 días.");
                 return;
             }
-            if (MiddleLayer.DataF == null)
+            if (ApplicationHost.Data == null)
             {
                 lblStatus.Text = T("source_Unavailable", "日志数据源尚未初始化", "Log sources have not been initialized", "Los registros aún no están inicializados");
                 return;
@@ -119,8 +119,8 @@ namespace AlphaRap
             DateTime from = dateFrom.Value.Date, to = dateTo.Value.Date;
             string level = levelFilter.SelectedIndex == 1 ? RuntimeLogHistory.Run : levelFilter.SelectedIndex == 2 ? RuntimeLogHistory.Error : RuntimeLogHistory.All;
             string keyword = keywordFilter.Text;
-            string runDirectory = MiddleLayer.DataF.GetLogSource("LogRun")?.SavePath;
-            string errorDirectory = MiddleLayer.DataF.GetLogSource("LogError")?.SavePath;
+            string runDirectory = ApplicationHost.Data.GetLogSource("LogRun")?.SavePath;
+            string errorDirectory = ApplicationHost.Data.GetLogSource("LogError")?.SavePath;
             loading = true;
             btnQuery.Enabled = btnExport.Enabled = false;
             RefreshStatus();
@@ -286,7 +286,7 @@ namespace AlphaRap
         {
             CancelQuery();
             bindingLogs = true;
-            if (languageSubscribed) MiddleLayer.LanguageChanged -= LanguageChanged;
+            if (languageSubscribed) FrameworkLanguage.LanguageChanged -= LanguageChanged;
             languageSubscribed = false;
         }
     }

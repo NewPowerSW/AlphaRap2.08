@@ -72,7 +72,7 @@ int nheightEllipse
 
             // 主框架样式（设计期也执行，使设计视图与运行时一致）；按钮文字取自语言包
             if (!InDesigner)
-                UiTheme.TextProvider = (form, key, zh, en, es) => MiddleLayer.LangMsg(form, key, zh, en, es);
+                UiTheme.TextProvider = (form, key, zh, en, es) => FrameworkLanguage.LangMsg(form, key, zh, en, es);
             if (!InDesigner) lblBrandName.Text = MiddleLayer.Application.DisplayName;
             ApplyFrameStyle();
             uiTabControl1.SelectedIndexChanged += (sender, args) => RefreshDashboardTabs();
@@ -91,8 +91,8 @@ int nheightEllipse
             HookMouseForwarding(this);
             ApplicationHost.AlarmRowsChanged += ApplyAlarmRows;
             Disposed += delegate { ApplicationHost.AlarmRowsChanged -= ApplyAlarmRows; };
-            MiddleLayer.LanguageChanged += MainForm_LanguageChanged;
-            Disposed += delegate { MiddleLayer.LanguageChanged -= MainForm_LanguageChanged; };
+            FrameworkLanguage.LanguageChanged += MainForm_LanguageChanged;
+            Disposed += delegate { FrameworkLanguage.LanguageChanged -= MainForm_LanguageChanged; };
             Disposed += delegate { if (runtimeLogPage != null) runtimeLogPage.Dispose(); };
         }
 
@@ -438,7 +438,7 @@ int nheightEllipse
                 Rectangle wa = Screen.FromControl(this).WorkingArea;
                 toolStripStatusLabel4.Text = ApplicationHost.ApplicationVersion;
                 toolStripStatusLabel4.ToolTipText = string.Format(
-                    MiddleLayer.LangMsg("MainForm", "frameworkVersion", "框架版本 {9}", "Framework {9}", "Marco {9}") + "   DPI {0:0}%   winDPI {1}   aware {2}/{3}   mon {4} sys {5}   {6}x{7} -> {8}x{9}",
+                    FrameworkLanguage.LangMsg("MainForm", "frameworkVersion", "框架版本 {9}", "Framework {9}", "Marco {9}") + "   DPI {0:0}%   winDPI {1}   aware {2}/{3}   mon {4} sys {5}   {6}x{7} -> {8}x{9}",
                     UiTheme.Scale * 100f, UiTheme.DpiOfWindow(this),
                     UiTheme.AwareAtInit ? "Y" : "N", UiTheme.DpiPath,
                     UiTheme.DpiMonitor, UiTheme.DpiSystem,
@@ -805,7 +805,7 @@ int nheightEllipse
             if (pageType == MENU_PageType.Hard || pageType == MENU_PageType.Manual)
             {
                 if (!busy) return true;
-                message = MiddleLayer.LangMsg("MainForm", "msg_ConfirmPauseForPage",
+                message = FrameworkLanguage.LangMsg("MainForm", "msg_ConfirmPauseForPage",
                     "设备正在运行。\r\n进入此页面会暂停设备，是否继续？",
                     "The machine is running.\r\nOpening this page will PAUSE the machine. Continue?",
                     "La máquina está en marcha.\r\nAbrir esta página PAUSARÁ la máquina. ¿Continuar?");
@@ -815,7 +815,7 @@ int nheightEllipse
                 return true;
             }
 
-            string title = MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo");
+            string title = FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo");
             // 默认按钮设为"否"：误触回车不会停机
             return MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
                                    MessageBoxDefaultButton.Button2) == DialogResult.Yes;
@@ -1048,7 +1048,7 @@ int nheightEllipse
             try
             {
                 SysPara.LanguageShow = lanType;
-                MiddleLayer.SwitchLanguage(lanType);
+                FrameworkLanguage.SwitchLanguage(lanType);
                 SysPara.LanguageName = (lanType == LanguageType.Chinese) ? "Chinese"
                                       : (lanType == LanguageType.English) ? "English"
                                       : "Español";
@@ -1213,12 +1213,12 @@ int nheightEllipse
         {
             return new Dictionary<RunMode, string>
             {
-                { RunMode.IDLE, MiddleLayer.LangMsg("MainForm", "msg_StatusIdle", "待机状态", "IDLE", "modo espera") },
+                { RunMode.IDLE, FrameworkLanguage.LangMsg("MainForm", "msg_StatusIdle", "待机状态", "IDLE", "modo espera") },
                 { RunMode.INITIAL, MiddleLayer.MachineInitialReady
-                        ? MiddleLayer.LangMsg("MainForm", "msg_StatusInitOk", "初始化完成", "INITIAL Completed", "cargando terminado")
-                        : MiddleLayer.LangMsg("MainForm", "msg_StatusInitializing", "正在初始化状态", "INITIAL", "Estado inicialización") },
-                { RunMode.RUN, MiddleLayer.LangMsg("MainForm", "msg_StatusRun", "运行状态", "RUNNING", "CORRER") },
-                { RunMode.PAUSE, MiddleLayer.LangMsg("MainForm", "msg_StatusPause", "暂停状态", "PAUSE", "Estado suspendido") },
+                        ? FrameworkLanguage.LangMsg("MainForm", "msg_StatusInitOk", "初始化完成", "INITIAL Completed", "cargando terminado")
+                        : FrameworkLanguage.LangMsg("MainForm", "msg_StatusInitializing", "正在初始化状态", "INITIAL", "Estado inicialización") },
+                { RunMode.RUN, FrameworkLanguage.LangMsg("MainForm", "msg_StatusRun", "运行状态", "RUNNING", "CORRER") },
+                { RunMode.PAUSE, FrameworkLanguage.LangMsg("MainForm", "msg_StatusPause", "暂停状态", "PAUSE", "Estado suspendido") },
             };
         }
         /// <summary>刷新当前配方的业务名称，完整名称通过悬停提示显示。</summary>
@@ -1262,7 +1262,7 @@ int nheightEllipse
                 _statusTextMap = GetStatusTextMap(SysPara.LanguageShow);
                 _statusTextLang = SysPara.LanguageShow;
                 _statusTextInitOk = MiddleLayer.MachineInitialReady;
-                _statusAlarmText = MiddleLayer.LangMsg("MainForm", "msg_StatusAlarm", "设备报警", "ALARM", "ALARMA");
+                _statusAlarmText = FrameworkLanguage.LangMsg("MainForm", "msg_StatusAlarm", "设备报警", "ALARM", "ALARMA");
             }
 
             // 有 E 类报警时优先显示红色"报警"和条数，悬停显示最新一条报警及处理方法
@@ -1288,13 +1288,13 @@ int nheightEllipse
             if (FlowProgramming.FlowPrograms.CanContinueInitialization)
             {
                 SetStatusLook(StatusPauseFill, StatusDarkInk,
-                    MiddleLayer.LangMsg("MainForm", "msg_StatusInitialPaused", "初始化待继续", "INIT PAUSED", "INICIO EN PAUSA"), AppIcon.Pause);
+                    FrameworkLanguage.LangMsg("MainForm", "msg_StatusInitialPaused", "初始化待继续", "INIT PAUSED", "INICIO EN PAUSA"), AppIcon.Pause);
                 return;
             }
             if (SysPara.SystemMode == RunMode.IDLE && FlowProgramming.FlowPrograms.AnyRunning)
             {
                 SetStatusLook(StatusPauseFill, StatusDarkInk,
-                    MiddleLayer.LangMsg("MainForm", "msg_StatusStopping", "停止中", "STOPPING", "DETENIENDO"), AppIcon.Stop);
+                    FrameworkLanguage.LangMsg("MainForm", "msg_StatusStopping", "停止中", "STOPPING", "DETENIENDO"), AppIcon.Stop);
                 return;
             }
 
@@ -1373,7 +1373,7 @@ int nheightEllipse
                     count++;
                     latest = a.Code + "  " + AlarmCatalog.ResolveAlarmContent(a.Code, a.Content);
                     if (!string.IsNullOrEmpty(a.Solution))
-                        latest += "\r\n" + MiddleLayer.LangMsg("MainForm", "msg_AlarmSolution", "处理方法：", "Solution: ", "Solución: ") + a.Solution;
+                        latest += "\r\n" + FrameworkLanguage.LangMsg("MainForm", "msg_AlarmSolution", "处理方法：", "Solution: ", "Solución: ") + a.Solution;
                 }
                 if (count == 0) count = 1;   // IsError 为真但列表还没刷新：至少按 1 条显示
                 return true;
@@ -1388,7 +1388,7 @@ int nheightEllipse
         /// <summary>在导航栏底部显示实际账号和权限译文；登录时间由悬停提示提供。</summary>
         private void RefreshLoginChipText()
         {
-            LoginText.Text = SysPara.UserName + Environment.NewLine + MiddleLayer.PermissionText(SysPara.UserPermission);
+            LoginText.Text = SysPara.UserName + Environment.NewLine + FrameworkLanguage.PermissionText(SysPara.UserPermission);
         }
 
         /// <summary>从设备状态返回首页并聚焦常驻报警列表。</summary>
@@ -1503,61 +1503,61 @@ int nheightEllipse
             switch (MENU_SelectPage1)
             {
                 case MENU_PageType1.RuntimeLog:
-                    ShowWord(MENU_RuntimeLog, MiddleLayer.LangMsg("MainForm", "nav_RuntimeLog", "运行日志", "Runtime logs", "Registros"));
+                    ShowWord(MENU_RuntimeLog, FrameworkLanguage.LangMsg("MainForm", "nav_RuntimeLog", "运行日志", "Runtime logs", "Registros"));
                     break;
                 case MENU_PageType1.Home:
-                    ShowWord(this.MENU_Home, MiddleLayer.LangMsg("MainForm", "MENU_Home", "主界面", "Home", "Inicio"));
+                    ShowWord(this.MENU_Home, FrameworkLanguage.LangMsg("MainForm", "MENU_Home", "主界面", "Home", "Inicio"));
                     break;
                 case MENU_PageType1.Product:
-                    ShowWord(this.MENU_Product, MiddleLayer.LangMsg("MainForm", "MENU_Product", "物料管理", "ProductManager", "Gestor de productos"));
+                    ShowWord(this.MENU_Product, FrameworkLanguage.LangMsg("MainForm", "MENU_Product", "物料管理", "ProductManager", "Gestor de productos"));
                     break;
                 case MENU_PageType1.Save:
-                    ShowWord(this.MENU_Save, MiddleLayer.LangMsg("MainForm", "MENU_Save", "保存", "Save", "Guardar"));
+                    ShowWord(this.MENU_Save, FrameworkLanguage.LangMsg("MainForm", "MENU_Save", "保存", "Save", "Guardar"));
                     break;
                 case MENU_PageType1.Hard:
-                    ShowWord(this.MENU_Hard, MiddleLayer.LangMsg("MainForm", "MENU_Hard", "硬件调试", "HardForm", "Depuración de hardware"));
+                    ShowWord(this.MENU_Hard, FrameworkLanguage.LangMsg("MainForm", "MENU_Hard", "硬件调试", "HardForm", "Depuración de hardware"));
                     break;
                 case MENU_PageType1.Manual:
-                    ShowWord(this.MENU_Manual, MiddleLayer.LangMsg("MainForm", "MENU_Manual", "手动界面", "ManagerForm", "Manual"));
+                    ShowWord(this.MENU_Manual, FrameworkLanguage.LangMsg("MainForm", "MENU_Manual", "手动界面", "ManagerForm", "Manual"));
                     break;
                 case MENU_PageType1.Check:
-                    ShowWord(this.MENU_Check, MiddleLayer.LangMsg("MainForm", "MENU_Check", "信号监视", "CheckForm", "Monitor de señales"));
+                    ShowWord(this.MENU_Check, FrameworkLanguage.LangMsg("MainForm", "MENU_Check", "信号监视", "CheckForm", "Monitor de señales"));
                     break;
                 case MENU_PageType1.System:
-                    ShowWord(this.MENU_System, MiddleLayer.LangMsg("MainForm", "MENU_System", "系统设置", "SystemForm", "Ajustes del sistema"));
+                    ShowWord(this.MENU_System, FrameworkLanguage.LangMsg("MainForm", "MENU_System", "系统设置", "SystemForm", "Ajustes del sistema"));
                     break;
                 case MENU_PageType1.AddUser:
-                    ShowWord(this.MENU_AddUser, MiddleLayer.LangMsg("MainForm", "MENU_AddUser", "用户设置", "UserManager", "Gestor de usuarios"));
+                    ShowWord(this.MENU_AddUser, FrameworkLanguage.LangMsg("MainForm", "MENU_AddUser", "用户设置", "UserManager", "Gestor de usuarios"));
                     break;
                 case MENU_PageType1.Mes:
-                    ShowWord(this.MENU_Mes, MiddleLayer.LangMsg("MainForm", "MENU_Mes", "数据上传", "MES", "Carga de datos"));
+                    ShowWord(this.MENU_Mes, FrameworkLanguage.LangMsg("MainForm", "MENU_Mes", "数据上传", "MES", "Carga de datos"));
                     break;
                 case MENU_PageType1.Rapid:
-                    ShowWord(this.MENU_Rapid, MiddleLayer.LangMsg("MainForm", "MENU_Rapid", "快捷键", "RapidButton", "Atajos"));
+                    ShowWord(this.MENU_Rapid, FrameworkLanguage.LangMsg("MainForm", "MENU_Rapid", "快捷键", "RapidButton", "Atajos"));
                     break;
                 case MENU_PageType1.Data:
-                    ShowWord(this.MENU_Data, MiddleLayer.LangMsg("MainForm", "MENU_Data", "产品数据", "ProductData", "Datos de producto"));
+                    ShowWord(this.MENU_Data, FrameworkLanguage.LangMsg("MainForm", "MENU_Data", "产品数据", "ProductData", "Datos de producto"));
                     break;
                 case MENU_PageType1.Vision:
-                    ShowWord(this.MENU_Vision, MiddleLayer.LangMsg("MainForm", "MENU_Vision", "视觉界面", "VisionForm", "Visión"));
+                    ShowWord(this.MENU_Vision, FrameworkLanguage.LangMsg("MainForm", "MENU_Vision", "视觉界面", "VisionForm", "Visión"));
                     break;
                 case MENU_PageType1.Login:
-                    ShowWord(this.MENU_Login, MiddleLayer.LangMsg("MainForm", "MENU_Login", "用户登录", "UserLogin", "Iniciar sesión"));
+                    ShowWord(this.MENU_Login, FrameworkLanguage.LangMsg("MainForm", "MENU_Login", "用户登录", "UserLogin", "Iniciar sesión"));
                     break;
                 case MENU_PageType1.Reset:
-                    ShowWord(this.MENU_Reset, MiddleLayer.LangMsg("MainForm", "MENU_Reset", "复位", "ResetButton", "Reset"));
+                    ShowWord(this.MENU_Reset, FrameworkLanguage.LangMsg("MainForm", "MENU_Reset", "复位", "ResetButton", "Reset"));
                     break;
                 case MENU_PageType1.Run:
-                    ShowWord(this.MENU_Run, MiddleLayer.LangMsg("MainForm", "MENU_Run", "运行", "RunButton", "Run"));
+                    ShowWord(this.MENU_Run, FrameworkLanguage.LangMsg("MainForm", "MENU_Run", "运行", "RunButton", "Run"));
                     break;
                 case MENU_PageType1.Pause:
-                    ShowWord(this.MENU_Pause, MiddleLayer.LangMsg("MainForm", "MENU_Pause", "暂停", "PauseButton", "Pausa"));
+                    ShowWord(this.MENU_Pause, FrameworkLanguage.LangMsg("MainForm", "MENU_Pause", "暂停", "PauseButton", "Pausa"));
                     break;
                 case MENU_PageType1.Stop:
-                    ShowWord(this.MENU_Stop, MiddleLayer.LangMsg("MainForm", "MENU_Stop", "停止", "StopButton", "Stop"));
+                    ShowWord(this.MENU_Stop, FrameworkLanguage.LangMsg("MainForm", "MENU_Stop", "停止", "StopButton", "Stop"));
                     break;
                 case MENU_PageType1.Exit:
-                    ShowWord(this.MENU_Exit, MiddleLayer.LangMsg("MainForm", "MENU_Exit", "退出", "Exit", "Salir"));
+                    ShowWord(this.MENU_Exit, FrameworkLanguage.LangMsg("MainForm", "MENU_Exit", "退出", "Exit", "Salir"));
                     break;
             }
         }
@@ -1590,10 +1590,10 @@ int nheightEllipse
                 using (OptionChoiceForm warning = new OptionChoiceForm())
                 {
                     warning.fnChangeButtonsText(
-                        MiddleLayer.LangMsg("Common", "msg_Yes", "是", "Yes", "Sí"),
-                        MiddleLayer.LangMsg("Common", "msg_Cancel", "取消", "Cancel", "Cancelar"),
-                        MiddleLayer.LangMsg("Common", "msg_No", "否", "No", "No"));
-                    warning.fnSetMessageAndButtons(MiddleLayer.LangMsg("MainForm", "msg_SaveConfirm", "确认要保存吗？", "Are you sure to save it？", "¿Seguro que quieres guardar?"), true, true, true);
+                        FrameworkLanguage.LangMsg("Common", "msg_Yes", "是", "Yes", "Sí"),
+                        FrameworkLanguage.LangMsg("Common", "msg_Cancel", "取消", "Cancel", "Cancelar"),
+                        FrameworkLanguage.LangMsg("Common", "msg_No", "否", "No", "No"));
+                    warning.fnSetMessageAndButtons(FrameworkLanguage.LangMsg("MainForm", "msg_SaveConfirm", "确认要保存吗？", "Are you sure to save it？", "¿Seguro que quieres guardar?"), true, true, true);
                     warning.ControlBox = true;
                     warning.ShowDialog(this);
                     choice = warning.dResult == DialogResult.Abort ? DialogResult.No : warning.dResult;
@@ -1608,7 +1608,7 @@ int nheightEllipse
                     return;
                 }
                 plMainShow.Focus();
-                foreach (Form form in MiddleLayer.lstForm) if (!EndConfigurationEdits(form)) throw new InvalidOperationException(MiddleLayer.LangMsg("MainForm","msg_FinishEdit","请完成或取消当前单元格编辑后保存。","Complete or cancel the current cell edit before saving.","Complete o cancele la edición de la celda antes de guardar."));
+                foreach (Form form in ApplicationHost.ModulePages) if (!EndConfigurationEdits(form)) throw new InvalidOperationException(FrameworkLanguage.LangMsg("MainForm","msg_FinishEdit","请完成或取消当前单元格编辑后保存。","Complete or cancel the current cell edit before saving.","Complete o cancele la edición de la celda antes de guardar."));
                 Configuration.ProjectConfiguration.Save();
                 SysPara.items = 1;
                 SysPara.items2 = 1;
@@ -1617,7 +1617,7 @@ int nheightEllipse
                     OperationLog.Write("ProductManagerForm",
                         "保存配方参数：" + MiddleLayer.ProductF.BuildParamSummary());
             }
-            catch (Exception error) { MessageBox.Show(error.Message,MiddleLayer.LangMsg("MainForm","msg_SaveFailed","保存失败","Save failed","Error al guardar")); }
+            catch (Exception error) { MessageBox.Show(error.Message,FrameworkLanguage.LangMsg("MainForm","msg_SaveFailed","保存失败","Save failed","Error al guardar")); }
             finally { savingConfiguration = false; }
         }
 
@@ -1824,21 +1824,21 @@ int nheightEllipse
                 {
                     // 界面显示简短提示，完整异常写入错误日志
                     AddErrorLog("LOTO: " + ex);
-                    MessageBox.Show(MiddleLayer.LangMsg("MainForm", "msg_LotoOpenFail",
+                    MessageBox.Show(FrameworkLanguage.LangMsg("MainForm", "msg_LotoOpenFail",
                             "无法打开上锁挂牌界面，详细信息已写入错误日志。",
                             "Could not open the LOTO screen. Details were written to the error log.",
                             "No se pudo abrir la pantalla LOTO. Los detalles se guardaron en el registro de errores."),
-                        MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                        FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
-                MessageBox.Show(MiddleLayer.LangMsg("MainForm", "msg_LotoNeedIdle",
+                MessageBox.Show(FrameworkLanguage.LangMsg("MainForm", "msg_LotoNeedIdle",
                         "请先停止设备（待机状态）再进行上锁挂牌。",
                         "Stop the machine (IDLE) before LOTO.",
                         "Detenga la máquina (en espera) antes de LOTO."),
-                    MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                    FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
@@ -1852,9 +1852,9 @@ int nheightEllipse
         private void btExit_Click(object sender, EventArgs e)
         {
             // 退出确认（文案取自语言包 LanguageData\MainForm）
-            string message1 = MiddleLayer.LangMsg("MainForm", "msg_ExitConfirm",
+            string message1 = FrameworkLanguage.LangMsg("MainForm", "msg_ExitConfirm",
                 "确定要退出调试吗？", "Are you sure to Exit?", "¿Seguro que quieres salir?");
-            string message2 = MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo");
+            string message2 = FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo");
 
             DialogResult dr;
             dr = MessageBox.Show(message1, message2, MessageBoxButtons.YesNo, MessageBoxIcon.Question);

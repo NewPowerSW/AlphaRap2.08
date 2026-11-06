@@ -41,7 +41,7 @@ namespace AlphaRap.Configuration
         /// <summary>使用当前语言和现场文案覆盖显示常量标题。</summary>
         internal string Label()
         {
-            return UiTheme.IsDesignTime ? zh : MiddleLayer.LangMsg("DesignerConstants", Key, zh, en, es);
+            return UiTheme.IsDesignTime ? zh : FrameworkLanguage.LangMsg("DesignerConstants", Key, zh, en, es);
         }
     }
 
@@ -112,7 +112,7 @@ namespace AlphaRap.Configuration
                 catch (Exception error) { completion.TrySetException(error); }
             };
             if (Thread.CurrentThread.ManagedThreadId==ownerThread) { apply(); return completion.Task; }
-            Control dispatcher=MiddleLayer.MainF!=null && !MiddleLayer.MainF.IsDisposed && MiddleLayer.MainF.IsHandleCreated ? (Control)MiddleLayer.MainF : owner;
+            Control dispatcher=ApplicationHost.MainWindow!=null && !ApplicationHost.MainWindow.IsDisposed && ApplicationHost.MainWindow.IsHandleCreated ? (Control)ApplicationHost.MainWindow : owner;
             if (dispatcher.IsDisposed || !dispatcher.IsHandleCreated) return Task.FromException<object>(new InvalidOperationException(FlowText.T("constantUiUnavailable")));
             try { dispatcher.BeginInvoke(apply); }
             catch (InvalidOperationException error) { completion.TrySetException(error); }

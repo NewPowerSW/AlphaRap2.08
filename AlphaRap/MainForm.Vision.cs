@@ -208,7 +208,7 @@ namespace AlphaRap
             hint.TextAlign = ContentAlignment.MiddleCenter;
             hint.Font = UiKit.Regular(12f);
             hint.ForeColor = UiKit.TextMuted;
-            hint.Text = MiddleLayer.LangMsg("MainForm", "msg_NoCamera",
+            hint.Text = FrameworkLanguage.LangMsg("MainForm", "msg_NoCamera",
                 "尚未配置相机", "No camera configured", "No hay cámara configurada");
             return hint;
         }

@@ -10,6 +10,25 @@ namespace AlphaRap
     /// <summary>报警三语文本的文件访问，西班牙文统一使用 Spanish.xml。</summary>
     internal static class AlarmCatalog
     {
+        /// <summary>生成临时运行报警表交给 SDK，加载后释放临时文件。</summary>
+        internal static void LoadRuntimeTable(LanguageType language)
+        {
+            string temporary = null;
+            try
+            {
+                if (!File.Exists(FilePath(language, true))) return;
+                temporary = Path.GetTempFileName();
+                RuntimeTable(language).Save(temporary);
+                NPSDK.Alarm.Initial(temporary);
+            }
+            catch (Exception error) { System.Diagnostics.Debug.WriteLine(error); }
+            finally
+            {
+                try { if (temporary != null) File.Delete(temporary); }
+                catch (Exception error) { System.Diagnostics.Debug.WriteLine(error); }
+            }
+        }
+
         private static readonly Dictionary<string, Dictionary<string, string>> AlarmTableCache = new Dictionary<string, Dictionary<string, string>>();
         private static readonly object AlarmTableCacheLock = new object();
 
@@ -152,7 +171,7 @@ namespace AlphaRap
                 documents.Add(FilePath(language), root);
             }
             LanguageCatalog.SaveFiles(documents);
-            MiddleLayer.ReloadLanguageData();
+            FrameworkLanguage.ReloadLanguageData();
         }
     }
 }

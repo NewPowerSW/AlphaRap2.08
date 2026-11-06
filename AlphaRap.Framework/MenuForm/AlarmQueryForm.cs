@@ -75,7 +75,7 @@ namespace AlphaRap
 
             Reload();
 
-            try { MiddleLayer.LanguageChanged += AlarmQueryForm_LanguageChanged; }
+            try { FrameworkLanguage.LanguageChanged += AlarmQueryForm_LanguageChanged; }
             catch { }
         }
 
@@ -129,7 +129,7 @@ namespace AlphaRap
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             // 静态事件必须解绑，否则已释放的窗体会被语言切换一直拉住
-            try { MiddleLayer.LanguageChanged -= AlarmQueryForm_LanguageChanged; }
+            try { FrameworkLanguage.LanguageChanged -= AlarmQueryForm_LanguageChanged; }
             catch { }
             base.OnFormClosed(e);
         }

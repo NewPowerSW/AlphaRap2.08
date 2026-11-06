@@ -1,3 +1,4 @@
+using static AlphaRap.FrameworkLanguage;
 using System;
 using AlphaRapLibrary;
 using NPSDK;

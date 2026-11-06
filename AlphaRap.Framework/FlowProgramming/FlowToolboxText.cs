@@ -23,7 +23,7 @@ namespace AlphaRap.FlowProgramming
         internal static string T(string key)
         {
             string[] words = Defaults[key];
-            return UiTheme.IsDesignTime ? words[0] : MiddleLayer.LangMsg("EquipmentFlow", "toolbox_" + key, words[0], words[1], words[2]);
+            return UiTheme.IsDesignTime ? words[0] : FrameworkLanguage.LangMsg("EquipmentFlow", "toolbox_" + key, words[0], words[1], words[2]);
         }
 
         /// <summary>固定控件使用实际名称登记，嵌入页面后沿用该页面的语言作用域。</summary>
@@ -32,7 +32,7 @@ namespace AlphaRap.FlowProgramming
             string[] words = Defaults[key];
             Form owner = control.FindForm();
             string scope = owner == null || owner is FlowLanguageForm ? "EquipmentFlow" : owner.Name;
-            return UiTheme.IsDesignTime ? words[0] : MiddleLayer.LangMsg(scope, control.Name, words[0], words[1], words[2]);
+            return UiTheme.IsDesignTime ? words[0] : FrameworkLanguage.LangMsg(scope, control.Name, words[0], words[1], words[2]);
         }
     }
 }

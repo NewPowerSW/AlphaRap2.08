@@ -619,7 +619,7 @@
     <Compile Include="MenuForm\SystemSetting.Designer.cs">
       <DependentUpon>SystemSetting.cs</DependentUpon>
     </Compile>
-    <Compile Include="Core\MiddleLayer.cs" />
+    <Compile Include="Controls\MotorProtection.cs" />
     <Compile Include="Core\ApplicationHost.cs" />
     <Compile Include="Core\ModuleBaseForm.cs">
       <SubType>Form</SubType>
@@ -749,30 +749,10 @@
       <DependentUpon>FlowSourceForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FlowProgramming\FlowText.cs" />
-    <Compile Include="Core\MiddleLayer.Startup.cs">
-      <DependentUpon>MiddleLayer.cs</DependentUpon>
+    <Compile Include="Core\FrameworkLanguage.Text.cs">
+      <DependentUpon>FrameworkLanguage.cs</DependentUpon>
     </Compile>
-    <Compile Include="Core\MiddleLayer.RunControl.cs">
-      <DependentUpon>MiddleLayer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\MiddleLayer.Modules.cs">
-      <DependentUpon>MiddleLayer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\MiddleLayer.Motion.cs">
-      <DependentUpon>MiddleLayer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\MiddleLayer.Recipe.cs">
-      <DependentUpon>MiddleLayer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\MiddleLayer.Alarms.cs">
-      <DependentUpon>MiddleLayer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\MiddleLayer.LanguageText.cs">
-      <DependentUpon>MiddleLayer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\MiddleLayer.Language.cs">
-      <DependentUpon>MiddleLayer.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Core\FrameworkLanguage.cs" />
     <Compile Include="Classes\LanguageCatalog.cs" />
     <Compile Include="Classes\AlarmCatalog.cs" />
     <Compile Include="MenuForm\SystemForm.cs">

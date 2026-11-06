@@ -1,24 +1,13 @@
 using System;
 using NPSDK;
 using NPSDK.Motion;
+using static AlphaRap.FrameworkLanguage;
 
 namespace AlphaRap
 {
-    partial class MiddleLayer
+    /// <summary>停止已登记的电机并检查通用轴保护信号。</summary>
+    internal static class MotorProtection
     {
-
-        /// <summary>打开全部模块的伺服，模块失败时报警并停止生产。</summary>
-        public static void ServoOn()
-        {
-            ExecuteModules(module => module.ServoOn(), "ServoOn", "2011", true);
-        }
-
-        /// <summary>关闭全部模块的伺服，模块失败时报警并停止生产。</summary>
-        public static void ServoOff()
-        {
-            ExecuteModules(module => module.ServoOff(), "ServoOff", "2012", true);
-        }
-
         /// <summary>停止已登记的全部电机，不缓存可能变化的设备列表。</summary>
         public static void StopAllMotor()
         {

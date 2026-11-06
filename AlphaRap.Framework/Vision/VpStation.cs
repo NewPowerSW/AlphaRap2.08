@@ -37,7 +37,7 @@ namespace AlphaRap
         {
             if (string.IsNullOrEmpty(CameraSN))
             {
-                error = MiddleLayer.LangMsg("Vision", "error_CameraNameA", "相机「", "Camera \"", "La cámara \"") + Name + MiddleLayer.LangMsg("Vision", "error_CameraNameB", "」还没有选择 SN：请在相机页的 SN 下拉框里选一台相机。", "\" has no SN. Select a camera in the SN list.", "\" no tiene SN. Seleccione una cámara en la lista SN.");
+                error = FrameworkLanguage.LangMsg("Vision", "error_CameraNameA", "相机「", "Camera \"", "La cámara \"") + Name + FrameworkLanguage.LangMsg("Vision", "error_CameraNameB", "」还没有选择 SN：请在相机页的 SN 下拉框里选一台相机。", "\" has no SN. Select a camera in the SN list.", "\" no tiene SN. Seleccione una cámara en la lista SN.");
                 return -1;
             }
             return CogCameraDevices.ResolveIndex(CameraSN, out error);
@@ -272,15 +272,15 @@ namespace AlphaRap
             error = null;
             if (string.IsNullOrEmpty(bindKey))
             {
-                error = MiddleLayer.LangMsg("Vision", "error_SelectSN", "相机还没有选择 SN。", "Camera SN has not been selected.", "No se ha seleccionado el SN de cámara.");
+                error = FrameworkLanguage.LangMsg("Vision", "error_SelectSN", "相机还没有选择 SN。", "Camera SN has not been selected.", "No se ha seleccionado el SN de cámara.");
                 return -1;
             }
 
             CogCameraDevice d = Find(Enumerate(), bindKey);
             if (d != null) return d.Index;
 
-            error = MiddleLayer.LangMsg("Vision", "error_SNMissingA", "未找到序列号为「", "No camera found with serial number \"", "No se encontró una cámara con número de serie \"") + bindKey + MiddleLayer.LangMsg("Vision", "error_SNMissingB", "」的相机", "\".", "\".");
-            if (grabberCountHint() > 0) error += MiddleLayer.LangMsg("Vision", "error_DeviceCountA", "（当前只枚举到 ", " (devices discovered: ", " (dispositivos detectados: ") + grabberCountHint() + MiddleLayer.LangMsg("Vision", "error_DeviceCountB", " 台设备）", ")", ")");
+            error = FrameworkLanguage.LangMsg("Vision", "error_SNMissingA", "未找到序列号为「", "No camera found with serial number \"", "No se encontró una cámara con número de serie \"") + bindKey + FrameworkLanguage.LangMsg("Vision", "error_SNMissingB", "」的相机", "\".", "\".");
+            if (grabberCountHint() > 0) error += FrameworkLanguage.LangMsg("Vision", "error_DeviceCountA", "（当前只枚举到 ", " (devices discovered: ", " (dispositivos detectados: ") + grabberCountHint() + FrameworkLanguage.LangMsg("Vision", "error_DeviceCountB", " 台设备）", ")", ")");
             if (!string.IsNullOrEmpty(LastError)) error += "：" + LastError;
             return -1;
         }
@@ -342,7 +342,7 @@ namespace AlphaRap
 
         // ================= 拍照 / 补偿限制的对外接口 =================
         // 用法：
-        //     VpStation st = MiddleLayer.VPF.GetVppStation("Camera1", "VPP1");
+        //     VpStation st = ApplicationHost.FindModule<VPForm>().GetVppStation("Camera1", "VPP1");
         //     if (st.RunAndWait(3000)) { /* st.Fiducial / st.GetOutput("输出名") / st.CompLimits ... */ }
         // 行名为 VPP 页补偿限制表"项目"列的内容（默认 X / Y / 角度）。
 
@@ -655,7 +655,7 @@ namespace AlphaRap
             lock (_operationLock)
             {
                 error = "";
-                if (IsBusy) { error = MiddleLayer.LangMsg("Vision", "error_StationBusy", "工位正在运行或编辑。", "Station is running or being edited.", "La estación está ejecutándose o en edición."); return false; }
+                if (IsBusy) { error = FrameworkLanguage.LangMsg("Vision", "error_StationBusy", "工位正在运行或编辑。", "Station is running or being edited.", "La estación está ejecutándose o en edición."); return false; }
                 Kind = kind;
                 IsAccept = false;
                 ApplyKindDefaults();
@@ -670,7 +670,7 @@ namespace AlphaRap
             lock (_operationLock)
             {
                 error = "";
-                if (TB == null || !IsLoadTBOk) { error = MiddleLayer.LangMsg("Vision", "error_PositioningNotLoaded", "定位算法尚未加载。", "Positioning algorithm is not loaded.", "El algoritmo de posicionamiento no está cargado."); return false; }
+                if (TB == null || !IsLoadTBOk) { error = FrameworkLanguage.LangMsg("Vision", "error_PositioningNotLoaded", "定位算法尚未加载。", "Positioning algorithm is not loaded.", "El algoritmo de posicionamiento no está cargado."); return false; }
                 foreach (string name in new[] { "x", "y", "A" })
                 {
                     try
@@ -678,10 +678,10 @@ namespace AlphaRap
                         Type type = TB.Outputs[name].ValueType;
                         if (type == typeof(double) || type == typeof(float) || type == typeof(int) || type == typeof(long)
                             || type == typeof(short) || type == typeof(decimal)) continue;
-                        error = MiddleLayer.LangMsg("Vision", "error_OutputType", "定位输出必须为数值类型：", "Positioning output must be numeric: ", "La salida de posicionamiento debe ser numérica: ") + name;
+                        error = FrameworkLanguage.LangMsg("Vision", "error_OutputType", "定位输出必须为数值类型：", "Positioning output must be numeric: ", "La salida de posicionamiento debe ser numérica: ") + name;
                         return false;
                     }
-                    catch (Exception) { error = MiddleLayer.LangMsg("Vision", "error_OutputMissing", "定位算法缺少输出：", "Positioning output is missing: ", "Falta una salida de posicionamiento: ") + name; return false; }
+                    catch (Exception) { error = FrameworkLanguage.LangMsg("Vision", "error_OutputMissing", "定位算法缺少输出：", "Positioning output is missing: ", "Falta una salida de posicionamiento: ") + name; return false; }
                 }
                 return true;
             }
@@ -737,9 +737,9 @@ namespace AlphaRap
         private double ReadPositionOutput(string name)
         {
             object output = GetOutput(name);
-            if (output == null) throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_NoOutput", "缺少视觉输出：", "Missing vision output: ", "Falta una salida de visión: ") + name);
+            if (output == null) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_NoOutput", "缺少视觉输出：", "Missing vision output: ", "Falta una salida de visión: ") + name);
             double value = Convert.ToDouble(output, CultureInfo.InvariantCulture);
-            if (double.IsNaN(value) || double.IsInfinity(value)) throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_NonFinite", "视觉输出不是有限数值：", "Vision output is not finite: ", "La salida de visión no es un número finito: ") + name);
+            if (double.IsNaN(value) || double.IsInfinity(value)) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_NonFinite", "视觉输出不是有限数值：", "Vision output is not finite: ", "La salida de visión no es un número finito: ") + name);
             return value;
         }
 
@@ -749,12 +749,12 @@ namespace AlphaRap
             double min, max;
             if (!TryGetCompLimit(name, out min, out max))
             {
-                if (Config != null && Kind == VpStationKind.Fiducial) throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_NoLimit", "缺少定位补偿限制：", "Missing positioning compensation limit: ", "Falta el límite de compensación de posicionamiento: ") + name);
+                if (Config != null && Kind == VpStationKind.Fiducial) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_NoLimit", "缺少定位补偿限制：", "Missing positioning compensation limit: ", "Falta el límite de compensación de posicionamiento: ") + name);
                 return;
             }
             if (double.IsNaN(min) || double.IsInfinity(min) || double.IsNaN(max) || double.IsInfinity(max) || min > max)
-                throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_InvalidLimit", "补偿限制无效：", "Invalid compensation limit: ", "Límite de compensación no válido: ") + name);
-            if (value < min || value > max) throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_LimitExceeded", "视觉补偿超限：", "Vision compensation exceeds limit: ", "La compensación de visión supera el límite: ") + name + "=" + value);
+                throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_InvalidLimit", "补偿限制无效：", "Invalid compensation limit: ", "Límite de compensación no válido: ") + name);
+            if (value < min || value > max) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_LimitExceeded", "视觉补偿超限：", "Vision compensation exceeds limit: ", "La compensación de visión supera el límite: ") + name + "=" + value);
         }
 
         /// <summary>捕获本次定位坐标，生产流程不再读取随后可能改变的公共位置字段。</summary>
@@ -855,13 +855,13 @@ namespace AlphaRap
             AppliedSignature = "none";
             AppliedModels.Clear();
             if (camera == null || string.IsNullOrWhiteSpace(camera.CameraSN) || string.IsNullOrWhiteSpace(recipe))
-                throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_PublishContext", "发布标定前必须选择相机 SN 和配方。", "Select a camera SN and recipe before publishing calibration.", "Seleccione un SN de cámara y una receta antes de publicar la calibración."));
+                throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_PublishContext", "发布标定前必须选择相机 SN 和配方。", "Select a camera SN and recipe before publishing calibration.", "Seleccione un SN de cámara y una receta antes de publicar la calibración."));
             foreach (VpVppConfig vpp in camera.Vpps)
             {
                 if (vpp.Station == null || string.IsNullOrEmpty(vpp.Station.ModelSignature))
-                    throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_TargetUnsaved", "标定目标尚未保存：", "Calibration target has not been saved: ", "El destino de calibración no está guardado: ") + vpp.Name);
+                    throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_TargetUnsaved", "标定目标尚未保存：", "Calibration target has not been saved: ", "El destino de calibración no está guardado: ") + vpp.Name);
                 if (!vpp.Station.IsLoadedFrom(vpp.Station.GetVppPath(recipe)))
-                    throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_TargetRecipe", "标定目标不是当前配方：", "Calibration target belongs to another recipe: ", "El destino de calibración pertenece a otra receta: ") + vpp.Name);
+                    throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_TargetRecipe", "标定目标不是当前配方：", "Calibration target belongs to another recipe: ", "El destino de calibración pertenece a otra receta: ") + vpp.Name);
                 AppliedModels.Add(vpp.Id, vpp.Station.ModelSignature);
             }
             AppliedRecipe = recipe;
@@ -962,21 +962,21 @@ namespace AlphaRap
             {
                 ValidateStorageFolder(camera.StorageFolder);
                 if (!cameraNames.Add(camera.Name) || !cameraFolders.Add(camera.StorageFolder))
-                    throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_DuplicateCamera", "相机名称或存储目录重复：", "Duplicate camera name or storage folder: ", "Nombre de cámara o carpeta de almacenamiento duplicados: ") + camera.Name);
+                    throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_DuplicateCamera", "相机名称或存储目录重复：", "Duplicate camera name or storage folder: ", "Nombre de cámara o carpeta de almacenamiento duplicados: ") + camera.Name);
                 HashSet<string> names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 HashSet<string> folders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (VpVppConfig vpp in camera.Vpps)
                 {
                     ValidateStorageFolder(vpp.StorageFolder);
                     if (string.IsNullOrWhiteSpace(vpp.Id) || !ids.Add(vpp.Id))
-                        throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_DuplicateId", "VPP 标识为空或重复：", "Empty or duplicate VPP ID: ", "ID de VPP vacío o duplicado: ") + camera.Name + " / " + vpp.Name);
+                        throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_DuplicateId", "VPP 标识为空或重复：", "Empty or duplicate VPP ID: ", "ID de VPP vacío o duplicado: ") + camera.Name + " / " + vpp.Name);
                     if (!names.Add(vpp.Name) || !folders.Add(vpp.StorageFolder))
-                        throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_DuplicateVpp", "VPP 名称或存储目录重复：", "Duplicate VPP name or storage folder: ", "Nombre de VPP o carpeta de almacenamiento duplicados: ") + camera.Name + " / " + vpp.Name);
+                        throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_DuplicateVpp", "VPP 名称或存储目录重复：", "Duplicate VPP name or storage folder: ", "Nombre de VPP o carpeta de almacenamiento duplicados: ") + camera.Name + " / " + vpp.Name);
                 }
                 VpCalibration calibration = GetCalibration(camera.Name);
                 if (calibration == null) continue;
                 ValidateStorageFolder(calibration.FolderName);
-                if (folders.Contains(calibration.FolderName)) throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_SharedFolder", "标定与 VPP 不能共用存储目录：", "Calibration and VPP must not share a storage folder: ", "La calibración y el VPP no pueden compartir carpeta: ") + camera.Name);
+                if (folders.Contains(calibration.FolderName)) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_SharedFolder", "标定与 VPP 不能共用存储目录：", "Calibration and VPP must not share a storage folder: ", "La calibración y el VPP no pueden compartir carpeta: ") + camera.Name);
             }
         }
 
@@ -985,7 +985,7 @@ namespace AlphaRap
         {
             if (string.IsNullOrWhiteSpace(name) || name == "." || name == ".." || name != name.Trim()
                 || name.EndsWith(".") || name.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) >= 0)
-                throw new InvalidOperationException(MiddleLayer.LangMsg("Vision", "error_InvalidFolder", "视觉存储目录无效：", "Invalid vision storage folder: ", "Carpeta de almacenamiento de visión no válida: ") + name);
+                throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_InvalidFolder", "视觉存储目录无效：", "Invalid vision storage folder: ", "Carpeta de almacenamiento de visión no válida: ") + name);
         }
     }
 
@@ -1031,7 +1031,7 @@ namespace AlphaRap
                 doc.Load(path);
 
                 if (doc.SelectSingleNode("VpConfig") == null)
-                    throw new XmlException(MiddleLayer.LangMsg("Vision", "error_XmlRoot", "根节点不是 VpConfig", "XML root must be VpConfig", "La raíz XML debe ser VpConfig"));
+                    throw new XmlException(FrameworkLanguage.LangMsg("Vision", "error_XmlRoot", "根节点不是 VpConfig", "XML root must be VpConfig", "La raíz XML debe ser VpConfig"));
                 data.ProductionVppId = Attr(doc.DocumentElement, "ProductionVppId");
 
                 XmlNode hidden = doc.SelectSingleNode("VpConfig/HiddenPages");
@@ -1136,9 +1136,9 @@ namespace AlphaRap
             catch (Exception ex)
             {
                 // 不再静默吞掉：备份坏文件（防止随后的保存把原始参数冲掉），并把原因交给界面显示
-                error = MiddleLayer.LangMsg("Vision", "error_ReadA", "读取 ", "Read ", "Leer ") + System.IO.Path.GetFileName(path) + MiddleLayer.LangMsg("Vision", "error_FileFailed", " 失败：", " failed: ", " falló: ") + ex.Message;
+                error = FrameworkLanguage.LangMsg("Vision", "error_ReadA", "读取 ", "Read ", "Leer ") + System.IO.Path.GetFileName(path) + FrameworkLanguage.LangMsg("Vision", "error_FileFailed", " 失败：", " failed: ", " falló: ") + ex.Message;
                 string bak = BackupBrokenFile(path);
-                if (!string.IsNullOrEmpty(bak)) error += MiddleLayer.LangMsg("Vision", "error_Backup", "\r\n原文件已备份为：", "\r\nOriginal file backed up to: ", "\r\nCopia de seguridad del archivo original: ") + bak;
+                if (!string.IsNullOrEmpty(bak)) error += FrameworkLanguage.LangMsg("Vision", "error_Backup", "\r\n原文件已备份为：", "\r\nOriginal file backed up to: ", "\r\nCopia de seguridad del archivo original: ") + bak;
                 System.Diagnostics.Debug.WriteLine("[VPForm] " + error);
             }
 
@@ -1213,7 +1213,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                LastSaveError = MiddleLayer.LangMsg("Vision", "error_WriteA", "写入 ", "Write ", "Escribir ") + System.IO.Path.GetFileName(path) + MiddleLayer.LangMsg("Vision", "error_FileFailed", " 失败：", " failed: ", " falló: ") + ex.Message;
+                LastSaveError = FrameworkLanguage.LangMsg("Vision", "error_WriteA", "写入 ", "Write ", "Escribir ") + System.IO.Path.GetFileName(path) + FrameworkLanguage.LangMsg("Vision", "error_FileFailed", " 失败：", " failed: ", " falló: ") + ex.Message;
                 System.Diagnostics.Debug.WriteLine("[VPForm] " + LastSaveError);
                 try { if (System.IO.File.Exists(tmp)) System.IO.File.Delete(tmp); } catch (Exception) { }
             }

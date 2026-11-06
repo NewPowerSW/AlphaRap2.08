@@ -15,7 +15,7 @@ namespace AlphaRap
         /// <summary>读取现场语言包，以程序随附的对应语言补齐缺键，保留现场已有译文和属性。</summary>
         internal static XElement ReadDocument(LanguageType language)
         {
-            string file = MiddleLayer.LangFilePath(language);
+            string file = FrameworkLanguage.LangFilePath(language);
             XElement root = File.Exists(file) ? XElement.Load(file) : new XElement(language.ToString());
             if (root.Name.LocalName != language.ToString()) throw new InvalidDataException("Invalid language XML root: " + file);
             string bundled = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LanguageData", language + ".xml");
@@ -38,7 +38,7 @@ namespace AlphaRap
         /// <summary>合并三个语言包的全部键，缺少的译文留空供编辑。</summary>
         internal static DataTable Load()
         {
-            lock (MiddleLayer.LanguageSync)
+            lock (FrameworkLanguage.LanguageSync)
             {
                 DataTable table = new DataTable();
                 foreach (string column in new[] { "ID", "Form", "Object", "English", "Spanish", "Chinese" })
@@ -73,26 +73,26 @@ namespace AlphaRap
         /// <summary>先生成全部文件，再替换正式语言包；保存失败时恢复已替换文件，成功后刷新界面缓存。</summary>
         internal static void Save(DataTable table)
         {
-            lock (MiddleLayer.LanguageSync)
+            lock (FrameworkLanguage.LanguageSync)
             {
                 if (table == null) throw new ArgumentNullException("table");
                 Dictionary<string, XElement> documents = new Dictionary<string, XElement>();
                 foreach (LanguageType language in Enum.GetValues(typeof(LanguageType)))
                 {
-                    string file = MiddleLayer.LangFilePath(language);
+                    string file = FrameworkLanguage.LangFilePath(language);
                     XElement root = ReadDocument(language);
                     foreach (DataRow row in table.Rows) SetEntry(root, row, Columns[(int)language]);
                     documents.Add(file, root);
                 }
                 SaveFiles(documents);
-                MiddleLayer.ReloadLanguageData();
+                FrameworkLanguage.ReloadLanguageData();
             }
         }
 
         /// <summary>暂存全部语言文件后替换，失败时恢复已替换文件。</summary>
         internal static void SaveFiles(Dictionary<string, XElement> documents)
         {
-            lock (MiddleLayer.LanguageSync)
+            lock (FrameworkLanguage.LanguageSync)
             {
                 Dictionary<string, byte[]> originals = new Dictionary<string, byte[]>();
                 List<string> staged = new List<string>();

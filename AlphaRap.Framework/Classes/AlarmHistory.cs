@@ -49,7 +49,7 @@ namespace AlphaRap
         /// <summary>报警历史与实际报警写盘使用同一个 DataForm 日志目录。</summary>
         public static string RootPath()
         {
-            return (MiddleLayer.DataF?.GetLogSource("Alarm")?.SavePath ?? "").Trim();
+            return (ApplicationHost.Data?.GetLogSource("Alarm")?.SavePath ?? "").Trim();
         }
 
         /// <summary>实际报警日志目录是否存在。</summary>
@@ -233,7 +233,7 @@ namespace AlphaRap
             return string.IsNullOrEmpty(dir) ? ".\\AlarmTable" : dir;
         }
 
-        /// <summary>按当前语言取报警表文件，映射规则与 MiddleLayer.LoadAlarmTable 一致。</summary>
+        /// <summary>按当前语言取报警表文件，映射规则与 AlarmCatalog.LoadRuntimeTable 一致。</summary>
         private static string LangTableFile(string dir)
         {
             string langName;

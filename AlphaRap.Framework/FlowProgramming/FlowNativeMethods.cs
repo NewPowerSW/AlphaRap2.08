@@ -180,7 +180,7 @@ namespace AlphaRap.FlowProgramming
         internal static string T(string key)
         {
             string[] words = Defaults[key];
-            return UiTheme.IsDesignTime ? words[0] : MiddleLayer.LangMsg("EquipmentFlow", "native_" + key, words[0], words[1], words[2]);
+            return UiTheme.IsDesignTime ? words[0] : FrameworkLanguage.LangMsg("EquipmentFlow", "native_" + key, words[0], words[1], words[2]);
         }
     }
 }

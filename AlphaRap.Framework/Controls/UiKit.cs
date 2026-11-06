@@ -364,7 +364,7 @@ namespace AlphaRap
 
     /// <summary>
     /// 不被启动时语言扫描登记的 Label（InitialLanguageData 按精确类型 typeof(Label) 扫描，子类不会被登记），
-    /// 文字由所在页面的 ApplyLanguage() 设置，或通过 MiddleLayer.RegisterLanguage 显式登记。
+    /// 文字由所在页面的 ApplyLanguage() 设置，或通过 FrameworkLanguage.RegisterLanguage 显式登记。
     /// </summary>
     public class UiLabel : Label
     {

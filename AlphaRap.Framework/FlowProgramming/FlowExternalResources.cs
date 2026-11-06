@@ -76,7 +76,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>宿主初始化登记不依赖登录角色，已显示主窗体后只允许其 UI 线程修改登记。</summary>
         private static void RequireRegistrationIdle()
         {
-            if (MiddleLayer.MainF != null && MiddleLayer.MainF.IsHandleCreated && MiddleLayer.MainF.InvokeRequired)
+            if (ApplicationHost.MainWindow != null && ApplicationHost.MainWindow.IsHandleCreated && ApplicationHost.MainWindow.InvokeRequired)
                 throw new InvalidOperationException(FlowResourceText.T("registrationThread"));
             if (FlowPrograms.AnyRunning || SysPara.SystemMode != RunMode.IDLE || Flow_Module.Module_GetRunningStatus)
                 throw new InvalidOperationException(FlowText.T("busy"));
@@ -97,7 +97,7 @@ namespace AlphaRap.FlowProgramming
         internal static string T(string key)
         {
             string[] words = Defaults[key];
-            return UiTheme.IsDesignTime ? words[0] : MiddleLayer.LangMsg("EquipmentFlow", "resource." + key, words[0], words[1], words[2]);
+            return UiTheme.IsDesignTime ? words[0] : FrameworkLanguage.LangMsg("EquipmentFlow", "resource." + key, words[0], words[1], words[2]);
         }
     }
 }

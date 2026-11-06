@@ -165,7 +165,7 @@ internal static partial class Cases
                     Assert(cancelled && FlowResourceGate.CanAccess(plc), "Stopping the wait did not release the PLC after the read loop exited.");
                 }
             }
-            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(container); }
+            finally { ModulePages.Remove(container); }
         }
     }
 
@@ -244,7 +244,7 @@ internal static partial class Cases
                 Assert((double)result["TB:Score"] == 7 && !(bool)result["Accepted"] && vision.Runs == 1 && vision.LastRunResult.IsFlowManaged, "VPP port binding or NG condition output was lost.");
                 Assert(resource.Methods.Any(method => method.Id == "vision.image.save") && resource.Methods.Any(method => method.Id == "vision.compensation"), "The VPP's own methods were missing.");
             }
-            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(container); VisionproInterface.VList.Remove(vision); }
+            finally { ModulePages.Remove(container); VisionproInterface.VList.Remove(vision); }
         }
     }
 
@@ -275,7 +275,7 @@ internal static partial class Cases
                 published = new FlowActions(FlowResources.Capture());
                 Assert((double)ExecuteBound(published, BoundStep(published.Resources.Items[resource.Id], "vision.compensation"))["Compensation"] == 3, "Saved compensation snapshot was not published.");
             }
-            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(container); VisionproInterface.VList.Remove(vision); }
+            finally { ModulePages.Remove(container); VisionproInterface.VList.Remove(vision); }
         }
     }
 
@@ -360,7 +360,7 @@ internal static partial class Cases
                 File.Delete(blocker);
                 Assert(vision.SaveLastImage() != "", "A failed image bundle could not be retried with the same capture identity.");
             }
-            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(container); VisionproInterface.VList.Remove(vision); }
+            finally { ModulePages.Remove(container); VisionproInterface.VList.Remove(vision); }
         }
     }
 
@@ -412,7 +412,7 @@ internal static partial class Cases
                 blocked = false; try { new VisionCaptureInfo("SN-CODE", "png"); } catch (ArgumentException) { blocked = true; }
                 Assert(blocked, "An unsupported format was silently written as another format.");
             }
-            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(container); VisionproInterface.VList.Remove(vision); }
+            finally { ModulePages.Remove(container); VisionproInterface.VList.Remove(vision); }
         }
     }
 

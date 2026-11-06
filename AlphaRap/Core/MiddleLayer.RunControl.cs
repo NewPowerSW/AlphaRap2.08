@@ -1,3 +1,4 @@
+using static AlphaRap.FrameworkLanguage;
 using System.Threading;
 using System.Windows.Forms;
 using AlphaRapLibrary;
@@ -101,7 +102,7 @@ namespace AlphaRap
         {
             foreach (ModuleBaseForm module in ModuleManager.ModuleList)
                 if (module.StopManualTask != null) module.StopManualTask.Cancel();
-            StopAllMotor();
+            MotorProtection.StopAllMotor();
         }
 
         /// <summary>请求应用提示操作员清除报警。</summary>

@@ -216,7 +216,7 @@ internal static partial class Cases
                 FlowResource actual=FlowResources.Capture().Items.Values.Single(item=>item.Kind=="vision");
                 Assert(actual.Id=="vision/vpp/"+vpp.Id && ReferenceEquals(actual.Instance,station),"The configured VPP identity or instance changed.");
             }
-            finally{SetHost("VPF",previous);((IList)host.GetField("lstForm").GetValue(null)).Remove(form);ModuleManager.ModuleList.Remove(form);VisionproInterface.VList.RemoveAll(item=>!before.Contains(item));}
+            finally{SetHost("VPF",previous);ModuleManager.ModuleList.Remove(form);VisionproInterface.VList.RemoveAll(item=>!before.Contains(item));}
         }
     }
 

@@ -13,7 +13,7 @@ namespace AlphaRap
             InitializeComponent();
             if (!UiTheme.IsDesignTime) RefreshLogSources(false);
             FlowProgramming.FlowLanguageForm.ApplyTexts(this);
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
+            if (!UiTheme.IsDesignTime) FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
         }
 

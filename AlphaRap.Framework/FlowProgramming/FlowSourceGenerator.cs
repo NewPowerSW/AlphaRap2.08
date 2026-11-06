@@ -286,7 +286,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>通过现有语言表格式化源码生成提示，业务路径不作为语言键。</summary>
         private static string Text(string key, string chinese, string english, string spanish, params object[] values)
         {
-            string format = MiddleLayer.LangMsg("FlowSourceGeneration", key, chinese, english, spanish);
+            string format = FrameworkLanguage.LangMsg("FlowSourceGeneration", key, chinese, english, spanish);
             return values.Length == 0 ? format : string.Format(format, values);
         }
     }

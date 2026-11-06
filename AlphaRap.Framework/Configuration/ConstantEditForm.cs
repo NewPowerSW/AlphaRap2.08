@@ -19,9 +19,9 @@ namespace AlphaRap.Configuration
             constantTypeValue.Format += (sender, args) => args.Value = ConstantText.T(Convert.ToString(args.ListItem));
             constantOk.Click += Save;
             ApplyLanguage(null, EventArgs.Empty);
-            MiddleLayer.LanguageChanged += ApplyLanguage;
-            Disposed += (sender, args) => MiddleLayer.LanguageChanged -= ApplyLanguage;
-            Load += (sender, args) => MiddleLayer.RegisterAndApplyLanguage(this, "DesignerConstants");
+            FrameworkLanguage.LanguageChanged += ApplyLanguage;
+            Disposed += (sender, args) => FrameworkLanguage.LanguageChanged -= ApplyLanguage;
+            Load += (sender, args) => FrameworkLanguage.RegisterAndApplyLanguage(this, "DesignerConstants");
         }
 
         /// <summary>校验并提交，失败时保留输入以便修正。</summary>

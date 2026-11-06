@@ -72,7 +72,7 @@ namespace AlphaRap
 
             Reload();
 
-            try { MiddleLayer.LanguageChanged += ProductionQueryForm_LanguageChanged; }
+            try { FrameworkLanguage.LanguageChanged += ProductionQueryForm_LanguageChanged; }
             catch { }
         }
 
@@ -125,7 +125,7 @@ namespace AlphaRap
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             // 静态事件必须解绑，否则已释放的窗体会被语言切换一直拉住
-            try { MiddleLayer.LanguageChanged -= ProductionQueryForm_LanguageChanged; }
+            try { FrameworkLanguage.LanguageChanged -= ProductionQueryForm_LanguageChanged; }
             catch { }
             if (_chrome != null) _chrome.Detach();
             base.OnFormClosed(e);

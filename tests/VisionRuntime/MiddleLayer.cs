@@ -57,6 +57,8 @@ internal sealed class ProbeFlow : Flow_BaseForm
 
 internal static partial class Tests
 {
+    private static readonly Type MachineHost = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
+
     private sealed class ProbeApplication : MachineApplication
     {
         public bool Ready;
@@ -86,7 +88,7 @@ internal static partial class Tests
         {
             foreach (string name in new[] { "VPF", "ManualF", "DataF", "MainF", "Application" })
             {
-                FieldInfo field = LanguageHost.GetField(name);
+                FieldInfo field = MachineHost.GetField(name);
                 _fields.Add(field, field.GetValue(null));
                 field.SetValue(null, name == "Application" ? Application : null);
             }
@@ -121,25 +123,21 @@ internal static partial class Tests
     /// <summary>重复创建调用复用同一实例，初始化和窗体登记各执行一次。</summary>
     private static void FormFactoryReuse()
     {
-        FieldInfo forms = LanguageHost.GetField("lstForm");
-        object previous = forms.GetValue(null);
+        var pages = (System.Collections.IList)typeof(ApplicationHost).GetProperty("ModulePages", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null, null);
+        int previousCount = pages.Count;
         List<ModuleBaseForm> previousModules = ModuleManager.ModuleList;
         ModuleManager.ModuleList = new List<ModuleBaseForm>();
-        forms.SetValue(null, Activator.CreateInstance(forms.FieldType));
+        using (ProbeModule module = new ProbeModule())
         try
         {
-            using (ProbeModule module = new ProbeModule())
-            {
-                MethodInfo create = LanguageHost.GetMethod("RegisterForm", BindingFlags.Static | BindingFlags.NonPublic).MakeGenericMethod(typeof(ProbeModule));
-                object first = create.Invoke(null, new object[] { module });
-                object second = create.Invoke(null, new object[] { module });
-                Check(ReferenceEquals(first, module) && ReferenceEquals(second, module), "Factory did not reuse the supplied instance.");
-                Check(module.InitializeCount == 1, "Factory initialized the same module twice.");
-                Check(((System.Collections.IList)forms.GetValue(null)).Count == 1, "Factory registered the same instance twice.");
-                Check(create.Invoke(null, new object[] { null }) == null, "An optional empty form was registered.");
-            }
+            ProbeModule first = ApplicationHost.RegisterModule(module);
+            ProbeModule second = ApplicationHost.RegisterModule(module);
+            Check(ReferenceEquals(first, module) && ReferenceEquals(second, module), "Factory did not reuse the supplied instance.");
+            Check(module.InitializeCount == 1, "Factory initialized the same module twice.");
+            Check(pages.Count == previousCount + 1, "Factory registered the same instance twice.");
+            Check(ApplicationHost.RegisterModule<ProbeModule>(null) == null, "An optional empty form was registered.");
         }
-        finally { forms.SetValue(null, previous); ModuleManager.ModuleList = previousModules; }
+        finally { pages.Remove(module); ModuleManager.ModuleList = previousModules; }
     }
 
     /// <summary>初始化从空闲重新进入初始化，清除旧运行状态且只通知流程一次。</summary>
@@ -149,7 +147,7 @@ internal static partial class Tests
         {
             SysPara.SystemRun = true;
             machine.Application.Ready = true;
-            LanguageHost.GetMethod("Initial").Invoke(null, null);
+            MachineHost.GetMethod("Initial").Invoke(null, null);
             Check(SysPara.SystemMode == RunMode.INITIAL && !SysPara.SystemRun && !machine.Application.Ready, "Initialization retained stale running state.");
             Check(machine.Flow.InitialCount == 1 && machine.Flow.StopCount == 1, "Initialization repeated a flow command.");
         }
@@ -163,7 +161,7 @@ internal static partial class Tests
             SysPara.SystemMode = RunMode.RUN;
             SysPara.SystemRun = true;
             machine.Application.Ready = true;
-            LanguageHost.GetMethod("StopRun").Invoke(null, null);
+            MachineHost.GetMethod("StopRun").Invoke(null, null);
             Check(SysPara.SystemMode == RunMode.IDLE && !SysPara.SystemRun && !machine.Application.Ready, "Stop did not reset the run state.");
             Check(machine.Flow.StopCount == 1 && machine.Module.StopManualTask.IsCancellationRequested, "Stop repeated a flow command or missed manual cancellation.");
         }
@@ -177,7 +175,7 @@ internal static partial class Tests
             SysPara.SystemMode = RunMode.RUN;
             SysPara.SystemRun = true;
             machine.Application.Ready = true;
-            LanguageHost.GetMethod("PauseRun").Invoke(null, null);
+            MachineHost.GetMethod("PauseRun").Invoke(null, null);
             Check(SysPara.SystemMode == RunMode.PAUSE && SysPara.SystemRun && machine.Application.Ready, "Pause lost the state needed for resume.");
             Check(machine.Flow.PauseCount == 1 && machine.Module.StopManualTask.IsCancellationRequested, "Pause missed a flow or manual task.");
         }
@@ -191,7 +189,7 @@ internal static partial class Tests
         {
             machine.Module.FailAlways = true;
             if (!ModuleManager.ModuleList.Contains(next)) ModuleManager.ModuleList.Add(next);
-            LanguageHost.GetMethod("AlwaysRun").Invoke(null, null);
+            MachineHost.GetMethod("AlwaysRun").Invoke(null, null);
             Check(machine.Module.AlwaysCount == 1 && next.AlwaysCount == 1, "A failed periodic callback blocked the next module.");
             Check(machine.Flow.StopCount == 0, "Periodic callback failure changed the existing stop policy.");
         }
@@ -207,7 +205,7 @@ internal static partial class Tests
             SysPara.SystemRun = true;
             machine.Module.FailReset = true;
             if (!ModuleManager.ModuleList.Contains(next)) ModuleManager.ModuleList.Add(next);
-            LanguageHost.GetMethod("RunReset").Invoke(null, null);
+            MachineHost.GetMethod("RunReset").Invoke(null, null);
             Check(machine.Module.ResetCount == 1 && next.ResetCount == 1, "A failed reset blocked other module callbacks.");
             Check(machine.Flow.StopCount == 1 && SysPara.SystemMode == RunMode.IDLE && !SysPara.SystemRun, "Reset failure did not stop production exactly once.");
         }

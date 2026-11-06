@@ -2,7 +2,7 @@
 
 程序支持 `Chinese`、`English`、`Español`，枚举值依次为 0、1、2。
 
-启动时 `MiddleLayer.ReadLanguageSettings()` 先读取 MachineSetup.ini 的 `MachineSetup/LanguageName` 和 `PathSetup/LanguageDirectory`，然后创建页面。语言目录默认是工作目录下的 LanguageData。界面切换入口为 `MainForm.SwitchLanguageTo()`；它调用 `MiddleLayer.SwitchLanguage()` 并保存当前语言。
+启动时，应用的 `MiddleLayer.ReadLanguageSettings()` 先读取 MachineSetup.ini 的 `MachineSetup/LanguageName` 和 `PathSetup/LanguageDirectory`，再创建页面。语言目录默认是工作目录下的 LanguageData。界面从 `MainForm.SwitchLanguageTo()` 调用框架的 `FrameworkLanguage.SwitchLanguage()` 并保存当前语言。
 
 界面只修改 CurrentUICulture，不修改 CurrentCulture，避免语言切换改变参数的小数点格式。
 
@@ -22,7 +22,7 @@ FieldBox 内部的提示 Label、Flow_Chart 内部按钮、PropertyGrid 内部�
 
 计数、状态、当前型号、相机 SN 数量、窗口标题副本等动态内容使用 `_dyn` 后缀，订阅 LanguageChanged 刷新；Dispose 时解除静态事件订阅。
 
-消息、错误和动态格式串使用 `MiddleLayer.LangMsg(form, key, zh, en, es)` 或 `UiTheme.T()`，提供三语底稿。读取时尊重现场语言包，缺少的条目才补写底稿。普通 LangText 只读取，适合已随程序发布的固定语言键。
+消息、错误和动态格式串使用 `ApplicationHost.Text(form, key, zh, en, es)` 或 `UiTheme.T()` 提供三语底稿。读取时尊重现场语言包，缺少的条目才补写底稿。`ApplicationHost.Text(form, key, fallback)` 只读取，适合已随程序发布的固定语言键。
 
 包含业务名称的提示使用固定占位符，例如“已添加托盘 {0}”，取出译文后再用 string.Format 插入名称。不要把某次输入的托盘名、配方名或设备名写进语言底稿。
 

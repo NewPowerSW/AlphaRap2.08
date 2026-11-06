@@ -44,9 +44,9 @@ namespace AlphaRap.Configuration
             };
             hardwareParameters.CellValueChanged += VendorChanged;
             hardwareParameters.CurrentCellDirtyStateChanged += (sender, args) => { if (hardwareParameters.IsCurrentCellDirty && hardwareParameters.CurrentCell is DataGridViewComboBoxCell) hardwareParameters.CommitEdit(DataGridViewDataErrorContexts.Commit); };
-            ApplyLanguage(null,EventArgs.Empty); MiddleLayer.LanguageChanged += ApplyLanguage;
-            Disposed += (sender,args) => MiddleLayer.LanguageChanged -= ApplyLanguage;
-            Load += (sender,args) => MiddleLayer.RegisterAndApplyLanguage(this,"HardwareResources");
+            ApplyLanguage(null,EventArgs.Empty); FrameworkLanguage.LanguageChanged += ApplyLanguage;
+            Disposed += (sender,args) => FrameworkLanguage.LanguageChanged -= ApplyLanguage;
+            Load += (sender,args) => FrameworkLanguage.RegisterAndApplyLanguage(this,"HardwareResources");
         }
 
         /// <summary>枚举和布尔字段使用可选列表，其余字段保留原始文本值。</summary>

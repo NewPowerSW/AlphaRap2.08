@@ -98,7 +98,7 @@ namespace AlphaRap.FlowProgramming
         {
             string[] words = FlowInputRow.TextDefaults[key];
             if (UiTheme.IsDesignTime) return words[0];
-            return MiddleLayer.LangMsg("EquipmentFlow",key,words[0],words[1],words[2]);
+            return FrameworkLanguage.LangMsg("EquipmentFlow",key,words[0],words[1],words[2]);
         }
 
         /// <summary>左侧字段改变时只更新右侧候选，已输入文字及现有引用保持不变。</summary>

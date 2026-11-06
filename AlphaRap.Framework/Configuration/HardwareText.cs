@@ -65,7 +65,7 @@ namespace AlphaRap.Configuration
         }
 
         /// <summary>给 NPSDK 组合控件提供宿主语言桥，不改 CurrentCulture。</summary>
-        public static string Translate(string key,string zh,string en,string es) { return UiTheme.IsDesignTime ? zh : MiddleLayer.LangMsg("HardwareResources",key,zh,en,es); }
+        public static string Translate(string key,string zh,string en,string es) { return UiTheme.IsDesignTime ? zh : FrameworkLanguage.LangMsg("HardwareResources",key,zh,en,es); }
 
         /// <summary>按固定 Name 更新标签与表头，不重建参数行。</summary>
         public static void Apply(Control parent)

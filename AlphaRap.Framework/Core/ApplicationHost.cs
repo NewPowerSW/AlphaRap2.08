@@ -1,6 +1,7 @@
 using System.Reflection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using AlphaRap.FlowProgramming;
 using AlphaRapLibrary;
@@ -27,6 +28,27 @@ namespace AlphaRap
     /// <summary>项目提供实际页面、工位和与机器有关的生命周期行为。</summary>
     public class MachineApplication
     {
+        /// <summary>按本机需要组装页面、加载配置并启动模块。</summary>
+        public virtual void Initialize(Action<string> reportProgress)
+        {
+            throw new NotSupportedException("The application must provide its startup sequence.");
+        }
+
+        /// <summary>停止由本机应用启动的任务与设备。</summary>
+        public virtual void Shutdown() { }
+
+        /// <summary>处理报警模块发出的整机暂停请求。</summary>
+        public virtual void PauseMachine() { }
+
+        /// <summary>处理流程编辑页发出的整机停止请求。</summary>
+        public virtual void StopMachine() { }
+
+        /// <summary>按本机规则切换配方，完成时返回 true。</summary>
+        public virtual bool ChangeRecipe(string path) { return false; }
+
+        /// <summary>在通用权限状态和应用窗口刷新后处理本机登录记录。</summary>
+        public virtual void OnPermissionChanged(PermissionType permission) { }
+
         /// <summary>机器未提供配置时使用的项目显示名称。</summary>
         public virtual string DisplayName { get { return "AlphaRap"; } }
 
@@ -91,6 +113,9 @@ namespace AlphaRap
     /// <summary>应用启动和通用页面、真实资源的访问入口。</summary>
     public static class ApplicationHost
     {
+        private static readonly List<Form> RegisteredPages = new List<Form>();
+        private static MachineApplication application;
+
         /// <summary>读取应用 EXE 的版本。</summary>
         public static string ApplicationVersion
         {
@@ -103,11 +128,49 @@ namespace AlphaRap
             get { return typeof(ApplicationHost).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion; }
         }
 
-        public static Form MainWindow { get { return MiddleLayer.MainF; } }
-        public static Form Home { get { return MiddleLayer.HomeF; } }
-        public static DataForm Data { get { return MiddleLayer.DataF; } }
-        public static Parameter Parameters { get { return MiddleLayer.ParF; } }
-        public static SystemSetting Settings { get { return MiddleLayer.SystemS; } }
+        /// <summary>由应用指定模块使用的窗口及 UI 调度入口。</summary>
+        public static Form MainWindow { get; set; }
+        /// <summary>由应用提供的首页。</summary>
+        public static Form Home { get; set; }
+        public static DataForm Data { get { return FindModule<DataForm>(); } }
+        public static Parameter Parameters { get { return FindModule<Parameter>(); } }
+        public static SystemSetting Settings { get { return FindModule<SystemSetting>(); } }
+
+        internal static IModuleWindow ModuleWindow { get { return MainWindow as IModuleWindow; } }
+        internal static IReadOnlyList<Form> ModulePages { get { return RegisteredPages; } }
+
+        /// <summary>登记实际页面并初始化模块，重复登记同一实例时不重复初始化。</summary>
+        public static T RegisterModule<T>(T page) where T : Form
+        {
+            if (page == null || RegisteredPages.Contains(page)) return page;
+            ModuleBaseForm module = page as ModuleBaseForm;
+            if (module != null) module.ModuleInitialize(module.Text);
+            RegisteredPages.Add(page);
+            return page;
+        }
+
+        /// <summary>获取已登记且仍可用的指定类型页面，包括应用派生页面。</summary>
+        public static T FindModule<T>() where T : Form
+        {
+            return RegisteredPages.OfType<T>().FirstOrDefault(page => !page.IsDisposed);
+        }
+
+        /// <summary>转交应用处理报警暂停。</summary>
+        internal static void PauseMachine() { application?.PauseMachine(); }
+
+        /// <summary>转交应用处理流程页的整机停止。</summary>
+        internal static void StopMachine() { application?.StopMachine(); }
+
+        /// <summary>由应用确认并执行当前配方的切换。</summary>
+        internal static bool ChangeRecipe(string path) { return application?.ChangeRecipe(path) ?? false; }
+
+        /// <summary>更新通用权限和窗口显示，再通知应用记录本机登录信息。</summary>
+        internal static void SetPermission(PermissionType permission)
+        {
+            SysPara.UserPermission = permission;
+            ModuleWindow?.SwitchPermission(permission);
+            application?.OnPermissionChanged(permission);
+        }
 
         /// <summary>读取流程工具箱使用的同一个真实对象，资源键由配置或项目定义。</summary>
         public static T GetResource<T>(string id) where T : class
@@ -123,38 +186,56 @@ namespace AlphaRap
         /// <summary>使用框架现有语言表注册项目页面。</summary>
         public static void RegisterLanguage(Control control, string formName)
         {
-            MiddleLayer.RegisterAndApplyLanguage(control, formName);
+            FrameworkLanguage.RegisterAndApplyLanguage(control, formName);
+        }
+
+        /// <summary>登记当前模块页面的文案并应用所选语言。</summary>
+        public static void InitializeLanguage(LanguageType language)
+        {
+            FrameworkLanguage.InitializeLanguageData();
+            FrameworkLanguage.SwitchLanguage(language);
         }
 
         public static event EventHandler LanguageChanged
         {
-            add { MiddleLayer.LanguageChanged += value; }
-            remove { MiddleLayer.LanguageChanged -= value; }
+            add { FrameworkLanguage.LanguageChanged += value; }
+            remove { FrameworkLanguage.LanguageChanged -= value; }
         }
 
         /// <summary>读取已有语言键或回退到调用方提供的原文。</summary>
         public static string Text(string formName, string key, string fallback)
         {
-            return MiddleLayer.LangText(formName, key, fallback);
+            return FrameworkLanguage.LangText(formName, key, fallback);
         }
 
         /// <summary>读取项目文案的当前语言，保留现场语言包覆盖。</summary>
         public static string Text(string formName, string key, string zh, string en, string es = null)
         {
-            return MiddleLayer.LangMsg(formName, key, zh, en, es);
+            return FrameworkLanguage.LangMsg(formName, key, zh, en, es);
         }
 
-        /// <summary>初始化设备、流程、语言、配置与模块页面，并返回应用提供的窗口。</summary>
+        /// <summary>启动应用提供的初始化流程并返回已登记的主窗口。</summary>
         public static Form Initialize(MachineApplication application, Action<string> reportProgress = null)
         {
             if (application == null) throw new ArgumentNullException(nameof(application));
-            MiddleLayer.Application = application;
-            MiddleLayer.InitialProject(reportProgress);
-            return MiddleLayer.MainF;
+            if (ApplicationHost.application != null) throw new InvalidOperationException("An application is already registered.");
+            ApplicationHost.application = application;
+            application.Initialize(reportProgress);
+            return ApplicationHost.MainWindow;
         }
 
-        /// <summary>关闭框架模块的后台任务与设备。</summary>
-        public static void Shutdown() { MiddleLayer.DisposeProject(); }
+        /// <summary>关闭应用拥有的任务并释放框架持有的窗口引用。</summary>
+        public static void Shutdown()
+        {
+            try { application?.Shutdown(); }
+            finally
+            {
+                application = null;
+                RegisteredPages.Clear();
+                MainWindow = null;
+                Home = null;
+            }
+        }
 
         /// <summary>使用当前语言读取报警编号对应的文本。</summary>
         public static string GetAlarmText(string code) { return AlarmCatalog.GetAlarmText(SysPara.LanguageShow, code); }

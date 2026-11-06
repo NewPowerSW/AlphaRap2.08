@@ -22,8 +22,8 @@ namespace AlphaRap
 
             // 相机 / VPP 配置保存在独立的 VPForm.Cameras.xml（见 VpConfigStore），界面在 ModuleInitialize 后构建（见 BuildVpUi）
             // 语言切换时刷新含动态内容的文字（相机名 / 路径 / 点数 / 实时状态 / 工具条提示）
-            MiddleLayer.LanguageChanged += OnLanguageChanged;
-            Disposed += delegate { MiddleLayer.LanguageChanged -= OnLanguageChanged; };
+            FrameworkLanguage.LanguageChanged += OnLanguageChanged;
+            Disposed += delegate { FrameworkLanguage.LanguageChanged -= OnLanguageChanged; };
 		}
 
         /// <summary>派生页面可提供旧项目的默认定位工位。</summary>
@@ -41,13 +41,13 @@ namespace AlphaRap
             foreach (VisionproInterface station in VisionproInterface.VList)
             {
                 if (!station.IsBusy) continue;
-                error = MiddleLayer.LangMsg("VPForm", "vpError_StationBusy", "视觉工位尚未结束运行或编辑：", "Vision station is still running or being edited: ", "La estación de visión sigue ejecutándose o en edición: ") + station.StationName;
+                error = FrameworkLanguage.LangMsg("VPForm", "vpError_StationBusy", "视觉工位尚未结束运行或编辑：", "Vision station is still running or being edited: ", "La estación de visión sigue ejecutándose o en edición: ") + station.StationName;
                 return false;
             }
             foreach (CameraEntry entry in _entries)
             {
                 if (!IsLiveRunning(entry)) continue;
-                error = MiddleLayer.LangMsg("VPForm", "vpError_StopLive", "请先停止相机实时显示：", "Stop camera live view first: ", "Detenga primero la vista en directo de la cámara: ") + entry.Key;
+                error = FrameworkLanguage.LangMsg("VPForm", "vpError_StopLive", "请先停止相机实时显示：", "Stop camera live view first: ", "Detenga primero la vista en directo de la cámara: ") + entry.Key;
                 return false;
             }
             error = "";
@@ -76,7 +76,7 @@ namespace AlphaRap
         internal void SetProductionVpp(VpVppConfig vpp, bool enabled)
         {
             if (vpp == null || vpp.Station == null) return;
-            if (!EnsureIdle(MiddleLayer.LangMsg(LangForm, "vpAct_Production", "修改生产定位绑定", "change the production positioning binding", "cambiar la vinculación de posicionamiento de producción"))) return;
+            if (!EnsureIdle(FrameworkLanguage.LangMsg(LangForm, "vpAct_Production", "修改生产定位绑定", "change the production positioning binding", "cambiar la vinculación de posicionamiento de producción"))) return;
             if (!enabled && !IsProductionVpp(vpp)) return;
             string previousId = _config.ProductionVppId;
             VpStationKind previousKind = vpp.Station.Kind;
@@ -224,7 +224,7 @@ namespace AlphaRap
             if (_vpDirty || HasRecipeDraft)
             {
                 lbl.ForeColor = Color.FromArgb(176, 120, 32);
-                lbl.Text = MiddleLayer.LangMsg("VPForm", "vpHint_Draft", "视觉修改尚未保存，请使用主界面【保存】。", "Vision changes are not saved. Use Save in the main window.", "Los cambios de visión no están guardados. Use Guardar en la ventana principal.");
+                lbl.Text = FrameworkLanguage.LangMsg("VPForm", "vpHint_Draft", "视觉修改尚未保存，请使用主界面【保存】。", "Vision changes are not saved. Use Save in the main window.", "Los cambios de visión no están guardados. Use Guardar en la ventana principal.");
                 return;
             }
 
@@ -362,7 +362,7 @@ namespace AlphaRap
 		{
 			List<string> camKeys = new List<string>();
 			for (int i = 0; i < _cameras.Count; i++) camKeys.Add(_cameras[i].Name);
-			try { MiddleLayer.WindowModules?.SetCameraDisplays(camKeys); } catch (Exception) { }
+			try { ApplicationHost.ModuleWindow?.SetCameraDisplays(camKeys); } catch (Exception) { }
 
 			for (int i = 0; i < _cameras.Count; i++)
 			{
@@ -451,7 +451,7 @@ namespace AlphaRap
 			Controls.Add(bar);
 
 			// 按控件名登记进语言表，切换语言时由 SwitchLanguage 更新文字
-			MiddleLayer.RegisterLanguage(bar, LangForm);
+			FrameworkLanguage.RegisterLanguage(bar, LangForm);
 		}
 
 
@@ -562,7 +562,7 @@ namespace AlphaRap
 			RefreshCalibrationCard(entry);
 
 			// 把整页（含标定卡、各 VPP 页）的静态文案按控件名登记进语言表
-			MiddleLayer.RegisterLanguage(page, LangForm);
+			FrameworkLanguage.RegisterLanguage(page, LangForm);
 			return page;
 		}
 
@@ -571,7 +571,7 @@ namespace AlphaRap
 			AddDisplay(st, disp);
 			// 主界面"视觉"页上同一台相机的显示也收这张图，两边看到的是同一张
 			// （MainF 尚未建好时跳过，否则一台相机都建不出来）
-			try { AddDisplay(st, MiddleLayer.WindowModules?.GetCameraDisplay(st?.CameraName)); }
+			try { AddDisplay(st, ApplicationHost.ModuleWindow?.GetCameraDisplay(st?.CameraName)); }
 			catch (Exception) { }
 		}
 
@@ -754,7 +754,7 @@ namespace AlphaRap
 		/// <summary>提示相机暂未连接，并说明 SN 绑定仍需主界面保存。</summary>
 		private void ShowCameraBindWarning(string error)
 		{
-			MessageBox.Show(error + MiddleLayer.LangMsg("VPForm", "vpMsg_SNDraft", "\r\n（SN 绑定已保留为草稿，请使用主界面【保存】。相机接上后会按 SN 找到它。）", "\r\n(The SN binding is a draft. Use Save in the main window. The camera will be found by SN when connected.)", "\r\n(La vinculación SN es un borrador. Use Guardar en la ventana principal. La cámara se localizará por SN al conectarse.)"),
+			MessageBox.Show(error + FrameworkLanguage.LangMsg("VPForm", "vpMsg_SNDraft", "\r\n（SN 绑定已保留为草稿，请使用主界面【保存】。相机接上后会按 SN 找到它。）", "\r\n(The SN binding is a draft. Use Save in the main window. The camera will be found by SN when connected.)", "\r\n(La vinculación SN es un borrador. Use Guardar en la ventana principal. La cámara se localizará por SN al conectarse.)"),
 				T("vpMsg_Title", "提示"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
@@ -969,9 +969,17 @@ namespace AlphaRap
 			}
 		}
 
+        /// <summary>按当前配方加载所有视觉站，刷新视觉判据和页面路径。</summary>
+        internal static void LoadRecipeVision()
+        {
+            foreach (VisionproInterface station in VisionproInterface.VList)
+                station.LoadTB(System.IO.Path.GetFullPath(station.GetVppPath(SysPara.RecipeName)));
+            ApplicationHost.FindModule<VPForm>()?.OnRecipeChanged();
+        }
+
 		/// <summary>
-		/// 配方切换后由 <see cref="MiddleLayer.OpenVision"/> 调用：刷新界面上的 vpp 路径文字
-		/// （vpp 本身由 OpenVision 重新载入）。
+		/// 配方切换后由 <see cref="LoadRecipeVision"/> 调用：刷新界面上的 vpp 路径文字
+		/// （vpp 本身由 LoadRecipeVision 重新载入）。
 		/// </summary>
 		public virtual void OnRecipeChanged()
 		{
@@ -1039,7 +1047,7 @@ namespace AlphaRap
 			if (!EnsureIdle(T("vpAct_DeleteCamera", "删除相机"))) return;
 			if (!CanRemoveFlowVpps(cam.Vpps)) return;
 			if (cam.Vpps.Exists(IsProductionVpp))
-			{ MessageBox.Show(MiddleLayer.LangMsg(LangForm, "vpMsg_UnbindCamera", "请先解除或更换此相机的生产定位绑定。", "Remove or change this camera's production binding first.", "Primero quite o cambie la vinculación de producción de esta cámara."), T("vpMsg_Title", "提示")); return; }
+			{ MessageBox.Show(FrameworkLanguage.LangMsg(LangForm, "vpMsg_UnbindCamera", "请先解除或更换此相机的生产定位绑定。", "Remove or change this camera's production binding first.", "Primero quite o cambie la vinculación de producción de esta cámara."), T("vpMsg_Title", "提示")); return; }
 
 			if (MessageBox.Show(T("vpMsg_DeleteCameraA", "确认删除相机「") + cam.Name
 					+ T("vpMsg_DeleteCameraB", "」及其下 ") + cam.Vpps.Count + T("vpMsg_DeleteCameraC", " 个 VPP 页？\r\n")
@@ -1136,7 +1144,7 @@ namespace AlphaRap
 			CameraEntry entry = FindEntry(cam.Name);
 			if (entry != null && vpp.Station != null) entry.Targets.Add(vpp.Station);
 
-			MiddleLayer.RegisterLanguage(page, LangForm);   // 静态文案按控件名登记进语言表
+			FrameworkLanguage.RegisterLanguage(page, LangForm);   // 静态文案按控件名登记进语言表
 			OperationLog.Write("VPForm", "添加 VPP：" + cam.Name + " / " + vpp.Name);
 			MarkVpConfigDraft();
 		}
@@ -1187,7 +1195,7 @@ namespace AlphaRap
 			return T("vpInfo_Camera", "相机：") + cam.Name
 				 + bind
 				 + T("vpInfo_Vpp", "　　VPP：") + (vpp != null ? vpp.Name : "")
-				 + (IsProductionVpp(vpp) ? MiddleLayer.LangMsg(LangForm, "vpInfo_Production",
+				 + (IsProductionVpp(vpp) ? FrameworkLanguage.LangMsg(LangForm, "vpInfo_Production",
 					"　　生产定位", "    Production positioning", "    Posicionamiento de producción") : "");
 		}
 
@@ -1222,10 +1230,10 @@ namespace AlphaRap
 		internal void RefreshCompLimitHeaders(DataGridView grid)
 		{
 			if (grid == null || grid.Columns.Count < 4) return;
-			grid.Columns["cItem"].HeaderText = MiddleLayer.LangMsg(LangForm, "vpCompCol_Item", "项目", "Item", "Elemento");
-			grid.Columns["cCompensation"].HeaderText = MiddleLayer.LangMsg(LangForm, "vpCompGrid_cCompensation", "补偿值", "Compensation", "Compensación");
-			grid.Columns["cMin"].HeaderText = MiddleLayer.LangMsg(LangForm, "vpCompCol_Min", "补偿下限", "Lower limit", "Límite inferior");
-			grid.Columns["cMax"].HeaderText = MiddleLayer.LangMsg(LangForm, "vpCompCol_Max", "补偿上限", "Upper limit", "Límite superior");
+			grid.Columns["cItem"].HeaderText = FrameworkLanguage.LangMsg(LangForm, "vpCompCol_Item", "项目", "Item", "Elemento");
+			grid.Columns["cCompensation"].HeaderText = FrameworkLanguage.LangMsg(LangForm, "vpCompGrid_cCompensation", "补偿值", "Compensation", "Compensación");
+			grid.Columns["cMin"].HeaderText = FrameworkLanguage.LangMsg(LangForm, "vpCompCol_Min", "补偿下限", "Lower limit", "Límite inferior");
+			grid.Columns["cMax"].HeaderText = FrameworkLanguage.LangMsg(LangForm, "vpCompCol_Max", "补偿上限", "Upper limit", "Límite superior");
 			grid.InvalidateColumn(grid.Columns["cItem"].Index);
 		}
 
@@ -1329,7 +1337,7 @@ namespace AlphaRap
 			MarkVpConfigDraft();
 		}
 
-		/// <summary>创建视觉站（构造时自动登记到 VisionproInterface.VList，OpenVision 时按配方加载 vpp）。</summary>
+		/// <summary>创建视觉站（构造时自动登记到 VisionproInterface.VList，切换配方时加载 vpp）。</summary>
 		private void CreateStation(VpCameraConfig cam, VpVppConfig vpp)
 		{
             bool created = vpp.Station == null;
@@ -1585,7 +1593,7 @@ namespace AlphaRap
 
 			if (!EnsureIdle(T("vpAct_DeleteVpp", "删除 VPP"))) return;
 			if (IsProductionVpp(vpp))
-			{ MessageBox.Show(MiddleLayer.LangMsg(LangForm, "vpMsg_UnbindVpp", "请先解除或更换此 VPP 的生产定位绑定。", "Remove or change this VPP's production binding first.", "Primero quite o cambie la vinculación de producción de este VPP."), T("vpMsg_Title", "提示")); return; }
+			{ MessageBox.Show(FrameworkLanguage.LangMsg(LangForm, "vpMsg_UnbindVpp", "请先解除或更换此 VPP 的生产定位绑定。", "Remove or change this VPP's production binding first.", "Primero quite o cambie la vinculación de producción de este VPP."), T("vpMsg_Title", "提示")); return; }
 			if (!CanRemoveFlowVpps(new[] { vpp })) return;
 			if (!ConfirmDeleteVpp(vpp)) return;
 
@@ -1696,9 +1704,9 @@ namespace AlphaRap
         private void ValidateVisionAccess()
         {
             foreach (VisionproInterface station in VisionproInterface.VList)
-                if (station.IsBusy) throw new InvalidOperationException(MiddleLayer.LangMsg("VPForm", "vpError_StationBusy", "视觉工位尚未结束运行或编辑：", "Vision station is still running or being edited: ", "La estación de visión sigue ejecutándose o en edición: ") + station.StationName);
+                if (station.IsBusy) throw new InvalidOperationException(FrameworkLanguage.LangMsg("VPForm", "vpError_StationBusy", "视觉工位尚未结束运行或编辑：", "Vision station is still running or being edited: ", "La estación de visión sigue ejecutándose o en edición: ") + station.StationName);
             foreach (CameraEntry entry in _entries)
-                if (IsLiveRunning(entry)) throw new InvalidOperationException(MiddleLayer.LangMsg("VPForm", "vpError_StopLive", "请先停止相机实时显示：", "Stop camera live view first: ", "Detenga primero la vista en directo de la cámara: ") + entry.Key);
+                if (IsLiveRunning(entry)) throw new InvalidOperationException(FrameworkLanguage.LangMsg("VPForm", "vpError_StopLive", "请先停止相机实时显示：", "Stop camera live view first: ", "Detenga primero la vista en directo de la cámara: ") + entry.Key);
         }
 
         /// <summary>捕获视觉草稿并生成算法和配置的暂存任务，不替换文件或发布运行参数。</summary>
@@ -1710,7 +1718,7 @@ namespace AlphaRap
             foreach (VisionproInterface station in VisionproInterface.VList.Distinct().Where(item => item.HasToolBlockDraft))
             {
                 string target = System.IO.Path.GetFullPath(station.GetVppPath(SysPara.RecipeName));
-                if (!station.IsLoadedFrom(target)) throw new InvalidOperationException(MiddleLayer.LangMsg("VPForm", "vpError_DraftRecipe", "算法草稿不属于当前配方：", "Algorithm draft does not belong to the current recipe: ", "El borrador del algoritmo no pertenece a la receta actual: ") + station.StationName);
+                if (!station.IsLoadedFrom(target)) throw new InvalidOperationException(FrameworkLanguage.LangMsg("VPForm", "vpError_DraftRecipe", "算法草稿不属于当前配方：", "Algorithm draft does not belong to the current recipe: ", "El borrador del algoritmo no pertenece a la receta actual: ") + station.StationName);
                 VisionproInterface.ToolBlockSnapshot model = station.CaptureToolBlockSnapshot();
                 model.Path = target;
                 prepared.Models.Add(station, model);
@@ -1849,13 +1857,13 @@ namespace AlphaRap
 			foreach (VisionproInterface station in VisionproInterface.VList)
 			{
 				if (!station.IsBusy) continue;
-				MessageBox.Show(MiddleLayer.LangMsg("VPForm", "vpMsg_BusyAction", "视觉工位忙碌，不能", "Vision station is busy; cannot ", "La estación de visión está ocupada; no se puede ") + action + "：" + station.StationName, T("vpMsg_WarningTitle", "警告"));
+				MessageBox.Show(FrameworkLanguage.LangMsg("VPForm", "vpMsg_BusyAction", "视觉工位忙碌，不能", "Vision station is busy; cannot ", "La estación de visión está ocupada; no se puede ") + action + "：" + station.StationName, T("vpMsg_WarningTitle", "警告"));
 				return false;
 			}
 			foreach (CameraEntry entry in _entries)
 			{
 				if (!IsLiveRunning(entry)) continue;
-				MessageBox.Show(MiddleLayer.LangMsg("VPForm", "vpError_StopLive", "请先停止相机实时显示：", "Stop camera live view first: ", "Detenga primero la vista en directo de la cámara: ") + entry.Key, T("vpMsg_WarningTitle", "警告"));
+				MessageBox.Show(FrameworkLanguage.LangMsg("VPForm", "vpError_StopLive", "请先停止相机实时显示：", "Stop camera live view first: ", "Detenga primero la vista en directo de la cámara: ") + entry.Key, T("vpMsg_WarningTitle", "警告"));
 				return false;
 			}
 			return true;
@@ -1946,29 +1954,29 @@ namespace AlphaRap
 		// ==================== 语言 ====================
 		// 控件按控件名登记进语言表（LanguageData\{语言}.xml 的 /{语言}/VPForm/{控件名}），
 		// 切换语言时由 SwitchLanguage 更新文字。本页在 ModuleInitialize 之后构建，建页后需调用
-		// MiddleLayer.RegisterLanguage(page, LangForm) 登记。
+		// FrameworkLanguage.RegisterLanguage(page, LangForm) 登记。
 		// T("键", "底稿")：取当前语言的文字；XML 中没有该键时以底稿写入并使用。
 
 		/// <summary>LanguageData 里属于本页的节点名（= 窗体名）。</summary>
 		private const string LangForm = "VPForm";
 
 		/// <summary>
-		/// 把本页全部控件按控件名登记进语言表（由 <see cref="MiddleLayer.InitialLanguageData"/> 在语言表建好后调用）。
+		/// 把本页全部控件按控件名登记进语言表（由 <see cref="FrameworkLanguage.InitializeLanguageData"/> 在语言表建好后调用）。
 		/// </summary>
 		public void RegisterVpLanguage()
 		{
-			MiddleLayer.RegisterLanguage(this, LangForm);
+			FrameworkLanguage.RegisterLanguage(this, LangForm);
 		}
 
 		/// <summary>按键取当前语言的文案（LanguageData\{当前语言}.xml）；XML 中没有该键时使用底稿。</summary>
 		private static string T(string key, string baseText)
 		{
-			return MiddleLayer.LangText(LangForm, key, baseText);
+			return FrameworkLanguage.LangText(LangForm, key, baseText);
 		}
 
 		/// <summary>
 		/// 含动态内容（相机名 / VPP 名 / 配方路径 / 点数 / 实时状态）的控件名：后缀 _dyn 使
-		/// <see cref="MiddleLayer.RegisterLanguage"/> 跳过该控件，文字由 <see cref="RefreshDynamicTexts"/> 生成。
+		/// <see cref="FrameworkLanguage.RegisterLanguage"/> 跳过该控件，文字由 <see cref="RefreshDynamicTexts"/> 生成。
 		/// </summary>
 		private static string DynTextName(string key)
 		{
@@ -2061,7 +2069,7 @@ namespace AlphaRap
 			entry.CalibHost.Controls.Add(card);
 			card.BringToFront();
 
-			MiddleLayer.RegisterLanguage(card, LangForm);   // 重建的标定卡登记进语言表
+			FrameworkLanguage.RegisterLanguage(card, LangForm);   // 重建的标定卡登记进语言表
 		}
 
 		/// <summary>
@@ -2357,7 +2365,7 @@ namespace AlphaRap
 			if (entry == null) return;
 			if (!EnsureIdle(T("vpAct_ApplyCalibration", "应用标定"))) return;
 			if (entry.Config == null || string.IsNullOrWhiteSpace(entry.Config.CameraSN))
-			{ MessageBox.Show(MiddleLayer.LangMsg("VPForm", "vpMsg_SelectCalibSN", "请先选择标定相机 SN。", "Select the calibration camera SN first.", "Seleccione primero el SN de la cámara de calibración."), T("vpMsg_Title", "提示")); return; }
+			{ MessageBox.Show(FrameworkLanguage.LangMsg("VPForm", "vpMsg_SelectCalibSN", "请先选择标定相机 SN。", "Select the calibration camera SN first.", "Seleccione primero el SN de la cámara de calibración."), T("vpMsg_Title", "提示")); return; }
 
 			VpCalibration calib = _config.GetCalibration(entry.Key);
 			if (calib == null)
@@ -2404,7 +2412,7 @@ namespace AlphaRap
 				{
                     calib.MarkAppliedDraft(entry.Config, SysPara.RecipeName);
 				}
-				catch (Exception ex) { calib.AppliedSignature = "none"; failures.Add(MiddleLayer.LangMsg("VPForm", "vpMsg_CalibrationDraftFailed", "标定草稿记录失败：", "Could not record the calibration draft: ", "No se pudo registrar el borrador de calibración: ") + ex.Message); }
+				catch (Exception ex) { calib.AppliedSignature = "none"; failures.Add(FrameworkLanguage.LangMsg("VPForm", "vpMsg_CalibrationDraftFailed", "标定草稿记录失败：", "Could not record the calibration draft: ", "No se pudo registrar el borrador de calibración: ") + ex.Message); }
 			}
             MarkVpConfigDraft();
 			RefreshCalibrationTexts(entry);
@@ -2458,7 +2466,7 @@ namespace AlphaRap
 			for (int i = 0; i < entry.Targets.Count; i++)
 			{
 				VpStation station = entry.Targets[i];
-				if (station == null) { failures.Add(MiddleLayer.LangMsg("VPForm", "vpMsg_EmptyStation", "?：工位为空", "?: station is missing", "?: falta la estación")); continue; }
+				if (station == null) { failures.Add(FrameworkLanguage.LangMsg("VPForm", "vpMsg_EmptyStation", "?：工位为空", "?: station is missing", "?: falta la estación")); continue; }
 
 				CalibApplyInfo info;
 				if (station.SetCalibrationDraft(points, toolName, out info)) { okCount++; continue; }
@@ -2482,7 +2490,7 @@ namespace AlphaRap
 
 			if (failures.Count == 0)
 			{
-				MessageBox.Show(string.Format(MiddleLayer.LangMsg("VPForm", "vpMsg_AppliedDraft", "标定已应用到本相机下 {0} 个 VPP 的草稿。请使用主界面【保存】后再生产。\r\n{1}", "Calibration was applied to drafts for {0} VPPs on this camera. Use Save in the main window before production.\r\n{1}", "La calibración se aplicó a los borradores de {0} VPP de esta cámara. Use Guardar en la ventana principal antes de producir.\r\n{1}"), okCount, TargetNames(entry) + quality),
+				MessageBox.Show(string.Format(FrameworkLanguage.LangMsg("VPForm", "vpMsg_AppliedDraft", "标定已应用到本相机下 {0} 个 VPP 的草稿。请使用主界面【保存】后再生产。\r\n{1}", "Calibration was applied to drafts for {0} VPPs on this camera. Use Save in the main window before production.\r\n{1}", "La calibración se aplicó a los borradores de {0} VPP de esta cámara. Use Guardar en la ventana principal antes de producir.\r\n{1}"), okCount, TargetNames(entry) + quality),
 					T("vpMsg_CalibrationTitle", "标定"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 				return;
 			}

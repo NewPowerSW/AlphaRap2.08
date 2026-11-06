@@ -108,7 +108,7 @@ internal static partial class Cases
         SysPara.UserName = "Regression";
         CopyFolder(Path.Combine(args[2], "LanguageData"), SysPara.LanguageDataDirectory);
         CopyFolder(Path.Combine(args[2], "AlarmTable"), SysPara.AlarmTableDirectory);
-        host = typeof(SysPara).Assembly.GetType("AlphaRap.MiddleLayer");
+        host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
         ProductionDataStore.SetRoot(Path.Combine(root, "Production"));
         Test("future Flow_BaseForm subclass attaches without a station allowlist", AttachFuture);
         Test("recipe snapshot excludes uncommitted edits", RecipeSnapshot);
@@ -229,11 +229,29 @@ internal static partial class Cases
     /// <summary>Fail with a meaningful invariant.</summary>
     private static void Assert(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
 
-    /// <summary>Set an application host field without changing its visibility.</summary>
-    private static void SetHost(string name, object value) { host.GetField(name, BindingFlags.Static | BindingFlags.Public).SetValue(null, value); }
+    private static readonly Type LanguageHost = typeof(ApplicationHost).Assembly.GetType("AlphaRap.FrameworkLanguage", true);
+
+    private static IList ModulePages
+    {
+        get { return (IList)typeof(ApplicationHost).GetProperty("ModulePages", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null, null); }
+    }
+
+    /// <summary>Replace a test page in the application and the framework resource list.</summary>
+    private static void SetHost(string name, object value)
+    {
+        FieldInfo field = host.GetField(name, BindingFlags.Static | BindingFlags.Public);
+        Form previous = field.GetValue(null) as Form;
+        field.SetValue(null, value);
+        if (name == "MainF") { ApplicationHost.MainWindow = (Form)value; return; }
+        if (previous != null) ModulePages.Remove(previous);
+        RegisterForm(value as Form);
+    }
 
     /// <summary>Register an actual form with the framework resource discovery list.</summary>
-    private static void RegisterForm(Form form) { ((IList)host.GetField("lstForm", BindingFlags.Static | BindingFlags.Public).GetValue(null)).Add(form); }
+    private static void RegisterForm(Form form)
+    {
+        if (form != null && !ModulePages.Contains(form)) ModulePages.Add(form);
+    }
 
     /// <summary>Create a real subclass after factory installation.</summary>
     private static void AttachFuture()
@@ -638,7 +656,10 @@ internal static partial class Cases
     }
 
     /// <summary>Switch through the application's actual language entry point.</summary>
-    private static void SwitchLanguage(LanguageType language) { host.GetMethod("SwitchLanguage", BindingFlags.Static | BindingFlags.Public).Invoke(null, new object[] { language }); }
+    private static void SwitchLanguage(LanguageType language)
+    {
+        LanguageHost.GetMethod("SwitchLanguage").Invoke(null, new object[] { language });
+    }
 
     /// <summary>Exercise the actual editor binding events rather than constructing only its initial state.</summary>
     private static void NodeSelections()
@@ -1195,7 +1216,7 @@ internal static partial class Cases
         ContextMenuStrip menu = input.Group.ContextMenuStrip; menu.Show(input.Group,new Point(5,5)); Application.DoEvents();
         Assert((string)typeof(HardwareResourcePanel).GetField("contextResourceId",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(ioPanel)==groupedInput.Id,"Resource menu used the toolbar's previous selection."); menu.Close(); ioPage.Hide();
         Assert(panel.Controls.Find("resourceDelete",true).Length==0,"A resource delete button remains on the toolbar.");
-        constantForm.Show(); Application.DoEvents(); DataGridView constants = (DataGridView)constantForm.Controls.Find("constantsGrid",true)[0];
+        constantForm.Show(); Application.DoEvents(); DataGridView constants = (DataGridView)constantForm.Controls.Find("constants",true)[0];
         Rectangle area = constants.GetCellDisplayRectangle(0,1,false); RaiseMouse(constants,"OnMouseDown",new MouseEventArgs(MouseButtons.Right,1,area.Left+4,area.Top+4,0));
         constants.ContextMenuStrip.Show(constants,new Point(area.Left+4,area.Top+4)); Application.DoEvents();
         Assert((string)typeof(SystemSetting).GetField("contextKey",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(constantForm)==Convert.ToString(constants.Rows[1].Cells[0].Value),"Constant menu did not target the clicked row."); constants.ContextMenuStrip.Close();

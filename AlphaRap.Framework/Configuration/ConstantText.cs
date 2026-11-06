@@ -37,7 +37,7 @@ namespace AlphaRap.Configuration
         {
             string[] value;
             if (!Words.TryGetValue(key, out value)) return key;
-            return UiTheme.IsDesignTime ? value[0] : MiddleLayer.LangMsg("DesignerConstants", key, value[0], value[1], value[2]);
+            return UiTheme.IsDesignTime ? value[0] : FrameworkLanguage.LangMsg("DesignerConstants", key, value[0], value[1], value[2]);
         }
 
         /// <summary>按固定控件 Name 和表头登记文字，不重建绑定数据。</summary>
@@ -47,11 +47,11 @@ namespace AlphaRap.Configuration
             Form form = control as Form ?? control.FindForm();
             string scope = form is SystemSetting ? "SystemSetting" : "DesignerConstants";
             string key = control.Tag as string;
-            if (key != null && Words.TryGetValue(key, out words)) control.Text = UiTheme.IsDesignTime ? words[0] : MiddleLayer.LangMsg(scope, control.Name, words[0], words[1], words[2]);
+            if (key != null && Words.TryGetValue(key, out words)) control.Text = UiTheme.IsDesignTime ? words[0] : FrameworkLanguage.LangMsg(scope, control.Name, words[0], words[1], words[2]);
             DataGridView grid = control as DataGridView;
             if (grid != null)
                 foreach (DataGridViewColumn column in grid.Columns)
-                    if (Words.TryGetValue(column.Tag as string ?? "", out words)) column.HeaderText = UiTheme.IsDesignTime ? words[0] : MiddleLayer.LangMsg(scope, grid.Name + "_" + column.Name, words[0], words[1], words[2]);
+                    if (Words.TryGetValue(column.Tag as string ?? "", out words)) column.HeaderText = UiTheme.IsDesignTime ? words[0] : FrameworkLanguage.LangMsg(scope, grid.Name + "_" + column.Name, words[0], words[1], words[2]);
             foreach (Control child in control.Controls) Apply(child);
         }
     }

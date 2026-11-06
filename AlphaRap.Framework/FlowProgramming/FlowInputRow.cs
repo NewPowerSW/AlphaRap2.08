@@ -223,7 +223,7 @@ namespace AlphaRap.FlowProgramming
         {
             string[] words = TextDefaults[key];
             if (UiTheme.IsDesignTime) return words[0];
-            return MiddleLayer.LangMsg("EquipmentFlow", key, words[0], words[1], words[2]);
+            return FrameworkLanguage.LangMsg("EquipmentFlow", key, words[0], words[1], words[2]);
         }
 
         /// <summary>保留正在编辑的固定文本，不在每次按键时解析数值。</summary>

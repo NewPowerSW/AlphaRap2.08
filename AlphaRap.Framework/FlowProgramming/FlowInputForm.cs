@@ -45,13 +45,13 @@ namespace AlphaRap.FlowProgramming
                     using (token.Register(() => { if (!form.IsDisposed && form.IsHandleCreated) form.BeginInvoke(new Action(form.Close)); }))
                     {
                         if (token.IsCancellationRequested) { completion.TrySetCanceled(); return; }
-                        if (form.ShowDialog(MiddleLayer.MainF) == DialogResult.OK && !token.IsCancellationRequested) completion.TrySetResult(form.value.Text);
+                        if (form.ShowDialog(ApplicationHost.MainWindow) == DialogResult.OK && !token.IsCancellationRequested) completion.TrySetResult(form.value.Text);
                         else completion.TrySetCanceled();
                     }
                 }
             };
-            if (MiddleLayer.MainF == null || !MiddleLayer.MainF.IsHandleCreated) throw new InvalidOperationException("Main window is unavailable.");
-            MiddleLayer.MainF.BeginInvoke(show);
+            if (ApplicationHost.MainWindow == null || !ApplicationHost.MainWindow.IsHandleCreated) throw new InvalidOperationException("Main window is unavailable.");
+            ApplicationHost.MainWindow.BeginInvoke(show);
             return completion.Task;
         }
     }

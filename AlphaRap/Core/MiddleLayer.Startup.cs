@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using System.Windows.Forms;
 using AlphaRap.Classes;
 using AlphaRap.MenuForm;
 using AlphaRapLibrary;
+using static AlphaRap.FrameworkLanguage;
 using NPSDK;
 
 namespace AlphaRap
@@ -22,7 +22,7 @@ namespace AlphaRap
             InitialLanguageData();
             SwitchLanguage(SysPara.LanguageShow);
             ShowLoadingStage(reportProgress, "stage_Permissions", "载入权限", "Loading permissions", "Cargando permisos");
-            SwitchPermission(SysPara.UserPermission);
+            ApplicationHost.SetPermission(SysPara.UserPermission);
 
             ShowLoadingStage(reportProgress, "stage_IO", "初始化输入输出", "Initializing IO", "Inicializando E/S");
             SDKKernal.SetSimulation(SysPara.Simulation);
@@ -32,10 +32,22 @@ namespace AlphaRap
             ShowLoadingStage(reportProgress, "stage_Recipe", "载入配方", "Loading recipe", "Cargando receta");
             OpenRecipe(SysPara.FilePath);
             FlowProgramming.FlowPrograms.Install();
-            FlowCtrl = new FlowControl();
+            FlowCtrl = new FlowControl(AlwaysRun, Application.Scan, Application.ResetLegacyInitialization);
             FlowCtrl.StartThread();
             ServoOn();
             ShowLoadingStage(reportProgress, "stage_Vision", "载入视觉算法", "Loading vision algorithms", "Cargando algoritmos de visión");
+        }
+
+        /// <summary>在创建任何页面之前读取界面语言和目录，数值区域格式保持不变。</summary>
+        internal static void ReadLanguageSettings()
+        {
+            using (IniFile ini = new IniFile(".\\MachineSetup.ini"))
+            {
+                SysPara.LanguageDataDirectory = ini.ReadString("PathSetup", "LanguageDirectory", ".\\LanguageData");
+                SysPara.LanguageName = ini.ReadString("MachineSetup", "LanguageName", "Chinese");
+            }
+            SysPara.LanguageShow = SysPara.LanguageName == "English" ? LanguageType.English
+                : SysPara.LanguageName == "Español" || SysPara.LanguageName == "Spanish" ? LanguageType.Español : LanguageType.Chinese;
         }
 
         /// <summary>读取机器系统参数和目录，同步模块配置目录与当前配方路径。</summary>
@@ -60,25 +72,27 @@ namespace AlphaRap
         /// <summary>按模块依赖顺序创建流程页、设置页和业务页。</summary>
         private static void CreateProjectForms()
         {
-            foreach (Flow_BaseForm station in Application.CreateStations()) RegisterForm(station);
+            foreach (Flow_BaseForm station in Application.CreateStations()) ApplicationHost.RegisterModule(station);
             SpanLifeF = new LifeSpan.LifeSpanForm();
-            ProductF = RegisterForm(ProductF ?? new ProductManagerForm());
-            PlatF = RegisterForm(PlatF ?? new PlatFormSetting());
-            SystemS = RegisterForm(SystemS ?? Application.CreateSettingsPage());
-            ParF = RegisterForm(ParF ?? Application.CreateDevicePage());
-            SystemF = RegisterForm(SystemF ?? new SystemForm());
-            MainF = RegisterForm(MainF ?? Application.CreateWindow());
-            HomeF = RegisterForm(HomeF ?? Application.CreateHomePage());
-            ManualF = RegisterForm(ManualF ?? Application.CreateManualPage());
-            HardF = RegisterForm(HardF ?? Application.CreateHardwarePage());
-            CheckF = RegisterForm(CheckF ?? new CheckForm());
-            AddF = RegisterForm(AddF ?? new AddUserForm());
-            VPF = RegisterForm(VPF ?? Application.CreateVisionPage());
+            ProductF = ApplicationHost.RegisterModule(ProductF ?? new ProductManagerForm());
+            PlatF = ApplicationHost.RegisterModule(PlatF ?? new PlatFormSetting());
+            SystemS = ApplicationHost.RegisterModule(SystemS ?? Application.CreateSettingsPage());
+            ParF = ApplicationHost.RegisterModule(ParF ?? Application.CreateDevicePage());
+            SystemF = ApplicationHost.RegisterModule(SystemF ?? new SystemForm());
+            MainF = ApplicationHost.RegisterModule(MainF ?? Application.CreateWindow());
+            ApplicationHost.MainWindow = MainF;
+            HomeF = ApplicationHost.RegisterModule(HomeF ?? Application.CreateHomePage());
+            ApplicationHost.Home = HomeF;
+            ManualF = ApplicationHost.RegisterModule(ManualF ?? Application.CreateManualPage());
+            HardF = ApplicationHost.RegisterModule(HardF ?? Application.CreateHardwarePage());
+            CheckF = ApplicationHost.RegisterModule(CheckF ?? new CheckForm());
+            AddF = ApplicationHost.RegisterModule(AddF ?? new AddUserForm());
+            VPF = ApplicationHost.RegisterModule(VPF ?? Application.CreateVisionPage());
             FlowF = new Flow();
-            DataF = RegisterForm(DataF ?? Application.CreateDataPage());
+            DataF = ApplicationHost.RegisterModule(DataF ?? Application.CreateDataPage());
             LogDirectories.RestoreAlarmPath(DataF);
             LockForm1 = new LockForm1();
-            MesF = RegisterForm(MesF ?? Application.CreateMesPage());
+            MesF = ApplicationHost.RegisterModule(MesF ?? Application.CreateMesPage());
         }
 
         /// <summary>更新启动阶段，没有启动页时不创建界面。</summary>
@@ -87,24 +101,13 @@ namespace AlphaRap
             reportProgress?.Invoke(LangMsg("LoadingForm", key, zh, en, es));
         }
 
-        /// <summary>登记实际窗体并初始化模块，重复调用继续使用原实例。</summary>
-        private static T RegisterForm<T>(T form) where T : Form
+        /// <summary>登记本站页面，包括由应用单独持有的流程、锁屏和寿命页。</summary>
+        private static void InitialLanguageData()
         {
-            if (form == null || lstForm.Contains(form)) return form;
-            ModuleBaseForm module = form as ModuleBaseForm;
-            if (module != null) module.ModuleInitialize(module.Text);
-            lstForm.Add(form);
-            return form;
-        }
-
-        /// <summary>更新页面权限并记录当前用户登录信息。</summary>
-        public static void SwitchPermission(PermissionType Permission)
-        {
-            SysPara.UserPermission = Permission;
-            WindowModules?.SwitchPermission(Permission);
-            DataF?.WriteLog("UserLogin", SysPara.UserName, Permission.ToString());
-            OperationLog.Write("UserLoginForm", (SysPara.UserName == "None" ? "注销" : "登录")
-                + "　工号：" + SysPara.UserName + "　权限：" + Permission);
+            InitializeLanguageData();
+            RegisterLanguage(LockForm1, "LockForm1");
+            RegisterLanguage(FlowF, "Flow");
+            RegisterLanguage(SpanLifeF, "SpanLife");
         }
 
         /// <summary>停止后台扫描后关闭伺服，避免扫描继续访问正在关闭的设备。</summary>

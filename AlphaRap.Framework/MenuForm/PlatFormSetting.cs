@@ -43,20 +43,20 @@ namespace AlphaRap
         public override void ModuleInitialize(string ModuleName)
         {
             base.ModuleInitialize(ModuleName);
-            try { MiddleLayer.LanguageChanged += PlatFormSetting_LanguageChanged; } catch { }
+            try { FrameworkLanguage.LanguageChanged += PlatFormSetting_LanguageChanged; } catch { }
             RebuildTrayTable();
         }
 
         public override void ModuleDispose()
         {
-            try { MiddleLayer.LanguageChanged -= PlatFormSetting_LanguageChanged; } catch { }
+            try { FrameworkLanguage.LanguageChanged -= PlatFormSetting_LanguageChanged; } catch { }
             base.ModuleDispose();
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             // 静态事件必须解绑，否则已释放的页面会被语言切换一直拉住
-            try { MiddleLayer.LanguageChanged -= PlatFormSetting_LanguageChanged; } catch { }
+            try { FrameworkLanguage.LanguageChanged -= PlatFormSetting_LanguageChanged; } catch { }
             base.OnFormClosed(e);
         }
 
@@ -398,7 +398,7 @@ namespace AlphaRap
 
         /// <summary>
         /// **通过「托盘名 + 参数项」取一个具体数值**，例：
-        /// <c>MiddleLayer.PlatF.GetTrayValue("UnloadTray2", TrayField.Rows)</c> → 下料盘 B 的行数。
+        /// <c>GetTrayValue("UnloadTray2", TrayField.Rows)</c> → 下料盘 B 的行数。
         /// 名字就是表格 TrayName 列里的值；找不到返回 0。完整接口见 <see cref="TrayConfig"/>。
         /// </summary>
         public double GetTrayValue(string name, TrayField field)
@@ -431,7 +431,7 @@ namespace AlphaRap
         {
             if (SysPara.items > 1)
             {
-                MiddleLayer.WindowModules?.SaveData();
+                ApplicationHost.ModuleWindow?.SaveData();
             }
         }
 

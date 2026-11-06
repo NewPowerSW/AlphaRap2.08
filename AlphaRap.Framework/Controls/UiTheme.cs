@@ -286,7 +286,7 @@ namespace AlphaRap
 
         /// <summary>
         /// 多语言文案的提供者，参数为 (分组名, 键, 中文, 英文, 西语)。
-        /// 程序启动时设为 MiddleLayer.LangMsg；未设置时返回中文。
+        /// 程序启动时设为 FrameworkLanguage.LangMsg；未设置时返回中文。
         /// </summary>
         public static Func<string, string, string, string, string, string> TextProvider;
 
@@ -304,7 +304,7 @@ namespace AlphaRap
                 }
                 catch { }
             }
-            return MiddleLayer.LangMsg(group, key, zh, en, es);
+            return FrameworkLanguage.LangMsg(group, key, zh, en, es);
         }
 
         // ---------------- 图标 + 文字按钮（导航 / 工具栏）----------------

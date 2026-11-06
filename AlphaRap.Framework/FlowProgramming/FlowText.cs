@@ -232,7 +232,7 @@ namespace AlphaRap.FlowProgramming
             string[] words;
             if (!Defaults.TryGetValue(key, out words)) return key;
             if (UiTheme.IsDesignTime) return words[0];
-            return MiddleLayer.LangMsg("EquipmentFlow", key, words[0], words[1], words[2]);
+            return FrameworkLanguage.LangMsg("EquipmentFlow", key, words[0], words[1], words[2]);
         }
     }
 }

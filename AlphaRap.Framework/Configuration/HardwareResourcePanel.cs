@@ -34,9 +34,9 @@ namespace AlphaRap.Configuration
             ioTabs.MouseDown += SelectIoContextTab;
             if (UiTheme.IsDesignTime) return;
             HardwareText.Apply(this);
-            foreach (Control control in new Control[] { toolbar, status, hint }) MiddleLayer.RegisterAndApplyLanguage(control,"HardwareResources");
-            MiddleLayer.LanguageChanged += ApplyLanguage;
-            Disposed += (sender,args) => MiddleLayer.LanguageChanged -= ApplyLanguage;
+            foreach (Control control in new Control[] { toolbar, status, hint }) FrameworkLanguage.RegisterAndApplyLanguage(control,"HardwareResources");
+            FrameworkLanguage.LanguageChanged += ApplyLanguage;
+            Disposed += (sender,args) => FrameworkLanguage.LanguageChanged -= ApplyLanguage;
             addAxis.Click += (sender,args) => Execute(()=>EditNew("Axis"));
             addInput.Click += (sender,args) => Execute(()=>EditNew("Input"));
             addOutput.Click += (sender,args) => Execute(()=>EditNew("Output"));

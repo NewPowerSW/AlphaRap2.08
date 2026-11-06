@@ -61,9 +61,9 @@ namespace AlphaRap
             if (Alarm.DoRefresh) RefreshAlarms();
 
             string runLog = Flow_Module.Module_GetRunLog();
-            if (!string.IsNullOrEmpty(runLog)) MiddleLayer.DataF.AddRunLog(runLog);
+            if (!string.IsNullOrEmpty(runLog)) ApplicationHost.Data.AddRunLog(runLog);
             string alarmLog = Flow_Module.Module_GetAlarmLog();
-            if (!string.IsNullOrEmpty(alarmLog)) MiddleLayer.DataF.AddLogError(alarmLog);
+            if (!string.IsNullOrEmpty(alarmLog)) ApplicationHost.Data.AddLogError(alarmLog);
         }
 
         /// <summary>记录报警，执行停机规则并向宿主发布本次快照。</summary>
@@ -75,7 +75,7 @@ namespace AlphaRap
             {
                 rows.Add(new AlarmDisplayRow(DateTime.Now, alarm));
                 SaveAlarm(alarm);
-                if (alarm.Type == "E") MiddleLayer.PauseRun();
+                if (alarm.Type == "E") ApplicationHost.PauseMachine();
             }
 
             ApplicationHost.PublishAlarms(rows.AsReadOnly());
@@ -86,13 +86,13 @@ namespace AlphaRap
         {
             string[] data = new string[8];
             data[0] = SysPara.UserName;
-            data[1] = MiddleLayer.ProductF.GetRecipeValue("ProductSetting", "RECIPEID");
+            data[1] = ApplicationHost.FindModule<ProductManagerForm>().GetRecipeValue("ProductSetting", "RECIPEID");
             data[2] = SysPara.RecipeName;
             data[3] = SysPara.SystemMode == RunMode.RUN || SysPara.SystemMode == RunMode.PAUSE ? "Auto" : "Manual";
             data[4] = alarm.Type == "E" ? "ERROR" : "Information";
             data[5] = alarm.Code;
             data[6] = alarm.Content;
-            MiddleLayer.DataF.WriteLog("Alarm", data);
+            ApplicationHost.Data.WriteLog("Alarm", data);
         }
     }
 }

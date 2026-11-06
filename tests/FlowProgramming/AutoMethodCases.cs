@@ -233,7 +233,7 @@ internal static partial class Cases
         {
             RegisterForm(page);
             try { test(page, new FlowActions(FlowResources.Capture())); }
-            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(page); }
+            finally { ModulePages.Remove(page); }
         }
     }
 

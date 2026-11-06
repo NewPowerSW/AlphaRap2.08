@@ -81,11 +81,11 @@ namespace AlphaRap
                 RaiseDevicesChanged();
 
                 _langHandler = delegate { ApplyLanguage(); };
-                MiddleLayer.LanguageChanged += _langHandler;                                    // 供 MainForm 的【保存】按钮统一保存
+                FrameworkLanguage.LanguageChanged += _langHandler;                                    // 供 MainForm 的【保存】按钮统一保存
                 this.Disposed += delegate
                 {
                     LiveInstances.Remove(this);
-                    MiddleLayer.LanguageChanged -= _langHandler;   // 静态事件必须解绑，否则面板会被一直留住
+                    FrameworkLanguage.LanguageChanged -= _langHandler;   // 静态事件必须解绑，否则面板会被一直留住
                     RaiseDevicesChanged();
                 };
                 if (propGrid != null) propGrid.PropertyValueChanged += propGrid_PropertyValueChanged;
@@ -1458,7 +1458,7 @@ namespace AlphaRap
             try
             {
                 if (string.IsNullOrEmpty(group)) group = "DeviceControl";
-                return MiddleLayer.LangMsg(group, key, zh, en, es);
+                return FrameworkLanguage.LangMsg(group, key, zh, en, es);
             }
             catch (Exception) { return zh; }
         }

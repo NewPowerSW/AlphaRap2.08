@@ -66,7 +66,7 @@ namespace AlphaRap
         public CheckForm()
         {
             InitializeComponent();
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
+            if (!UiTheme.IsDesignTime) FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
 
             rbGroup_GreenLight_RunMode = new RadioButton[] { rbGreenOff_R, rbGreenOn_R, rbGreenBlink_R };
@@ -357,7 +357,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, MiddleLayer.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, FrameworkLanguage.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return false;
         }

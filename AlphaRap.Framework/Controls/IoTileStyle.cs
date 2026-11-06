@@ -378,7 +378,7 @@ namespace AlphaRap
         }
     }
 
-    /// <summary>运行时创建的控件名约定（与 MiddleLayer.DynTextSuffix 一致：带此后缀的控件不进语言表）。</summary>
+    /// <summary>运行时创建的控件名约定（与 FrameworkLanguage.DynTextSuffix 一致：带此后缀的控件不进语言表）。</summary>
     internal static class MiddleLayerNames
     {
         public const string DynSuffix = "_dyn";

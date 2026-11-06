@@ -92,7 +92,7 @@ internal static partial class Cases
                 string technical = group.IO.Name; group.IO.Text = "原始输入文字";
                 Assert(group.SignalCaption == "原始输入文字" && group.Controls.Count == 1 && group.Height == 40 && group.IO.Name == technical, "The compact group duplicated the caption or renamed the underlying object.");
             }
-            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(form); }
+            finally { ModulePages.Remove(form); }
         }
     }
 
@@ -132,7 +132,7 @@ internal static partial class Cases
                 Assert(editor.Program.Steps.Single(node => node.Id == old.Id).Inputs.Count == 3, "The reviewed node retained a redundant Table input.");
                 editor.Delete(old.Id);
             }
-            finally { ((IList)host.GetField("lstForm").GetValue(null)).Remove(form); }
+            finally { ModulePages.Remove(form); }
         }
     }
 

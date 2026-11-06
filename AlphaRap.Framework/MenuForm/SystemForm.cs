@@ -10,7 +10,7 @@ namespace AlphaRap
         public SystemForm()
         {
             InitializeComponent();
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
+            if (!UiTheme.IsDesignTime) FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
         }
         /// <summary>
@@ -21,7 +21,7 @@ namespace AlphaRap
             labParameter.BackColor = Color.Green; 
             labPlat.BackColor = Color.FromArgb(4, 108, 182);
             labSystem.BackColor = Color.FromArgb(4, 108, 182);
-            ShowhMainPage(MiddleLayer.ParF);
+            ShowhMainPage(ApplicationHost.Parameters);
         }
         /// <summary>
         /// 呈现平台页面
@@ -33,7 +33,7 @@ namespace AlphaRap
 			labPlat.BackColor = Color.Green;
             labParameter.BackColor = Color.FromArgb(4, 108, 182);
             labSystem.BackColor = Color.FromArgb(4, 108, 182);
-            ShowhMainPage(MiddleLayer.PlatF);
+            ShowhMainPage(ApplicationHost.FindModule<PlatFormSetting>());
         }
         /// <summary>
         /// 呈现系统设置页面
@@ -43,7 +43,7 @@ namespace AlphaRap
             labSystem.BackColor = Color.Green; 
             labPlat.BackColor = Color.FromArgb(4, 108, 182);
             labParameter.BackColor = Color.FromArgb(4, 108, 182);
-            ShowhMainPage(MiddleLayer.SystemS);
+            ShowhMainPage(ApplicationHost.Settings);
 
         }
         /// <summary>
@@ -77,7 +77,7 @@ namespace AlphaRap
             if (UiTheme.IsDesignTime || DesignMode) return;
             labParameter.BackColor = Color.FromArgb(4, 108, 182);
          
-            ShowhMainPage(MiddleLayer.ParF);
+            ShowhMainPage(ApplicationHost.Parameters);
         }
 
         private void label1_Click(object sender, EventArgs e)

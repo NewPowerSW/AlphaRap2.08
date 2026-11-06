@@ -6,8 +6,23 @@ namespace AlphaRap
 {
     public class FlowControl
     {
+        private readonly Action runModules;
+        private readonly Action scanApplication;
+        private readonly Action resetInitialization;
+
         public volatile bool bStopWork = false;
         Thread FlowControlThread = null; 
+
+        /// <summary>创建通用 IO 与电机保护扫描。</summary>
+        public FlowControl() : this(null, null, null) { }
+
+        /// <summary>创建扫描器并接入应用的周期任务和初始化回调。</summary>
+        public FlowControl(Action runModules, Action scanApplication, Action resetInitialization)
+        {
+            this.runModules = runModules;
+            this.scanApplication = scanApplication;
+            this.resetInitialization = resetInitialization;
+        }
 
         /// <summary>启动 IO、模块周期和电机保护的后台扫描。</summary>
         public void StartThread()
@@ -63,13 +78,13 @@ namespace AlphaRap
             try { SDKKernal.RefreshIO(); }
             catch (Exception ex) { NPSDK.Alarm.Show("2018", ex.Message); }
 
-            try { MiddleLayer.AlwaysRun(); }
+            try { runModules?.Invoke(); }
             catch (Exception) { NPSDK.Alarm.Show("2019");}
 
-            try { MiddleLayer.Application.Scan(); }
+            try { scanApplication?.Invoke(); }
             catch (Exception) { NPSDK.Alarm.Show("2019"); }
 
-            try { MiddleLayer.CheckMotorProtected(); }
+            try { MotorProtection.CheckMotorProtected(); }
             catch (Exception) { NPSDK.Alarm.Show("2020"); }
         }
 
@@ -77,7 +92,7 @@ namespace AlphaRap
         public void InitialReset()
         {
             SysPara.SystemMode = RunMode.INITIAL;
-            MiddleLayer.Application.ResetLegacyInitialization();
+            resetInitialization?.Invoke();
         }
 
         /// <summary>将扫描统计的运行模式切换为自动运行。</summary>

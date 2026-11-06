@@ -47,19 +47,19 @@ namespace AlphaRap
             // 本窗体的文案交给语言表：按需 new 出来的窗体，构造里"登记 + 立刻按当前语言套一遍"
             // （键 = 控件名，翻译在 LanguageData\UserLoginForm 段里改；切语言统一走 SwitchLanguageTo）。
             // 只 Register 不套字的话，英文/西语环境下打开登录框会显示设计器里的中文。
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, this.Name);
+            if (!UiTheme.IsDesignTime) FrameworkLanguage.RegisterAndApplyLanguage(this, this.Name);
 
             // 图标只依赖 AppIcons，运行期与设计期都安全 → 放在这里，VS 设计视图也能看到真实图标
             ApplyLanguage();
-            dgvUserList.DataBindingComplete += delegate { MiddleLayer.RefreshUserHeaders(dgvUserList); };
+            dgvUserList.DataBindingComplete += delegate { FrameworkLanguage.RefreshUserHeaders(dgvUserList); };
             dgvUserList.CellFormatting += delegate(object sender, DataGridViewCellFormattingEventArgs e)
             {
                 if (e.ColumnIndex < 0 || dgvUserList.Columns[e.ColumnIndex].DataPropertyName != "Permission") return;
-                e.Value = MiddleLayer.PermissionText(e.Value);
+                e.Value = FrameworkLanguage.PermissionText(e.Value);
                 e.FormattingApplied = true;
             };
-            MiddleLayer.LanguageChanged += UserLoginForm_LanguageChanged;
-            Disposed += delegate { MiddleLayer.LanguageChanged -= UserLoginForm_LanguageChanged; };
+            FrameworkLanguage.LanguageChanged += UserLoginForm_LanguageChanged;
+            Disposed += delegate { FrameworkLanguage.LanguageChanged -= UserLoginForm_LanguageChanged; };
 
             // 密码框回车提交（事件挂在 FieldBox 内部的 TextBox 上）
             textPassword.Inner.KeyPress += textPassword_KeyPress;
@@ -114,9 +114,9 @@ namespace AlphaRap
         {
             try
             {
-                lblBrandSub.Text = MiddleLayer.LangMsg("UserLoginForm", "lblBrandSub", "视觉检测系统", "Vision Inspection System", "Sistema de inspección visual");
+                lblBrandSub.Text = FrameworkLanguage.LangMsg("UserLoginForm", "lblBrandSub", "视觉检测系统", "Vision Inspection System", "Sistema de inspección visual");
                 lblVersion.Text = "AlphaRap  v2.08";
-                MiddleLayer.RefreshUserHeaders(dgvUserList);
+                FrameworkLanguage.RefreshUserHeaders(dgvUserList);
             }
             catch { }
         }
@@ -198,8 +198,8 @@ namespace AlphaRap
                         else
                         {
                             MessageBox.Show(
-                                MiddleLayer.LangMsg("UserLoginForm", "msg_LoginBadPassword", "登录失败！密码错误！", "Login Fail！Please check your Password!", "¡El inicio de sesión falló! ¡Error de contraseña!"),
-                                MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                                FrameworkLanguage.LangMsg("UserLoginForm", "msg_LoginBadPassword", "登录失败！密码错误！", "Login Fail！Please check your Password!", "¡El inicio de sesión falló! ¡Error de contraseña!"),
+                                FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                             textPassword.FocusInput();
                         }
@@ -207,8 +207,8 @@ namespace AlphaRap
                     else
                     {
                         MessageBox.Show(
-                            MiddleLayer.LangMsg("UserLoginForm", "msg_LoginNoUser", "登录失败！用户名不存在！", "Login Fail！Please check your UserName!", "¡El inicio de sesión falló! ¡El usuario no existe!"),
-                            MiddleLayer.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
+                            FrameworkLanguage.LangMsg("UserLoginForm", "msg_LoginNoUser", "登录失败！用户名不存在！", "Login Fail！Please check your UserName!", "¡El inicio de sesión falló! ¡El usuario no existe!"),
+                            FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                         textUserName.FocusInput();
                     }
@@ -229,7 +229,7 @@ namespace AlphaRap
             {
                 SysPara.UserName = textUserName.Value;
                 SysPara.UserLoginTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                MiddleLayer.SwitchPermission(UserPermission);
+                ApplicationHost.SetPermission(UserPermission);
 
                 textUserName.Value = "";
                 textPassword.Value = "";
@@ -258,9 +258,9 @@ namespace AlphaRap
             lblFingerStatus.Text = "";
             if (SysPara.bLogin)
             {
-                SysPara.UserName = MiddleLayer.AddF.ReadAllUserData();
+                SysPara.UserName = ApplicationHost.FindModule<AddUserForm>().ReadAllUserData();
                 SysPara.UserPermission = PermissionType.Operator;
-                MiddleLayer.WindowModules?.CompleteLogin();
+                ApplicationHost.ModuleWindow?.CompleteLogin();
                 SysPara.bLogin = false;
             }
         }
@@ -332,7 +332,7 @@ namespace AlphaRap
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, MiddleLayer.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, FrameworkLanguage.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             return gUser;

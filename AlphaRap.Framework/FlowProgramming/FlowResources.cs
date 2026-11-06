@@ -91,13 +91,17 @@ namespace AlphaRap.FlowProgramming
             FlowResources catalog = new FlowResources { RecipeName = SysPara.RecipeName, includeDraft = includeDraft };
             foreach (KeyValuePair<string, AbstractDevice> device in DeviceControl.GetFlowDevices())
                 catalog.Add("device/" + device.Key, device.Value.DeviceName + " · " + device.Value.GetType().Name, "device", device.Value);
-            if (MiddleLayer.VPF != null)
-                foreach (KeyValuePair<string, VisionproInterface> station in MiddleLayer.VPF.GetFlowStations())
+            VPForm vision = ApplicationHost.FindModule<VPForm>();
+            if (vision != null)
+                foreach (KeyValuePair<string, VisionproInterface> station in vision.GetFlowStations())
                     catalog.Add("vision/" + station.Key, station.Value.StationName, "vision", station.Value);
-            if (MiddleLayer.DataF != null) catalog.Add("data/Production", "DataForm · Production", "data", MiddleLayer.DataF);
-            if (MiddleLayer.DataF != null)
-                foreach (FlowLogModule log in MiddleLayer.DataF.GetFlowLogs(includeDraft)) catalog.Add(log.Id, log.Name, "log", log);
-            List<Form> forms = MiddleLayer.lstForm.OfType<Form>().Concat(Flow_Module.FlowChart_ModuleList).Distinct().ToList();
+            DataForm data = ApplicationHost.Data;
+            if (data != null)
+            {
+                catalog.Add("data/Production", "DataForm · Production", "data", data);
+                foreach (FlowLogModule log in data.GetFlowLogs(includeDraft)) catalog.Add(log.Id, log.Name, "log", log);
+            }
+            List<Form> forms = ApplicationHost.ModulePages.Concat(Flow_Module.FlowChart_ModuleList).Distinct().ToList();
             foreach (Form form in forms)
             {
                 Flow_BaseForm flow = form as Flow_BaseForm;
@@ -185,8 +189,9 @@ namespace AlphaRap.FlowProgramming
         /// <summary>按编辑草稿或已提交配方读取托盘行列与间距，动态托盘自动进入目录。</summary>
         private void AddTrays()
         {
-            if (MiddleLayer.PlatF == null) return;
-            DataTable table = MiddleLayer.PlatF.RecipeData.Tables["PSet"];
+            PlatFormSetting platform = ApplicationHost.FindModule<PlatFormSetting>();
+            if (platform == null) return;
+            DataTable table = platform.RecipeData.Tables["PSet"];
             DataRowVersion version = includeDraft ? DataRowVersion.Current : DataRowVersion.Original;
             if (table == null || table.Rows.Count == 0 || !table.Rows[0].HasVersion(version)) return;
             foreach (TrayRowSpec spec in TrayConfig.BuildRows())

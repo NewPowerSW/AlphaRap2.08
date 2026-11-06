@@ -13,7 +13,7 @@ namespace AlphaRap.MenuForm
         {
             InitializeComponent();
             UiTheme.ApplyDpi(this);
-            if (!UiTheme.IsDesignTime) MiddleLayer.RegisterAndApplyLanguage(this, Name);
+            if (!UiTheme.IsDesignTime) FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
         }
 
         /// <summary>从配置的语言目录读取三语条目；读取失败时保留当前编辑内容。</summary>
@@ -25,7 +25,7 @@ namespace AlphaRap.MenuForm
                 dtTable = loaded;
                 bindingSource1.DataSource = dtTable;
                 dataGridView1.DataSource = bindingSource1;
-                MiddleLayer.RegisterAndApplyLanguage(dataGridView1, Name);
+                FrameworkLanguage.RegisterAndApplyLanguage(dataGridView1, Name);
                 SetEditing(false);
             }
             catch (Exception ex) { ShowError(ex); }
@@ -44,8 +44,8 @@ namespace AlphaRap.MenuForm
         /// <summary>提交单元格并按稳定键保存三语译文，立即刷新所有页面。</summary>
         private void btnSave_Click(object sender, EventArgs e)
         {
-            string message = MiddleLayer.LangMsg(Name, "msg_SaveConfirm", "是否保存语言表？", "Save the translations?", "¿Guardar las traducciones?");
-            string title = MiddleLayer.LangMsg(Name, "msg_SaveTitle", "保存语言表", "Save translations", "Guardar traducciones");
+            string message = FrameworkLanguage.LangMsg(Name, "msg_SaveConfirm", "是否保存语言表？", "Save the translations?", "¿Guardar las traducciones?");
+            string title = FrameworkLanguage.LangMsg(Name, "msg_SaveTitle", "保存语言表", "Save translations", "Guardar traducciones");
             if (MessageBox.Show(message, title, MessageBoxButtons.YesNo) != DialogResult.Yes) return;
             if (!dataGridView1.EndEdit()) return;
             bindingSource1.EndEdit();
@@ -82,7 +82,7 @@ namespace AlphaRap.MenuForm
         /// <summary>显示语言文件读取或保存失败的原因。</summary>
         private void ShowError(Exception error)
         {
-            MessageBox.Show(error.Message, MiddleLayer.LangMsg(Name, "msg_FileError", "语言表操作失败", "Language file operation failed", "Error al gestionar los archivos de idioma"),
+            MessageBox.Show(error.Message, FrameworkLanguage.LangMsg(Name, "msg_FileError", "语言表操作失败", "Language file operation failed", "Error al gestionar los archivos de idioma"),
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }

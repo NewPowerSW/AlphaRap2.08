@@ -395,7 +395,7 @@ internal static partial class Cases
         PollManualAxis(group);
         Assert(group.IsManualRunning && driver.Busy, "The offline home button did not start the manual driver session.");
         int homeCalls = driver.HomeCalls, stops = driver.Stops;
-        if (mainStop) host.GetMethod("StopAllMotor", BindingFlags.Static | BindingFlags.Public).Invoke(null, null);
+        if (mainStop) typeof(ApplicationHost).Assembly.GetType("AlphaRap.MotorProtection", true).GetMethod("StopAllMotor").Invoke(null, null);
         else group.Motor.Stop();
         PollManualAxis(group); PollManualAxis(group);
         Assert(driver.Stops == stops + 1 && driver.HomeCalls == homeCalls,

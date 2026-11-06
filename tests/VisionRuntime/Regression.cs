@@ -70,7 +70,7 @@ internal static partial class Tests
     private static int _failed;
     private static int _passed;
     private static readonly string TestDirectory = Path.Combine(Path.GetTempPath(), "AlphaRap-Vision-" + Guid.NewGuid().ToString("N"));
-    private static readonly Type LanguageHost = typeof(VPForm).Assembly.GetType("AlphaRap.MiddleLayer");
+    private static readonly Type LanguageHost = typeof(VPForm).Assembly.GetType("AlphaRap.FrameworkLanguage", true);
 
     /// <summary>执行各独立场景，失败时返回非零退出码。</summary>
     public static int RunAll()

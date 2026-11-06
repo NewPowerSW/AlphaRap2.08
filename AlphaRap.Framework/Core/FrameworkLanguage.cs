@@ -13,7 +13,7 @@ using NPSDK.Motion;
 
 namespace AlphaRap
 {
-    partial class MiddleLayer
+    internal static partial class FrameworkLanguage
     {
         /// <summary>固定文案更新后通知动态页面刷新，业务数据保持原值。</summary>
         public static event EventHandler LanguageChanged;
@@ -59,7 +59,7 @@ namespace AlphaRap
         }
 
         /// <summary>初始化三语登记表，扫描所有启动页及框架自定义控件。</summary>
-        private static void InitialLanguageData()
+        internal static void InitializeLanguageData()
         {
             int count = Languages.Length;
             SysPara.ComponentLangurageList = new List<ComponentTextInfo>[count];
@@ -71,10 +71,7 @@ namespace AlphaRap
                 SysPara.TStripLangurageList[i] = new List<TStripItemTextInfo>();
                 SysPara.CyCtrlLangList[i] = new List<CylinderCtrlTextInfo>();
             }
-            foreach (Control form in lstForm) RegisterLanguage(form, form.Name);
-            if (LockForm1 != null) RegisterLanguage(LockForm1, "LockForm1");
-            if (FlowF != null) RegisterLanguage(FlowF, "Flow");
-            if (SpanLifeF != null) RegisterLanguage(SpanLifeF, "SpanLife");
+            foreach (Form form in ApplicationHost.ModulePages) RegisterLanguage(form, form.Name);
         }
 
         /// <summary>按调用方传入的窗体和语言底稿生成气缸按钮文案。</summary>
@@ -223,7 +220,7 @@ namespace AlphaRap
             SysPara.LanguageShow = LanType;
             Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(
                 LanType == LanguageType.Chinese ? "zh-CN" : LanType == LanguageType.English ? "en-US" : "es-ES");
-            LoadAlarmTable(LanType);
+            AlarmCatalog.LoadRuntimeTable(LanType);
             if (SysPara.ComponentLangurageList != null)
             {
                 foreach (List<ComponentTextInfo> list in SysPara.ComponentLangurageList)
@@ -247,18 +244,6 @@ namespace AlphaRap
 
         private static readonly List<LanguagePart> LanguageParts = new List<LanguagePart>();
         internal static readonly object LanguageSync = new object();
-
-        /// <summary>在创建任何页面之前读取界面语言和目录，数值区域格式保持不变。</summary>
-        internal static void ReadLanguageSettings()
-        {
-            using (IniFile ini = new IniFile(".\\MachineSetup.ini"))
-            {
-                SysPara.LanguageDataDirectory = ini.ReadString("PathSetup", "LanguageDirectory", ".\\LanguageData");
-                SysPara.LanguageName = ini.ReadString("MachineSetup", "LanguageName", "Chinese");
-            }
-            SysPara.LanguageShow = SysPara.LanguageName == "English" ? LanguageType.English
-                : SysPara.LanguageName == "Español" || SysPara.LanguageName == "Spanish" ? LanguageType.Español : LanguageType.Chinese;
-        }
 
         /// <summary>返回权限代码的显示文字，数据库和下拉框的实际枚举值保持不变。</summary>
         internal static string PermissionText(object value)

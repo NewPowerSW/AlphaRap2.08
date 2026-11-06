@@ -24,15 +24,15 @@ namespace AlphaRap
             InitializeComponent();
             if (UiTheme.IsDesignTime) return;
             FlowLanguageForm.ApplyTexts(this);
-            MiddleLayer.RegisterAndApplyLanguage(this, Name);
+            FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
             toolboxWidth = workspace.SplitterDistance;
             toolboxToggle.Click += ToggleToolbox;
             status.TextChanged += (sender, args) => status.Visible = status.Text.Length > 0;
             Load += (sender, args) => { AddFlowChart(); timer.Start(); };
             VisibleChanged += (sender, args) => { if (Visible && IsHandleCreated) AddFlowChart(); };
-            MiddleLayer.LanguageChanged += ApplyLanguage;
-            Disposed += (sender, args) => MiddleLayer.LanguageChanged -= ApplyLanguage;
+            FrameworkLanguage.LanguageChanged += ApplyLanguage;
+            Disposed += (sender, args) => FrameworkLanguage.LanguageChanged -= ApplyLanguage;
             tabControl1.SelectedIndexChanged += (sender, args) => RefreshSelection();
             edit.CheckedChanged += ToggleEditing;
             moduleEnabled.CheckedChanged += UpdateDefinition;
@@ -62,9 +62,9 @@ namespace AlphaRap
             ApplyLanguage(null, EventArgs.Empty);
             reload.Click += (sender, args) => Execute(() => { if (MessageBox.Show(FlowText.T("discard"), FlowText.T("title"), MessageBoxButtons.OKCancel) == DialogResult.OK) { FlowPrograms.Reload(); AddFlowChart(); } });
             validate.Click += (sender, args) => Execute(() => { Current().Validate(null); status.Text = FlowText.T("valid"); });
-            stop.Click += (sender, args) => MiddleLayer.StopRun();
+            stop.Click += (sender, args) => ApplicationHost.StopMachine();
             pause.Click += (sender, args) => { if (tabControl1.SelectedTab != null) Current().TogglePause(); };
-            schema.Click += (sender, args) => Execute(() => { FlowPrograms.RequireIdle(); using (FlowSchemaForm dialog = new FlowSchemaForm(MiddleLayer.DataF)) dialog.ShowDialog(this); });
+            schema.Click += (sender, args) => Execute(() => { FlowPrograms.RequireIdle(); using (FlowSchemaForm dialog = new FlowSchemaForm(ApplicationHost.Data)) dialog.ShowDialog(this); });
             viewSources.Click += (sender, args) => Execute(ViewGeneratedSources);
             timer.Tick += RefreshRuntime;
         }
@@ -377,13 +377,13 @@ namespace AlphaRap
         {
             FlowLanguageForm.ApplyTexts(this);
             string[] words = FlowText.Defaults["delete"];
-            nodeDelete.Text = MiddleLayer.LangMsg("Flow", "nodeDelete", words[0], words[1], words[2]);
+            nodeDelete.Text = FrameworkLanguage.LangMsg("Flow", "nodeDelete", words[0], words[1], words[2]);
             words = FlowText.Defaults["properties"];
-            nodeProperties.Text = MiddleLayer.LangMsg("Flow", "nodeProperties", words[0], words[1], words[2]);
+            nodeProperties.Text = FrameworkLanguage.LangMsg("Flow", "nodeProperties", words[0], words[1], words[2]);
             words = FlowText.Defaults["deleteModule"];
-            moduleDelete.Text = MiddleLayer.LangMsg("Flow", "moduleDelete", words[0], words[1], words[2]);
+            moduleDelete.Text = FrameworkLanguage.LangMsg("Flow", "moduleDelete", words[0], words[1], words[2]);
             words = FlowText.Defaults["nodeBreakpoint"];
-            nodeBreakpoint.Text = MiddleLayer.LangMsg("Flow", "nodeBreakpoint", words[0], words[1], words[2]);
+            nodeBreakpoint.Text = FrameworkLanguage.LangMsg("Flow", "nodeBreakpoint", words[0], words[1], words[2]);
             debugPanel.RefreshLanguage();
             viewSources.Text = FlowToolboxText.Fixed(viewSources, "sourceDirectory");
             sourceHint.SetToolTip(viewSources, FlowSourceGenerator.ModeDescription);

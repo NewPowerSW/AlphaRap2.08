@@ -1,3 +1,4 @@
+using static AlphaRap.FrameworkLanguage;
 using System;
 using System.IO;
 using System.Windows.Forms;
@@ -58,7 +59,7 @@ namespace AlphaRap
                 SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, "Recipe.xml");
             }
 
-            OpenVision();
+            VPForm.LoadRecipeVision();
             using (IniFile ini = new IniFile(".\\MachineSetup.ini"))
             {
                 ini.WriteString("MachineSetup", "RecipeName", SysPara.RecipeName);
@@ -67,15 +68,6 @@ namespace AlphaRap
             if (loaded && oldRecipeName != SysPara.RecipeName)
                 OperationLog.Write("ProductManagerForm", "切换配方：" + oldRecipeName + " → " + SysPara.RecipeName);
             return loaded;
-        }
-
-        /// <summary>按当前配方加载所有视觉站，刷新视觉判据和页面路径。</summary>
-        public static void OpenVision()
-        {
-            foreach (VisionproInterface station in VisionproInterface.VList)
-                station.LoadTB(Path.GetFullPath(station.GetVppPath(SysPara.RecipeName)));
-            if (VPF == null) return;
-            VPF.OnRecipeChanged();
         }
 
         /// <summary>重建随配方列变化的托盘界面，显示刷新失败不打断配方加载。</summary>

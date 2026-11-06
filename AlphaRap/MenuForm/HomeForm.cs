@@ -44,8 +44,8 @@ namespace AlphaRap
 
 			ApplyPageStyle();
 			EventHandler languageHandler = delegate { RefreshPageTexts(); };
-			MiddleLayer.LanguageChanged += languageHandler;
-			Disposed += delegate { MiddleLayer.LanguageChanged -= languageHandler; };
+			FrameworkLanguage.LanguageChanged += languageHandler;
+			Disposed += delegate { FrameworkLanguage.LanguageChanged -= languageHandler; };
 
 			bool bPlat = Convert.ToBoolean(SysPara.bPlat);
 
