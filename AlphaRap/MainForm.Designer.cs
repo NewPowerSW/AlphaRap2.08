@@ -848,14 +848,12 @@ namespace AlphaRap
             this.tableLayoutPanel4.ColumnCount = 1;
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel4.Controls.Add(this.panel5, 0, 0);
-            this.tableLayoutPanel4.Controls.Add(this.alarmCard, 0, 1);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 2;
+            this.tableLayoutPanel4.RowCount = 1;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 160F));
             this.tableLayoutPanel4.Size = new System.Drawing.Size(1328, 834);
             this.tableLayoutPanel4.TabIndex = 0;
             //
@@ -888,7 +886,7 @@ namespace AlphaRap
             this.panel5.Location = new System.Drawing.Point(0, 0);
             this.panel5.Margin = new System.Windows.Forms.Padding(0);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(1328, 674);
+            this.panel5.Size = new System.Drawing.Size(1328, 834);
             this.panel5.TabIndex = 0;
             //
             // uiTabControl1
@@ -901,13 +899,13 @@ namespace AlphaRap
             this.uiTabControl1.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.uiTabControl1.ItemSize = new System.Drawing.Size(68, 1);
             this.uiTabControl1.TabVisible = false;
-            this.uiTabControl1.Location = new System.Drawing.Point(0, 0);
+            this.uiTabControl1.Location = new System.Drawing.Point(0, 48);
             this.uiTabControl1.MainPage = "主页";
             this.uiTabControl1.Margin = new System.Windows.Forms.Padding(0);
             this.uiTabControl1.MenuStyle = Sunny.UI.UIMenuStyle.Custom;
             this.uiTabControl1.Name = "uiTabControl1";
             this.uiTabControl1.SelectedIndex = 0;
-            this.uiTabControl1.Size = new System.Drawing.Size(1328, 674);
+            this.uiTabControl1.Size = new System.Drawing.Size(1328, 786);
             this.uiTabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.uiTabControl1.Style = Sunny.UI.UIStyle.Custom;
             this.uiTabControl1.TabBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(3)))), ((int)(((byte)(92)))), ((int)(((byte)(156)))));
@@ -920,10 +918,11 @@ namespace AlphaRap
             // tabPage22
             //
             this.tabPage22.Controls.Add(this.plMainShow);
+            this.tabPage22.Controls.Add(this.alarmCard);
             this.tabPage22.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tabPage22.Location = new System.Drawing.Point(0, 38);
             this.tabPage22.Name = "tabPage22";
-            this.tabPage22.Size = new System.Drawing.Size(1328, 636);
+            this.tabPage22.Size = new System.Drawing.Size(1328, 748);
             this.tabPage22.TabIndex = 6;
             this.tabPage22.Text = "MainShow";
             this.tabPage22.UseVisualStyleBackColor = true;
@@ -939,7 +938,7 @@ namespace AlphaRap
             this.plMainShow.Location = new System.Drawing.Point(0, 0);
             this.plMainShow.Margin = new System.Windows.Forms.Padding(0);
             this.plMainShow.Name = "plMainShow";
-            this.plMainShow.Size = new System.Drawing.Size(1328, 636);
+            this.plMainShow.Size = new System.Drawing.Size(1328, 600);
             this.plMainShow.TabIndex = 12;
             //
             // tabPage10
@@ -958,10 +957,10 @@ namespace AlphaRap
             this.alarmCard.Controls.Add(this.WarnningMessage);
             this.alarmCard.Controls.Add(this.panelAlarmFilter);
             this.alarmCard.CornerRadius = 14;
-            this.alarmCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.alarmCard.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.alarmCard.FillColor = System.Drawing.Color.White;
-            this.alarmCard.Location = new System.Drawing.Point(0, 686);
-            this.alarmCard.Margin = new System.Windows.Forms.Padding(0, 12, 0, 0);
+            this.alarmCard.Location = new System.Drawing.Point(0, 600);
+            this.alarmCard.Margin = new System.Windows.Forms.Padding(0);
             this.alarmCard.Name = "alarmCard";
             this.alarmCard.Padding = new System.Windows.Forms.Padding(16, 8, 16, 12);
             this.alarmCard.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(176)))), ((int)(((byte)(196)))), ((int)(((byte)(218)))));

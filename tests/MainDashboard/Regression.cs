@@ -145,10 +145,14 @@ internal static class DashboardProbe
                 TabControl tabs = (TabControl)Field<Control>(frame, "uiTabControl1");
                 tabs.SelectedTab = Field<TabPage>(frame, "tabPage10");
                 Application.DoEvents();
-                Check(alarms.Visible && frame.WarnningMessage.Visible && ReferenceEquals(alarms.Parent, Field<Control>(frame, "tableLayoutPanel4")), "Switching to vision hid the main alarm table.");
+                Check(!alarms.Visible && !frame.WarnningMessage.Visible && ReferenceEquals(alarms.Parent, host),
+                    "The alarm table must stay attached to Home and hide on Vision.");
+                TableLayoutPanel dashboardLayout = Field<TableLayoutPanel>(frame, "tableLayoutPanel4");
+                Check(dashboardLayout.RowCount == 1 && Field<Panel>(frame, "panel5").Height == dashboardLayout.DisplayRectangle.Height,
+                    "Vision lost height to an unused alarm row.");
                 tabs.SelectedTab = Field<TabPage>(frame, "tabPage22");
                 Application.DoEvents();
-                Check(ReferenceEquals(alarms.Parent, host) && frame.WarnningMessage.Items.Count == 2, "Returning home lost the alarm table or its records.");
+                Check(alarms.Visible && ReferenceEquals(alarms.Parent, host) && frame.WarnningMessage.Items.Count == 2, "Returning home lost the alarm table or its records.");
                 Check(frame.WarnningMessage.Columns.Cast<ColumnHeader>().Sum(column => column.Width) <= frame.WarnningMessage.ClientSize.Width,
                     "Alarm columns require horizontal scrolling: " + string.Join(",", frame.WarnningMessage.Columns.Cast<ColumnHeader>().Select(column => column.Width.ToString()).ToArray()) + " inside " + frame.WarnningMessage.ClientSize.Width);
                 PictureBox product = Field<PictureBox>(frame, "MENU_Product");
