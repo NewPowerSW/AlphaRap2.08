@@ -78,6 +78,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FlowChart\FlowChart.Execution.cs">
+      <DependentUpon>FlowChart.cs</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="FlowChart\FlowObject.cs" />
     <Compile Include="FlowChart\FlowCodeCatalog.cs" />
     <Compile Include="FlowChart\FlowCodeNode.cs" />

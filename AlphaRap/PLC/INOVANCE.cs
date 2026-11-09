@@ -122,7 +122,9 @@ namespace AlphaRap.PLC
                 #endregion
 
                 int ReadAddrd = Convert.ToInt32(nStartAddr.Substring(1));
+				NPSDK.Flow_Chart.ThrowIfExecutionStopped();
 				resultCode = H5u_Read_Device_Block(ElemType, ReadAddrd, nCount, pBuf, 0);
+				NPSDK.Flow_Chart.ThrowIfExecutionStopped();
 
 				if (resultCode != 1)
 				{
@@ -222,7 +224,9 @@ namespace AlphaRap.PLC
                 }
                 #endregion
                 int ReadAddrd = Convert.ToInt32(nStartAddr.Substring(1));
+                NPSDK.Flow_Chart.ThrowIfExecutionStopped();
                 int nRet = H5u_Read_Device_Block(ElemType, ReadAddrd, nCount, pValue, 0);
+                NPSDK.Flow_Chart.ThrowIfExecutionStopped();
 
                 if (nRet != 1)
                 {
@@ -277,7 +281,9 @@ namespace AlphaRap.PLC
                 { 
                     ElemType = SoftElemType.REGI_H5U_R;
                 }
+                NPSDK.Flow_Chart.ThrowIfExecutionStopped();
                 int nRet = H5u_Write_Device_Block(ElemType, addr, pBu.Length, pBu, 0);
+                NPSDK.Flow_Chart.ThrowIfExecutionStopped();
 
                 if (nRet != 1)
                 {
@@ -345,7 +351,9 @@ namespace AlphaRap.PLC
 				GetDataFromUI(pBuf, arr, bIsWord, int.Parse(nDataType));
 				int addr = Convert.ToInt32(nStartAddr.Substring(1));
 
+				NPSDK.Flow_Chart.ThrowIfExecutionStopped();
 				int nRet = H5u_Write_Device_Block(ElemType, addr, arr.Length * 2, pBuf, 0);
+				NPSDK.Flow_Chart.ThrowIfExecutionStopped();
 
 				if (nRet != 1)
 				{

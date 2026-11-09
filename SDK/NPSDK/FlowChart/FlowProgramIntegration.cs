@@ -101,9 +101,9 @@ namespace NPSDK
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ProgramManaged { get; set; }
 
-        /// <summary>原生后台工作器或旧异步任务尚未退出时返回 true，不依赖历史运行标记。</summary>
+        /// <summary>原生流程会话尚未退出时返回 true，不依赖历史运行标记或停止按钮状态。</summary>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool IsLegacyRunning { get { return work.IsBusy || task != null && !task.IsCompleted; } }
+        public bool IsLegacyRunning { get { return task != null && !task.IsCompleted; } }
 
 
         /// <summary>在原有状态标签显示执行方式，不改变业务标题或节点绑定。</summary>
@@ -129,7 +129,7 @@ namespace NPSDK
         private void UpdateProgramLabel()
         {
             if (IsDisposed) return;
-            if (IsHandleCreated && InvokeRequired) { BeginInvoke(new Action(UpdateProgramLabel)); return; }
+            if (IsHandleCreated && InvokeRequired) { PostProgramUpdate(UpdateProgramLabel); return; }
             label1.Text = programBindingLabel.Length == 0 ? programStatusMessage
                 : programStatusMessage.Length == 0 ? programBindingLabel : programBindingLabel + " · " + programStatusMessage;
             bool hasHeader = label1.Text.Length > 0 || programElapsedText.Length > 0;
@@ -161,7 +161,7 @@ namespace NPSDK
         private void SetProgramElapsedTime(string text)
         {
             if (IsDisposed) return;
-            if (IsHandleCreated && InvokeRequired) { BeginInvoke(new Action(() => SetProgramElapsedTime(text))); return; }
+            if (IsHandleCreated && InvokeRequired) { PostProgramUpdate(() => SetProgramElapsedTime(text)); return; }
             if (programElapsedText == text) return;
             programElapsedText = text;
             UpdateProgramLabel();
@@ -190,7 +190,7 @@ namespace NPSDK
         public void RefreshProgramTiming()
         {
             if (IsDisposed) return;
-            if (IsHandleCreated && InvokeRequired) { BeginInvoke(new Action(RefreshProgramTiming)); return; }
+            if (IsHandleCreated && InvokeRequired) { PostProgramUpdate(RefreshProgramTiming); return; }
             string text;
             lock (Elapsedtimer) text = programTimingStarted ? (Elapsedtimer.ElapsedMilliseconds / 1000.0).ToString("F2", CultureInfo.InvariantCulture) : "";
             SetProgramElapsedTime(text);
@@ -290,7 +290,7 @@ namespace NPSDK
         {
             if (IsDisposed || !IsHandleCreated) return;
             int revision = Interlocked.Increment(ref programStateRevision);
-            if (InvokeRequired) { BeginInvoke(new Action(() => ApplyProgramState(message, color, revision))); return; }
+            if (InvokeRequired) { PostProgramUpdate(() => ApplyProgramState(message, color, revision)); return; }
             ApplyProgramState(message, color, revision);
         }
 
@@ -300,6 +300,14 @@ namespace NPSDK
             if (IsDisposed || revision != Volatile.Read(ref programStateRevision)) return;
             button1.BackColor = color;
             SetProgramMessage(message);
+        }
+
+        /// <summary>将界面刷新交给 UI 线程；关闭窗体或重建句柄时丢弃失效的刷新。</summary>
+        private void PostProgramUpdate(Action update)
+        {
+            if (IsDisposed || Disposing || !IsHandleCreated) return;
+            try { BeginInvoke(new Action(() => { if (!IsDisposed && !Disposing) update(); })); }
+            catch (InvalidOperationException) { }
         }
     }
 }

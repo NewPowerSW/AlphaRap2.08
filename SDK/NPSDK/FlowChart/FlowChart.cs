@@ -22,9 +22,7 @@ namespace NPSDK
 	{
 		private static readonly object write = new object();
 		Stopwatch Elapsedtimer = new Stopwatch();
-		double Etimer;
 		System.Timers.Timer Timer;
-		ResultType resutlt;
 		private Flow_Chart _Next;
 		private Flow_Chart _Casse1;
 		private Flow_Chart _Casse2;
@@ -34,11 +32,9 @@ namespace NPSDK
 			
 		public bool Flow_ChartIsCanStop;
 
-		public bool RunningStatus = false;
+		public volatile bool RunningStatus = false;
 
-		bool RunStaus = false;
 
-		static CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 
 		public delegate ResultType FlowChartHandle();
 
@@ -51,24 +47,18 @@ namespace NPSDK
 			return handlers == null ? new FlowChartHandle[0] : handlers.GetInvocationList().Cast<FlowChartHandle>().ToArray();
 		}
 
-		Flow_Chart return_resutlt = null;
 
-		private BackgroundWorker work = new BackgroundWorker();
 
 		public DateTime FlowChart_StartTime = new DateTime();
 		public DateTime FlowChart_EndTime = new DateTime();
 
+		/// <summary>初始化节点界面并登记控件，不创建执行线程。</summary>
 		public Flow_Chart()
 		{
 
 			InitializeComponent();
 			this.FlowChartRun = null;
 			Flow_Module.FlowChart_List.Add(this);
-			work.WorkerSupportsCancellation = true;
-			work.WorkerReportsProgress = true;
-			work.RunWorkerCompleted += Do_workCompleted;
-			work.DoWork += Do_work;
-			work.CancelAsync();
 
 		}
 		public enum ResultType
@@ -132,8 +122,9 @@ namespace NPSDK
 			set
 			{
 
-				this.Refresh();
 				_Casse1 = value;
+				Invalidate();
+				Parent?.Invalidate();
 			}
 		}
 
@@ -153,8 +144,9 @@ namespace NPSDK
 			set
 			{
 
-				this.Refresh();
 				_Next = value;
+				Invalidate();
+				Parent?.Invalidate();
 			}
 		}
 
@@ -172,8 +164,9 @@ namespace NPSDK
 			}
 			set
 			{
-				this.Refresh();
 				_Casse2 = value;
+				Invalidate();
+				Parent?.Invalidate();
 			}
 		}
 
@@ -193,8 +186,9 @@ namespace NPSDK
 			set
 			{
 
-				this.Refresh();
 				_Casse3 = value;
+				Invalidate();
+				Parent?.Invalidate();
 			}
 		}
 
@@ -275,194 +269,6 @@ namespace NPSDK
 			}
 		}
 
-		public Task<object> task { get; private set; }
-
-		public void FlowChart_Run(bool IsPause = true, bool IsStop = true)
-		{
-            if (ProgramEditing || ProgramManaged) return;
-			Flow_Module.Module_AddRunLog(FindForm(this).Name + ":" + text + "------Begin");
-			Flow_ChartIsCanPause = IsPause;
-			Flow_ChartIsCanStop = IsStop;
-			try
-			{
-				Stopwatch stopwatch = new Stopwatch();
-				stopwatch.Restart();
-				while (work.IsBusy)
-				{
-					work.CancelAsync();
-					Thread.Sleep(200);
-					if ((double)Elapsedtimer.ElapsedMilliseconds / 1000.0 > 10.0)
-					{
-						break;
-					}
-				}
-				if (!work.IsBusy)
-				{
-					button1.BackColor = Color.Black;
-					work.CancelAsync();
-					work.Dispose();
-					RunningStatus = true;
-					Elapsedtimer.Restart();
-					work.RunWorkerAsync();
-				}
-			}
-			catch (Exception ex)
-			{
-				LocalLogSave.WriteErrorLog($">> {ex}" + GetType().Name + " 类的 ");
-			
-				MessageBox.Show(ex.ToString(), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-			}
-
-
-		}
-		public void Do_work(object sender, DoWorkEventArgs e)
-		{
-			
-			try
-			{
-				RunningStatus = true;
-				FlowChart_StartTime = DateTime.Now;
-				SetProgramMessage("");
-				SetProgramElapsedTime("");
-				while ((NPSDK.Flow_Module.Module_GetPauseStatus || NPSDK.Flow_Module.AllPause) && Flow_ChartIsCanPause)
-				{
-					Elapsedtimer.Restart();
-					this.button1.BackColor = Color.Yellow;
-					Thread.Sleep(500);
-					if (NPSDK.Flow_Module.Module_GetStopStatus || NPSDK.Flow_Module.AllStop)
-					{
-						this.button1.BackColor = Color.White;
-						RunningStatus = false;
-						return;
-					}
-				}
-
-				bool continus = true;
-				while (continus)
-				{
-
-					this.button1.BackColor = Color.Green;
-					if (FlowChartRun != null)
-					{
-
-						resutlt = FlowChartRun();
-						if (resutlt != ResultType.IDLE)
-							NPSDK.Flow_Module.Module_AddRunLog(FindForm(this).Name + ":" + text + "------Over");
-						switch (resutlt)
-						{
-							case ResultType.CASE1:
-								continus = false;
-								return_resutlt = _Casse1;
-								
-								break;
-							case ResultType.CASE2:
-								continus = false;
-								return_resutlt = _Casse2;
-								
-								break;
-							case ResultType.CASE3:
-								continus = false;
-								return_resutlt = _Casse3;
-							
-								break;
-							case ResultType.NEXT:
-								continus = false;
-								return_resutlt = _Next;
-								
-								break;
-							case ResultType.IDLE:
-								continus = true;
-								return_resutlt = this;
-								if ((((double)Elapsedtimer.ElapsedMilliseconds / 1000) - Etimer) < 0.05)
-								{
-									Thread.Sleep(100);
-								}
-								break;
-							default:
-								continus = false;
-								return_resutlt = null;
-								break;
-						}
-
-						while ((NPSDK.Flow_Module.Module_GetPauseStatus || NPSDK.Flow_Module.AllPause) && Flow_ChartIsCanPause)
-						{
-
-							Elapsedtimer.Restart();
-							this.button1.BackColor = Color.Yellow;
-							Thread.Sleep(200);
-							if (NPSDK.Flow_Module.Module_GetStopStatus || NPSDK.Flow_Module.AllStop)
-							{
-								RunningStatus = false;
-								break;
-							}
-
-						}
-						if ((NPSDK.Flow_Module.Module_GetStopStatus || NPSDK.Flow_Module.AllStop) && Flow_ChartIsCanStop)
-						{
-							this.button1.BackColor = Color.White;
-							RunningStatus = false;
-							return;
-						}
-
-					}
-					else
-					{
-						continus = false;
-					}
-
-					Etimer = ((double)Elapsedtimer.ElapsedMilliseconds / 1000);
-
-					SetProgramElapsedTime(Etimer.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
-
-					FlowChart_EndTime = DateTime.Now;
-					if ((double)Elapsedtimer.ElapsedMilliseconds > gAlarmTimeOut && gAlarmStaus && RunningStatus)
-					{
-						AlarmDataClass LogSave = Alarm.Show(gAlarmCode);
-						NPSDK.Flow_Module.Module_AddAlarmLog("Alarm>>Code:" + LogSave.Code + ">>" + "Content:" + LogSave.Content + ">>Position:" + FindForm(this).Name + ">>" + text);
-					}
-				}
-
-				button1.BackColor = Color.White;
-				Thread thread = new Thread(method);
-				thread.Start();
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.ToString());
-				LocalLogSave.WriteErrorLog($">> {ex}" + $"{this.GetType().Name} 类的" + $"{base.Name}");
-
-				RunningStatus = false;
-				return;
-
-			}
-			RunStaus = true;
-		}
-
-		public void method(object b)
-		{
-			work.CancelAsync();
-			this.button1.BackColor = Color.White;
-			RunningStatus = false;
-			if ((!NPSDK.Flow_Module.Module_GetStopStatus && !NPSDK.Flow_Module.AllStop) || !Flow_ChartIsCanStop)
-			{
-				
-				if (return_resutlt != null)
-				{
-
-					return_resutlt.FlowChart_Run(Flow_ChartIsCanPause, Flow_ChartIsCanStop);
-
-				}
-				
-			}
-			
-		}
-		private void Do_workCompleted(object sender, RunWorkerCompletedEventArgs e)
-		{
-
-			this.button1.BackColor = Color.White;
-		}
-
-
 		private void FlowChart_Load(object sender, EventArgs e)
 		{
 			// this.Font = this.Parent.Font;
@@ -486,7 +292,7 @@ namespace NPSDK
 		private void FlowChart_Paint(object sender, PaintEventArgs e)
 		{
 
-			if (this.Parent.Visible)
+			if (this.Parent != null && this.Parent.Visible)
 			{
 				Draw();
 			}
@@ -507,11 +313,6 @@ namespace NPSDK
 
 							DrawLine(Next, Brushes.Black);
 						}
-
-						else
-						{
-							_Next = null;
-						}
 					}
 
 					if (Casse1 != null)
@@ -519,10 +320,6 @@ namespace NPSDK
 						if (!_Casse1.IsDisposed)
 						{
 							DrawLine(Casse1, Brushes.SpringGreen);
-						}
-						else
-						{
-							_Casse1 = null;
 						}
 					}
 
@@ -532,10 +329,6 @@ namespace NPSDK
 						{
 							DrawLine(Casse2, Brushes.Red);
 						}
-						else
-						{
-							_Casse2 = null;
-						}
 					}
 
 					if (Casse3 != null)
@@ -543,10 +336,6 @@ namespace NPSDK
 						if (!_Casse3.IsDisposed)
 						{
 							DrawLine(Casse3, Brushes.Blue);
-						}
-						else
-						{
-							_Casse3 = null;
 						}
 					}
 
