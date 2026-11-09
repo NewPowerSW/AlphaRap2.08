@@ -32,7 +32,6 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Flow_Chart));
 			this.button1 = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
-            this.elapsedTime = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// button1
@@ -40,8 +39,8 @@
 			this.button1.BackColor = System.Drawing.SystemColors.ButtonHighlight;
 			resources.ApplyResources(this.button1, "button1");
 			this.button1.Name = "button1";
-			this.button1.Padding = new System.Windows.Forms.Padding(0, 14, 0, 0);
 			this.button1.UseVisualStyleBackColor = false;
+			this.button1.Paint += new System.Windows.Forms.PaintEventHandler(this.DrawProgramBinding);
 			//this.button1.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// label1
@@ -49,21 +48,12 @@
 			resources.ApplyResources(this.label1, "label1");
 			this.label1.ForeColor = System.Drawing.Color.Black;
 			this.label1.Name = "label1";
-            this.elapsedTime.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            this.elapsedTime.AutoSize = false;
-            this.elapsedTime.Location = new System.Drawing.Point(77, 3);
-            this.elapsedTime.Size = new System.Drawing.Size(68, 15);
-            this.elapsedTime.Font = new System.Drawing.Font("Arial", 6.75F, System.Drawing.FontStyle.Bold);
-            this.elapsedTime.ForeColor = System.Drawing.Color.Black;
-            this.elapsedTime.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.elapsedTime.Name = "elapsedTime";
-            this.elapsedTime.Text = "0.00";
+			this.label1.Visible = false;
 			// 
 			// Flow_Chart
 			// 
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.Controls.Add(this.elapsedTime);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.button1);
 			resources.ApplyResources(this, "$this");
@@ -80,6 +70,5 @@
 
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label elapsedTime;
     }
 }

@@ -90,7 +90,7 @@ namespace NPSDK
         private bool programBreakpointPaintAttached;
         private string programBindingLabel = "";
         private string programStatusMessage = "";
-        private bool programBindingPaintAttached;
+        private string programElapsedText = "";
         private bool programTimingStarted;
         private int programStateRevision;
         public event EventHandler ConfigurationRequested;
@@ -125,34 +125,46 @@ namespace NPSDK
             UpdateProgramLabel();
         }
 
-        /// <summary>更新标题上方的状态和耗时，普通节点与已绑定节点共用设计器预留的标题空间。</summary>
+        /// <summary>按当前状态和耗时预留标题空间，空闲节点保持标题居中。</summary>
         private void UpdateProgramLabel()
         {
             if (IsDisposed) return;
             if (IsHandleCreated && InvokeRequired) { BeginInvoke(new Action(UpdateProgramLabel)); return; }
             label1.Text = programBindingLabel.Length == 0 ? programStatusMessage
                 : programStatusMessage.Length == 0 ? programBindingLabel : programBindingLabel + " · " + programStatusMessage;
-            label1.Visible = programBindingLabel.Length == 0;
-            elapsedTime.Visible = programBindingLabel.Length == 0 && elapsedTime.Text.Length > 0;
-            if (!programBindingPaintAttached)
-            {
-                button1.Paint += DrawProgramBinding;
-                programBindingPaintAttached = true;
-            }
+            bool hasHeader = label1.Text.Length > 0 || programElapsedText.Length > 0;
+            button1.Padding = new Padding(0, hasHeader ? label1.Font.Height + 3 : 0, 0, 0);
             button1.Invalidate();
         }
 
-        /// <summary>把类型及状态直接绘制在按钮表面，屏幕与 DrawToBitmap 均保持相同层次。</summary>
+        /// <summary>在按钮表面动态绘制状态和右上角耗时，按文字宽度排列并避开断点。</summary>
         private void DrawProgramBinding(object sender, PaintEventArgs args)
         {
-            if (programBindingLabel.Length == 0) return;
-            int timeWidth = elapsedTime.Text.Length == 0 ? 0 : TextRenderer.MeasureText(args.Graphics, elapsedTime.Text, elapsedTime.Font).Width + 6;
+            if (label1 == null) return;
+            const TextFormatFlags flags = TextFormatFlags.Top | TextFormatFlags.SingleLine
+                | TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix;
             int right = button1.ClientSize.Width - (programBreakpoint ? 16 : 4);
-            Rectangle area = new Rectangle(3, 3, Math.Max(0, right - timeWidth - 5), label1.PreferredHeight);
+            int available = Math.Max(0, right - 3);
+            if (available == 0) return;
+            int timeWidth = programElapsedText.Length == 0 ? 0 : Math.Min(available,
+                TextRenderer.MeasureText(args.Graphics, programElapsedText, label1.Font, Size.Empty, flags).Width);
+            int statusWidth = Math.Max(0, available - timeWidth - (timeWidth > 0 ? 5 : 0));
+            Rectangle area = new Rectangle(3, 3, statusWidth, label1.PreferredHeight);
             TextRenderer.DrawText(args.Graphics, label1.Text, label1.Font, area, label1.ForeColor,
-                TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
-            TextRenderer.DrawText(args.Graphics, elapsedTime.Text, elapsedTime.Font, new Rectangle(Math.Max(3, right - timeWidth), 3, timeWidth, elapsedTime.Height), elapsedTime.ForeColor,
-                TextFormatFlags.Right | TextFormatFlags.Top | TextFormatFlags.SingleLine | TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
+                flags | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            Rectangle timeArea = new Rectangle(right - timeWidth, 3, timeWidth, label1.PreferredHeight);
+            TextRenderer.DrawText(args.Graphics, programElapsedText, label1.Font, timeArea, label1.ForeColor,
+                flags | TextFormatFlags.Right | TextFormatFlags.EndEllipsis);
+        }
+
+        /// <summary>在 UI 线程更新耗时文字，原生流程和托管流程使用相同的右上角布局。</summary>
+        private void SetProgramElapsedTime(string text)
+        {
+            if (IsDisposed) return;
+            if (IsHandleCreated && InvokeRequired) { BeginInvoke(new Action(() => SetProgramElapsedTime(text))); return; }
+            if (programElapsedText == text) return;
+            programElapsedText = text;
+            UpdateProgramLabel();
         }
 
         /// <summary>开始一次节点执行，IDLE 轮询继续读取同一计时器。</summary>
@@ -181,9 +193,7 @@ namespace NPSDK
             if (IsHandleCreated && InvokeRequired) { BeginInvoke(new Action(RefreshProgramTiming)); return; }
             string text;
             lock (Elapsedtimer) text = programTimingStarted ? (Elapsedtimer.ElapsedMilliseconds / 1000.0).ToString("F2", CultureInfo.InvariantCulture) : "";
-            if (elapsedTime.Text == text) return;
-            elapsedTime.Text = text;
-            UpdateProgramLabel();
+            SetProgramElapsedTime(text);
         }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

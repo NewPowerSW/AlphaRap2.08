@@ -323,6 +323,7 @@ namespace NPSDK
 				RunningStatus = true;
 				FlowChart_StartTime = DateTime.Now;
 				SetProgramMessage("");
+				SetProgramElapsedTime("");
 				while ((NPSDK.Flow_Module.Module_GetPauseStatus || NPSDK.Flow_Module.AllPause) && Flow_ChartIsCanPause)
 				{
 					Elapsedtimer.Restart();
@@ -411,7 +412,7 @@ namespace NPSDK
 
 					Etimer = ((double)Elapsedtimer.ElapsedMilliseconds / 1000);
 
-					SetProgramMessage(Etimer.ToString("F2"));
+					SetProgramElapsedTime(Etimer.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
 
 					FlowChart_EndTime = DateTime.Now;
 					if ((double)Elapsedtimer.ElapsedMilliseconds > gAlarmTimeOut && gAlarmStaus && RunningStatus)

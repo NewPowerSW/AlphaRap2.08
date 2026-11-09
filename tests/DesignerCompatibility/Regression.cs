@@ -69,7 +69,7 @@ internal static class Cases
         Test("visual classes have complete project metadata and public parameterless constructors", ProjectMetadata);
         Test("InitializeComponent contains only explicit designer-supported UI initialization", DesignerSource);
         Test("constant and hardware editor field names preserve their control identities on designer save", EditorIdentities);
-        Test("FlowChart captions fit below the elapsed-time row in default and compact nodes", FlowChartCaptionLayout);
+        Test("FlowChart elapsed time follows the top-right corner without clipping captions", FlowChartCaptionLayout);
         foreach (Type type in visualTypes)
         {
             Type current = type;
@@ -90,6 +90,23 @@ internal static class Cases
         {
             host.Controls.Add(node);
             VerifyFlowChartCaption(node);
+            Check(node.Controls.Find("elapsedTime", true).Length == 0, "A fixed elapsed-time control remains in the designer.");
+            SaveFlowChartPreview(node, "idle");
+
+            node.BeginProgramTiming();
+            node.PauseProgramTiming(true);
+            VerifyFlowChartCaption(node);
+            VerifyFlowChartTimeInk(node);
+            SaveFlowChartPreview(node, "timed");
+
+            node.Width = 220;
+            VerifyFlowChartTimeInk(node);
+            node.ProgramBreakpoint = true;
+            VerifyFlowChartTimeInk(node);
+            SaveFlowChartPreview(node, "breakpoint");
+            node.ProgramBreakpoint = false;
+            node.ResetProgramTiming();
+            Check(node.Controls.Find("button1", true).Single().Padding == Padding.Empty, "Reset left an empty header row.");
 
             node.Size = new Size(112, 35);
             node.Font = stationFont;
@@ -99,6 +116,38 @@ internal static class Cases
             node.BeginProgramTiming();
             node.PauseProgramTiming(true);
             VerifyFlowChartCaption(node);
+            SaveFlowChartPreview(node, "compact-bound");
+        }
+    }
+
+    /// <summary>检查耗时的实际绘制像素跟随节点右边缘，并与断点保留间距。</summary>
+    private static void VerifyFlowChartTimeInk(Flow_Chart node)
+    {
+        Button button = (Button)node.Controls.Find("button1", true).Single();
+        int right = button.Width - (node.ProgramBreakpoint ? 16 : 4);
+        using (Bitmap bitmap = new Bitmap(button.Width, button.Height))
+        {
+            button.DrawToBitmap(bitmap, button.ClientRectangle);
+            Rectangle ink = Rectangle.Empty;
+            for (int y = 3; y < button.Padding.Top; y++)
+                for (int x = 3; x < right; x++)
+                {
+                    if (bitmap.GetPixel(x, y).GetBrightness() > 0.5F) continue;
+                    Rectangle pixel = new Rectangle(x, y, 1, 1);
+                    ink = ink.IsEmpty ? pixel : Rectangle.Union(ink, pixel);
+                }
+            Check(!ink.IsEmpty && ink.Right >= right - 3 && ink.Left >= right - 40,
+                "The numeric elapsed time did not stay in the top-right corner.");
+        }
+    }
+
+    /// <summary>保存节点的实际绘制结果，供核对空闲、计时和断点布局。</summary>
+    private static void SaveFlowChartPreview(Flow_Chart node, string state)
+    {
+        using (Bitmap bitmap = new Bitmap(node.Width, node.Height))
+        {
+            node.Controls.Find("button1", true).Single().DrawToBitmap(bitmap, node.ClientRectangle);
+            bitmap.Save(Path.Combine(outputRoot, "FlowChart-" + state + ".png"));
         }
     }
 
@@ -106,15 +155,14 @@ internal static class Cases
     private static void VerifyFlowChartCaption(Flow_Chart node)
     {
         Button button = (Button)node.Controls.Find("button1", true).Single();
-        Control elapsed = node.Controls.Find("elapsedTime", true).Single();
-        Check(elapsed.Text == "0.00", "The elapsed-time label should display only the numeric value.");
         Rectangle caption = FlowChartCaptionInk(button);
         Padding padding = button.Padding;
         button.Padding = Padding.Empty;
         Rectangle centered = FlowChartCaptionInk(button);
         button.Padding = padding;
-        Check(!caption.IsEmpty && caption.Size == centered.Size, "Reserving the elapsed-time row clipped the caption.");
-        Check(caption.Top >= elapsed.Bottom, "The elapsed-time label covers part of the caption.");
+        Check(!caption.IsEmpty && caption.Size == centered.Size, "Reserving the elapsed-time row clipped the caption: "
+            + node.Size + ", padding=" + padding + ", caption=" + caption + ", centered=" + centered);
+        Check(caption.Top >= padding.Top, "The dynamic header covers part of the caption.");
     }
 
     /// <summary>对比有无标题的按钮位图，排除边框和背景像素。</summary>
