@@ -281,7 +281,7 @@ namespace NPSDK
         {
             LastRunError = error.Message;
             Flow_Module.Module_AddAlarmLog("Flow: " + Name + ": " + error);
-            SetProgramState("", Color.OrangeRed);
+            SetProgramState("", Color.Red);
         }
 
         /// <summary>兼容旧后台工作器入口，执行权统一交给流程会话。</summary>

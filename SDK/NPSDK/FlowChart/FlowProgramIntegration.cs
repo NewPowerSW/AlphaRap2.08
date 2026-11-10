@@ -322,6 +322,9 @@ namespace NPSDK
         {
             if (IsDisposed || !ReferenceEquals(appearance, programAppearance)) return;
             button1.BackColor = appearance.Color;
+            bool runningGreen = appearance.Color == Color.Green;
+            button1.ForeColor = runningGreen ? Color.White : Color.Empty;
+            label1.ForeColor = runningGreen ? Color.White : Color.Black;
             SetProgramMessage(appearance.Message);
         }
 

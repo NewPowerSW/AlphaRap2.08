@@ -171,13 +171,16 @@ internal static partial class Cases
         {
             Assert(page.Node.Handle != IntPtr.Zero, "The timing fixture did not create its node surface.");
             owner.Start(owner.Program.Steps.Single().Id, false, false);
+            System.Windows.Forms.Control button = page.Node.Controls.Find("button1", true).Single();
             for (int pause = 0; pause < 2; pause++)
             {
                 ActionUntil(() => page.Node.FlowChart_ElapsedMilliseconds >= 40, "The continued node clock did not advance.");
+                Assert(button.BackColor == Color.Green && button.ForeColor == Color.White, "An active node did not show green with readable text.");
                 owner.Handle(FlowProgramCommand.Pause); NativePump(80);
                 Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && DisplayedElapsed(page.Node) == "0.00"
-                    && page.Node.Controls.Find("label1", true).Single().Text.Contains(FlowText.T("Paused")),
-                    "A pause did not reset and hold the active clock at zero.");
+                    && page.Node.Controls.Find("label1", true).Single().Text.Contains(FlowText.T("Paused"))
+                    && button.BackColor == Color.Yellow,
+                    "A pause did not show a yellow node with its clock held at zero.");
                 owner.Handle(FlowProgramCommand.Resume);
             }
             owner.Handle(FlowProgramCommand.Stop); Wait(owner.Runtime.Completion); NativePump(80);

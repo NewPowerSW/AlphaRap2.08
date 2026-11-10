@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -153,7 +154,9 @@ internal static partial class Cases
                 SwitchLanguage((LanguageType)index); RefreshRecoveryButtons(main);
                 Assert(main.Controls.Find("MachineStatus", true)[0].Text.Contains(captions[index]), "The initialization badge did not follow language switching.");
                 if (owner.Runtime.IsWaitingForRetry)
-                    Assert(page.Work.Controls.Find("label1", true)[0].Text.Contains(FlowText.T("RecoveryPaused")), "The failed node's recovery state did not follow language switching.");
+                    Assert(page.Work.Controls.Find("label1", true)[0].Text.Contains(FlowText.T("RecoveryPaused"))
+                        && page.Work.Controls.Find("button1", true)[0].BackColor == Color.Red,
+                        "The failed node did not retain its red recovery state during language switching.");
             }
         }
         finally { SwitchLanguage(previous); }

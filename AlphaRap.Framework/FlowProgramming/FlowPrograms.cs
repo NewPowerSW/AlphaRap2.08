@@ -1161,16 +1161,18 @@ namespace AlphaRap.FlowProgramming
             }
         }
 
-        /// <summary>为活动、停驻和故障状态提供有区别的节点底色。</summary>
+        /// <summary>节点以绿色表示执行、黄色表示暂停，超时和报警恢复使用红色。</summary>
         private static Color ExecutionColor(string state)
         {
             switch (state)
             {
-                case "Running": return Color.LightGreen;
-                case "Waiting": return Color.LightYellow;
+                case "Running":
+                case "Waiting": return Color.Green;
                 case "Paused":
-                case "DebugPaused":
-                case "RecoveryPaused":
+                case "DebugPaused": return Color.Yellow;
+                case "Failed":
+                case "Timeout":
+                case "RecoveryPaused": return Color.Red;
                 case "Stopping": return Color.LightSalmon;
                 case "Completed":
                 case "Cancelled": return Color.White;
