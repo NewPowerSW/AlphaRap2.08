@@ -91,6 +91,11 @@ internal static class Cases
         using (Flow_Chart node = new Flow_Chart { text = "FlowChart" })
         {
             host.Controls.Add(node);
+            Button button = (Button)node.Controls.Find("button1", true).Single();
+            Label status = (Label)node.Controls.Find("label1", true).Single();
+            Font defaultFont = node.Font;
+            Check(Math.Abs(button.Font.SizeInPoints - 9F) < 0.1F && !button.Font.Bold,
+                "The default node title did not use the compact font.");
             VerifyFlowChartCaption(node);
             Check(node.Controls.Find("elapsedTime", true).Length == 0, "A fixed elapsed-time control remains in the designer.");
             SaveFlowChartPreview(node, "idle");
@@ -112,18 +117,33 @@ internal static class Cases
 
             node.Size = new Size(112, 35);
             node.Font = stationFont;
+            node.text = "流程";
             VerifyFlowChartCaption(node);
 
             node.ProgramBindingLabel = "Code";
+            node.SetProgramBindingDetails("Execution: native flow\nFunction: Probe()");
             node.BeginProgramTiming();
             node.PauseProgramTiming(true);
+            Check(status.Text.Length == 0 && button.Padding.Top == 0, "Binding details took up a status row.");
             VerifyFlowChartCaption(node);
             SaveFlowChartPreview(node, "compact-bound");
 
             node.Size = new Size(276, 35);
+            node.Font = defaultFont;
             node.text = "下运输阻挡上升1_3";
+            Check(node.Handle != IntPtr.Zero, "The completed node has no render surface.");
+            node.SetProgramState("完成", Color.White, false);
             VerifyFlowChartCaption(node);
+            ToolTip hint = (ToolTip)typeof(Flow_Chart).GetField("programToolTip", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(node);
+            Check(status.Text.Length == 0 && button.Padding.Top == 0 && hint.GetToolTip(button).Contains("完成")
+                && hint.GetToolTip(button).Contains(node.text) && hint.GetToolTip(button).Contains("Probe()"),
+                "The completed node did not keep its title and details in the tooltip.");
             SaveFlowChartPreview(node, "conveyor-caption");
+            node.SetProgramState("初始化报警暂停", Color.Red);
+            VerifyFlowChartCaption(node);
+            Check(status.Text == "初始化报警暂停" && button.BackColor == Color.Red,
+                "A compact alarm node lost its visible status.");
+            SaveFlowChartPreview(node, "conveyor-alarm");
         }
     }
 
@@ -143,7 +163,7 @@ internal static class Cases
             Check(!node.IsHandleCreated, "The background update created a WinForms handle.");
             Check(node.Handle != IntPtr.Zero, "The node did not create its UI handle.");
             Check(node.Controls.Find("button1", true).Single().BackColor == Color.LightSalmon &&
-                node.Controls.Find("label1", true).Single().Text == "Code · Paused", "The node lost its latest background state.");
+                node.Controls.Find("label1", true).Single().Text == "Paused", "The node lost its latest background state.");
             SaveFlowChartPreview(node, "hidden-paused");
         }
     }
@@ -152,13 +172,14 @@ internal static class Cases
     private static void VerifyFlowChartTimeInk(Flow_Chart node)
     {
         Button button = (Button)node.Controls.Find("button1", true).Single();
-        int right = button.Width - (node.ProgramBreakpoint ? 16 : 4);
+        int right = button.Width - (node.ProgramBreakpoint ? 17 : 6);
+        int timeHeight = node.Controls.Find("label1", true).Single().Font.Height;
         using (Bitmap bitmap = new Bitmap(button.Width, button.Height))
         {
             button.DrawToBitmap(bitmap, button.ClientRectangle);
             Rectangle ink = Rectangle.Empty;
-            for (int y = 3; y < button.Padding.Top; y++)
-                for (int x = 3; x < right; x++)
+            for (int y = 3; y < 3 + timeHeight; y++)
+                for (int x = Math.Max(6, right - 38); x < right; x++)
                 {
                     if (bitmap.GetPixel(x, y).GetBrightness() > 0.5F) continue;
                     Rectangle pixel = new Rectangle(x, y, 1, 1);

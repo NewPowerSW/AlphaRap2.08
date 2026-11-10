@@ -404,7 +404,6 @@ namespace AlphaRap.FlowProgramming
     public sealed partial class FlowModuleEditor : IFlowProgramController, IFlowProgramStatus
     {
         private readonly Dictionary<string, Flow_Chart> nodes = new Dictionary<string, Flow_Chart>();
-        private readonly ToolTip bindingHints = new ToolTip { AutoPopDelay = 15000, InitialDelay = 350, ReshowDelay = 100 };
         private bool paused;
         private bool editing;
         private bool simulating;
@@ -454,7 +453,6 @@ namespace AlphaRap.FlowProgramming
         private void DisposeEditor(object sender, EventArgs args)
         {
             FrameworkLanguage.LanguageChanged -= RefreshBindingHints;
-            bindingHints.Dispose();
             foreach (Flow_Chart node in removedNodes.Values)
                 if (node.Parent == null) node.Dispose();
             removedNodes.Clear();
@@ -673,7 +671,7 @@ namespace AlphaRap.FlowProgramming
             Form.Invalidate(true);
         }
 
-        /// <summary>节点独立标示功能、代码或条件，显示绑定详情且不修改业务标题。</summary>
+        /// <summary>为节点悬停提示刷新执行方式及绑定详情。</summary>
         private void RefreshBindingHints(object sender, EventArgs args)
         {
             foreach (FlowStep step in Program.Steps)
@@ -694,21 +692,13 @@ namespace AlphaRap.FlowProgramming
                     description = string.Format(FlowNativeText.T("nativeBinding"), Form.Name, method);
                 }
                 else description = string.Format(FlowNativeText.T("actionBinding"), step.Target ?? "", step.Action ?? "");
-                node.AccessibleDescription = description;
-                BindHint(node, description);
+                node.SetProgramBindingDetails(description);
                 lock (executionDisplaySync)
                 {
                     string state;
                     if (nodeStates.TryGetValue(step.Id, out state)) DisplayState(step.Id, state);
                 }
             }
-        }
-
-        /// <summary>鼠标经过节点的任意原有表面时均可看到同一执行绑定。</summary>
-        private void BindHint(Control control, string description)
-        {
-            bindingHints.SetToolTip(control, description);
-            foreach (Control child in control.Controls) BindHint(child, description);
         }
 
         /// <summary>安全解析可空的连接终点。</summary>
@@ -1157,7 +1147,7 @@ namespace AlphaRap.FlowProgramming
                 Flow_Chart node = Node(stepId);
                 if (node == null) return;
                 nodeStates[stepId] = state;
-                node.SetProgramState(FlowText.T(state), ExecutionColor(state));
+                node.SetProgramState(FlowText.T(state), ExecutionColor(state), state != "Completed");
             }
         }
 

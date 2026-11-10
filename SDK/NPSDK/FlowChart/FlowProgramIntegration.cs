@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace NPSDK
@@ -88,6 +89,7 @@ namespace NPSDK
         private bool programBreakpoint;
         private bool programBreakpointPaintAttached;
         private string programBindingLabel = "";
+        private string programBindingDetails = "";
         private string programStatusMessage = "";
         private string programElapsedText = "";
         private bool programTimingStarted;
@@ -98,12 +100,14 @@ namespace NPSDK
         {
             internal readonly string Message;
             internal readonly Color Color;
+            internal readonly bool ShowStatus;
 
             /// <summary>将文字与颜色作为同一次节点状态保存。</summary>
-            internal ProgramAppearance(string message, Color color)
+            internal ProgramAppearance(string message, Color color, bool showStatus)
             {
                 Message = message;
                 Color = color;
+                ShowStatus = showStatus;
             }
         }
 
@@ -118,7 +122,7 @@ namespace NPSDK
         public bool IsLegacyRunning { get { return task != null && !task.IsCompleted; } }
 
 
-        /// <summary>在原有状态标签显示执行方式，不改变业务标题或节点绑定。</summary>
+        /// <summary>为节点提示提供执行方式，不占用节点标题空间。</summary>
         [Category("Appearance"), DefaultValue("")]
         public string ProgramBindingLabel
         {
@@ -126,27 +130,42 @@ namespace NPSDK
             set
             {
                 programBindingLabel = value ?? "";
-                UpdateProgramLabel();
+                UpdateProgramToolTip();
             }
         }
 
-        /// <summary>业务执行状态与固定执行方式同时显示，避免状态刷新擦除类型标记。</summary>
-        private void SetProgramMessage(string message)
+        /// <summary>设置悬停时显示的绑定说明，并同步辅助功能描述。</summary>
+        public void SetProgramBindingDetails(string details)
         {
-            programStatusMessage = message ?? "";
-            UpdateProgramLabel();
+            programBindingDetails = details ?? "";
+            AccessibleDescription = programBindingDetails;
+            UpdateProgramToolTip();
         }
 
-        /// <summary>按当前状态和耗时预留标题空间，空闲节点保持标题居中。</summary>
+        /// <summary>在节点和按钮表面显示完整标题、执行状态与绑定说明。</summary>
+        private void UpdateProgramToolTip()
+        {
+            if (IsDisposed || Disposing) return;
+            string details = programBindingDetails.Length == 0 ? programBindingLabel : programBindingDetails;
+            string hint = string.Join(Environment.NewLine, new[] { button1.Text, programStatusMessage, details }
+                .Where(line => !string.IsNullOrWhiteSpace(line)));
+            if (programToolTip.GetToolTip(button1) == hint) return;
+            programToolTip.SetToolTip(this, hint);
+            programToolTip.SetToolTip(button1, hint);
+        }
+
+        /// <summary>有状态时保留独立状态行，仅显示耗时时让标题垂直居中。</summary>
         private void UpdateProgramLabel()
         {
             if (IsDisposed) return;
             if (IsHandleCreated && InvokeRequired) { PostProgramUpdate(UpdateProgramLabel); return; }
-            label1.Text = programBindingLabel.Length == 0 ? programStatusMessage
-                : programStatusMessage.Length == 0 ? programBindingLabel : programBindingLabel + " · " + programStatusMessage;
-            bool hasHeader = label1.Text.Length > 0 || programElapsedText.Length > 0;
+            bool hasStatus = label1.Text.Length > 0;
             // Flat 按钮自身已有内边距，额外留白只用于错开状态行和标题。
-            button1.Padding = new Padding(0, hasHeader ? Math.Max(0, label1.Font.Height - 2) : 0, 0, 0);
+            int top = hasStatus ? Math.Max(0, label1.Font.Height - 2) : 0;
+            int right = 0;
+            if (!hasStatus && programElapsedText.Length > 0)
+                right = TextRenderer.MeasureText(programElapsedText, label1.Font, Size.Empty, TextFormatFlags.NoPadding).Width + (programBreakpoint ? 18 : 6);
+            button1.Padding = new Padding(0, top, right, 0);
             button1.Invalidate();
         }
 
@@ -156,13 +175,13 @@ namespace NPSDK
             if (label1 == null) return;
             const TextFormatFlags flags = TextFormatFlags.Top | TextFormatFlags.SingleLine
                 | TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix;
-            int right = button1.ClientSize.Width - (programBreakpoint ? 16 : 4);
-            int available = Math.Max(0, right - 3);
+            int right = button1.ClientSize.Width - (programBreakpoint ? 17 : 6);
+            int available = Math.Max(0, right - 6);
             if (available == 0) return;
             int timeWidth = programElapsedText.Length == 0 ? 0 : Math.Min(available,
                 TextRenderer.MeasureText(args.Graphics, programElapsedText, label1.Font, Size.Empty, flags).Width);
             int statusWidth = Math.Max(0, available - timeWidth - (timeWidth > 0 ? 5 : 0));
-            Rectangle area = new Rectangle(3, 3, statusWidth, label1.PreferredHeight);
+            Rectangle area = new Rectangle(6, 3, statusWidth, label1.PreferredHeight);
             TextRenderer.DrawText(args.Graphics, label1.Text, label1.Font, area, label1.ForeColor,
                 flags | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             Rectangle timeArea = new Rectangle(right - timeWidth, 3, timeWidth, label1.PreferredHeight);
@@ -223,6 +242,7 @@ namespace NPSDK
                 }
                 if (programBreakpoint == value) return;
                 programBreakpoint = value;
+                UpdateProgramLabel();
                 Invalidate(true);
             }
         }
@@ -301,8 +321,14 @@ namespace NPSDK
         /// <summary>保存最新执行状态，隐藏页创建句柄后也能显示。</summary>
         public void SetProgramState(string message, Color color)
         {
+            SetProgramState(message, color, true);
+        }
+
+        /// <summary>更新节点状态，允许已完成等状态仅保留在悬停提示中。</summary>
+        public void SetProgramState(string message, Color color, bool showStatus)
+        {
             if (IsDisposed || Disposing) return;
-            ProgramAppearance appearance = new ProgramAppearance(message, color);
+            ProgramAppearance appearance = new ProgramAppearance(message, color, showStatus);
             programAppearance = appearance;
             if (!IsHandleCreated) return;
             if (InvokeRequired) { PostProgramUpdate(() => ApplyProgramState(appearance)); return; }
@@ -325,7 +351,10 @@ namespace NPSDK
             bool runningGreen = appearance.Color == Color.Green;
             button1.ForeColor = runningGreen ? Color.White : Color.Empty;
             label1.ForeColor = runningGreen ? Color.White : Color.Black;
-            SetProgramMessage(appearance.Message);
+            programStatusMessage = appearance.Message ?? "";
+            label1.Text = appearance.ShowStatus ? programStatusMessage : "";
+            UpdateProgramLabel();
+            UpdateProgramToolTip();
         }
 
         /// <summary>将界面刷新交给 UI 线程；关闭窗体或重建句柄时丢弃失效的刷新。</summary>

@@ -185,7 +185,7 @@ internal static partial class Cases
                 Assert(flow.Controls.Find("status", true).Single().Text == "", "Stop left an old runtime failure in the flow-page status.");
                 foreach (Flow_Chart node in new[] { page.Entry, page.Work, page.Last, page.Automatic, ((EntryOnlyPage)peer.Form).InitialNode })
                     Assert(node.FlowChart_ElapsedMilliseconds == 0 && DisplayedElapsed(node) == ""
-                        && node.Controls.Find("label1", true).Single().Text == node.ProgramBindingLabel,
+                        && node.Controls.Find("label1", true).Single().Text == "",
                         "Stop did not clear a completed, failed or unused node.");
             }
             Assert(!FlowPrograms.HasInitializationSession && !FlowPrograms.CanContinueInitialization && !page.InitialStatus,

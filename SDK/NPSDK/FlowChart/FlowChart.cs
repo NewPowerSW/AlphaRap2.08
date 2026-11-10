@@ -103,6 +103,7 @@ namespace NPSDK
 
 				gText = value;
 				button1.Text = gText;
+				UpdateProgramToolTip();
 				this.Refresh();
 
 			}

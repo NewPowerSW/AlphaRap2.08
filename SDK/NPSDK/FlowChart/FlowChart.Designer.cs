@@ -30,6 +30,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.programToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.programToolTip.AutoPopDelay = 15000;
+            this.programToolTip.InitialDelay = 350;
+            this.programToolTip.ReshowDelay = 100;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Flow_Chart));
 			this.button1 = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
@@ -71,5 +76,6 @@
 
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolTip programToolTip;
     }
 }

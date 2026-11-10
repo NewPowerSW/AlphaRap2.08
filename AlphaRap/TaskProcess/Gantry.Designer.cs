@@ -89,7 +89,6 @@
             this.GantryInit_Flow1_1.Casse2 = null;
             this.GantryInit_Flow1_1.Casse3 = null;
             this.GantryInit_Flow1_1.FlowChart_ElapsedMilliseconds = ((long)(772479));
-            this.GantryInit_Flow1_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_1.Location = new System.Drawing.Point(392, 117);
             this.GantryInit_Flow1_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.GantryInit_Flow1_1.Name = "GantryInit_Flow1_1";
@@ -109,7 +108,6 @@
             this.GantryInit_Flow1_2.Casse2 = null;
             this.GantryInit_Flow1_2.Casse3 = null;
             this.GantryInit_Flow1_2.FlowChart_ElapsedMilliseconds = ((long)(772476));
-            this.GantryInit_Flow1_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_2.Location = new System.Drawing.Point(392, 178);
             this.GantryInit_Flow1_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.GantryInit_Flow1_2.Name = "GantryInit_Flow1_2";
@@ -129,7 +127,6 @@
             this.GantryInit_Flow1_3.Casse2 = null;
             this.GantryInit_Flow1_3.Casse3 = null;
             this.GantryInit_Flow1_3.FlowChart_ElapsedMilliseconds = ((long)(772475));
-            this.GantryInit_Flow1_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_3.Location = new System.Drawing.Point(392, 239);
             this.GantryInit_Flow1_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.GantryInit_Flow1_3.Name = "GantryInit_Flow1_3";
@@ -149,7 +146,6 @@
             this.GantryInit_Flow1_4.Casse2 = null;
             this.GantryInit_Flow1_4.Casse3 = null;
             this.GantryInit_Flow1_4.FlowChart_ElapsedMilliseconds = ((long)(772473));
-            this.GantryInit_Flow1_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_4.Location = new System.Drawing.Point(392, 300);
             this.GantryInit_Flow1_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.GantryInit_Flow1_4.Name = "GantryInit_Flow1_4";
@@ -169,7 +165,6 @@
             this.GantryInit_Flow1_5.Casse2 = null;
             this.GantryInit_Flow1_5.Casse3 = null;
             this.GantryInit_Flow1_5.FlowChart_ElapsedMilliseconds = ((long)(772469));
-            this.GantryInit_Flow1_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_5.Location = new System.Drawing.Point(392, 361);
             this.GantryInit_Flow1_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.GantryInit_Flow1_5.Name = "GantryInit_Flow1_5";
@@ -189,7 +184,6 @@
             this.GantryInit_Flow1_6.Casse2 = null;
             this.GantryInit_Flow1_6.Casse3 = null;
             this.GantryInit_Flow1_6.FlowChart_ElapsedMilliseconds = ((long)(772469));
-            this.GantryInit_Flow1_6.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GantryInit_Flow1_6.Location = new System.Drawing.Point(392, 422);
             this.GantryInit_Flow1_6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.GantryInit_Flow1_6.Name = "GantryInit_Flow1_6";
@@ -236,7 +230,6 @@
             this.FlowAuto_Scann2_5.Casse2 = null;
             this.FlowAuto_Scann2_5.Casse3 = null;
             this.FlowAuto_Scann2_5.FlowChart_ElapsedMilliseconds = ((long)(772468));
-            this.FlowAuto_Scann2_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Scann2_5.Location = new System.Drawing.Point(493, 229);
             this.FlowAuto_Scann2_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FlowAuto_Scann2_5.Name = "FlowAuto_Scann2_5";
@@ -256,7 +249,6 @@
             this.FlowAuto_Scann2_1.Casse2 = null;
             this.FlowAuto_Scann2_1.Casse3 = null;
             this.FlowAuto_Scann2_1.FlowChart_ElapsedMilliseconds = ((long)(772468));
-            this.FlowAuto_Scann2_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Scann2_1.Location = new System.Drawing.Point(205, 53);
             this.FlowAuto_Scann2_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FlowAuto_Scann2_1.Name = "FlowAuto_Scann2_1";
@@ -276,7 +268,6 @@
             this.FlowAuto_Scann2_2.Casse2 = null;
             this.FlowAuto_Scann2_2.Casse3 = null;
             this.FlowAuto_Scann2_2.FlowChart_ElapsedMilliseconds = ((long)(772531));
-            this.FlowAuto_Scann2_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Scann2_2.Location = new System.Drawing.Point(205, 110);
             this.FlowAuto_Scann2_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FlowAuto_Scann2_2.Name = "FlowAuto_Scann2_2";
@@ -296,7 +287,6 @@
             this.FlowAuto_Scann2_3.Casse2 = null;
             this.FlowAuto_Scann2_3.Casse3 = null;
             this.FlowAuto_Scann2_3.FlowChart_ElapsedMilliseconds = ((long)(772531));
-            this.FlowAuto_Scann2_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Scann2_3.Location = new System.Drawing.Point(205, 165);
             this.FlowAuto_Scann2_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FlowAuto_Scann2_3.Name = "FlowAuto_Scann2_3";
@@ -316,7 +306,6 @@
             this.FlowAuto_Scann2_4.Casse2 = null;
             this.FlowAuto_Scann2_4.Casse3 = null;
             this.FlowAuto_Scann2_4.FlowChart_ElapsedMilliseconds = ((long)(772530));
-            this.FlowAuto_Scann2_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Scann2_4.Location = new System.Drawing.Point(205, 229);
             this.FlowAuto_Scann2_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FlowAuto_Scann2_4.Name = "FlowAuto_Scann2_4";
@@ -351,7 +340,6 @@
             this.FlowAuto_Vison3_5.Casse2 = null;
             this.FlowAuto_Vison3_5.Casse3 = null;
             this.FlowAuto_Vison3_5.FlowChart_ElapsedMilliseconds = ((long)(772525));
-            this.FlowAuto_Vison3_5.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Vison3_5.Location = new System.Drawing.Point(581, 315);
             this.FlowAuto_Vison3_5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FlowAuto_Vison3_5.Name = "FlowAuto_Vison3_5";
@@ -371,7 +359,6 @@
             this.FlowAuto_Vison3_1.Casse2 = null;
             this.FlowAuto_Vison3_1.Casse3 = null;
             this.FlowAuto_Vison3_1.FlowChart_ElapsedMilliseconds = ((long)(772524));
-            this.FlowAuto_Vison3_1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Vison3_1.Location = new System.Drawing.Point(238, 132);
             this.FlowAuto_Vison3_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FlowAuto_Vison3_1.Name = "FlowAuto_Vison3_1";
@@ -391,7 +378,6 @@
             this.FlowAuto_Vison3_2.Casse2 = null;
             this.FlowAuto_Vison3_2.Casse3 = null;
             this.FlowAuto_Vison3_2.FlowChart_ElapsedMilliseconds = ((long)(772523));
-            this.FlowAuto_Vison3_2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Vison3_2.Location = new System.Drawing.Point(238, 193);
             this.FlowAuto_Vison3_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FlowAuto_Vison3_2.Name = "FlowAuto_Vison3_2";
@@ -411,7 +397,6 @@
             this.FlowAuto_Vison3_3.Casse2 = null;
             this.FlowAuto_Vison3_3.Casse3 = null;
             this.FlowAuto_Vison3_3.FlowChart_ElapsedMilliseconds = ((long)(772523));
-            this.FlowAuto_Vison3_3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Vison3_3.Location = new System.Drawing.Point(238, 254);
             this.FlowAuto_Vison3_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FlowAuto_Vison3_3.Name = "FlowAuto_Vison3_3";
@@ -431,7 +416,6 @@
             this.FlowAuto_Vison3_4.Casse2 = null;
             this.FlowAuto_Vison3_4.Casse3 = null;
             this.FlowAuto_Vison3_4.FlowChart_ElapsedMilliseconds = ((long)(772522));
-            this.FlowAuto_Vison3_4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FlowAuto_Vison3_4.Location = new System.Drawing.Point(238, 315);
             this.FlowAuto_Vison3_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FlowAuto_Vison3_4.Name = "FlowAuto_Vison3_4";

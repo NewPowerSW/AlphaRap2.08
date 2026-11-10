@@ -185,7 +185,7 @@ internal static partial class Cases
             }
             owner.Handle(FlowProgramCommand.Stop); Wait(owner.Runtime.Completion); NativePump(80);
             Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && DisplayedElapsed(page.Node) == ""
-                && page.Node.Controls.Find("label1", true).Single().Text == page.Node.ProgramBindingLabel && owner.ExecutionError == null
+                && page.Node.Controls.Find("label1", true).Single().Text == "" && owner.ExecutionError == null
                 && page.Node.Controls.Find("button1", true).Single().BackColor == System.Drawing.Color.White,
                 "Cancelled work or a queued status update repopulated the stopped display.");
             LanguageType previous = SysPara.LanguageShow;
@@ -194,7 +194,7 @@ internal static partial class Cases
                 foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
                 {
                     SwitchLanguage(language); NativePump(20);
-                    Assert(DisplayedElapsed(page.Node) == "" && page.Node.Controls.Find("label1", true).Single().Text == page.Node.ProgramBindingLabel,
+                    Assert(DisplayedElapsed(page.Node) == "" && page.Node.Controls.Find("label1", true).Single().Text == "",
                         "Language switching restored a cleared elapsed time or execution state.");
                 }
             }
