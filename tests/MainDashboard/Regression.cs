@@ -108,17 +108,19 @@ internal static class DashboardProbe
                 Layout(frame);
                 CheckMachineStatus(frame, size, language);
                 CheckFooterIdentity(frame, size, language);
-                foreach (string field in new[] { "tableLayoutPanel_Main", "tableLayoutPanel2", "Panl_PictureShowTop", "Panl_PictureShowDown", "panel_PictureShowLeft", "panel_PictureShowRight" })
+                foreach (string field in new[] { "tableLayoutPanel_Main", "tableLayoutPanel2", "Panl_PictureShowTop", "Panl_PictureShowDown", "panel_PictureShowDown", "panel_PictureShowLeft", "panel_PictureShowRight" })
                     CheckChildren(Field<Control>(frame, field));
                 CheckChildren(Field<Control>(home, "kpiLayout"));
-                Check(Field<Control>(frame, "panel_PictureShowDown").Top == 0, "Machine commands are not at the top.");
+                Control header = Field<Control>(frame, "panel_PictureShowDown");
+                Check(header.Top == 0, "Machine commands are not at the top.");
                 Control sidebar = Field<Control>(frame, "panel4"), brand = Field<Control>(frame, "panelBrand");
                 Check(sidebar.Top == brand.Bottom && sidebar.Bottom == frame.ClientSize.Height, "Navigation does not fill the area below the brand bar.");
                 Control commands = Field<Control>(frame, "panel_PictureShowLeft");
-                Check(commands.Parent == Field<Control>(frame, "dashboardToolbar") && commands.Top >= 0 && commands.Bottom <= 48,
-                    "Production commands are not aligned with the white tab bar.");
-                Check(commands.Visible && commands.Parent.Controls.GetChildIndex(commands) == 0,
-                    "Production commands are covered by the tabs.");
+                Control system = Field<Control>(frame, "panel_PictureShowRight");
+                Check(commands.Visible && commands.Parent == header && system.Parent == header && commands.Right == system.Left,
+                    "Production commands must sit in the blue header to the left of the system controls.");
+                Check(commands.Controls.Cast<Control>().All(button => button.Top == system.Controls[0].Top),
+                    "Production and system buttons are not aligned in one row.");
                 Color blue = Field<AlphaRap.GradientTableLayoutPanel>(frame, "panel4").GradientTop;
                 Check(blue.B > blue.R + 60 && blue.G > blue.R + 50 && Field<Control>(home, "kpiOkCard").BackColor.B > 150,
                     "The main shell and highlighted KPI did not use the blue palette.");

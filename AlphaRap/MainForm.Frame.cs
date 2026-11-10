@@ -275,7 +275,7 @@ namespace AlphaRap
             };
         }
 
-        // ---------------- 底部工具栏 ----------------
+        // ---------------- 顶部工具栏 ----------------
 
         /// <summary>返回顶部设备操作与系统操作按钮。</summary>
         private PictureBox[] ToolbarButtons()
@@ -287,18 +287,12 @@ namespace AlphaRap
             };
         }
 
-        /// <summary>设置顶部操作栏及两组按钮的间距。</summary>
+        /// <summary>设置顶部操作栏及随 DPI 缩放的按钮样式。</summary>
         private void StyleToolbar()
         {
             panel_PictureShowDown.BackColor = Color.FromArgb(7, 113, 182);
             panel_PictureShowDown.Paint -= Toolbar_Paint;
             panel_PictureShowDown.Paint += Toolbar_Paint;
-            panel_PictureShowLeft.Padding = UiTheme.Dpi(new Padding(0, 8, 16, 8));
-            panel_PictureShowLeft.Dock = DockStyle.Right;
-            panel_PictureShowRight.Padding = UiTheme.Dpi(new Padding(0, 10, 16, 0));
-            panel_PictureShowLeft.BackColor = Color.White;
-            panel_PictureShowLeft.BringToFront();
-            panel_PictureShowRight.BackColor = Color.Transparent;
             foreach (PictureBox button in ToolbarButtons())
             {
                 button.Size = UiTheme.Dpi(ToolButtonSize);
@@ -720,7 +714,7 @@ namespace AlphaRap
         }
 
         /// <summary>
-        /// 底部工具栏按钮：平时透明底，鼠标悬停时显示浅色圆角底。
+        /// 顶部工具栏按钮：鼠标悬停时显示浅色圆角底。
         /// 图标与文字颜色表示操作类型：启动绿 / 暂停琥珀 / 停止红 / 初始化蓝 / 退出红，其它为石板灰。
         /// </summary>
         private void ApplyToolbarButtonStyles()

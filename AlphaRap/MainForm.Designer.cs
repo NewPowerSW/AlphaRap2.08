@@ -658,12 +658,13 @@ namespace AlphaRap
             // panel_PictureShowDown
             //
             this.panel_PictureShowDown.BackColor = System.Drawing.Color.FromArgb(7, 105, 169);
+            this.panel_PictureShowDown.Controls.Add(this.panel_PictureShowLeft);
             this.panel_PictureShowDown.Controls.Add(this.panel_PictureShowRight);
             this.panel_PictureShowDown.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel_PictureShowDown.Location = new System.Drawing.Point(224, 0);
+            this.panel_PictureShowDown.Location = new System.Drawing.Point(232, 0);
             this.panel_PictureShowDown.Margin = new System.Windows.Forms.Padding(0);
             this.panel_PictureShowDown.Name = "panel_PictureShowDown";
-            this.panel_PictureShowDown.Size = new System.Drawing.Size(1376, 60);
+            this.panel_PictureShowDown.Size = new System.Drawing.Size(1368, 52);
             this.panel_PictureShowDown.TabIndex = 26;
             //
             // panel_PictureShowLeft
@@ -675,10 +676,10 @@ namespace AlphaRap
             this.panel_PictureShowLeft.Controls.Add(this.MENU_Stop);
             this.panel_PictureShowLeft.Controls.Add(this.AlarmReset);
             this.panel_PictureShowLeft.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel_PictureShowLeft.Location = new System.Drawing.Point(712, 8);
+            this.panel_PictureShowLeft.Location = new System.Drawing.Point(584, 0);
             this.panel_PictureShowLeft.Name = "panel_PictureShowLeft";
-            this.panel_PictureShowLeft.Padding = new System.Windows.Forms.Padding(0, 8, 16, 8);
-            this.panel_PictureShowLeft.Size = new System.Drawing.Size(600, 32);
+            this.panel_PictureShowLeft.Padding = new System.Windows.Forms.Padding(0, 10, 16, 0);
+            this.panel_PictureShowLeft.Size = new System.Drawing.Size(486, 52);
             this.panel_PictureShowLeft.TabIndex = 26;
             this.panel_PictureShowLeft.WrapContents = false;
             //
@@ -758,10 +759,10 @@ namespace AlphaRap
             this.panel_PictureShowRight.Controls.Add(this.MENU_Lock);
             this.panel_PictureShowRight.Dock = System.Windows.Forms.DockStyle.Right;
             this.panel_PictureShowRight.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.panel_PictureShowRight.Location = new System.Drawing.Point(1076, 0);
+            this.panel_PictureShowRight.Location = new System.Drawing.Point(1070, 0);
             this.panel_PictureShowRight.Name = "panel_PictureShowRight";
-            this.panel_PictureShowRight.Padding = new System.Windows.Forms.Padding(12, 6, 12, 6);
-            this.panel_PictureShowRight.Size = new System.Drawing.Size(300, 60);
+            this.panel_PictureShowRight.Padding = new System.Windows.Forms.Padding(0, 10, 16, 0);
+            this.panel_PictureShowRight.Size = new System.Drawing.Size(298, 52);
             this.panel_PictureShowRight.TabIndex = 27;
             this.panel_PictureShowRight.WrapContents = false;
             //
@@ -865,7 +866,6 @@ namespace AlphaRap
             this.dashboardToolbar.Dock = System.Windows.Forms.DockStyle.Top;
             this.dashboardToolbar.Height = 48;
             this.dashboardToolbar.BackColor = System.Drawing.Color.White;
-            this.dashboardToolbar.Controls.Add(this.panel_PictureShowLeft);
             this.dashboardToolbar.Controls.Add(this.dashboardVisionTab);
             this.dashboardToolbar.Controls.Add(this.dashboardHomeTab);
             this.dashboardHomeTab.Name = "dashboardHomeTab_dyn";
