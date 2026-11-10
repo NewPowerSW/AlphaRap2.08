@@ -175,14 +175,13 @@ internal static partial class Cases
                 Assert(tabs.Handle != IntPtr.Zero, "The flow-page fixture did not create its tab handle.");
                 tabs.SelectedIndex = 0;
                 typeof(Flow).GetMethod("RefreshRuntime", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(flow, new object[] { null, EventArgs.Empty });
-                Assert(flow.Controls.Find("flowStatus_dyn", true).Single().Text.Length > 0, "The failed initialization did not display its error before Stop.");
-                Control button = flowButton ? flow.Controls.Find("stop", true).Single() : main.Controls.Find("MENU_Stop", true).Single();
-                typeof(Control).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(button, new object[] { EventArgs.Empty });
+                Assert(flow.Controls.Find("status", true).Single().Text.Length > 0, "The failed initialization did not display its error before Stop.");
+                ClickRecoveryStop(flow, main, flowButton);
                 Wait(owner.Runtime.Completion); Wait(peer.Runtime.Completion); Application.DoEvents();
                 typeof(Flow).GetMethod("RefreshRuntime", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(flow, new object[] { null, EventArgs.Empty });
-                Assert(flow.Controls.Find("flowStatus_dyn", true).Single().Text == "", "Stop left an old runtime failure in the flow-page status.");
+                Assert(flow.Controls.Find("status", true).Single().Text == "", "Stop left an old runtime failure in the flow-page status.");
                 foreach (Flow_Chart node in new[] { page.Entry, page.Work, page.Last, page.Automatic, ((EntryOnlyPage)peer.Form).InitialNode })
-                    Assert(node.FlowChart_ElapsedMilliseconds == 0 && node.Controls.Find("elapsedTime", true).Single().Text == ""
+                    Assert(node.FlowChart_ElapsedMilliseconds == 0 && DisplayedElapsed(node) == ""
                         && node.Controls.Find("label1", true).Single().Text == node.ProgramBindingLabel,
                         "Stop did not clear a completed, failed or unused node.");
             }
@@ -194,5 +193,20 @@ internal static partial class Cases
             Assert(page.EntryCalls == entries + 2 && page.LastCalls == finishes + 1 && owner.Runtime.Error == null,
                 "Initialization after the actual Stop button did not restart from the saved entry.");
         }
+    }
+
+    /// <summary>为离线流程页接入真实 Stop 转发，避免启动整机应用。</summary>
+    private static void ClickRecoveryStop(Flow flow, MainForm main, bool flowButton)
+    {
+        Control button = flowButton ? flow.Controls.Find("stop", true).Single() : main.Controls.Find("MENU_Stop", true).Single();
+        FieldInfo application = typeof(ApplicationHost).GetField("application", BindingFlags.Static | BindingFlags.NonPublic);
+        object previous = application.GetValue(null);
+        try
+        {
+            if (flowButton && previous == null)
+                application.SetValue(null, Activator.CreateInstance(typeof(MainForm).Assembly.GetType("AlphaRap.StationApplication", true), true));
+            typeof(Control).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(button, new object[] { EventArgs.Empty });
+        }
+        finally { application.SetValue(null, previous); }
     }
 }

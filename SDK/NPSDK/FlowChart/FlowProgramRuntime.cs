@@ -194,6 +194,7 @@ namespace NPSDK
         public string Error { get; private set; }
         public bool AlarmWasRaised { get { return Volatile.Read(ref alarmNotified) != 0; } }
         public bool IsRunning { get { return !Completion.IsCompleted; } }
+        public bool IsStopping { get { return IsRunning && cancellation != null && cancellation.IsCancellationRequested; } }
         public bool IsPaused { get { return IsRunning && paused; } }
         public bool IsWaitingForRetry { get { return IsRunning && waitingForRetry; } }
         public bool CanResume { get { lock (sync) return IsPaused && !failurePending && cancellation != null && !cancellation.IsCancellationRequested; } }
@@ -306,11 +307,11 @@ namespace NPSDK
             {
                 while (!string.IsNullOrEmpty(current))
                 {
-                    await WaitForResume(token).ConfigureAwait(false);
                     FlowStep step = steps[current];
                     lastStep = step;
+                    await WaitForResume(token, step).ConfigureAwait(false);
                     IDictionary<string, object> inputs = await WaitForDebug(step, context, token).ConfigureAwait(false);
-                    await WaitForResume(token).ConfigureAwait(false);
+                    await WaitForResume(token, step).ConfigureAwait(false);
                     bool beginsCycle = step.ExecutionMode == "Action" && step.Action == "cycle.begin";
                     if (!visited.Add(current) && !beginsCycle)
                         throw new InvalidOperationException("Loop requires a cycle.begin node before reusing outputs: " + step.Caption);
@@ -448,7 +449,7 @@ namespace NPSDK
                     if (Interlocked.CompareExchange(ref outcome, 2, 0) != 0) throw new OperationCanceledException(deadline.Token);
                     deadline.CancelAfter(Timeout.Infinite);
                     deadline.Token.ThrowIfCancellationRequested();
-                    await WaitForResume(token).ConfigureAwait(false);
+                    await WaitForResume(token, step, "Running").ConfigureAwait(false);
                     if (context.RetainResult) context.Hub.Publish(context.RunId, context.CycleId, resultKey, output);
                     ChangeState(step, "Completed");
                     if (debugging) NotifyDebug(step, "Completed", inputs, output, exit);
@@ -482,7 +483,7 @@ namespace NPSDK
             bool waiting = false;
             while (true)
             {
-                await WaitForResume(token).ConfigureAwait(false);
+                await WaitForResume(token, step, waiting ? "Waiting" : "Running").ConfigureAwait(false);
                 FlowActionOutcome result = ExecuteStep == null
                     ? new FlowActionOutcome { Outputs = await ExecuteAction(step, context, token).ConfigureAwait(false) }
                     : await ExecuteStep(step, context, token).ConfigureAwait(false);
@@ -513,7 +514,7 @@ namespace NPSDK
             bool waiting = false;
             while (true)
             {
-                token.ThrowIfCancellationRequested();
+                await WaitForResume(token, step, waiting ? "Waiting" : "Running").ConfigureAwait(false);
                 FlowBranch match = branches.FirstOrDefault(branch => CheckConditions(branch, context));
                 if (match != null) return match;
                 if (!waiting) { ChangeState(step, "Waiting"); waiting = true; }
@@ -552,11 +553,15 @@ namespace NPSDK
             }
         }
 
-        /// <summary>等待暂停解除并响应停止。</summary>
-        private async Task WaitForResume(CancellationToken token)
+        /// <summary>到达实际暂停点才标记节点已暂停，恢复后还原所在阶段。</summary>
+        private async Task WaitForResume(CancellationToken token, FlowStep step = null, string resumeState = null)
         {
             token.ThrowIfCancellationRequested();
+            if (!paused) return;
+            if (step != null) ChangeState(step, "Paused");
             while (paused) await Task.Delay(25, token).ConfigureAwait(false);
+            token.ThrowIfCancellationRequested();
+            if (resumeState != null) ChangeState(step, resumeState);
         }
 
         /// <summary>发送节点状态，供宿主切换 UI 线程显示。</summary>

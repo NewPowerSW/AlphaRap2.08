@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using AlphaRap;
@@ -70,6 +71,7 @@ internal static class Cases
         Test("InitializeComponent contains only explicit designer-supported UI initialization", DesignerSource);
         Test("constant and hardware editor field names preserve their control identities on designer save", EditorIdentities);
         Test("FlowChart elapsed time follows the top-right corner without clipping captions", FlowChartCaptionLayout);
+        Test("FlowChart retains execution state until an unseen node creates its handle", FlowChartRetainsHiddenState);
         foreach (Type type in visualTypes)
         {
             Type current = type;
@@ -117,6 +119,32 @@ internal static class Cases
             node.PauseProgramTiming(true);
             VerifyFlowChartCaption(node);
             SaveFlowChartPreview(node, "compact-bound");
+
+            node.Size = new Size(276, 35);
+            node.text = "下运输阻挡上升1_3";
+            VerifyFlowChartCaption(node);
+            SaveFlowChartPreview(node, "conveyor-caption");
+        }
+    }
+
+    /// <summary>后台更新不可见节点后，首次显示时恢复最新的文字和颜色。</summary>
+    private static void FlowChartRetainsHiddenState()
+    {
+        using (Form host = new Form())
+        using (Flow_Chart node = new Flow_Chart { text = "Hidden node", ProgramBindingLabel = "Code" })
+        {
+            host.Controls.Add(node);
+            Check(!node.IsHandleCreated, "The hidden fixture already has a handle.");
+            Task.Run(() =>
+            {
+                node.SetProgramState("Running", Color.LightGreen);
+                node.SetProgramState("Paused", Color.LightSalmon);
+            }).GetAwaiter().GetResult();
+            Check(!node.IsHandleCreated, "The background update created a WinForms handle.");
+            Check(node.Handle != IntPtr.Zero, "The node did not create its UI handle.");
+            Check(node.Controls.Find("button1", true).Single().BackColor == Color.LightSalmon &&
+                node.Controls.Find("label1", true).Single().Text == "Code · Paused", "The node lost its latest background state.");
+            SaveFlowChartPreview(node, "hidden-paused");
         }
     }
 

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using AlphaRap;
 using AlphaRap.FlowProgramming;
@@ -153,7 +154,7 @@ internal static partial class Cases
             owner.Start(owner.Program.Steps.Single().Id, false, true);
             Wait(owner.Runtime.Completion); owner.RefreshElapsed();
             long elapsed = page.Node.FlowChart_ElapsedMilliseconds;
-            string displayed = page.Node.Controls.Find("elapsedTime", true).Single().Text;
+            string displayed = DisplayedElapsed(page.Node);
             Assert(owner.Runtime.Error == null && elapsed >= 100 && elapsed < 2000 && displayed == (elapsed / 1000.0).ToString("F2", CultureInfo.InvariantCulture),
                 "A native event could not use the same elapsed clock displayed in the node corner.");
             NativePump(100);
@@ -174,12 +175,13 @@ internal static partial class Cases
             {
                 ActionUntil(() => page.Node.FlowChart_ElapsedMilliseconds >= 40, "The continued node clock did not advance.");
                 owner.Handle(FlowProgramCommand.Pause); NativePump(80);
-                Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && page.Node.Controls.Find("elapsedTime", true).Single().Text == "0.00",
+                Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && DisplayedElapsed(page.Node) == "0.00"
+                    && page.Node.Controls.Find("label1", true).Single().Text.Contains(FlowText.T("Paused")),
                     "A pause did not reset and hold the active clock at zero.");
                 owner.Handle(FlowProgramCommand.Resume);
             }
             owner.Handle(FlowProgramCommand.Stop); Wait(owner.Runtime.Completion); NativePump(80);
-            Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && page.Node.Controls.Find("elapsedTime", true).Single().Text == ""
+            Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && DisplayedElapsed(page.Node) == ""
                 && page.Node.Controls.Find("label1", true).Single().Text == page.Node.ProgramBindingLabel && owner.ExecutionError == null
                 && page.Node.Controls.Find("button1", true).Single().BackColor == System.Drawing.Color.White,
                 "Cancelled work or a queued status update repopulated the stopped display.");
@@ -189,12 +191,18 @@ internal static partial class Cases
                 foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
                 {
                     SwitchLanguage(language); NativePump(20);
-                    Assert(page.Node.Controls.Find("elapsedTime", true).Single().Text == "" && page.Node.Controls.Find("label1", true).Single().Text == page.Node.ProgramBindingLabel,
+                    Assert(DisplayedElapsed(page.Node) == "" && page.Node.Controls.Find("label1", true).Single().Text == page.Node.ProgramBindingLabel,
                         "Language switching restored a cleared elapsed time or execution state.");
                 }
             }
             finally { SwitchLanguage(previous); }
         });
+    }
+
+    /// <summary>读取节点实际绘制的角标文字。</summary>
+    private static string DisplayedElapsed(Flow_Chart node)
+    {
+        return (string)typeof(Flow_Chart).GetField("programElapsedText", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(node);
     }
 
     /// <summary>Inspect the actual reported business node and its compiled event without invoking its hardware callback.</summary>

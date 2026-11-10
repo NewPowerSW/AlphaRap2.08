@@ -7,6 +7,24 @@ using System.Threading.Tasks;
 
 namespace NPSDK
 {
+    /// <summary>流程入口最近一次报告的位置及执行状态。</summary>
+    public sealed class FlowExecutionPosition
+    {
+        public string StepId { get; }
+        public string Caption { get; }
+        public string State { get; }
+        public bool IsRunning { get; }
+
+        /// <summary>保存一个可以跨线程读取的执行位置。</summary>
+        internal FlowExecutionPosition(string stepId, string caption, string state, bool isRunning)
+        {
+            StepId = stepId;
+            Caption = caption;
+            State = state;
+            IsRunning = isRunning;
+        }
+    }
+
     /// <summary>并发调度同一模块的独立入口，复用原节点运行器及统一生命周期。</summary>
     public sealed class FlowProgramGroup
     {
@@ -14,6 +32,7 @@ namespace NPSDK
         {
             internal readonly FlowProgramRuntime Runtime = new FlowProgramRuntime();
             internal FlowDebugSnapshot Snapshot;
+            internal volatile FlowExecutionPosition Position;
             internal string EntryId;
         }
 
@@ -22,6 +41,25 @@ namespace NPSDK
         public bool PauseOnFailure { get; set; }
         public Task Completion { get; private set; } = Task.FromResult(0);
         public bool IsRunning { get { return !Completion.IsCompleted; } }
+
+        /// <summary>按入口顺序读取各流程的位置，区分等待暂停和真正停驻。</summary>
+        public FlowExecutionPosition[] GetExecutionPositions()
+        {
+            return workers.Select(GetExecutionPosition).Where(position => position != null).ToArray();
+        }
+
+        /// <summary>补充当前控制请求和任务退出状态，保留最近一次报告的节点。</summary>
+        private static FlowExecutionPosition GetExecutionPosition(Worker worker)
+        {
+            FlowExecutionPosition position = worker.Position;
+            if (position == null) return null;
+            FlowProgramRuntime runtime = worker.Runtime;
+            string state = position.State;
+            if (runtime.IsStopping) state = "Stopping";
+            else if (runtime.IsPaused && (state == "Running" || state == "Waiting")) state = "PausePending";
+            else if (!runtime.IsRunning && runtime.Error == "Cancelled" && state != "Timeout" && state != "Failed") state = "Cancelled";
+            return new FlowExecutionPosition(position.StepId, position.Caption, state, runtime.IsRunning);
+        }
         public bool IsPaused { get { return IsRunning && workers.Any(item => item.Runtime.IsPaused); } }
         public bool IsWaitingForRetry { get { return IsRunning && workers.Any(item => item.Runtime.IsWaitingForRetry); } }
         public bool CanResume { get { return IsPaused && workers.Any(item => item.Runtime.CanResume) && workers.Where(item => item.Runtime.IsPaused).All(item => item.Runtime.CanResume); } }
@@ -109,7 +147,12 @@ namespace NPSDK
             worker.Runtime.PauseOnFailure = PauseOnFailure;
             worker.Runtime.ExecuteAction = ExecuteAction;
             worker.Runtime.ExecuteStep = ExecuteStep;
-            worker.Runtime.StateChanged += (step, state) => { Action<FlowStep, string> changed = StateChanged; if (changed != null) changed(step, state); };
+            worker.Runtime.StateChanged += (step, state) =>
+            {
+                worker.Position = new FlowExecutionPosition(step.Id, step.Caption, state, true);
+                Action<FlowStep, string> changed = StateChanged;
+                if (changed != null) changed(step, state);
+            };
             worker.Runtime.DebugChanged += snapshot => ForwardDebug(worker, snapshot);
             worker.Runtime.AlarmRequested += code => { if (PauseOnFailure) Pause(); Action<string> alarm = AlarmRequested; if (alarm != null) alarm(code); };
             worker.Runtime.Finished += () => { if (!PauseOnFailure && worker.Runtime.Error != null && worker.Runtime.Error != "Cancelled") Stop(); };

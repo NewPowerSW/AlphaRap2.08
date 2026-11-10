@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace NPSDK
@@ -92,8 +91,21 @@ namespace NPSDK
         private string programStatusMessage = "";
         private string programElapsedText = "";
         private bool programTimingStarted;
-        private int programStateRevision;
+        private volatile ProgramAppearance programAppearance;
         public event EventHandler ConfigurationRequested;
+
+        private sealed class ProgramAppearance
+        {
+            internal readonly string Message;
+            internal readonly Color Color;
+
+            /// <summary>将文字与颜色作为同一次节点状态保存。</summary>
+            internal ProgramAppearance(string message, Color color)
+            {
+                Message = message;
+                Color = color;
+            }
+        }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ProgramEditing { get; set; }
@@ -133,7 +145,8 @@ namespace NPSDK
             label1.Text = programBindingLabel.Length == 0 ? programStatusMessage
                 : programStatusMessage.Length == 0 ? programBindingLabel : programBindingLabel + " · " + programStatusMessage;
             bool hasHeader = label1.Text.Length > 0 || programElapsedText.Length > 0;
-            button1.Padding = new Padding(0, hasHeader ? label1.Font.Height + 3 : 0, 0, 0);
+            // Flat 按钮自身已有内边距，额外留白只用于错开状态行和标题。
+            button1.Padding = new Padding(0, hasHeader ? Math.Max(0, label1.Font.Height - 2) : 0, 0, 0);
             button1.Invalidate();
         }
 
@@ -285,21 +298,31 @@ namespace NPSDK
             programLastClick = now;
         }
 
-        /// <summary>在 UI 线程显示执行状态，不拥有执行线程。</summary>
+        /// <summary>保存最新执行状态，隐藏页创建句柄后也能显示。</summary>
         public void SetProgramState(string message, Color color)
         {
-            if (IsDisposed || !IsHandleCreated) return;
-            int revision = Interlocked.Increment(ref programStateRevision);
-            if (InvokeRequired) { PostProgramUpdate(() => ApplyProgramState(message, color, revision)); return; }
-            ApplyProgramState(message, color, revision);
+            if (IsDisposed || Disposing) return;
+            ProgramAppearance appearance = new ProgramAppearance(message, color);
+            programAppearance = appearance;
+            if (!IsHandleCreated) return;
+            if (InvokeRequired) { PostProgramUpdate(() => ApplyProgramState(appearance)); return; }
+            ApplyProgramState(appearance);
         }
 
-        /// <summary>只应用最新状态，停止清空后丢弃已排队的旧运行或报警刷新。</summary>
-        private void ApplyProgramState(string message, Color color, int revision)
+        /// <summary>首次显示或重建句柄时补上后台已报告的状态。</summary>
+        protected override void OnHandleCreated(EventArgs e)
         {
-            if (IsDisposed || revision != Volatile.Read(ref programStateRevision)) return;
-            button1.BackColor = color;
-            SetProgramMessage(message);
+            base.OnHandleCreated(e);
+            ProgramAppearance appearance = programAppearance;
+            if (appearance != null) ApplyProgramState(appearance);
+        }
+
+        /// <summary>只应用当前状态，过期的界面回调不会覆盖新状态。</summary>
+        private void ApplyProgramState(ProgramAppearance appearance)
+        {
+            if (IsDisposed || !ReferenceEquals(appearance, programAppearance)) return;
+            button1.BackColor = appearance.Color;
+            SetProgramMessage(appearance.Message);
         }
 
         /// <summary>将界面刷新交给 UI 线程；关闭窗体或重建句柄时丢弃失效的刷新。</summary>

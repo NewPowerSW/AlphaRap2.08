@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NPSDK;
@@ -39,6 +41,7 @@ internal static class Regression
             Run(StopCancelsRemainingInitialization, "stop revokes remaining initialization callbacks");
             Run(StartFailureStopsModules, "partial startup stops every module even if one stop fails");
             Run(LegacyFallbackAndResume, "handled, legacy, and legacy resume paths dispatch once");
+            Run(ParallelExecutionPositions, "parallel positions distinguish an in-flight pause, an actual pause and a pending stop");
             return 0;
         }
         catch (Exception error)
@@ -46,6 +49,58 @@ internal static class Regression
             Console.Error.WriteLine(error);
             return 1;
         }
+    }
+
+    /// <summary>阻塞一个入口并完成另一个入口，检查暂停、恢复和停止的位置及状态。</summary>
+    private static void ParallelExecutionPositions()
+    {
+        FlowStep held = new FlowStep { Caption = "Blocked action", ExecutionMode = "None" };
+        FlowStep peer = new FlowStep { Caption = "Completed peer", ExecutionMode = "None" };
+        FlowProgram plan = new FlowProgram { ModuleId = "Positions", Mode = "Program" };
+        plan.Steps.AddRange(new[] { held, peer });
+        FlowResultHub hub = new FlowResultHub();
+        TaskCompletionSource<IDictionary<string, object>> release = new TaskCompletionSource<IDictionary<string, object>>(TaskCreationOptions.RunContinuationsAsynchronously);
+        FlowProgramGroup group = new FlowProgramGroup();
+        group.ExecuteAction = (step, context, token) => step.Id == held.Id
+            ? release.Task : Task.FromResult<IDictionary<string, object>>(new Dictionary<string, object>());
+        group.StartMany(plan, new[] { held.Id, peer.Id }, new FlowExecutionContext { Hub = hub, RunId = hub.Epoch, CycleId = "probe", ModuleId = plan.ModuleId });
+        try
+        {
+            ExpectPosition(group, held, "Running");
+            ExpectPosition(group, peer, "Completed");
+            group.Pause();
+            ExpectPosition(group, held, "PausePending");
+            ExpectPosition(group, peer, "Completed");
+            release.TrySetResult(new Dictionary<string, object>());
+            ExpectPosition(group, held, "Paused");
+            group.Resume();
+            Require(group.Completion.Wait(TimeoutMs), "resume did not finish");
+            ExpectPosition(group, held, "Completed");
+
+            release = new TaskCompletionSource<IDictionary<string, object>>(TaskCreationOptions.RunContinuationsAsynchronously);
+            group.StartMany(plan, new[] { held.Id }, new FlowExecutionContext { Hub = hub, RunId = hub.Epoch, CycleId = "restart", ModuleId = plan.ModuleId });
+            ExpectPosition(group, held, "Running");
+            group.Stop();
+            ExpectPosition(group, held, "Stopping");
+            Require(group.IsRunning && group.GetExecutionPositions().Length == 1, "stop lost the current position or retained an old entry");
+            release.TrySetResult(new Dictionary<string, object>());
+            Require(group.Completion.Wait(TimeoutMs), "stop did not finish");
+            ExpectPosition(group, held, "Cancelled");
+        }
+        finally
+        {
+            group.Stop();
+            release.TrySetResult(new Dictionary<string, object>());
+            group.Completion.Wait(TimeoutMs);
+        }
+    }
+
+    /// <summary>等待指定入口报告当前节点及状态。</summary>
+    private static void ExpectPosition(FlowProgramGroup group, FlowStep step, string state)
+    {
+        Require(SpinWait.SpinUntil(() => group.GetExecutionPositions().Any(position =>
+            position.StepId == step.Id && position.Caption == step.Caption && position.State == state), TimeoutMs),
+            step.Caption + " did not report " + state);
     }
 
     /// <summary>Keep form registration and global command flags isolated between checks.</summary>

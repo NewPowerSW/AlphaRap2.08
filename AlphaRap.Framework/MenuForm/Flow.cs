@@ -367,10 +367,26 @@ namespace AlphaRap
             debugPanel.Bind(module);
             if (hasModule && module.Runtime.IsDebugPaused) pause.Enabled = false;
             if (hasModule && module.IsInitializing && module.Runtime.IsPaused) pause.Enabled = false;
+            RefreshExecutionPositions(module);
             if (!hasModule) return;
             module.RefreshElapsed();
             if (module.ExecutionError != null) { runtimeStatus = string.Format(FlowText.T("error"), module.ExecutionError); status.Text = runtimeStatus; }
             else if (runtimeStatus != null) { if (status.Text == runtimeStatus) status.Text = ""; runtimeStatus = null; }
+        }
+        /// <summary>显示所选工位每条流程的位置，状态不变时保留列表和滚动位置。</summary>
+        private void RefreshExecutionPositions(FlowModuleEditor module)
+        {
+            string[] lines = module == null ? new[] { FlowText.T("flowNoModule") } : module.GetExecutionDisplayLines();
+            if (executionPositions.Items.Cast<string>().SequenceEqual(lines)) return;
+            int firstVisible = executionPositions.TopIndex;
+            executionPositions.BeginUpdate();
+            try
+            {
+                executionPositions.Items.Clear();
+                executionPositions.Items.AddRange(lines);
+                executionPositions.TopIndex = Math.Min(firstVisible, lines.Length - 1);
+            }
+            finally { executionPositions.EndUpdate(); }
         }
         /// <summary>Translate labels without changing names or selected data references.</summary>
         private void ApplyLanguage(object sender, EventArgs args)
@@ -385,6 +401,7 @@ namespace AlphaRap
             words = FlowText.Defaults["nodeBreakpoint"];
             nodeBreakpoint.Text = FrameworkLanguage.LangMsg("Flow", "nodeBreakpoint", words[0], words[1], words[2]);
             debugPanel.RefreshLanguage();
+            executionPositions.AccessibleName = FlowText.T("flowExecutionPositions");
             viewSources.Text = FlowToolboxText.Fixed(viewSources, "sourceDirectory");
             sourceHint.SetToolTip(viewSources, FlowSourceGenerator.ModeDescription);
             viewSources.AccessibleDescription = FlowSourceGenerator.ModeDescription;

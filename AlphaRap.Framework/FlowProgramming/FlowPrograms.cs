@@ -696,8 +696,11 @@ namespace AlphaRap.FlowProgramming
                 else description = string.Format(FlowNativeText.T("actionBinding"), step.Target ?? "", step.Action ?? "");
                 node.AccessibleDescription = description;
                 BindHint(node, description);
-                string state;
-                if (nodeStates.TryGetValue(step.Id, out state)) DisplayState(step, state);
+                lock (executionDisplaySync)
+                {
+                    string state;
+                    if (nodeStates.TryGetValue(step.Id, out state)) DisplayState(step.Id, state);
+                }
             }
         }
 
@@ -953,10 +956,10 @@ namespace AlphaRap.FlowProgramming
         {
             if (command == FlowProgramCommand.Stop)
             {
-                lock (executionDisplaySync) stopped = true;
                 isInitializing = false; paused = false;
                 Form.InitialStatus = false; Form.PauseStatus = false; Form.StopStatus = true;
-                Runtime.Stop(); ClearExecutionDisplay(); return true;
+                StopExecution();
+                return true;
             }
             if (command == FlowProgramCommand.Pause)
             {
@@ -1038,7 +1041,10 @@ namespace AlphaRap.FlowProgramming
         private void Finish()
         {
             lock (executionDisplaySync)
-                foreach (Flow_Chart node in timedNodes) node.PauseProgramTiming();
+            {
+                if (stopped) ClearExecutionDisplay();
+                else foreach (Flow_Chart node in timedNodes) node.PauseProgramTiming();
+            }
             Form.RunningStatus = false;
             foreach (Flow_Chart node in nodes.Values) node.ProgramManaged = IsEnabled;
             if (isInitializing) Form.InitialStatus = Runtime.Error == null;
@@ -1054,10 +1060,28 @@ namespace AlphaRap.FlowProgramming
                 if (stopped) return;
                 Flow_Chart node = Node(step.Id);
                 if (node == null) return;
-                if (state == "Running") { timedNodes.Add(node); node.BeginProgramTiming(); if (Runtime.IsPaused) node.PauseProgramTiming(true); }
+                if (state == "Running" && timedNodes.Add(node))
+                {
+                    node.BeginProgramTiming();
+                    if (Runtime.IsPaused) node.PauseProgramTiming(true);
+                }
                 if (state == "Completed" || state == "Timeout" || state == "Failed" || state == "Cancelled" || state == "RecoveryPaused") { timedNodes.Remove(node); node.PauseProgramTiming(); }
-                DisplayState(step, state);
+                DisplayState(step.Id, state);
             }
+        }
+
+        /// <summary>请求停止时保留仍在退出的节点，底层任务退出后再清理显示。</summary>
+        private void StopExecution()
+        {
+            lock (executionDisplaySync)
+            {
+                stopped = true;
+                foreach (Flow_Chart node in timedNodes) node.PauseProgramTiming();
+                foreach (FlowExecutionPosition position in Runtime.GetExecutionPositions().Where(item => item.IsRunning))
+                    DisplayState(position.StepId, "Stopping");
+            }
+            Runtime.Stop();
+            if (!Runtime.IsRunning) ClearExecutionDisplay();
         }
 
         /// <summary>清空所有节点的运行显示和调试快照，保留流程布局及配置。</summary>
@@ -1075,6 +1099,25 @@ namespace AlphaRap.FlowProgramming
         {
             lock (executionDisplaySync)
                 foreach (Flow_Chart node in timedNodes) if (!node.IsDisposed) node.RefreshProgramTiming();
+        }
+
+        /// <summary>列出当前工位各入口的位置，包含流程页、节点与最近的执行状态。</summary>
+        internal string[] GetExecutionDisplayLines()
+        {
+            FlowExecutionPosition[] positions = Runtime.GetExecutionPositions();
+            if (stopped && !Runtime.IsRunning) return new[] { FlowText.T("flowStopped") };
+            if (positions.Length == 0) return new[] { FlowText.T("flowNotStarted") };
+            return positions.Select(DescribeExecutionPosition).ToArray();
+        }
+
+        /// <summary>按节点当前所属的页签显示位置，标题使用原业务名称。</summary>
+        private string DescribeExecutionPosition(FlowExecutionPosition position)
+        {
+            Control page = Node(position.StepId);
+            while (page != null && !(page is TabPage)) page = page.Parent;
+            string location = page == null ? position.Caption : page.Text + " / " + position.Caption;
+            string state = stopped && position.IsRunning ? "Stopping" : position.State;
+            return string.Format(FlowText.T("flowExecutionLine"), location, FlowText.T(state));
         }
 
         /// <summary>每次暂停清零所有正在执行的节点计时，保留已完成节点的耗时。</summary>
@@ -1106,16 +1149,32 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>显示节点业务状态，语言刷新不重新启动计时。</summary>
-        private void DisplayState(FlowStep step, string state)
+        private void DisplayState(string stepId, string state)
         {
             lock (executionDisplaySync)
             {
-                if (stopped) return;
-                Flow_Chart node = Node(step.Id);
+                if (stopped && state != "Stopping") return;
+                Flow_Chart node = Node(stepId);
                 if (node == null) return;
-                nodeStates[step.Id] = state;
-                Color color = state == "DebugPaused" || state == "RecoveryPaused" ? Color.LightSalmon : state == "Running" ? Color.LightGreen : state == "Completed" ? Color.White : state == "Waiting" ? Color.LightYellow : Color.MistyRose;
-                node.SetProgramState(FlowText.T(state), color);
+                nodeStates[stepId] = state;
+                node.SetProgramState(FlowText.T(state), ExecutionColor(state));
+            }
+        }
+
+        /// <summary>为活动、停驻和故障状态提供有区别的节点底色。</summary>
+        private static Color ExecutionColor(string state)
+        {
+            switch (state)
+            {
+                case "Running": return Color.LightGreen;
+                case "Waiting": return Color.LightYellow;
+                case "Paused":
+                case "DebugPaused":
+                case "RecoveryPaused":
+                case "Stopping": return Color.LightSalmon;
+                case "Completed":
+                case "Cancelled": return Color.White;
+                default: return Color.MistyRose;
             }
         }
 
