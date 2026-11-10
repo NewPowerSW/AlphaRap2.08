@@ -1091,25 +1091,6 @@ namespace AlphaRap.FlowProgramming
                 foreach (Flow_Chart node in timedNodes) if (!node.IsDisposed) node.RefreshProgramTiming();
         }
 
-        /// <summary>列出当前工位各入口的位置，包含流程页、节点与最近的执行状态。</summary>
-        internal string[] GetExecutionDisplayLines()
-        {
-            FlowExecutionPosition[] positions = Runtime.GetExecutionPositions();
-            if (stopped && !Runtime.IsRunning) return new[] { FlowText.T("flowStopped") };
-            if (positions.Length == 0) return new[] { FlowText.T("flowNotStarted") };
-            return positions.Select(DescribeExecutionPosition).ToArray();
-        }
-
-        /// <summary>按节点当前所属的页签显示位置，标题使用原业务名称。</summary>
-        private string DescribeExecutionPosition(FlowExecutionPosition position)
-        {
-            Control page = Node(position.StepId);
-            while (page != null && !(page is TabPage)) page = page.Parent;
-            string location = page == null ? position.Caption : page.Text + " / " + position.Caption;
-            string state = stopped && position.IsRunning ? "Stopping" : position.State;
-            return string.Format(FlowText.T("flowExecutionLine"), location, FlowText.T(state));
-        }
-
         /// <summary>每次暂停清零所有正在执行的节点计时，保留已完成节点的耗时。</summary>
         private void ResetActiveTiming()
         {

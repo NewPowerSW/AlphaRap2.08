@@ -14,7 +14,6 @@ namespace AlphaRap
         private Button initialValue;
         private Button autoValue;
         private Label status;
-        private ListBox executionPositions;
         private Timer timer;
         private Button addModule;
         private ContextMenuStrip nodeMenu;
@@ -76,7 +75,6 @@ namespace AlphaRap
             this.autoEntryEntryLabel = new System.Windows.Forms.Label();
             this.autoValue = new System.Windows.Forms.Button();
             this.status = new System.Windows.Forms.Label();
-            this.executionPositions = new System.Windows.Forms.ListBox();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.nodeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.nodeProperties = new System.Windows.Forms.ToolStripMenuItem();
@@ -369,20 +367,6 @@ namespace AlphaRap
             this.status.TabIndex = 4;
             this.status.Visible = false;
             // 
-            // executionPositions
-            //
-            this.executionPositions.AccessibleName = "流程运行位置";
-            this.executionPositions.BackColor = System.Drawing.SystemColors.Window;
-            this.executionPositions.Dock = System.Windows.Forms.DockStyle.Top;
-            this.executionPositions.HorizontalScrollbar = true;
-            this.executionPositions.IntegralHeight = false;
-            this.executionPositions.Items.AddRange(new object[] { "尚未运行" });
-            this.executionPositions.Location = new System.Drawing.Point(0, 89);
-            this.executionPositions.Name = "executionPositions_dyn";
-            this.executionPositions.Size = new System.Drawing.Size(1280, 54);
-            this.executionPositions.TabIndex = 5;
-            this.executionPositions.SelectionMode = System.Windows.Forms.SelectionMode.None;
-            //
             // timer
             // 
             this.timer.Interval = 250;
@@ -446,7 +430,6 @@ namespace AlphaRap
             this.ClientSize = new System.Drawing.Size(1280, 920);
             this.ContextMenuStrip = this.nodeMenu;
             this.Controls.Add(this.workArea);
-            this.Controls.Add(this.executionPositions);
             this.Controls.Add(this.entries);
             this.Controls.Add(this.toolbar);
             this.Controls.Add(this.debugPanel);

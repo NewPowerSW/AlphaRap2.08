@@ -46,7 +46,7 @@ internal static partial class Cases
     private static void RegisterParallelEntryCases()
     {
         Test("one module starts all selected initialization and automatic entries", ParallelMachineEntries);
-        Test("flow page shows each parallel position without enabling debug", ParallelFlowPositionDisplay);
+        Test("flow canvas fills the space directly below the entry toolbar", FlowCanvasBelowEntries);
         Test("entry multi-selection preserves checks across languages and respects Cancel", ParallelEntryDialog);
         Test("generated source viewing is read-only and cannot alter or traverse owned files", ProtectedSourceViewer);
     }
@@ -66,13 +66,18 @@ internal static partial class Cases
         using (ParallelEntryPage page = new ParallelEntryPage())
         {
             FlowModuleEditor owner = ParallelOwner(page); page.Show(); Application.DoEvents();
+            Button firstNode = ActionControl<Button>(page.A, "button1");
+            Button secondNode = ActionControl<Button>(page.B, "button1");
             try
             {
                 owner.Handle(FlowProgramCommand.Initialize);
                 ActionUntil(() => page.CallsA > 0 && page.CallsB > 0, "Both initialization flows did not start.");
-                page.ReadyA = true; NativePump(80);
+                ActionUntil(() => firstNode.BackColor == Color.Green && secondNode.BackColor == Color.Green, "Running entries did not turn green.");
+                page.ReadyA = true;
+                ActionUntil(() => firstNode.BackColor == Color.White, "The completed entry did not return to white.");
                 Assert(owner.Runtime.IsRunning && !page.InitialStatus, "One completed entry marked the module initialized while a peer was still running.");
-                owner.Handle(FlowProgramCommand.Pause); NativePump(60);
+                owner.Handle(FlowProgramCommand.Pause);
+                ActionUntil(() => secondNode.BackColor == Color.Yellow, "The paused entry did not turn yellow.");
                 Assert(page.B.FlowChart_ElapsedMilliseconds == 0, "Pause failed to clear the active peer's clock.");
                 owner.Handle(FlowProgramCommand.Stop); Wait(owner.Runtime.Completion); NativePump(30);
                 Assert(new[] { page.A, page.B, page.C, page.D }.All(node => DisplayedElapsed(node) == ""), "Stop left a parallel node's elapsed display.");
@@ -88,55 +93,16 @@ internal static partial class Cases
         }
     }
 
-    /// <summary>用真实流程页验证等待、暂停、完成和三语状态。</summary>
-    private static void ParallelFlowPositionDisplay()
+    /// <summary>检查实际流程页的画布紧接入口栏，空闲时填满其余空间。</summary>
+    private static void FlowCanvasBelowEntries()
     {
-        using (ParallelEntryPage page = new ParallelEntryPage())
         using (Flow flow = new Flow())
         {
-            FlowModuleEditor owner = ParallelOwner(page);
-            TabControl tabs = ActionControl<TabControl>(flow, "tabControl1");
-            TabPage stationTab = new TabPage(page.Name) { Tag = owner };
-            tabs.TabPages.Add(stationTab);
-            Assert(tabs.Handle != IntPtr.Zero, "The flow tab handle was not created.");
-            tabs.SelectedIndex = 0;
-            ListBox positions = ActionControl<ListBox>(flow, "executionPositions_dyn");
-            Action refresh = () => typeof(Flow).GetMethod("RefreshRuntime", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                .Invoke(flow, new object[] { null, EventArgs.Empty });
-            LanguageType previous = SysPara.LanguageShow;
-            try
-            {
-                owner.Handle(FlowProgramCommand.Initialize);
-                ActionUntil(() => owner.Runtime.GetExecutionPositions().Count(position => position.State == "Waiting") == 2,
-                    "Both entries must report condition waits.");
-                refresh();
-                Assert(positions.Items.Count == 2 && positions.Items.Cast<string>().All(line => line.Contains(FlowText.T("Waiting"))),
-                    "Parallel wait positions were not displayed.");
-                page.ReadyA = true;
-                ActionUntil(() => owner.Runtime.GetExecutionPositions().Any(position => position.Caption == page.A.text && position.State == "Completed"),
-                    "The first entry did not complete.");
-                owner.Handle(FlowProgramCommand.Pause);
-                ActionUntil(() => owner.Runtime.GetExecutionPositions().Any(position => position.Caption == page.B.text && position.State == "Paused"),
-                    "The second entry did not reach a pause boundary.");
-                foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
-                {
-                    SwitchLanguage(language);
-                    refresh();
-                    Assert(positions.Items.Cast<string>().Any(line => line.Contains(page.A.text) && line.Contains(FlowText.T("Completed")))
-                        && positions.Items.Cast<string>().Any(line => line.Contains(page.B.text) && line.Contains(FlowText.T("Paused"))),
-                        "Language switching lost or mislabeled a parallel position.");
-                }
-                owner.Handle(FlowProgramCommand.Stop);
-                Wait(owner.Runtime.Completion);
-                refresh();
-                Assert(positions.Items.Count == 1 && (string)positions.Items[0] == FlowText.T("flowStopped"), "Stop left stale positions.");
-            }
-            finally
-            {
-                owner.Handle(FlowProgramCommand.Stop);
-                Wait(owner.Runtime.Completion);
-                SwitchLanguage(previous);
-            }
+            flow.PerformLayout();
+            Panel canvas = ActionControl<Panel>(flow, "workArea");
+            FlowLayoutPanel entries = ActionControl<FlowLayoutPanel>(flow, "entries");
+            Assert(canvas.Top == entries.Bottom && canvas.Bottom == flow.ClientSize.Height,
+                "The canvas did not reclaim the removed execution strip.");
         }
     }
 
