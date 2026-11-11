@@ -13,7 +13,7 @@ using AlphaRap;
 using DataSave;
 using Microsoft.VisualBasic.FileIO;
 
-internal static class RuntimeLogProbe
+internal static partial class RuntimeLogProbe
 {
     private static string output;
     private static string runRoot, errorRoot;
@@ -47,6 +47,8 @@ internal static class RuntimeLogProbe
         Test("latest-record limit and cancellation are explicit", LimitsAndCancellation);
         Test("locked and malformed log files report partial results", PartialResults);
         Test("CSV export retains quotes, commas and newlines", ExportRoundTrip);
+        Test("flow summaries expose real causes and preserve original details across sizes and languages", ReadableFlowLogs);
+        Test("pause logging records transitions without suppressing pause callbacks", PauseLogTransitions);
         foreach (Size size in new[] { new Size(1048, 708), new Size(1368, 908) })
             for (int language = 0; language < 3; language++)
             {

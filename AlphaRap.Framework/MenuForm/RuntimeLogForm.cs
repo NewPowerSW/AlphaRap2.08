@@ -30,8 +30,9 @@ namespace AlphaRap
             {
                 BindResult(new RuntimeLogResult { Records = new System.Collections.Generic.List<RuntimeLogRecord>
                 {
-                    new RuntimeLogRecord { Time = DateTime.Today.AddHours(9), Level = RuntimeLogHistory.Run, Content = "Load station: Ready" },
-                    new RuntimeLogRecord { Time = DateTime.Today.AddHours(8), Level = RuntimeLogHistory.Error, Content = "Vision inspection: Connection unavailable" }
+                    new RuntimeLogRecord { Time = DateTime.Today.AddHours(9), Level = RuntimeLogHistory.Error,
+                        Content = "FlowChart [Module=LoadStation/LoadStation, Entry=preview, Run=preview] Node=Wait for input [613205fab6794e3d909008e00c0307f6] System.TimeoutException: Timeout after 5000 ms" },
+                    new RuntimeLogRecord { Time = DateTime.Today.AddHours(8), Level = RuntimeLogHistory.Run, Content = "LoadStation+++++++++++++++Pause" }
                 }, MatchedCount = 2 });
                 return;
             }
@@ -45,6 +46,7 @@ namespace AlphaRap
         {
             ApplyTexts();
             gridLogs.Invalidate();
+            ShowDetail(this, EventArgs.Empty);
         }
 
         /// <summary>从三语底稿更新可见文字，保留类型筛选的稳定索引。</summary>
@@ -53,7 +55,7 @@ namespace AlphaRap
             applyingTexts = true;
             int index = Math.Max(0, levelFilter.SelectedIndex);
             lblTitle.Text = T("lblTitle", "运行日志", "Runtime logs", "Registro de ejecución");
-            lblSubtitle.Text = T("lblSubtitle", "查看设备运行与错误记录，日志内容保留原文", "View machine runtime and error records in their original text", "Consulte los registros de ejecución y errores en su texto original");
+            lblSubtitle.Text = T("lblSubtitle", "按工位、节点查看运行事件；完整报错见原始日志", "Review events by station and node; full errors are in Original log", "Consulte eventos por estación y nodo; errores completos en Registro original");
             lblFrom.Text = T("lblFrom", "日期", "Date", "Fecha");
             lblTo.Text = T("lblTo", "至", "to", "a");
             btnToday.Text = T("btnToday", "今天", "Today", "Hoy");
@@ -64,9 +66,13 @@ namespace AlphaRap
             btnQuery.Text = T("btnQuery", "查询", "Query", "Consultar");
             btnExport.Text = T("btnExport", "导出", "Export", "Exportar");
             lblDetail.Text = T("lblDetail", "日志详情", "Log details", "Detalle del registro");
+            summaryPage.Text = T("summaryPage", "详情", "Details", "Detalles");
+            rawPage.Text = T("rawPage", "原始日志", "Original log", "Registro original");
             gridLogs.Columns["colTime"].HeaderText = T("gridLogs_colTime", "时间", "Time", "Hora");
             gridLogs.Columns["colLevel"].HeaderText = T("gridLogs_colLevel", "类型", "Type", "Tipo");
-            gridLogs.Columns["colContent"].HeaderText = T("gridLogs_colContent", "内容", "Content", "Contenido");
+            gridLogs.Columns["colStation"].HeaderText = T("gridLogs_colStation", "工位", "Station", "Estación");
+            gridLogs.Columns["colNode"].HeaderText = T("gridLogs_colNode", "节点", "Node", "Nodo");
+            gridLogs.Columns["colContent"].HeaderText = T("gridLogs_colContent", "事件", "Event", "Evento");
             levelFilter.BeginUpdate();
             levelFilter.Items.Clear();
             levelFilter.Items.AddRange(new object[] { T("filter_All", "全部", "All", "Todos"), LevelText(RuntimeLogHistory.Run), LevelText(RuntimeLogHistory.Error) });
@@ -243,22 +249,71 @@ namespace AlphaRap
             refreshTimer.Enabled = !UiTheme.IsDesignTime && Visible && autoRefresh.Checked;
         }
 
-        /// <summary>显示选中记录的完整原文，复制时保留换行。</summary>
+        /// <summary>同时提供可读详情和完整原文，保持当前详情页签。</summary>
         private void ShowDetail(object sender, EventArgs e)
         {
             if (bindingLogs || gridLogs.IsDisposed || detailText.IsDisposed) return;
             RuntimeLogRecord row = gridLogs.CurrentRow == null ? null : gridLogs.CurrentRow.DataBoundItem as RuntimeLogRecord;
-            detailText.Text = row == null ? "" : row.Content;
+            string original = row == null ? "" : row.Content;
+            if (detailText.Text != original) { detailText.Text = original; detailText.Select(0, 0); }
+            if (row == null) { summaryText.Clear(); return; }
+            string location = string.Join("  /  ", new[] { row.Station, row.Node }.Where(value => value.Length > 0));
+            string summary = row.Time.ToString("yyyy-MM-dd HH:mm:ss.fff") + "  ·  " + LevelText(row.Level)
+                + (location.Length == 0 ? "" : Environment.NewLine + location)
+                + Environment.NewLine + Environment.NewLine + EventText(row);
+            if (summaryText.Text != summary) { summaryText.Text = summary; summaryText.Select(0, 0); }
         }
 
-        /// <summary>只格式化时间和类型显示，不改写记录。</summary>
+        /// <summary>将流程事件转换成简短三语提示，未知消息保持原意。</summary>
+        private static string EventText(RuntimeLogRecord row)
+        {
+            RuntimeLogDescription info = row.Description;
+            switch (info.Event)
+            {
+                case "Started": case "Start": return T("event_Started", "流程启动", "Flow started", "Flujo iniciado");
+                case "Initial": return T("event_Initial", "开始初始化", "Initialization started", "Inicialización iniciada");
+                case "ContinusStart": return T("event_Resume", "继续运行", "Resumed", "Reanudado");
+                case "Running": return T("event_Running", "正在执行", "Executing", "Ejecutando");
+                case "Waiting": return T("event_Waiting", "等待条件满足", "Waiting for condition", "Esperando condición");
+                case "Pause": return T("event_Pause", "收到暂停指令", "Pause requested", "Pausa solicitada");
+                case "Paused": return T("event_Paused", "已暂停", "Paused", "En pausa");
+                case "RecoveryPaused": return T("event_RecoveryPaused", "故障暂停，等待处理", "Paused after fault; awaiting action", "Pausa por fallo; esperando intervención");
+                case "DebugPaused": return T("event_DebugPaused", "调试暂停", "Debug pause", "Pausa de depuración");
+                case "Completed": return T("event_Completed", "节点执行完成", "Node completed", "Nodo completado");
+                case "Finished": return T("event_Finished", "流程结束", "Flow finished", "Flujo finalizado");
+                case "Stop": return T("event_Stop", "收到停止指令", "Stop requested", "Parada solicitada");
+                case "Cancelled": return T("event_Cancelled", "执行已取消", "Execution cancelled", "Ejecución cancelada");
+                case "Failed": return T("event_Failed", "节点执行失败，详见原始日志", "Node failed; see Original log", "Error en nodo; consulte Registro original");
+                case "FinishedError": return T("event_FinishedError", "流程异常结束：", "Flow ended with error: ", "Flujo finalizado con error: ") + info.Message;
+                case "Exit":
+                    if (info.Exit == "NEXT") return T("event_Next", "转到下一节点", "Continue to next node", "Continuar al siguiente nodo");
+                    if (info.Exit == "End") return T("event_End", "到达流程终点", "Flow end reached", "Fin del flujo alcanzado");
+                    return string.Format(T("event_Exit", "节点出口：{0}", "Node exit: {0}", "Salida del nodo: {0}"), info.Exit);
+                case "Timeout":
+                    if (info.TimeoutMilliseconds == 0) return T("event_Timeout", "等待超时", "Wait timed out", "Tiempo de espera agotado");
+                    return string.Format(T("event_TimeoutDuration", "等待超时（{0} 秒）", "Wait timed out ({0} s)", "Tiempo de espera agotado ({0} s)"), (info.TimeoutMilliseconds / 1000m).ToString("0.###"));
+                default: return info.Message;
+            }
+        }
+
+        /// <summary>列表只展示事件摘要；完整原文留在详情，错误保持醒目的红色。</summary>
         private void FormatCell(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0) return;
             RuntimeLogRecord row = gridLogs.Rows[e.RowIndex].DataBoundItem as RuntimeLogRecord;
             if (row == null) return;
             if (gridLogs.Columns[e.ColumnIndex].Name == "colLevel") { e.Value = LevelText(row.Level); e.FormattingApplied = true; }
-            if (row.Level == RuntimeLogHistory.Error) e.CellStyle.ForeColor = Color.FromArgb(204, 52, 65);
+            if (gridLogs.Columns[e.ColumnIndex].Name == "colContent")
+            {
+                string message = EventText(row).Replace("\r", " ").Replace("\n", " ");
+                e.Value = message.Length > 240 ? message.Substring(0, 240) + "…" : message;
+                e.FormattingApplied = true;
+            }
+            if (row.Level == RuntimeLogHistory.Error)
+            {
+                e.CellStyle.ForeColor = Color.FromArgb(204, 52, 65);
+                e.CellStyle.SelectionForeColor = Color.FromArgb(204, 52, 65);
+            }
         }
 
         /// <summary>将已显示的查询快照导出为 CSV，不修改原始日志。</summary>

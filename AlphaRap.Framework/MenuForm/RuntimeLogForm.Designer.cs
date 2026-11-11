@@ -46,7 +46,13 @@ namespace AlphaRap
             this.gridLogs = new System.Windows.Forms.DataGridView();
             this.colTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colLevel = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colStation = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colNode = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colContent = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.detailTabs = new System.Windows.Forms.TabControl();
+            this.summaryPage = new System.Windows.Forms.TabPage();
+            this.rawPage = new System.Windows.Forms.TabPage();
+            this.summaryText = new System.Windows.Forms.TextBox();
             this.detailText = new System.Windows.Forms.TextBox();
             this.lblDetail = new System.Windows.Forms.Label();
             this.refreshTimer = new System.Windows.Forms.Timer(this.components);
@@ -61,6 +67,9 @@ namespace AlphaRap
             this.detailSplit.Panel1.SuspendLayout();
             this.detailSplit.Panel2.SuspendLayout();
             this.detailSplit.SuspendLayout();
+            this.detailTabs.SuspendLayout();
+            this.summaryPage.SuspendLayout();
+            this.rawPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridLogs)).BeginInit();
             this.SuspendLayout();
             // 
@@ -424,11 +433,11 @@ namespace AlphaRap
             // 
             // detailSplit.Panel2
             // 
-            this.detailSplit.Panel2.Controls.Add(this.detailText);
+            this.detailSplit.Panel2.Controls.Add(this.detailTabs);
             this.detailSplit.Panel2.Controls.Add(this.lblDetail);
-            this.detailSplit.Panel2MinSize = 90;
+            this.detailSplit.Panel2MinSize = 150;
             this.detailSplit.Size = new System.Drawing.Size(1028, 482);
-            this.detailSplit.SplitterDistance = 342;
+            this.detailSplit.SplitterDistance = 278;
             this.detailSplit.TabIndex = 0;
             // 
             // gridLogs
@@ -445,28 +454,82 @@ namespace AlphaRap
             this.gridLogs.ReadOnly = true;
             this.gridLogs.RowHeadersVisible = false;
             this.gridLogs.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.gridLogs.Size = new System.Drawing.Size(1028, 342);
+            this.gridLogs.Size = new System.Drawing.Size(1028, 278);
             this.gridLogs.TabIndex = 0;
             this.gridLogs.AutoGenerateColumns = false;
-            this.gridLogs.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { this.colTime, this.colLevel, this.colContent });
+            this.gridLogs.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { this.colTime, this.colLevel, this.colStation, this.colNode, this.colContent });
             this.colTime.Name = "colTime";
             this.colTime.DataPropertyName = "Time";
             this.colTime.HeaderText = "时间";
-            this.colTime.Width = 190;
+            this.colTime.Width = 210;
             this.colTime.DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss.fff";
             this.colTime.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.colLevel.Name = "colLevel";
             this.colLevel.DataPropertyName = "Level";
             this.colLevel.HeaderText = "类型";
-            this.colLevel.Width = 100;
+            this.colLevel.Width = 95;
             this.colLevel.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.colStation.Name = "colStation";
+            this.colStation.DataPropertyName = "Station";
+            this.colStation.HeaderText = "工位";
+            this.colStation.Width = 140;
+            this.colStation.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.colNode.Name = "colNode";
+            this.colNode.DataPropertyName = "Node";
+            this.colNode.HeaderText = "节点";
+            this.colNode.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colNode.FillWeight = 45F;
+            this.colNode.MinimumWidth = 160;
+            this.colNode.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.colContent.Name = "colContent";
             this.colContent.DataPropertyName = "Content";
-            this.colContent.HeaderText = "内容";
+            this.colContent.HeaderText = "事件";
             this.colContent.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colContent.FillWeight = 55F;
+            this.colContent.MinimumWidth = 180;
             this.colContent.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.gridLogs.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.FormatCell);
             this.gridLogs.CurrentCellChanged += new System.EventHandler(this.ShowDetail);
+            //
+            // detailTabs
+            //
+            this.detailTabs.Controls.Add(this.summaryPage);
+            this.detailTabs.Controls.Add(this.rawPage);
+            this.detailTabs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.detailTabs.Location = new System.Drawing.Point(0, 26);
+            this.detailTabs.Name = "detailTabs";
+            this.detailTabs.SelectedIndex = 0;
+            this.detailTabs.Size = new System.Drawing.Size(1028, 174);
+            this.detailTabs.TabIndex = 0;
+            //
+            // summaryPage
+            //
+            this.summaryPage.BackColor = System.Drawing.Color.FromArgb(247, 250, 254);
+            this.summaryPage.Controls.Add(this.summaryText);
+            this.summaryPage.Name = "summaryPage";
+            this.summaryPage.Padding = new System.Windows.Forms.Padding(10, 8, 10, 8);
+            this.summaryPage.Text = "详情";
+            //
+            // rawPage
+            //
+            this.rawPage.BackColor = System.Drawing.Color.FromArgb(247, 250, 254);
+            this.rawPage.Controls.Add(this.detailText);
+            this.rawPage.Name = "rawPage";
+            this.rawPage.Padding = new System.Windows.Forms.Padding(8);
+            this.rawPage.Text = "原始日志";
+            //
+            // summaryText
+            //
+            this.summaryText.BackColor = System.Drawing.Color.FromArgb(247, 250, 254);
+            this.summaryText.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.summaryText.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.summaryText.Font = new System.Drawing.Font("Microsoft YaHei UI", 10F);
+            this.summaryText.Multiline = true;
+            this.summaryText.Name = "summaryText";
+            this.summaryText.ReadOnly = true;
+            this.summaryText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.summaryText.TabIndex = 0;
+            this.summaryText.WordWrap = true;
             // 
             // detailText
             // 
@@ -474,12 +537,12 @@ namespace AlphaRap
             this.detailText.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.detailText.Dock = System.Windows.Forms.DockStyle.Fill;
             this.detailText.Font = new System.Drawing.Font("Consolas", 9F);
-            this.detailText.Location = new System.Drawing.Point(0, 26);
+            this.detailText.Location = new System.Drawing.Point(8, 8);
             this.detailText.Multiline = true;
             this.detailText.Name = "detailText";
             this.detailText.ReadOnly = true;
             this.detailText.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.detailText.Size = new System.Drawing.Size(1028, 110);
+            this.detailText.Size = new System.Drawing.Size(1004, 126);
             this.detailText.TabIndex = 0;
             this.detailText.WordWrap = false;
             // 
@@ -519,9 +582,13 @@ namespace AlphaRap
             this.detailCard.ResumeLayout(false);
             this.detailSplit.Panel1.ResumeLayout(false);
             this.detailSplit.Panel2.ResumeLayout(false);
-            this.detailSplit.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.detailSplit)).EndInit();
             this.detailSplit.ResumeLayout(false);
+            this.detailTabs.ResumeLayout(false);
+            this.summaryPage.ResumeLayout(false);
+            this.summaryPage.PerformLayout();
+            this.rawPage.ResumeLayout(false);
+            this.rawPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridLogs)).EndInit();
             this.ResumeLayout(false);
 
@@ -536,10 +603,12 @@ namespace AlphaRap
         private AlphaRap.FlatButton btnToday, btnWeek, btnQuery, btnExport;
         private System.Windows.Forms.CheckBox autoRefresh;
         private System.Windows.Forms.ComboBox levelFilter;
-        private System.Windows.Forms.TextBox keywordFilter, detailText;
+        private System.Windows.Forms.TextBox keywordFilter, detailText, summaryText;
+        private System.Windows.Forms.TabControl detailTabs;
+        private System.Windows.Forms.TabPage summaryPage, rawPage;
         private System.Windows.Forms.SplitContainer detailSplit;
         private System.Windows.Forms.DataGridView gridLogs;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colTime, colLevel, colContent;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTime, colLevel, colStation, colNode, colContent;
         private System.Windows.Forms.Timer refreshTimer;
     }
 }

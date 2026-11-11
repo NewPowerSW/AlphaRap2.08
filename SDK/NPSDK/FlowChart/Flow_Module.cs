@@ -287,9 +287,10 @@ namespace NPSDK
 			foreach (Flow_BaseForm module in FlowChart_ModuleList.ToArray())
 			{
 				if (module.IsDisposed) continue;
+				bool alreadyPaused = module.PauseStatus;
 				module.PauseStatus = true;
 				if (!module.TryProgramCommand(FlowProgramCommand.Pause)) module.PauseRun();
-				Module_AddRunLog(module.Name + "+++++++++++++++Pause");
+				if (!alreadyPaused) Module_AddRunLog(module.Name + "+++++++++++++++Pause");
 			}
 		}
 
