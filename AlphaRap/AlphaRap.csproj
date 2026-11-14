@@ -744,9 +744,6 @@
     <Compile Include="Devices\MTF6000_1.cs" />
     <Compile Include="Devices\MTF6000_2.cs" />
     <Compile Include="Devices\HIOKI_RM3545.cs" />
-    <Compile Include="Log\RFIDCsvObj.cs" />
-    <Compile Include="Log\RFIDFinalStation.cs" />
-    <Compile Include="Log\RFIDOperation.cs" />
     <Compile Include="Connected Services\ExtMainServiceClient\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
