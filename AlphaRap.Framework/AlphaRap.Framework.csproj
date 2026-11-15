@@ -618,6 +618,10 @@
     <Compile Include="Controls\MotorProtection.cs" />
     <Compile Include="Core\ApplicationHost.cs" />
     <Compile Include="Core\DeviceOperations.cs" />
+    <Compile Include="Core\FrameworkModules.cs" />
+    <Compile Include="Core\WinFormsModuleDispatcher.cs" />
+    <Compile Include="Configuration\ModuleConfiguration.cs" />
+    <Compile Include="Configuration\SystemParametersModule.cs" />
     <Compile Include="Core\ModuleBaseForm.cs">
       <SubType>Form</SubType>
     </Compile>

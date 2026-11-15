@@ -122,18 +122,33 @@ namespace AlphaRap.FlowProgramming
                 resource.BoundPoints = catalog.Items.Values.SingleOrDefault(item => item.Kind == "point" && item.Id.StartsWith(entry.Id + "/points/", StringComparison.Ordinal)
                     && ReferenceEquals(((FlowPointAxis)item.Instance).Motor, entry.Instance));
             }
-            foreach (ModuleBaseForm module in ModuleManager.ModuleList.ToArray())
+            var configurations = new HashSet<Configuration.ModuleConfiguration>();
+            var constants = new HashSet<Configuration.ConstantStore>();
+            foreach (ModuleBaseForm module in ModuleManager.ModuleList.Where(form => !form.IsDisposed).ToArray())
             {
                 catalog.AddParameters(module.Name, "Recipe", module.RecipeData);
                 catalog.AddParameters(module.Name, "Machine", module.SettingData);
-                SystemSetting constants = module as SystemSetting;
-                if (constants != null)
-                    foreach (string scope in new[] { "Setting", "Recipe" })
-                    {
-                        catalog.AddConstants(constants, scope);
-                        catalog.Add("constants/" + scope, scope, "constants", new FlowConstantTable(constants.Constants, scope, includeDraft));
-                    }
+                if (module.RuntimeModule != null) configurations.Add(module.RuntimeModule.Configuration);
+                SystemSetting parameters = module as SystemSetting;
+                if (parameters != null) constants.Add(parameters.Constants);
             }
+            foreach (IConfigurationModule module in ApplicationHost.Modules.Modules.OfType<IConfigurationModule>())
+            {
+                if (configurations.Add(module.Configuration))
+                {
+                    string parameterId = module is Configuration.SystemParametersModule ? "SystemSetting" : module.Id;
+                    catalog.AddParameters(parameterId, "Recipe", module.Configuration.Recipe);
+                    catalog.AddParameters(parameterId, "Machine", module.Configuration.Settings);
+                }
+                var parameters = module as Configuration.SystemParametersModule;
+                if (parameters != null) constants.Add(parameters.Constants);
+            }
+            foreach (Configuration.ConstantStore store in constants)
+                foreach (string scope in new[] { "Setting", "Recipe" })
+                {
+                    catalog.AddConstants(store, scope);
+                    catalog.Add("constants/" + scope, scope, "constants", new FlowConstantTable(store, scope, includeDraft));
+                }
             catalog.AddTrays();
             catalog.BindMethods();
             return catalog;
@@ -283,9 +298,9 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>常量绑定按作用域和键生成稳定引用，排序、删除其他行和切换配方不改变引用。</summary>
-        private void AddConstants(SystemSetting form, string scope)
+        private void AddConstants(Configuration.ConstantStore store, string scope)
         {
-            foreach (KeyValuePair<string, object> item in form.Constants.Snapshot(scope,includeDraft))
+            foreach (KeyValuePair<string, object> item in store.Snapshot(scope,includeDraft))
             {
                 Parameters.Add(item.Key, item.Value);
                 string prefix = "Constants/" + scope + "/";

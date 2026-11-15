@@ -115,6 +115,7 @@ namespace AlphaRap
     {
         private static readonly List<Form> RegisteredPages = new List<Form>();
         private static MachineApplication application;
+        public static ModuleRegistry Modules { get; private set; } = new ModuleRegistry();
 
         /// <summary>读取应用 EXE 的版本。</summary>
         public static string ApplicationVersion
@@ -144,6 +145,7 @@ namespace AlphaRap
         {
             if (page == null || RegisteredPages.Contains(page)) return page;
             ModuleBaseForm module = page as ModuleBaseForm;
+            if (module?.RuntimeModule != null) Modules.Register(module.RuntimeModule, new ModuleContext(ModuleManager.SettingDataDirectory));
             if (module != null) module.ModuleInitialize(module.Text);
             RegisteredPages.Add(page);
             return page;
@@ -227,14 +229,17 @@ namespace AlphaRap
         /// <summary>关闭应用拥有的任务并释放框架持有的窗口引用。</summary>
         public static void Shutdown()
         {
-            try { application?.Shutdown(); }
-            finally
-            {
-                application = null;
-                RegisteredPages.Clear();
-                MainWindow = null;
-                Home = null;
-            }
+            var errors = new List<Exception>();
+            try { application?.Shutdown(); } catch (Exception error) { errors.Add(error); }
+            ModuleRegistry ownedModules = Modules;
+            Modules = new ModuleRegistry();
+            application = null;
+            RegisteredPages.Clear();
+            MainWindow = null;
+            Home = null;
+            try { ownedModules.Dispose(); } catch (Exception error) { errors.Add(error); }
+            if (errors.Count == 1) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(errors[0]).Throw();
+            if (errors.Count > 1) throw new AggregateException(errors);
         }
 
         /// <summary>使用当前语言读取报警编号对应的文本。</summary>

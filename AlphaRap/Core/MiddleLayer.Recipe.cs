@@ -27,7 +27,12 @@ namespace AlphaRap
             }
 
             bool loaded = false;
-            if (SystemS != null && !SystemS.ConfirmRecipeChange()) return false;
+            if (Configuration.ProjectConfiguration.HasModuleRecipeChanges)
+            {
+                MessageBox.Show(LangMsg("Modules", "pendingRecipe", "模块配方有未保存修改，请先通过主保存处理。", "Module recipes have unsaved changes. Use the main Save button first.", "Hay cambios sin guardar en recetas de módulos. Use Guardar principal primero."),
+                    LangMsg("MiddleLayer", "msg_RecipeTitle", "切换配方", "Change recipe", "Cambiar receta"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
             if (HardF != null && HardF.Resources != null && HardF.Resources.HasRecipeChanges())
             {
                 MessageBox.Show(Configuration.HardwareText.T("pendingRecipe"),Configuration.HardwareText.T("title"));
@@ -45,7 +50,7 @@ namespace AlphaRap
                 SysPara.RecipeDataDirectory = Path.GetDirectoryName(RecipePath);
                 SysPara.RecipeName = Path.GetFileNameWithoutExtension(RecipePath);
                 SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, SysPara.RecipeName + ".xml");
-                foreach (ModuleBaseForm module in ModuleManager.ModuleList) module.ReadRecipeData(SysPara.FilePath);
+                Configuration.ProjectConfiguration.LoadModuleRecipes(SysPara.FilePath);
                 if (HardF != null && !ModuleManager.ModuleList.Contains(HardF)) HardF.ReadRecipeData(SysPara.FilePath);
                 RefreshRecipeTray();
                 loaded = true;

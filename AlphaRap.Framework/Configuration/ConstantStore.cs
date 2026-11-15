@@ -7,7 +7,6 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using NPSDK;
 using AlphaRap.FlowProgramming;
 
@@ -45,11 +44,12 @@ namespace AlphaRap.Configuration
         }
     }
 
-    public sealed class ConstantStore
+    public sealed class ConstantStore : IDisposable
     {
         public const string TableName = "DesignerConstants";
-        private readonly SystemSetting owner;
-        private readonly int ownerThread;
+        private readonly ModuleConfiguration data;
+        private IModuleDispatcher dispatcher = new InlineModuleDispatcher();
+        private bool disposed;
         private readonly object flowSync = new object();
         private readonly Dictionary<string, FlowValue> flowValues = new Dictionary<string, FlowValue>();
         private sealed class FlowValue { internal DataRow Row; internal object Value; }
@@ -57,15 +57,31 @@ namespace AlphaRap.Configuration
         private readonly Dictionary<string, BooleanSettingDefault> defaults;
 
         /// <summary>使用系统设置模块已有的 SettingData 和 RecipeData，不维护第二套配方目录。</summary>
-        internal ConstantStore(SystemSetting form, IEnumerable<BooleanSettingDefault> settings)
+        internal ConstantStore(ModuleConfiguration configuration, IEnumerable<BooleanSettingDefault> settings)
         {
             defaults = settings.ToDictionary(item => item.Key, StringComparer.Ordinal);
-            owner = form; ownerThread = Thread.CurrentThread.ManagedThreadId;
+            data = configuration;
             foreach (string scope in new[] { "Setting", "Recipe" })
             {
                 Table(scope).RowChanged += ClearPublishedRow;
                 Table(scope).TableCleared += ClearPublishedTable;
             }
+        }
+
+        /// <summary>由页面注入 UI 调度，独立模块默认不要求窗口或消息泵。</summary>
+        internal void SetDispatcher(IModuleDispatcher value) { dispatcher = value ?? new InlineModuleDispatcher(); }
+
+        /// <summary>应用释放模块时解绑数据事件，页面关闭不释放参数模型。</summary>
+        public void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+            foreach (string scope in new[] { "Setting", "Recipe" })
+            {
+                Table(scope).RowChanged -= ClearPublishedRow;
+                Table(scope).TableCleared -= ClearPublishedTable;
+            }
+            lock (flowSync) flowValues.Clear();
         }
 
         /// <summary>提交或放弃数据行时清理流程发布值，读取重新跟随表的已保存版本。</summary>
@@ -97,26 +113,15 @@ namespace AlphaRap.Configuration
         /// <summary>在界面线程设置表值并发布到当前流程；取消、失效批次或配方变更不修改数据。</summary>
         internal Task<object> SetFromFlowAsync(string scope,string key,object value,Type expectedType,FlowCall call,string recipePath)
         {
-            TaskCompletionSource<object> completion=new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-            Action apply=()=>{
-                try
-                {
-                    call.Token.ThrowIfCancellationRequested();
-                    if (owner.IsDisposed || call.Context.Hub.Epoch!=call.Context.RunId) throw new OperationCanceledException();
-                    if (scope=="Recipe" && !string.Equals(recipePath,SysPara.FilePath,StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException(FlowText.T("constantScopeChanged"));
-                    object actual=SetTableValue(scope,key,value,expectedType);
-                    call.Context.Hub.SetParameter(call.Context.RunId,Reference(scope,key),actual);
-                    completion.TrySetResult(actual);
-                }
-                catch (OperationCanceledException) { completion.TrySetCanceled(); }
-                catch (Exception error) { completion.TrySetException(error); }
-            };
-            if (Thread.CurrentThread.ManagedThreadId==ownerThread) { apply(); return completion.Task; }
-            Control dispatcher=ApplicationHost.MainWindow!=null && !ApplicationHost.MainWindow.IsDisposed && ApplicationHost.MainWindow.IsHandleCreated ? (Control)ApplicationHost.MainWindow : owner;
-            if (dispatcher.IsDisposed || !dispatcher.IsHandleCreated) return Task.FromException<object>(new InvalidOperationException(FlowText.T("constantUiUnavailable")));
-            try { dispatcher.BeginInvoke(apply); }
-            catch (InvalidOperationException error) { completion.TrySetException(error); }
-            return completion.Task;
+            return dispatcher.InvokeAsync(() =>
+            {
+                call.Token.ThrowIfCancellationRequested();
+                if (disposed || call.Context.Hub.Epoch != call.Context.RunId) throw new OperationCanceledException();
+                if (scope == "Recipe" && !string.Equals(recipePath, SysPara.FilePath, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException(FlowText.T("constantScopeChanged"));
+                object actual = SetTableValue(scope, key, value, expectedType);
+                call.Context.Hub.SetParameter(call.Context.RunId, Reference(scope, key), actual);
+                return actual;
+            });
         }
 
         /// <summary>只修改已有行的 Value 和兼容开关，保留键、类型、备注与保存前 Original 版本。</summary>
@@ -127,7 +132,7 @@ namespace AlphaRap.Configuration
             object parsed=Parse(Convert.ToString(row["Type"]),Convert.ToString(value,CultureInfo.InvariantCulture));
             if (parsed.GetType()!=expectedType) throw new InvalidOperationException(FlowText.T("constantTypeChanged"));
             row["Value"]=parsed is double ? ((double)parsed).ToString("R",CultureInfo.InvariantCulture) : Convert.ToString(parsed,CultureInfo.InvariantCulture);
-            if (scope=="Setting" && IsLegacyKey(key)) owner.SettingData.Tables["PSet"].Rows[0][key]=parsed;
+            if (scope=="Setting" && IsLegacyKey(key)) data.Settings.Tables["PSet"].Rows[0][key]=parsed;
             lock (flowSync) flowValues[Reference(scope,key)]=new FlowValue { Row=row,Value=parsed };
             return parsed;
         }
@@ -143,8 +148,8 @@ namespace AlphaRap.Configuration
         /// <summary>读取作用域对应的表，Setting 不随当前配方改变。</summary>
         public DataTable Table(string scope)
         {
-            if (scope == "Setting") return owner.SettingData.Tables[TableName];
-            if (scope == "Recipe") return owner.RecipeData.Tables[TableName];
+            if (scope == "Setting") return data.Settings.Tables[TableName];
+            if (scope == "Recipe") return data.Recipe.Tables[TableName];
             throw new ArgumentException("Unknown constant scope: " + scope);
         }
 
@@ -152,17 +157,17 @@ namespace AlphaRap.Configuration
         internal void InitializeDefaults()
         {
             if (defaults.Count == 0) return;
-            DataRow marker = owner.SettingData.Tables["MSet"].Rows[0];
+            DataRow marker = data.Settings.Tables["MSet"].Rows[0];
             if (!marker.IsNull("ConstantsInitialized") && Convert.ToBoolean(marker["ConstantsInitialized"])) return;
             DataTable table = Table("Setting");
             foreach (string key in defaults.Keys)
             {
                 if (Find(table, key) != null) continue;
-                bool legacy = IsLegacyKey(key) && Convert.ToBoolean(owner.SettingData.Tables["PSet"].Rows[0][key] == DBNull.Value ? false : owner.SettingData.Tables["PSet"].Rows[0][key]);
+                bool legacy = IsLegacyKey(key) && Convert.ToBoolean(data.Settings.Tables["PSet"].Rows[0][key] == DBNull.Value ? false : data.Settings.Tables["PSet"].Rows[0][key]);
                 table.Rows.Add(key, "Boolean", legacy.ToString(), "");
             }
             marker["ConstantsInitialized"] = true;
-            owner.SettingData.AcceptChanges();
+            data.Settings.AcceptChanges();
         }
 
         /// <summary>按业务键查询，忽略基础模块在空表中生成的占位行。</summary>
@@ -174,6 +179,7 @@ namespace AlphaRap.Configuration
         /// <summary>新增或修改前完成类型、唯一键与引用校验，然后一次写入草稿。</summary>
         public void Put(string scope, string oldKey, ConstantValue value)
         {
+            RequireActive();
             FlowPrograms.RequireIdle();
             ValidateValue(value);
             DataTable table = Table(scope);
@@ -187,12 +193,13 @@ namespace AlphaRap.Configuration
             string canonical = parsed is double ? ((double)parsed).ToString("R", CultureInfo.InvariantCulture) : Convert.ToString(parsed, CultureInfo.InvariantCulture);
             if (row == null) row = table.Rows.Add(value.Key, value.Type, canonical, value.Description ?? "");
             else row.ItemArray = new object[] { value.Key, value.Type, canonical, value.Description ?? "" };
-            if (scope == "Setting" && IsLegacyKey(value.Key)) owner.SettingData.Tables["PSet"].Rows[0][value.Key] = parsed;
+            if (scope == "Setting" && IsLegacyKey(value.Key)) data.Settings.Tables["PSet"].Rows[0][value.Key] = parsed;
         }
 
         /// <summary>删除前检查旧接口兼容和所有流程参数引用，不按表格排序后的行号定位。</summary>
         public void Delete(string scope, string key)
         {
+            RequireActive();
             FlowPrograms.RequireIdle();
             if (scope == "Setting" && IsLegacyKey(key)) throw new InvalidOperationException(ConstantText.T("legacy"));
             DataRow row = Find(Table(scope), key);
@@ -204,6 +211,7 @@ namespace AlphaRap.Configuration
         /// <summary>检查当前草稿全部业务行，空表占位行不作为常量。</summary>
         public void Validate(string scope)
         {
+            RequireActive();
             HashSet<string> keys = new HashSet<string>(StringComparer.Ordinal);
             foreach (DataRow row in Table(scope).Rows)
             {
@@ -217,10 +225,11 @@ namespace AlphaRap.Configuration
         /// <summary>只在完整文件落盘后提交版本，配方常量替换当前 ProductManagerForm 文件中的同命名空间表。</summary>
         public void Save(string scope)
         {
+            RequireActive();
             FlowPrograms.RequireIdle();
             Validate(scope);
-            string path = scope == "Setting" ? Path.Combine(AlphaRapLibrary.ModuleManager.SettingDataDirectory, owner.Text + ".xml") : SysPara.FilePath;
-            if (scope == "Setting") AtomicWrite(path, owner.SettingData.WriteXml);
+            string path = scope == "Setting" ? data.SettingsPath(AlphaRapLibrary.ModuleManager.SettingDataDirectory) : SysPara.FilePath;
+            if (scope == "Setting") AtomicWrite(path, data.Settings.WriteXml);
             else
             {
                 if (!File.Exists(path)) throw new InvalidOperationException(ConstantText.T("recipeRequired"));
@@ -231,7 +240,7 @@ namespace AlphaRap.Configuration
                 document.Root.Add(XElement.Parse(replacement.GetXml()).Elements(name));
                 AtomicWrite(path, document.Save);
             }
-            if (scope == "Setting") owner.SettingData.AcceptChanges(); else Table(scope).AcceptChanges();
+            if (scope == "Setting") data.Settings.AcceptChanges(); else Table(scope).AcceptChanges();
             OperationLog.Write("Constants", "Save " + scope + " constants: " + path);
         }
 
@@ -255,6 +264,7 @@ namespace AlphaRap.Configuration
         /// <summary>工程校验读取草稿；流程使用保存值或流程写入的表值，忽略普通页面编辑草稿。</summary>
         public IEnumerable<KeyValuePair<string, object>> Snapshot(string scope,bool includeDraft)
         {
+            RequireActive();
             foreach (DataRow row in Table(scope).Rows)
             {
                 DataRowVersion version = includeDraft ? DataRowVersion.Current : DataRowVersion.Original;
@@ -274,6 +284,9 @@ namespace AlphaRap.Configuration
         }
 
         internal IEnumerable<string> DefaultKeys { get { return defaults.Keys; } }
+
+        /// <summary>宿主释放业务模块后拒绝继续编辑或发布旧模型。</summary>
+        private void RequireActive() { if (disposed) throw new ObjectDisposedException(nameof(ConstantStore)); }
 
         /// <summary>显示应用声明的标题或用户新增的原始键。</summary>
         internal string Label(string key)

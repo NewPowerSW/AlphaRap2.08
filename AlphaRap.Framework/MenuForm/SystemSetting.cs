@@ -15,6 +15,8 @@ namespace AlphaRap
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ConstantStore Constants { get; private set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public SystemParametersModule Parameters { get; private set; }
         private string contextKey, contextScope;
         private string Scope { get { return scopes.SelectedTab == settingPage ? "Setting" : "Recipe"; } }
 
@@ -22,13 +24,17 @@ namespace AlphaRap
         public SystemSetting() : this(new BooleanSettingDefault[0]) { }
 
         /// <summary>从应用声明建立常量和历史列，沿用主保存。</summary>
-        public SystemSetting(IEnumerable<BooleanSettingDefault> defaults)
+        public SystemSetting(IEnumerable<BooleanSettingDefault> defaults) : this(new SystemParametersModule(defaults)) { }
+
+        /// <summary>绑定宿主已经创建的业务模块，页面和无窗口运行使用同一数据源。</summary>
+        public SystemSetting(SystemParametersModule parameters)
         {
             InitializeComponent();
-            BooleanSettingDefault[] settings = defaults.ToArray();
-            InitializeConfigurationSchema(settings);
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+            BindModule(Parameters);
+            Constants = Parameters.Constants;
             if (UiTheme.IsDesignTime) return;
-            Constants = new ConstantStore(this, settings);
+            Constants.SetDispatcher(new WinFormsModuleDispatcher(this));
             ConstantText.Apply(this);
             FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
             FrameworkLanguage.LanguageChanged += ApplyLanguage;
@@ -48,25 +54,10 @@ namespace AlphaRap
             permissionTimer.Start();
         }
 
-        /// <summary>建立机器设置、兼容开关和配方常量的独立内存表，不读取现场配置。</summary>
-        private void InitializeConfigurationSchema(IEnumerable<BooleanSettingDefault> settings)
-        {
-            DataTable marker = new DataTable("MSet");
-            marker.Columns.Add("ConstantsInitialized", typeof(bool)).DefaultValue = false;
-            DataTable legacy = new DataTable("PSet");
-            foreach (BooleanSettingDefault setting in settings.Where(item => item.PreserveLegacyColumn))
-                legacy.Columns.Add(setting.Key, typeof(bool)).DefaultValue = false;
-            SettingData.Tables.Add(marker);
-            SettingData.Tables.Add(legacy);
-            SettingData.Tables.Add(ConstantStore.CreateTable());
-            RecipeData.Tables.Add(ConstantStore.CreateTable());
-        }
-
         /// <summary>沿用模块生命周期加载 Setting 并迁移现有开关，配方仍由统一入口加载。</summary>
         public override void ModuleInitialize(string moduleName)
         {
             base.ModuleInitialize(moduleName);
-            Constants.InitializeDefaults();
             BindScope();
         }
 
@@ -143,7 +134,7 @@ namespace AlphaRap
         }
 
         /// <summary>全局保存前校验两个作用域的类型和值。</summary>
-        public void ValidateConstants() { Constants.Validate("Setting"); Constants.Validate("Recipe"); }
+        public void ValidateConstants() { Parameters.ValidateConfiguration(); }
 
         /// <summary>切换配方前拦截未保存常量，由主保存统一处理。</summary>
         public bool ConfirmRecipeChange()

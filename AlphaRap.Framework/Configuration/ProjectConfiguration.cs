@@ -26,7 +26,7 @@ namespace AlphaRap.Configuration
         public static void Validate()
         {
             FlowPrograms.RequireIdle();
-            ApplicationHost.Settings?.ValidateConstants();
+            foreach (IConfigurationModule module in ConfigurationModules()) module.ValidateConfiguration();
             ApplicationHost.FindModule<HardForm>()?.Resources?.ValidateForSave();
             DataForm data = ApplicationHost.Data;
             data?.ValidateProductionDraft();
@@ -42,10 +42,10 @@ namespace AlphaRap.Configuration
             FlowProject snapshot = FlowPrograms.CaptureForSave();
             List<PendingFile> files = BuildFiles(snapshot);
             WriteFiles(files);
-            foreach (ModuleBaseForm module in ModuleManager.ModuleList)
+            foreach (ModuleConfiguration module in ModuleConfigurations())
             {
-                module.RecipeData.AcceptChanges();
-                module.SettingData.AcceptChanges();
+                module.Recipe.AcceptChanges();
+                module.Settings.AcceptChanges();
             }
             ApplicationHost.FindModule<HardForm>()?.Resources?.AcceptSaved();
             DataForm data = ApplicationHost.Data;
@@ -68,14 +68,14 @@ namespace AlphaRap.Configuration
         {
             List<PendingFile> files = new List<PendingFile>();
             DataSet recipe = new DataSet();
-            foreach (ModuleBaseForm module in ModuleManager.ModuleList)
+            foreach (ModuleConfiguration module in ModuleConfigurations())
             {
-                recipe.Merge(module.RecipeData.Copy());
-                DataSet settings = module.SettingData.Copy();
+                recipe.Merge(module.Recipe.Copy());
+                DataSet settings = module.Settings.Copy();
                 settings.AcceptChanges();
                 files.Add(new PendingFile
                 {
-                    Path = System.IO.Path.Combine(ModuleManager.SettingDataDirectory,module.Text+".xml"),
+                    Path = module.SettingsPath(ModuleManager.SettingDataDirectory),
                     Write = settings.WriteXml
                 });
             }
@@ -202,16 +202,46 @@ namespace AlphaRap.Configuration
             DeviceControl.ReloadAll();
             if (discardPermissions != null) discardPermissions();
             ApplicationHost.FindModule<HardForm>()?.Resources?.DiscardChanges();
-            foreach (ModuleBaseForm module in ModuleManager.ModuleList)
+            foreach (ModuleConfiguration module in ModuleConfigurations())
             {
-                module.ReadRecipeData(SysPara.FilePath);
-                module.ReadSettingData();
+                module.LoadRecipe(SysPara.FilePath);
+                module.LoadSettings(ModuleManager.SettingDataDirectory);
             }
             DataForm data = ApplicationHost.Data;
             data?.DiscardProductionDraft();
             data?.DiscardLogModulesDraft();
             FlowPrograms.DiscardChanges();
             discardSource();
+        }
+
+        /// <summary>合并已登记业务模块及兼容页面，窗口绑定不产生第二份配置。</summary>
+        private static IEnumerable<IConfigurationModule> ConfigurationModules()
+        {
+            return ApplicationHost.Modules.Modules.OfType<IConfigurationModule>()
+                .Concat(ModuleManager.ModuleList.Select(form => form.RuntimeModule).Where(module => module != null)).Distinct();
+        }
+
+        /// <summary>以配置对象身份去重，页面和无窗口模块共用主保存清单。</summary>
+        private static IEnumerable<ModuleConfiguration> ModuleConfigurations()
+        {
+            return ModuleManager.ModuleList.Select(form => form.ConfigurationData)
+                .Concat(ConfigurationModules().Select(module => module.Configuration)).Distinct().ToArray();
+        }
+
+        public static bool HasModuleRecipeChanges { get { return ConfigurationModules().Any(module => module.Configuration.Recipe.HasChanges()); } }
+
+        /// <summary>配方入口加载全部注册模块，不要求业务模块有页面实例。</summary>
+        public static void LoadModuleRecipes(string path)
+        {
+            foreach (ModuleConfiguration module in ModuleConfigurations()) module.LoadRecipe(path);
+        }
+
+        /// <summary>为兼容写入入口捕获全部模块配方，不改变任何内存行版本。</summary>
+        internal static DataSet CaptureModuleRecipes()
+        {
+            var snapshot = new DataSet();
+            foreach (ModuleConfiguration module in ModuleConfigurations()) snapshot.Merge(module.Recipe.Copy());
+            return snapshot;
         }
     }
 }

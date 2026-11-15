@@ -9,12 +9,32 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using AlphaRap;
+using AlphaRap.Configuration;
 namespace AlphaRapLibrary
 {
 	public partial class ModuleBaseForm : Form
 	{
 
 		private static readonly object readdata = new object();
+        private ModuleConfiguration configuration;
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public IConfigurationModule RuntimeModule { get; private set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public ModuleConfiguration ConfigurationData
+        {
+            get { return configuration ?? (configuration = new ModuleConfiguration(_ModuleName ?? Text, SettingData, RecipeData)); }
+        }
+
+        /// <summary>以独立模块的数据绑定兼容字段，界面和主保存使用同一份模型。</summary>
+        protected void BindModule(IConfigurationModule module)
+        {
+            if (RuntimeModule != null) throw new InvalidOperationException(ModuleText.AlreadyBound);
+            RuntimeModule = module ?? throw new ArgumentNullException(nameof(module));
+            configuration = module.Configuration;
+            SettingData = configuration.Settings;
+            RecipeData = configuration.Recipe;
+        }
 		private Task ManualTask;
 		private readonly object manualSync = new object();
 		private Task manualCancellation = Task.FromResult(0);
@@ -27,15 +47,16 @@ namespace AlphaRapLibrary
      
 
         }
+        /// <summary>加载绑定模块或兼容数据；配置身份不跟随页面显示标题改变。</summary>
         public virtual void ModuleInitialize(string ModuleName)
 		{
 
 			// plMaintenance.AutoScroll = true;
 			_ModuleName = ModuleName;
 
-			for (int i = 0; i < RecipeData.Tables.Count; i++)
-				RecipeData.Tables[i].Namespace = this.Text;
-			ReadSettingData();
+            foreach (DataTable table in RecipeData.Tables) table.Namespace = ConfigurationData.StorageName;
+            if (RuntimeModule != null) RuntimeModule.Initialize(new ModuleContext(ModuleManager.SettingDataDirectory));
+            else ReadSettingData();
 		}
 		public virtual void ModuleDispose() { }
 
@@ -137,35 +158,15 @@ namespace AlphaRapLibrary
 			}
 		}
 
-		public void ReadSettingData()
-		{
-			lock (readdata)
-			{
+        /// <summary>通过无窗口配置对象加载设置，绑定的数据表实例保持不变。</summary>
+        public void ReadSettingData() { lock (readdata) ConfigurationData.LoadSettings(ModuleManager.SettingDataDirectory); }
 
-				SettingData.Clear();
-				string sSettingDataPath = String.Format("{0}\\{1}.xml", ModuleManager.SettingDataDirectory, _ModuleName);
-				if (File.Exists(sSettingDataPath))
-					SettingData.ReadXml(sSettingDataPath);
-				for (int i = 0; i < SettingData.Tables.Count; i++)
-					if (SettingData.Tables[i].Rows.Count == 0)
-					{
-						DataRow NewRow = SettingData.Tables[i].NewRow();
-
-						SettingData.Tables[i].Rows.Add(NewRow);
-					}
-				SettingData.AcceptChanges();
-
-
-
-			}
-
-		}
-
+        /// <summary>兼容写入机器设置，使用稳定的模块存储路径。</summary>
 		public void WriteSettingData()
 		{
 			lock (readdata)
 			{
-				string sSettingDataPath = String.Format("{0}\\{1}.xml", ModuleManager.SettingDataDirectory, _ModuleName);
+				string sSettingDataPath = ConfigurationData.SettingsPath(ModuleManager.SettingDataDirectory);
 				FileInfo fileInfo = new FileInfo(sSettingDataPath);
 				if (fileInfo.Directory.Exists == false)
 					fileInfo.Directory.Create();
@@ -180,42 +181,10 @@ namespace AlphaRapLibrary
 		/// <summary>加载模块配方，普通参数表补齐默认行，允许空行集合的明细表保持为空。</summary>
 		public void ReadRecipeData(string RecipePath)
 		{
-			lock (readdata)
-			{
-				if (File.Exists(RecipePath))
-				{
-					DataSet ds = new DataSet();
-					for (int i = 0; i < ModuleManager.ModuleList.Count; i++)
-					{
-						if (ModuleManager.ModuleList[i]._ModuleName == _ModuleName)
-							ModuleManager.ModuleList[i].RecipeData.Clear();
-						ds.Merge(ModuleManager.ModuleList[i].RecipeData);
-					}
-					ds.ReadXml(RecipePath);
-					for (int i = 0; i < ds.Tables.Count; i++)
-						if (ds.Tables[i].Namespace == _ModuleName)
-						{
-							try
-							{
-								DataTable dt = ds.Tables[i].Copy();
-								RecipeData.Tables[ds.Tables[i].TableName].Clear();
-								RecipeData.Merge(dt);
-							}
-							catch (Exception) { }
-						}
-				}
-				for (int i = 0; i < RecipeData.Tables.Count; i++)
-					if (RecipeData.Tables[i].Rows.Count == 0 && !Equals(RecipeData.Tables[i].ExtendedProperties["AllowEmpty"], true))
-					{
-						DataRow NewRow = RecipeData.Tables[i].NewRow();
-
-						RecipeData.Tables[i].Rows.Add(NewRow);
-					}
-				RecipeData.AcceptChanges();
-			}
-
+			lock (readdata) ConfigurationData.LoadRecipe(RecipePath);
 		}
 
+        /// <summary>兼容写入合并后的模块配方，不遗漏无窗口模块的数据。</summary>
 		public void WriteRecipeData(string RecipePath)
 		{
 			lock (readdata)
@@ -223,12 +192,8 @@ namespace AlphaRapLibrary
 				FileInfo fiTmp1 = new FileInfo(RecipePath);
 				if (fiTmp1.Directory.Exists == false)
 					fiTmp1.Directory.Create();
+                using (DataSet snapshot = ProjectConfiguration.CaptureModuleRecipes()) snapshot.WriteXml(RecipePath);
 				RecipeData.AcceptChanges();
-
-				DataSet ds = new DataSet();
-				for (int i = 0; i < ModuleManager.ModuleList.Count; i++)
-					ds.Merge(ModuleManager.ModuleList[i].RecipeData);
-				ds.WriteXml(RecipePath);
 
 			}
 		}
