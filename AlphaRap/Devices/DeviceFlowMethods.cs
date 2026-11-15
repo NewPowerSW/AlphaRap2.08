@@ -13,11 +13,15 @@ namespace AlphaRap
         /// <summary>声明扫码枪实例的单次触发方法，空条码按失败处理。</summary>
         public override IEnumerable<FlowMethod> GetFlowMethods(bool includeDraft = false)
         {
-            foreach (FlowMethod method in base.GetFlowMethods(includeDraft)) yield return method;
+            foreach (FlowMethod method in base.GetFlowMethods(includeDraft))
+            {
+                if (method.Id == "device.receive")
+                    method.Invoke = async call => FlowCall.Result("Value", (await ReceiveAsync(call.Token).ConfigureAwait(false)).RequireValue(call.Token));
+                yield return method;
+            }
             yield return FlowMethods.Sync("scanner.once", "扫码一次", "Scan once", "Escanear una vez", new FlowField[0],
                 new[] { new FlowField("Barcode", typeof(string)) { DisplayName = new[] { "条码", "Barcode", "Código de barras" } } }, call => {
-                    string barcode = ScanOnce();
-                    if (string.IsNullOrWhiteSpace(barcode)) throw new InvalidOperationException(DeviceText.T("error.scannerEmpty"));
+                    string barcode = ScanOnceAsync(call.Token).GetAwaiter().GetResult().RequireValue(call.Token);
                     return FlowCall.Result("Barcode", barcode);
                 });
         }

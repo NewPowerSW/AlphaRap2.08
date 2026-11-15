@@ -6,6 +6,17 @@ namespace AlphaRap
     {
         private static readonly Dictionary<string, string[]> Words = new Dictionary<string, string[]>
         {
+            { "error.scannerCommunication", new[] { "扫码枪通信失败：{0}。{1}", "Scanner communication failed: {0}. {1}", "Falló la comunicación del lector: {0}. {1}" } },
+            { "error.scannerUncertain", new[] { "命令可能已经执行。请确认设备状态后显式重连，不自动重发。", "The command may have executed. Verify the device state before reconnecting explicitly; it is not retried automatically.", "El comando puede haberse ejecutado. Verifique el estado antes de reconectar explícitamente; no se reenvía automáticamente." } },
+            { "scanner.status.NotConnected", new[] { "未连接，请先打开连接", "Not connected; open the connection first", "Sin conexión; abra primero la conexión" } },
+            { "scanner.status.Busy", new[] { "手动命令尚未接收完成，请先接收或停止", "A manual command is awaiting a response; receive or stop first", "Un comando manual espera respuesta; reciba o detenga primero" } },
+            { "scanner.status.InvalidConfiguration", new[] { "地址、端口、超时或最大报文长度无效，或端点参数已改变", "Invalid host, port, timeout or frame limit, or endpoint settings changed", "Host, puerto, tiempo o límite de trama no válido, o cambió el destino" } },
+            { "scanner.status.Timeout", new[] { "连接、排队或完整应答超时", "Connection, queue or complete-response timeout", "Tiempo agotado de conexión, cola o respuesta completa" } },
+            { "scanner.status.Cancelled", new[] { "操作已停止或旧请求已撤销", "Operation stopped or stale request revoked", "Operación detenida o solicitud antigua revocada" } },
+            { "scanner.status.Disconnected", new[] { "设备已断开，未收到完整应答", "Device disconnected before a complete response", "El dispositivo se desconectó antes de completar la respuesta" } },
+            { "scanner.status.Rejected", new[] { "设备返回空条码或 ERROR", "Device returned an empty barcode or ERROR", "El dispositivo devolvió un código vacío o ERROR" } },
+            { "scanner.status.ProtocolError", new[] { "应答超过允许的最大字节数", "Response exceeded the maximum byte length", "La respuesta superó la longitud máxima de bytes" } },
+            { "scanner.status.TransportError", new[] { "网络连接或收发失败", "Network connection or I/O failure", "Falló la conexión o la transferencia de red" } },
             { "error.plcCommunication", new[] { "PLC 通信失败：{0}，驱动码 {1}。{2}", "PLC communication failed: {0}, driver code {1}. {2}", "Falló la comunicación del PLC: {0}, código del controlador {1}. {2}" } },
             { "error.plcWriteUnknown", new[] { "写入结果未知。请核对设备实际状态后显式重连，禁止自动重发。", "Write outcome is unknown. Verify the actual device state before reconnecting explicitly. Do not retry the write automatically.", "El resultado de escritura es desconocido. Verifique el estado real antes de reconectar explícitamente. No repita la escritura automáticamente." } },
             { "error.plcInvalidData", new[] { "PLC 地址、长度或数据类型无效，数值超出范围，或应答数据不完整。", "Invalid PLC address, length or data type, out-of-range value, or incomplete response.", "Dirección, longitud o tipo de dato del PLC no válido, valor fuera de rango o respuesta incompleta." } },

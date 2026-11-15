@@ -753,6 +753,8 @@
     <Compile Include="Devices\ATEQ_F620.cs" />
     <Compile Include="Devices\ModBus_RTU.cs" />
     <Compile Include="Devices\ScannerKeyenceTcp.cs" />
+    <Compile Include="Devices\ScannerConnection.cs" />
+    <Compile Include="Devices\ScannerResult.cs" />
     <Compile Include="MenuForm\ManualForm.Style.cs">
       <DependentUpon>ManualForm.cs</DependentUpon>
       <SubType>Code</SubType>
