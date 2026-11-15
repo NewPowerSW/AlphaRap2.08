@@ -76,7 +76,7 @@ internal static class ScannerCases
         finally { foreach (var scanner in scanners) scanner.Close(); }
     }
 
-    private sealed class Server : IDisposable
+    internal sealed class Server : IDisposable
     {
         private readonly TcpListener listener = new TcpListener(IPAddress.Loopback, 0);
         private readonly CancellationTokenSource shutdown = new CancellationTokenSource();

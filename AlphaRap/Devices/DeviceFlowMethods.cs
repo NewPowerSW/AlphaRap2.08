@@ -63,15 +63,19 @@ namespace AlphaRap
         /// <summary>声明该 3D 控制器自己的触发和程序选择方法。</summary>
         public override IEnumerable<FlowMethod> GetFlowMethods(bool includeDraft = false)
         {
-            foreach (FlowMethod method in base.GetFlowMethods(includeDraft)) yield return method;
+            foreach (FlowMethod method in base.GetFlowMethods(includeDraft))
+            {
+                if (method.Id == "device.receive") method.Invoke = async call => FlowCall.Result("Value", (await ReceiveAsync(call.Token).ConfigureAwait(false)).RequireValue(call.Token));
+                yield return method;
+            }
             yield return FlowMethods.Sync("keyence.trigger", "触发 3D", "Trigger 3D", "Activar 3D",
                 new[] { new FlowField("Position", typeof(int), "0") { DisplayName = new[] { "3D 位置号", "3D position number", "Número de posición 3D" } } },
                 new[] { new FlowField("Value", typeof(string)) { DisplayName = new[] { "3D 返回结果", "3D returned result", "Resultado devuelto por 3D" } } },
-                call => FlowCall.Result("Value", Triger3D(call.Get<int>("Position"))));
+                call => FlowCall.Result("Value", TriggerAsync(call.Get<int>("Position"), call.Token).GetAwaiter().GetResult().RequireValue(call.Token)));
             yield return FlowMethods.Sync("keyence.change", "切换 3D 程序", "Change 3D program", "Cambiar programa 3D",
                 new[] { new FlowField("Position", typeof(int), "0") { DisplayName = new[] { "3D 位置号", "3D position number", "Número de posición 3D" } } },
                 new[] { new FlowField("Value", typeof(string)) { DisplayName = new[] { "切换返回结果", "Program change response", "Respuesta de cambio de programa" } } },
-                call => FlowCall.Result("Value", Change3D(call.Get<int>("Position"))));
+                call => FlowCall.Result("Value", ChangeAsync(call.Get<int>("Position"), call.Token).GetAwaiter().GetResult().RequireValue(call.Token)));
         }
     }
 

@@ -6,6 +6,17 @@ namespace AlphaRap
     {
         private static readonly Dictionary<string, string[]> Words = new Dictionary<string, string[]>
         {
+            { "error.keyenceAck", new[] { "请先按实际控制器的成功应答配置 ProgramAck；不猜测切换是否成功，也不继续触发测量。", "Configure ProgramAck from the actual controller's successful reply. Program switching is not assumed and measurement will not be triggered.", "Configure ProgramAck según la respuesta real del controlador. No se supone el cambio ni se activa la medición." } },
+            { "error.communication", new[] { "设备通信失败：{0}。{1}", "Device communication failed: {0}. {1}", "Falló la comunicación del dispositivo: {0}. {1}" } },
+            { "communication.NotConnected", new[] { "未连接", "Not connected", "Sin conexión" } },
+            { "communication.InvalidConfiguration", new[] { "通信参数无效", "Invalid communication settings", "Configuración de comunicación no válida" } },
+            { "communication.Timeout", new[] { "操作超时", "Operation timed out", "Tiempo de operación agotado" } },
+            { "communication.Cancelled", new[] { "已停止或旧请求已撤销", "Stopped or stale request revoked", "Detenido o solicitud antigua revocada" } },
+            { "communication.Disconnected", new[] { "设备在完整应答前断开", "Device disconnected before a complete response", "Dispositivo desconectado antes de completar la respuesta" } },
+            { "communication.ProtocolError", new[] { "应答格式、长度或校验不正确", "Invalid response format, length or checksum", "Formato, longitud o verificación de respuesta no válido" } },
+            { "communication.Rejected", new[] { "设备拒绝命令", "Device rejected the command", "El dispositivo rechazó el comando" } },
+            { "communication.Unconfirmed", new[] { "命令已发送，但设备执行结果未确认", "Command sent but execution is unconfirmed", "Comando enviado, ejecución sin confirmar" } },
+            { "communication.TransportError", new[] { "连接或收发失败", "Connection or I/O failed", "Falló la conexión o transferencia" } },
             { "error.scannerCommunication", new[] { "扫码枪通信失败：{0}。{1}", "Scanner communication failed: {0}. {1}", "Falló la comunicación del lector: {0}. {1}" } },
             { "error.scannerUncertain", new[] { "命令可能已经执行。请确认设备状态后显式重连，不自动重发。", "The command may have executed. Verify the device state before reconnecting explicitly; it is not retried automatically.", "El comando puede haberse ejecutado. Verifique el estado antes de reconectar explícitamente; no se reenvía automáticamente." } },
             { "scanner.status.NotConnected", new[] { "未连接，请先打开连接", "Not connected; open the connection first", "Sin conexión; abra primero la conexión" } },

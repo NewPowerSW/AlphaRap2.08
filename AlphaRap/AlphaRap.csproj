@@ -738,6 +738,8 @@
       <DependentUpon>HomeForm.cs</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Devices\NPTCPClient.cs" />
+    <Compile Include="Devices\TcpConnection.cs" />
+    <Compile Include="Devices\CommunicationResult.cs" />
     <Compile Include="Devices\NPSerialPort.cs" />
     <Compile Include="Devices\FFU.cs" />
     <Compile Include="Devices\FFUCom.cs" />
