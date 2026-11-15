@@ -22,86 +22,71 @@ namespace AlphaRap.Configuration
             public byte[] PreparedContents;
         }
 
-        /// <summary>主保存前检查权限、机器状态及全部新功能草稿。</summary>
-        public static void Validate()
-        {
-            FlowPrograms.RequireIdle();
-            foreach (IConfigurationModule module in ConfigurationModules()) module.ValidateConfiguration();
-            ApplicationHost.FindModule<HardForm>()?.Resources?.ValidateForSave();
-            DataForm data = ApplicationHost.Data;
-            data?.ValidateProductionDraft();
-            data?.ValidateLogModulesDraft();
-            ApplicationHost.FindModule<VPForm>()?.ValidateVisionDraft();
-            FlowPrograms.ValidateForSave();
-        }
+        private static int operation;
 
-        /// <summary>先暂存所有配置文件，全部替换成功后才提交内存和流程版本。</summary>
+        /// <summary>主保存前按配置能力接口检查草稿，不识别具体页面类型。</summary>
+        public static void Validate() { FlowPrograms.RequireIdle(); Validate(Participants()); }
+
+        /// <summary>固定本次参与者和快照，所有文件提交后才接受内存版本。</summary>
         public static void Save()
         {
-            Validate();
-            FlowProject snapshot = FlowPrograms.CaptureForSave();
-            List<PendingFile> files = BuildFiles(snapshot);
-            WriteFiles(files);
-            foreach (ModuleConfiguration module in ModuleConfigurations())
+            BeginOperation();
+            try
             {
-                module.Recipe.AcceptChanges();
-                module.Settings.AcceptChanges();
+                FlowPrograms.RequireIdle();
+                IConfigurationParticipant[] participants = Participants();
+                Validate(participants);
+                ConfigurationChange[] changes = CaptureChanges(participants);
+                WriteFiles(BuildFiles(changes));
+                foreach (ConfigurationChange change in changes) change.AcceptSaved();
             }
-            ApplicationHost.FindModule<HardForm>()?.Resources?.AcceptSaved();
-            DataForm data = ApplicationHost.Data;
-            data?.AcceptProductionDraft();
-            data?.AcceptLogModulesDraft();
-            ApplicationHost.FindModule<VPForm>()?.AcceptSaved();
-            ApplicationHost.FindModule<AddUserForm>()?.AcceptPermissionSave();
-            FlowPrograms.PublishSaved(snapshot);
-            FlowSourceGenerator.AcceptSaved();
+            finally { System.Threading.Volatile.Write(ref operation, 0); }
         }
 
-        /// <summary>捕获当前保存清单，供离线校验和故障恢复诊断检查目标文件。</summary>
-        private static List<PendingFile> PrepareFiles()
+        /// <summary>拒绝保存或放弃回调中的重入，避免嵌套事务覆盖当前文件和草稿。</summary>
+        private static void BeginOperation()
         {
-            return BuildFiles(FlowPrograms.CaptureForSave());
+            if (System.Threading.Interlocked.CompareExchange(ref operation, 1, 0) != 0)
+                throw new InvalidOperationException(ConfigurationText.Busy);
         }
 
-        /// <summary>从同一流程快照准备配置和关联源码，写入任务只操作暂存文件。</summary>
-        private static List<PendingFile> BuildFiles(FlowProject snapshot)
+        /// <summary>在任何写入准备之前校验本次操作的全部参与者。</summary>
+        private static void Validate(IEnumerable<IConfigurationParticipant> participants)
         {
-            List<PendingFile> files = new List<PendingFile>();
-            DataSet recipe = new DataSet();
-            foreach (ModuleConfiguration module in ModuleConfigurations())
-            {
-                recipe.Merge(module.Recipe.Copy());
-                DataSet settings = module.Settings.Copy();
-                settings.AcceptChanges();
-                files.Add(new PendingFile
-                {
-                    Path = module.SettingsPath(ModuleManager.SettingDataDirectory),
-                    Write = settings.WriteXml
-                });
-            }
-            recipe.AcceptChanges();
-            files.Add(new PendingFile { Path=SysPara.FilePath,Write=recipe.WriteXml });
-            HardwareResources resources = ApplicationHost.FindModule<HardForm>()?.Resources;
-            if (resources != null) files.Add(new PendingFile { Path=resources.PathName,Write=resources.WriteDraft });
-            DataForm data = ApplicationHost.Data;
-            if (data != null)
-            {
-                files.Add(new PendingFile { Path=DataForm.ProductionSchemaPath,Write=data.WriteProductionDraft });
-                files.Add(new PendingFile { Path=LogModuleStore.FilePath,Write=data.WriteLogModulesDraft });
-            }
-            files.Add(new PendingFile { Path=FlowPrograms.FilePath,Write=path => FlowProgramFile.Save(path,snapshot) });
-            files.AddRange(FlowSourceGenerator.Prepare(snapshot));
-            VPForm vision = ApplicationHost.FindModule<VPForm>();
-            if (vision != null) files.AddRange(vision.PrepareConfigurationSave());
-            files.Add(DeviceControl.PrepareConfigurationSave());
-            PendingFile permissions = ApplicationHost.FindModule<AddUserForm>()?.PreparePermissionSave();
-            if (permissions != null) files.Add(permissions);
-            foreach (PendingFile file in files) file.Path = System.IO.Path.GetFullPath(file.Path);
-            if (files.GroupBy(file => file.Path,StringComparer.OrdinalIgnoreCase).Any(group => group.Count()>1))
+            foreach (IConfigurationParticipant participant in participants) participant.ValidateConfiguration();
+        }
+
+        /// <summary>捕获兼容事务清单，供离线故障注入检查目标文件。</summary>
+        private static List<PendingFile> PrepareFiles() { return BuildFiles(CaptureChanges(Participants())); }
+
+        /// <summary>准备全部保存快照；任何准备失败都不写正式文件或接受草稿。</summary>
+        private static ConfigurationChange[] CaptureChanges(IEnumerable<IConfigurationParticipant> participants)
+        {
+            return participants.Select(participant => participant.PrepareConfigurationSave()
+                ?? throw new InvalidOperationException(ConfigurationText.MissingChange)).ToArray();
+        }
+
+        /// <summary>合并声明并拒绝目标路径冲突，执行状态不与配置提供方共享。</summary>
+        private static List<PendingFile> BuildFiles(IEnumerable<ConfigurationChange> changes)
+        {
+            List<PendingFile> files = changes.SelectMany(change => change.Files).Select(file => file.CreatePending()).ToList();
+            if (files.GroupBy(file => file.Path, StringComparer.OrdinalIgnoreCase).Any(group => group.Count() > 1))
                 throw new IOException(HardwareText.T("duplicatePath"));
             return files;
         }
 
+        /// <summary>发现已登记页面和业务模块声明的配置能力，顺序与身份在操作开始时固定。</summary>
+        private static IConfigurationParticipant[] Participants()
+        {
+            IConfigurationParticipant[] participants = FrameworkConfigurationParticipants.Capture()
+                .Concat(ApplicationHost.ModulePages.Where(page => !page.IsDisposed).OfType<IConfigurationParticipant>())
+                .Concat(ApplicationHost.Modules.Modules.OfType<IConfigurationParticipant>()).Distinct().ToArray();
+            if (participants.Any(participant => string.IsNullOrWhiteSpace(participant.ConfigurationId)))
+                throw new InvalidOperationException(ConfigurationText.InvalidId);
+            var duplicate = participants.GroupBy(participant => participant.ConfigurationId, StringComparer.Ordinal).FirstOrDefault(group => group.Count() > 1);
+            if (duplicate != null) throw new InvalidOperationException(string.Format(ConfigurationText.DuplicateId, duplicate.Key));
+            return participants.OrderBy(participant => participant.ConfigurationOrder).ThenBy(participant => participant.ConfigurationId, StringComparer.Ordinal).ToArray();
+        }
         /// <summary>暂存完成后替换正式文件，失败时恢复已经替换的文件。</summary>
         private static void WriteFiles(List<PendingFile> files)
         {
@@ -191,38 +176,27 @@ namespace AlphaRap.Configuration
             catch (Exception error) { errors.Add(error); }
         }
 
-        /// <summary>主界面选择放弃时恢复模块、资源、视觉、设备、权限和流程草稿。</summary>
+        /// <summary>先准备全部恢复动作，任一预检失败时保留所有尚未恢复的草稿。</summary>
         public static void Discard()
         {
-            FlowPrograms.RequireIdle();
-            Action discardSource = FlowSourceGenerator.PrepareDiscard();
-            DeviceControl.ValidateConfigurationReload();
-            Action discardPermissions = ApplicationHost.FindModule<AddUserForm>()?.PreparePermissionDiscard();
-            ApplicationHost.FindModule<VPForm>()?.RevertVpConfig();
-            DeviceControl.ReloadAll();
-            if (discardPermissions != null) discardPermissions();
-            ApplicationHost.FindModule<HardForm>()?.Resources?.DiscardChanges();
-            foreach (ModuleConfiguration module in ModuleConfigurations())
+            BeginOperation();
+            try
             {
-                module.LoadRecipe(SysPara.FilePath);
-                module.LoadSettings(ModuleManager.SettingDataDirectory);
+                FlowPrograms.RequireIdle();
+                Action[] restore = Participants().Select(participant => participant.PrepareConfigurationDiscard()).Where(action => action != null).ToArray();
+                foreach (Action action in restore) action();
             }
-            DataForm data = ApplicationHost.Data;
-            data?.DiscardProductionDraft();
-            data?.DiscardLogModulesDraft();
-            FlowPrograms.DiscardChanges();
-            discardSource();
+            finally { System.Threading.Volatile.Write(ref operation, 0); }
         }
-
         /// <summary>合并已登记业务模块及兼容页面，窗口绑定不产生第二份配置。</summary>
-        private static IEnumerable<IConfigurationModule> ConfigurationModules()
+        internal static IEnumerable<IConfigurationModule> ConfigurationModules()
         {
             return ApplicationHost.Modules.Modules.OfType<IConfigurationModule>()
                 .Concat(ModuleManager.ModuleList.Select(form => form.RuntimeModule).Where(module => module != null)).Distinct();
         }
 
         /// <summary>以配置对象身份去重，页面和无窗口模块共用主保存清单。</summary>
-        private static IEnumerable<ModuleConfiguration> ModuleConfigurations()
+        internal static IEnumerable<ModuleConfiguration> ModuleConfigurations()
         {
             return ModuleManager.ModuleList.Select(form => form.ConfigurationData)
                 .Concat(ConfigurationModules().Select(module => module.Configuration)).Distinct().ToArray();

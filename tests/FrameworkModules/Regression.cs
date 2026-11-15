@@ -76,7 +76,8 @@ internal static class ModuleProbe
             Test("legacy recipe writers preserve registered modules without views", LegacyRecipeSave);
             Test("main save failures retain drafts and leave persisted values unchanged", SaveFailure);
             Test("parameter view shares one model and display changes keep its storage identity", ViewBinding);
-            Console.WriteLine("RESULT framework modules: " + passed + "/9 passed; offline configuration only.");
+            Test("legacy page captions fall back to stable configuration names", LegacyIdentity);
+            Console.WriteLine("RESULT framework modules: " + passed + "/10 passed; offline configuration only.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -236,6 +237,27 @@ internal static class ModuleProbe
             Check((string)FlowResources.Capture().Parameters["Constants/Recipe/Value"] == "draft", "Flow parameters depended on the disposed view.");
         }
         finally { form.Dispose(); ModuleManager.ModuleList.Remove(form); }
+    }
+
+    /// <summary>标题为空或包含路径分隔符时仍能初始化，既有有效存储名不迁移。</summary>
+    private static void LegacyIdentity()
+    {
+        using (var page = new ModuleBaseForm { Name = "StableLegacy", Text = "Header / Display | page" })
+        {
+            try
+            {
+                page.ModuleInitialize(page.Text);
+                Check(page.ConfigurationData.StorageName == "StableLegacy", "A display caption became a file name.");
+                page.Text = "Changed";
+                Check(page.ConfigurationData.StorageName == "StableLegacy", "The resolved identity changed later.");
+            }
+            finally { ModuleManager.ModuleList.Remove(page); }
+        }
+        using (var page = new ModuleBaseForm { Name = "", Text = "" })
+        {
+            try { page.ModuleInitialize(""); Check(page.ConfigurationData.StorageName == "ModuleBaseForm", "Anonymous legacy page could not initialize."); }
+            finally { ModuleManager.ModuleList.Remove(page); }
+        }
     }
 
     /// <summary>输出各项独立验证的结果。</summary>

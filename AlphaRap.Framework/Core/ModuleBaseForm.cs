@@ -23,7 +23,15 @@ namespace AlphaRapLibrary
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ModuleConfiguration ConfigurationData
         {
-            get { return configuration ?? (configuration = new ModuleConfiguration(_ModuleName ?? Text, SettingData, RecipeData)); }
+            get { return configuration ?? (configuration = new ModuleConfiguration(LegacyStorageName(), SettingData, RecipeData)); }
+        }
+
+        /// <summary>保留有效旧存储名，标题为空或包含路径字符时使用稳定控件身份。</summary>
+        private string LegacyStorageName()
+        {
+            foreach (string candidate in new[] { _ModuleName, Text, Name, GetType().Name })
+                if (!string.IsNullOrWhiteSpace(candidate) && candidate != "." && candidate != ".." && candidate.IndexOfAny(Path.GetInvalidFileNameChars()) < 0) return candidate;
+            throw new ArgumentException(ModuleText.InvalidStorage);
         }
 
         /// <summary>以独立模块的数据绑定兼容字段，界面和主保存使用同一份模型。</summary>

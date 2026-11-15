@@ -654,6 +654,12 @@
       <SubType>Code</SubType>
       <DependentUpon>DataForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Configuration\ConfigurationParticipant.cs" />
+    <Compile Include="Configuration\FrameworkConfigurationParticipants.cs" />
+    <Compile Include="MenuForm\HardForm.Configuration.cs" />
+    <Compile Include="MenuForm\VPForm.Configuration.cs" />
+    <Compile Include="MenuForm\DataForm.Configuration.cs" />
+    <Compile Include="MenuForm\AddUserForm.Configuration.cs" />
     <Compile Include="Configuration\ProjectConfiguration.cs" />
     <Compile Include="Configuration\HardwareDefinition.cs">
     </Compile>

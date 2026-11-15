@@ -1,8 +1,9 @@
-param([string] $AssemblyDirectory = '.vp-validation/module-build/bin')
+param([string] $AssemblyDirectory = '.vp-validation/module-build/bin', [string] $ValidationDirectory)
 $ErrorActionPreference = 'Stop'
 $moduleRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $moduleAssemblies = (Resolve-Path -LiteralPath $AssemblyDirectory).Path
-$moduleOutput = Join-Path $moduleRoot ('.vp-validation/framework-modules/' + [Guid]::NewGuid().ToString('N'))
+if (-not $ValidationDirectory) { $ValidationDirectory = Join-Path $moduleRoot '.vp-validation/framework-modules' }
+$moduleOutput = Join-Path ([IO.Path]::GetFullPath($ValidationDirectory)) ([Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $moduleOutput -Force | Out-Null
 $moduleExecutable = Join-Path $moduleOutput 'FrameworkModules.Regression.exe'
 $moduleArguments = @('/nologo','/target:exe','/platform:x64',"/out:$moduleExecutable",'/r:System.Data.dll','/r:System.Drawing.dll','/r:System.Windows.Forms.dll','/r:System.Xml.Linq.dll')
