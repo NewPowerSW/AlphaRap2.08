@@ -1,288 +1,144 @@
-﻿using System;
+using System;
+using System.Globalization;
 using System.IO.Ports;
 using System.Text;
+using System.Threading;
+using NPSDK;
 
 namespace AlphaRap.Classes
 {
-    public class NPSerialPort
+    /// <summary>兼容旧串口工具；每次连接创建新对象，读写共享有限时限和实际占用。</summary>
+    public class NPSerialPort : IDisposable
     {
-        //create an Serial Port object        
         private SerialPort sp = new SerialPort();
+        private readonly SerialOperation operations = new SerialOperation();
+        private CommunicationStatus lastStatus = CommunicationStatus.NotConnected;
+        public CommunicationStatus LastStatus { get { return lastStatus; } }
+        public bool IsBusy { get { return operations.IsBusy; } }
 
-        //  Serial communication connection        
+        /// <summary>先验证配置，再回收旧端口并创建新对象，不复用已 Dispose 的实例。</summary>
         public bool Connect(string strPortName, int iRate, int iDataBits, int iParity, int iStopBits)
         {
-            try
+            Flow_Chart.ThrowIfExecutionStopped();
+            if (!SerialFrames.Valid(strPortName, iRate, iDataBits, iParity, iStopBits)) { lastStatus = CommunicationStatus.InvalidConfiguration; return false; }
+            SerialPort previous = sp;
+            operations.StopAsync(previous.Close).GetAwaiter().GetResult();
+            var candidate = new SerialPort();
+            var result = operations.RunAsync(token =>
             {
-                sp.Dispose();
-            }
-            catch (Exception)
-            {  }
-            Parity par = Parity.None;
-            switch (iParity)
-            {
-                case 0:
-                    par = Parity.None;
-                    break;
-                case 1:
-                    par = Parity.Odd;
-                    break;
-                case 2:
-                    par = Parity.Even;
-                    break;
-                case 3:
-                    par = Parity.Mark;
-                    break;
-                case 4:
-                    par = Parity.Space;
-                    break;
-                default:
-
-                    break;
-            }
-
-            StopBits sb = StopBits.None;
-            switch (iStopBits)
-            {
-                case 0:
-                    sb = StopBits.None;
-                    break;
-                case 1:
-                    sb = StopBits.One;
-                    break;
-                case 2:
-                    sb = StopBits.Two;
-                    break;
-                case 3:
-                    sb = StopBits.OnePointFive;
-                    break;
-                default:
-                    break;
-            }
-
-            sp.PortName = strPortName;
-            sp.BaudRate = iRate;       
-            sp.DataBits = iDataBits;   
-            sp.Parity = par;  
-            sp.StopBits = sb;  
-
-            try
-            {
-                sp.Open();
-                return sp.IsOpen;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+                SerialPort prior = sp;
+                if (!ReferenceEquals(prior, previous)) { prior.Close(); prior.Dispose(); }
+                token.ThrowIfCancellationRequested();
+                SerialFrames.Configure(candidate, strPortName, iRate, iDataBits, iParity, iStopBits);
+                candidate.Open(); token.ThrowIfCancellationRequested(); sp = candidate; return candidate.IsOpen;
+            }, candidate.Close, 1500, Flow_Chart.CurrentExecutionToken).GetAwaiter().GetResult();
+            lastStatus = result.Status;
+            previous.Dispose();
+            if (!result.Succeeded) candidate.Dispose();
+            if (result.Status == CommunicationStatus.Cancelled) result.RequireValue(Flow_Chart.CurrentExecutionToken);
+            return result.Succeeded && result.Value;
         }
 
+        /// <summary>关闭和 IO 都实际退出后释放端口；后续 Connect 使用全新对象。</summary>
         public void Dispose()
         {
-            try
-            {
-                sp.Dispose();
-            }
-            catch (Exception)
-            {  }
+            SerialPort current = sp;
+            operations.StopAsync(current.Close).GetAwaiter().GetResult(); current.Dispose();
         }
-        /// <summary>
-        /// write string
-        /// </summary>
+
+        /// <summary>读取公开状态，不等待正在执行的通信锁。</summary>
+        public bool ConnectStates() { return sp.IsOpen; }
+
+        /// <summary>发送文本，不清空未发送的输出或其他请求的数据。</summary>
         public bool Write(string strWrite)
         {
-            try
-            {
-                sp.DiscardInBuffer();
-                sp.DiscardOutBuffer();
-                sp.Write(strWrite);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            if (strWrite == null) return false;
+            return Write(sp.Encoding.GetBytes(strWrite));
         }
-        /// <summary>
-        /// HEX write
-        /// </summary>
+
+        /// <summary>发送原始数据，失败后不自动重发。</summary>
         public bool Write(byte[] cmd)
         {
-            try
-            {
-                sp.DiscardInBuffer();
-                sp.DiscardOutBuffer();
-                sp.Write(cmd, 0, cmd.Length);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            Flow_Chart.ThrowIfExecutionStopped();
+            if (cmd == null || cmd.Length > 65536) { lastStatus = CommunicationStatus.InvalidConfiguration; return false; }
+            byte[] bytes = (byte[])cmd.Clone(); SerialPort current = sp;
+            var result = operations.RunAsync(token => { SerialFrames.Write(current, bytes, token); return true; }, current.Close, 1000,
+                Flow_Chart.CurrentExecutionToken, true).GetAwaiter().GetResult();
+            lastStatus = result.Status;
+            if (result.CommandMayHaveExecuted) Flow_Module.Module_AddAlarmLog(result.Message);
+            if (result.Status == CommunicationStatus.Cancelled) result.RequireValue(Flow_Chart.CurrentExecutionToken);
+            return result.Succeeded;
         }
 
-        /// <summary>
-        /// HEX write
-        /// </summary>
+        /// <summary>校验并发送十六进制数据，非法字串不访问端口。</summary>
         public bool Write_StringToHex(string cmd)
         {
-            try
-            {
-                byte[] b = strToHexByte(cmd);
-                sp.DiscardInBuffer();
-                sp.DiscardOutBuffer();
-                sp.Write(b, 0, b.Length);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-        public bool ConnectStates()
-        {
-            try
-            {
-                return sp.IsOpen;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-        /// <summary>
-        /// read string
-        /// </summary>
-        public string readSting()
-        {
-            try
-            {
-                UTF8Encoding utf8 = new UTF8Encoding();
-                Byte[] readBytes = new Byte[sp.BytesToRead];
-                sp.Read(readBytes, 0, readBytes.Length);
-                string decodedString = utf8.GetString(readBytes);
-                return decodedString;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            byte[] bytes;
+            try { bytes = strToHexByte(cmd); }
+            catch (FormatException) { lastStatus = CommunicationStatus.InvalidConfiguration; return false; }
+            return Write(bytes);
         }
 
-        /// <summary>
-        /// read string in hexadecimal format
-        /// </summary>
-        public string readStingByHex()
-        {
-            try
-            {
-               UTF8Encoding utf8 = new UTF8Encoding();
-                Byte[] readBytes = new Byte[sp.BytesToRead];
-                sp.Read(readBytes, 0, readBytes.Length);               
-                string decodedString = ToHexStrFromByte(readBytes);
-                return decodedString;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        ///Read serial string data
-        /// </summary>
-        public string ReadStr()
-        {
-            try
-            {
-                string indata = sp.ReadExisting();
-                return indata;
-            }
-            catch (Exception)
-            {
-                return "Err";
-            }
-        }
-        /// <summary>
-        /// read array of hexadecimal characters
-        /// </summary>
+        /// <summary>读取当前可用的实际字节；取消抛出，其他失败沿用 null 约定。</summary>
         public byte[] readChar()
         {
-            try
-            {
-                int iBufferSize = sp.ReadBufferSize;
-                byte[] buf = new byte[iBufferSize];
-                sp.Read(buf, 0, iBufferSize);
-                sp.DiscardInBuffer();
-                return buf;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            Flow_Chart.ThrowIfExecutionStopped(); SerialPort current = sp;
+            var result = operations.RunAsync(token => SerialFrames.ReadAvailable(current, token), current.Close, 1000,
+                Flow_Chart.CurrentExecutionToken).GetAwaiter().GetResult();
+            lastStatus = result.Status;
+            if (result.Status == CommunicationStatus.Cancelled) result.RequireValue(Flow_Chart.CurrentExecutionToken);
+            return result.Value;
         }
-        public void ClearInBuffer()
+
+        /// <summary>解码实际字节，不把缓冲区容量或零填充当成接收数据。</summary>
+        public string readSting() { byte[] bytes = readChar(); return bytes == null ? null : Encoding.UTF8.GetString(bytes); }
+
+        /// <summary>返回实际接收数据的十六进制表示。</summary>
+        public string readStingByHex() { byte[] bytes = readChar(); return bytes == null ? null : ToHexStrFromByte(bytes); }
+
+        /// <summary>保留旧文本读取的 Err 失败标记。</summary>
+        public string ReadStr() { return readSting() ?? "Err"; }
+
+        /// <summary>按明确请求清除输入缓冲，不在普通写入时隐式调用。</summary>
+        public void ClearInBuffer() { Clear(true); }
+
+        /// <summary>按明确请求清除输出缓冲，不丢弃正常写入的待发数据。</summary>
+        public void ClearOutBuffer() { Clear(false); }
+
+        /// <summary>串行执行显式清空操作并报告失败。</summary>
+        private void Clear(bool input)
         {
-            try
-            {
-                sp.DiscardInBuffer();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            SerialPort current = sp;
+            operations.RunAsync(token => { token.ThrowIfCancellationRequested(); if (input) current.DiscardInBuffer(); else current.DiscardOutBuffer(); return true; },
+                current.Close, 1000, Flow_Chart.CurrentExecutionToken).GetAwaiter().GetResult().RequireValue(Flow_Chart.CurrentExecutionToken);
         }
-        public void ClearOutBuffer()
-        {
-            try
-            {
-                sp.DiscardOutBuffer();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
+
+        /// <summary>校验旧逗号配置的四项参数，再使用统一连接路径。</summary>
         public bool ConnectComPressL(string strPortName, string CommunicationPara)
         {
-            try
-            {
-                string[] condition = { "," };
-                string[] result = CommunicationPara.Split(condition, StringSplitOptions.RemoveEmptyEntries);
-                int iRate = Convert.ToInt32(result[0]);
-                int iDataBits = Convert.ToInt32(result[1]);
-                int iParity = Convert.ToInt32(result[2]);
-                int iStopBits = Convert.ToInt32(result[3]);
-                return Connect(strPortName, iRate, iDataBits, iParity, iStopBits);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            string[] fields = (CommunicationPara ?? "").Split(','); int rate, bits, parity, stop;
+            if (fields.Length != 4 || !int.TryParse(fields[0], out rate) || !int.TryParse(fields[1], out bits) || !int.TryParse(fields[2], out parity) || !int.TryParse(fields[3], out stop))
+            { lastStatus = CommunicationStatus.InvalidConfiguration; return false; }
+            return Connect(strPortName, rate, bits, parity, stop);
         }
 
+        /// <summary>严格解析成对的十六进制字节，拒绝缺失半字节的输入。</summary>
         public byte[] strToHexByte(string hexString)
         {
-            hexString = hexString.Replace(" ", "");
-            if ((hexString.Length % 2) != 0)
-                hexString += " ";
-            byte[] returnBytes = new byte[hexString.Length / 2];
-            for (int i = 0; i < returnBytes.Length; i++)
-                returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
-            return returnBytes;
+            if (hexString == null) throw new FormatException("Hex");
+            string text = hexString.Replace(" ", "");
+            if (text.Length % 2 != 0 || text.Length > 131072) throw new FormatException("Hex length");
+            byte[] bytes = new byte[text.Length / 2];
+            for (int index = 0; index < bytes.Length; index++)
+                if (!byte.TryParse(text.Substring(index * 2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out bytes[index])) throw new FormatException("Hex byte");
+            return bytes;
         }
 
-        /// <summary>
-        /// Byte array to hexadecimal string: space separated
-        /// </summary>
+        /// <summary>按空格分隔编码实际字节数组。</summary>
         public string ToHexStrFromByte(byte[] byteDatas)
         {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < byteDatas.Length; i++)
-            {
-                builder.Append(string.Format("{0:X2} ", byteDatas[i]));
-            }
-            return builder.ToString().Trim();
+            if (byteDatas == null) return "";
+            return BitConverter.ToString(byteDatas).Replace('-', ' ');
         }
     }
 }

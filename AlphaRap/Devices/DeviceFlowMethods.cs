@@ -31,12 +31,6 @@ namespace AlphaRap
 
     partial class HIOKI_RM3545
     {
-        /// <summary>关闭本电阻计当前串口连接。</summary>
-        public override void Close()
-        {
-            if (MyCom.IsOpen) MyCom.Close();
-        }
-
         /// <summary>按本仪表实际通道数声明具名结果，禁止把长度错误当作成功。</summary>
         public override IEnumerable<FlowMethod> GetFlowMethods(bool includeDraft = false)
         {
@@ -89,9 +83,13 @@ namespace AlaphaRap
         /// <summary>声明当前气密仪实例的结果读取能力。</summary>
         public override IEnumerable<FlowMethod> GetFlowMethods(bool includeDraft = false)
         {
-            foreach (FlowMethod method in base.GetFlowMethods(includeDraft)) yield return method;
+            foreach (FlowMethod method in base.GetFlowMethods(includeDraft))
+            {
+                if (method.Id == "device.receive") method.Invoke = async call => FlowCall.Result("Value", (await ReadResultAsync(call.Token).ConfigureAwait(false)).RequireValue(call.Token));
+                yield return method;
+            }
             yield return FlowMethods.Sync("ateq.result", "读取气密结果", "Read leak test result", "Leer prueba de fugas", new FlowField[0],
-                new[] { new FlowField("Value", typeof(string)) { DisplayName = new[] { "气密检测结果", "Leak test result", "Resultado de prueba de fugas" } } }, call => FlowCall.Result("Value", Readdata()));
+                new[] { new FlowField("Value", typeof(string)) { DisplayName = new[] { "气密检测结果", "Leak test result", "Resultado de prueba de fugas" } } }, call => FlowCall.Result("Value", ReadResultAsync(call.Token).GetAwaiter().GetResult().RequireValue(call.Token)));
         }
     }
 
@@ -109,8 +107,7 @@ namespace AlaphaRap
                         Help = new[] { "发送读取命令后等待设备返回数据的时间，沿用此串口对象配置。", "Wait after sending the read command before receiving data, using this serial device's configuration.", "Espera tras enviar el comando de lectura antes de recibir datos, según la configuración de este dispositivo serie." } } },
                 new[] { new FlowField("Bytes", typeof(byte[])) { DisplayName = new[] { "原始字节", "Raw bytes", "Bytes sin procesar" } },
                     new FlowField("Hex", typeof(string)) { DisplayName = new[] { "十六进制结果", "Hexadecimal result", "Resultado hexadecimal" } } }, call => {
-                    byte[] bytes = ReadOutputRegisters(call.Get<byte>("Slave"), call.Get<ushort>("Start"), call.Get<ushort>("Count"), call.Get<int>("DelayMs"));
-                    if (bytes == null) throw new InvalidOperationException(DeviceText.T("error.modbusEmpty"));
+                    byte[] bytes = ReadAsync(call.Get<byte>("Slave"), call.Get<ushort>("Start"), call.Get<ushort>("Count"), call.Get<int>("DelayMs"), call.Token).GetAwaiter().GetResult().RequireValue(call.Token);
                     return new Dictionary<string, object> { { "Bytes", bytes }, { "Hex", BitConverter.ToString(bytes) } };
                 });
         }

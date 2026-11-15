@@ -1,244 +1,96 @@
-using AlphaRap;
 using System;
+using System.ComponentModel;
 using System.IO.Ports;
+using System.Threading;
+using System.Threading.Tasks;
+using AlphaRap;
+using AlphaRap.FlowProgramming;
+using NPSDK;
 
 namespace AlaphaRap
 {
-    /// <summary>
-    /// 具体设备类：ATEQ_F620
-    /// 可配置的属性包括：串口连接参数
-    /// 修改时间2023-4-10----------------欧益儒
-    /// </summary>
-    public partial class ATEQ_F620 : AbstractDevice
+    /// <summary>气密仪串口行协议接收，完整行或明确失败分别返回。</summary>
+    public partial class ATEQ_F620 : AlphaRap.AbstractDevice
     {
-        /// <summary>
-        /// 实例化一个串口对象
-        /// </summary>
         public SerialPort _SP = new SerialPort();
-
-        public ATEQ_F620(string deviceName) : base(deviceName) { }
-
-        /// <summary>
-        /// 重写父类的属性：串口是否打开
-        /// </summary>
-        public override bool IsConnected
-        {
-            get
-            {
-                return _SP.IsOpen;
-            }
-        }
-
-        /// <summary>
-        /// 重写父类的属性：是否正在运行：
-        /// </summary>
-        public override bool IsRunning
-        {
-            get
-            {
-                return _isRunning;
-            }
-        }
-
-        public bool _isRunning = false;
-
-        /// <summary>
-        /// 可配置的属性：串口号
-        /// </summary>
+        private readonly SerialOperation operations = new SerialOperation();
+        public bool _isRunning;
         public string PortName { get; set; } = "COM3";
-
-        /// <summary>
-        /// 可配置的属性：波特率
-        /// </summary>
         public int BaudRate { get; set; } = 9600;
-
-        /// <summary>
-        /// 可配置的属性：校验位
-        /// </summary>
         public int Pari { get; set; } = 2;
-
-        /// <summary>
-        /// 可配置的属性：数据位
-        /// </summary>
         public int DataBits { get; set; } = 8;
-
-        /// <summary>
-        /// 可配置的属性：停止位
-        /// </summary>
         public int StopBit { get; set; } = 1;
-
-        /// <summary>
-        /// 可配置的属性：从站地址
-        /// </summary>
-        public byte Slaveld { get; set; } = 0x01;
-
-        /// <summary>
-        /// 可配置的属性：起始寄存器
-        /// </summary>
+        public byte Slaveld { get; set; } = 1;
         public ushort StartRegister { get; set; } = 1000;
-
-        /// <summary>
-        /// 可配置的属性：寄存器数量
-        /// </summary>
         public ushort Count { get; set; } = 2;
-
-        /// <summary>
-        /// 可配置的属性：发送报文与接收报文的间隔
-        /// </summary>
         public int ThreadSleep { get; set; } = 20;
-
-        /// <summary>
-        /// 读取的结果（字符串)
-        /// </summary>
-        public string ResultData { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 主要功能：重写父类方法：加载配置，并打开网口
-        /// </summary>
-        public override void Open()
-        {
-            if (!IsConnected)
-            {
-                try
-                {
-                        Connect(this.PortName, this.BaudRate, this.Pari, this.DataBits, this.StopBit);
-                }
-                catch (Exception ex)
-                {
-                    ShowException(ApplicationHost.Text("Device", "error_SerialConnect", "连接串口失败!", "Failed to connect to the serial port.", "No se pudo conectar con el puerto serie."), ex);
-                }
-            }
-        }
-        /// <summary>
-        /// 连接串口
-        /// </summary>
-        /// <param name="portName">串口号</param>
-        /// <param name="baudRate">波特率</param>
-        /// <param name="parity">校验位</param>
-        /// <param name="dataBits">数据位</param>
-        /// <param name="stopBits">停止位</param>
-        [AlphaRap.FlowProgramming.FlowToolIgnore]
-        public void Connect(string portName, int baudRate, int parity, int dataBits, int stopBits)
-        {
-            Parity par = Parity.Even;
-            switch (parity)
-            {
-                case 0:
-                    par = Parity.None;
-                    break;
-                case 1:
-                    par = Parity.Odd;
-                    break;
-                case 2:
-                    par = Parity.Even;
-                    break;
-                case 3:
-                    par = Parity.Mark;
-                    break;
-                case 4:
-                    par = Parity.Space;
-                    break;
-            }
-
-            StopBits sb = StopBits.None;
-            switch (stopBits)
-            {
-                case 0:
-                    sb = StopBits.None;
-                    break;
-                case 1:
-                    sb = StopBits.One;
-                    break;
-                case 2:
-                    sb = StopBits.Two;
-                    break;
-                case 3:
-                    sb = StopBits.OnePointFive;
-                    break;
-            }
-
-			_SP.PortName = portName;
-			_SP.BaudRate = baudRate;
-			_SP.Parity = par;
-			_SP.DataBits = dataBits;
-			_SP.StopBits = sb;
-
-			//打开串口
-			_SP.Open();           
-        }
-
-        /// <summary>
-        /// 主要功能：重写父类方法：关闭串口
-        /// </summary>
-        public override void Close()
-        {
-            if (_SP.IsOpen)
-            {
-                try
-                {
-					_SP.Close();
-                }
-                catch(Exception ex) 
-                {
-                    ShowException(ApplicationHost.Text("Device", "error_SerialClose", "串口关闭失败!", "Failed to close the serial port.", "No se pudo cerrar el puerto serie."), ex);
-                }
-            }
-        }
-        /// <summary>
-        /// 主要功能：读取数据
-        /// </summary>
-        [AlphaRap.FlowProgramming.FlowToolIgnore]
-        public string Readdata()
-        {
-            bool status = _SP.IsOpen;
-            if (!status)
-            {
-                _SP.Open();
-            }
-            string sData = "";
-            sData = _SP.ReadExisting().Replace("\r\n", "");
-            sData = sData.Replace("\r", "");
-            sData = sData.Replace("\n", "");
-            return sData;
-        }
-
-        #region 5. 通用收发（供 DeviceControl 使用）
-
-        /// <summary>本类实现了通用发送 / 接收。</summary>
+        public string ResultData { get; set; } = "";
+        public int TimeOut { get; set; } = 1500;
+        [Browsable(false)]
+        public CommunicationResult<string> LastResult { get; private set; }
+        public override bool IsConnected { get { return _SP.IsOpen; } }
+        public override bool IsRunning { get { return _isRunning || operations.IsBusy; } }
         public override bool SupportsRawIo { get { return true; } }
 
-        /// <summary>原样发送一段文本。返回空串表示成功。</summary>
+        /// <summary>构建设备身份，不打开端口。</summary>
+        public ATEQ_F620(string deviceName) : base(deviceName) { }
+
+        /// <summary>使用已有设备配置显式连接。</summary>
+        public override void Open() { Connect(PortName, BaudRate, Pari, DataBits, StopBit); }
+
+        /// <summary>校验配置后打开，重复打开已连接对象不新增会话。</summary>
+        [FlowToolIgnore]
+        public void Connect(string portName, int baudRate, int parity, int dataBits, int stopBits)
+        {
+            Flow_Chart.ThrowIfExecutionStopped();
+            if (!SerialFrames.Valid(portName, baudRate, dataBits, parity, stopBits)) throw new ArgumentException(DeviceText.T("communication.InvalidConfiguration"));
+            SerialPort port = _SP;
+            operations.RunAsync(token =>
+            {
+                if (port.IsOpen) return true;
+                SerialFrames.Configure(port, portName, baudRate, dataBits, parity, stopBits); port.Open(); return port.IsOpen;
+            }, port.Close, TimeOut, Flow_Chart.CurrentExecutionToken).GetAwaiter().GetResult().RequireValue(Flow_Chart.CurrentExecutionToken);
+        }
+
+        /// <summary>实际关闭和当前 IO 退出后返回。</summary>
+        public override void Close() { SerialPort port = _SP; operations.StopAsync(port.Close).GetAwaiter().GetResult(); }
+
+        /// <summary>停止当前读取，不自动重新打开端口。</summary>
+        public override void StopRunning() { Close(); }
+
+        /// <summary>保留旧字符串接口；取消抛出，其他失败返回空串。</summary>
+        [FlowToolIgnore]
+        public string Readdata()
+        {
+            CancellationToken token = Flow_Chart.CurrentExecutionToken;
+            var result = ReadResultAsync(token).GetAwaiter().GetResult();
+            if (result.Status == CommunicationStatus.Cancelled) result.RequireValue(token);
+            return result.Succeeded ? result.Value : "";
+        }
+
+        /// <summary>等到一条完整结果，不把缓存中的半行或多行拼接当作单次结果。</summary>
+        [FlowToolIgnore]
+        public async Task<CommunicationResult<string>> ReadResultAsync(CancellationToken token = default(CancellationToken))
+        {
+            if (!IsConnected) return LastResult = new CommunicationResult<string>(CommunicationStatus.NotConnected);
+            SerialPort port = _SP;
+            LastResult = await operations.RunAsync(cancellation => SerialFrames.ReadLine(port, cancellation), port.Close, TimeOut, token).ConfigureAwait(false);
+            ResultData = LastResult.Succeeded ? LastResult.Value : "";
+            return LastResult;
+        }
+
+        /// <summary>原始发送也经过同一端口占用和停止令牌。</summary>
         public override string Send(string data)
         {
-            if (!_SP.IsOpen) return "串口未打开。";
-
-            try
-            {
-                _SP.Write(data ?? string.Empty);
-                return string.Empty;
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
+            SerialPort port = _SP; CancellationToken token = Flow_Chart.CurrentExecutionToken;
+            var result = operations.RunAsync(cancellation => { SerialFrames.Write(port, port.Encoding.GetBytes(data ?? ""), cancellation); return true; },
+                port.Close, TimeOut, token, true).GetAwaiter().GetResult();
+            if (result.CommandMayHaveExecuted) Flow_Module.Module_AddAlarmLog(result.Message);
+            if (result.Status == CommunicationStatus.Cancelled) result.RequireValue(token);
+            return result.Message;
         }
 
-        /// <summary>读取一段返回文本（没有数据时返回空串）。</summary>
-        public override string Receive()
-        {
-            if (!_SP.IsOpen) return string.Empty;
-
-            try
-            {
-                return (_SP.ReadExisting() ?? string.Empty).Trim();
-            }
-            catch (Exception)
-            {
-                return string.Empty;
-            }
-        }
-
-        #endregion
-
+        /// <summary>手动读取同一完整行，不与流程读取并发消费数据。</summary>
+        public override string Receive() { return Readdata(); }
     }
 }

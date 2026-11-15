@@ -26,7 +26,8 @@ namespace AlphaRap.Classes
         public string PortName { get; set; } = string.Empty;
         public string SerialParameters { get; set; } = string.Empty;
 
-        public override bool IsConnected { get { lock (serialSync) return serialPort.ConnectStates(); } }
+        public override bool IsConnected { get { return serialPort.ConnectStates(); } }
+        public override bool IsRunning { get { return serialPort.IsBusy; } }
         public bool ConnectStatus { get { return IsConnected; } }
 
         /// <summary>使用本实例的串口号和通信参数建立连接。</summary>
@@ -45,8 +46,7 @@ namespace AlphaRap.Classes
         /// <summary>释放已打开的串口。</summary>
         public override void Close()
         {
-            lock (serialSync)
-                if (IsConnected) serialPort.Dispose();
+            serialPort.Dispose();
         }
 
         /// <summary>按旧接口接收串口号和通信参数，并保存到当前实例。</summary>
@@ -93,7 +93,8 @@ namespace AlphaRap.Classes
         {
             string[] fields = Exchange(command).Split(' ');
             int raw;
-            if (fields.Length < 4 || !int.TryParse(fields[3], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out raw)) return 0.0;
+            if (fields.Length < 4 || !int.TryParse(fields[3], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out raw))
+                throw new DeviceCommunicationException(CommunicationStatus.ProtocolError, false, DeviceText.T("communication.ProtocolError"));
             return raw / SpeedRate;
         }
 
@@ -106,7 +107,7 @@ namespace AlphaRap.Classes
                 if (!IsConnected) return string.Empty;
                 foreach (string command in commands)
                     if (!serialPort.Write_StringToHex(command)) return string.Empty;
-                Thread.Sleep(100);
+                if (NPSDK.Flow_Chart.CurrentExecutionToken.WaitHandle.WaitOne(100)) NPSDK.Flow_Chart.CurrentExecutionToken.ThrowIfCancellationRequested();
                 return serialPort.readStingByHex() ?? string.Empty;
             }
         }

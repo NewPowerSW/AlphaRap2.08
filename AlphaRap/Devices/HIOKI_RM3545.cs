@@ -1,212 +1,149 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.IO.Ports;
-using System.Threading;
+using System.Text;
+using AlphaRap.FlowProgramming;
+using NPSDK;
 
 namespace AlphaRap
 {
-    /// <summary>
-    /// 具体设备类:波日图电阻计
-    /// 可配置属性包括:串口连接参数
-    /// V1.0初始版本
-    /// 修改时间2023-10-26 ---------CY
-    /// </summary>
-    partial class HIOKI_RM3545 : AbstractDevice
+    /// <summary>电阻计单一接收事件累积完整行，重新读取前清除旧结果。</summary>
+    public partial class HIOKI_RM3545 : AbstractDevice
     {
-        #region 1.字段、属性
-        //实例化一个串口对象
         public SerialPort MyCom = new SerialPort();
-
-        /// <summary>
-        /// 重写父类属性:串口是否打开
-        /// </summary>
-        public override bool IsConnected
-        {
-            get { return MyCom.IsOpen; }
-        }
-
-        #endregion
-
-        #region 构造函数
-        public HIOKI_RM3545(string deviceName) : base(deviceName)
-        {
-        }
-        #endregion
-
-        #region 可配置的属性
-
-        /// <summary>
-        /// 串口号
-        /// </summary>
+        private readonly SerialOperation operations = new SerialOperation();
+        private readonly object resultSync = new object();
+        private readonly StringBuilder partial = new StringBuilder();
+        private bool fresh;
+        private long receiveEpoch;
+        private SerialPort resultPort;
         public string PortName { get; set; } = "COM1";
-
-        /// <summary>
-        /// 波特率
-        /// </summary>
         public int BaudRate { get; set; } = 9600;
-
-        /// <summary>
-        /// 校验位
-        /// </summary>
         public Parity Pari { get; set; } = Parity.None;
-
-        /// <summary>
-        /// 数据位
-        /// </summary>
-        public int DataBit { get; set; } = 0;
-
-        /// <summary>
-        /// 停止位
-        /// </summary>
+        public int DataBit { get; set; } = 8;
         public StopBits StopBit { get; set; } = StopBits.One;
-
-        /// <summary>
-        /// 串口返回的结果字符串
-        /// </summary>
-        public string strResult { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 自定义的结果集合
-        /// </summary>
+        [Browsable(false)]
+        public string strResult { get; set; } = "";
         public List<double> listResult = new List<double>();
-
-        /// <summary>
-        /// 设定的通道数
-        /// </summary>
         public int ChannelNum { get; set; } = 7;
-
-        /// <summary>
-        /// 设置指令1
-        /// </summary>
+        public int TimeOut { get; set; } = 1500;
         public const string InitSet1 = ":INITiate:CONTinuous OFF\r\n";
-
-        /// <summary>
-        /// 设置指令2
-        /// </summary>
         public const string InitSet2 = ":TRIGger:SOURce IMMediate\r\n";
-
-        /// <summary>
-        /// 读取指令
-        /// </summary>
         public const string ReadCommand = ":READ?\r\n";
-
-        #endregion
-
-        #region 主要功能
-
-        /// <summary>
-        /// 连接串口
-        /// </summary>
-        public override void Open()
-        {
-            if (IsConnected)
-            {
-                MyCom.Close();
-            }
-            Thread.Sleep(300);
-            try
-            {
-                    MyCom.PortName = PortName;
-                    MyCom.BaudRate = BaudRate;
-                    MyCom.Parity = Pari;
-                    MyCom.DataBits = DataBit;
-                    MyCom.StopBits = StopBit;
-
-                    MyCom.ReceivedBytesThreshold = 1;
-                    MyCom.DataReceived += new SerialDataReceivedEventHandler(MyCom_DataReceived);
-
-                    MyCom.Open();
-            }
-            catch (Exception ex)
-            {
-                ShowException(ApplicationHost.Text("Device", "error_ResistanceSerial", "电阻计连接串口失败!", "Failed to connect to the resistance meter serial port.", "No se pudo conectar con el puerto serie del medidor de resistencia."), ex);
-            }
-        }
-
-        public void MyCom_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            if (!IsConnected) return;
-            try
-            {
-                strResult = MyCom.ReadLine();
-            }
-            catch
-            {
-                strResult = string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// 结果字符串转换为集合
-        /// </summary>
-        /// <param name="strResult">串口返回的结果字符串</param>
-        /// <param name="bLengthOK">集合长度是否等于设定的通道数</param>
-        /// <returns>返回的结果集合</returns>
-        [AlphaRap.FlowProgramming.FlowToolIgnore]
-        public List<double> GetFinalResult(ref bool bLengthOK)
-        {
-            listResult.Clear();
-            string[] results = strResult.Split(',');
-            if (results.Length == ChannelNum)
-            {
-                bLengthOK = true;
-
-                for (int i = 0; i < results.Length; i++)
-                {
-                    listResult.Add(Convert.ToDouble(results[i]));
-                }
-            }
-            else { bLengthOK = false; }
-
-            return listResult;
-        }
-
-        /// <summary>
-        /// 发送指令的方法
-        /// </summary>
-        [AlphaRap.FlowProgramming.FlowToolIgnore]
-        public bool Write(string Command)
-        {
-            try
-            {
-                MyCom.Write(Command);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        #region 5. 通用收发（供 DeviceControl 使用）
-
-        /// <summary>本类实现了通用发送 / 接收。</summary>
+        public override bool IsConnected { get { return MyCom.IsOpen; } }
+        public override bool IsRunning { get { return operations.IsBusy; } }
         public override bool SupportsRawIo { get { return true; } }
 
-        /// <summary>原样发送一段文本。返回空串表示成功。</summary>
-        public override string Send(string data)
+        /// <summary>创建设备身份，不连接硬件。</summary>
+        public HIOKI_RM3545(string deviceName) : base(deviceName) { }
+
+        /// <summary>同一端口只注册一份接收事件，显式校验参数，不固定等待三百毫秒。</summary>
+        public override void Open()
         {
-            if (!IsConnected) return "串口未打开。";
-            return Write(data ?? string.Empty) ? string.Empty : "发送失败。";
+            Flow_Chart.ThrowIfExecutionStopped();
+            string name = PortName; int baud = BaudRate, bits = DataBit, parity = (int)Pari, stop = (int)StopBit;
+            if (!SerialFrames.Valid(name, baud, bits, parity, stop)) throw new ArgumentException(DeviceText.T("communication.InvalidConfiguration"));
+            SerialPort port = MyCom;
+            operations.RunAsync(token =>
+            {
+                if (port.IsOpen) return true;
+                ResetResult(); SerialFrames.Configure(port, name, baud, bits, parity, stop);
+                port.ReceivedBytesThreshold = 1; port.DataReceived -= MyCom_DataReceived; port.DataReceived += MyCom_DataReceived;
+                port.Open(); return port.IsOpen;
+            }, port.Close, TimeOut, Flow_Chart.CurrentExecutionToken).GetAwaiter().GetResult().RequireValue(Flow_Chart.CurrentExecutionToken);
         }
 
-        /// <summary>读取一段返回文本（没有数据时返回空串）。</summary>
-        public override string Receive()
+        /// <summary>解除事件并关闭后清除旧缓存。</summary>
+        public override void Close()
         {
-            if (!IsConnected) return string.Empty;
+            SerialPort port = MyCom; port.DataReceived -= MyCom_DataReceived;
+            operations.StopAsync(port.Close).GetAwaiter().GetResult(); ResetResult();
+        }
 
-            try
+        /// <summary>停止当前原生 IO 并使上次结果失效。</summary>
+        public override void StopRunning() { Close(); }
+
+        /// <summary>事件只读当前可用数据，不在事件线程等待换行。</summary>
+        public void MyCom_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            var port = sender as SerialPort;
+            if (port == null || !ReferenceEquals(port, MyCom) || !port.IsOpen) return;
+            long epoch; lock (resultSync) epoch = receiveEpoch;
+            try { CaptureText(port, port.ReadExisting(), epoch); }
+            catch (Exception error) when (error is System.IO.IOException || error is InvalidOperationException)
             {
-                return (MyCom.ReadExisting() ?? string.Empty).Trim();
-            }
-            catch (Exception)
-            {
-                return string.Empty;
+                lock (resultSync) if (epoch == receiveEpoch && ReferenceEquals(port, MyCom)) ResetResult();
             }
         }
 
-        #endregion
+        /// <summary>按当前端口的完整行更新结果，旧端口回调和半行不会发布。</summary>
+        private void CaptureText(SerialPort port, string text, long epoch)
+        {
+            lock (resultSync)
+            {
+                if (!ReferenceEquals(port, MyCom) || epoch != receiveEpoch) return;
+                resultPort = port;
+                foreach (char value in text) if (!CaptureCharacter(value)) return;
+            }
+        }
 
-        #endregion
+        /// <summary>处理一个行协议字符，超长数据作废。</summary>
+        private bool CaptureCharacter(char value)
+        {
+            if (value == '\r' || value == '\n')
+            {
+                if (partial.Length == 0) return true;
+                strResult = partial.ToString(); partial.Clear(); fresh = true; return true;
+            }
+            if (partial.Length >= 65536) { partial.Clear(); fresh = false; return false; }
+            partial.Append(value); return true;
+        }
+
+        /// <summary>全部通道都是有限数值后才一次发布，不返回部分解析结果。</summary>
+        [FlowToolIgnore]
+        public List<double> GetFinalResult(ref bool bLengthOK)
+        {
+            lock (resultSync)
+            {
+                bLengthOK = false; listResult.Clear();
+                if (!fresh || !ReferenceEquals(resultPort, MyCom) || ChannelNum < 1 || ChannelNum > 1024) return new List<double>();
+                string[] values = strResult.Split(',');
+                if (values.Length != ChannelNum) return new List<double>();
+                var parsed = new List<double>();
+                foreach (string text in values)
+                {
+                    double number;
+                    if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out number) || double.IsNaN(number) || double.IsInfinity(number)) return new List<double>();
+                    parsed.Add(number);
+                }
+                listResult.AddRange(parsed); bLengthOK = true; return new List<double>(parsed);
+            }
+        }
+
+        /// <summary>读命令发送前清除旧值，写失败不会保留上一件产品结果。</summary>
+        [FlowToolIgnore]
+        public bool Write(string Command)
+        {
+            Flow_Chart.ThrowIfExecutionStopped(); SerialPort port = MyCom;
+            if (Command == null) return false;
+            if (Command.IndexOf("READ?", StringComparison.OrdinalIgnoreCase) >= 0) ResetResult();
+            var result = operations.RunAsync(token => { SerialFrames.Write(port, port.Encoding.GetBytes(Command), token); return true; },
+                port.Close, TimeOut, Flow_Chart.CurrentExecutionToken, true).GetAwaiter().GetResult();
+            if (result.CommandMayHaveExecuted) Flow_Module.Module_AddAlarmLog(result.Message);
+            if (!result.Succeeded) ResetResult();
+            if (result.Status == CommunicationStatus.Cancelled) result.RequireValue(Flow_Chart.CurrentExecutionToken);
+            return result.Succeeded;
+        }
+
+        /// <summary>发送沿用统一写入路径。</summary>
+        public override string Send(string data) { return Write(data ?? "") ? "" : DeviceText.T("communication.TransportError"); }
+
+        /// <summary>读取唯一接收事件已收齐的结果，不建立第二个串口读取者。</summary>
+        public override string Receive() { lock (resultSync) return fresh ? strResult : ""; }
+
+        /// <summary>清空半帧与旧业务结果，不修改用户配置。</summary>
+        private void ResetResult() { lock (resultSync) { receiveEpoch++; partial.Clear(); strResult = ""; listResult.Clear(); fresh = false; resultPort = null; } }
     }
 }

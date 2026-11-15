@@ -51,7 +51,14 @@ internal static class ReliabilityCases
             Check("3D timeout never resends a trigger", KeyenceTimeout);
             Check("3D stop interrupts a live transaction", KeyenceStop);
             Check("3D stale values remain on their old connection", KeyenceStale);
-            Console.WriteLine("RESULT transport reliability: " + passed + "/10 passed; loopback only."); return 0;
+            Check("serial stop retains actual IO and closing work", SerialStop);
+            Check("late serial open is closed again before releasing occupancy", SerialLateOpen);
+            Check("serial queued timeout leaves owner alive", SerialQueue);
+            Check("serial close errors block reuse until an explicit retry", SerialCloseFailure);
+            Check("Modbus vectors enforce CRC station function and lengths", ModbusVectors);
+            Check("resistance frames reject partial stale and nonfinite values", ResistanceFrames);
+            Check("legacy serial utilities reject invalid hex and missing data", SerialUtilities);
+            Console.WriteLine("RESULT transport reliability: " + passed + "/17 passed; loopback and fake serial only."); return 0;
         }
         catch(Exception error) { Console.Error.WriteLine(error); return 1; }
     }
@@ -203,6 +210,141 @@ internal static class ReliabilityCases
         {
             var device=Device(server);device.Open();Assert(device.TriggerAsync(0).Result.Value=="1" && device.TriggerAsync(0).Result.Value=="2","Stale height reused");device.Close();
         }
+    }
+
+    /// <summary>创建真实的串口协调器，IO 动作用离线阻塞函数替代。</summary>
+    private static object SerialCore()
+    {
+        return Activator.CreateInstance(typeof(Keyence3DTcp).Assembly.GetType("AlphaRap.SerialOperation",true),true);
+    }
+
+    /// <summary>通过实际协调器执行可控 IO，不连接任何物理串口。</summary>
+    private static Task<CommunicationResult<int>> SerialRun(object core,Func<CancellationToken,int> action,Action close,int timeout,CancellationToken token,bool writes=false)
+    {
+        var method=core.GetType().GetMethod("RunAsync",BindingFlags.Instance|BindingFlags.NonPublic).MakeGenericMethod(typeof(int));
+        return (Task<CommunicationResult<int>>)method.Invoke(core,new object[]{action,close,timeout,token,writes});
+    }
+
+    /// <summary>调用实际关闭协调入口。</summary>
+    private static Task SerialStopTask(object core,Action close)
+    {
+        return (Task)core.GetType().GetMethod("StopAsync",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(core,new object[]{close});
+    }
+
+    /// <summary>读取包含驱动及清理的真实占用。</summary>
+    private static bool SerialBusy(object core){return (bool)core.GetType().GetProperty("IsBusy",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(core);}
+
+    /// <summary>IO 返回后关闭仍阻塞时，停止和新操作都不能提前完成。</summary>
+    private static void SerialStop()
+    {
+        object core=SerialCore();
+        using(var entered=new ManualResetEventSlim())
+        using(var readRelease=new ManualResetEventSlim())
+        using(var closeEntered=new ManualResetEventSlim())
+        using(var closeRelease=new ManualResetEventSlim())
+        {
+            Action close=()=>{readRelease.Set();closeEntered.Set();closeRelease.Wait();};
+            var active=SerialRun(core,token=>{entered.Set();readRelease.Wait();return 42;},close,5000,CancellationToken.None,true);
+            Assert(entered.Wait(1500),"Serial IO did not enter");int count=0;
+            var queued=SerialRun(core,token=>Interlocked.Increment(ref count),()=>{},5000,CancellationToken.None);
+            Task stop=SerialStopTask(core,close);Assert(closeEntered.Wait(1500),"Close not dispatched");
+            Assert(SerialBusy(core) && !stop.Wait(30) && !active.IsCompleted,"Serial occupancy released before close");
+            closeRelease.Set();Wait(stop);Wait(active);Wait(queued);
+            Assert(active.Result.Status==CommunicationStatus.Cancelled && active.Result.CommandMayHaveExecuted && queued.Result.Status==CommunicationStatus.Cancelled && count==0 && !SerialBusy(core),"Serial old work survived stop");
+        }
+    }
+
+    /// <summary>原生 Open 忽略取消并迟到返回时，必须再次关闭新打开的句柄。</summary>
+    private static void SerialLateOpen()
+    {
+        object core=SerialCore();int opened=0,closed=0;
+        using(var entered=new ManualResetEventSlim())
+        using(var release=new ManualResetEventSlim())
+        using(var earlyClose=new ManualResetEventSlim())
+        using(var cancel=new CancellationTokenSource())
+        {
+            Action close=()=>{Interlocked.Exchange(ref opened,0);Interlocked.Increment(ref closed);earlyClose.Set();};
+            var task=SerialRun(core,token=>{entered.Set();release.Wait();Interlocked.Exchange(ref opened,1);return 1;},close,5000,cancel.Token);
+            Assert(entered.Wait(1500),"Open did not start");cancel.Cancel();Assert(earlyClose.Wait(1500),"Early close missing");
+            Assert(SerialBusy(core) && !task.IsCompleted,"Blocked native Open was hidden");
+            release.Set();Wait(task);Assert(task.Result.Status==CommunicationStatus.Cancelled && opened==0 && closed>=2 && !SerialBusy(core),"Late Open left a live port");
+        }
+    }
+
+    /// <summary>串口队列超时不关闭正在使用端口的任务。</summary>
+    private static void SerialQueue()
+    {
+        object core=SerialCore();int closed=0;
+        using(var entered=new ManualResetEventSlim())
+        using(var release=new ManualResetEventSlim())
+        {
+            var owner=SerialRun(core,token=>{entered.Set();release.Wait();return 42;},()=>Interlocked.Increment(ref closed),5000,CancellationToken.None);
+            Assert(entered.Wait(1500),"Serial owner not started");
+            var queued=SerialRun(core,token=>0,()=>Interlocked.Increment(ref closed),20,CancellationToken.None);
+            Wait(queued);Assert(queued.Result.Status==CommunicationStatus.Timeout && closed==0 && !owner.IsCompleted,"Queue timeout closed owner");
+            release.Set();Wait(owner);Assert(owner.Result.Succeeded && owner.Result.Value==42,"Owner failed");
+        }
+    }
+
+    /// <summary>关闭失败后保留故障占用，显式成功重试才允许新操作。</summary>
+    private static void SerialCloseFailure()
+    {
+        object core=SerialCore();
+        var failed=SerialRun(core,token=>{throw new InvalidDataException("Bad frame");},()=>{throw new IOException("Close failed");},1000,CancellationToken.None);
+        bool threw=false;try{failed.GetAwaiter().GetResult();}catch(IOException){threw=true;}
+        Assert(threw && SerialBusy(core),"Cleanup error hidden");
+        var next=SerialRun(core,token=>1,()=>{},1000,CancellationToken.None);Wait(next);
+        Assert(next.Result.Status==CommunicationStatus.TransportError,"Failed port reused");
+        Wait(SerialStopTask(core,()=>{}));var retry=SerialRun(core,token=>7,()=>{},1000,CancellationToken.None);Wait(retry);
+        Assert(retry.Result.Value==7 && !SerialBusy(core),"Explicit cleanup retry failed");
+    }
+
+    /// <summary>使用固定已知线缆帧向量校验 CRC 顺序和数据边界。</summary>
+    private static void ModbusVectors()
+    {
+        Type protocol=typeof(Keyence3DTcp).Assembly.GetType("AlphaRap.ModbusRtuFrame",true);
+        var request=(byte[])protocol.GetMethod("Request",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,new object[]{(byte)1,(ushort)0,(ushort)1});
+        Assert(request.SequenceEqual(new byte[]{1,3,0,0,0,1,0x84,0x0A}),"Wrong request CRC order");
+        var decode=protocol.GetMethod("Decode",BindingFlags.Static|BindingFlags.NonPublic);
+        byte[] valid={1,3,2,0,1,0x79,0x84};
+        Assert(((byte[])decode.Invoke(null,new object[]{valid,(byte)1,(ushort)1})).SequenceEqual(new byte[]{0,1}),"Valid response rejected");
+        foreach(byte[] bad in new[]{new byte[]{1,3,2,0,1,0,0},new byte[]{2,3,2,0,1,0x79,0x84},new byte[]{1,3,2,0},new byte[]{1,3,2,0,1,0x79,0x84,0}})
+        {
+            bool rejected=false;try{decode.Invoke(null,new object[]{bad,(byte)1,(ushort)1});}catch(TargetInvocationException error){rejected=error.InnerException is InvalidDataException;}
+            Assert(rejected,"Bad Modbus frame accepted");
+        }
+    }
+
+    /// <summary>电阻计数据先收齐，再校验全部通道，旧端口或配置缓存不算新结果。</summary>
+    private static void ResistanceFrames()
+    {
+        var meter=new HIOKI_RM3545("OfflineMeter"){ChannelNum=2};
+        var capture=typeof(HIOKI_RM3545).GetMethod("CaptureText",BindingFlags.Instance|BindingFlags.NonPublic);
+        var reset=typeof(HIOKI_RM3545).GetMethod("ResetResult",BindingFlags.Instance|BindingFlags.NonPublic);
+        bool valid=true;meter.strResult="9,9";Assert(meter.GetFinalResult(ref valid).Count==0 && !valid,"Saved stale result accepted");
+        capture.Invoke(meter,new object[]{meter.MyCom,"1,",0L});Assert(meter.GetFinalResult(ref valid).Count==0 && !valid,"Partial resistance accepted");
+        capture.Invoke(meter,new object[]{meter.MyCom,"2\r\n",0L});Assert(meter.GetFinalResult(ref valid).SequenceEqual(new[]{1.0,2.0}) && valid,"Complete resistance failed");
+        using(var old=new System.IO.Ports.SerialPort())capture.Invoke(meter,new object[]{old,"8,8\n",0L});
+        Assert(meter.GetFinalResult(ref valid).SequenceEqual(new[]{1.0,2.0}),"Old port replaced result");
+        reset.Invoke(meter,null);
+        capture.Invoke(meter,new object[]{meter.MyCom,"8,8\n",0L});Assert(meter.GetFinalResult(ref valid).Count==0 && !valid,"Old epoch republished resistance");
+        capture.Invoke(meter,new object[]{meter.MyCom,"NaN,2\n",1L});Assert(meter.GetFinalResult(ref valid).Count==0 && !valid,"NaN resistance accepted");
+        meter.Close();meter.MyCom.Dispose();
+    }
+
+    /// <summary>旧工具的无效配置和半字节不访问实际 COM，FFU 无数据不伪装成零风速。</summary>
+    private static void SerialUtilities()
+    {
+        using(var port=new AlphaRap.Classes.NPSerialPort())
+        {
+            Assert(!port.Connect("unused",9600,0,0,1) && port.LastStatus==CommunicationStatus.InvalidConfiguration,"Invalid serial config used");
+            Assert(port.strToHexByte("00 FF A1").SequenceEqual(new byte[]{0,255,161}),"Hex conversion failed");
+            Assert(!port.Write_StringToHex("ABC") && !port.Write_StringToHex("GG"),"Invalid hex sent");
+            Assert(port.readChar()==null && port.LastStatus==CommunicationStatus.NotConnected,"Closed port invented data");
+        }
+        var ffu=new AlphaRap.Classes.FFUCom("OfflineFFU");bool failed=false;
+        try{ffu.GetFFUSpeed();}catch(DeviceCommunicationException){failed=true;}
+        Assert(failed,"Missing FFU response became zero speed");ffu.Close();
     }
 
     /// <summary>创建仅访问本地服务器的真实 3D 设备对象。</summary>

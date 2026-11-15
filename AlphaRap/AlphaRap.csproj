@@ -741,6 +741,9 @@
     <Compile Include="Devices\TcpConnection.cs" />
     <Compile Include="Devices\CommunicationResult.cs" />
     <Compile Include="Devices\NPSerialPort.cs" />
+    <Compile Include="Devices\SerialOperation.cs" />
+    <Compile Include="Devices\SerialFrames.cs" />
+    <Compile Include="Devices\ModbusRtuFrame.cs" />
     <Compile Include="Devices\FFU.cs" />
     <Compile Include="Devices\FFUCom.cs" />
     <Compile Include="Devices\MTF6000_1.cs" />
