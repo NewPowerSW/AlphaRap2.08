@@ -78,16 +78,42 @@ namespace AlphaRapLibrary
 		public void ExecuteManual(Action ation)
 		{
 			if (ation == null) throw new ArgumentNullException(nameof(ation));
+			CancellationTokenSource source;
+			StartManual(ation, out source);
+		}
+
+		/// <summary>异步等待一份手动动作及其取消清理，忙碌时明确拒绝，不丢弃调用方任务。</summary>
+		public async Task ExecuteManualAsync(Action action)
+		{
+			if (action == null) throw new ArgumentNullException(nameof(action));
+			CancellationTokenSource source;
+			Task work = StartManual(action, out source);
+			if (work == null) throw new InvalidOperationException(AlphaRap.FrameworkLanguage.LangMsg("DeviceControl", "manual_Busy",
+				"当前模块仍有未结束的操作。", "The module still has an unfinished operation.", "El módulo aún tiene una operación pendiente."));
+			try { await work.ConfigureAwait(false); }
+			finally
+			{
+				Task cancellation; lock (manualSync) cancellation = ReferenceEquals(source, StopManualTask) ? manualCancellation : Task.FromResult(0);
+				await cancellation.ConfigureAwait(false);
+			}
+		}
+
+		/// <summary>在同一锁中检查占用并启动唯一手动会话。</summary>
+		private Task StartManual(Action action, out CancellationTokenSource source)
+		{
 			lock (manualSync)
 			{
-				if (AlphaRap.SysPara.SystemMode == AlphaRap.RunMode.STOPPING || IsManualRun()) return;
+				source = null;
+				if (AlphaRap.SysPara.SystemMode == AlphaRap.RunMode.STOPPING || IsManualRun()) return null;
 				StopManualTask.Dispose();
 				StopManualTask = new CancellationTokenSource();
+				source = StopManualTask;
 				CancellationToken token = StopManualTask.Token;
 				ManualTask = Task.Factory.StartNew(() =>
 				{
-					using (NPSDK.Flow_Chart.UseExecutionToken(token)) ation();
-				}, token, TaskCreationOptions.None, TaskScheduler.Default);
+					using (NPSDK.Flow_Chart.UseExecutionToken(token)) action();
+				}, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+				return ManualTask;
 			}
 		}
 

@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using AlphaRap;
 using AlphaRapLibrary;
 using NPSDK;
+using NPSDK.Motion;
 
 internal static class MachineRunProbe
 {
@@ -27,11 +28,12 @@ internal static class MachineRunProbe
         internal volatile bool Initialized;
         internal Action PauseAction;
         internal int Warnings, Resumes;
+        internal string LastWarning;
         public override bool IsLegacyInitialized { get { return Initialized; } }
         /// <summary>模拟应用的初始化复位，不访问 IO。</summary>
         public override void ResetLegacyInitialization() { Initialized = false; }
         /// <summary>记录控制错误而不弹出现场窗口。</summary>
-        public override void ShowWarning(string message, string confirm) { Interlocked.Increment(ref Warnings); }
+        public override void ShowWarning(string message, string confirm) { LastWarning = message; Interlocked.Increment(ref Warnings); }
         /// <summary>允许测试阻塞旧输出暂停，验证停止期间不会继续恢复。</summary>
         public override void PauseLegacyOutputs() { if (PauseAction != null) PauseAction(); }
         /// <summary>记录旧输出恢复次数。</summary>
@@ -68,6 +70,13 @@ internal static class MachineRunProbe
             }
             return true;
         }
+    }
+
+    private sealed class PreparationDriver : MotorBaseInterface
+    {
+        internal ManualResetEventSlim Entered, Release;
+        /// <summary>模拟启动前检查驱动状态耗时，不读取硬件。</summary>
+        public override AxisIOState GetAxisIOState() { Entered.Set(); Release.Wait(); return new AxisIOState { SVON = true }; }
     }
 
     private sealed class Fixture : IDisposable
@@ -137,6 +146,7 @@ internal static class MachineRunProbe
         Application.EnableVisualStyles();
         host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
         SysPara.LanguageDataDirectory = System.IO.Path.Combine(Environment.CurrentDirectory, "LanguageData");
+        Alarm.Initial(System.IO.Path.Combine(Environment.CurrentDirectory, "offline-alarm-table.xml"));
         try
         {
             Test("independent stop requests retain occupancy beyond the waiting threshold", CoordinatorWait);
@@ -150,11 +160,43 @@ internal static class MachineRunProbe
             Test("stop during a blocked pause prevents subsequent output restoration", PauseWithdrawal);
             Test("manual cancellation retains ownership after the action itself has returned", ManualCancellation);
             Test("host stop failures prevent restart until explicit successful retry", HostStopFailure);
-            Console.WriteLine("RESULT " + passed + "/11 passed; no motion, PLC, camera or machine startup was executed.");
+            Test("host stop retains detached device IO and rejects startup until it exits", DetachedDeviceStop);
+            Test("startup preparation rejects new device IO and releases admission afterwards", StartupDeviceAdmission);
+            Console.WriteLine("RESULT " + passed + "/13 passed; no motion, PLC, camera or machine startup was executed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
         finally { UiTheme.ForceDesignTimeForTest(false); }
+    }
+
+    /// <summary>自动启动前驱动检查期间不插入手动 IO，停止后允许正常调试。</summary>
+    private static void StartupDeviceAdmission()
+    {
+        using (Fixture fixture = new Fixture())
+        using (ManualResetEventSlim entered = new ManualResetEventSlim())
+        using (NP_Motor motor = new NP_Motor())
+        {
+            Controller station = fixture.Station();
+            ManualResetEventSlim release = fixture.Release();
+            var driver = new PreparationDriver { Entered = entered, Release = release };
+            typeof(NP_Motor).GetField("dMotor", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(motor, driver);
+            typeof(NP_Motor).GetField("ready", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(motor, true);
+            if (!SDKPara.ControlList.Contains(motor)) SDKPara.ControlList.Add(motor);
+            try
+            {
+                fixture.Application.Initialized = true; SysPara.SystemMode = RunMode.INITIAL;
+                Task<bool> startup = (Task<bool>)Invoke("StartRunAsync"); Until(() => entered.IsSet);
+                int calls = 0;
+                Task rejected = DeviceOperations.RunAsync(null, () => Interlocked.Increment(ref calls));
+                try { Wait(rejected); } catch (OperationCanceledException) { }
+                Check(rejected.IsCanceled && calls == 0 && !DeviceOperations.HasPending, "Startup admitted new device IO.");
+                release.Set(); Wait(startup); Check(startup.Result, "Offline startup failed: mode=" + SysPara.SystemMode + ", warnings=" + fixture.Application.LastWarning + ", starts=" + station.Starts + ", stop=" + Property<string>("MachineStopError"));
+                Invoke("StopRun"); Wait(Property<Task<bool>>("MachineStopCompletion"));
+                Wait(DeviceOperations.RunAsync(null, () => Interlocked.Increment(ref calls)));
+                Check(calls == 1 && !DeviceOperations.HasPending, "Completed startup retained the device admission block.");
+            }
+            finally { release.Set(); SDKPara.ControlList.Remove(motor); motor.DisposeObj(); }
+        }
     }
 
     /// <summary>超过等待提示阈值不释放占用，且后续清理也被纳入完成条件。</summary>
@@ -300,7 +342,8 @@ internal static class MachineRunProbe
             station.StartAction = () => { throw new InvalidOperationException("Offline start failure"); };
             SysPara.SystemMode = RunMode.INITIAL;
             Task<bool> start = (Task<bool>)Invoke("StartRunAsync"); Wait(start); Wait(Property<Task<bool>>("MachineStopCompletion"));
-            Check(!start.Result && !SysPara.SystemRun && SysPara.SystemMode == RunMode.IDLE && fixture.Application.Warnings == 1,
+            Check(!start.Result && !SysPara.SystemRun && SysPara.SystemMode == RunMode.IDLE && fixture.Application.Warnings == 1 && station.Starts == 1
+                && fixture.Application.LastWarning.Contains("Offline start failure"),
                 "A failed startup appeared to succeed or escaped observation.");
         }
     }
@@ -332,7 +375,7 @@ internal static class MachineRunProbe
             station.StartAction = () => { station.Active = true; Invoke("PauseRun"); };
             SysPara.SystemMode = RunMode.INITIAL;
             Task<bool> start = (Task<bool>)Invoke("StartRunAsync"); Wait(start); Wait(Property<Task<bool>>("MachineStopCompletion"));
-            Check(!start.Result && !SysPara.SystemRun && !station.Active && SysPara.SystemMode == RunMode.IDLE && station.Stops >= 1,
+            Check(!start.Result && !SysPara.SystemRun && !station.Active && SysPara.SystemMode == RunMode.IDLE && station.Stops >= 1 && station.Starts == 1,
                 "Priority pause was ignored during startup.");
         }
     }
@@ -354,6 +397,25 @@ internal static class MachineRunProbe
             Check(module.IsManualRun() && repeats == 0 && !stop.IsCompleted, "Manual cleanup released its ownership early.");
             releaseCancel.Set(); Wait(stop); Until(() => !module.IsManualRun());
             module.ExecuteManual(() => Interlocked.Increment(ref repeats)); Until(() => Volatile.Read(ref repeats) == 1 && !module.IsManualRun());
+        }
+    }
+
+    /// <summary>设备面板已经不存在时，整机停止仍等实际设备工作退出且不允许启动。</summary>
+    private static void DetachedDeviceStop()
+    {
+        using (Fixture fixture = new Fixture())
+        using (ManualResetEventSlim entered = new ManualResetEventSlim())
+        {
+            ManualResetEventSlim release = fixture.Release();
+            Task work = DeviceOperations.RunAsync(null, () => { entered.Set(); release.Wait(); });
+            Until(() => entered.IsSet); Invoke("StopRun");
+            Task<bool> stopped = Property<Task<bool>>("MachineStopCompletion");
+            Check(DeviceOperations.HasPending && !stopped.Wait(40) && SysPara.SystemMode == RunMode.STOPPING, "Detached IO was ignored by machine stop.");
+            Task<bool> start = (Task<bool>)Invoke("StartRunAsync"); Wait(start);
+            Check(!start.Result, "Startup accepted while old device IO was still occupied.");
+            release.Set(); Wait(stopped); Until(() => work.IsCompleted);
+            try { work.GetAwaiter().GetResult(); } catch (OperationCanceledException) { }
+            Check(stopped.Result && !DeviceOperations.HasPending && SysPara.SystemMode == RunMode.IDLE, "Device stop did not finish after actual IO exit.");
         }
     }
 

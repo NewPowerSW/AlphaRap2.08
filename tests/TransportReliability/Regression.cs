@@ -58,7 +58,14 @@ internal static class ReliabilityCases
             Check("Modbus vectors enforce CRC station function and lengths", ModbusVectors);
             Check("resistance frames reject partial stale and nonfinite values", ResistanceFrames);
             Check("legacy serial utilities reject invalid hex and missing data", SerialUtilities);
-            Console.WriteLine("RESULT transport reliability: " + passed + "/17 passed; loopback and fake serial only."); return 0;
+            Check("device UI remains responsive and closes active IO", DeviceUiCases.Responsive);
+            Check("disposed UI retains actual IO and rejects late delivery", DeviceUiCases.Disposal);
+            Check("device cancellation cleanup retains global occupancy", DeviceUiCases.CancellationCleanup);
+            Check("busy modules and stop guards reject late device commands", DeviceUiCases.BusyAndStopGuard);
+            Check("automatic connections on one page do not drop devices", DeviceUiCases.ParallelAutoOpen);
+            Check("machine stop withdraws pending UI delivery", DeviceUiCases.LatePresentation);
+            Check("stop retains cleanup work without cancelling it", DeviceUiCases.CleanupSurvivesStop);
+            Console.WriteLine("RESULT transport reliability: " + passed + "/24 passed; loopback, fake serial and offline UI only."); return 0;
         }
         catch(Exception error) { Console.Error.WriteLine(error); return 1; }
     }

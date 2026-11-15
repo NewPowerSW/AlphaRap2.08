@@ -9,6 +9,7 @@ $reliabilityArguments = @('/nologo','/target:exe','/platform:x64','/main:Reliabi
 foreach($reliabilityLibrary in @('AlphaRap.exe','AlphaRap.Framework.dll','NPSDK.dll')) { $reliabilityArguments += '/r:' + (Join-Path $reliabilityAssemblies $reliabilityLibrary) }
 $reliabilityArguments += Join-Path $reliabilityRoot 'tests/ScannerCommunication/Regression.cs'
 $reliabilityArguments += Join-Path $PSScriptRoot 'Regression.cs'
+$reliabilityArguments += Join-Path $PSScriptRoot 'UiCases.cs'
 & 'C:/Program Files/Microsoft Visual Studio/18/Community/MSBuild/Current/Bin/Roslyn/csc.exe' @reliabilityArguments
 if($LASTEXITCODE -ne 0) { throw 'Transport regression compilation failed.' }
 & $reliabilityExe $reliabilityAssemblies $reliabilityOutput

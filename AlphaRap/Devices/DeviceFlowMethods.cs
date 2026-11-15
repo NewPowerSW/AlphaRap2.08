@@ -63,7 +63,8 @@ namespace AlphaRap
                 yield return method;
             }
             yield return FlowMethods.Sync("keyence.trigger", "触发 3D", "Trigger 3D", "Activar 3D",
-                new[] { new FlowField("Position", typeof(int), "0") { DisplayName = new[] { "3D 位置号", "3D position number", "Número de posición 3D" } } },
+                new[] { new FlowField("Position", typeof(int), "0") { DisplayName = new[] { "3D 位置号", "3D position number", "Número de posición 3D" },
+                    Help = new[] { "0 只测量；1–6 先切换位置，须在设备设置中填写现场确认的 ProgramAck。", "0 measures only; 1–6 select a position first and require ProgramAck from the actual device reply.", "0 solo mide; 1–6 seleccionan una posición y requieren ProgramAck según la respuesta real." } } },
                 new[] { new FlowField("Value", typeof(string)) { DisplayName = new[] { "3D 返回结果", "3D returned result", "Resultado devuelto por 3D" } } },
                 call => FlowCall.Result("Value", TriggerAsync(call.Get<int>("Position"), call.Token).GetAwaiter().GetResult().RequireValue(call.Token)));
             yield return FlowMethods.Sync("keyence.change", "切换 3D 程序", "Change 3D program", "Cambiar programa 3D",

@@ -55,6 +55,7 @@ namespace AlphaRap
         {
             long version;
             TaskCompletionSource<bool> finished;
+            IDisposable deviceAdmission;
             lock (machineCommandSync)
             {
                 if (MachineIsStopping) return Task.FromResult(false);
@@ -68,13 +69,14 @@ namespace AlphaRap
                 version = ++machineCommandVersion;
                 finished = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
                 MachineCommandCompletion = finished.Task;
+                deviceAdmission = DeviceOperations.SuspendNewOperations();
             }
-            _ = ExecuteMachineCommand(command, version, finished);
+            _ = ExecuteMachineCommand(command, version, finished, deviceAdmission);
             return finished.Task;
         }
 
         /// <summary>执行一次整机命令，隔离错误并在失败后请求完整停止。</summary>
-        private static async Task ExecuteMachineCommand(Func<long, Task<bool>> command, long version, TaskCompletionSource<bool> finished)
+        private static async Task ExecuteMachineCommand(Func<long, Task<bool>> command, long version, TaskCompletionSource<bool> finished, IDisposable deviceAdmission)
         {
             bool accepted = false;
             try { accepted = await command(version); }
@@ -95,7 +97,7 @@ namespace AlphaRap
             }
             finally
             {
-                lock (machineCommandSync) { machineCommandActive = false; machinePauseCommand = false; }
+                lock (machineCommandSync) { deviceAdmission.Dispose(); machineCommandActive = false; machinePauseCommand = false; }
                 finished.TrySetResult(accepted);
             }
         }
@@ -199,6 +201,7 @@ namespace AlphaRap
                 if (pauseOutputs) SysPara.SystemMode = RunMode.PAUSE;
             }
             if (!await RunStartupWork(version, Flow_Module.Module_PauseRun)) return false;
+            if (!await RunStartupWork(version, () => DeviceOperations.RequestStopAllAsync().GetAwaiter().GetResult())) return false;
             if (!FlowProgramming.FlowPrograms.HasPrograms)
             {
                 Task manual;
@@ -234,7 +237,8 @@ namespace AlphaRap
                 SysPara.SystemRun = false;
                 SysPara.SystemMode = RunMode.STOPPING;
                 Flow_Module.Module_RequestStop();
-                Task<bool> pending = machineStop.RequestStop(CreateStopSteps(stopHardware),
+                Task deviceCleanup = DeviceOperations.RequestStopAllAsync();
+                Task<bool> pending = machineStop.RequestStop(CreateStopSteps(stopHardware, deviceCleanup),
                     resetInitialization ? (Action)Application.ResetLegacyInitialization : null);
                 stopCompletion = ApplyStopResult(pending, version);
                 return stopCompletion;
@@ -242,7 +246,7 @@ namespace AlphaRap
         }
 
         /// <summary>为每个停止对象建立独立步骤，单个设备阻塞不影响其他停止请求。</summary>
-        private static IEnumerable<MachineStopStep> CreateStopSteps(bool stopHardware)
+        private static IEnumerable<MachineStopStep> CreateStopSteps(bool stopHardware, Task deviceCleanup)
         {
             Task preparation = startupWork;
             Task manualCleanup = manualStopWork;
@@ -251,6 +255,7 @@ namespace AlphaRap
                 () => FlowProgramming.FlowPrograms.AnyRunning, () => flowWasRunning ? FlowProgramming.FlowPrograms.StopError : null);
             yield return new MachineStopStep("Startup", () => { }, () => !preparation.IsCompleted);
             yield return new MachineStopStep("ManualCleanup", () => { }, () => !manualCleanup.IsCompleted);
+            yield return new MachineStopStep("Devices", () => deviceCleanup.GetAwaiter().GetResult(), () => DeviceOperations.HasPending);
             foreach (ModuleBaseForm module in ModuleManager.ModuleList.ToArray())
             {
                 yield return new MachineStopStep("Manual/" + module.Name, () => module.RequestManualStop().GetAwaiter().GetResult(), module.IsManualRun, identity: module);
@@ -288,6 +293,7 @@ namespace AlphaRap
         private static Task StartManualStops()
         {
             List<Task> requests = ModuleManager.ModuleList.ToArray().Select(module => module.RequestManualStop()).ToList();
+            requests.Add(DeviceOperations.RequestStopAllAsync());
             requests.Add(Task.Factory.StartNew(() => MotorProtection.StopAllMotor(), CancellationToken.None,
                 TaskCreationOptions.LongRunning, TaskScheduler.Default));
             return Task.WhenAll(requests);
@@ -301,7 +307,7 @@ namespace AlphaRap
         }
 
         /// <summary>将排队、执行及取消清理中的手动操作统一视为占用。</summary>
-        public static bool AnyManualRunning() { return !manualStopWork.IsCompleted || ModuleManager.ModuleList.ToArray().Any(module => module.IsManualRun()); }
+        public static bool AnyManualRunning() { return !manualStopWork.IsCompleted || DeviceOperations.HasPending || ModuleManager.ModuleList.ToArray().Any(module => module.IsManualRun()); }
 
         /// <summary>记录完整控制异常；日志源未就绪或写入失败时仍保留调试输出。</summary>
         private static void RecordControlFailure(Exception error)

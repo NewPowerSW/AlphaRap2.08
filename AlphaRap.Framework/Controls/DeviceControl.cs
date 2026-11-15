@@ -5,7 +5,11 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Windows.Forms;
+using System.Threading;
+using System.Threading.Tasks;
+using AlphaRapLibrary;
 using System.Xml;
 using AlphaRap.Configuration;
 
@@ -49,6 +53,9 @@ namespace AlphaRap
         private readonly List<Type> _types = new List<Type>();            // 可添加的设备类（反射扫描结果）
         private string _deviceTypeName;
         private int _logLines;
+        private bool _uiBusy, _uiClosing;
+        private CancellationTokenSource _uiCancellation;
+        private enum UiCommand { Open, Close, Send, Receive }
 
         /// <summary>单设备模式：一个面板只代表一台设备（隐藏内部设备下拉/添加/删除，右上角出【移除】）。</summary>
         private bool _singleDevice;
@@ -84,6 +91,7 @@ namespace AlphaRap
                 FrameworkLanguage.LanguageChanged += _langHandler;                                    // 供 MainForm 的【保存】按钮统一保存
                 this.Disposed += delegate
                 {
+                    if (_uiCancellation != null) _uiCancellation.Cancel();
                     LiveInstances.Remove(this);
                     FrameworkLanguage.LanguageChanged -= _langHandler;   // 静态事件必须解绑，否则面板会被一直留住
                     RaiseDevicesChanged();
@@ -509,25 +517,38 @@ namespace AlphaRap
 
         #region 兜底：老设备类没实现 Send / Receive 时按方法名找
 
-        private string ReflectSend(AbstractDevice d, string text)
+        /// <summary>按旧设备公开写入方法发送，并保留原始失败原因。</summary>
+        private static string ReflectSend(AbstractDevice d, string text)
         {
             MethodInfo mi = FindCandidateMethod(d, SendMethodNames, 1);
             if (mi == null)
                 return L("err_NoSendAbility", "该设备类没有发送能力：既未重写 SupportsRawIo/Send，也找不到 Send/Sent/Write/… 这类公开方法。", "This device type cannot send: SupportsRawIo/Send is not overridden and no Send/Sent/Write/... method exists.", "Este tipo no puede enviar: no sobrescribe SupportsRawIo/Send ni tiene Send/Sent/Write/...");
 
-            object r = mi.Invoke(d, new object[] { text });
+            object r = InvokeDeviceMethod(mi, d, new object[] { text });
             if (r is string) return (string)r;
             if (r is bool) return ((bool)r) ? string.Empty : L("err_SendReturnedFalse", "设备的发送方法返回失败。", "The device send method returned failure.", "El método de envío devolvió error.");
             return string.Empty;
         }
 
-        private string ReflectReceive(AbstractDevice d)
+        /// <summary>按旧设备公开接收方法读取，不隐藏取消或驱动异常。</summary>
+        private static string ReflectReceive(AbstractDevice d)
         {
             MethodInfo mi = FindCandidateMethod(d, RecvMethodNames, 0);
             if (mi == null) return string.Empty;
 
-            object r = mi.Invoke(d, null);
+            object r = InvokeDeviceMethod(mi, d, null);
             return (r == null) ? string.Empty : r.ToString();
+        }
+
+        /// <summary>解包反射调用异常，使取消进入停止路径而不是普通发送错误。</summary>
+        private static object InvokeDeviceMethod(MethodInfo method, AbstractDevice device, object[] arguments)
+        {
+            try { return method.Invoke(device, arguments); }
+            catch (TargetInvocationException error)
+            {
+                if (error.InnerException == null) throw;
+                ExceptionDispatchInfo.Capture(error.InnerException).Throw(); throw;
+            }
         }
 
         private static MethodInfo FindCandidateMethod(AbstractDevice d, string[] names, int argCount)
@@ -1244,7 +1265,7 @@ namespace AlphaRap
         }
 
         /// <summary>加载离线设备配置；损坏配置显示错误并阻止自动连接，页面保持可用。</summary>
-        private void DeviceControl_Load(object sender, EventArgs e)
+        private async void DeviceControl_Load(object sender, EventArgs e)
         {
             if (InDesigner) return;
             // 单设备模式：面板由宿主（Parameter）负责建好、绑定设备、再按 XML 套参数。
@@ -1263,8 +1284,7 @@ namespace AlphaRap
 
             if (AutoOpen)
             {
-                string err = OpenDevice();
-                if (!string.IsNullOrEmpty(err)) AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), err);
+                await RunDeviceUiAsync(UiCommand.Open, null, true);
             }
         }
 
@@ -1463,26 +1483,113 @@ namespace AlphaRap
             catch (Exception) { return zh; }
         }
 
-        private void btnOpen_Click(object sender, EventArgs e)
+        /// <summary>异步处理打开按钮，网络等待不占用消息线程。</summary>
+        private async void btnOpen_Click(object sender, EventArgs e)
         {
-            string err = OpenDevice();
-            if (!string.IsNullOrEmpty(err)) AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), err);
+            await OpenDeviceAsync();
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
+        /// <summary>异步处理关闭按钮，允许打断当前调试操作。</summary>
+        private async void btnClose_Click(object sender, EventArgs e)
         {
-            CloseDevice();
+            await CloseDeviceAsync();
         }
 
-        private void btnRecv_Click(object sender, EventArgs e)
+        /// <summary>在后台接收，完成后由 UI 交付结果。</summary>
+        private async void btnRecv_Click(object sender, EventArgs e)
         {
-            ReceiveData();
+            await ReceiveDataAsync();
         }
 
-        private void btnSend_Click(object sender, EventArgs e)
+        /// <summary>捕获发送文本再异步发送，不在工作线程读取控件。</summary>
+        private async void btnSend_Click(object sender, EventArgs e)
         {
-            string err = SendData(txtSend.Text);
-            if (!string.IsNullOrEmpty(err)) AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), err);
+            await SendDataAsync(txtSend.Text);
+        }
+
+        /// <summary>在后台连接，完成后的日志及控件更新留在 UI 线程。</summary>
+        public Task OpenDeviceAsync() { return RunDeviceUiAsync(UiCommand.Open, null); }
+
+        /// <summary>中断当前 UI 请求并关闭，关闭工作也参与全局停止占用。</summary>
+        public Task CloseDeviceAsync() { return RunDeviceUiAsync(UiCommand.Close, null); }
+
+        /// <summary>发送一份输入快照，不在后台读写文本框。</summary>
+        public Task SendDataAsync(string text) { return RunDeviceUiAsync(UiCommand.Send, text); }
+
+        /// <summary>在后台接收，完成后按原 Received 事件交付文本。</summary>
+        public Task ReceiveDataAsync() { return RunDeviceUiAsync(UiCommand.Receive, null); }
+
+        /// <summary>真实 IO 在后台执行，面板释放后仍由全局登记保留占用及取消清理。</summary>
+        private async Task RunDeviceUiAsync(UiCommand command, string text, bool automatic = false)
+        {
+            if (IsDisposed || Disposing || InDesigner || _device == null) return;
+            if (command == UiCommand.Close && _uiClosing) return;
+            if (command != UiCommand.Close && (_uiBusy || _uiClosing)) return;
+            if (command == UiCommand.Send && string.IsNullOrEmpty(text)) return;
+            AbstractDevice captured = _device;
+            var cancellation = new CancellationTokenSource();
+            if (command == UiCommand.Close) { _uiClosing = true; if (_uiCancellation != null) _uiCancellation.Cancel(); }
+            else { _uiBusy = true; _uiCancellation = cancellation; }
+            long stopVersion = DeviceOperations.StopVersion;
+            string result = "";
+            try
+            {
+                RefreshState();
+                ModuleBaseForm owner = command == UiCommand.Close || automatic ? null : FindForm() as ModuleBaseForm;
+                await DeviceOperations.RunAsync(owner, () => result = ExecuteDeviceIo(captured, command, text), cancellation.Token, command == UiCommand.Close);
+                if (IsDisposed || Disposing || !ReferenceEquals(captured, _device)) return;
+                if (command != UiCommand.Close && (cancellation.IsCancellationRequested || stopVersion != DeviceOperations.StopVersion)) return;
+                PresentDeviceIo(captured, command, text, result);
+            }
+            catch (OperationCanceledException)
+            {
+                if (!IsDisposed && !Disposing) AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), L("io_Cancelled", "设备操作已停止。", "Device operation stopped.", "Operación del dispositivo detenida."));
+            }
+            catch (Exception error)
+            {
+                if (!IsDisposed && !Disposing) AppendLog(L("tag_Error", "错误", "Error", "Error"), error.Message);
+            }
+            finally
+            {
+                if (command == UiCommand.Close) _uiClosing = false;
+                else { _uiBusy = false; if (ReferenceEquals(_uiCancellation, cancellation)) _uiCancellation = null; }
+                cancellation.Dispose();
+                if (!IsDisposed && !Disposing) RefreshAfterIo();
+            }
+        }
+
+        /// <summary>清理阶段刷新失败只记录诊断，避免异步按钮事件向 UI 消息循环抛出异常。</summary>
+        private void RefreshAfterIo()
+        {
+            try { RefreshState(); }
+            catch (Exception error) { System.Diagnostics.Debug.WriteLine(error); AppendLog(L("tag_Error", "错误", "Error", "Error"), error.Message); }
+        }
+
+        /// <summary>后台只访问捕获的设备实例和数据，不访问 WinForms 控件。</summary>
+        private static string ExecuteDeviceIo(AbstractDevice device, UiCommand command, string text)
+        {
+            if (command == UiCommand.Close) { device.Close(); return ""; }
+            if (command == UiCommand.Open)
+            {
+                device.Open();
+                if (!device.IsConnected) throw new InvalidOperationException(L("io_OpenFailed", "设备未连接，请检查通信参数及设备状态。", "Device not connected; check communication settings and device state.", "Dispositivo sin conexión; revise configuración y estado."));
+                return "";
+            }
+            if (!device.IsConnected) throw new InvalidOperationException(L("io_NotConnected", "设备未连接。", "Device not connected.", "Dispositivo sin conexión."));
+            if (command == UiCommand.Receive) return (device.SupportsRawIo ? device.Receive() : ReflectReceive(device)) ?? "";
+            string error = device.SupportsRawIo ? device.Send(text) : ReflectSend(device, text);
+            if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            return "";
+        }
+
+        /// <summary>在 UI 线程更新原日志和接收事件，不把迟到结果写到其他设备页面。</summary>
+        private void PresentDeviceIo(AbstractDevice device, UiCommand command, string text, string result)
+        {
+            if (command == UiCommand.Open) { AppendLog(L("tag_Open", "打开", "Open", "Abrir"), device.DeviceName); return; }
+            if (command == UiCommand.Close) { AppendLog(L("tag_Close", "关闭", "Close", "Cerrar"), device.DeviceName); return; }
+            if (command == UiCommand.Send) { AppendLog(L("tag_Send", "发送", "Send", "Enviar"), Escape(text)); return; }
+            AppendLog(L("tag_Recv", "接收", "Recv", "Recibir"), result.Length == 0 ? L("msg_NoData", "(无数据)", "(no data)", "(sin datos)") : Escape(result));
+            if (result.Length > 0) Received?.Invoke(this, result);
         }
 
         /// <summary>清空下面的记录框。</summary>
@@ -1537,9 +1644,17 @@ namespace AlphaRap
                 lblState.ForeColor = connected ? UiKit.Success : UiKit.Danger;
             }
 
+            bool busy = _uiBusy || _uiClosing;
+            if (busy) { lblState.Text = L("io_Busy", "通信中，可关闭连接以停止。", "Communicating; close the connection to stop.", "Comunicando; cierre la conexión para detener."); lblState.ForeColor = UiKit.TextMuted; }
+            btnOpen.Enabled = !busy;
+            btnClose.Enabled = !_uiClosing;
+            cboType.Enabled = !busy; propGrid.Enabled = !busy;
+            btnAddDev.Enabled = !busy; btnDelDev.Enabled = !busy;
+            btnRemovePanel.Enabled = !busy;
+
             // 收发必须在连接状态下才能触发（未连接时按钮置灰、点击不响应）
-            if (btnSend != null) btnSend.Enabled = connected;
-            if (btnRecv != null) btnRecv.Enabled = connected;
+            if (btnSend != null) btnSend.Enabled = connected && !busy;
+            if (btnRecv != null) btnRecv.Enabled = connected && !busy;
 
             EventHandler h = ConnectedChanged;
             if (h != null) h(this, EventArgs.Empty);

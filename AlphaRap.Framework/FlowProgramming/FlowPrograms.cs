@@ -87,7 +87,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>运行和修改前统一检查工位、机器状态及权限。</summary>
         public static void RequireIdle()
         {
-            if (AnyRunning || SysPara.SystemMode != RunMode.IDLE)
+            if (AnyRunning || DeviceOperations.HasPending || SysPara.SystemMode != RunMode.IDLE)
             {
                 string names = string.Join(", ", Flow_Module.FlowChart_ModuleList.Where(Flow_Module.IsExecutionActive).Select(form => form.Name).Distinct());
                 string legacy = string.Join(", ", Flow_Module.FlowChart_List.Where(node => node.IsLegacyRunning).Select(node => node.text).Distinct());

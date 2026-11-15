@@ -617,6 +617,7 @@
     </Compile>
     <Compile Include="Controls\MotorProtection.cs" />
     <Compile Include="Core\ApplicationHost.cs" />
+    <Compile Include="Core\DeviceOperations.cs" />
     <Compile Include="Core\ModuleBaseForm.cs">
       <SubType>Form</SubType>
     </Compile>
