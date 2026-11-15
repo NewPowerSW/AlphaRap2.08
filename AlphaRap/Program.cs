@@ -8,8 +8,9 @@ namespace AlphaRap
     {
         /// <summary>启动本机 WinForms 应用，并由应用管理窗口与进程生命周期。</summary>
         [STAThread]
-        private static void Main()
+        private static void Main(string[] args)
         {
+            if (PLC.PlcWorker.TryRun(args)) return;
             var station = new StationApplication();
             bool firstInstance;
             using (var mutex = new Mutex(true, "OnlyRunOneInstance", out firstInstance))
@@ -26,7 +27,11 @@ namespace AlphaRap
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 try { Application.Run(Initialize(station)); }
-                finally { ApplicationHost.Shutdown(); }
+                finally
+                {
+                    try { ApplicationHost.Shutdown(); }
+                    finally { PLC.INOVANCE.CloseAll(); }
+                }
             }
         }
 

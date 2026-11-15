@@ -782,6 +782,9 @@
       <DependentUpon>DongJu.cs</DependentUpon>
     </Compile>
     <Compile Include="PLC\INOVANCE.cs" />
+    <Compile Include="PLC\PlcResult.cs" />
+    <Compile Include="PLC\PlcSession.cs" />
+    <Compile Include="PLC\PlcWorker.cs" />
     <Compile Include="TaskProcess\Gantry.Heartbeat.cs">
       <SubType>Code</SubType>
       <DependentUpon>Gantry.cs</DependentUpon>
@@ -996,7 +999,7 @@
   </ItemGroup>
   <PropertyGroup Condition="'$(UsePackagedFramework)' == 'true'">
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <AlphaRapFrameworkPackageVersion>6.1.2</AlphaRapFrameworkPackageVersion>
+    <AlphaRapFrameworkPackageVersion>6.2.0</AlphaRapFrameworkPackageVersion>
     <RestoreSources Condition="'$(RestoreSources)' == ''">$(MSBuildThisFileDirectory)..\artifacts\framework</RestoreSources>
   </PropertyGroup>
   <ItemGroup Condition="'$(UsePackagedFramework)' == 'true'">

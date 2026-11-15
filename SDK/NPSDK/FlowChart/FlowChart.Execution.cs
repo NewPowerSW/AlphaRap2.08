@@ -24,6 +24,33 @@ namespace NPSDK
         /// <summary>供节点中的网络、等待和驱动封装协作取消；流程之外返回不可取消令牌。</summary>
         public static CancellationToken CurrentExecutionToken { get { return executionToken.Value; } }
 
+        /// <summary>为托管节点和手动动作传递停止令牌，退出作用域后恢复调用方令牌。</summary>
+        public static IDisposable UseExecutionToken(CancellationToken token)
+        {
+            return new ExecutionTokenScope(token);
+        }
+
+        private sealed class ExecutionTokenScope : IDisposable
+        {
+            private readonly CancellationToken previous;
+            private bool disposed;
+
+            /// <summary>在当前异步调用链设置令牌，不修改其他流程的执行状态。</summary>
+            internal ExecutionTokenScope(CancellationToken token)
+            {
+                previous = executionToken.Value;
+                executionToken.Value = token;
+            }
+
+            /// <summary>恢复嵌套调用前的令牌。</summary>
+            public void Dispose()
+            {
+                if (disposed) return;
+                disposed = true;
+                executionToken.Value = previous;
+            }
+        }
+
         /// <summary>在同步驱动调用前后检查停止标记，避免取消通知尚未派发时继续发送命令。</summary>
         public static void ThrowIfExecutionStopped()
         {

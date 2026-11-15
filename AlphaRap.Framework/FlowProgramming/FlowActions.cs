@@ -202,7 +202,9 @@ namespace AlphaRap.FlowProgramming
             call.Token.ThrowIfCancellationRequested();
             Func<FlowCall, Task<IDictionary<string, object>>> invoke = call.Simulation && method.UsesHardware ? method.Simulate : method.Invoke;
             if (invoke == null) throw new InvalidOperationException(FlowText.T("noSimulation") + " " + method.Id);
-            IDictionary<string, object> output = await invoke(call).ConfigureAwait(false);
+            IDictionary<string, object> output;
+            using (Flow_Chart.UseExecutionToken(call.Token))
+                output = await invoke(call).ConfigureAwait(false);
             call.Token.ThrowIfCancellationRequested();
             return ValidateOutputs(method, output);
         }

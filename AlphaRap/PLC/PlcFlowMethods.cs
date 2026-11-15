@@ -18,8 +18,7 @@ namespace AlphaRap.PLC
                         Help = new[] { "输入此 PLC 支持的完整地址，例如 D1010。", "Enter a complete address supported by this PLC, such as D1010.", "Introduzca una dirección completa admitida por este PLC, como D1010." } },
                     new FlowField("Count", typeof(int), "2") { DisplayName = new[] { "读取长度", "Read length", "Longitud de lectura" } }, ValueType(false) },
                 new[] { new FlowField("Value", typeof(string)) { DisplayName = new[] { "PLC 读取结果", "PLC read result", "Resultado de lectura del PLC" } } }, call => {
-                    string value = ReadPlc(call.Get<string>("Address"), call.Get<int>("Count"), call.Get<string>("Type"));
-                    if (value == "-999") throw new InvalidOperationException(ReadErrorMessage);
+                    string value = ReadPlcResult(call.Get<string>("Address"), call.Get<int>("Count"), call.Get<string>("Type"), token: call.Token).RequireValue(call.Token);
                     return FlowCall.Result("Value", value);
                 });
             yield return FlowMethods.Sync("plc.write", "写入 PLC", "Write PLC", "Escribir PLC",
@@ -28,10 +27,17 @@ namespace AlphaRap.PLC
                     new FlowField("Value", typeof(object)) { DisplayName = new[] { "写入值", "Value to write", "Valor a escribir" } }, ValueType(true) },
                 new[] { new FlowField("Value", typeof(string)) { DisplayName = new[] { "已写入值", "Written value", "Valor escrito" } } }, call => {
                     string value = FlowValue.Text(call.Inputs["Value"]);
-                    if (!WritePlc(call.Get<string>("Address"), value, call.Get<string>("Type"))) throw new InvalidOperationException(WritErrorMessage);
+                    WritePlcResult(call.Get<string>("Address"), value, call.Get<string>("Type"), token: call.Token).RequireValue(call.Token);
                     return FlowCall.Result("Value", value);
                 });
             yield return WaitMethod();
+            yield return FlowMethods.Sync("plc.connect", "连接 PLC", "Connect PLC", "Conectar PLC",
+                new[] {
+                    new FlowField("Host", typeof(string)) { DisplayName = new[] { "PLC 地址", "PLC host", "Host del PLC" } },
+                    new FlowField("Port", typeof(int), "502") { DisplayName = new[] { "端口", "Port", "Puerto" } },
+                    new FlowField("TimeoutMs", typeof(int), "3000") { DisplayName = new[] { "连接总上限", "Total connection limit", "Límite total de conexión" }, Unit = "ms", Advanced = true }
+                }, new[] { new FlowField("Connected", typeof(bool)) { DisplayName = new[] { "连接成功", "Connected", "Conectado" } } },
+                call => FlowCall.Result("Connected", Connect(call.Get<string>("Host"), call.Get<int>("Port"), call.Get<int>("TimeoutMs"), call.Token).RequireValue(call.Token)));
         }
 
         /// <summary>声明只读等待块。运行使用现有 PLC 实例，模拟通过同一比较和超时逻辑。</summary>
@@ -48,7 +54,7 @@ namespace AlphaRap.PLC
             });
             method.Outputs.Add(new FlowField("Value", typeof(int)) { DisplayName = new[] { "实际读值", "Actual reading", "Lectura real" } });
             method.ValidateInputs = ValidateWait;
-            method.Invoke = call => Task.Run(() => WaitForValue(call, ReadWaitValue));
+            method.Invoke = call => Task.Run(() => WaitForValue(call, (address, remaining) => ReadWaitValue(address, remaining, call.Token)));
             method.Simulate = SimulateWait;
             return method;
         }
@@ -78,7 +84,7 @@ namespace AlphaRap.PLC
         }
 
         /// <summary>定时读取一个地址，值相等即返回；超时保留最近一次读值。</summary>
-        private static async Task<IDictionary<string, object>> WaitForValue(FlowCall call, Func<string, int> read)
+        private static async Task<IDictionary<string, object>> WaitForValue(FlowCall call, Func<string, int, int> read)
         {
             string address = call.Get<string>("Address");
             int expected = call.Get<int>("ExpectedValue");
@@ -88,7 +94,7 @@ namespace AlphaRap.PLC
             while (timer.ElapsedMilliseconds < wait)
             {
                 call.Token.ThrowIfCancellationRequested();
-                last = read(address);
+                last = read(address, (int)Math.Max(1, Math.Min(1000, wait - timer.ElapsedMilliseconds)));
                 call.Token.ThrowIfCancellationRequested();
                 if (timer.ElapsedMilliseconds >= wait) break;
                 if (last == expected) return FlowCall.Result("Value", last.Value);
@@ -104,18 +110,16 @@ namespace AlphaRap.PLC
         {
             int observed = call.Get<int>("ExpectedValue");
             if (call.Get<bool>("SimulateMismatch")) observed = observed == 0 ? 1 : 0;
-            IDictionary<string, object> result = await WaitForValue(call, address => observed).ConfigureAwait(false);
+            IDictionary<string, object> result = await WaitForValue(call, (address, remaining) => observed).ConfigureAwait(false);
             result.Add("Simulated", true);
             return result;
         }
 
         /// <summary>读取一个已校验的地址，传输失败和合法的负数读值分别处理。</summary>
-        private int ReadWaitValue(string address)
+        private int ReadWaitValue(string address, int timeout, System.Threading.CancellationToken token)
         {
             bool word = IsWordAddress(address);
-            int resultCode;
-            string value = ReadPlc(address, word ? 2 : 1, word ? "int" : "bit", out resultCode);
-            if (resultCode != 1) throw new InvalidOperationException(string.Format(DeviceText.T("error.plcWaitRead"), address, resultCode));
+            string value = ReadPlcResult(address, word ? 2 : 1, word ? "int" : "bit", timeout, token).RequireValue(token);
             int number;
             if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out number))
                 throw new InvalidOperationException(string.Format(DeviceText.T("error.plcWaitValue"), address, value));

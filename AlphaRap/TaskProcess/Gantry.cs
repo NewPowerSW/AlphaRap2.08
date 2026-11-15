@@ -228,7 +228,7 @@ namespace AlphaRap.TaskProcess
 
 		private NPSDK.Flow_Chart.ResultType FlowAuto_Heart5_3_FlowChartRun()
 		{
-			string readPLCValue = plc.ReadPlc("6804", 2);
+			string readPLCValue = plc.ReadPlc("D6804", 2);
 
 			if (readPLCValue == "1")
 			{

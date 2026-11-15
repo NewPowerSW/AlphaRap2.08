@@ -83,7 +83,11 @@ namespace AlphaRapLibrary
 				if (AlphaRap.SysPara.SystemMode == AlphaRap.RunMode.STOPPING || IsManualRun()) return;
 				StopManualTask.Dispose();
 				StopManualTask = new CancellationTokenSource();
-				ManualTask = Task.Factory.StartNew(ation, StopManualTask.Token, TaskCreationOptions.None, TaskScheduler.Default);
+				CancellationToken token = StopManualTask.Token;
+				ManualTask = Task.Factory.StartNew(() =>
+				{
+					using (NPSDK.Flow_Chart.UseExecutionToken(token)) ation();
+				}, token, TaskCreationOptions.None, TaskScheduler.Default);
 			}
 		}
 
