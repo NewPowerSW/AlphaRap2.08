@@ -12,6 +12,7 @@ namespace AlphaRap
     public partial class RuntimeLogForm : Form
     {
         private RuntimeLogResult result = new RuntimeLogResult();
+        private readonly bool designCreated;
         private CancellationTokenSource queryCancellation;
         private int queryVersion;
         private bool loading, applyingTexts, criteriaDirty, languageSubscribed, bindingLogs;
@@ -19,6 +20,7 @@ namespace AlphaRap
         /// <summary>创建固定布局；设计期不读取日志文件或访问设备。</summary>
         public RuntimeLogForm()
         {
+            designCreated = UiTheme.IsDesignTime;
             InitializeComponent();
             UiTheme.ApplyDpi(this);
             UiKit.StyleGrid(gridLogs);
@@ -83,13 +85,14 @@ namespace AlphaRap
         }
 
         /// <summary>按页面命名空间读取完整三语底稿。</summary>
-        private static string T(string key, string chinese, string english, string spanish)
+        private string T(string key, string chinese, string english, string spanish)
         {
+            if (designCreated && UiTheme.TextProvider == null) return chinese;
             return UiTheme.T("RuntimeLogForm", key, chinese, english, spanish);
         }
 
         /// <summary>显示日志类别，保留数据中的 RUN 和 ERROR 代码。</summary>
-        private static string LevelText(string level)
+        private string LevelText(string level)
         {
             return level == RuntimeLogHistory.Error ? T("level_Error", "错误", "Error", "Error") : T("level_Run", "运行", "Runtime", "Ejecución");
         }
@@ -98,7 +101,7 @@ namespace AlphaRap
         protected override async void OnVisibleChanged(EventArgs e)
         {
             base.OnVisibleChanged(e);
-            if (refreshTimer == null || UiTheme.IsDesignTime) return;
+            if (refreshTimer == null || designCreated || DesignMode || UiTheme.IsDesignTime || Disposing || IsDisposed) return;
             refreshTimer.Enabled = Visible && autoRefresh.Checked;
             if (!Visible) { CancelQuery(); return; }
             await ReloadAsync();
@@ -107,7 +110,7 @@ namespace AlphaRap
         /// <summary>查询当前条件，重复查询会取消旧任务，旧结果不会覆盖新条件。</summary>
         private async Task ReloadAsync()
         {
-            if (IsDisposed) return;
+            if (designCreated || DesignMode || IsDisposed || Disposing) return;
             if (dateTo.Value.Date < dateFrom.Value.Date || (dateTo.Value.Date - dateFrom.Value.Date).TotalDays >= RuntimeLogHistory.MaxDays)
             {
                 lblStatus.Text = T("range_Error", "请选择有效日期范围，最多 366 天。", "Choose a valid date range of up to 366 days.", "Seleccione un intervalo válido de hasta 366 días.");
@@ -246,7 +249,7 @@ namespace AlphaRap
         /// <summary>仅在页面可见时启用自动刷新。</summary>
         private void AutoRefreshChanged(object sender, EventArgs e)
         {
-            refreshTimer.Enabled = !UiTheme.IsDesignTime && Visible && autoRefresh.Checked;
+            refreshTimer.Enabled = !designCreated && !DesignMode && !UiTheme.IsDesignTime && Visible && autoRefresh.Checked;
         }
 
         /// <summary>同时提供可读详情和完整原文，保持当前详情页签。</summary>
@@ -265,7 +268,7 @@ namespace AlphaRap
         }
 
         /// <summary>将流程事件转换成简短三语提示，未知消息保持原意。</summary>
-        private static string EventText(RuntimeLogRecord row)
+        private string EventText(RuntimeLogRecord row)
         {
             RuntimeLogDescription info = row.Description;
             switch (info.Event)
@@ -299,7 +302,7 @@ namespace AlphaRap
         /// <summary>列表只展示事件摘要；完整原文留在详情，错误保持醒目的红色。</summary>
         private void FormatCell(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.RowIndex < 0) return;
+            if (bindingLogs || Disposing || IsDisposed || e.RowIndex < 0) return;
             RuntimeLogRecord row = gridLogs.Rows[e.RowIndex].DataBoundItem as RuntimeLogRecord;
             if (row == null) return;
             if (gridLogs.Columns[e.ColumnIndex].Name == "colLevel") { e.Value = LevelText(row.Level); e.FormattingApplied = true; }
@@ -339,8 +342,8 @@ namespace AlphaRap
         /// <summary>释放前终止查询，并解除静态语言事件。</summary>
         private void ReleasePage()
         {
-            CancelQuery();
             bindingLogs = true;
+            CancelQuery();
             if (languageSubscribed) FrameworkLanguage.LanguageChanged -= LanguageChanged;
             languageSubscribed = false;
         }

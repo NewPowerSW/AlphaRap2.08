@@ -182,10 +182,12 @@ internal static partial class Cases
         try
         {
             string notice = CaptureRuntimeDialog(() => host.GetMethod("Initial").Invoke(null, null));
+            Wait((Task)host.GetProperty("MachineCommandCompletion").GetValue(null, null));
             Assert(notice == null, "Unrelated hardware blocked main initialization: " + notice);
             Wait(owner.Runtime.Completion);
             Assert(page.InitialCalls == 1 && page.InitialStatus && owner.Runtime.Error == null, "The main initialization entry was not executed.");
             notice = CaptureRuntimeDialog(() => host.GetMethod("StartRun").Invoke(null, null));
+            Wait((Task)host.GetProperty("MachineCommandCompletion").GetValue(null, null));
             Assert(notice == null, "Unrelated hardware blocked main start: " + notice);
             ActionUntil(() => Volatile.Read(ref page.AutoCalls) == 1, "The main automatic entry was not dispatched.");
             Wait(owner.Runtime.Completion);

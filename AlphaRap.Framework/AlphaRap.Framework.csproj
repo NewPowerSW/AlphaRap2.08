@@ -624,6 +624,7 @@
       <DependentUpon>ModuleBaseForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\ModuleManager.cs" />
+    <Compile Include="Core\MachineStopCoordinator.cs" />
     <Compile Include="Properties\ApplicationAssemblyAccess.cs" />
     <Compile Include="MenuForm\ManualPage.cs" />
     <Compile Include="MenuForm\DefaultManualPage.cs">

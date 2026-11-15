@@ -16,6 +16,8 @@ namespace AlphaRapLibrary
 
 		private static readonly object readdata = new object();
 		private Task ManualTask;
+		private readonly object manualSync = new object();
+		private Task manualCancellation = Task.FromResult(0);
 		public CancellationTokenSource StopManualTask = new CancellationTokenSource();
 		public ModuleBaseForm()
 		{
@@ -72,22 +74,37 @@ namespace AlphaRapLibrary
 			bInitialOk = false;
 		}
 
+		/// <summary>同一模块只允许一个未退出的手动操作，停止清理期间不创建新会话。</summary>
 		public void ExecuteManual(Action ation)
 		{
-			if (ManualTask != null)
-				if (ManualTask.Status == TaskStatus.Running)
-					return;
-			StopManualTask.Dispose();
-			StopManualTask = new CancellationTokenSource();
-			ManualTask = Task.Factory.StartNew(ation, StopManualTask.Token);
+			if (ation == null) throw new ArgumentNullException(nameof(ation));
+			lock (manualSync)
+			{
+				if (AlphaRap.SysPara.SystemMode == AlphaRap.RunMode.STOPPING || IsManualRun()) return;
+				StopManualTask.Dispose();
+				StopManualTask = new CancellationTokenSource();
+				ManualTask = Task.Factory.StartNew(ation, StopManualTask.Token, TaskCreationOptions.None, TaskScheduler.Default);
+			}
 		}
 
+		/// <summary>排队、等待中的手动任务及其取消清理都计入实际占用。</summary>
 		public bool IsManualRun()
 		{
-			if (ManualTask != null)
-				if (ManualTask.Status == TaskStatus.Running)
-					return true;
-			return false;
+			lock (manualSync) return (ManualTask != null && !ManualTask.IsCompleted) || !manualCancellation.IsCompleted;
+		}
+
+		/// <summary>立即登记手动停止，隔离可能阻塞的取消回调并保留清理任务。</summary>
+		public Task RequestManualStop()
+		{
+			lock (manualSync)
+			{
+				if (!manualCancellation.IsCompleted || StopManualTask == null) return manualCancellation;
+				if (StopManualTask.IsCancellationRequested) return Task.FromResult(0);
+				CancellationTokenSource source = StopManualTask;
+				manualCancellation = Task.Factory.StartNew(() => source.Cancel(), CancellationToken.None,
+					TaskCreationOptions.LongRunning, TaskScheduler.Default);
+				return manualCancellation;
+			}
 		}
 
 		public void ReadSettingData()

@@ -373,6 +373,13 @@ internal static class DashboardProbe
                 Layout(frame); frame.Refresh(); Application.DoEvents();
                 CheckAlarmHeaderLanguage(frame, language, alarm);
             }
+            for (int language = 0; language < expected.Length; language++)
+            {
+                SysPara.SystemMode = RunMode.STOPPING;
+                switchLanguage.Invoke(null, new object[] { (LanguageType)language });
+                CheckPendingLanguage(frame, controller, language, expected[language], true);
+            }
+            CheckCoordinatedStopLabels(frame, switchLanguage);
             CheckSiteAlarmCaption(frame, languageDirectory, switchLanguage, reloadLanguage);
         }
         finally
@@ -390,6 +397,51 @@ internal static class DashboardProbe
             LicenseManager.CurrentContext = previousContext;
             reloadLanguage.Invoke(null, null);
             System.Threading.Thread.CurrentThread.CurrentUICulture = previousCulture;
+        }
+    }
+
+    /// <summary>Render real coordinator waiting and failure states in every language without operating equipment.</summary>
+    private static void CheckCoordinatedStopLabels(MainForm frame, MethodInfo switchLanguage)
+    {
+        Type host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
+        MachineStopCoordinator coordinator = (MachineStopCoordinator)host.GetField("machineStop", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+        Label badge = Field<Label>(frame, "MachineStatus");
+        using (System.Threading.ManualResetEventSlim release = new System.Threading.ManualResetEventSlim())
+        {
+            System.Threading.Tasks.Task<bool> pending = coordinator.RequestStop(new[] { new MachineStopStep("Flow", () => release.Wait()) });
+            try
+            {
+                SysPara.SystemMode = RunMode.STOPPING;
+                Check(System.Threading.SpinWait.SpinUntil(() => coordinator.IsWaiting, 7000), "The stop waiting threshold did not become observable.");
+                CheckStopCaptions(frame, switchLanguage, badge, new[] { "等待停止", "WAITING TO STOP", "ESPERANDO PARADA" }, "stop-waiting");
+            }
+            finally { release.Set(); Check(pending.Wait(3000), "The offline waiting fixture did not drain."); }
+        }
+        try
+        {
+            System.Threading.Tasks.Task<bool> failed = coordinator.RequestStop(new[] { new MachineStopStep("Flow", () => { throw new InvalidOperationException("Offline stop status failure"); }) });
+            Check(failed.Wait(3000) && !failed.Result, "The offline stop fault was not retained.");
+            SysPara.SystemMode = RunMode.STOPPING;
+            CheckStopCaptions(frame, switchLanguage, badge, new[] { "停止失败", "STOP FAILED", "ERROR AL DETENER" }, "stop-failed");
+            Check(Field<ToolTip>(frame, "_statusTip").GetToolTip(badge).Contains("Offline stop status failure"), "The stop fault tooltip lost its actual reason.");
+        }
+        finally { coordinator.RequestStop(new MachineStopStep[0]).Wait(3000); SysPara.SystemMode = RunMode.IDLE; }
+    }
+
+    /// <summary>Check translated stop captions fit their status cell and retain an exportable screenshot.</summary>
+    private static void CheckStopCaptions(MainForm frame, MethodInfo switchLanguage, Label badge, string[] captions, string name)
+    {
+        for (int language = 0; language < captions.Length; language++)
+        {
+            switchLanguage.Invoke(null, new object[] { (LanguageType)language });
+            Invoke(frame, "UpdateMachineStatus"); Layout(Field<Control>(frame, "tableLayoutPanel2"));
+            Check(badge.Text == captions[language], "Wrong coordinator status translation: " + badge.Text);
+            CheckChildren(Field<Control>(frame, "tableLayoutPanel2"));
+            using (Bitmap image = new Bitmap(badge.Width, badge.Height))
+            {
+                badge.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
+                image.Save(Path.Combine(outputRoot, name + "-" + language + ".png"));
+            }
         }
     }
 
@@ -454,7 +506,7 @@ internal static class DashboardProbe
     }
 
     /// <summary>Require the pending-task translation, then restore the idle translation only after task completion.</summary>
-    private static void CheckPendingLanguage(MainForm frame, PendingController controller, int language, string expected)
+    private static void CheckPendingLanguage(MainForm frame, PendingController controller, int language, string expected, bool explicitStop = false)
     {
         SysPara.LanguageShow = (LanguageType)language;
         controller.Active = true;
@@ -469,6 +521,7 @@ internal static class DashboardProbe
             image.Save(Path.Combine(outputRoot, "stopping-status-" + language + ".png"));
         }
         controller.Active = false;
+        if (explicitStop) SysPara.SystemMode = RunMode.IDLE;
         Invoke(frame, "UpdateMachineStatus");
         string idle = Field<Dictionary<RunMode, string>>(frame, "_statusTextMap")[RunMode.IDLE];
         Check(badge.Text == idle && badge.Text != expected, "The returned task did not restore the translated idle state.");

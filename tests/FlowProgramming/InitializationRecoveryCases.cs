@@ -129,6 +129,8 @@ internal static partial class Cases
     private static void ClickInitialization(MainForm main)
     {
         typeof(MainForm).GetMethod("MENU_Reset_Click", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(main, new object[] { null, EventArgs.Empty });
+        Type host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
+        Wait((System.Threading.Tasks.Task)host.GetProperty("MachineCommandCompletion").GetValue(null, null));
     }
 
     /// <summary>Refresh the actual main timer's command availability and equipment status.</summary>
@@ -209,6 +211,8 @@ internal static partial class Cases
             if (flowButton && previous == null)
                 application.SetValue(null, Activator.CreateInstance(typeof(MainForm).Assembly.GetType("AlphaRap.StationApplication", true), true));
             typeof(Control).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(button, new object[] { EventArgs.Empty });
+            Type host = typeof(MainForm).Assembly.GetType("AlphaRap.MiddleLayer", true);
+            Wait((System.Threading.Tasks.Task)host.GetProperty("MachineStopCompletion").GetValue(null, null));
         }
         finally { application.SetValue(null, previous); }
     }

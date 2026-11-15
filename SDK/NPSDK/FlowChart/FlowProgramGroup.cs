@@ -41,6 +41,7 @@ namespace NPSDK
         public bool PauseOnFailure { get; set; }
         public Task Completion { get; private set; } = Task.FromResult(0);
         public bool IsRunning { get { return !Completion.IsCompleted; } }
+        public string StopError { get { return string.Join(Environment.NewLine, workers.Select(item => item.Runtime.StopError).Where(error => !string.IsNullOrEmpty(error))); } }
 
         /// <summary>按入口顺序读取各流程的位置，区分等待暂停和真正停驻。</summary>
         public FlowExecutionPosition[] GetExecutionPositions()

@@ -20,6 +20,7 @@ namespace AlphaRap.FlowProgramming
         public static readonly FlowResultHub Results = new FlowResultHub();
         public static bool DebugEnabled { get; set; }
         public static bool AnyRunning { get { return modules.Values.Any(module => module.IsRunning) || Flow_Module.Module_GetRunningStatus; } }
+        public static string StopError { get { return string.Join(Environment.NewLine, modules.Values.Select(module => module.Runtime.StopError).Where(error => !string.IsNullOrEmpty(error))); } }
         public static bool AnyEditing { get { return modules.Values.Any(module => module.IsEditing); } }
         public static bool HasPrograms { get { return modules.Count > 0; } }
         public static bool IsInitialized { get { return HasPrograms && modules.Values.All(module => module.IsEnabled && module.Form.InitialStatus); } }
@@ -354,7 +355,6 @@ namespace AlphaRap.FlowProgramming
             }
             if (AnyRunning && (initialize || SysPara.SystemMode != RunMode.PAUSE))
             {
-                if (initialize) StopAll();
                 MessageBox.Show(FlowText.T("busy"), FlowText.T("title"));
                 return false;
             }

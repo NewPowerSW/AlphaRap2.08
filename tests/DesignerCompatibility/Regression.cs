@@ -474,7 +474,7 @@ internal static class Cases
     /// <summary>Verify lifecycle guards still protect sited pages after the constructor's design license is no longer current.</summary>
     private static void VerifySitedLifecycle(Control preview)
     {
-        string[] guarded = { "AddUserForm", "ProductManagerForm", "DeviceControl", "MainForm", "CheckForm", "AlarmSetting", "LanguageSetting", "SystemForm", "VPForm", "StationVisionForm" };
+        string[] guarded = { "AddUserForm", "ProductManagerForm", "DeviceControl", "MainForm", "CheckForm", "AlarmSetting", "LanguageSetting", "SystemForm", "VPForm", "StationVisionForm", "RuntimeLogForm" };
         if (!guarded.Contains(preview.GetType().Name)) return;
         Check(preview.Site != null && preview.Site.DesignMode, "The preview is not attached to a genuine design site.");
         string before = ConfigurationTree();

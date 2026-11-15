@@ -69,8 +69,8 @@ namespace AlphaRap
         //Flow Control
         public static bool IsMaintenanceMode = false;
         public static bool bSaftyReady = false;
-        public static bool SystemRun = false;
-        public static RunMode SystemMode = RunMode.IDLE;
+        public static volatile bool SystemRun = false;
+        public static volatile RunMode SystemMode = RunMode.IDLE;
 		public static bool IsTryRun = false;
 
         //Operation Time Record
@@ -181,6 +181,7 @@ namespace AlphaRap
         RUN,
         PAUSE,
         INITIAL,
+        STOPPING,
     }
     public enum ResultCode
     {

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NPSDK
@@ -75,16 +76,31 @@ namespace NPSDK
 		/// <summary>在后台派发一次启动或恢复命令，重复请求共用当前派发。</summary>
 		public static void Module_StartRun()
 		{
-			if (!TryReserveStart()) return;
-			_ = Task.Run(() =>
+			ObserveStart(Module_StartRunAsync());
+		}
+
+		/// <summary>异步派发初始化，返回命令是否在未被停止撤销的情况下完成派发。</summary>
+		public static Task<bool> Module_InitialRunAsync() { return QueueStart(FlowProgramCommand.Initialize); }
+
+		/// <summary>异步派发启动或恢复，向宿主返回拒绝、撤销或实际派发异常。</summary>
+		public static Task<bool> Module_StartRunAsync() { return QueueStart(FlowProgramCommand.Start); }
+
+		/// <summary>提交前同步占用派发资格，停止可以撤销尚未执行的后台命令。</summary>
+		private static Task<bool> QueueStart(FlowProgramCommand command)
+		{
+			if (!TryReserveStart()) return Task.FromResult(false);
+			return Task.Run(() => DispatchStart(command));
+		}
+
+		/// <summary>兼容旧的无返回值启动入口，完整记录异步派发错误。</summary>
+		private static async void ObserveStart(Task<bool> command)
+		{
+			try { await command.ConfigureAwait(false); }
+			catch (Exception error)
 			{
-				try { DispatchStart(FlowProgramCommand.Start); }
-				catch (Exception error)
-				{
-					Module_AddRunLog("Flow start failed: " + error);
-					Trace.TraceError(error.ToString());
-				}
-			});
+				Module_AddRunLog("Flow start failed: " + error);
+				Trace.TraceError(error.ToString());
+			}
 		}
 
 		/// <summary>先占用派发位置，再提交后台任务，避免停止后旧任务重新取得启动资格。</summary>
@@ -94,6 +110,9 @@ namespace NPSDK
 			{
 				if (dispatchingStart || dispatchingStop) return false;
 				if (AllStop && Flow_Chart.HasActiveLegacyRuns) return false;
+				if (AllStop)
+					foreach (Flow_BaseForm module in FlowChart_ModuleList.ToArray())
+						if (IsExecutionActive(module)) return false;
 				dispatchingStart = true;
 				startStopped = false;
 				return true;
@@ -101,13 +120,13 @@ namespace NPSDK
 		}
 
 		/// <summary>优先派发控制器命令，再启动未托管的旧工位。</summary>
-		private static void DispatchStart(FlowProgramCommand command)
+		private static bool DispatchStart(FlowProgramCommand command)
 		{
 			try
 			{
 				lock (commandSync)
 				{
-					if (startStopped) return;
+					if (startStopped) return false;
 					AllStop = false;
 					AllPause = false;
 				}
@@ -115,20 +134,20 @@ namespace NPSDK
 				List<Flow_BaseForm> legacyStarts = new List<Flow_BaseForm>();
 				foreach (Flow_BaseForm module in FlowChart_ModuleList.ToArray())
 				{
-					if (StartWasStopped()) return;
+					if (StartWasStopped()) return false;
 					if (module.IsDisposed) continue;
 					bool handled = module.TryProgramCommand(command);
-					if (!CompleteStartCallback(module)) return;
+					if (!CompleteStartCallback(module)) return false;
 					if (handled) continue;
 					if (command == FlowProgramCommand.Start && module.ProgramController?.IsEnabled == true) continue;
 					if (!PrepareLegacyStart(module, command, out bool resume))
 					{
-						if (resume && !ResumeLegacyModule(module)) return;
+						if (resume && !ResumeLegacyModule(module)) return false;
 						continue;
 					}
 					if (command == FlowProgramCommand.Initialize)
 					{
-						if (!StartLegacyModule(module, command)) return;
+						if (!StartLegacyModule(module, command)) return false;
 						continue;
 					}
 					legacyStarts.Add(module);
@@ -136,8 +155,9 @@ namespace NPSDK
 
 				foreach (Flow_BaseForm module in legacyStarts)
 				{
-					if (!StartLegacyModule(module, command)) return;
+					if (!StartLegacyModule(module, command)) return false;
 				}
+				return true;
 			}
 			catch (Exception startError)
 			{
@@ -225,26 +245,35 @@ namespace NPSDK
 			return false;
 		}
 
-		/// <summary>先撤销当前派发，再立即请求所有工位停止。</summary>
+		/// <summary>立即撤销排队启动并通知旧节点取消，不执行可能阻塞的工位停止回调。</summary>
+		public static void Module_RequestStop()
+		{
+			lock (commandSync) { AllStop = true; startStopped = true; }
+			Flow_Chart.StopLegacyRuns();
+		}
+
+		/// <summary>撤销当前派发并停止所有工位；可能阻塞的设备回调由宿主在后台等待。</summary>
 		public static void Module_StopRun()
 		{
+			Module_RequestStop();
 			lock (commandSync)
 			{
-				AllStop = true;
-				startStopped = true;
 				if (dispatchingStop) return;
 				dispatchingStop = true;
 			}
 
-			Flow_Chart.StopLegacyRuns();
 			List<Exception> errors = new List<Exception>();
 			try
 			{
+				List<Task> requests = new List<Task>();
 				foreach (Flow_BaseForm module in FlowChart_ModuleList.ToArray())
 				{
-					try { StopModule(module); }
-					catch (Exception error) { errors.Add(error); }
+					Flow_BaseForm target = module;
+					requests.Add(Task.Factory.StartNew(() => StopModule(target), CancellationToken.None,
+						TaskCreationOptions.LongRunning, TaskScheduler.Default));
 				}
+				try { Task.WaitAll(requests.ToArray()); }
+				catch (AggregateException error) { errors.AddRange(error.Flatten().InnerExceptions); }
 			}
 			finally
 			{

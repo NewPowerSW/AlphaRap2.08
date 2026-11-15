@@ -174,7 +174,8 @@ internal static partial class Cases
             System.Windows.Forms.Control button = page.Node.Controls.Find("button1", true).Single();
             for (int pause = 0; pause < 2; pause++)
             {
-                ActionUntil(() => page.Node.FlowChart_ElapsedMilliseconds >= 40, "The continued node clock did not advance.");
+                ActionUntil(() => page.Node.FlowChart_ElapsedMilliseconds >= 40 && button.BackColor == Color.Green && button.ForeColor == Color.White,
+                    "The continued node clock or queued running appearance did not advance.");
                 Assert(button.BackColor == Color.Green && button.ForeColor == Color.White, "An active node did not show green with readable text.");
                 owner.Handle(FlowProgramCommand.Pause); NativePump(80);
                 Assert(page.Node.FlowChart_ElapsedMilliseconds == 0 && DisplayedElapsed(page.Node) == "0.00"

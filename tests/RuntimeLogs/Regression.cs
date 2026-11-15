@@ -215,14 +215,17 @@ internal static partial class RuntimeLogProbe
     {
         LicenseContext previous = LicenseManager.CurrentContext;
         RuntimeLogForm page = null; DataForm data = null;
+        string previousLanguageDirectory = SysPara.LanguageDataDirectory;
         try
         {
             LicenseManager.CurrentContext = new DesignerContext(); UiTheme.ForceDesignTimeForTest(true);
-            data = new StationDataForm(); page = new RuntimeLogForm();
+            data = new StationDataForm();
             data.GetLogSource("LogRun").SavePath = runRoot; data.GetLogSource("LogError").SavePath = errorRoot;
             ApplicationHost.RegisterModule(data);
             Console.WriteLine("  Isolated runtime sources ready");
             UiTheme.ForceDesignTimeForTest(false); LicenseManager.CurrentContext = previous;
+            SysPara.LanguageDataDirectory = Path.Combine(output, "runtime-languages");
+            page = new RuntimeLogForm();
             page.Show(); PumpUntil(() => !Field<bool>(page, "loading"));
             Console.WriteLine("  Initial background query completed");
             Check(Field<DataGridView>(page, "gridLogs").Rows.Count == 3 && Field<Control>(page, "btnExport").Enabled,
@@ -244,6 +247,7 @@ internal static partial class RuntimeLogProbe
         finally
         {
             if (page != null) page.Dispose(); if (data != null) data.Dispose();
+            SysPara.LanguageDataDirectory = previousLanguageDirectory;
             UiTheme.ForceDesignTimeForTest(false); LicenseManager.CurrentContext = previous;
         }
     }

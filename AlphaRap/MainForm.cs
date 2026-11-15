@@ -1251,6 +1251,7 @@ int nheightEllipse
         private bool _statusTextInitOk;
         private string _statusAlarmText;
         private string _lastAlarmTip;
+        private string _lastStopTip;
         private readonly ToolTip _statusTip = new ToolTip();
 
         /// <summary>按报警优先级和整机运行模式刷新状态牌及报警提示。</summary>
@@ -1285,6 +1286,21 @@ int nheightEllipse
                 _statusTip.SetToolTip(MachineStatus, "");
             }
 
+            if (MiddleLayer.MachineIsStopping)
+            {
+                string failure = MiddleLayer.MachineStopError;
+                string caption = failure != null
+                    ? FrameworkLanguage.LangMsg("MainForm", "msg_StatusStopFailed", "停止失败", "STOP FAILED", "ERROR AL DETENER")
+                    : MiddleLayer.MachineStopWaiting
+                        ? FrameworkLanguage.LangMsg("MainForm", "msg_StatusStopWaiting", "等待停止", "WAITING TO STOP", "ESPERANDO PARADA")
+                        : FrameworkLanguage.LangMsg("MainForm", "msg_StatusStopping", "停止中", "STOPPING", "DETENIENDO");
+                SetStatusLook(failure == null ? StatusPauseFill : StatusAlarmFill,
+                    failure == null ? StatusDarkInk : StatusWhiteInk, caption, AppIcon.Stop);
+                string detail = failure ?? string.Join(Environment.NewLine, Array.ConvertAll<string, string>(MiddleLayer.PendingStopOperations, StopOperationText));
+                if (_lastStopTip != detail) { _lastStopTip = detail; _statusTip.SetToolTip(MachineStatus, detail); }
+                return;
+            }
+            if (_lastStopTip != null) { _lastStopTip = null; _statusTip.SetToolTip(MachineStatus, ""); }
             if (FlowProgramming.FlowPrograms.CanContinueInitialization)
             {
                 SetStatusLook(StatusPauseFill, StatusDarkInk,
@@ -1312,6 +1328,23 @@ int nheightEllipse
                 case RunMode.INITIAL:
                     SetStatusLook(StatusInitFill, StatusWhiteInk, statusText, AppIcon.Reset); break;
                 default: SetStatusLook(StatusIdleFill, StatusWhiteInk, statusText, AppIcon.Stop); break;
+            }
+        }
+
+        /// <summary>显示停止对象的三语类别，模块业务名称保留原文。</summary>
+        private static string StopOperationText(string operation)
+        {
+            if (operation.StartsWith("Manual/", StringComparison.Ordinal))
+                return string.Format(FrameworkLanguage.LangMsg("MainForm", "msg_StopManual", "手动任务：{0}", "Manual operation: {0}", "Operación manual: {0}"), operation.Substring(7));
+            switch (operation)
+            {
+                case "Flow": return FrameworkLanguage.LangMsg("MainForm", "msg_StopFlow", "等待流程与设备调用退出", "Waiting for flows and device calls", "Esperando flujos y llamadas de dispositivo");
+                case "Startup": return FrameworkLanguage.LangMsg("MainForm", "msg_StopStartup", "等待初始化、暂停或连接准备退出", "Waiting for initialization, pause or connection preparation", "Esperando inicialización, pausa o preparación de conexión");
+                case "ManualCleanup": return FrameworkLanguage.LangMsg("MainForm", "msg_StopManualCleanup", "等待先前的手动停止清理完成", "Waiting for previous manual stop cleanup", "Esperando limpieza de la parada manual anterior");
+                case "Motors": return FrameworkLanguage.LangMsg("MainForm", "msg_StopMotors", "等待电机停止回调退出", "Waiting for motor stop callbacks", "Esperando callbacks de parada de motores");
+                case "Application": return FrameworkLanguage.LangMsg("MainForm", "msg_StopApplication", "等待应用停止清理完成", "Waiting for application cleanup", "Esperando limpieza de la aplicación");
+                case "Finalization": return FrameworkLanguage.LangMsg("MainForm", "msg_StopFinalization", "等待停止状态复位完成", "Waiting for final stop reset", "Esperando restablecimiento final de parada");
+                default: return operation;
             }
         }
 
@@ -1420,13 +1453,14 @@ int nheightEllipse
             #region  PictureBox
 
             // 按运行状态设置按钮可用性，图标颜色由 RefreshButtonIcons() 按 Enabled 绘制
-            MENU_Run.Enabled = MiddleLayer.MachineInitialReady
+            bool commandAvailable = !MiddleLayer.MachineIsStopping && !MiddleLayer.MachineCommandPending;
+            MENU_Run.Enabled = commandAvailable && !MiddleLayer.AnyManualRunning() && MiddleLayer.MachineInitialReady
                 && (SysPara.SystemMode == RunMode.INITIAL || SysPara.SystemMode == RunMode.PAUSE);
-            MENU_Pause.Enabled = SysPara.SystemMode == RunMode.RUN;
+            MENU_Pause.Enabled = commandAvailable && SysPara.SystemMode == RunMode.RUN;
             MENU_LifeSpan.Enabled = (SysPara.UserPermission == PermissionType.Administrator
                                      || SysPara.UserPermission == PermissionType.Maintenance);
-            MENU_Reset.Enabled = SysPara.SystemMode == RunMode.IDLE
-                || (!NPSDK.Alarm.IsError && FlowProgramming.FlowPrograms.CanContinueInitialization);
+            MENU_Reset.Enabled = commandAvailable && ((SysPara.SystemMode == RunMode.IDLE && !FlowProgramming.FlowPrograms.AnyRunning && !MiddleLayer.AnyManualRunning())
+                || (!NPSDK.Alarm.IsError && FlowProgramming.FlowPrograms.CanContinueInitialization));
 
             // 只有可用状态真的变了才重画（图片静态复用，避免每秒 10 次的无谓重建）
             RefreshButtonIconsIfChanged();

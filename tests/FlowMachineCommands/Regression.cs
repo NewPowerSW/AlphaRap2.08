@@ -42,12 +42,95 @@ internal static class Regression
             Run(StartFailureStopsModules, "partial startup stops every module even if one stop fails");
             Run(LegacyFallbackAndResume, "handled, legacy, and legacy resume paths dispatch once");
             Run(ParallelExecutionPositions, "parallel positions distinguish an in-flight pause, an actual pause and a pending stop");
+            Run(ManagedBlockedCancellation, "managed stop returns before blocked cancellation and retains ownership until cleanup finishes");
+            Run(ManagedCancellationFailure, "a cancellation callback failure is observable and does not strand the flow");
             return 0;
         }
         catch (Exception error)
         {
             Console.Error.WriteLine(error);
             return 1;
+        }
+    }
+
+    /// <summary>模拟网络取消回调阻塞，停止入口及时返回且旧会话保持占用。</summary>
+    private static void ManagedBlockedCancellation()
+    {
+        FlowStep step = new FlowStep { Caption = "Offline network", UsesFlowResult = true };
+        FlowProgram plan = new FlowProgram { ModuleId = "OfflineCancellation", Mode = "Program" };
+        plan.Steps.Add(step);
+        FlowResultHub hub = new FlowResultHub();
+        FlowProgramRuntime runtime = new FlowProgramRuntime();
+        TaskCompletionSource<FlowActionOutcome> action = new TaskCompletionSource<FlowActionOutcome>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using (ManualResetEventSlim entered = new ManualResetEventSlim())
+        using (ManualResetEventSlim cancelling = new ManualResetEventSlim())
+        using (ManualResetEventSlim release = new ManualResetEventSlim())
+        {
+            runtime.ExecuteStep = (node, context, token) =>
+            {
+                token.Register(() => { cancelling.Set(); release.Wait(); });
+                entered.Set();
+                return action.Task;
+            };
+            runtime.Start(plan, step.Id, new FlowExecutionContext { Hub = hub, RunId = hub.Epoch, CycleId = "1" });
+            Task stop = null;
+            bool returned = false;
+            try
+            {
+                Require(entered.Wait(TimeoutMs), "network action did not enter");
+                stop = Task.Run(() => runtime.Stop());
+                returned = stop.Wait(500);
+                Require(cancelling.Wait(TimeoutMs), "cancellation was not delivered");
+                Require(returned, "Stop blocked on a device cancellation callback");
+                action.TrySetResult(new FlowActionOutcome { Outputs = new Dictionary<string, object> { { "late", 1 } }, BranchCode = "End" });
+                Require(!runtime.Completion.Wait(100), "flow completed before cancellation cleanup exited");
+                bool rejected = false;
+                try { runtime.Start(plan, step.Id, new FlowExecutionContext { Hub = hub, RunId = hub.Epoch, CycleId = "2" }); }
+                catch (InvalidOperationException) { rejected = true; }
+                Require(rejected && runtime.IsRunning && runtime.IsStopping, "stopping session lost its ownership");
+            }
+            finally
+            {
+                release.Set();
+                action.TrySetResult(new FlowActionOutcome { Outputs = new Dictionary<string, object>(), BranchCode = "End" });
+                if (stop != null) Require(stop.Wait(TimeoutMs), "stop did not drain");
+                Require(runtime.Completion.Wait(TimeoutMs), "runtime did not finish cleanup");
+            }
+            Require(returned, "Stop blocked on a device cancellation callback");
+            bool unavailable = false;
+            try { hub.Read(hub.Epoch, "1", plan.ModuleId + "/" + step.Id, "late"); }
+            catch (FlowOutputUnavailableException) { unavailable = true; }
+            Require(unavailable && runtime.Error == "Cancelled", "cancelled action published a late result");
+            runtime.ExecuteStep = (node, context, token) => Task.FromResult(new FlowActionOutcome { Outputs = new Dictionary<string, object>(), BranchCode = "End" });
+            runtime.Start(plan, step.Id, new FlowExecutionContext { Hub = hub, RunId = hub.Epoch, CycleId = "2" });
+            Require(runtime.Completion.Wait(TimeoutMs) && runtime.Error == null, "a clean restart failed");
+        }
+    }
+
+    /// <summary>取消回调抛错仍能完成清理，并向调用方保留停止错误。</summary>
+    private static void ManagedCancellationFailure()
+    {
+        FlowStep step = new FlowStep { Caption = "Faulty cancellation", UsesFlowResult = true };
+        FlowProgram plan = new FlowProgram { ModuleId = "OfflineCancelFailure", Mode = "Program" };
+        plan.Steps.Add(step);
+        FlowResultHub hub = new FlowResultHub();
+        FlowProgramRuntime runtime = new FlowProgramRuntime();
+        TaskCompletionSource<FlowActionOutcome> action = new TaskCompletionSource<FlowActionOutcome>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using (ManualResetEventSlim entered = new ManualResetEventSlim())
+        {
+            runtime.ExecuteStep = (node, context, token) =>
+            {
+                token.Register(() => { action.TrySetCanceled(); throw new InvalidOperationException("Offline cancel failure"); });
+                entered.Set(); return action.Task;
+            };
+            runtime.Start(plan, step.Id, new FlowExecutionContext { Hub = hub, RunId = hub.Epoch, CycleId = "1" });
+            Require(entered.Wait(TimeoutMs), "action did not enter");
+            Exception synchronous = null;
+            try { runtime.Stop(); } catch (Exception error) { synchronous = error; }
+            Require(runtime.Completion.Wait(TimeoutMs), "cancellation failure stranded the runtime");
+            Require(synchronous == null, "cancellation escaped synchronously from Stop");
+            var property = typeof(FlowProgramRuntime).GetProperty("StopError");
+            Require(property != null && Convert.ToString(property.GetValue(runtime, null)).Contains("Offline cancel failure"), "stop failure was lost");
         }
     }
 

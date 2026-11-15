@@ -177,6 +177,9 @@ namespace NPSDK
     {
         private readonly object sync = new object();
         private CancellationTokenSource cancellation;
+        private volatile bool stopRequested;
+        private bool finishing;
+        private Task cancelCompletion = Task.FromResult(0);
         private volatile bool paused;
         private volatile bool debugging;
         private bool debugPaused;
@@ -192,12 +195,13 @@ namespace NPSDK
         public bool PauseOnFailure { get; set; }
         public Task Completion { get; private set; } = Task.FromResult(0);
         public string Error { get; private set; }
+        public string StopError { get; private set; }
         public bool AlarmWasRaised { get { return Volatile.Read(ref alarmNotified) != 0; } }
         public bool IsRunning { get { return !Completion.IsCompleted; } }
-        public bool IsStopping { get { return IsRunning && cancellation != null && cancellation.IsCancellationRequested; } }
+        public bool IsStopping { get { return IsRunning && stopRequested; } }
         public bool IsPaused { get { return IsRunning && paused; } }
         public bool IsWaitingForRetry { get { return IsRunning && waitingForRetry; } }
-        public bool CanResume { get { lock (sync) return IsPaused && !failurePending && cancellation != null && !cancellation.IsCancellationRequested; } }
+        public bool CanResume { get { lock (sync) return IsPaused && !stopRequested && !failurePending && cancellation != null && !cancellation.IsCancellationRequested; } }
         public bool IsDebugging { get { return debugging; } }
         public bool IsDebugPaused { get { lock (sync) return debugPaused; } }
         public event Action<FlowStep, string> StateChanged;
@@ -235,6 +239,10 @@ namespace NPSDK
                 }
                 if (cancellation != null) cancellation.Dispose();
                 cancellation = new CancellationTokenSource();
+                stopRequested = false;
+                finishing = false;
+                cancelCompletion = Task.FromResult(0);
+                StopError = null;
                 CancellationToken token = cancellation.Token;
                 paused = false;
                 debugging = debug;
@@ -257,6 +265,7 @@ namespace NPSDK
         {
             lock (sync)
             {
+                if (stopRequested) return;
                 paused = true;
                 if (activeDeadline != null && !activeDeadline.IsCancellationRequested)
                     activeDeadline.CancelAfter(Timeout.Infinite);
@@ -268,7 +277,7 @@ namespace NPSDK
         {
             lock (sync)
             {
-                if (!paused || failurePending || cancellation == null || cancellation.IsCancellationRequested) return;
+                if (!paused || stopRequested || failurePending || cancellation == null || cancellation.IsCancellationRequested) return;
                 if (activeDeadline != null && !activeDeadline.IsCancellationRequested)
                     activeDeadline.CancelAfter(activeTimeoutMs);
                 paused = false;
@@ -286,15 +295,43 @@ namespace NPSDK
         {
             lock (sync)
             {
-                if (!debugging || !debugPaused || debugRelease == null) return;
+                if (stopRequested || !debugging || !debugPaused || debugRelease == null) return;
                 debugPauseNext = pauseNext;
                 debugPaused = false;
                 debugRelease.TrySetResult(true);
             }
         }
 
-        /// <summary>请求取消；完成任务退出前运行状态保持为停止中。</summary>
-        public void Stop() { lock (sync) if (cancellation != null) cancellation.Cancel(); }
+        /// <summary>立即标记停止，独立执行取消回调；底层调用和取消清理退出前保留占用。</summary>
+        public void Stop()
+        {
+            lock (sync)
+            {
+                if (cancellation == null || !IsRunning || stopRequested || finishing) return;
+                stopRequested = true;
+                CancellationTokenSource source = cancellation;
+                cancelCompletion = Task.Factory.StartNew(() => CancelRun(source), CancellationToken.None,
+                    TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            }
+        }
+
+        /// <summary>隔离设备取消回调的阻塞与异常，向宿主保留停止失败原因。</summary>
+        private void CancelRun(CancellationTokenSource source)
+        {
+            try { source.Cancel(); }
+            catch (Exception error)
+            {
+                StopError = error.ToString();
+                Flow_Module.Module_AddAlarmLog("Flow cancellation failed: " + error);
+            }
+        }
+
+        /// <summary>在异步取消尚未派发时也立即阻止后续动作及结果发布。</summary>
+        private void ThrowIfStopping(CancellationToken token)
+        {
+            if (stopRequested) throw new OperationCanceledException(token);
+            token.ThrowIfCancellationRequested();
+        }
 
         /// <summary>逐节点执行并发布结果，所有轮询共用同一次动作执行。</summary>
         private async Task Run(FlowProgram program, string entry, FlowExecutionContext context, CancellationToken token)
@@ -321,7 +358,7 @@ namespace NPSDK
                     try { current = await RunStep(step, context, resultKey, inputs, token).ConfigureAwait(false); }
                     catch (Exception error)
                     {
-                        if (!recoverFailures || token.IsCancellationRequested) throw;
+                        if (!recoverFailures || stopRequested || token.IsCancellationRequested) throw;
                         await WaitForRetry(step, context, error, token).ConfigureAwait(false);
                         visited.Remove(current);
                     }
@@ -331,6 +368,9 @@ namespace NPSDK
             catch (Exception error) { Error = error.Message; }
             finally
             {
+                Task cancellationFinished;
+                lock (sync) { finishing = true; cancellationFinished = cancelCompletion; }
+                await cancellationFinished.ConfigureAwait(false);
                 bool wasDebugging = debugging;
                 lock (sync) { debugging = false; debugPaused = false; debugRelease = null; paused = false; waitingForRetry = false; failurePending = false; }
                 context.Debugging = false;
@@ -450,7 +490,11 @@ namespace NPSDK
                     deadline.CancelAfter(Timeout.Infinite);
                     deadline.Token.ThrowIfCancellationRequested();
                     await WaitForResume(token, step, "Running").ConfigureAwait(false);
-                    if (context.RetainResult) context.Hub.Publish(context.RunId, context.CycleId, resultKey, output);
+                    lock (sync)
+                    {
+                        ThrowIfStopping(token);
+                        if (context.RetainResult) context.Hub.Publish(context.RunId, context.CycleId, resultKey, output);
+                    }
                     ChangeState(step, "Completed");
                     if (debugging) NotifyDebug(step, "Completed", inputs, output, exit);
                     return exit == "End" ? null : step.TargetOf(exit);
@@ -458,7 +502,7 @@ namespace NPSDK
                 catch (Exception error)
                 {
                     bool timedOut = Volatile.Read(ref outcome) == 1;
-                    if (!timedOut && token.IsCancellationRequested) { ChangeState(step, "Cancelled"); throw new OperationCanceledException(token); }
+                    if (!timedOut && (stopRequested || token.IsCancellationRequested)) { ChangeState(step, "Cancelled"); throw new OperationCanceledException(token); }
                     timedOut = timedOut || deadline.IsCancellationRequested;
                     if (recoverFailures) failurePending = true;
                     Interlocked.Exchange(ref outcome, 2);
@@ -487,7 +531,7 @@ namespace NPSDK
                 FlowActionOutcome result = ExecuteStep == null
                     ? new FlowActionOutcome { Outputs = await ExecuteAction(step, context, token).ConfigureAwait(false) }
                     : await ExecuteStep(step, context, token).ConfigureAwait(false);
-                token.ThrowIfCancellationRequested();
+                ThrowIfStopping(token);
                 if (!step.UsesFlowResult) return result;
                 if (result == null || result.Outputs == null) throw new InvalidOperationException("The action returned no output contract: " + step.Caption);
                 if (result.BranchCode != "IDLE") return result;
@@ -556,11 +600,15 @@ namespace NPSDK
         /// <summary>到达实际暂停点才标记节点已暂停，恢复后还原所在阶段。</summary>
         private async Task WaitForResume(CancellationToken token, FlowStep step = null, string resumeState = null)
         {
-            token.ThrowIfCancellationRequested();
+            ThrowIfStopping(token);
             if (!paused) return;
             if (step != null) ChangeState(step, "Paused");
-            while (paused) await Task.Delay(25, token).ConfigureAwait(false);
-            token.ThrowIfCancellationRequested();
+            while (paused)
+            {
+                ThrowIfStopping(token);
+                await Task.Delay(25, token).ConfigureAwait(false);
+            }
+            ThrowIfStopping(token);
             if (resumeState != null) ChangeState(step, resumeState);
         }
 
