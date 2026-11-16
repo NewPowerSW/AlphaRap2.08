@@ -69,6 +69,7 @@ internal static class StartupSmoke
         VerifyApplicationBoundary(host);
         host.GetMethod("LoadAlarmTable",BindingFlags.Static|BindingFlags.NonPublic,null,Type.EmptyTypes,null).Invoke(null,null);
         host.GetMethod("CreateProjectForms",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
+        PrepareStartupRecipe();
         var stationData = (DataForm)host.GetField("DataF").GetValue(null);
         foreach (string log in new[] { "MESLOG", "Alarm", "LogRun", "LogError", "UserLogin", "OperationLog" })
             stationData.GetLogSource(log).SavePath = Path.Combine(root, "Logs", log);
@@ -102,6 +103,23 @@ internal static class StartupSmoke
                 throw new AggregateException("Startup execution and cleanup both failed.", runError, cleanupError);
             }
         }
+    }
+
+    /// <summary>Create an explicit complete offline recipe before the real window's load handler selects it.</summary>
+    private static void PrepareStartupRecipe()
+    {
+        var recipe = new DataSet();
+        foreach (ModuleBaseForm module in ModuleManager.ModuleList)
+        {
+            DataSet values = module.RecipeData.Copy();
+            foreach (DataTable table in values.Tables)
+            {
+                if (table.Rows.Count == 0 && !Equals(table.ExtendedProperties["AllowEmpty"], true)) table.Rows.Add(table.NewRow());
+                if (table.TableName == "tb_H1_Visdata") foreach (DataRow row in table.Rows) row["Enable"] = false;
+            }
+            recipe.Merge(values);
+        }
+        recipe.AcceptChanges(); recipe.WriteXml(SysPara.FilePath);
     }
 
     /// <summary>Load the actual application profile and verify the framework cannot reference its implementation.</summary>

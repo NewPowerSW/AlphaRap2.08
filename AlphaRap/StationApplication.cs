@@ -31,6 +31,8 @@ namespace AlphaRap
 
         /// <summary>关闭由本站启动的后台任务和伺服。</summary>
         public override void Shutdown() { MiddleLayer.DisposeProject(); }
+        /// <summary>保持消息循环可用，等待实际任务清理完成后再释放界面。</summary>
+        public override System.Threading.Tasks.Task ShutdownAsync() { return MiddleLayer.DisposeProjectAsync(); }
 
         /// <summary>按本站运行状态暂停流程和输出。</summary>
         public override void PauseMachine() { MiddleLayer.PauseRun(); }

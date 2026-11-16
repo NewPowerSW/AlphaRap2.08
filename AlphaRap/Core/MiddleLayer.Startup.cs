@@ -28,13 +28,17 @@ namespace AlphaRap
             SDKKernal.SetSimulation(SysPara.Simulation);
             SDKKernal.InitializeComponent();
             OperationLog.Write("MainForm", "设备初始化完成（仿真=" + SysPara.Simulation + "）");
-            alarmRunTask = new AlarmRunTask();
+            alarmRunTask = new AlarmRunTask(false);
+            ApplicationTasks.Global.Track("AlarmScan", System.Threading.Tasks.Task.Factory.StartNew(alarmRunTask.AlarmRunWork,
+                System.Threading.CancellationToken.None, System.Threading.Tasks.TaskCreationOptions.LongRunning, System.Threading.Tasks.TaskScheduler.Default),
+                () => { alarmRunTask.StopAlarmRunTask(); return System.Threading.Tasks.Task.FromResult(0); });
             ShowLoadingStage(reportProgress, "stage_Recipe", "载入配方", "Loading recipe", "Cargando receta");
+            recipeReady = false;
             OpenRecipe(SysPara.FilePath);
             FlowProgramming.FlowPrograms.Install();
             FlowCtrl = new FlowControl(AlwaysRun, Application.Scan, Application.ResetLegacyInitialization);
             FlowCtrl.StartThread();
-            ServoOn();
+            if (recipeReady) ServoOn();
             ShowLoadingStage(reportProgress, "stage_Vision", "载入视觉算法", "Loading vision algorithms", "Cargando algoritmos de visión");
         }
 
@@ -113,9 +117,21 @@ namespace AlphaRap
         /// <summary>停止后台扫描后关闭伺服，避免扫描继续访问正在关闭的设备。</summary>
         public static void DisposeProject()
         {
-            if (alarmRunTask != null) alarmRunTask.StopAlarmRunTask();
-            if (FlowCtrl != null) FlowCtrl.StopThread();
-            ServoOff();
+            DisposeProjectAsync().GetAwaiter().GetResult();
+        }
+
+        /// <summary>并行请求后台线程退出，所有实际操作结束后才关闭伺服。</summary>
+        public static async System.Threading.Tasks.Task DisposeProjectAsync()
+        {
+            StopRun();
+            if (!await MachineStopCompletion.ConfigureAwait(false)) throw new InvalidOperationException(MachineStopError);
+            MachineState.Global.BeginStop();
+            var waits = new System.Collections.Generic.List<System.Threading.Tasks.Task>();
+            if (alarmRunTask != null) waits.Add(ApplicationTasks.Global.Track("AlarmScan.Stop", System.Threading.Tasks.Task.Run((Action)alarmRunTask.StopAlarmRunTask)));
+            if (FlowCtrl != null) waits.Add(FlowCtrl.StopAsync());
+            await System.Threading.Tasks.Task.WhenAll(waits).ConfigureAwait(false);
+            try { await ApplicationTasks.Global.StopAllAsync().ConfigureAwait(false); }
+            finally { ServoOff(); }
         }
     }
 }

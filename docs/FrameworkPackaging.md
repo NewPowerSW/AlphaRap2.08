@@ -4,7 +4,7 @@
 - **AlphaRap** 是本机应用，负责进程启动、主窗体、首页、页面导航、整机运行和配方切换，并拥有设备驱动、PLC、固定 IO、工位事件、视觉配方表及客户 MES。
 - **NPSDK** 提供流程控件、运动和 IO，源码工程位于 `SDK/NPSDK`。框架和应用的源码构建均引用该项目。模块基类和模块注册由框架提供。
 
-应用入口调用 `ApplicationHost.Initialize(profile)`，由 `MachineApplication.Initialize` 组装页面和启动模块。应用将窗口赋给 `ApplicationHost.MainWindow`，通过 `ApplicationHost.RegisterModule(page)` 登记真实页面，并在退出时通过 `ApplicationHost.Shutdown()` 调用应用的清理逻辑。窗口可实现 `IModuleWindow` 接入统一保存、权限更新和视觉预览。Device 派生类和 NP 控件派生类仍按已有规则发现，站点的 `FlowChartRun` 事件直接进入工具箱。项目代码可以访问设计器创建的字段，也可以通过 `ApplicationHost.GetResource<T>(id)` 取得流程目录里的同一个动态实例。
+应用入口调用 `ApplicationHost.Initialize(profile)`，由 `MachineApplication.Initialize` 组装页面和启动模块。应用将窗口赋给 `ApplicationHost.MainWindow`，通过 `ApplicationHost.RegisterModule(page)` 登记真实页面，并在窗口关闭时异步等待 `ApplicationHost.ShutdownAsync()` 完成应用清理。窗口可实现 `IModuleWindow` 接入统一保存、权限更新和视觉预览。Device 派生类和 NP 控件派生类仍按已有规则发现，站点的 `FlowChartRun` 事件直接进入工具箱。项目代码可以访问设计器创建的字段，也可以通过 `ApplicationHost.GetResource<T>(id)` 取得流程目录里的同一个动态实例。
 
 ## 构建和发布
 
@@ -49,3 +49,7 @@ MSBuild.exe AlphaRap/AlphaRap.csproj /restore /t:Build /p:Configuration=Release 
 ### 从 5.x 升级到 6.x
 
 `MiddleLayer` 由应用项目编译。自定义应用升级后需实现 `MachineApplication.Initialize` 和 `Shutdown`，自行决定模块组装和启停顺序。通用页面通过 `ApplicationHost.FindModule<T>()` 获取已登记的同一实例，语言初始化可调用 `ApplicationHost.InitializeLanguage(language)`。应用通过 `PauseMachine`、`StopMachine` 和 `ChangeRecipe` 分别处理报警暂停、流程停止和配方页发出的切换请求。使用 `FlowControl` 构造参数接入应用的周期任务和初始化复位。
+
+### 从 6.x 升级到 7.x
+
+应用及扩展必须重新构建。SysPara.SystemMode/SystemRun 已由字段变为统一状态属性，LogManagement.Instance 已改为惰性属性；旧二进制不能直接替换 DLL。机器应用可覆盖 ShutdownAsync，窗口关闭应异步等待，不再强制结束进程。账号迁移、整份配方准备和持久事务恢复的边界见 [框架基础边界](FrameworkSafety.md)。

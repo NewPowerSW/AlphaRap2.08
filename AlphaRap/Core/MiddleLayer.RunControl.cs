@@ -58,7 +58,7 @@ namespace AlphaRap
             IDisposable deviceAdmission;
             lock (machineCommandSync)
             {
-                if (MachineIsStopping) return Task.FromResult(false);
+                if (!recipeReady || MachineIsStopping || ApplicationHost.IsShuttingDown || Configuration.ProjectConfiguration.IsBusy || Configuration.ProjectConfiguration.RecoveryRequired) return Task.FromResult(false);
                 if (machineCommandActive)
                 {
                     if (pausing && !machinePauseCommand) StopRun();
@@ -128,8 +128,7 @@ namespace AlphaRap
             lock (machineCommandSync)
             {
                 if (version != machineCommandVersion) return false;
-                SysPara.SystemRun = false;
-                SysPara.SystemMode = RunMode.INITIAL;
+                MachineState.Global.Initialize();
             }
             return await DispatchStart(version, true);
         }
@@ -150,8 +149,7 @@ namespace AlphaRap
             {
                 if (version != machineCommandVersion) return false;
                 if (Alarm.IsError) { StopRun(); return false; }
-                SysPara.SystemRun = true;
-                SysPara.SystemMode = RunMode.RUN;
+                MachineState.Global.Start(MachineInitialReady);
             }
             return true;
         }
@@ -198,7 +196,7 @@ namespace AlphaRap
                 if (version != machineCommandVersion) return false;
                 pauseOutputs = SysPara.SystemMode == RunMode.RUN
                     || (SysPara.SystemMode == RunMode.INITIAL && !MachineInitialReady);
-                if (pauseOutputs) SysPara.SystemMode = RunMode.PAUSE;
+                if (pauseOutputs) MachineState.Global.Pause();
             }
             if (!await RunStartupWork(version, Flow_Module.Module_PauseRun)) return false;
             if (!await RunStartupWork(version, () => DeviceOperations.RequestStopAllAsync().GetAwaiter().GetResult())) return false;
@@ -234,8 +232,7 @@ namespace AlphaRap
             lock (machineCommandSync)
             {
                 if (version != machineCommandVersion) return Task.FromResult(false);
-                SysPara.SystemRun = false;
-                SysPara.SystemMode = RunMode.STOPPING;
+                MachineState.Global.BeginStop();
                 Flow_Module.Module_RequestStop();
                 Task deviceCleanup = DeviceOperations.RequestStopAllAsync();
                 Task<bool> pending = machineStop.RequestStop(CreateStopSteps(stopHardware, deviceCleanup),
@@ -274,8 +271,7 @@ namespace AlphaRap
             lock (machineCommandSync)
             {
                 if (version != machineCommandVersion) return false;
-                SysPara.SystemRun = false;
-                SysPara.SystemMode = succeeded ? RunMode.IDLE : RunMode.STOPPING;
+                MachineState.Global.CompleteStop(succeeded);
             }
             if (!succeeded) RecordControlFailure(new InvalidOperationException(machineStop.Error));
             return succeeded;

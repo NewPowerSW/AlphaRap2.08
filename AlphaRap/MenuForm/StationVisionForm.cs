@@ -12,6 +12,7 @@ namespace AlphaRap
             InitializeComponent();
             if (UiTheme.IsDesignTime) return;
             InitializeRecipeSchema();
+            ConfigurationData.ValidateRecipe = ValidateRecipeCriteria;
             H1_VCalibration = new VpStation("Camera1", VpStationKind.Calibration, 3);
             H1_VFiducial = new VpStation("Camera1", VpStationKind.Fiducial, 3);
             H1_VFiducial2 = new VpStation("Camera1", VpStationKind.Fiducial, 3);
@@ -93,6 +94,14 @@ namespace AlphaRap
                 _visionDataError = error = ex.Message;
                 return false;
             }
+        }
+
+        /// <summary>在整份配方应用前验证本站视觉判据，失败时保留旧模型和生产快照。</summary>
+        private static void ValidateRecipeCriteria(DataSet recipe)
+        {
+            DataTable table = recipe.Tables["tb_H1_Visdata"];
+            if (table == null || table.Rows.Count == 0) throw new InvalidOperationException(ApplicationHost.Text("VPForm", "vpError_NoCriteria", "配方缺少视觉判据 tb_H1_Visdata。", "Recipe is missing vision criteria tb_H1_Visdata.", "La receta no contiene los criterios de visión tb_H1_Visdata."));
+            for (int i = 0; i < table.Rows.Count; i++) ReadVisionCriterion(table.Rows[i], i);
         }
 
         /// <summary>按列名读取一行生产判据，启用时上下限必须有效。</summary>

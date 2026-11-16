@@ -3,6 +3,8 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Threading;
+using System.Threading.Tasks;
+using AlphaRap.Security;
 
 namespace AlphaRap
 {
@@ -18,6 +20,9 @@ namespace AlphaRap
 
         /// <summary>当前是否处于指纹登录页。</summary>
         private bool _fingerMode;
+        private string[] fingerprintUsers = new string[0];
+        private bool authenticating;
+        private int authenticationVersion;
 
         private bool _dragging;
         private Point _dragOffset;
@@ -180,66 +185,62 @@ namespace AlphaRap
 
         // ==================== 业务逻辑 ====================
 
+        /// <summary>兼容同步账号校验，凭据读取与迁移统一通过账号服务。</summary>
         public bool ReadUserData(string UserName, string Password, ref PermissionType UserPermission)
         {
+            UserPermission = PermissionType.None;
             try
             {
-                string strSQL = "select * from UserData where UserName = '" + UserName + "'";
-                bool Successful = false;
-                DataTable readData = DataBase.ReadData_Adapter(SysPara.MdbPath, strSQL, ref Successful);
-                if (Successful)
-                    if (readData.Rows.Count > 0)
-                    {
-                        if (readData.Rows[0]["Password"].ToString() == Password)
-                        {
-                            UserPermission = (PermissionType)Enum.Parse(typeof(PermissionType), readData.Rows[0]["Permission"].ToString());
-                            return true;
-                        }
-                        else
-                        {
-                            MessageBox.Show(
-                                FrameworkLanguage.LangMsg("UserLoginForm", "msg_LoginBadPassword", "登录失败！密码错误！", "Login Fail！Please check your Password!", "¡El inicio de sesión falló! ¡Error de contraseña!"),
-                                FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            textPassword.FocusInput();
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show(
-                            FrameworkLanguage.LangMsg("UserLoginForm", "msg_LoginNoUser", "登录失败！用户名不存在！", "Login Fail！Please check your UserName!", "¡El inicio de sesión falló! ¡El usuario no existe!"),
-                            FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"),
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        textUserName.FocusInput();
-                    }
+                AccountIdentity identity = new AccountService(SysPara.MdbPath).Authenticate(UserName, Password);
+                if (identity == null) { ShowAuthenticationError(AccountText.Failed); return false; }
+                UserPermission = identity.Permission; return true;
             }
-            catch (Exception) { }
-            return false;
+            catch (Exception error) { ShowAuthenticationError(error.Message); return false; }
         }
 
+        /// <summary>显示统一登录错误，不回显任何凭据或散列。</summary>
+        private void ShowAuthenticationError(string message)
+        {
+            if (IsDisposed) return;
+            MessageBox.Show(this, message, FrameworkLanguage.LangMsg("Common", "msg_NoteTitle", "提示", "Note", "Consejo"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            textPassword.FocusInput();
+        }
         private void textPassword_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 13)
                 btnLogin.PerformClick();
         }
 
-        private void btnLogin_Click(object sender, EventArgs e)
+        /// <summary>后台执行密码派生，消息线程保持可用并拒绝重复提交。</summary>
+        private async void btnLogin_Click(object sender, EventArgs e)
         {
-            if (ReadUserData(textUserName.Value, textPassword.Value, ref UserPermission))
+            if (authenticating || ApplicationHost.IsShuttingDown) return;
+            authenticating = true; btnLogin.Enabled = false;
+            int version = ++authenticationVersion;
+            string name = textUserName.Value, password = textPassword.Value;
+            try
             {
-                SysPara.UserName = textUserName.Value;
-                SysPara.UserLoginTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                ApplicationHost.SetPermission(UserPermission);
-
-                textUserName.Value = "";
-                textPassword.Value = "";
-                SysPara.bLogin = false;
-                this.Close();
-
-                SysPara.bLogin = true;
+                Task<AccountIdentity> work = Task.Run(() => new AccountService(SysPara.MdbPath).Authenticate(name, password));
+                _ = ApplicationTasks.Global.Track("Authentication", work);
+                AccountIdentity identity = await work;
+                if (IsDisposed || Disposing || ApplicationHost.IsShuttingDown || version != authenticationVersion) return;
+                if (identity == null) { ShowAuthenticationError(AccountText.Failed); return; }
+                CompleteLogin(identity);
             }
+            catch (Exception error) { if (version == authenticationVersion) ShowAuthenticationError(error.Message); }
+            finally { authenticating = false; if (!IsDisposed) btnLogin.Enabled = true; }
         }
 
+        /// <summary>账号和指纹共享身份提交，只有认证成功后更新全局权限。</summary>
+        private void CompleteLogin(AccountIdentity identity)
+        {
+            UserPermission = identity.Permission;
+            SysPara.UserName = identity.Name;
+            SysPara.UserLoginTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            ApplicationHost.SetPermission(identity.Permission);
+            textUserName.Value = ""; textPassword.Value = "";
+            SysPara.bLogin = false; Close(); SysPara.bLogin = true;
+        }
         /// <summary>指纹页的"手动登录"：切回账号登录页。</summary>
         private void btnManual_Click(object sender, EventArgs e)
         {
@@ -253,6 +254,7 @@ namespace AlphaRap
 
         private void UserLoginForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            authenticationVersion++;
             textUserName.Value = "";
             textPassword.Value = "";
             lblFingerStatus.Text = "";
@@ -265,34 +267,33 @@ namespace AlphaRap
             }
         }
 
+        /// <summary>捕获指纹模板索引对应的用户名，不把密码加入指纹绑定。</summary>
         public void ResetFingerprintDB()
         {
-            string strSQL = "select * from UserData";
-            bool Successful = false;
-            DataTable readData = DataBase.ReadData_Adapter(SysPara.MdbPath, strSQL, ref Successful);
-            if (Successful)
-                for (int i = 0; i < readData.Rows.Count; i++)
-                {
-                    string Name = readData.Rows[i]["UserName"].ToString();
-                }
+            try
+            {
+                DataTable users = new AccountService(SysPara.MdbPath).Users();
+                fingerprintUsers = new string[users.Rows.Count];
+                for (int i = 0; i < users.Rows.Count; i++) fingerprintUsers[i] = Convert.ToString(users.Rows[i]["UserName"]);
+            }
+            catch (Exception error) { fingerprintUsers = new string[0]; ShowAuthenticationError(error.Message); }
         }
 
+        /// <summary>可信指纹回调重新确认绑定账号身份，永不读取或回填密码。</summary>
         public void OnTemplate(int UserIndex)
         {
-            string strSQL = "select * from UserData";
-            bool Successful = false;
-            DataTable readData = DataBase.ReadData_Adapter(SysPara.MdbPath, strSQL, ref Successful);
-            if (Successful)
+            RefreshDifferentThreadUI(this, () =>
             {
-                RefreshDifferentThreadUI(textUserName, () =>
+                if (IsDisposed || ApplicationHost.IsShuttingDown || authenticating || !_fingerMode || UserIndex < 0 || UserIndex >= fingerprintUsers.Length) return;
+                try
                 {
-                    textUserName.Value = readData.Rows[UserIndex]["UserName"].ToString();
-                    textPassword.Value = readData.Rows[UserIndex]["Password"].ToString();
-                    btnLogin.PerformClick();
-                });
-            }
+                    AccountIdentity identity = new AccountService(SysPara.MdbPath).FindIdentity(fingerprintUsers[UserIndex]);
+                    if (identity == null) { ShowAuthenticationError(AccountText.Failed); return; }
+                    CompleteLogin(identity);
+                }
+                catch (Exception error) { ShowAuthenticationError(error.Message); }
+            });
         }
-
         public static void RefreshDifferentThreadUI(Control control, Action action)
         {
             if (control.InvokeRequired)
@@ -308,7 +309,9 @@ namespace AlphaRap
 
         private void UserLoginForm_Load(object sender, EventArgs e)
         {
+            if (UiTheme.IsDesignTime) return;
             ReadAllUserData();
+            ResetFingerprintDB();
             // 窗体显示后把焦点放到用户名输入框
             textUserName.FocusInput();
         }

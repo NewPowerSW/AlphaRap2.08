@@ -9,6 +9,7 @@ namespace AlphaRap
 {
     partial class MiddleLayer
     {
+        private static bool recipeReady = true;
         /// <summary>空闲时加载模块配方、托盘列与视觉算法，保存最终选中的配方位置。</summary>
         public static bool OpenRecipe(string RecipePath)
         {
@@ -26,7 +27,6 @@ namespace AlphaRap
                 return false;
             }
 
-            bool loaded = false;
             if (Configuration.ProjectConfiguration.HasModuleRecipeChanges)
             {
                 MessageBox.Show(LangMsg("Modules", "pendingRecipe", "模块配方有未保存修改，请先通过主保存处理。", "Module recipes have unsaved changes. Use the main Save button first.", "Hay cambios sin guardar en recetas de módulos. Use Guardar principal primero."),
@@ -47,32 +47,47 @@ namespace AlphaRap
             }
             try
             {
-                SysPara.RecipeDataDirectory = Path.GetDirectoryName(RecipePath);
-                SysPara.RecipeName = Path.GetFileNameWithoutExtension(RecipePath);
-                SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, SysPara.RecipeName + ".xml");
-                Configuration.ProjectConfiguration.LoadModuleRecipes(SysPara.FilePath);
-                if (HardF != null && !ModuleManager.ModuleList.Contains(HardF)) HardF.ReadRecipeData(SysPara.FilePath);
-                RefreshRecipeTray();
-                loaded = true;
+                string path = Path.GetFullPath(RecipePath);
+                string directory = Path.GetDirectoryName(path);
+                string name = Path.GetFileNameWithoutExtension(path);
+                Configuration.ProjectConfiguration.ChangeRecipe(path, () =>
+                {
+                    SysPara.RecipeDataDirectory = directory;
+                    SysPara.RecipeName = name;
+                    SysPara.FilePath = path;
+                    recipeReady = true;
+                }, new[] { PrepareRecipeSelection(directory, name) });
             }
             catch (Exception error)
             {
                 MessageBox.Show(error.Message, LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"),
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                SysPara.RecipeDataDirectory = ".\\ModuleData\\RecipeData";
-                SysPara.RecipeName = "Recipe";
-                SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, "Recipe.xml");
+                return false;
             }
-
-            VPForm.LoadRecipeVision();
-            using (IniFile ini = new IniFile(".\\MachineSetup.ini"))
-            {
-                ini.WriteString("MachineSetup", "RecipeName", SysPara.RecipeName);
-                ini.WriteString("PathSetup", "RecipeDirectory", SysPara.RecipeDataDirectory.Replace(Directory.GetCurrentDirectory() + "\\", ".\\"));
-            }
-            if (loaded && oldRecipeName != SysPara.RecipeName)
+            RefreshRecipeTray();
+            try { VPF?.OnRecipeChanged(); }
+            catch (Exception error) { OperationLog.Write("ProductManagerForm", error.ToString()); }
+            if (oldRecipeName != SysPara.RecipeName)
                 OperationLog.Write("ProductManagerForm", "切换配方：" + oldRecipeName + " → " + SysPara.RecipeName);
-            return loaded;
+            return true;
+        }
+
+        /// <summary>保留机器设置的其他键，在同一持久事务中提交配方选择并验证写入结果。</summary>
+        private static Configuration.ConfigurationFile PrepareRecipeSelection(string directory, string name)
+        {
+            string target = Path.GetFullPath("MachineSetup.ini");
+            string storedDirectory = directory.Replace(Directory.GetCurrentDirectory() + "\\", ".\\");
+            return new Configuration.ConfigurationFile(target, temporary =>
+            {
+                if (File.Exists(target)) File.Copy(target, temporary);
+                using (var ini = new IniFile(temporary))
+                {
+                    ini.WriteString("MachineSetup", "RecipeName", name);
+                    ini.WriteString("PathSetup", "RecipeDirectory", storedDirectory);
+                    if (ini.ReadString("MachineSetup", "RecipeName", "") != name || ini.ReadString("PathSetup", "RecipeDirectory", "") != storedDirectory)
+                        throw new IOException(LangMsg("MiddleLayer", "msg_RecipeSelectionWrite", "无法保存配方选择。", "Cannot persist the recipe selection.", "No se puede guardar la selección de receta."));
+                }
+            });
         }
 
         /// <summary>重建随配方列变化的托盘界面，显示刷新失败不打断配方加载。</summary>

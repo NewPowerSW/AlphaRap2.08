@@ -1,4 +1,4 @@
-using Alpha;
+﻿using Alpha;
 using AlphaRap.Classes;
 using AlphaRapLibrary;
 using Cognex.VisionPro;
@@ -1776,13 +1776,25 @@ int nheightEllipse
             catch { }   // 语言包缺失时忽略
         }
 
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        private bool exitRequested, shutdownReady;
+        /// <summary>保持消息循环直到真实停止和任务退出完成，再释放窗口与视觉对象。</summary>
+        private async void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (FlowProgramming.FlowPrograms.AnyRunning)
+            if (!shutdownReady)
             {
-                FlowProgramming.FlowPrograms.StopAll();
                 e.Cancel = true;
-                MessageBox.Show(FlowProgramming.FlowText.T("busy"), FlowProgramming.FlowText.T("title"));
+                if (exitRequested) return;
+                exitRequested = true;
+                try
+                {
+                    await ApplicationHost.ShutdownAsync();
+                    shutdownReady = true; Close();
+                }
+                catch (Exception error)
+                {
+                    exitRequested = false;
+                    MessageBox.Show(this, error.Message, ApplicationHost.Text("MainForm", "shutdownFailed", "停止尚未完成，窗口将保持打开。", "Shutdown has not completed; the window will stay open.", "El cierre no ha terminado; la ventana permanecerá abierta."), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 return;
             }
             // 先停止自动登出定时器并卸载全局鼠标/键盘钩子，防止退出过程中钩子事件访问已释放的对象
@@ -1821,27 +1833,6 @@ int nheightEllipse
             }
             catch { }
 
-            try
-            {
-                SwitchMainPage(MENU_PageType.Home);
-                MiddleLayer.FlowCtrl.bStopWork = true;
-
-                // 直接结束进程，不执行 Environment.Exit 的关机流程：Cognex ActiveX 与前台工作线程
-                // 在关机流程中会访问已销毁的窗口句柄，抛出主线程无法捕获的异常。
-                try
-                {
-                    System.Diagnostics.Process.GetCurrentProcess().Kill();
-                }
-                catch
-                {
-                    // Kill 失败时改用 Environment.Exit
-                    try { System.Environment.Exit(0); } catch { }
-                }
-            }
-            catch
-            {
-                // 退出过程中的异常不向上抛出
-            }
         }
 
         private void LOTO_Click(object sender, EventArgs e)

@@ -377,3 +377,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 /AlphaRap/GeneratedFlows/*.bak
+/.np-transactions/

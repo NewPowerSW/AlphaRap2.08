@@ -1,5 +1,6 @@
-﻿
+
 using System;
+using AlphaRap.Security;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Data;
@@ -239,19 +240,12 @@ namespace AlphaRap
             ReadAllUserData();
         }
 
+        /// <summary>通过参数化账号服务修改角色，服务再次检查管理员权限。</summary>
         public bool ModifyUserPermission(string UserName, string UserPermission)
         {
-            try
-            {
-                string strSQL = "update [UserData] set [Permission]='" + UserPermission + "' where [UserName] ='" + UserName + "'";
-                int result = DataBase.DataBaseExecute(SysPara.MdbPath, strSQL);
-                if (result == 0)
-                    return true;
-            }
-            catch (Exception) { }
-            return false;
+            try { new AccountService(SysPara.MdbPath).ChangePermission(UserName, UserPermission); return true; }
+            catch (Exception error) { ShowAccountFailure(error); return false; }
         }
-
         private void btnDeleteUser_Click(object sender, EventArgs e)
         {
             OperationLog.Write("AddUserForm", "删除用户：" + textSelectedUserName.Value);
@@ -259,19 +253,12 @@ namespace AlphaRap
             ReadAllUserData();
         }
 
+        /// <summary>通过账号服务删除指定用户，输入不参与 SQL 拼接。</summary>
         private bool DeleteUser(string UserName)
         {
-            try
-            {
-                string strSQL = "delete * from UserData where UserName ='" + UserName + "'";
-                int result = DataBase.DataBaseExecute(SysPara.MdbPath, strSQL);
-                if (result == 0)
-                    return true;
-            }
-            catch (Exception) { }
-            return false;
+            try { new AccountService(SysPara.MdbPath).Delete(UserName); return true; }
+            catch (Exception error) { ShowAccountFailure(error); return false; }
         }
-
         // ==================== 新增用户 ====================
 
         private void btnAddUser_Click(object sender, EventArgs e)
@@ -322,31 +309,25 @@ namespace AlphaRap
             }
         }
 
+        /// <summary>检查账号存在性，数据库错误不伪装成账号不存在。</summary>
         private bool CheckUserWhetherExist(string UserName)
         {
-            string strSQL = "select * from UserData where UserName ='" + UserName + "'";
-            bool Successful = false;
-
-            DataTable readData = DataBase.ReadData_Adapter(SysPara.MdbPath, strSQL, ref Successful);
-            if (Successful)
-                if (readData.Rows.Count > 0)
-                    return true;
-            return false;
+            try { return new AccountService(SysPara.MdbPath).Exists(UserName); }
+            catch (Exception error) { ShowAccountFailure(error); return true; }
         }
 
+        /// <summary>新增账号只写入版本化密码哈希。</summary>
         private bool AddUser(string UserName, string UserPassword, string UserLevel)
         {
-            try
-            {
-                string strSQL = "insert into UserData values ('" + UserName + "','" + UserPassword + "','" + UserLevel + "')";
-                int result = DataBase.DataBaseExecute(SysPara.MdbPath, strSQL);
-                if (result == 0)
-                    return true;
-            }
-            catch (Exception) { }
-            return false;
+            try { new AccountService(SysPara.MdbPath).Add(UserName, UserPassword, UserLevel); return true; }
+            catch (Exception error) { ShowAccountFailure(error); return false; }
         }
 
+        /// <summary>报告账号操作错误，保留输入供修正。</summary>
+        private void ShowAccountFailure(Exception error)
+        {
+            MessageBox.Show(this, error.Message, FrameworkLanguage.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
         private void AddUser_TextChanged(object sender, EventArgs e)
         {
             try

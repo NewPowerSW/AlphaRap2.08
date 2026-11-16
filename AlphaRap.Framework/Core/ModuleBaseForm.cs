@@ -142,6 +142,7 @@ namespace AlphaRapLibrary
 				{
 					using (NPSDK.Flow_Chart.UseExecutionToken(token)) action();
 				}, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                ApplicationTasks.Global.Track("Manual/" + Name, ManualTask);
 				return ManualTask;
 			}
 		}

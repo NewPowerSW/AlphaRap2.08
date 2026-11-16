@@ -87,7 +87,8 @@ namespace AlphaRap.FlowProgramming
         /// <summary>运行和修改前统一检查工位、机器状态及权限。</summary>
         public static void RequireIdle()
         {
-            if (AnyRunning || DeviceOperations.HasPending || SysPara.SystemMode != RunMode.IDLE)
+            if (Configuration.ProjectConfiguration.RecoveryRequired) throw new InvalidOperationException(Configuration.ConfigurationText.RecoveryBlocked);
+            if (ApplicationHost.IsShuttingDown || AnyRunning || DeviceOperations.HasPending || SysPara.SystemMode != RunMode.IDLE)
             {
                 string names = string.Join(", ", Flow_Module.FlowChart_ModuleList.Where(Flow_Module.IsExecutionActive).Select(form => form.Name).Distinct());
                 string legacy = string.Join(", ", Flow_Module.FlowChart_List.Where(node => node.IsLegacyRunning).Select(node => node.text).Distinct());
@@ -205,8 +206,7 @@ namespace AlphaRap.FlowProgramming
             foreach (FlowModuleEditor module in modules.Values)
                 if (module.IsInitializing || (!module.Runtime.IsRunning && module.Form.InitialStatus)) module.Handle(FlowProgramCommand.Resume);
             Flow_Module.AllPause = false;
-            SysPara.SystemRun = false;
-            SysPara.SystemMode = RunMode.INITIAL;
+            MachineState.Global.Initialize();
         }
 
         /// <summary>在运行时创建普通基类流程模块，工程师无需编写新的 Form 类。</summary>
@@ -1018,6 +1018,7 @@ namespace AlphaRap.FlowProgramming
             {
                 Runtime.StartMany(plan, selected, new FlowExecutionContext { Hub = FlowPrograms.Results, RunId = FlowPrograms.Results.Epoch,
                     CycleId = "batch", ModuleId = plan.ModuleId, RecipeName = resources.RecipeName, Parameters = resources.Parameters }, debug);
+                ApplicationTasks.Global.Track("Flow/" + plan.ModuleId, Runtime.Completion, () => { Runtime.Stop(); return Task.FromResult(0); });
             }
             catch
             {

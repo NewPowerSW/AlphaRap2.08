@@ -212,6 +212,52 @@ namespace AlphaRap
         {
             return string.Format(@"{0}\{1}\{2}.vpp", SysPara.VisionFileDirectory, VppSubFolder, recipeName);
         }
+
+        /// <summary>从独立字节快照准备新模型，失败不清空当前算法或结果。</summary>
+        internal Configuration.RecipeChange PrepareRecipe(string recipeName)
+        {
+            string path = Path.GetFullPath(GetVppPath(recipeName));
+            CogToolBlock next = null, previous;
+            string signature = "", oldPath, oldSignature, oldError;
+            bool oldLoaded, oldDirty, oldSaved, oldAccept;
+            long oldRevision;
+            VisionRunResult oldResult;
+            lock (_operationLock)
+            {
+                if (!CanModifyToolBlock()) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_BusyLoad", "工位正在运行或编辑，不能加载 VPP。", "Station is running or being edited; VPP cannot be loaded.", "La estación está ejecutándose o en edición; no se puede cargar el VPP."));
+                previous = TB; oldPath = TBPath; oldSignature = ModelSignature; oldLoaded = IsLoadTBOk;
+                oldDirty = _hasToolBlockDraft; oldSaved = _toolBlockWasSaved; oldRevision = _toolBlockRevision;
+                oldAccept = IsAccept; oldResult = _lastRunResult; oldError = LastError;
+            }
+            bool required = previous != null || oldLoaded || (this is VpStation && ((VpStation)this).Config != null);
+            if (File.Exists(path))
+            {
+                byte[] contents = File.ReadAllBytes(path);
+                using (var source = new MemoryStream(contents)) next = CogSerializer.LoadObjectFromStream(source) as CogToolBlock;
+                if (next == null) throw new InvalidDataException(ApplicationHost.Text("VPForm", "vpError_InvalidRecipeModel", "无效的配方视觉算法：{0}", "Invalid recipe ToolBlock: {0}", "ToolBlock de receta no válido: {0}").Replace("{0}", path));
+                using (var hash = System.Security.Cryptography.SHA256.Create()) signature = BitConverter.ToString(hash.ComputeHash(contents)).Replace("-", "");
+            }
+            else if (required) throw new FileNotFoundException(ApplicationHost.Text("VPForm", "vpError_RecipeModelMissing", "配方视觉算法缺失。", "Recipe ToolBlock is missing.", "Falta el ToolBlock de la receta."), path);
+            bool retained = false;
+            return new Configuration.RecipeChange(() =>
+            {
+                lock (_operationLock)
+                {
+                    if (!CanModifyToolBlock()) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_BusyLoad", "工位正在运行或编辑，不能加载 VPP。", "Station is running or being edited; VPP cannot be loaded.", "La estación está ejecutándose o en edición; no se puede cargar el VPP."));
+                    TB = next; TBPath = path; IsLoadTBOk = next != null; ModelSignature = signature;
+                    _hasToolBlockDraft = false; _toolBlockWasSaved = next != null; _toolBlockRevision++;
+                    IsAccept = false; _lastRunResult = null; LastError = ""; retained = true;
+                }
+            }, () =>
+            {
+                lock (_operationLock)
+                {
+                    TB = previous; TBPath = oldPath; ModelSignature = oldSignature; IsLoadTBOk = oldLoaded;
+                    _hasToolBlockDraft = oldDirty; _toolBlockWasSaved = oldSaved; _toolBlockRevision = oldRevision;
+                    IsAccept = oldAccept; _lastRunResult = oldResult; LastError = oldError; retained = false;
+                }
+            }, () => { if (!retained && next != null) next.Dispose(); });
+        }
         public VisionproInterface()
         {
             VList.Add(this);

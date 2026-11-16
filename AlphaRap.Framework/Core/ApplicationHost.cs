@@ -7,6 +7,7 @@ using AlphaRap.FlowProgramming;
 using AlphaRapLibrary;
 using NPSDK;
 using Cognex.VisionPro;
+using System.Threading.Tasks;
 
 namespace AlphaRap
 {
@@ -36,6 +37,8 @@ namespace AlphaRap
 
         /// <summary>停止由本机应用启动的任务与设备。</summary>
         public virtual void Shutdown() { }
+        /// <summary>异步关闭入口，旧应用的同步清理由后台适配。</summary>
+        public virtual Task ShutdownAsync() { return Task.Run((Action)Shutdown); }
 
         /// <summary>处理报警模块发出的整机暂停请求。</summary>
         public virtual void PauseMachine() { }
@@ -116,6 +119,10 @@ namespace AlphaRap
         private static readonly List<Form> RegisteredPages = new List<Form>();
         private static MachineApplication application;
         public static ModuleRegistry Modules { get; private set; } = new ModuleRegistry();
+        private static Task shutdown;
+        private static readonly object shutdownSync = new object();
+        private static volatile bool shuttingDown;
+        public static bool IsShuttingDown { get { return shuttingDown; } }
 
         /// <summary>读取应用 EXE 的版本。</summary>
         public static string ApplicationVersion
@@ -221,7 +228,9 @@ namespace AlphaRap
         {
             if (application == null) throw new ArgumentNullException(nameof(application));
             if (ApplicationHost.application != null) throw new InvalidOperationException("An application is already registered.");
+            Configuration.ProjectConfiguration.RecoverAtStartup();
             ApplicationHost.application = application;
+            ApplicationTasks.Global.BeginScope();
             application.Initialize(reportProgress);
             return ApplicationHost.MainWindow;
         }
@@ -229,17 +238,43 @@ namespace AlphaRap
         /// <summary>关闭应用拥有的任务并释放框架持有的窗口引用。</summary>
         public static void Shutdown()
         {
-            var errors = new List<Exception>();
-            try { application?.Shutdown(); } catch (Exception error) { errors.Add(error); }
+            ShutdownAsync().GetAwaiter().GetResult();
+        }
+
+        /// <summary>共享在途关闭，失败可重试；真实任务退出前不释放模块与窗口引用。</summary>
+        public static Task ShutdownAsync()
+        {
+            lock (shutdownSync)
+            {
+                if (shutdown != null && !shutdown.IsCompleted) return shutdown;
+                return shutdown = ShutdownCore();
+            }
+        }
+
+        /// <summary>先停止应用任务与日志，成功后才释放业务模型。</summary>
+        private static async Task ShutdownCore()
+        {
+            shuttingDown = true;
+            try
+            {
+                if (application != null) await application.ShutdownAsync().ConfigureAwait(false);
+                await LogManagement.StopIfCreatedAsync().ConfigureAwait(false);
+                await ApplicationTasks.Global.StopAllAsync().ConfigureAwait(false);
+                ReleaseModules();
+            }
+            finally { shuttingDown = false; }
+        }
+
+        /// <summary>关闭已完成后释放已登记模块，保留释放失败的诊断。</summary>
+        private static void ReleaseModules()
+        {
             ModuleRegistry ownedModules = Modules;
             Modules = new ModuleRegistry();
             application = null;
             RegisteredPages.Clear();
             MainWindow = null;
             Home = null;
-            try { ownedModules.Dispose(); } catch (Exception error) { errors.Add(error); }
-            if (errors.Count == 1) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(errors[0]).Throw();
-            if (errors.Count > 1) throw new AggregateException(errors);
+            ownedModules.Dispose();
         }
 
         /// <summary>使用当前语言读取报警编号对应的文本。</summary>

@@ -31,17 +31,20 @@ namespace AlphaRap
         public volatile bool AlarmTaskIsRun;
 
         /// <summary>启动报警模块的后台采集线程。</summary>
-        public AlarmRunTask()
+        public AlarmRunTask() : this(true) { }
+
+        /// <summary>允许宿主在受监督任务中运行扫描，保留默认独立线程入口。</summary>
+        public AlarmRunTask(bool startThread)
         {
             alarmThread = new Thread(AlarmRunWork) { IsBackground = true };
-            alarmThread.Start();
+            if (startThread) alarmThread.Start();
         }
 
         /// <summary>停止采集并等待线程退出。</summary>
         public void StopAlarmRunTask()
         {
             stopping = true;
-            if (alarmThread != null && alarmThread != Thread.CurrentThread) alarmThread.Join();
+            if (alarmThread != null && alarmThread != Thread.CurrentThread && alarmThread.IsAlive) alarmThread.Join();
         }
 
         /// <summary>周期采集报警及流程日志。</summary>

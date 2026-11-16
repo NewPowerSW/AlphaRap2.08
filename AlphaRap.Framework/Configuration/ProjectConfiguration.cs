@@ -23,6 +23,9 @@ namespace AlphaRap.Configuration
         }
 
         private static int operation;
+        public static bool IsBusy { get { return System.Threading.Volatile.Read(ref operation) != 0; } }
+        private static volatile bool recoveryRequired;
+        public static bool RecoveryRequired { get { return recoveryRequired; } private set { recoveryRequired = value; } }
 
         /// <summary>主保存前按配置能力接口检查草稿，不识别具体页面类型。</summary>
         public static void Validate() { FlowPrograms.RequireIdle(); Validate(Participants()); }
@@ -37,8 +40,17 @@ namespace AlphaRap.Configuration
                 IConfigurationParticipant[] participants = Participants();
                 Validate(participants);
                 ConfigurationChange[] changes = CaptureChanges(participants);
-                WriteFiles(BuildFiles(changes));
-                foreach (ConfigurationChange change in changes) change.AcceptSaved();
+                ConfigurationJournal journal = CommitFiles(BuildFiles(changes));
+                try
+                {
+                    foreach (ConfigurationChange change in changes) change.AcceptSaved();
+                    journal.MarkPublished();
+                }
+                catch (Exception error)
+                {
+                    RecoveryRequired = true; MachineState.Global.BeginStop();
+                    throw new InvalidOperationException(ConfigurationText.PublicationFailed, error);
+                }
             }
             finally { System.Threading.Volatile.Write(ref operation, 0); }
         }
@@ -46,9 +58,13 @@ namespace AlphaRap.Configuration
         /// <summary>拒绝保存或放弃回调中的重入，避免嵌套事务覆盖当前文件和草稿。</summary>
         private static void BeginOperation()
         {
+            if (RecoveryRequired) throw new InvalidOperationException(ConfigurationText.RecoveryBlocked);
             if (System.Threading.Interlocked.CompareExchange(ref operation, 1, 0) != 0)
                 throw new InvalidOperationException(ConfigurationText.Busy);
         }
+
+        /// <summary>无法证明配置状态完整时锁住运行和后续配置操作，普通停止完成不能解除。</summary>
+        internal static void RequireRecovery() { RecoveryRequired = true; MachineState.Global.BeginStop(); }
 
         /// <summary>在任何写入准备之前校验本次操作的全部参与者。</summary>
         private static void Validate(IEnumerable<IConfigurationParticipant> participants)
@@ -90,24 +106,46 @@ namespace AlphaRap.Configuration
         /// <summary>暂存完成后替换正式文件，失败时恢复已经替换的文件。</summary>
         private static void WriteFiles(List<PendingFile> files)
         {
-            List<PendingFile> committed = new List<PendingFile>();
+            CommitFiles(files).MarkPublished();
+        }
+
+        /// <summary>持久记录覆盖所有替换阶段，已提交后的发布失败保留记录供重启恢复。</summary>
+        private static ConfigurationJournal CommitFiles(List<PendingFile> files)
+        {
+            ConfigurationJournal journal = null;
             try
             {
+                ConfigurationJournal.RecoverPending();
                 foreach (PendingFile file in files) StageFile(file);
-                foreach (PendingFile file in files)
+                journal = ConfigurationJournal.Prepare(files);
+                for (int i = 0; i < files.Count; i++)
                 {
-                    CommitFile(file);
-                    committed.Add(file);
+                    journal.BeforeReplace(i); CommitFile(files[i]); journal.AfterReplace(i);
                 }
+                journal.MarkCommitted();
+                return journal;
             }
             catch (Exception error)
             {
                 List<Exception> errors = new List<Exception> { error };
-                foreach (PendingFile file in committed.AsEnumerable().Reverse()) RestoreFile(file,errors);
+                if (journal != null && !journal.IsCommitted)
+                    try { journal.Rollback(); } catch (Exception restore) { errors.Add(restore); RecoveryRequired = true; MachineState.Global.BeginStop(); }
+                if (journal != null && journal.IsCommitted) { RecoveryRequired = true; MachineState.Global.BeginStop(); }
                 if (errors.Count > 1) throw new AggregateException(errors);
                 throw;
             }
             finally { foreach (PendingFile file in files) DeleteTemporaryFile(file); }
+        }
+
+        /// <summary>在任何配置模型读取之前恢复磁盘事务；仅用于新应用生命周期。</summary>
+        internal static void RecoverAtStartup() { ConfigurationJournal.RecoverPending(); RecoveryRequired = false; }
+
+        /// <summary>配方选择等框架操作复用持久文件事务，不发布其他配置草稿。</summary>
+        public static void CommitFileChanges(IEnumerable<ConfigurationFile> files)
+        {
+            BeginOperation();
+            try { WriteFiles(BuildFiles(new[] { new ConfigurationChange(files) })); }
+            finally { System.Threading.Volatile.Write(ref operation, 0); }
         }
 
         /// <summary>使用同目录短名称和原扩展名暂存文件，不提交内存版本。</summary>
@@ -119,6 +157,7 @@ namespace AlphaRap.Configuration
             CheckOriginal(file);
             file.Temporary = System.IO.Path.Combine(directory,Guid.NewGuid().ToString("N")+System.IO.Path.GetExtension(file.Path));
             file.Write(file.Temporary);
+            using (var staged = new FileStream(file.Temporary, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) staged.Flush(true);
             if (file.CheckExpectedOriginal) file.PreparedContents = File.ReadAllBytes(file.Temporary);
         }
 
@@ -128,7 +167,7 @@ namespace AlphaRap.Configuration
             try
             {
                 CheckOriginal(file);
-                if (File.Exists(file.Path)) File.Replace(file.Temporary,file.Path,file.Path+".bak");
+                if (File.Exists(file.Path)) File.Replace(file.Temporary,file.Path,null);
                 else File.Move(file.Temporary,file.Path);
             }
             catch (Exception error)
@@ -202,12 +241,43 @@ namespace AlphaRap.Configuration
                 .Concat(ConfigurationModules().Select(module => module.Configuration)).Distinct().ToArray();
         }
 
-        public static bool HasModuleRecipeChanges { get { return ConfigurationModules().Any(module => module.Configuration.Recipe.HasChanges()); } }
+        public static bool HasModuleRecipeChanges { get { return ModuleConfigurations().Any(module => module.HasRecipeDraft); } }
 
         /// <summary>配方入口加载全部注册模块，不要求业务模块有页面实例。</summary>
         public static void LoadModuleRecipes(string path)
         {
-            foreach (ModuleConfiguration module in ModuleConfigurations()) module.LoadRecipe(path);
+            var changes = new List<RecipeChange>();
+            byte[] content = File.Exists(path) ? File.ReadAllBytes(path) : null;
+            try { foreach (ModuleConfiguration module in ModuleConfigurations()) changes.Add(module.PrepareRecipeContent(content)); }
+            catch { RecipeChange.Release(changes); throw; }
+            RecipeChange.Commit(changes, () => { });
+        }
+
+        /// <summary>统一配方入口，在同一操作占用中准备数据和视觉模型，最后提交身份与持久选择。</summary>
+        public static void ChangeRecipe(string path, Action publish, IEnumerable<ConfigurationFile> selection = null)
+        {
+            BeginOperation();
+            var changes = new List<RecipeChange>();
+            try
+            {
+                if (ApplicationHost.IsShuttingDown || FlowPrograms.AnyRunning || DeviceOperations.HasPending || SysPara.SystemMode != RunMode.IDLE
+                    || ModuleManager.ModuleList.Any(module => module.IsManualRun())) throw new InvalidOperationException(FlowText.T("busy"));
+                if (!File.Exists(path)) throw new FileNotFoundException(ConfigurationText.RecipeMissing, path);
+                if (HasModuleRecipeChanges || VisionproInterface.VList.Any(station => station.HasToolBlockDraft)) throw new InvalidOperationException(ConfigurationText.RecipeDraft);
+                byte[] content = File.ReadAllBytes(path);
+                foreach (ModuleConfiguration module in ModuleConfigurations()) changes.Add(module.PrepareRecipeContent(content));
+                string name = Path.GetFileNameWithoutExtension(path);
+                foreach (VisionproInterface station in VisionproInterface.VList.ToArray()) changes.Add(station.PrepareRecipe(name));
+                ConfigurationFile[] files = selection == null ? new ConfigurationFile[0] : selection.ToArray();
+                bool committed = false;
+                RecipeChange.Commit(changes, () =>
+                {
+                    if (files.Length > 0) { WriteFiles(BuildFiles(new[] { new ConfigurationChange(files) })); committed = true; }
+                    try { publish(); }
+                    catch { if (committed) { RecoveryRequired = true; MachineState.Global.BeginStop(); } throw; }
+                });
+            }
+            finally { try { RecipeChange.Release(changes); } finally { System.Threading.Volatile.Write(ref operation, 0); } }
         }
 
         /// <summary>为兼容写入入口捕获全部模块配方，不改变任何内存行版本。</summary>

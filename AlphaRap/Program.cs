@@ -29,8 +29,8 @@ namespace AlphaRap
                 try { Application.Run(Initialize(station)); }
                 finally
                 {
-                    try { ApplicationHost.Shutdown(); }
-                    finally { PLC.INOVANCE.CloseAll(); }
+                    ApplicationHost.Shutdown();
+                    PLC.INOVANCE.CloseAll();
                 }
             }
         }

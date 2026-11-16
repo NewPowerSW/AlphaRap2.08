@@ -76,7 +76,8 @@ namespace AlphaRap
                 if (!allowDuringStop && admissionBlocks > 0) { entry.Source.Dispose(); return Task.FromCanceled(new CancellationToken(true)); }
                 entry.Version = stopVersion; running.Add(entry);
             }
-            return RunOwnedAsync(entry, owner, action, token);
+            Task work = RunOwnedAsync(entry, owner, action, token);
+            return ApplicationTasks.Global.Track("DeviceUI", work);
         }
 
         /// <summary>实际动作、所有取消回调结束后移除登记，窗口被释放也保留此任务。</summary>

@@ -69,8 +69,8 @@ namespace AlphaRap
         //Flow Control
         public static bool IsMaintenanceMode = false;
         public static bool bSaftyReady = false;
-        public static volatile bool SystemRun = false;
-        public static volatile RunMode SystemMode = RunMode.IDLE;
+        public static bool SystemRun { get { return MachineState.Global.Current.Automatic; } set { MachineState.Global.SetLegacyAutomatic(value); } }
+        public static RunMode SystemMode { get { return MachineState.Global.Current.Mode; } set { MachineState.Global.SetLegacyMode(value); } }
 		public static bool IsTryRun = false;
 
         //Operation Time Record

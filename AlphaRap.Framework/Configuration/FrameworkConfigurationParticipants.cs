@@ -43,7 +43,7 @@ namespace AlphaRap.Configuration
             /// <summary>只接受已提交快照对应的模块，操作中新增模块留待下一次保存。</summary>
             private void AcceptSaved()
             {
-                foreach (ModuleConfiguration configuration in configurations) { configuration.Recipe.AcceptChanges(); configuration.Settings.AcceptChanges(); }
+                foreach (ModuleConfiguration configuration in configurations) { configuration.AcceptRecipeSaved(); configuration.Settings.AcceptChanges(); }
             }
             /// <summary>保留既有统一配方与机器设置恢复入口。</summary>
             public Action PrepareConfigurationDiscard()

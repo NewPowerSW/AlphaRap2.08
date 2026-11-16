@@ -408,6 +408,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Design" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
@@ -616,6 +617,10 @@
       <DependentUpon>SystemSetting.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\MotorProtection.cs" />
+    <Compile Include="Security\PasswordCredentials.cs" />
+    <Compile Include="Security\AccountService.cs" />
+    <Compile Include="Core\MachineState.cs" />
+    <Compile Include="Core\ApplicationTasks.cs" />
     <Compile Include="Core\ApplicationHost.cs" />
     <Compile Include="Core\DeviceOperations.cs" />
     <Compile Include="Core\FrameworkModules.cs" />
@@ -655,6 +660,8 @@
       <DependentUpon>DataForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration\ConfigurationParticipant.cs" />
+    <Compile Include="Configuration\RecipeChange.cs" />
+    <Compile Include="Configuration\ConfigurationJournal.cs" />
     <Compile Include="Configuration\FrameworkConfigurationParticipants.cs" />
     <Compile Include="MenuForm\HardForm.Configuration.cs" />
     <Compile Include="MenuForm\VPForm.Configuration.cs" />

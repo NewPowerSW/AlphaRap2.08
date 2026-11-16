@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using NPSDK;
 
 namespace AlphaRap
@@ -11,7 +12,7 @@ namespace AlphaRap
         private readonly Action resetInitialization;
 
         public volatile bool bStopWork = false;
-        Thread FlowControlThread = null; 
+        private Task work = Task.FromResult(0);
 
         /// <summary>创建通用 IO 与电机保护扫描。</summary>
         public FlowControl() : this(null, null, null) { }
@@ -27,19 +28,20 @@ namespace AlphaRap
         /// <summary>启动 IO、模块周期和电机保护的后台扫描。</summary>
         public void StartThread()
         {
+            if (!work.IsCompleted) return;
             bStopWork = false;
-            FlowControlThread = new Thread(DoWork);
-            FlowControlThread.Start();
+            work = Task.Factory.StartNew(DoWork, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            ApplicationTasks.Global.Track("Scan", work, () => { StopThread(); return Task.FromResult(0); });
         }
 
-        /// <summary>通知扫描线程退出并等待完成；扫描线程自身调用时只发送退出信号。</summary>
+        /// <summary>通知扫描任务退出，不阻塞调用方消息循环。</summary>
         public void StopThread()
         {
             bStopWork = true;
-            Thread worker = FlowControlThread;
-            if (worker == null || worker == Thread.CurrentThread || !worker.IsAlive) return;
-            worker.Join();
         }
+
+        /// <summary>异步等待实际扫描退出，退出前仍保留任务占用。</summary>
+        public async Task StopAsync() { StopThread(); await work.ConfigureAwait(false); }
 
         /// <summary>按既有扫描间隔处理设备任务，累计运行时间和每秒扫描次数。</summary>
         public void DoWork()
@@ -91,14 +93,14 @@ namespace AlphaRap
         /// <summary>进入初始化状态并通知应用清除旧式初始化状态。</summary>
         public void InitialReset()
         {
-            SysPara.SystemMode = RunMode.INITIAL;
+            MachineState.Global.Initialize();
             resetInitialization?.Invoke();
         }
 
         /// <summary>将扫描统计的运行模式切换为自动运行。</summary>
         public void RunReset()
         {
-            SysPara.SystemMode = RunMode.RUN;
+            MachineState.Global.Start(true);
         }
     }
 }
