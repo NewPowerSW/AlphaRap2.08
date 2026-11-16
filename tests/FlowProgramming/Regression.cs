@@ -1336,13 +1336,13 @@ internal static partial class Cases
     /// <summary>Exercise the actual toolbox button without losing selection, changing node layout or bypassing editing permissions.</summary>
     private static void VerifyToolboxDock(Flow page)
     {
-        SplitContainer workspace = ActionControl<SplitContainer>(page, "flowWorkspace");
-        Button toggle = ActionControl<Button>(page, "toolboxToggle_dyn");
-        FlowToolboxControl toolbox = ActionControl<FlowToolboxControl>(page, "flowToolbox");
+        SplitContainer workspace = ActionControl<SplitContainer>(page, "workspace");
+        Button toggle = ActionControl<Button>(page, "toolboxToggle");
+        FlowToolboxControl toolbox = ActionControl<FlowToolboxControl>(page, "toolbox");
         TreeView tree = ActionControl<TreeView>(toolbox, "toolboxEntries");
         TextBox search = ActionControl<TextBox>(toolbox, "toolboxSearch");
         CheckBox edit = ActionControl<CheckBox>(page, "edit");
-        Control status = ActionControl<Control>(page, "flowStatus_dyn");
+        Control status = ActionControl<Control>(page, "status");
         Assert(workspace.Panel1Collapsed && toggle.Image != null && toggle.Text == "" && toggle.Visible,
             "The toolbox did not start as a single, visible icon.");
         Assert(page.Controls.Find("add", true).Length == 0, "The separate Add node button remains in the flow toolbar.");
@@ -1422,7 +1422,7 @@ internal static partial class Cases
                     Assert(row.AutoSize && row.Controls.Cast<Control>().Where(control => control.Visible).All(control => row.ClientRectangle.Contains(control.Bounds)),
                         "A compact flow command or entry was clipped: " + name + " / " + language + " / " + width);
                 }
-                Control workspace = page.Controls.Find("flowWorkspace", true).Single();
+                Control workspace = ActionControl<SplitContainer>(page, "workspace");
                 Assert(workspace.Top < 180 && workspace.Height > 300, "Fixed toolbar whitespace squeezed the flow canvas.");
                 Screenshot(page, "flow-compact-" + language + "-" + width);
             }

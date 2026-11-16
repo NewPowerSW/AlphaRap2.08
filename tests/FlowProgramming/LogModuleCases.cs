@@ -151,8 +151,8 @@ internal static partial class Cases
             using (LogModulesForm dialog = new LogModulesForm(fixture.Form))
             {
                 dialog.Show(); Application.DoEvents();
-                TextBox name = (TextBox)dialog.Controls.Find("logModuleName", true).Single(); name.Text = "Unsaved name";
-                DataGridView fields = (DataGridView)dialog.Controls.Find("logFields", true).Single(); fields.Rows[1].Cells[0].Value = "NewWeight";
+                TextBox name = ActionControl<TextBox>(dialog, "moduleName"); name.Text = "Unsaved name";
+                DataGridView fields = ActionControl<DataGridView>(dialog, "fields"); fields.Rows[1].Cells[0].Value = "NewWeight";
                 foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
                 {
                     SwitchLanguage(language); Application.DoEvents();

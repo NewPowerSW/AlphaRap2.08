@@ -902,7 +902,7 @@ internal static partial class Cases
                 tabs.TabPages.Add(new TabPage(other.Name) { Tag = second });
                 IntPtr formHandle = view.Handle;
                 IntPtr tabHandle = tabs.Handle;
-                FlowToolboxControl toolbox = ActionControl<FlowToolboxControl>(view, "flowToolbox");
+                FlowToolboxControl toolbox = ActionControl<FlowToolboxControl>(view, "toolbox");
                 TreeView tree = ActionControl<TreeView>(toolbox, "toolboxEntries");
                 foreach (int index in new[] { 1, 0, 1 })
                 {

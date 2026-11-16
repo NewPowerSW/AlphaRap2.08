@@ -60,7 +60,11 @@ internal static partial class Cases
     /// <summary>Find a designer-owned child by its stable name.</summary>
     private static T ActionControl<T>(Control owner, string name) where T : Control
     {
-        return (T)owner.Controls.Find(name, true).Single();
+        Control[] matches = owner.Controls.Find(name, true);
+        Assert(matches.Length == 1, "Expected one control named '" + name + "' in " + owner.GetType().Name + "; found " + matches.Length + ".");
+        T control = matches[0] as T;
+        Assert(control != null, "Control '" + name + "' in " + owner.GetType().Name + " must be " + typeof(T).Name + "; found " + matches[0].GetType().Name + ".");
+        return control;
     }
 
     /// <summary>Serialize all persisted fields so validation and cancellation can be checked without migration.</summary>
