@@ -368,6 +368,26 @@ namespace AlphaRap
             }
         }
 
+        /// <summary>显式创建带采集和定位工具的内存算法草稿；已有算法只加载，文件由主保存提交。</summary>
+        public bool TryCreateTemplateTB(string path, bool calibration, out string error)
+        {
+            lock (_operationLock)
+            {
+                if (!CanModifyToolBlock()) return FailOperation(FrameworkLanguage.LangMsg("Vision", "error_BusyCreate", "工位正在运行或编辑，不能新建 VPP。", "Station is running or being edited; VPP cannot be created.", "La estación está ejecutándose o en edición; no se puede crear un VPP."), out error);
+                if (File.Exists(path)) return TryLoadTB(path, out error);
+                try
+                {
+                    CogToolBlock template = VpAlgorithmTemplates.Create(calibration, RunLiveCCDSN, RunExposure);
+                    TB = template; TBPath = path; IsLoadTBOk = true;
+                    ModelSignature = ""; _hasToolBlockDraft = true; _toolBlockWasSaved = false;
+                    IsAccept = false; _lastRunResult = null; _toolBlockRevision++;
+                    LastError = error = "";
+                    return true;
+                }
+                catch (Exception failure) { return FailOperation(failure.Message, out error); }
+            }
+        }
+
         /// <summary>同步保存当前 VPP，不重新加载或替换正在编辑的 ToolBlock。</summary>
         public void SaveTB()
         {

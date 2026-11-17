@@ -785,6 +785,7 @@
       <DependentUpon>TBEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Vision\VisionproInterface.cs" />
+    <Compile Include="Vision\VpAlgorithmTemplates.cs" />
     <Compile Include="Vision\VpStation.cs" />
     <Compile Include="Vision\VpProductionBinding.cs" />
     <!-- 标定卡：布局写在设计器里（VS 设计视图看到的就是 EXE 里的样子），VPForm 按相机实例化 -->
@@ -1022,5 +1023,9 @@
     <Compile Include="FlowProgramming\FlowToolboxControl.Designer.cs">
       <DependentUpon>FlowToolboxControl.cs</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Vision\Templates\Positioning.txt" />
+    <EmbeddedResource Include="Vision\Templates\RotationCenter.txt" />
   </ItemGroup>
 </Project>

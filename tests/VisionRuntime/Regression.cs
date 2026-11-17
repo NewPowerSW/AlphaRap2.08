@@ -30,7 +30,7 @@ internal static class Program
             }
             return null;
         };
-        return Tests.RunAll();
+        return Tests.RunAll(args.Contains("--built-in-only"));
     }
 }
 
@@ -73,11 +73,17 @@ internal static partial class Tests
     private static readonly Type LanguageHost = typeof(VPForm).Assembly.GetType("AlphaRap.FrameworkLanguage", true);
 
     /// <summary>执行各独立场景，失败时返回非零退出码。</summary>
-    public static int RunAll()
+    public static int RunAll(bool builtInOnly = false)
     {
         Directory.CreateDirectory(TestDirectory);
         SysPara.LanguageDataDirectory = Path.Combine(TestDirectory, "language");
         LanguageHost.GetField("_langDocs", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, null);
+        RunBuiltInAlgorithmTests();
+        if (builtInOnly)
+        {
+            Console.WriteLine("RESULT: " + _passed + "/" + (_passed + _failed) + " passed");
+            return _failed == 0 ? 0 : 1;
+        }
         Run("successful run captures immutable coordinates", Success);
         Run("capture SN and format remain fixed through completion and cancellation", ProductCaptureIdentity);
         Run("duplicate run and mutation while busy are rejected", Busy);

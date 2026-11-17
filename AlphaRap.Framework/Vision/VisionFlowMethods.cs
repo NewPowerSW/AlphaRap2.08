@@ -36,9 +36,12 @@ namespace AlphaRap
                 if (TB != null)
                 {
                     foreach (CogToolBlockTerminal terminal in TB.Inputs)
+                    {
+                        if (VpAlgorithmTemplates.IsManagedInput(TB, terminal.Name)) continue;
                         run.Inputs.Add(new FlowField("TB:" + terminal.Name, terminal.ValueType, Convert.ToString(terminal.Value, CultureInfo.InvariantCulture)) {
                             DisplayName = new[] { terminal.Name, terminal.Name, terminal.Name }
                         });
+                    }
                     foreach (CogToolBlockTerminal terminal in TB.Outputs) run.Outputs.Add(new FlowField("TB:" + terminal.Name, terminal.ValueType) {
                         DisplayName = new[] { terminal.Name, terminal.Name, terminal.Name }
                     });

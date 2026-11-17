@@ -1134,6 +1134,9 @@ namespace AlphaRap
 			vpp.Name = name;
 			vpp.FolderName = name;
 			vpp.Exposure = cam.Exposure;      // 新 VPP 继承相机的默认曝光
+
+            CreateStation(cam, vpp);
+            if (!CreateBuiltInAlgorithm(vpp.Station, false)) return;
 			cam.Vpps.Add(vpp);
 
 			TabPage page = BuildVppPage(cam, vpp, vppTabs);
@@ -1384,8 +1387,9 @@ namespace AlphaRap
 			if (vpp == null || vpp.Station == null) return;
 			if (!EnsureIdle(T("vpAct_Edit", "编辑视觉算法"))) return;
 			string error;
-			if (!vpp.Station.IsLoadTBOk && !vpp.Station.TryCreateTB(vpp.Station.GetVppPath(SysPara.RecipeName), out error))
+			if (!vpp.Station.IsLoadTBOk && !vpp.Station.TryCreateTemplateTB(vpp.Station.GetVppPath(SysPara.RecipeName), false, out error))
 			{ MessageBox.Show(error, T("vpMsg_Title", "提示")); return; }
+            VpAlgorithmTemplates.Configure(vpp.Station.TB, vpp.Station.RunLiveCCDSN, vpp.Station.RunExposure);
 			vpp.Station.EditTB();
 		}
 
@@ -2250,6 +2254,11 @@ namespace AlphaRap
 
 			// 创建标定站、按当前配方加载 vpp，并挂到相机共用的显示控件上
 			EnsureCalibrationStation(entry, calib);
+            if (!CreateBuiltInAlgorithm(calib.Station, true))
+            {
+                _config.Calibrations.Remove(entry.Key);
+                return;
+            }
 
 			MarkVpConfigDraft();
 			RefreshCalibrationCard(entry);
@@ -2263,10 +2272,22 @@ namespace AlphaRap
 			if (calib == null || calib.Station == null) return;
 			OperationLog.Write("VPForm", "打开 ToolBlock 编辑：相机 " + entry.Key);
 			string error;
-			if (!calib.Station.IsLoadTBOk && !calib.Station.TryCreateTB(calib.Station.GetVppPath(SysPara.RecipeName), out error))
+			if (!calib.Station.IsLoadTBOk && !calib.Station.TryCreateTemplateTB(calib.Station.GetVppPath(SysPara.RecipeName), true, out error))
 			{ MessageBox.Show(error, T("vpMsg_Title", "提示")); return; }
+            VpAlgorithmTemplates.Configure(calib.Station.TB, calib.Station.RunLiveCCDSN, calib.Station.RunExposure);
 			calib.Station.EditTB();
 		}
+
+        /// <summary>在新增入口建立标准算法，失败时撤销未加入配置的工位，不产生磁盘文件。</summary>
+        private bool CreateBuiltInAlgorithm(VpStation station, bool calibration)
+        {
+            string error;
+            if (station.TryCreateTemplateTB(station.GetVppPath(SysPara.RecipeName), calibration, out error)) return true;
+            station.RunCompleted -= OnStationRunCompleted;
+            VisionproInterface.VList.Remove(station);
+            MessageBox.Show(error, T("vpMsg_Title", "提示"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return false;
+        }
 
 		/// <summary>应用标定专用曝光（与各 VPP 的曝光独立）；标定尚未创建时，值在点【添加标定】时采用。</summary>
 		private void ApplyCalibrationExposure(CameraEntry entry, TextBox box)
@@ -2405,8 +2426,13 @@ namespace AlphaRap
 
 			List<string> failures = new List<string>();
 			int okCount = PushCalibrationToTargets(entry, points, calib.ToolName, failures);
+            if (VpAlgorithmTemplates.IsBuiltIn(calib.Station.TB))
+            {
+                CalibApplyInfo ownInfo;
+                if (!calib.Station.SetCalibrationDraft(points, calib.ToolName, out ownInfo)) failures.Add(ownInfo.Error);
+            }
 
-			if (okCount == entry.Targets.Count)
+			if (okCount == entry.Targets.Count && failures.Count == 0)
 			{
 				try
 				{

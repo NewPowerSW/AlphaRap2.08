@@ -1,0 +1,76 @@
+using System;
+using Cognex.VisionPro;
+using Cognex.VisionPro.ToolBlock;
+using Cognex.VisionPro.ToolGroup;
+
+public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
+{
+    private CogToolBlock block;
+
+    /// <summary>绑定独立的旋转中心工具。</summary>
+    public override void Initialize(CogToolGroup host) { base.Initialize(host); block = (CogToolBlock)host; }
+
+    /// <summary>用实际 R 角度拟合固定相机下的正弦旋转轨迹，允许仿射成像下的椭圆投影。</summary>
+    public override bool GroupRun(ref string message, ref CogToolResultConstants result)
+    {
+        foreach (string name in new[] { "CenterX", "CenterY", "RmsError" }) block.Outputs[name].Value = double.NaN;
+        try
+        {
+            Fit((double[])block.Inputs["PixelX"].Value, (double[])block.Inputs["PixelY"].Value, (double[])block.Inputs["AnglesDegrees"].Value);
+            message = ""; result = CogToolResultConstants.Accept;
+        }
+        catch (Exception error) { message = error.Message; result = CogToolResultConstants.Error; }
+        return false;
+    }
+
+    /// <summary>分别拟合 x/y 的常数、cos 和 sin 系数，拒绝缺失或退化采样。</summary>
+    private void Fit(double[] x, double[] y, double[] angles)
+    {
+        if (x == null || y == null || angles == null || x.Length != y.Length || x.Length != angles.Length || x.Length < 3)
+            throw new ArgumentException(Text("请提供至少三组对应的 PixelX/PixelY/AnglesDegrees 采样。", "Supply at least three matching PixelX/PixelY/AnglesDegrees samples.", "Introduzca al menos tres muestras correspondientes de PixelX/PixelY/AnglesDegrees."));
+        double meanX = 0, meanY = 0, meanCos = 0, meanSin = 0;
+        double[] cosine = new double[x.Length], sine = new double[x.Length];
+        for (int i = 0; i < x.Length; i++)
+        {
+            if (!Finite(x[i]) || !Finite(y[i]) || !Finite(angles[i])) throw new ArgumentException(Text("旋转采样必须为有限数值。", "Rotation samples must be finite.", "Las muestras de rotación deben ser valores finitos."));
+            double radians = (angles[i] % 360.0) * Math.PI / 180.0;
+            cosine[i] = Math.Cos(radians); sine[i] = Math.Sin(radians);
+            meanX += x[i] / x.Length; meanY += y[i] / y.Length;
+            meanCos += cosine[i] / x.Length; meanSin += sine[i] / x.Length;
+        }
+        double cc = 0, cs = 0, ss = 0, cx = 0, sx = 0, cy = 0, sy = 0, variation = 0;
+        for (int i = 0; i < x.Length; i++)
+        {
+            double c = cosine[i] - meanCos, s = sine[i] - meanSin, u = x[i] - meanX, v = y[i] - meanY;
+            cc += c * c; cs += c * s; ss += s * s;
+            cx += c * u; sx += s * u; cy += c * v; sy += s * v; variation += u * u + v * v;
+        }
+        double determinant = cc * ss - cs * cs;
+        if (!Finite(determinant) || variation <= 1e-12 || determinant <= 1e-6 * (cc + ss) * (cc + ss))
+            throw new ArgumentException(Text("旋转角度重复、转动范围不足或特征未发生位移。", "Rotation angles are repeated, cover too little rotation, or the feature did not move.", "Los ángulos se repiten, cubren muy poca rotación o la característica no se movió."));
+        double ax = (cx * ss - sx * cs) / determinant, bx = (sx * cc - cx * cs) / determinant;
+        double ay = (cy * ss - sy * cs) / determinant, by = (sy * cc - cy * cs) / determinant;
+        double centerX = meanX - ax * meanCos - bx * meanSin, centerY = meanY - ay * meanCos - by * meanSin, error = 0;
+        for (int i = 0; i < x.Length; i++)
+        {
+            double dx = x[i] - centerX - ax * cosine[i] - bx * sine[i];
+            double dy = y[i] - centerY - ay * cosine[i] - by * sine[i];
+            error += dx * dx + dy * dy;
+        }
+        if (!Finite(centerX) || !Finite(centerY) || !Finite(error)) throw new ArgumentException(Text("旋转拟合结果不是有限数值。", "The fitted rotation is not finite.", "La rotación calculada no es finita."));
+        block.Outputs["CenterX"].Value = centerX; block.Outputs["CenterY"].Value = centerY;
+        block.Outputs["RmsError"].Value = Math.Sqrt(error / x.Length);
+    }
+
+    /// <summary>识别有效浮点采样。</summary>
+    private static bool Finite(double value) { return !double.IsNaN(value) && !double.IsInfinity(value); }
+
+    /// <summary>按标定工具的语言输入显示采样错误。</summary>
+    private string Text(string chinese, string english, string spanish)
+    {
+        int language = Convert.ToInt32(block.Inputs["Language"].Value);
+        if (block.UserData.Contains("MessageLanguage") && Convert.ToInt32(block.UserData["MessageLanguage"]) == language && block.UserData.Contains("Message." + english))
+            return Convert.ToString(block.UserData["Message." + english]);
+        return language == 0 ? chinese : language == 1 ? english : spanish;
+    }
+}

@@ -713,13 +713,21 @@ namespace AlphaRap
         public override void VisionRun()
         {
             IsAccept = false;
+            if (VpAlgorithmTemplates.IsBuiltIn(TB) && SysPara.SystemMode == RunMode.RUN && Convert.ToBoolean(TB.Inputs["UseInputImage"].Value))
+                throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "template_OfflineProduction", "内置定位仍处于离线图像模式，请取消 UseInputImage 后保存再生产。", "The built-in locator is in offline image mode. Disable UseInputImage and save before production.", "El localizador integrado usa una imagen sin conexión. Desactive UseInputImage y guarde antes de producir."));
+            VpAlgorithmTemplates.Configure(TB, RunLiveCCDSN, RunExposure);
             TB.Run();
-            if (TB.RunStatus.Result != Cognex.VisionPro.CogToolResultConstants.Accept) return;
-            if (Kind == VpStationKind.Custom) { IsAccept = true; return; }
+            if (TB.RunStatus.Result != Cognex.VisionPro.CogToolResultConstants.Accept)
+            {
+                if (VpAlgorithmTemplates.IsBuiltIn(TB) && TB.RunStatus.Result == CogToolResultConstants.Error)
+                    throw new InvalidOperationException(TB.RunStatus.Message);
+                return;
+            }
+            if (Kind == VpStationKind.Custom && !VpAlgorithmTemplates.IsBuiltIn(TB)) { IsAccept = true; return; }
 
             double x = ReadPositionOutput("x");
             double y = ReadPositionOutput("y");
-            double angle = Kind == VpStationKind.Fiducial ? ReadPositionOutput("A") : 0;
+            double angle = Kind != VpStationKind.Calibration ? ReadPositionOutput("A") : 0;
             if (Kind == VpStationKind.Calibration)
             {
                 Calibration.x = x;
@@ -727,6 +735,7 @@ namespace AlphaRap
             }
             else { Fiducial.x = x; Fiducial.y = y; Fiducial.u = angle; }
 
+            if (Kind == VpStationKind.Custom) { IsAccept = true; return; }
             ValidateCompensation("X", x);
             ValidateCompensation("Y", y);
             if (Kind == VpStationKind.Fiducial) ValidateCompensation(Config != null && Config.GetCompLimit("R") != null ? "R" : "角度", angle);
@@ -760,6 +769,8 @@ namespace AlphaRap
         /// <summary>捕获本次定位坐标，生产流程不再读取随后可能改变的公共位置字段。</summary>
         protected override VisionRunResult CaptureRunResult(long runId)
         {
+            if (!IsAccept && VpAlgorithmTemplates.IsBuiltIn(TB))
+                return new VisionRunResult(runId, VisionRunState.Rejected, TB.RunStatus.Message, double.NaN, double.NaN, double.NaN);
             if (!IsAccept) return base.CaptureRunResult(runId);
             Pos4D position = Kind == VpStationKind.Calibration ? Calibration : Fiducial;
             return new VisionRunResult(runId, VisionRunState.Succeeded, "", position.x, position.y, position.u);

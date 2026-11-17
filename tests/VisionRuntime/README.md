@@ -1,5 +1,7 @@
 # 视觉运行回归测试
 
+新增标定／VPP 的内置算法说明见 `docs/VisionBuiltInAlgorithms.md`。只运行内置算法专项可使用 `./tests/VisionRuntime/Run.ps1 -AssemblyDirectory <构建输出目录> -BuiltInOnly`，覆盖标准工具创建、真实模板训练定位、九点坐标转换、旋转中心拟合、算法保存重载与新增入口的主保存草稿。
+
 测试针对项目真实构建产物，不连接相机或 PLC。需要本机已安装的 .NET Framework 4.8、Visual Studio MSBuild 和 Cognex VisionPro。
 
 在项目根目录的 Visual Studio Developer PowerShell 中构建到独立目录，避免覆盖现有运行程序：
