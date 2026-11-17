@@ -27,6 +27,7 @@ internal static partial class Tests
         Run("built-in VPP scripts and rotation samples survive save and reload", BuiltInRoundTrip);
         Run("camera add calibration and add VPP create main-save drafts", BuiltInCreationEntries);
         Run("built-in script messages honor site translations and preserve image inputs", BuiltInLanguage);
+        Run("legacy reserved criteria keep their values without blocking the production row", LegacyReservedCriteria);
     }
 
     /// <summary>标定包含原始像素定位、九点标定和独立旋转算法；生产 VPP 包含定位和标定工具。</summary>
@@ -313,5 +314,45 @@ internal static partial class Tests
                 Check((bool)block.Inputs["UseInputImage"].Value, "Language refresh changed the edited input mode.");
             }
         });
+    }
+
+    /// <summary>预留判据可保留零范围，当前生产行仍严格校验，非法数值不进入快照。</summary>
+    private static void LegacyReservedCriteria()
+    {
+        List<VisionproInterface> previous = VisionproInterface.VList.ToList();
+        try
+        {
+            using (StationVisionForm form = new StationVisionForm())
+            {
+                MethodInfo validate = typeof(StationVisionForm).GetMethod("ValidateRecipeCriteria", BindingFlags.Static | BindingFlags.NonPublic);
+                System.Data.DataTable table = form.RecipeData.Tables["tb_H1_Visdata"];
+                for (int index = 0; index < 6; index++)
+                {
+                    System.Data.DataRow row = table.NewRow();
+                    row["Enable"] = true; row["X"] = 100.0 + index; row["Y"] = 200.0 + index; row["U"] = 10.0 + index;
+                    foreach (string axis in new[] { "X", "Y", "U" }) { row[axis + "_Low"] = index < 2 ? -5.0 : 0.0; row[axis + "_Hi"] = index < 2 ? 5.0 : 0.0; }
+                    table.Rows.Add(row);
+                }
+                string before = form.RecipeData.GetXml(); string error;
+                form.ConfigurationData.ValidateRecipe(form.RecipeData);
+                Check(form.TryLoadVisionCriteria(out error), error);
+                Check(form.dgv_H1_VisionData_List.Count == 6 && form.dgv_H1_VisionData_List[2].Enable && form.dgv_H1_VisionData_List[2].X == 102 && form.dgv_H1_VisionData_List[2].X_Low == 0 && form.dgv_H1_VisionData_List[2].X_Hi == 0, "Reserved criterion values changed.");
+                StationVisionForm.VisionPostData active;
+                Check(form.TryGetProductionVisionData(out active, out error) && active.Point == 0 && active.X_Low == -5 && active.X_Hi == 5, "Production no longer uses the validated first criterion.");
+                Check(before == form.RecipeData.GetXml(), "Validation rewrote the recipe.");
+                table.Rows[0]["X_Low"] = 5.0;
+                ExpectFailure(() => validate.Invoke(null, new object[] { form.RecipeData }));
+                Check(!form.TryLoadVisionCriteria(out error) && form.dgv_H1_VisionData_List.Count == 0, "Invalid production limits retained a usable snapshot.");
+                table.Rows[0]["X_Low"] = -5.0; table.Rows[2]["Y"] = double.NaN;
+                ExpectFailure(() => validate.Invoke(null, new object[] { form.RecipeData }));
+                table.Rows[2]["Enable"] = false;
+                form.ConfigurationData.ValidateRecipe(form.RecipeData);
+                Check(form.TryLoadVisionCriteria(out error) && !form.dgv_H1_VisionData_List[2].Enable, "Disabled historical rows were rejected.");
+            }
+        }
+        finally
+        {
+            foreach (VisionproInterface station in VisionproInterface.VList.Except(previous).ToArray()) { if (station.TB != null) station.TB.Dispose(); VisionproInterface.VList.Remove(station); }
+        }
     }
 }

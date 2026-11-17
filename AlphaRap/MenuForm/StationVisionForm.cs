@@ -66,6 +66,7 @@ namespace AlphaRap
         /// 数据来自配方表 tb_H1_Visdata，由 <see cref="Getdgv_H1_VisionDataList"/> 加载。
         /// </summary>
         public List<VisionPostData> dgv_H1_VisionData_List = new List<VisionPostData>();
+        private const int ProductionCriterionRow = 0;
         private string _visionDataError;
 
         /// <summary>把配方表 tb_H1_Visdata 刷进 <see cref="dgv_H1_VisionData_List"/>。</summary>
@@ -83,7 +84,7 @@ namespace AlphaRap
                 DataTable table = RecipeData.Tables["tb_H1_Visdata"];
                 if (table == null || table.Rows.Count == 0) throw new InvalidOperationException(ApplicationHost.Text("VPForm", "vpError_NoCriteria", "配方缺少视觉判据 tb_H1_Visdata。", "Recipe is missing vision criteria tb_H1_Visdata.", "La receta no contiene los criterios de visión tb_H1_Visdata."));
                 List<VisionPostData> values = new List<VisionPostData>();
-                for (int i = 0; i < table.Rows.Count; i++) values.Add(ReadVisionCriterion(table.Rows[i], i));
+                for (int i = 0; i < table.Rows.Count; i++) values.Add(ReadVisionCriterion(table.Rows[i], i, i == ProductionCriterionRow));
                 dgv_H1_VisionData_List = values;
                 _visionDataError = error = "";
                 return true;
@@ -96,16 +97,16 @@ namespace AlphaRap
             }
         }
 
-        /// <summary>在整份配方应用前验证本站视觉判据，失败时保留旧模型和生产快照。</summary>
+        /// <summary>配方应用前检查启用行数值与当前生产行范围，历史预留行保留原值。</summary>
         private static void ValidateRecipeCriteria(DataSet recipe)
         {
             DataTable table = recipe.Tables["tb_H1_Visdata"];
             if (table == null || table.Rows.Count == 0) throw new InvalidOperationException(ApplicationHost.Text("VPForm", "vpError_NoCriteria", "配方缺少视觉判据 tb_H1_Visdata。", "Recipe is missing vision criteria tb_H1_Visdata.", "La receta no contiene los criterios de visión tb_H1_Visdata."));
-            for (int i = 0; i < table.Rows.Count; i++) ReadVisionCriterion(table.Rows[i], i);
+            for (int i = 0; i < table.Rows.Count; i++) ReadVisionCriterion(table.Rows[i], i, i == ProductionCriterionRow);
         }
 
-        /// <summary>按列名读取一行生产判据，启用时上下限必须有效。</summary>
-        private static VisionPostData ReadVisionCriterion(DataRow row, int index)
+        /// <summary>按列名读取启用行的有限数值，仅对实际用于生产的行检查上下限顺序。</summary>
+        private static VisionPostData ReadVisionCriterion(DataRow row, int index, bool validateRange)
         {
             VisionPostData data = new VisionPostData { Point = index, Enable = Convert.ToBoolean(row["Enable"]) };
             if (!data.Enable) return data;
@@ -118,7 +119,7 @@ namespace AlphaRap
             data.Y_Hi = ReadVisionNumber(row, "Y_Hi");
             data.R_Low = ReadVisionNumber(row, "U_Low");
             data.R_Hi = ReadVisionNumber(row, "U_Hi");
-            if (data.X_Low >= data.X_Hi || data.Y_Low >= data.Y_Hi || data.R_Low >= data.R_Hi)
+            if (validateRange && (data.X_Low >= data.X_Hi || data.Y_Low >= data.Y_Hi || data.R_Low >= data.R_Hi))
                 throw new InvalidOperationException(ApplicationHost.Text("VPForm", "vpError_RowA", "第 ", "Row ", "Fila ") + (index + 1) + ApplicationHost.Text("VPForm", "vpError_RowB", " 行视觉判据下限必须小于上限。", ": vision lower limit must be below the upper limit.", ": el límite inferior de visión debe ser menor que el superior."));
             return data;
         }
@@ -143,7 +144,7 @@ namespace AlphaRap
                 if (string.IsNullOrEmpty(error)) error = ApplicationHost.Text("VPForm", "vpError_CriteriaNotLoaded", "生产视觉判据尚未加载。", "Production vision criteria are not loaded.", "Los criterios de visión de producción no están cargados.");
                 return false;
             }
-            data = values[0];
+            data = values[ProductionCriterionRow];
             error = "";
             return true;
         }

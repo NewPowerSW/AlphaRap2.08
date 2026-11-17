@@ -437,15 +437,15 @@ internal static partial class Tests
         row["Enable"] = true;
         foreach (string name in names) if (name != "Enable") row[name] = name.EndsWith("Low") ? -10 : 10;
         MethodInfo read = typeof(StationVisionForm).GetMethod("ReadVisionCriterion", BindingFlags.Static | BindingFlags.NonPublic);
-        StationVisionForm.VisionPostData result = (StationVisionForm.VisionPostData)read.Invoke(null, new object[] { row, 0 });
+        StationVisionForm.VisionPostData result = (StationVisionForm.VisionPostData)read.Invoke(null, new object[] { row, 0, true });
         Check(result.X_Low == -10 && result.R_Hi == 10, "Column mapping failed.");
         row["X_Low"] = 20;
-        ExpectFailure(() => read.Invoke(null, new object[] { row, 0 }));
+        ExpectFailure(() => read.Invoke(null, new object[] { row, 0, true }));
         row["X_Low"] = double.NaN;
-        ExpectFailure(() => read.Invoke(null, new object[] { row, 0 }));
+        ExpectFailure(() => read.Invoke(null, new object[] { row, 0, true }));
         row = table.NewRow();
         row["Enable"] = false;
-        result = (StationVisionForm.VisionPostData)read.Invoke(null, new object[] { row, 0 });
+        result = (StationVisionForm.VisionPostData)read.Invoke(null, new object[] { row, 0, true });
         Check(!result.Enable, "Disabled criterion was rejected.");
     }
 
