@@ -1026,6 +1026,8 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Vision\Templates\Positioning.txt" />
+    <EmbeddedResource Include="Vision\Templates\Acquisition.txt" />
+    <EmbeddedResource Include="Vision\Templates\PositionResult.txt" />
     <EmbeddedResource Include="Vision\Templates\RotationCenter.txt" />
   </ItemGroup>
 </Project>

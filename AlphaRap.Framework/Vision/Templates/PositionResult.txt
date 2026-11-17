@@ -1,0 +1,61 @@
+using System;
+using Cognex.VisionPro;
+using Cognex.VisionPro.CalibFix;
+using Cognex.VisionPro.PMAlign;
+using Cognex.VisionPro.ToolBlock;
+using Cognex.VisionPro.ToolGroup;
+
+public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
+{
+    private CogToolBlock block;
+    /// <summary>绑定连接了匹配结果和标定模型的结果节点。</summary>
+    public override void Initialize(CogToolGroup host) { base.Initialize(host); block = (CogToolBlock)host; }
+    /// <summary>读取本次匹配并转换坐标和角度，失败不发布有效坐标。</summary>
+    public override bool GroupRun(ref string message, ref CogToolResultConstants result)
+    {
+        Clear();
+        try
+        {
+            CogPMAlignResults matches = block.Inputs["Matches"].Value as CogPMAlignResults;
+            int count = matches == null ? 0 : matches.Count;
+            block.Outputs["MatchCount"].Value = count;
+            if (count == 0)
+            {
+                result = CogToolResultConstants.Reject;
+                message = Text("未找到满足分数要求的定位特征。", "No feature met the matching score.", "Ninguna característica alcanzó la puntuación requerida.");
+                return false;
+            }
+            CogTransform2DLinear pose = matches[0].GetPose();
+            double x = pose.TranslationX, y = pose.TranslationY, angle = pose.Rotation;
+            CogCalibNPointToNPoint calibration = block.Inputs["CalibrationModel"].Value as CogCalibNPointToNPoint;
+            bool calibrated = Convert.ToBoolean(block.Inputs["UseCalibration"].Value) && calibration != null && calibration.Calibrated;
+            if (calibrated)
+            {
+                ICogTransform2D transform = calibration.GetComputedUncalibratedFromCalibratedTransform().InvertBase();
+                double directionX, directionY;
+                transform.MapPoint(x + Math.Cos(angle), y + Math.Sin(angle), out directionX, out directionY);
+                transform.MapPoint(x, y, out x, out y);
+                angle = Math.Atan2(directionY - y, directionX - x);
+            }
+            block.Outputs["x"].Value = x; block.Outputs["y"].Value = y; block.Outputs["A"].Value = angle * 180.0 / Math.PI;
+            block.Outputs["Score"].Value = matches[0].Score; block.Outputs["Calibrated"].Value = calibrated; block.Outputs["Accepted"].Value = true;
+            result = CogToolResultConstants.Accept; message = "";
+        }
+        catch (Exception error) { Clear(); result = CogToolResultConstants.Error; message = error.Message; }
+        return false;
+    }
+    /// <summary>清空可连接输出，避免前一产品的结果残留。</summary>
+    private void Clear()
+    {
+        block.Outputs["Accepted"].Value = false; block.Outputs["Calibrated"].Value = false;
+        foreach (string name in new[] { "x", "y", "A" }) block.Outputs[name].Value = double.NaN;
+        block.Outputs["Score"].Value = 0.0; block.Outputs["MatchCount"].Value = 0;
+    }
+    /// <summary>优先使用现场语言包，独立运行保留三语底稿。</summary>
+    private string Text(string chinese, string english, string spanish)
+    {
+        int language = Convert.ToInt32(block.Inputs["Language"].Value);
+        if (block.UserData.Contains("MessageLanguage") && Convert.ToInt32(block.UserData["MessageLanguage"]) == language && block.UserData.Contains("Message." + english)) return Convert.ToString(block.UserData["Message." + english]);
+        return language == 0 ? chinese : language == 1 ? english : spanish;
+    }
+}

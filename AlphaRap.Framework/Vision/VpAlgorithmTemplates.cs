@@ -24,7 +24,7 @@ namespace AlphaRap
             try
             {
                 block.Name = calibration ? "CameraCalibration" : "PatternPositioning";
-                block.UserData[TemplateKey] = calibration ? "Calibration/1" : "Positioning/1";
+                block.UserData[TemplateKey] = calibration ? "Calibration/2" : "Positioning/2";
                 AddInput(block, "CameraSN", typeof(string), cameraSN ?? "");
                 AddInput(block, "Exposure", typeof(double), exposure);
                 AddInput(block, "UseInputImage", typeof(bool), false);
@@ -47,6 +47,7 @@ namespace AlphaRap
                 block.Tools.Add(pattern);
                 if (calibration) block.Tools.Add(CreateRotationCenter());
                 block.UserData["RawCalibrationPixels"] = calibration;
+                ConnectGraph(block, calibration);
                 SetScript(block, "Positioning.txt");
                 ApplyDescriptions(block);
                 ApplyMessages(block);
@@ -79,7 +80,7 @@ namespace AlphaRap
         internal static bool IsManagedInput(CogToolBlock block, string name)
         {
             if (!IsBuiltIn(block)) return false;
-            return name == "CameraSN" || name == "Exposure" || name == "Language" || name == "UseInputImage" || name == "InputImage";
+            return name == "CameraSN" || name == "Exposure" || name == "Language" || name == "UseInputImage" || name == "InputImage" || name == "UseCalibration" || name == "RunRotation" || name == "RotationPixelX" || name == "RotationPixelY" || name == "RotationAnglesDegrees";
         }
 
         /// <summary>按当前相机绑定和本站曝光更新模板输入，保留用户训练数据及其他端口。</summary>
@@ -89,6 +90,8 @@ namespace AlphaRap
             block.Inputs["CameraSN"].Value = cameraSN ?? "";
             block.Inputs["Exposure"].Value = exposure;
             block.Inputs["Language"].Value = (int)SysPara.LanguageShow;
+            if (block.Inputs.Contains("RunRotation")) block.Inputs["RunRotation"].Value = false;
+            if (block.Inputs.Contains("UseCalibration") && Convert.ToBoolean(block.UserData["RawCalibrationPixels"])) block.Inputs["UseCalibration"].Value = false;
             if (block.Tools.Contains(RotationToolName))
                 ((CogToolBlock)block.Tools[RotationToolName]).Inputs["Language"].Value = (int)SysPara.LanguageShow;
             ApplyDescriptions(block);
@@ -108,6 +111,7 @@ namespace AlphaRap
                 AddOutput(block, "CenterX", typeof(double), double.NaN);
                 AddOutput(block, "CenterY", typeof(double), double.NaN);
                 AddOutput(block, "RmsError", typeof(double), double.NaN);
+                AddOutput(block, "Valid", typeof(bool), false);
                 SetScript(block, "RotationCenter.txt");
                 return block;
             }
@@ -143,6 +147,168 @@ namespace AlphaRap
             block.Outputs.Add(new CogToolBlockTerminal(name, value, type));
         }
 
+        /// <summary>建立编辑器可见的图像、模型、匹配结果及旋转样本连接，脚本只调度工具。</summary>
+        private static void ConnectGraph(CogToolBlock block, bool calibration)
+        {
+            CogAcqFifoTool native = (CogAcqFifoTool)block.Tools["AcquireImage"];
+            block.Tools.Remove(native);
+            CogToolBlock capture = CreateAcquisition(native);
+            block.Tools.Insert(0, capture);
+            CogToolBlock output = CreatePositionResult(); block.Tools.Add(output);
+            capture.FailOnInvalidDataBinding = true; output.FailOnInvalidDataBinding = true;
+            block.Outputs.FailOnInvalidDataBinding = true;
+            AddInput(block, "UseCalibration", typeof(bool), !calibration);
+            foreach (string name in new[] { "CameraSN", "Exposure", "UseInputImage", "InputImage", "Language" })
+                Connect(capture, name, block.Inputs, name);
+            CogPMAlignTool pattern = (CogPMAlignTool)block.Tools[PatternToolName];
+            CogCalibNPointToNPointTool coordinates = (CogCalibNPointToNPointTool)block.Tools["Calibration"];
+            pattern.FailOnInvalidDataBinding = true; coordinates.FailOnInvalidDataBinding = true;
+            ExposeTerminal(pattern, "InputImage", true); ExposeTerminal(pattern, "Results", false);
+            ExposeTerminal(coordinates, "InputImage", true); ExposeTerminal(coordinates, "Calibration", false);
+            Connect(pattern, "InputImage", capture, "OutputImage");
+            Connect(coordinates, "InputImage", capture, "OutputImage");
+            Connect(output, "Matches", pattern, "Results");
+            Connect(output, "CalibrationModel", coordinates, "Calibration");
+            Connect(output, "UseCalibration", block.Inputs, "UseCalibration");
+            Connect(output, "Language", block.Inputs, "Language");
+            foreach (CogToolBlockTerminal terminal in output.Outputs) Connect(block.Outputs, terminal.Name, output, terminal.Name);
+            Connect(block.Outputs, "OutputImage", capture, "OutputImage");
+            if (!calibration) return;
+            CogToolBlock rotation = (CogToolBlock)block.Tools[RotationToolName];
+            rotation.FailOnInvalidDataBinding = true;
+            AddInput(block, "RunRotation", typeof(bool), false);
+            foreach (string name in new[] { "PixelX", "PixelY", "AnglesDegrees" })
+            {
+                double[] samples = (double[])rotation.Inputs[name].Value;
+                AddInput(block, "Rotation" + name, typeof(double[]), (double[])samples.Clone());
+                Connect(rotation, name, block.Inputs, "Rotation" + name);
+            }
+            Connect(rotation, "Language", block.Inputs, "Language");
+            foreach (string name in new[] { "CenterX", "CenterY", "RmsError" })
+            {
+                AddOutput(block, name, typeof(double), double.NaN);
+                Connect(block.Outputs, name, rotation, name);
+            }
+            if (!rotation.Outputs.Contains("Valid"))
+            {
+                AddOutput(rotation, "Valid", typeof(bool), false);
+                SetScript(rotation, "RotationCenter.txt");
+            }
+            AddOutput(block, "RotationValid", typeof(bool), false);
+            Connect(block.Outputs, "RotationValid", rotation, "Valid");
+        }
+
+        /// <summary>把相机配置和离线图像收拢为具有实际端口的采集工具块。</summary>
+        private static CogToolBlock CreateAcquisition(CogAcqFifoTool original)
+        {
+            CogToolBlock block = new CogToolBlock { Name = "AcquireImage" };
+            try
+            {
+                AddInput(block, "CameraSN", typeof(string), ""); AddInput(block, "Exposure", typeof(double), 10.0);
+                AddInput(block, "UseInputImage", typeof(bool), false); AddInput(block, "InputImage", typeof(ICogImage), null);
+                AddInput(block, "Language", typeof(int), (int)SysPara.LanguageShow);
+                AddOutput(block, "OutputImage", typeof(ICogImage), null);
+                original.Name = "CameraCapture";
+                block.Tools.Add(original);
+                SetScript(block, "Acquisition.txt");
+                return block;
+            }
+            catch { block.Dispose(); throw; }
+        }
+
+        /// <summary>建立可连接和单步调试的定位结果转换节点。</summary>
+        private static CogToolBlock CreatePositionResult()
+        {
+            CogToolBlock block = new CogToolBlock { Name = "PositionResult" };
+            try
+            {
+                AddInput(block, "Matches", typeof(CogPMAlignResults), null);
+                AddInput(block, "CalibrationModel", typeof(CogCalibNPointToNPoint), null);
+                AddInput(block, "UseCalibration", typeof(bool), false); AddInput(block, "Language", typeof(int), (int)SysPara.LanguageShow);
+                AddOutput(block, "Accepted", typeof(bool), false); AddOutput(block, "Calibrated", typeof(bool), false);
+                foreach (string name in new[] { "x", "y", "A" }) AddOutput(block, name, typeof(double), double.NaN);
+                AddOutput(block, "Score", typeof(double), 0.0); AddOutput(block, "MatchCount", typeof(int), 0);
+                SetScript(block, "PositionResult.txt");
+                return block;
+            }
+            catch { block.Dispose(); throw; }
+        }
+
+        /// <summary>使用编辑器端口定义中的稳定 ID、类型和路径建立原生连接。</summary>
+        private static void Connect(ICogTool target, string input, ICogTool source, string output)
+        {
+            string destinationPath = CogToolTerminals.GetToolInputTerminals(target).Single(terminal => CogToolTerminals.GetTerminalName(terminal) == input);
+            string sourcePath = CogToolTerminals.GetToolOutputTerminals(source).Single(terminal => CogToolTerminals.GetTerminalName(terminal) == output);
+            target.DataBindings.Add(CogToolTerminals.GetTerminalPath(destinationPath), source, CogToolTerminals.GetTerminalPath(sourcePath));
+        }
+
+        /// <summary>把原生工具的数据属性登记为编辑器可见端口，保留已有显示项。</summary>
+        private static void ExposeTerminal(ICogTool tool, string property, bool input)
+        {
+            string[] terminals = (input ? CogToolTerminals.GetToolInputTerminals(tool) : CogToolTerminals.GetToolOutputTerminals(tool)) ?? new string[0];
+            if (terminals.Any(terminal => CogToolTerminals.GetTerminalName(terminal) == property)) return;
+            CogToolTerminals.SetToolTerminals(tool, input, terminals.Concat(new[] { CogToolTerminals.FormatTerminal(property, property) }).ToArray());
+        }
+
+        /// <summary>只升级未经脚本或连线自定义的第一版模板，保留模型、标定、样本及原文件。</summary>
+        internal static bool TryUpgrade(CogToolBlock original, out CogToolBlock upgraded)
+        {
+            upgraded = null;
+            if (!IsBuiltIn(original)) return false;
+            string identity = Convert.ToString(original.UserData[TemplateKey]);
+            if (identity != "Calibration/1" && identity != "Positioning/1") return false;
+            if (!HasStockScript(original, "47C9140F68B2EBAB214D6AF0D5E20689F1694A893B096AEDF5C058DE6E7E193C")) return false;
+            bool calibration = Convert.ToBoolean(original.UserData["RawCalibrationPixels"]);
+            if (original.Tools.Count != (calibration ? 4 : 3) || original.Inputs.Count != 5 || original.Outputs.Count != 8) return false;
+            if (!HasPorts(original.Inputs, new[] { "CameraSN", "Exposure", "UseInputImage", "InputImage", "Language" }, new[] { typeof(string), typeof(double), typeof(bool), typeof(ICogImage), typeof(int) })) return false;
+            if (!HasPorts(original.Outputs, new[] { "Accepted", "x", "y", "A", "Score", "MatchCount", "Calibrated", "OutputImage" }, new[] { typeof(bool), typeof(double), typeof(double), typeof(double), typeof(double), typeof(int), typeof(bool), typeof(ICogImage) })) return false;
+            if (!original.Tools.Contains("AcquireImage") || !(original.Tools["AcquireImage"] is CogAcqFifoTool)) return false;
+            if (!original.Tools.Contains("Calibration") || !(original.Tools["Calibration"] is CogCalibNPointToNPointTool)) return false;
+            if (!original.Tools.Contains(PatternToolName) || !(original.Tools[PatternToolName] is CogPMAlignTool)) return false;
+            if (original.Tools.Cast<ICogTool>().Any(tool => tool.DataBindings.Count != 0)) return false;
+            if (calibration && !HasStockRotation(original)) return false;
+            CogToolBlock copy = (CogToolBlock)CogSerializer.DeepCopyObject(original);
+            try
+            {
+                ConnectGraph(copy, calibration); SetScript(copy, "Positioning.txt");
+                copy.UserData[TemplateKey] = calibration ? "Calibration/2" : "Positioning/2";
+                ApplyDescriptions(copy); ApplyMessages(copy); upgraded = copy;
+                return true;
+            }
+            catch { copy.Dispose(); throw; }
+        }
+
+        /// <summary>仅识别无自定义绑定、禁用工具且脚本内容未改动的已发布范例。</summary>
+        private static bool HasStockScript(CogToolBlock block, string signature)
+        {
+            if (block.Script == null || block.DisabledTools.Count != 0 || block.DataBindings.Count != 0) return false;
+            if (block.Inputs.DataBindings.Count != 0 || block.Outputs.DataBindings.Count != 0) return false;
+            using (var hash = System.Security.Cryptography.SHA256.Create())
+            {
+                string source = block.Script.Source.Replace("\r\n", "\n").Trim();
+                return BitConverter.ToString(hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(source))).Replace("-", "") == signature;
+            }
+        }
+
+        /// <summary>确认旋转子块仍是标准脚本和端口，避免升级覆盖用户编写的计算。</summary>
+        private static bool HasStockRotation(CogToolBlock block)
+        {
+            if (!block.Tools.Contains(RotationToolName)) return false;
+            CogToolBlock rotation = block.Tools[RotationToolName] as CogToolBlock;
+            if (rotation == null || rotation.Tools.Count != 0 || rotation.Inputs.Count != 4 || rotation.Outputs.Count != 3) return false;
+            if (!HasPorts(rotation.Inputs, new[] { "PixelX", "PixelY", "AnglesDegrees", "Language" }, new[] { typeof(double[]), typeof(double[]), typeof(double[]), typeof(int) })) return false;
+            if (!HasPorts(rotation.Outputs, new[] { "CenterX", "CenterY", "RmsError" }, new[] { typeof(double), typeof(double), typeof(double) })) return false;
+            return HasStockScript(rotation, "1C7BEF1EE2C9A112461C421C05FFDC163477CDDB7035F9AC02C882FF75381CA2");
+        }
+
+        /// <summary>确认端口业务键和类型仍与已发布范例相同。</summary>
+        private static bool HasPorts(CogToolBlockTerminalCollection ports, string[] names, Type[] types)
+        {
+            for (int index = 0; index < names.Length; index++)
+                if (!ports.Contains(names[index]) || ports[names[index]].ValueType != types[index]) return false;
+            return true;
+        }
+
         /// <summary>给模板的关键操作提供三语说明，端口名保持稳定。</summary>
         private static void ApplyDescriptions(CogToolBlock block)
         {
@@ -152,6 +318,10 @@ namespace AlphaRap
                 "false：x/y 为像素；true：x/y 为 Calibration 定义的坐标。A 的单位为度。标定采点始终输出像素。",
                 "false: x/y are pixels; true: x/y use the Calibration coordinate space. A is in degrees. Calibration sampling always returns pixels.",
                 "false: x/y en píxeles; true: x/y en el espacio de Calibration. A en grados. Las muestras de calibración siempre usan píxeles.");
+            if (block.Inputs.Contains("UseCalibration")) block.Inputs["UseCalibration"].Description = FrameworkLanguage.LangMsg("Vision", "template_UseCalibration",
+                "使用有效九点标定转换定位坐标；标定采点时保持 false，输出原始像素。", "Use a valid nine-point calibration to transform the pose; keep false when sampling raw calibration pixels.", "Use una calibración válida de nueve puntos para transformar la posición; mantenga false al tomar muestras de píxeles.");
+            if (block.Inputs.Contains("RunRotation")) block.Inputs["RunRotation"].Description = FrameworkLanguage.LangMsg("Vision", "template_RunRotation",
+                "true：只计算 RotationPixelX/RotationPixelY/RotationAnglesDegrees，输出旋转中心和残差；false：采图定位。生产拍照自动使用 false。", "true: calculate rotation samples only, returning center and residual; false: capture and locate. Production capture always uses false.", "true: calcule solo las muestras de rotación y obtenga centro y residuo; false: capture y localice. La captura de producción siempre usa false.");
             if (block.Tools.Contains(RotationToolName))
                 ((CogToolBlock)block.Tools[RotationToolName]).Inputs["PixelX"].Description = FrameworkLanguage.LangMsg("Vision", "template_RotationSamples",
                     "相机和 XY 保持不动；输入同一特征的 PixelX/PixelY 及对应 R 轴实际角度 AnglesDegrees。中心和残差单位为像素，不执行轴补偿。",
@@ -168,6 +338,14 @@ namespace AlphaRap
             SetMessage(block, "CameraRequired", "请先在相机页选择相机 SN。", "Select the camera SN on the camera page first.", "Seleccione primero el SN en la página de cámara.");
             SetMessage(block, "ExposureInvalid", "曝光必须为有效正数。", "Exposure must be a finite positive value.", "La exposición debe ser un valor positivo finito.");
             SetMessage(block, "CameraNotFound", "未找到已绑定的相机：", "Bound camera was not found: ", "No se encontró la cámara vinculada: ");
+            foreach (string name in new[] { "AcquireImage", "PositionResult" })
+            {
+                CogToolBlock child = block.Tools.Contains(name) ? block.Tools[name] as CogToolBlock : null;
+                if (child == null) continue;
+                child.UserData["MessageLanguage"] = (int)SysPara.LanguageShow;
+                foreach (DictionaryEntry entry in block.UserData)
+                    if (Convert.ToString(entry.Key).StartsWith("Message.", StringComparison.Ordinal)) child.UserData[entry.Key] = entry.Value;
+            }
             if (!block.Tools.Contains(RotationToolName)) return;
             CogToolBlock rotation = (CogToolBlock)block.Tools[RotationToolName];
             SetMessage(rotation, "RotationPairs", "请提供至少三组对应的 PixelX/PixelY/AnglesDegrees 采样。", "Supply at least three matching PixelX/PixelY/AnglesDegrees samples.", "Introduzca al menos tres muestras correspondientes de PixelX/PixelY/AnglesDegrees.");

@@ -11,6 +11,7 @@ using Cognex.VisionPro;
 using Cognex.VisionPro.CalibFix;
 using Cognex.VisionPro.PMAlign;
 using Cognex.VisionPro.ToolBlock;
+using Cognex.VisionPro.Implementation.Internal;
 
 internal static partial class Tests
 {
@@ -25,6 +26,8 @@ internal static partial class Tests
         Run("saved empty placeholders become template drafts and remain discardable", BuiltInEmptyPlaceholder);
         Run("script-only metadata-only and intentionally empty drafts stay unchanged", BuiltInNonEmptyGuards);
         Run("built-in VPP scripts and rotation samples survive save and reload", BuiltInRoundTrip);
+        Run("legacy template upgrade preserves training calibration samples and discard", BuiltInUpgrade);
+        Run("legacy template upgrade preserves customized scripts ports and connections", BuiltInUpgradeGuards);
         Run("camera add calibration and add VPP create main-save drafts", BuiltInCreationEntries);
         Run("built-in script messages honor site translations and preserve image inputs", BuiltInLanguage);
         Run("legacy reserved criteria keep their values without blocking the production row", LegacyReservedCriteria);
@@ -36,13 +39,17 @@ internal static partial class Tests
         using (CogToolBlock calibration = VpAlgorithmTemplates.Create(true, "", 12))
         using (CogToolBlock positioning = VpAlgorithmTemplates.Create(false, "", 15))
         {
-            Check(calibration.Tools["AcquireImage"] is CogAcqFifoTool, "Acquisition tool is missing.");
+            CogToolBlock capture = calibration.Tools["AcquireImage"] as CogToolBlock;
+            Check(capture != null && capture.Tools["CameraCapture"] is CogAcqFifoTool, "Acquisition tool is missing.");
             Check(calibration.Tools["LocatePattern"] is CogPMAlignTool, "Calibration feature locator is missing.");
             Check(calibration.Tools["Calibration"] is CogCalibNPointToNPointTool, "Nine-point tool is missing.");
             Check(calibration.Tools["RotationCenter"] is CogToolBlock, "Rotation center algorithm is missing.");
-            Check(VpAlgorithmTemplates.IsBuiltIn(positioning) && positioning.Tools.Count == 3, "Standard positioning tools are missing.");
+            Check(VpAlgorithmTemplates.IsBuiltIn(positioning) && positioning.Tools.Count == 4, "Standard positioning tools are missing.");
+            Check(capture.DataBindings.Count == 5 && calibration.Outputs.DataBindings.Count == 12, "Root image and result ports have no native connections.");
+            Check(calibration.Tools["LocatePattern"].DataBindings.Count == 1 && calibration.Tools["Calibration"].DataBindings.Count == 1, "Native image inputs have no connections.");
             Check((string)positioning.Inputs["CameraSN"].Value == "" && (double)positioning.Inputs["Exposure"].Value == 15, "Camera defaults changed.");
             Check(!(bool)positioning.Inputs["UseInputImage"].Value && double.IsNaN((double)positioning.Outputs["x"].Value), "The template invented a valid production result.");
+            CheckEditorConnections(calibration); CheckEditorConnections(positioning);
         }
     }
 
@@ -51,28 +58,27 @@ internal static partial class Tests
     {
         using (CogToolBlock calibration = VpAlgorithmTemplates.Create(true, "", 10))
         {
-            CogToolBlock rotation = (CogToolBlock)calibration.Tools["RotationCenter"];
             double[] angles = { -90, -45, 0, 40, 95, 150 };
             double[] x = angles.Select(a => 1234 + 82 * Math.Cos(a * Math.PI / 180) + 17 * Math.Sin(a * Math.PI / 180)).ToArray();
             double[] y = angles.Select(a => -567 + 12 * Math.Cos(a * Math.PI / 180) - 63 * Math.Sin(a * Math.PI / 180)).ToArray();
-            SetRotationSamples(rotation, x, y, angles);
-            rotation.Run();
-            Check(rotation.RunStatus.Result == CogToolResultConstants.Accept, rotation.RunStatus.Message);
-            Check(Math.Abs((double)rotation.Outputs["CenterX"].Value - 1234) < 1e-7 && Math.Abs((double)rotation.Outputs["CenterY"].Value + 567) < 1e-7, "Affine rotation center is incorrect.");
-            Check((double)rotation.Outputs["RmsError"].Value < 1e-7, "Exact sample residual is not zero.");
+            SetRotationSamples(calibration, x, y, angles);
+            calibration.Inputs["RunRotation"].Value = true; calibration.Run();
+            Check(calibration.RunStatus.Result == CogToolResultConstants.Accept && (bool)calibration.Outputs["RotationValid"].Value, calibration.RunStatus.Message);
+            Check(Math.Abs((double)calibration.Outputs["CenterX"].Value - 1234) < 1e-7 && Math.Abs((double)calibration.Outputs["CenterY"].Value + 567) < 1e-7, "Affine rotation center is incorrect.");
+            Check((double)calibration.Outputs["RmsError"].Value < 1e-7, "Exact sample residual is not zero.");
             foreach (double[] invalid in new[] { new double[] { 0, 0, 0, 0, 0, 0 }, new double[] { 0, 360, 720, 1080, 1440, 1800 }, new double[] { 0, 10, double.NaN, 20, 30, 40 }, new double[] { 0, 1 } })
             {
-                SetRotationSamples(rotation, x, y, invalid); rotation.Run();
-                Check(rotation.RunStatus.Result == CogToolResultConstants.Error, "Degenerate samples were accepted.");
-                Check(double.IsNaN((double)rotation.Outputs["CenterX"].Value), "A stale center survived invalid samples.");
+                SetRotationSamples(calibration, x, y, invalid); calibration.Run();
+                Check(calibration.RunStatus.Result == CogToolResultConstants.Error && !(bool)calibration.Outputs["RotationValid"].Value, "Degenerate samples were accepted.");
+                Check(double.IsNaN((double)calibration.Outputs["CenterX"].Value), "A stale center survived invalid samples.");
             }
         }
     }
 
     /// <summary>给独立旋转算法提供同一顺序的像素及实际轴角度。</summary>
-    private static void SetRotationSamples(CogToolBlock rotation, double[] x, double[] y, double[] angles)
+    private static void SetRotationSamples(CogToolBlock calibration, double[] x, double[] y, double[] angles)
     {
-        rotation.Inputs["PixelX"].Value = x; rotation.Inputs["PixelY"].Value = y; rotation.Inputs["AnglesDegrees"].Value = angles;
+        calibration.Inputs["RotationPixelX"].Value = x; calibration.Inputs["RotationPixelY"].Value = y; calibration.Inputs["RotationAnglesDegrees"].Value = angles;
     }
 
     /// <summary>离线图像缺失时不枚举相机，也不沿用旧产品坐标。</summary>
@@ -99,7 +105,7 @@ internal static partial class Tests
             CogToolBlock block = station.TB;
             block.Inputs.Add(new CogToolBlockTerminal("UserThreshold", 0.5, typeof(double)));
             var flowMethod = station.GetFlowMethods(true).Single(method => method.Id == "vision.run");
-            Check(flowMethod.Inputs.Any(field => field.Name == "TB:UserThreshold") && !flowMethod.Inputs.Any(field => field.Name == "TB:InputImage" || field.Name == "TB:CameraSN" || field.Name == "TB:UseInputImage" || field.Name == "TB:Language" || field.Name == "TB:Exposure"), "Flow binding exposed internal capture ports or hid user inputs.");
+            Check(flowMethod.Inputs.Any(field => field.Name == "TB:UserThreshold") && flowMethod.Inputs.Count(field => field.Name.StartsWith("TB:")) == 1, "Flow binding exposed managed ports or hid user inputs.");
             using (Bitmap bitmap = new Bitmap(240, 180))
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
@@ -120,6 +126,7 @@ internal static partial class Tests
                 block.Inputs["UseInputImage"].Value = true; block.Inputs["InputImage"].Value = image;
                 station.VisionRun();
                 Check(station.IsAccept && (bool)block.Outputs["Accepted"].Value, "Raw positioning: " + block.RunStatus.Message);
+                Check(ReferenceEquals(pattern.InputImage, block.Outputs["OutputImage"].Value) && ReferenceEquals(pattern.InputImage, ((CogCalibNPointToNPointTool)block.Tools["Calibration"]).InputImage), "Image connections did not reach the native tools.");
                 Check(Math.Abs(station.Fiducial.x - 110) < 0.2 && Math.Abs(station.Fiducial.y - 85) < 0.2, "Custom station discarded template coordinates.");
                 Check(!(bool)block.Outputs["Calibrated"].Value, "Uncalibrated coordinates were marked calibrated.");
                 CogCalibNPointToNPoint calibration = ((CogCalibNPointToNPointTool)block.Tools["Calibration"]).Calibration;
@@ -133,6 +140,10 @@ internal static partial class Tests
                 calibration.Calibrate(); station.VisionRun();
                 Check(station.IsAccept && (bool)block.Outputs["Calibrated"].Value, "Calibrated positioning: " + block.RunStatus.Message);
                 Check(Math.Abs(station.Fiducial.x - 2.1) < 0.02 && Math.Abs(station.Fiducial.y - 3.7) < 0.02, "Nine-point transform was not applied to positioning outputs.");
+                block.Inputs["InputImage"].Value = null; block.Run();
+                Check(block.RunStatus.Result == CogToolResultConstants.Error && !(bool)block.Outputs["Accepted"].Value && double.IsNaN((double)block.Outputs["x"].Value) && block.Outputs["OutputImage"].Value == null, "Capture failure retained a previous result or image.");
+                block.Inputs["InputImage"].Value = image; block.Run();
+                Check((bool)block.Outputs["Accepted"].Value, "Connections did not recover after failed capture.");
                 RunMode previous = SysPara.SystemMode;
                 try
                 {
@@ -185,14 +196,14 @@ internal static partial class Tests
                 byte[] before = File.ReadAllBytes(path); string error;
                 Check(station.TryLoadTB(path, out error) && station.TB.Tools.Count == 0, "Empty fixture did not load.");
                 Check(station.TryCreateTemplateTB(path, calibration, out error), error);
-                Check(VpAlgorithmTemplates.IsBuiltIn(station.TB) && station.TB.Tools.Count == (calibration ? 4 : 3), "The loaded empty placeholder remained empty.");
+                Check(VpAlgorithmTemplates.IsBuiltIn(station.TB) && station.TB.Tools.Count == (calibration ? 5 : 4), "The loaded empty placeholder remained empty.");
                 Check(before.SequenceEqual(File.ReadAllBytes(path)), "Filling an empty placeholder bypassed Main Save.");
                 CogToolBlock draft = station.TB; draft.Inputs["Exposure"].Value = 35.0;
                 Check(station.TryCreateTemplateTB(path, calibration, out error) && ReferenceEquals(draft, station.TB) && (double)station.TB.Inputs["Exposure"].Value == 35, "Reopening replaced the in-memory draft.");
                 Check(station.TryDiscardTBChanges(out error) && station.TB.Tools.Count == 0 && !VpAlgorithmTemplates.IsBuiltIn(station.TB), "Discard did not restore the saved empty placeholder.");
                 Check(station.TryCreateTemplateTB(path, calibration, out error) && station.TrySaveTB(out error), error);
                 using (CogToolBlock loaded = (CogToolBlock)CogSerializer.LoadObjectFromFile(path))
-                    Check(VpAlgorithmTemplates.IsBuiltIn(loaded) && loaded.Tools.Count == (calibration ? 4 : 3), "Saved templates did not survive reload.");
+                    Check(VpAlgorithmTemplates.IsBuiltIn(loaded) && loaded.Tools.Count == (calibration ? 5 : 4), "Saved templates did not survive reload.");
             }
             finally { VisionproInterface.VList.Remove(station); if (station.TB != null) station.TB.Dispose(); }
         }
@@ -234,18 +245,119 @@ internal static partial class Tests
     {
         using (CogToolBlock block = VpAlgorithmTemplates.Create(true, "", 10))
         {
-            CogToolBlock rotation = (CogToolBlock)block.Tools["RotationCenter"];
-            SetRotationSamples(rotation, new double[] { 12, 2, -8, 2 }, new double[] { 3, 13, 3, -7 }, new double[] { 0, 90, 180, 270 });
+            SetRotationSamples(block, new double[] { 12, 2, -8, 2 }, new double[] { 3, 13, 3, -7 }, new double[] { 0, 90, 180, 270 });
             string path = Path.Combine(TestDirectory, "builtin-roundtrip.vpp"); CogSerializer.SaveObjectToFile(block, path);
             using (CogToolBlock loaded = (CogToolBlock)CogSerializer.LoadObjectFromFile(path))
             using (CogToolBlock copy = (CogToolBlock)CogSerializer.DeepCopyObject(loaded))
             {
                 Check(VpAlgorithmTemplates.IsBuiltIn(loaded), "Template identity was lost.");
-                CogToolBlock copiedRotation = (CogToolBlock)copy.Tools["RotationCenter"]; copiedRotation.Run();
-                Check(copiedRotation.RunStatus.Result == CogToolResultConstants.Accept && Math.Abs((double)copiedRotation.Outputs["CenterX"].Value - 2) < 1e-8, "Serialized script did not execute.");
-                ((double[])copiedRotation.Inputs["PixelX"].Value)[0] = 999;
-                Check(((double[])((CogToolBlock)loaded.Tools["RotationCenter"]).Inputs["PixelX"].Value)[0] == 12, "Save snapshots share mutable sample arrays.");
+                CheckEditorConnections(loaded); CheckEditorConnections(copy);
+                copy.Inputs["RunRotation"].Value = true; copy.Run();
+                Check(copy.RunStatus.Result == CogToolResultConstants.Accept && Math.Abs((double)copy.Outputs["CenterX"].Value - 2) < 1e-8 && (bool)copy.Outputs["RotationValid"].Value, "Serialized script did not execute.");
+                ((double[])copy.Inputs["RotationPixelX"].Value)[0] = 999;
+                Check(((double[])loaded.Inputs["RotationPixelX"].Value)[0] == 12, "Save snapshots share mutable sample arrays.");
             }
+        }
+    }
+
+    /// <summary>用已发布第一版生成的真实文件验证升级、坐标结果、主保存和放弃修改。</summary>
+    private static void BuiltInUpgrade()
+    {
+        foreach (bool calibration in new[] { true, false })
+        {
+            string path = WriteLegacyFixture(calibration);
+            byte[] before = File.ReadAllBytes(path);
+            VpStation station = new VpStation("UpgradeRegression", VpStationKind.Custom) { AutoVisionRunDisplay = false };
+            try
+            {
+                string error;
+                Check(station.TryLoadTB(path, out error) && station.TB.Tools["AcquireImage"] is CogAcqFifoTool, "Loading silently upgraded a production algorithm.");
+                Check(station.TryCreateTemplateTB(path, calibration, out error), error);
+                CogToolBlock block = station.TB;
+                CheckEditorConnections(block);
+                Check(block.Tools["AcquireImage"] is CogToolBlock && ((CogPMAlignTool)block.Tools["LocatePattern"]).Pattern.Trained, "Upgrade lost the trained model.");
+                Check(((CogCalibNPointToNPointTool)block.Tools["Calibration"]).Calibration.Calibrated && (double)block.Inputs["Exposure"].Value == 17, "Upgrade lost calibration or edited parameters.");
+                Check(before.SequenceEqual(File.ReadAllBytes(path)), "Upgrade bypassed Main Save.");
+                block.Run();
+                double expectedX = calibration ? 110 : 2.1, expectedY = calibration ? 85 : 3.7;
+                Check(block.RunStatus.Result == CogToolResultConstants.Accept && (bool)block.Outputs["Accepted"].Value, "Upgraded graph: " + block.RunStatus.Message);
+                Check(Math.Abs((double)block.Outputs["x"].Value - expectedX) < 0.2 && Math.Abs((double)block.Outputs["y"].Value - expectedY) < 0.2, "Upgrade changed pixel/world coordinate behavior.");
+                if (calibration)
+                {
+                    block.Inputs["RunRotation"].Value = true; block.Run();
+                    Check(block.RunStatus.Result == CogToolResultConstants.Accept && (bool)block.Outputs["RotationValid"].Value && Math.Abs((double)block.Outputs["CenterX"].Value - 2) < 1e-8, "Upgrade lost rotation samples or connections.");
+                    typeof(VpAlgorithmTemplates).GetMethod("Configure", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { block, "", 17.0 });
+                    Check(!(bool)block.Inputs["RunRotation"].Value && !(bool)block.Inputs["UseCalibration"].Value, "Calibration capture retained rotation-only or world-coordinate mode.");
+                }
+                Check(station.TryCreateTemplateTB(path, calibration, out error) && ReferenceEquals(block, station.TB), "Reopening replaced the upgraded draft.");
+                Check(station.TryDiscardTBChanges(out error) && station.TB.Tools["AcquireImage"] is CogAcqFifoTool && before.SequenceEqual(File.ReadAllBytes(path)), "Discard did not restore the saved V1 template.");
+                Check(station.TryCreateTemplateTB(path, calibration, out error) && station.TrySaveTB(out error), error);
+                using (CogToolBlock loaded = (CogToolBlock)CogSerializer.LoadObjectFromFile(path))
+                {
+                    CheckEditorConnections(loaded);
+                    loaded.Run();
+                    Check(loaded.RunStatus.Result == CogToolResultConstants.Accept && (bool)loaded.Outputs["Accepted"].Value && Math.Abs((double)loaded.Outputs["x"].Value - expectedX) < 0.2, "Saved graph connections or trained data were lost.");
+                }
+            }
+            finally { VisionproInterface.VList.Remove(station); if (station.TB != null) station.TB.Dispose(); }
+        }
+    }
+
+    /// <summary>自定义过脚本、端口或连线的范例保持原样，避免覆盖应用工程。</summary>
+    private static void BuiltInUpgradeGuards()
+    {
+        Action<CogToolBlock>[] customize = {
+            block => ChangeLegacyScript(block),
+            block => ChangeLegacyScript((CogToolBlock)block.Tools["RotationCenter"]),
+            block => block.Inputs.Add(new CogToolBlockTerminal("SiteParameter", 5.0, typeof(double))),
+            block => block.Inputs["Exposure"].Name = "SiteExposure",
+            block => block.Tools["LocatePattern"].DataBindings.Add("InputImage", block.Inputs, "Item[\"InputImage\"].Value"),
+            block => ((CogToolBlock)block.Tools["RotationCenter"]).Outputs.Add(new CogToolBlockTerminal("SiteResult", 3.0, typeof(double)))
+        };
+        foreach (Action<CogToolBlock> change in customize)
+        {
+            string path = WriteLegacyFixture(true);
+            using (CogToolBlock original = (CogToolBlock)CogSerializer.LoadObjectFromFile(path)) { change(original); CogSerializer.SaveObjectToFile(original, path); }
+            VpStation station = new VpStation("UpgradeGuardRegression", VpStationKind.Custom);
+            try
+            {
+                string error; byte[] before = File.ReadAllBytes(path);
+                Check(station.TryLoadTB(path, out error), error); CogToolBlock current = station.TB;
+                Check(station.TryCreateTemplateTB(path, true, out error) && ReferenceEquals(current, station.TB), "Upgrade replaced a customized template.");
+                Check(before.SequenceEqual(File.ReadAllBytes(path)), "Upgrade wrote a customized template.");
+            }
+            finally { VisionproInterface.VList.Remove(station); if (station.TB != null) station.TB.Dispose(); }
+        }
+    }
+
+    /// <summary>修改旧版脚本正文，模拟应用人员已有的自定义逻辑。</summary>
+    private static void ChangeLegacyScript(CogToolBlock block)
+    {
+        var script = new Cognex.VisionPro.Implementation.Internal.CogScriptSupport(block.Script);
+        script.Source = script.Source.Replace("return false;", "return true;"); block.Script = script;
+    }
+
+    /// <summary>展开不含设备或现场数据的旧版合成图像定位夹具。</summary>
+    private static string WriteLegacyFixture(bool calibration)
+    {
+        string path = Path.Combine(TestDirectory, Guid.NewGuid().ToString("N") + ".vpp");
+        string name = calibration ? "CalibrationV1" : "PositioningV1";
+        using (Stream source = typeof(Tests).Assembly.GetManifestResourceStream("Fixtures." + name + ".vpp"))
+        using (FileStream target = File.Create(path)) source.CopyTo(target);
+        return path;
+    }
+
+    /// <summary>连接两端必须是当前编辑器可见的标准工具端口，保存重载后路径和 ID 仍然一致。</summary>
+    private static void CheckEditorConnections(CogToolBlock block)
+    {
+        ICogTool[] visible = block.Tools.Cast<ICogTool>().Concat(new ICogTool[] { block.Inputs, block.Outputs }).ToArray();
+        foreach (ICogTool target in visible)
+        foreach (CogDataBinding binding in target.DataBindings)
+        {
+            Check(ReferenceEquals(binding.Destination, target) && visible.Contains(binding.Source as ICogTool), "A binding bypasses the editor's visible tools.");
+            Check(CogToolTerminals.GetToolInputTerminals(target).Any(terminal => CogToolTerminals.GetTerminalPath(terminal) == binding.DestinationPath), "A connection destination is not an editor terminal.");
+            Check(CogToolTerminals.GetToolOutputTerminals((ICogTool)binding.Source).Any(terminal => CogToolTerminals.GetTerminalPath(terminal) == binding.SourcePath), "A connection source is not an editor terminal.");
+            Check(binding.UpdateException == null, "A native connection cannot update its value.");
         }
     }
 

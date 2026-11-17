@@ -26,6 +26,9 @@ $vpCompilerArgs += Join-Path $PSScriptRoot 'Regression.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'BuiltInAlgorithms.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'Localization.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'MiddleLayer.cs'
+foreach ($vpFixture in @('CalibrationV1', 'PositioningV1')) {
+    $vpCompilerArgs += "/resource:$(Join-Path $PSScriptRoot "Fixtures/$vpFixture.vpp"),Fixtures.$vpFixture.vpp"
+}
 & $vpCompiler @vpCompilerArgs
 if ($LASTEXITCODE -ne 0) { throw 'Regression compilation failed.' }
 $vpRuntimeArguments = @($vpBuildDirectory, $vpLibraryDirectory, $vpCognexDirectory)

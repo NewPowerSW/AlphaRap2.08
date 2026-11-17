@@ -368,7 +368,7 @@ namespace AlphaRap
             }
         }
 
-        /// <summary>显式创建标准算法或补齐空占位文件，保留已有内容和编辑草稿，文件由主保存提交。</summary>
+        /// <summary>显式创建标准算法、补齐空文件或升级标准范例连接，文件由主保存提交。</summary>
         public bool TryCreateTemplateTB(string path, bool calibration, out string error)
         {
             lock (_operationLock)
@@ -380,15 +380,17 @@ namespace AlphaRap
                     if (!TryLoadTB(path, out error)) return false;
                     current = true;
                 }
-                if (current && (_hasToolBlockDraft || !VpAlgorithmTemplates.IsEmptyPlaceholder(TB)))
-                {
-                    error = "";
-                    return true;
-                }
                 bool wasSaved = current && _toolBlockWasSaved;
                 try
                 {
-                    CogToolBlock template = VpAlgorithmTemplates.Create(calibration, RunLiveCCDSN, RunExposure);
+                    CogToolBlock template = null;
+                    if (current && !VpAlgorithmTemplates.TryUpgrade(TB, out template) &&
+                        (_hasToolBlockDraft || !VpAlgorithmTemplates.IsEmptyPlaceholder(TB)))
+                    {
+                        error = "";
+                        return true;
+                    }
+                    if (template == null) template = VpAlgorithmTemplates.Create(calibration, RunLiveCCDSN, RunExposure);
                     TB = template; TBPath = path; IsLoadTBOk = true;
                     ModelSignature = ""; _hasToolBlockDraft = true; _toolBlockWasSaved = wasSaved;
                     IsAccept = false; _lastRunResult = null; _toolBlockRevision++;

@@ -1,0 +1,76 @@
+using System;
+using Cognex.VisionPro;
+using Cognex.VisionPro.ToolBlock;
+using Cognex.VisionPro.ToolGroup;
+
+public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
+{
+    private CogToolBlock block;
+    /// <summary>绑定具有显式输入输出的采集节点。</summary>
+    public override void Initialize(CogToolGroup host) { base.Initialize(host); block = (CogToolBlock)host; }
+    /// <summary>输出本次原始图像，失败时清除旧图。</summary>
+    public override bool GroupRun(ref string message, ref CogToolResultConstants result)
+    {
+        block.Outputs["OutputImage"].Value = null;
+        try
+        {
+            ICogImage image = ReadImage().CopyBase(CogImageCopyModeConstants.SharePixels);
+            image.SelectedSpaceName = image.CoordinateSpaceTree.RootName;
+            block.Outputs["OutputImage"].Value = image;
+            result = CogToolResultConstants.Accept; message = "";
+        }
+        catch (Exception error) { result = CogToolResultConstants.Error; message = error.Message; }
+        return false;
+    }
+    /// <summary>显式选择离线图像或按 SN 精确匹配相机。</summary>
+    private ICogImage ReadImage()
+    {
+        if (Convert.ToBoolean(block.Inputs["UseInputImage"].Value))
+        {
+            ICogImage supplied = block.Inputs["InputImage"].Value as ICogImage;
+            if (supplied == null) throw new InvalidOperationException(Text("请提供离线 InputImage。", "Provide an offline InputImage.", "Proporcione InputImage para la prueba sin conexión."));
+            return supplied;
+        }
+        string serial = Convert.ToString(block.Inputs["CameraSN"].Value);
+        double exposure = Convert.ToDouble(block.Inputs["Exposure"].Value);
+        if (string.IsNullOrWhiteSpace(serial)) throw new InvalidOperationException(Text("请先在相机页选择相机 SN。", "Select the camera SN on the camera page first.", "Seleccione primero el SN en la página de cámara."));
+        if (double.IsNaN(exposure) || double.IsInfinity(exposure) || exposure <= 0) throw new InvalidOperationException(Text("曝光必须为有效正数。", "Exposure must be a finite positive value.", "La exposición debe ser un valor positivo finito."));
+        using (CogFrameGrabbers devices = new CogFrameGrabbers())
+        {
+            for (int index = 0; index < devices.Count; index++)
+            {
+                ICogFrameGrabber device = devices[index];
+                if (device.SerialNumber != serial && device.UniqueID != serial) continue;
+                return Acquire(device, exposure);
+            }
+        }
+        throw new InvalidOperationException(Text("未找到已绑定的相机：", "Bound camera was not found: ", "No se encontró la cámara vinculada: ") + serial);
+    }
+    /// <summary>配置曝光并运行标准采集工具，结束后释放硬件对象。</summary>
+    private ICogImage Acquire(ICogFrameGrabber device, double exposure)
+    {
+        CogAcqFifoTool capture = (CogAcqFifoTool)block.Tools["CameraCapture"];
+        ICogAcqFifo fifo = device.CreateAcqFifo(device.AvailableVideoFormats[0], CogAcqFifoPixelFormatConstants.Format8Grey, 0, false);
+        try
+        {
+            fifo.OwnedExposureParams.Exposure = exposure; capture.Operator = fifo;
+            string message = ""; CogToolResultConstants result = CogToolResultConstants.Accept;
+            block.RunTool(capture, ref message, ref result);
+            if (capture.RunStatus.Result != CogToolResultConstants.Accept || capture.OutputImage == null) throw new InvalidOperationException(capture.RunStatus.Message);
+            return capture.OutputImage;
+        }
+        finally
+        {
+            capture.Operator = null;
+            IDisposable disposable = fifo as IDisposable;
+            if (disposable != null) disposable.Dispose();
+        }
+    }
+    /// <summary>优先使用现场语言包，独立运行保留三语底稿。</summary>
+    private string Text(string chinese, string english, string spanish)
+    {
+        int language = Convert.ToInt32(block.Inputs["Language"].Value);
+        if (block.UserData.Contains("MessageLanguage") && Convert.ToInt32(block.UserData["MessageLanguage"]) == language && block.UserData.Contains("Message." + english)) return Convert.ToString(block.UserData["Message." + english]);
+        return language == 0 ? chinese : language == 1 ? english : spanish;
+    }
+}

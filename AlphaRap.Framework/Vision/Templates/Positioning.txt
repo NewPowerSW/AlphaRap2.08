@@ -8,141 +8,56 @@ using Cognex.VisionPro.ToolGroup;
 public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
 {
     private CogToolBlock block;
-
-    /// <summary>保留当前工具块，脚本仅依赖 VisionPro 标准运行库。</summary>
-    public override void Initialize(CogToolGroup host)
-    {
-        base.Initialize(host);
-        block = (CogToolBlock)host;
-    }
-
-    /// <summary>采集或加载图像、应用已完成的坐标标定并运行单模板定位；标定采点始终使用像素。</summary>
+    /// <summary>绑定原生数据连接的主工具块，脚本只控制执行顺序。</summary>
+    public override void Initialize(CogToolGroup host) { base.Initialize(host); block = (CogToolBlock)host; }
+    /// <summary>执行采集、定位和结果转换，或独立计算旋转样本。</summary>
     public override bool GroupRun(ref string message, ref CogToolResultConstants result)
     {
-        ClearOutputs();
+        ClearPosition();
         try
         {
-            ICogImage image = ReadImage();
-            image = image.CopyBase(CogImageCopyModeConstants.SharePixels);
-            image.SelectedSpaceName = image.CoordinateSpaceTree.RootName;
-            block.Outputs["OutputImage"].Value = image;
-            bool raw = Convert.ToBoolean(block.UserData["RawCalibrationPixels"]);
-            CogCalibNPointToNPointTool calibration = (CogCalibNPointToNPointTool)block.Tools["Calibration"];
-            if (!raw && calibration.Calibration.Calibrated)
+            if (block.Tools.Contains("RotationCenter") && Convert.ToBoolean(block.Inputs["RunRotation"].Value))
             {
-                calibration.InputImage = image;
-                block.RunTool(calibration, ref message, ref result);
-                if (calibration.RunStatus.Result != CogToolResultConstants.Accept) return false;
-                block.Outputs["Calibrated"].Value = true;
-            }
-            CogPMAlignTool pattern = (CogPMAlignTool)block.Tools["LocatePattern"];
-            image.SelectedSpaceName = image.CoordinateSpaceTree.RootName;
-            pattern.InputImage = image;
-            if (!pattern.Pattern.Trained) throw new InvalidOperationException(Text(
-                "请打开 LocatePattern，选择训练图像并框选特征后训练模板。",
-                "Open LocatePattern, select a training image and region, then train the pattern.",
-                "Abra LocatePattern, seleccione imagen y región de entrenamiento y entrene el patrón."));
-            block.RunTool(pattern, ref message, ref result);
-            if (pattern.RunStatus.Result != CogToolResultConstants.Accept) return false;
-            int count = pattern.Results == null ? 0 : pattern.Results.Count;
-            block.Outputs["MatchCount"].Value = count;
-            if (count == 0)
-            {
-                result = CogToolResultConstants.Reject;
-                message = Text("未找到满足分数要求的定位特征。", "No feature met the matching score.", "Ninguna característica alcanzó la puntuación requerida.");
+                block.RunTool(block.Tools["RotationCenter"], ref message, ref result);
                 return false;
             }
-            CogTransform2DLinear pose = pattern.Results[0].GetPose();
-            double x = pose.TranslationX, y = pose.TranslationY, angle = pose.Rotation;
-            if ((bool)block.Outputs["Calibrated"].Value)
+            CogToolBlock capture = (CogToolBlock)block.Tools["AcquireImage"];
+            block.RunTool(capture, ref message, ref result);
+            if (capture.RunStatus.Result != CogToolResultConstants.Accept) return false;
+            CogCalibNPointToNPointTool calibration = (CogCalibNPointToNPointTool)block.Tools["Calibration"];
+            if (Convert.ToBoolean(block.Inputs["UseCalibration"].Value) && calibration.Calibration.Calibrated)
             {
-                ICogTransform2D transform = calibration.Calibration.GetComputedUncalibratedFromCalibratedTransform().InvertBase();
-                double directionX, directionY;
-                transform.MapPoint(x + Math.Cos(angle), y + Math.Sin(angle), out directionX, out directionY);
-                transform.MapPoint(x, y, out x, out y);
-                angle = Math.Atan2(directionY - y, directionX - x);
+                block.RunTool(calibration, ref message, ref result);
+                if (calibration.RunStatus.Result != CogToolResultConstants.Accept) return false;
             }
-            block.Outputs["x"].Value = x;
-            block.Outputs["y"].Value = y;
-            block.Outputs["A"].Value = angle * 180.0 / Math.PI;
-            block.Outputs["Score"].Value = pattern.Results[0].Score;
-            block.Outputs["Accepted"].Value = true;
-            result = CogToolResultConstants.Accept;
-            message = "";
+            CogPMAlignTool pattern = (CogPMAlignTool)block.Tools["LocatePattern"];
+            pattern.InputImage.SelectedSpaceName = pattern.InputImage.CoordinateSpaceTree.RootName;
+            if (!pattern.Pattern.Trained) throw new InvalidOperationException(Text("请打开 LocatePattern，选择训练图像并框选特征后训练模板。", "Open LocatePattern, select a training image and region, then train the pattern.", "Abra LocatePattern, seleccione imagen y región de entrenamiento y entrene el patrón."));
+            block.RunTool(pattern, ref message, ref result);
+            if (pattern.RunStatus.Result != CogToolResultConstants.Accept) return false;
+            block.RunTool(block.Tools["PositionResult"], ref message, ref result);
         }
         catch (Exception error) { result = CogToolResultConstants.Error; message = error.Message; }
         return false;
     }
-
-    /// <summary>每次运行清除上一产品的结果，失败时保留 NaN 和 Accepted=false。</summary>
-    private void ClearOutputs()
+    /// <summary>重置结果节点，连接自动清除主输出，不手工转发工具数据。</summary>
+    private void ClearPosition()
     {
-        block.Outputs["Accepted"].Value = false;
-        block.Outputs["x"].Value = double.NaN;
-        block.Outputs["y"].Value = double.NaN;
-        block.Outputs["A"].Value = double.NaN;
-        block.Outputs["Score"].Value = 0.0;
-        block.Outputs["MatchCount"].Value = 0;
-        block.Outputs["Calibrated"].Value = false;
+        block.Outputs["Accepted"].Value = false; block.Outputs["Calibrated"].Value = false;
+        foreach (string name in new[] { "x", "y", "A" }) block.Outputs[name].Value = double.NaN;
+        block.Outputs["Score"].Value = 0.0; block.Outputs["MatchCount"].Value = 0;
         block.Outputs["OutputImage"].Value = null;
+        if (block.Outputs.Contains("RotationValid")) block.Outputs["RotationValid"].Value = false;
+        CogToolBlock output = (CogToolBlock)block.Tools["PositionResult"];
+        output.Outputs["Accepted"].Value = false; output.Outputs["Calibrated"].Value = false;
+        foreach (string name in new[] { "x", "y", "A" }) output.Outputs[name].Value = double.NaN;
+        output.Outputs["Score"].Value = 0.0; output.Outputs["MatchCount"].Value = 0;
     }
-
-    /// <summary>生产采集按 SN 精确匹配本轮设备；离线模式必须显式启用并提供图像。</summary>
-    private ICogImage ReadImage()
-    {
-        if (Convert.ToBoolean(block.Inputs["UseInputImage"].Value))
-        {
-            ICogImage supplied = block.Inputs["InputImage"].Value as ICogImage;
-            if (supplied == null) throw new InvalidOperationException(Text("请提供离线 InputImage。", "Provide an offline InputImage.", "Proporcione InputImage para la prueba sin conexión."));
-            return supplied;
-        }
-        string serial = Convert.ToString(block.Inputs["CameraSN"].Value);
-        double exposure = Convert.ToDouble(block.Inputs["Exposure"].Value);
-        if (string.IsNullOrWhiteSpace(serial)) throw new InvalidOperationException(Text("请先在相机页选择相机 SN。", "Select the camera SN on the camera page first.", "Seleccione primero el SN en la página de cámara."));
-        if (double.IsNaN(exposure) || double.IsInfinity(exposure) || exposure <= 0) throw new InvalidOperationException(Text("曝光必须为有效正数。", "Exposure must be a finite positive value.", "La exposición debe ser un valor positivo finito."));
-        CogFrameGrabbers devices = new CogFrameGrabbers();
-        try
-        {
-            for (int index = 0; index < devices.Count; index++)
-            {
-                ICogFrameGrabber device = devices[index];
-                if (device.SerialNumber != serial && device.UniqueID != serial) continue;
-                return Acquire(device, exposure);
-            }
-            throw new InvalidOperationException(Text("未找到已绑定的相机：", "Bound camera was not found: ", "No se encontró la cámara vinculada: ") + serial);
-        }
-        finally { devices.Dispose(); }
-    }
-
-    /// <summary>用本次匹配的相机创建灰度采集，结束后释放采集对象，不保存硬件句柄到 VPP。</summary>
-    private ICogImage Acquire(ICogFrameGrabber device, double exposure)
-    {
-        CogAcqFifoTool capture = (CogAcqFifoTool)block.Tools["AcquireImage"];
-        ICogAcqFifo fifo = device.CreateAcqFifo(device.AvailableVideoFormats[0], CogAcqFifoPixelFormatConstants.Format8Grey, 0, false);
-        try
-        {
-            fifo.OwnedExposureParams.Exposure = exposure;
-            capture.Operator = fifo;
-            string message = "";
-            CogToolResultConstants result = CogToolResultConstants.Accept;
-            block.RunTool(capture, ref message, ref result);
-            if (capture.RunStatus.Result != CogToolResultConstants.Accept || capture.OutputImage == null) throw new InvalidOperationException(capture.RunStatus.Message);
-            return capture.OutputImage;
-        }
-        finally
-        {
-            capture.Operator = null;
-            IDisposable disposable = fifo as IDisposable;
-            if (disposable != null) disposable.Dispose();
-        }
-    }
-
-    /// <summary>按宿主传入的界面语言提供运行错误，业务端口键保持不变。</summary>
+    /// <summary>使用现场语言包及独立运行的三语底稿。</summary>
     private string Text(string chinese, string english, string spanish)
     {
         int language = Convert.ToInt32(block.Inputs["Language"].Value);
-        if (block.UserData.Contains("MessageLanguage") && Convert.ToInt32(block.UserData["MessageLanguage"]) == language && block.UserData.Contains("Message." + english))
-            return Convert.ToString(block.UserData["Message." + english]);
+        if (block.UserData.Contains("MessageLanguage") && Convert.ToInt32(block.UserData["MessageLanguage"]) == language && block.UserData.Contains("Message." + english)) return Convert.ToString(block.UserData["Message." + english]);
         return language == 0 ? chinese : language == 1 ? english : spanish;
     }
 }

@@ -14,9 +14,11 @@ public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
     public override bool GroupRun(ref string message, ref CogToolResultConstants result)
     {
         foreach (string name in new[] { "CenterX", "CenterY", "RmsError" }) block.Outputs[name].Value = double.NaN;
+        block.Outputs["Valid"].Value = false;
         try
         {
             Fit((double[])block.Inputs["PixelX"].Value, (double[])block.Inputs["PixelY"].Value, (double[])block.Inputs["AnglesDegrees"].Value);
+            block.Outputs["Valid"].Value = true;
             message = ""; result = CogToolResultConstants.Accept;
         }
         catch (Exception error) { message = error.Message; result = CogToolResultConstants.Error; }
