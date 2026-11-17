@@ -5,6 +5,27 @@ namespace AlphaRap
 {
     public partial class VPForm
     {
+        /// <summary>读取旋转步骤的九点前置状态，界面显示与实际进入时使用同一校验。</summary>
+        internal bool CanStartRotation(VpCalibCard card, out string error)
+        {
+            CameraEntry entry = EntryOf(card);
+            if (entry != null && card.Calib != null) return card.Calib.CanStartRotation(entry.Config, SysPara.RecipeName, out error);
+            error = VpCalibration.NinePointRequiredMessage(); return false;
+        }
+
+        /// <summary>通过九点校验后准备标准旋转工作流，编辑窗口只保留草稿。</summary>
+        internal void OpenRotationCalibration(VpCalibCard card)
+        {
+            if (card == null || !EnsureIdle(T("vpAct_Edit", "编辑视觉算法"))) return;
+            string error;
+            if (!CanStartRotation(card, out error)) { MessageBox.Show(error, T("vpMsg_CalibrationTitle", "标定")); return; }
+            VpStation station = card.Calib.Station;
+            if (!station.TryCreateTemplateTB(station.GetVppPath(SysPara.RecipeName), true, out error)) { MessageBox.Show(error, T("vpMsg_CalibrationTitle", "标定")); return; }
+            if (!station.CanEditRotationCalibration(out error)) { MessageBox.Show(error, T("vpMsg_CalibrationTitle", "标定")); return; }
+            using (VpRotationForm form = new VpRotationForm(card.Calib, EntryOf(card).Config, SysPara.RecipeName)) form.ShowDialog(this);
+            card.RefreshTexts();
+        }
+
         /// <summary>切换标定采点定义前要求清空旧样本，防止不同特征坐标混入同一批标定点。</summary>
         internal void ChangeCalibrationFeature(VpCalibCard card)
         {

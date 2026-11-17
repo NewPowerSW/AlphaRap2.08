@@ -43,6 +43,7 @@ namespace AlphaRap
             block.Inputs["UseCalibration"].Value = false;
             block.UserData[TemplateKey] = "Calibration/3";
             SetScript(block, "Calibration.txt");
+            ConnectRotationPrerequisite(block);
         }
 
         /// <summary>为圆边缘建立足够数量的卡尺，实际圆位置、极性与搜索宽度由应用人员在编辑器调整。</summary>
@@ -150,7 +151,7 @@ namespace AlphaRap
             if (!original.Tools.Contains(PatternToolName) || !(original.Tools[PatternToolName] is CogPMAlignTool)) return false;
             CogToolBlock capture = (CogToolBlock)original.Tools["AcquireImage"], result = (CogToolBlock)original.Tools["PositionResult"], rotation = (CogToolBlock)original.Tools[RotationToolName];
             if (capture.Inputs.Count != 5 || capture.Outputs.Count != 1 || result.Inputs.Count != 4 || result.Outputs.Count != 7 || rotation.Inputs.Count != 4 || rotation.Outputs.Count != 4) return false;
-            if (!ScriptMatchesResource(capture, "Acquisition.txt") || !ScriptMatchesResource(result, "PositionResult.txt") || !ScriptMatchesResource(rotation, "RotationCenter.txt")) return false;
+            if (!ScriptMatchesResource(capture, "Acquisition.txt") || !ScriptMatchesResource(result, "PositionResult.txt") || !IsLegacyRotationScript(rotation)) return false;
             if (capture.Tools.Count != 1 || !(capture.Tools[0] is CogAcqFifoTool) || result.Tools.Count != 0 || rotation.Tools.Count != 0) return false;
             if (new[] { capture, result, rotation }.Any(child => child.DisabledTools.Count != 0 || child.Inputs.DataBindings.Count != 0 || child.Outputs.DataBindings.Count != 0)) return false;
             if (!HasV2Connections(original)) return false;

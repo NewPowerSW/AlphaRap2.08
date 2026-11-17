@@ -23,6 +23,7 @@ internal static partial class Tests
         Run("V2 migration preserves training samples links and custom content", PrecisionV2Upgrade);
         Run("sampling modes are recipe drafts with reload discard and busy guards", PrecisionDraftSettings);
         Run("calibration card preserves selections and edited values in three languages", PrecisionCardLanguages);
+        RunRotationWorkflowTests();
     }
 
     /// <summary>生成灰度边缘的合成图像，参数使用像素中心坐标；超采样保留分数像素变化。</summary>

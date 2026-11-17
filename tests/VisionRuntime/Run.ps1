@@ -27,9 +27,10 @@ foreach ($vpReference in $vpReferences) { $vpCompilerArgs += "/r:$vpReference" }
 $vpCompilerArgs += Join-Path $PSScriptRoot 'Regression.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'BuiltInAlgorithms.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'PrecisionCalibration.cs'
+$vpCompilerArgs += Join-Path $PSScriptRoot 'RotationWorkflow.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'Localization.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'MiddleLayer.cs'
-foreach ($vpFixture in @('CalibrationV1', 'PositioningV1', 'CalibrationV2')) {
+foreach ($vpFixture in @('CalibrationV1', 'PositioningV1', 'CalibrationV2', 'CalibrationV3')) {
     $vpCompilerArgs += "/resource:$(Join-Path $PSScriptRoot "Fixtures/$vpFixture.vpp"),Fixtures.$vpFixture.vpp"
 }
 & $vpCompiler @vpCompilerArgs

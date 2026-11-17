@@ -1018,8 +1018,12 @@ namespace AlphaRap
 				: T("vpCalib_PointsA", "　　已录 ") + calib.Points.Count
 				  + T("vpCalib_PointsB", " 点（至少 9 点）");
 
-			if (calib != null && !calib.IsAppliedTo(entry.Config, SysPara.RecipeName))
-				tail += T("vpCalib_Dirty", "　　▲ 已修改，未应用");
+            string reason;
+            if (calib != null && calib.CanStartRotation(entry.Config, SysPara.RecipeName, out reason) &&
+                (calib.Station.HasToolBlockDraft || entry.Config.Vpps.Any(vpp => vpp.Station != null && vpp.Station.HasToolBlockDraft)))
+                tail += FrameworkLanguage.LangMsg("VPForm", "vpCalib_AppliedDraft", "　　九点已应用，待主保存", "  Nine points applied; Main Save pending", "  Nueve puntos aplicados; pendiente de guardar");
+            else if (calib != null && !calib.IsAppliedTo(entry.Config, SysPara.RecipeName))
+                tail += T("vpCalib_Dirty", "　　▲ 已修改，未应用");
 
 			return head + "　" + entry.Key + tail;
 		}
@@ -2124,7 +2128,7 @@ namespace AlphaRap
 			else
 			{
 				card.Dock = DockStyle.Top;
-				card.Height = 296;      // 宿主中还有其它控件时使用固定高度
+				card.Height = 328;
 			}
 			card.Bind();
 
@@ -2407,7 +2411,7 @@ namespace AlphaRap
 					+ calib.Points.Count + T("vpMsg_Need9PointsB", " 个）。"), T("vpMsg_Title", "提示"));
 				return;
 			}
-			if (entry.Targets.Count == 0)
+			if (entry.Targets.Count == 0 && !VpAlgorithmTemplates.IsBuiltIn(calib.Station == null ? null : calib.Station.TB))
 			{
 				MessageBox.Show(T("vpMsg_NoStationToApply", "这台相机下还没有可应用标定的 VPP 工位。"),
 					T("vpMsg_Title", "提示"));
@@ -2520,6 +2524,11 @@ namespace AlphaRap
 
 			if (failures.Count == 0)
 			{
+                if (entry.Targets.Count == 0)
+                {
+                    MessageBox.Show(FrameworkLanguage.LangMsg("VPForm", "vpMsg_NineOnlyApplied", "九点标定已应用到本相机。可由主界面保存后结束，也可继续可选的旋转标定。", "Nine-point calibration was applied to this camera. Use Main Save to finish, or continue with optional rotation calibration.", "Se aplicó la calibración de nueve puntos a esta cámara. Use Guardar para finalizar o continúe con la rotación opcional."), T("vpMsg_CalibrationTitle", "标定"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
 				MessageBox.Show(string.Format(FrameworkLanguage.LangMsg("VPForm", "vpMsg_AppliedDraft", "标定已应用到本相机下 {0} 个 VPP 的草稿。请使用主界面【保存】后再生产。\r\n{1}", "Calibration was applied to drafts for {0} VPPs on this camera. Use Save in the main window before production.\r\n{1}", "La calibración se aplicó a los borradores de {0} VPP de esta cámara. Use Guardar en la ventana principal antes de producir.\r\n{1}"), okCount, TargetNames(entry) + quality),
 					T("vpMsg_CalibrationTitle", "标定"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 				return;

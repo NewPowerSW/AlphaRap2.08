@@ -46,7 +46,7 @@ internal static partial class Tests
             Check(calibration.Tools["Calibration"] is CogCalibNPointToNPointTool, "Nine-point tool is missing.");
             Check(calibration.Tools["RotationCenter"] is CogToolBlock, "Rotation center algorithm is missing.");
             Check(VpAlgorithmTemplates.IsBuiltIn(positioning) && positioning.Tools.Count == 4, "Standard positioning tools are missing.");
-            Check(capture.DataBindings.Count == 5 && calibration.Outputs.DataBindings.Count == 13, "Root image and result ports have no native connections.");
+            Check(capture.DataBindings.Count == 5 && calibration.Outputs.DataBindings.Count == 15, "Root image and result ports have no native connections.");
             Check(calibration.Tools["LocatePattern"].DataBindings.Count == 1 && calibration.Tools["Calibration"].DataBindings.Count == 1, "Native image inputs have no connections.");
             Check((string)positioning.Inputs["CameraSN"].Value == "" && (double)positioning.Inputs["Exposure"].Value == 15, "Camera defaults changed.");
             Check(!(bool)positioning.Inputs["UseInputImage"].Value && double.IsNaN((double)positioning.Outputs["x"].Value), "The template invented a valid production result.");
@@ -59,6 +59,7 @@ internal static partial class Tests
     {
         using (CogToolBlock calibration = VpAlgorithmTemplates.Create(true, "", 10))
         {
+            CalibrateRotationModel(calibration);
             double[] angles = { -90, -45, 0, 40, 95, 150 };
             double[] x = angles.Select(a => 1234 + 82 * Math.Cos(a * Math.PI / 180) + 17 * Math.Sin(a * Math.PI / 180)).ToArray();
             double[] y = angles.Select(a => -567 + 12 * Math.Cos(a * Math.PI / 180) - 63 * Math.Sin(a * Math.PI / 180)).ToArray();
@@ -246,6 +247,7 @@ internal static partial class Tests
     {
         using (CogToolBlock block = VpAlgorithmTemplates.Create(true, "", 10))
         {
+            CalibrateRotationModel(block);
             SetRotationSamples(block, new double[] { 12, 2, -8, 2 }, new double[] { 3, 13, 3, -7 }, new double[] { 0, 90, 180, 270 });
             string path = Path.Combine(TestDirectory, "builtin-roundtrip.vpp"); CogSerializer.SaveObjectToFile(block, path);
             using (CogToolBlock loaded = (CogToolBlock)CogSerializer.LoadObjectFromFile(path))

@@ -7,7 +7,7 @@ namespace AlphaRap
     /// 标定卡（一台相机一张）：标题 / 标定点表格 / 路径提示 / 标定曝光 / 操作按钮。
     /// 本类负责布局、填充数据并把控件事件转给 <see cref="Owner"/>（VPForm），标定业务在 VPForm 中处理；
     /// 相机入口存放在 Tag 中，由 VPForm 读写。
-    /// Designer 中的停靠顺序须保持 grid → tip → expRow → btns → title（Dock 后加入的先停靠）。
+    /// Designer 中的停靠顺序须保持 grid → tip → expRow → btns → stepRow → title（Dock 后加入的先停靠）。
     /// </summary>
     public partial class VpCalibCard : UserControl
     {
@@ -52,6 +52,7 @@ namespace AlphaRap
                 cmbFeature.SelectedIndexChanged += FeatureSelectionChanged;
                 cbRough.CheckedChanged += FeatureSelectionChanged;
                 btnClearSamples.Click += delegate { if (Owner != null) Owner.ClearCalibrationSamples(this); };
+                btnRotationStep.Click += delegate { if (Owner != null) Owner.OpenRotationCalibration(this); };
 
                 // 单元格编辑完成后写入标定点草稿，统一由主界面保存。
                 gridPoints.CellEndEdit += delegate(object s, DataGridViewCellEventArgs e)
@@ -112,8 +113,20 @@ namespace AlphaRap
                 btnDeletePoint.Text = LangText("vpBtn_DeletePoint", "删除选中点");
                 btnApplyToCamera.Text = LangText("vpBtn_ApplyToCamera", "应用到本相机");
                 RefreshFeatureTexts();
+                RefreshRotationStep();
             }
             catch (Exception) { }
+        }
+
+        /// <summary>九点可以单独结束；只有当前九点仍有效时才开放可选的旋转步骤。</summary>
+        private void RefreshRotationStep()
+        {
+            lblNineStep.Text = FrameworkLanguage.LangMsg(LangForm, "vpStep_Nine", "1 九点标定", "1 Nine-point calibration", "1 Calibración de nueve puntos");
+            btnRotationStep.Text = FrameworkLanguage.LangMsg(LangForm, "vpStep_Rotation", "2 旋转标定（可选）", "2 Rotation (optional)", "2 Rotación (opcional)");
+            string reason; bool ready = Owner != null && Owner.CanStartRotation(this, out reason);
+            btnRotationStep.Enabled = ready;
+            lblStepState.Text = ready ? FrameworkLanguage.LangMsg(LangForm, "vpStep_NineReady", "九点有效，可保存结束或继续旋转", "Nine points valid: finish with Save or continue rotation", "Nueve puntos válidos: guarde o continúe con rotación")
+                : FrameworkLanguage.LangMsg(LangForm, "vpStep_NineRequired", "旋转前请先完成九点并应用", "Complete and apply nine points before rotation", "Complete y aplique nueve puntos antes de rotar");
         }
 
         /// <summary>从当前配方算法回填采点设置，失败和语言刷新均不触发编辑事件。</summary>

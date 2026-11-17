@@ -1,5 +1,6 @@
 using System;
 using Cognex.VisionPro;
+using Cognex.VisionPro.CalibFix;
 using Cognex.VisionPro.ToolBlock;
 using Cognex.VisionPro.ToolGroup;
 
@@ -13,20 +14,33 @@ public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
     /// <summary>用实际 R 角度拟合固定相机下的正弦旋转轨迹，允许仿射成像下的椭圆投影。</summary>
     public override bool GroupRun(ref string message, ref CogToolResultConstants result)
     {
-        foreach (string name in new[] { "CenterX", "CenterY", "RmsError" }) block.Outputs[name].Value = double.NaN;
+        foreach (string name in new[] { "CenterX", "CenterY", "RmsError", "MachineCenterX", "MachineCenterY" }) if (block.Outputs.Contains(name)) block.Outputs[name].Value = double.NaN;
         block.Outputs["Valid"].Value = false;
         try
         {
-            Fit((double[])block.Inputs["PixelX"].Value, (double[])block.Inputs["PixelY"].Value, (double[])block.Inputs["AnglesDegrees"].Value);
+            CogCalibNPointToNPoint calibration = block.Inputs.Contains("CalibrationModel") ? block.Inputs["CalibrationModel"].Value as CogCalibNPointToNPoint : null;
+            if (calibration == null || !calibration.Calibrated || calibration.NumPoints < 9) throw new InvalidOperationException(Text("请先完成至少九点标定并应用到本相机，再进行旋转标定。", "Complete and apply at least nine calibration points to this camera before rotation calibration.", "Complete y aplique al menos nueve puntos a esta cámara antes de calibrar la rotación."));
+            double[] x = (double[])block.Inputs["PixelX"].Value, y = (double[])block.Inputs["PixelY"].Value, angles = (double[])block.Inputs["AnglesDegrees"].Value;
+            double pixelX, pixelY, pixelRms; Fit(x, y, angles, out pixelX, out pixelY, out pixelRms);
+            ICogTransform2D transform = calibration.GetComputedUncalibratedFromCalibratedTransform().InvertBase();
+            double[] machinePointsX = new double[x.Length], machinePointsY = new double[y.Length];
+            for (int index = 0; index < x.Length; index++) transform.MapPoint(x[index], y[index], out machinePointsX[index], out machinePointsY[index]);
+            double machineX, machineY, machineRms; Fit(machinePointsX, machinePointsY, angles, out machineX, out machineY, out machineRms);
+            block.Outputs["CenterX"].Value = pixelX; block.Outputs["CenterY"].Value = pixelY; block.Outputs["RmsError"].Value = pixelRms;
+            block.Outputs["MachineCenterX"].Value = machineX; block.Outputs["MachineCenterY"].Value = machineY;
             block.Outputs["Valid"].Value = true;
             message = ""; result = CogToolResultConstants.Accept;
         }
-        catch (Exception error) { message = error.Message; result = CogToolResultConstants.Error; }
+        catch (Exception error)
+        {
+            foreach (string name in new[] { "CenterX", "CenterY", "RmsError", "MachineCenterX", "MachineCenterY" }) if (block.Outputs.Contains(name)) block.Outputs[name].Value = double.NaN;
+            message = error.Message; result = CogToolResultConstants.Error;
+        }
         return false;
     }
 
     /// <summary>分别拟合 x/y 的常数、cos 和 sin 系数，拒绝缺失或退化采样。</summary>
-    private void Fit(double[] x, double[] y, double[] angles)
+    private void Fit(double[] x, double[] y, double[] angles, out double centerX, out double centerY, out double rms)
     {
         if (x == null || y == null || angles == null || x.Length != y.Length || x.Length != angles.Length || x.Length < 3)
             throw new ArgumentException(Text("请提供至少三组对应的 PixelX/PixelY/AnglesDegrees 采样。", "Supply at least three matching PixelX/PixelY/AnglesDegrees samples.", "Introduzca al menos tres muestras correspondientes de PixelX/PixelY/AnglesDegrees."));
@@ -52,7 +66,7 @@ public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
             throw new ArgumentException(Text("旋转角度重复、转动范围不足或特征未发生位移。", "Rotation angles are repeated, cover too little rotation, or the feature did not move.", "Los ángulos se repiten, cubren muy poca rotación o la característica no se movió."));
         double ax = (cx * ss - sx * cs) / determinant, bx = (sx * cc - cx * cs) / determinant;
         double ay = (cy * ss - sy * cs) / determinant, by = (sy * cc - cy * cs) / determinant;
-        double centerX = meanX - ax * meanCos - bx * meanSin, centerY = meanY - ay * meanCos - by * meanSin, error = 0;
+        centerX = meanX - ax * meanCos - bx * meanSin; centerY = meanY - ay * meanCos - by * meanSin; double error = 0;
         for (int i = 0; i < x.Length; i++)
         {
             double dx = x[i] - centerX - ax * cosine[i] - bx * sine[i];
@@ -60,8 +74,7 @@ public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
             error += dx * dx + dy * dy;
         }
         if (!Finite(centerX) || !Finite(centerY) || !Finite(error)) throw new ArgumentException(Text("旋转拟合结果不是有限数值。", "The fitted rotation is not finite.", "La rotación calculada no es finita."));
-        block.Outputs["CenterX"].Value = centerX; block.Outputs["CenterY"].Value = centerY;
-        block.Outputs["RmsError"].Value = Math.Sqrt(error / x.Length);
+        rms = Math.Sqrt(error / x.Length);
     }
 
     /// <summary>识别有效浮点采样。</summary>

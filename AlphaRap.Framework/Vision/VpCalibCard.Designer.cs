@@ -51,6 +51,10 @@
             this.btnDeletePoint = new AlphaRap.UiButton();
             this.btnApplyToCamera = new AlphaRap.UiButton();
             this.lblTitle = new AlphaRap.UiLabel();
+            this.stepRow = new System.Windows.Forms.Panel();
+            this.lblNineStep = new AlphaRap.UiLabel();
+            this.btnRotationStep = new AlphaRap.UiButton();
+            this.lblStepState = new AlphaRap.UiLabel();
             this.card.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridPoints)).BeginInit();
             this.expRow.SuspendLayout();
@@ -64,12 +68,13 @@
             this.card.Controls.Add(this.lblTip);
             this.card.Controls.Add(this.expRow);
             this.card.Controls.Add(this.btns);
+            this.card.Controls.Add(this.stepRow);
             this.card.Controls.Add(this.lblTitle);
             this.card.Dock = System.Windows.Forms.DockStyle.Fill;
             this.card.Location = new System.Drawing.Point(0, 0);
             this.card.Name = "card";
             this.card.Padding = new System.Windows.Forms.Padding(14, 8, 14, 8);
-            this.card.Size = new System.Drawing.Size(900, 296);
+            this.card.Size = new System.Drawing.Size(900, 328);
             this.card.TabIndex = 0;
             // 
             // gridPoints
@@ -84,7 +89,7 @@
             this.cMx,
             this.cMy});
             this.gridPoints.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridPoints.Location = new System.Drawing.Point(14, 38);
+            this.gridPoints.Location = new System.Drawing.Point(14, 70);
             this.gridPoints.Name = "vpCalibGrid";
             this.gridPoints.RowHeadersVisible = false;
             this.gridPoints.Size = new System.Drawing.Size(872, 158);
@@ -323,6 +328,39 @@
             this.lblTitle.Size = new System.Drawing.Size(872, 30);
             this.lblTitle.TabIndex = 4;
             this.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // stepRow
+            //
+            this.stepRow.Dock = System.Windows.Forms.DockStyle.Top;
+            this.stepRow.Name = "vpCalibStepRow";
+            this.stepRow.Location = new System.Drawing.Point(14, 38);
+            this.stepRow.Size = new System.Drawing.Size(872, 32);
+            this.stepRow.Controls.Add(this.lblNineStep);
+            this.stepRow.Controls.Add(this.btnRotationStep);
+            this.stepRow.Controls.Add(this.lblStepState);
+            this.lblNineStep.Name = "vpStep_Nine";
+            this.lblNineStep.Text = "1 九点标定";
+            this.lblNineStep.Font = new System.Drawing.Font("宋体", 10F);
+            this.lblNineStep.Location = new System.Drawing.Point(0, 2);
+            this.lblNineStep.Size = new System.Drawing.Size(172, 28);
+            this.lblNineStep.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnRotationStep.Name = "vpStep_Rotation";
+            this.btnRotationStep.Text = "2 旋转标定（可选）";
+            this.btnRotationStep.Font = new System.Drawing.Font("宋体", 9F);
+            this.btnRotationStep.Location = new System.Drawing.Point(180, 1);
+            this.btnRotationStep.Size = new System.Drawing.Size(190, 28);
+            this.btnRotationStep.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRotationStep.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(203, 216, 230);
+            this.btnRotationStep.BackColor = System.Drawing.Color.White;
+            this.btnRotationStep.Enabled = false;
+            this.lblStepState.Name = "vpStepState_dyn";
+            this.lblStepState.Text = "请先完成九点并应用";
+            this.lblStepState.Font = new System.Drawing.Font("宋体", 9F);
+            this.lblStepState.Location = new System.Drawing.Point(380, 2);
+            this.lblStepState.Size = new System.Drawing.Size(480, 28);
+            this.lblStepState.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            this.lblStepState.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblStepState.AutoEllipsis = true;
             // 
             // VpCalibCard
             // 
@@ -330,7 +368,7 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(243)))), ((int)(((byte)(249)))));
             this.Controls.Add(this.card);
             this.Name = "VpCalibCard";
-            this.Size = new System.Drawing.Size(900, 296);
+            this.Size = new System.Drawing.Size(900, 328);
             this.card.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gridPoints)).EndInit();
             this.expRow.ResumeLayout(false);
@@ -363,5 +401,9 @@
         private UiButton btnDeletePoint;
         private UiButton btnApplyToCamera;
         private UiLabel lblTitle;
+        private System.Windows.Forms.Panel stepRow;
+        private UiLabel lblNineStep;
+        private UiButton btnRotationStep;
+        private UiLabel lblStepState;
     }
 }

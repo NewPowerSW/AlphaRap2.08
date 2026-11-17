@@ -260,6 +260,7 @@ namespace AlphaRap
             if (!IsBuiltIn(original)) return false;
             string identity = Convert.ToString(original.UserData[TemplateKey]);
             if (identity == "Calibration/2") return TryUpgradePrecisionV2(original, out upgraded);
+            if (identity == "Calibration/3") return TryUpgradeRotationV3(original, out upgraded);
             if (identity != "Calibration/1" && identity != "Positioning/1") return false;
             if (!HasStockScript(original, "47C9140F68B2EBAB214D6AF0D5E20689F1694A893B096AEDF5C058DE6E7E193C")) return false;
             bool calibration = Convert.ToBoolean(original.UserData["RawCalibrationPixels"]);
@@ -325,8 +326,11 @@ namespace AlphaRap
                 "false: x/y en píxeles; true: x/y en el espacio de Calibration. A en grados. Las muestras de calibración siempre usan píxeles.");
             if (block.Inputs.Contains("UseCalibration")) block.Inputs["UseCalibration"].Description = FrameworkLanguage.LangMsg("Vision", "template_UseCalibration",
                 "使用有效九点标定转换定位坐标；标定采点时保持 false，输出原始像素。", "Use a valid nine-point calibration to transform the pose; keep false when sampling raw calibration pixels.", "Use una calibración válida de nueve puntos para transformar la posición; mantenga false al tomar muestras de píxeles.");
-            if (block.Inputs.Contains("RunRotation")) block.Inputs["RunRotation"].Description = FrameworkLanguage.LangMsg("Vision", "template_RunRotation",
-                "true：只计算 RotationPixelX/RotationPixelY/RotationAnglesDegrees，输出旋转中心和残差；false：采图定位。生产拍照自动使用 false。", "true: calculate rotation samples only, returning center and residual; false: capture and locate. Production capture always uses false.", "true: calcule solo las muestras de rotación y obtenga centro y residuo; false: capture y localice. La captura de producción siempre usa false.");
+            if (block.Inputs.Contains("RunRotation")) block.Inputs["RunRotation"].Description = FrameworkLanguage.LangMsg("Vision", "template_RunRotationNinePoint",
+                "true：要求至少九点的有效 Calibration 模型，仅计算旋转样本；false：采图定位。生产拍照自动使用 false。", "true: requires a valid Calibration model with at least nine points and calculates rotation samples only; false: capture and locate. Production capture uses false.", "true: requiere Calibration válida con al menos nueve puntos y calcula solo las muestras de rotación; false: capture y localice. La captura de producción usa false.");
+            foreach (string name in new[] { "MachineCenterX", "MachineCenterY" })
+                if (block.Outputs.Contains(name)) block.Outputs[name].Description = FrameworkLanguage.LangMsg("Vision", "template_MachineRotationCenter",
+                    "把每个旋转样本经有效九点关系转换后拟合的机械中心，单位 mm；CenterX/CenterY 和 RmsError 仍为像素。", "Machine center fitted after converting each rotation sample through valid nine-point calibration, in mm. CenterX/CenterY and RmsError remain pixels.", "Centro mecánico ajustado tras transformar cada muestra mediante nueve puntos válidos, en mm. CenterX/CenterY y RmsError siguen en píxeles.");
             ApplyPrecisionDescriptions(block);
             if (block.Tools.Contains(RotationToolName))
                 ((CogToolBlock)block.Tools[RotationToolName]).Inputs["PixelX"].Description = FrameworkLanguage.LangMsg("Vision", "template_RotationSamples",
@@ -359,6 +363,7 @@ namespace AlphaRap
             SetMessage(rotation, "RotationFinite", "旋转采样必须为有限数值。", "Rotation samples must be finite.", "Las muestras de rotación deben ser valores finitos.");
             SetMessage(rotation, "RotationCoverage", "旋转角度重复、转动范围不足或特征未发生位移。", "Rotation angles are repeated, cover too little rotation, or the feature did not move.", "Los ángulos se repiten, cubren muy poca rotación o la característica no se movió.");
             SetMessage(rotation, "RotationFitFinite", "旋转拟合结果不是有限数值。", "The fitted rotation is not finite.", "La rotación calculada no es finita.");
+            SetMessage(rotation, "RotationNinePointRequired", "请先完成至少九点标定并应用到本相机，再进行旋转标定。", "Complete and apply at least nine calibration points to this camera before rotation calibration.", "Complete y aplique al menos nueve puntos a esta cámara antes de calibrar la rotación.");
         }
 
         /// <summary>按稳定语言键解析文案，脚本独立运行时仍可使用随附三语底稿。</summary>

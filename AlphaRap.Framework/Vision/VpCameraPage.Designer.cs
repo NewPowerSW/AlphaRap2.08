@@ -48,10 +48,10 @@
             // 
             this.vppTabs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.vppTabs.Font = new System.Drawing.Font("宋体", 14.25F);
-            this.vppTabs.Location = new System.Drawing.Point(0, 320);
+            this.vppTabs.Location = new System.Drawing.Point(0, 352);
             this.vppTabs.Name = "vppTabs";
             this.vppTabs.SelectedIndex = 0;
-            this.vppTabs.Size = new System.Drawing.Size(592, 300);
+            this.vppTabs.Size = new System.Drawing.Size(592, 268);
             this.vppTabs.TabIndex = 3;
             // 
             // calibHost
@@ -61,7 +61,7 @@
             this.calibHost.Location = new System.Drawing.Point(0, 52);
             this.calibHost.Name = "calibHost";
             this.calibHost.Padding = new System.Windows.Forms.Padding(8, 4, 8, 6);
-            this.calibHost.Size = new System.Drawing.Size(592, 268);
+            this.calibHost.Size = new System.Drawing.Size(592, 300);
             this.calibHost.TabIndex = 2;
             // 
             // dispHost

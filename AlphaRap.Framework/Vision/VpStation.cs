@@ -821,7 +821,7 @@ namespace AlphaRap
     ///   · <see cref="Points"/>：标定点（保存在相机配置中，不随配方变化）
     ///   · <see cref="ApplyToStations"/>：把标定点写入各 VPP ToolBlock 中名为 <see cref="ToolName"/> 的 CogCalibNPointToNPointTool
     /// </summary>
-    public class VpCalibration
+    public partial class VpCalibration
     {
         /// <summary>标定 vpp 的子目录名（在相机目录下）：VisionData\{相机名}\{FolderName}\{配方}.vpp</summary>
         public string FolderName = "Calibration";
@@ -846,9 +846,14 @@ namespace AlphaRap
         /// <summary>确认点位、相机、配方与全部目标算法版本均与发布记录一致。</summary>
         public bool IsAppliedTo(VpCameraConfig camera, string recipe)
         {
-            if (camera == null || !IsApplied || camera.Vpps.Count == 0) return false;
+            if (camera == null || !IsApplied) return false;
             if (AppliedRecipe != recipe || AppliedCameraSN != camera.CameraSN) return false;
             if (AppliedModels.Count != camera.Vpps.Count) return false;
+            if (camera.Vpps.Count == 0)
+            {
+                string stamp;
+                return Station != null && Station.IsLoadedFrom(Station.GetVppPath(recipe)) && Station.TryGetNinePointStamp(Points, ToolName, out stamp);
+            }
             foreach (VpVppConfig vpp in camera.Vpps)
             {
                 string signature;
@@ -1320,10 +1325,10 @@ namespace AlphaRap
                             VpCalibPoint p = kv.Value.Points[i];
                             if (p == null) continue;
                             XmlElement pe = doc.CreateElement("Point");
-                            pe.SetAttribute("PixelX", p.PixelX.ToString("F4", CultureInfo.InvariantCulture));
-                            pe.SetAttribute("PixelY", p.PixelY.ToString("F4", CultureInfo.InvariantCulture));
-                            pe.SetAttribute("MotorPosX", p.MotorPosX.ToString("F4", CultureInfo.InvariantCulture));
-                            pe.SetAttribute("MotorPosY", p.MotorPosY.ToString("F4", CultureInfo.InvariantCulture));
+                            pe.SetAttribute("PixelX", p.PixelX.ToString("R", CultureInfo.InvariantCulture));
+                            pe.SetAttribute("PixelY", p.PixelY.ToString("R", CultureInfo.InvariantCulture));
+                            pe.SetAttribute("MotorPosX", p.MotorPosX.ToString("R", CultureInfo.InvariantCulture));
+                            pe.SetAttribute("MotorPosY", p.MotorPosY.ToString("R", CultureInfo.InvariantCulture));
                             ce.AppendChild(pe);
                         }
                     }

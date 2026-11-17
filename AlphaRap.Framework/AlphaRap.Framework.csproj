@@ -798,6 +798,15 @@
     </Compile>
     <Compile Include="Vision\VisionproInterface.cs" />
     <Compile Include="Vision\VisionCalibrationFeatures.cs" />
+    <Compile Include="Vision\VisionRotationCalibration.cs" />
+    <Compile Include="Vision\VpRotationCalibration.cs" />
+    <Compile Include="Vision\VpRotationTemplates.cs" />
+    <Compile Include="Vision\VpRotationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Vision\VpRotationForm.Designer.cs">
+      <DependentUpon>VpRotationForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Vision\VpAlgorithmTemplates.cs" />
     <Compile Include="Vision\VpCalibrationTemplates.cs" />
     <Compile Include="MenuForm\VPForm.CalibrationFeatures.cs">

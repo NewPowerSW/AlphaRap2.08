@@ -119,10 +119,11 @@ namespace AlphaRap
         }
 
         /// <summary>将编辑结果保留为当前配方草稿，等待主界面统一保存。</summary>
-        internal void MarkToolBlockDraft()
+        internal void MarkToolBlockDraft(bool preserveRotationSamples = false)
         {
             lock (_operationLock)
             {
+                if (!preserveRotationSamples) VpAlgorithmTemplates.InvalidateRotation(TB, true);
                 _hasToolBlockDraft = true; ModelSignature = ""; IsAccept = false; _lastRunResult = null;
                 _toolBlockRevision++;
             }
