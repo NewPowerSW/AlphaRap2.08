@@ -52,6 +52,18 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Cognex.VisionPro.Caliper">
+      <HintPath>C:\Program Files\Cognex\VisionPro\ReferencedAssemblies\Cognex.VisionPro.Caliper.dll</HintPath>
+    </Reference>
+    <Reference Include="Cognex.VisionPro.Caliper.Controls">
+      <HintPath>C:\Program Files\Cognex\VisionPro\ReferencedAssemblies\Cognex.VisionPro.Caliper.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Cognex.VisionPro.Dimensioning">
+      <HintPath>C:\Program Files\Cognex\VisionPro\ReferencedAssemblies\Cognex.VisionPro.Dimensioning.dll</HintPath>
+    </Reference>
+    <Reference Include="Cognex.VisionPro.Dimensioning.Controls">
+      <HintPath>C:\Program Files\Cognex\VisionPro\ReferencedAssemblies\Cognex.VisionPro.Dimensioning.Controls.dll</HintPath>
+    </Reference>
     <Reference Include="Cognex.FieldCalibrationApplication.Plugin, Version=65.1.0.0, Culture=neutral, PublicKeyToken=ef0f902af9dee505, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files\Cognex\VisionPro\ReferencedAssemblies\Cognex.FieldCalibrationApplication.Plugin.dll</HintPath>
@@ -785,7 +797,12 @@
       <DependentUpon>TBEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Vision\VisionproInterface.cs" />
+    <Compile Include="Vision\VisionCalibrationFeatures.cs" />
     <Compile Include="Vision\VpAlgorithmTemplates.cs" />
+    <Compile Include="Vision\VpCalibrationTemplates.cs" />
+    <Compile Include="MenuForm\VPForm.CalibrationFeatures.cs">
+      <DependentUpon>VPForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Vision\VpStation.cs" />
     <Compile Include="Vision\VpProductionBinding.cs" />
     <!-- 标定卡：布局写在设计器里（VS 设计视图看到的就是 EXE 里的样子），VPForm 按相机实例化 -->
@@ -1026,6 +1043,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Vision\Templates\Positioning.txt" />
+    <EmbeddedResource Include="Vision\Templates\Calibration.txt" />
+    <EmbeddedResource Include="Vision\Templates\CalibrationPoint.txt" />
+    <EmbeddedResource Include="Vision\Templates\CoarsePose.txt" />
     <EmbeddedResource Include="Vision\Templates\Acquisition.txt" />
     <EmbeddedResource Include="Vision\Templates\PositionResult.txt" />
     <EmbeddedResource Include="Vision\Templates\RotationCenter.txt" />

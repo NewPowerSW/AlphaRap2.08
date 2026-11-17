@@ -19,11 +19,14 @@ namespace AlphaRap
 
         /// <summary>语言包里的分组名（= 窗体名）。</summary>
         private const string LangForm = "VPForm";
+        private bool refreshingFeature;
 
         public DataGridView GridPoints { get { return gridPoints; } }
         public TextBox ExposureBox { get { return tbExposure; } }
         public UiLabel TitleLabel { get { return lblTitle; } }
         public UiLabel TipLabel { get { return lblTip; } }
+        internal VpCalibrationFeature SelectedFeature { get { return (VpCalibrationFeature)cmbFeature.SelectedIndex; } }
+        internal bool UseRoughLocation { get { return cbRough.Checked; } }
 
         public VpCalibCard()
         {
@@ -45,14 +48,18 @@ namespace AlphaRap
                 // 标定曝光回填：已建标定用标定的曝光，没有标定时用相机的默认曝光
                 // （不先回填的话输入框是空的，看起来像"参数没加载"）
                 tbExposure.Text = DefaultExposure().ToString("F1");
+                RefreshFeatureSelection();
+                cmbFeature.SelectedIndexChanged += FeatureSelectionChanged;
+                cbRough.CheckedChanged += FeatureSelectionChanged;
+                btnClearSamples.Click += delegate { if (Owner != null) Owner.ClearCalibrationSamples(this); };
 
-                // 单元格编辑完成后立即写回标定点并保存
+                // 单元格编辑完成后写入标定点草稿，统一由主界面保存。
                 gridPoints.CellEndEdit += delegate(object s, DataGridViewCellEventArgs e)
                 {
                     if (Owner != null) Owner.OnCalibGridEdited(this, e);
                 };
 
-                // 标定曝光：改一下就进内存 + 落盘；输入不合法时失焦还原
+                // 合法曝光写入内存草稿，输入不合法时失焦还原。
                 tbExposure.TextChanged += delegate
                 {
                     if (Owner != null) Owner.ApplyCalibrationExposure(this);
@@ -104,8 +111,49 @@ namespace AlphaRap
                 btnAddPoint.Text = LangText("vpBtn_AddPoint", "添加标定点");
                 btnDeletePoint.Text = LangText("vpBtn_DeletePoint", "删除选中点");
                 btnApplyToCamera.Text = LangText("vpBtn_ApplyToCamera", "应用到本相机");
+                RefreshFeatureTexts();
             }
             catch (Exception) { }
+        }
+
+        /// <summary>从当前配方算法回填采点设置，失败和语言刷新均不触发编辑事件。</summary>
+        internal void RefreshFeatureSelection()
+        {
+            refreshingFeature = true;
+            try
+            {
+                VpCalibrationFeature feature = VpCalibrationFeature.Circle; bool rough = false;
+                bool available = Calib != null && Calib.Station != null && Calib.Station.TryGetCalibrationFeature(out feature, out rough);
+                cmbFeature.SelectedIndex = (int)feature; cbRough.Checked = rough;
+                cmbFeature.Enabled = available; cbRough.Enabled = available && feature != VpCalibrationFeature.Pattern;
+                btnClearSamples.Enabled = Calib != null && Calib.Points.Count > 0;
+            }
+            finally { refreshingFeature = false; }
+        }
+
+        /// <summary>只更新固定选项的译文，保留选择、曝光和表格编辑值。</summary>
+        private void RefreshFeatureTexts()
+        {
+            int selected = cmbFeature.SelectedIndex; refreshingFeature = true;
+            try
+            {
+                lblFeature.Text = FrameworkLanguage.LangMsg(LangForm, "vpRow_CalibFeature", "采点方式", "Sampling", "Muestreo");
+                cbRough.Text = FrameworkLanguage.LangMsg(LangForm, "vpCb_CalibRough", "PM 粗定位", "PM rough locate", "Localización PM");
+                btnClearSamples.Text = FrameworkLanguage.LangMsg(LangForm, "vpBtn_ClearCalibSamples", "清空采样", "Clear samples", "Vaciar muestras");
+                cmbFeature.Items[0] = FrameworkLanguage.LangMsg(LangForm, "vpFeature_Circle", "圆心", "Circle center", "Centro de círculo");
+                cmbFeature.Items[1] = FrameworkLanguage.LangMsg(LangForm, "vpFeature_Lines", "两线交点", "Line intersection", "Intersección de líneas");
+                cmbFeature.Items[2] = FrameworkLanguage.LangMsg(LangForm, "vpFeature_Pattern", "模板定位（兼容）", "Pattern (legacy)", "Patrón (compatible)");
+                cmbFeature.SelectedIndex = selected;
+                btnClearSamples.Enabled = Calib != null && Calib.Points.Count > 0;
+            }
+            finally { refreshingFeature = false; }
+        }
+
+        /// <summary>由宿主验证采样状态并修改算法草稿，更新失败时恢复原选择。</summary>
+        private void FeatureSelectionChanged(object sender, EventArgs e)
+        {
+            if (refreshingFeature || Owner == null) return;
+            Owner.ChangeCalibrationFeature(this);
         }
 
         /// <summary>取当前语言的文案（LanguageData\{语言}.xml），没有该键时使用底稿。</summary>

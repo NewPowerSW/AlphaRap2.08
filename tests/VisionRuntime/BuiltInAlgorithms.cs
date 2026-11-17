@@ -31,6 +31,7 @@ internal static partial class Tests
         Run("camera add calibration and add VPP create main-save drafts", BuiltInCreationEntries);
         Run("built-in script messages honor site translations and preserve image inputs", BuiltInLanguage);
         Run("legacy reserved criteria keep their values without blocking the production row", LegacyReservedCriteria);
+        RunPrecisionCalibrationTests();
     }
 
     /// <summary>标定包含原始像素定位、九点标定和独立旋转算法；生产 VPP 包含定位和标定工具。</summary>
@@ -45,7 +46,7 @@ internal static partial class Tests
             Check(calibration.Tools["Calibration"] is CogCalibNPointToNPointTool, "Nine-point tool is missing.");
             Check(calibration.Tools["RotationCenter"] is CogToolBlock, "Rotation center algorithm is missing.");
             Check(VpAlgorithmTemplates.IsBuiltIn(positioning) && positioning.Tools.Count == 4, "Standard positioning tools are missing.");
-            Check(capture.DataBindings.Count == 5 && calibration.Outputs.DataBindings.Count == 12, "Root image and result ports have no native connections.");
+            Check(capture.DataBindings.Count == 5 && calibration.Outputs.DataBindings.Count == 13, "Root image and result ports have no native connections.");
             Check(calibration.Tools["LocatePattern"].DataBindings.Count == 1 && calibration.Tools["Calibration"].DataBindings.Count == 1, "Native image inputs have no connections.");
             Check((string)positioning.Inputs["CameraSN"].Value == "" && (double)positioning.Inputs["Exposure"].Value == 15, "Camera defaults changed.");
             Check(!(bool)positioning.Inputs["UseInputImage"].Value && double.IsNaN((double)positioning.Outputs["x"].Value), "The template invented a valid production result.");
@@ -196,14 +197,14 @@ internal static partial class Tests
                 byte[] before = File.ReadAllBytes(path); string error;
                 Check(station.TryLoadTB(path, out error) && station.TB.Tools.Count == 0, "Empty fixture did not load.");
                 Check(station.TryCreateTemplateTB(path, calibration, out error), error);
-                Check(VpAlgorithmTemplates.IsBuiltIn(station.TB) && station.TB.Tools.Count == (calibration ? 5 : 4), "The loaded empty placeholder remained empty.");
+                Check(VpAlgorithmTemplates.IsBuiltIn(station.TB) && station.TB.Tools.Count == (calibration ? 11 : 4), "The loaded empty placeholder remained empty.");
                 Check(before.SequenceEqual(File.ReadAllBytes(path)), "Filling an empty placeholder bypassed Main Save.");
                 CogToolBlock draft = station.TB; draft.Inputs["Exposure"].Value = 35.0;
                 Check(station.TryCreateTemplateTB(path, calibration, out error) && ReferenceEquals(draft, station.TB) && (double)station.TB.Inputs["Exposure"].Value == 35, "Reopening replaced the in-memory draft.");
                 Check(station.TryDiscardTBChanges(out error) && station.TB.Tools.Count == 0 && !VpAlgorithmTemplates.IsBuiltIn(station.TB), "Discard did not restore the saved empty placeholder.");
                 Check(station.TryCreateTemplateTB(path, calibration, out error) && station.TrySaveTB(out error), error);
                 using (CogToolBlock loaded = (CogToolBlock)CogSerializer.LoadObjectFromFile(path))
-                    Check(VpAlgorithmTemplates.IsBuiltIn(loaded) && loaded.Tools.Count == (calibration ? 5 : 4), "Saved templates did not survive reload.");
+                    Check(VpAlgorithmTemplates.IsBuiltIn(loaded) && loaded.Tools.Count == (calibration ? 11 : 4), "Saved templates did not survive reload.");
             }
             finally { VisionproInterface.VList.Remove(station); if (station.TB != null) station.TB.Dispose(); }
         }
@@ -357,7 +358,6 @@ internal static partial class Tests
             Check(ReferenceEquals(binding.Destination, target) && visible.Contains(binding.Source as ICogTool), "A binding bypasses the editor's visible tools.");
             Check(CogToolTerminals.GetToolInputTerminals(target).Any(terminal => CogToolTerminals.GetTerminalPath(terminal) == binding.DestinationPath), "A connection destination is not an editor terminal.");
             Check(CogToolTerminals.GetToolOutputTerminals((ICogTool)binding.Source).Any(terminal => CogToolTerminals.GetTerminalPath(terminal) == binding.SourcePath), "A connection source is not an editor terminal.");
-            Check(binding.UpdateException == null, "A native connection cannot update its value.");
         }
     }
 

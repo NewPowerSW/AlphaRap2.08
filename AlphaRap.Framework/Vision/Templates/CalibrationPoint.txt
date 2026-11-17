@@ -1,0 +1,96 @@
+using System;
+using Cognex.VisionPro;
+using Cognex.VisionPro.Caliper;
+using Cognex.VisionPro.PMAlign;
+using Cognex.VisionPro.ToolBlock;
+using Cognex.VisionPro.ToolGroup;
+
+public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
+{
+    private CogToolBlock block;
+    /// <summary>绑定几何拟合、质量限值和原始图像输入。</summary>
+    public override void Initialize(CogToolGroup host) { base.Initialize(host); block = (CogToolBlock)host; }
+    /// <summary>采用指定的特征定义并校验质量，输出回到原始像素坐标，圆心不发布方向测量。</summary>
+    public override bool GroupRun(ref string message, ref CogToolResultConstants result)
+    {
+        Clear();
+        try
+        {
+            int mode = Convert.ToInt32(block.Inputs["Mode"].Value);
+            double x, y, angle = 0, score, rms = double.NaN;
+            if (mode == 2)
+            {
+                CogPMAlignResults matches = block.Inputs["Matches"].Value as CogPMAlignResults;
+                if (matches == null || matches.Count == 0) throw new ArgumentException();
+                CogTransform2DLinear pose = matches[0].GetPose(); x = pose.TranslationX; y = pose.TranslationY; angle = pose.Rotation; score = matches[0].Score;
+            }
+            else
+            {
+                ValidateLimits();
+                if (mode == 0) ReadCircle(out x, out y, out score, out rms);
+                else if (mode == 1) ReadIntersection(out x, out y, out angle, out score, out rms);
+                else throw new ArgumentException();
+                ICogTransform2D transform = (ICogTransform2D)block.Inputs["Transform"].Value;
+                double directionX, directionY;
+                transform.MapPoint(x + Math.Cos(angle), y + Math.Sin(angle), out directionX, out directionY);
+                transform.MapPoint(x, y, out x, out y);
+                angle = mode == 0 ? 0 : Math.Atan2(directionY - y, directionX - x);
+            }
+            ICogImage image = (ICogImage)block.Inputs["Image"].Value;
+            if (!Finite(x) || !Finite(y) || !Finite(angle) || image == null) throw new ArgumentException();
+            if (mode != 2 && (x < 0 || y < 0 || x >= image.Width || y >= image.Height)) throw new ArgumentException();
+            block.Outputs["x"].Value = x; block.Outputs["y"].Value = y; block.Outputs["A"].Value = angle * 180 / Math.PI;
+            block.Outputs["FitRms"].Value = rms; block.Outputs["Score"].Value = score; block.Outputs["MatchCount"].Value = 1; block.Outputs["Accepted"].Value = true;
+            result = CogToolResultConstants.Accept; message = "";
+        }
+        catch (Exception) { Clear(); result = CogToolResultConstants.Reject; message = Text("标定精定位无效：请检查找边区域、有效点数、拟合残差及两线夹角；不会使用粗定位坐标代替。", "Invalid calibration feature: check edge regions, used points, fit RMS, and line angle. Coarse coordinates are not substituted.", "Característica de calibración no válida: revise regiones, puntos usados, RMS y ángulo entre líneas. No se sustituyen las coordenadas aproximadas."); }
+        return false;
+    }
+    /// <summary>质量阈值必须是有效正数，有效边缘数量须满足几何模型要求。</summary>
+    private void ValidateLimits()
+    {
+        double rms = Convert.ToDouble(block.Inputs["MaxFitRms"].Value), angle = Convert.ToDouble(block.Inputs["MinLineAngleDegrees"].Value);
+        if (!Finite(rms) || rms <= 0 || !Finite(angle) || angle <= 0 || angle > 90 || Convert.ToInt32(block.Inputs["MinCirclePoints"].Value) < 3 || Convert.ToInt32(block.Inputs["MinLinePoints"].Value) < 2) throw new ArgumentException();
+    }
+    /// <summary>从卡尺边缘拟合得到圆心，检查有效点数和像素残差。</summary>
+    private void ReadCircle(out double x, out double y, out double score, out double rms)
+    {
+        CogFindCircleResults found = block.Inputs["CircleResults"].Value as CogFindCircleResults;
+        if (found == null || found.NumPointsUsed < Convert.ToInt32(block.Inputs["MinCirclePoints"].Value)) throw new ArgumentException();
+        rms = found.RMSError;
+        if (!Finite(rms) || rms > Convert.ToDouble(block.Inputs["MaxFitRms"].Value)) throw new ArgumentException();
+        CogCircle circle = found.GetCircle();
+        if (circle == null || !Finite(circle.Radius) || circle.Radius <= 0) throw new ArgumentException();
+        x = circle.CenterX; y = circle.CenterY; score = (double)found.NumPointsUsed / found.Count;
+    }
+    /// <summary>采用两条拟合直线的交点，拒绝近似平行、有效边缘不足或拟合残差过大的结果。</summary>
+    private void ReadIntersection(out double x, out double y, out double angle, out double score, out double rms)
+    {
+        CogFindLineResults first = block.Inputs["Line1Results"].Value as CogFindLineResults, second = block.Inputs["Line2Results"].Value as CogFindLineResults;
+        int minimum = Convert.ToInt32(block.Inputs["MinLinePoints"].Value);
+        if (first == null || second == null || first.NumPointsUsed < minimum || second.NumPointsUsed < minimum || !Convert.ToBoolean(block.Inputs["Intersects"].Value)) throw new ArgumentException();
+        rms = Math.Max(first.RMSError, second.RMSError);
+        if (!Finite(rms) || rms > Convert.ToDouble(block.Inputs["MaxFitRms"].Value)) throw new ArgumentException();
+        angle = first.GetLine().Rotation;
+        double separation = Math.Abs(Math.Sin(angle - second.GetLine().Rotation));
+        if (separation < Math.Sin(Convert.ToDouble(block.Inputs["MinLineAngleDegrees"].Value) * Math.PI / 180)) throw new ArgumentException();
+        x = Convert.ToDouble(block.Inputs["IntersectionX"].Value); y = Convert.ToDouble(block.Inputs["IntersectionY"].Value);
+        score = Math.Min((double)first.NumPointsUsed / first.Count, (double)second.NumPointsUsed / second.Count);
+    }
+    /// <summary>重置统一采点输出，未成功时不使用零坐标。</summary>
+    private void Clear()
+    {
+        block.Outputs["Accepted"].Value = false; block.Outputs["Calibrated"].Value = false;
+        foreach (string name in new[] { "x", "y", "A", "FitRms" }) block.Outputs[name].Value = double.NaN;
+        block.Outputs["Score"].Value = 0.0; block.Outputs["MatchCount"].Value = 0;
+    }
+    /// <summary>识别有限坐标和拟合误差。</summary>
+    private static bool Finite(double value) { return !double.IsNaN(value) && !double.IsInfinity(value); }
+    /// <summary>尊重现场文案，独立编辑器保留三语底稿。</summary>
+    private string Text(string chinese, string english, string spanish)
+    {
+        int language = Convert.ToInt32(block.Inputs["Language"].Value);
+        if (block.UserData.Contains("MessageLanguage") && Convert.ToInt32(block.UserData["MessageLanguage"]) == language && block.UserData.Contains("Message." + english)) return Convert.ToString(block.UserData["Message." + english]);
+        return language == 0 ? chinese : language == 1 ? english : spanish;
+    }
+}

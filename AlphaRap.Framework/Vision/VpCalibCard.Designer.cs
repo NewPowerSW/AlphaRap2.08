@@ -39,6 +39,10 @@
             this.expRow = new System.Windows.Forms.Panel();
             this.lblExpCaption = new AlphaRap.UiLabel();
             this.tbExposure = new System.Windows.Forms.TextBox();
+            this.lblFeature = new AlphaRap.UiLabel();
+            this.cmbFeature = new System.Windows.Forms.ComboBox();
+            this.cbRough = new System.Windows.Forms.CheckBox();
+            this.btnClearSamples = new AlphaRap.UiButton();
             this.btns = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAddCalibration = new AlphaRap.UiButton();
             this.btnEditTb = new AlphaRap.UiButton();
@@ -125,6 +129,10 @@
             this.expRow.BackColor = System.Drawing.Color.Transparent;
             this.expRow.Controls.Add(this.lblExpCaption);
             this.expRow.Controls.Add(this.tbExposure);
+            this.expRow.Controls.Add(this.lblFeature);
+            this.expRow.Controls.Add(this.cmbFeature);
+            this.expRow.Controls.Add(this.cbRough);
+            this.expRow.Controls.Add(this.btnClearSamples);
             this.expRow.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.expRow.Location = new System.Drawing.Point(14, 222);
             this.expRow.Name = "vpCalibExpRow";
@@ -134,11 +142,11 @@
             // lblExpCaption
             // 
             this.lblExpCaption.AutoSize = false;
-            this.lblExpCaption.Font = new System.Drawing.Font("宋体", 11.25F);
+            this.lblExpCaption.Font = new System.Drawing.Font("宋体", 9F);
             this.lblExpCaption.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(92)))), ((int)(((byte)(106)))));
             this.lblExpCaption.Location = new System.Drawing.Point(0, 3);
             this.lblExpCaption.Name = "vpRow_CalibExposure";
-            this.lblExpCaption.Size = new System.Drawing.Size(76, 28);
+            this.lblExpCaption.Size = new System.Drawing.Size(90, 28);
             this.lblExpCaption.TabIndex = 0;
             this.lblExpCaption.Text = "标定曝光";
             this.lblExpCaption.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -146,10 +154,54 @@
             // tbExposure
             // 
             this.tbExposure.Font = new System.Drawing.Font("宋体", 11.25F);
-            this.tbExposure.Location = new System.Drawing.Point(80, 4);
+            this.tbExposure.Location = new System.Drawing.Point(94, 4);
             this.tbExposure.Name = "vpCalibExpBox";
-            this.tbExposure.Size = new System.Drawing.Size(86, 25);
+            this.tbExposure.Size = new System.Drawing.Size(72, 25);
             this.tbExposure.TabIndex = 1;
+            //
+            // lblFeature
+            //
+            this.lblFeature.AutoSize = false;
+            this.lblFeature.Location = new System.Drawing.Point(180, 3);
+            this.lblFeature.Size = new System.Drawing.Size(78, 28);
+            this.lblFeature.Font = new System.Drawing.Font("宋体", 10F);
+            this.lblFeature.Name = "vpRow_CalibFeature";
+            this.lblFeature.Text = "采点方式";
+            this.lblFeature.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // cmbFeature
+            //
+            this.cmbFeature.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbFeature.Font = new System.Drawing.Font("宋体", 10F);
+            this.cmbFeature.Location = new System.Drawing.Point(258, 4);
+            this.cmbFeature.Size = new System.Drawing.Size(180, 25);
+            this.cmbFeature.Name = "vpCalibFeature_dyn";
+            this.cmbFeature.Items.AddRange(new object[] { "圆心", "两线交点", "模板定位（兼容）" });
+            this.cmbFeature.SelectedIndex = 0;
+            this.cmbFeature.TabIndex = 2;
+            //
+            // cbRough
+            //
+            this.cbRough.Font = new System.Drawing.Font("宋体", 10F);
+            this.cbRough.Location = new System.Drawing.Point(450, 3);
+            this.cbRough.Size = new System.Drawing.Size(150, 28);
+            this.cbRough.Name = "vpCb_CalibRough";
+            this.cbRough.Text = "PM 粗定位";
+            this.cbRough.TabIndex = 3;
+            //
+            // btnClearSamples
+            //
+            this.btnClearSamples.Location = new System.Drawing.Point(610, 2);
+            this.btnClearSamples.Size = new System.Drawing.Size(130, 29);
+            this.btnClearSamples.Name = "vpBtn_ClearCalibSamples";
+            this.btnClearSamples.Font = new System.Drawing.Font("宋体", 10F);
+            this.btnClearSamples.BackColor = System.Drawing.Color.White;
+            this.btnClearSamples.ForeColor = System.Drawing.Color.FromArgb(38, 50, 64);
+            this.btnClearSamples.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClearSamples.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(203, 216, 230);
+            this.btnClearSamples.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClearSamples.Text = "清空采样";
+            this.btnClearSamples.TabIndex = 4;
             // 
             // btns
             // 
@@ -176,7 +228,7 @@
             this.btnAddCalibration.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnAddCalibration.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
             this.btnAddCalibration.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAddCalibration.Font = new System.Drawing.Font("宋体", 11.25F);
+            this.btnAddCalibration.Font = new System.Drawing.Font("宋体", 9F);
             this.btnAddCalibration.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.btnAddCalibration.Location = new System.Drawing.Point(0, 5);
             this.btnAddCalibration.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
@@ -191,7 +243,7 @@
             this.btnEditTb.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnEditTb.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
             this.btnEditTb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnEditTb.Font = new System.Drawing.Font("宋体", 11.25F);
+            this.btnEditTb.Font = new System.Drawing.Font("宋体", 9F);
             this.btnEditTb.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.btnEditTb.Location = new System.Drawing.Point(120, 5);
             this.btnEditTb.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
@@ -206,7 +258,7 @@
             this.btnCapture.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCapture.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
             this.btnCapture.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCapture.Font = new System.Drawing.Font("宋体", 11.25F);
+            this.btnCapture.Font = new System.Drawing.Font("宋体", 9F);
             this.btnCapture.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.btnCapture.Location = new System.Drawing.Point(240, 5);
             this.btnCapture.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
@@ -221,7 +273,7 @@
             this.btnAddPoint.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnAddPoint.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
             this.btnAddPoint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAddPoint.Font = new System.Drawing.Font("宋体", 11.25F);
+            this.btnAddPoint.Font = new System.Drawing.Font("宋体", 9F);
             this.btnAddPoint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.btnAddPoint.Location = new System.Drawing.Point(360, 5);
             this.btnAddPoint.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
@@ -236,7 +288,7 @@
             this.btnDeletePoint.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnDeletePoint.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
             this.btnDeletePoint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDeletePoint.Font = new System.Drawing.Font("宋体", 11.25F);
+            this.btnDeletePoint.Font = new System.Drawing.Font("宋体", 9F);
             this.btnDeletePoint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.btnDeletePoint.Location = new System.Drawing.Point(480, 5);
             this.btnDeletePoint.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
@@ -251,7 +303,7 @@
             this.btnApplyToCamera.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnApplyToCamera.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(216)))), ((int)(((byte)(230)))));
             this.btnApplyToCamera.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnApplyToCamera.Font = new System.Drawing.Font("宋体", 11.25F);
+            this.btnApplyToCamera.Font = new System.Drawing.Font("宋体", 9F);
             this.btnApplyToCamera.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(50)))), ((int)(((byte)(64)))));
             this.btnApplyToCamera.Location = new System.Drawing.Point(600, 5);
             this.btnApplyToCamera.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
@@ -299,6 +351,10 @@
         private System.Windows.Forms.Panel expRow;
         private UiLabel lblExpCaption;
         private System.Windows.Forms.TextBox tbExposure;
+        private UiLabel lblFeature;
+        private System.Windows.Forms.ComboBox cmbFeature;
+        private System.Windows.Forms.CheckBox cbRough;
+        private UiButton btnClearSamples;
         private System.Windows.Forms.FlowLayoutPanel btns;
         private UiButton btnAddCalibration;
         private UiButton btnEditTb;

@@ -1,0 +1,61 @@
+using System;
+using Cognex.VisionPro;
+using Cognex.VisionPro.PMAlign;
+using Cognex.VisionPro.ToolBlock;
+using Cognex.VisionPro.ToolGroup;
+
+public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
+{
+    private CogToolBlock block;
+    /// <summary>绑定通过原生连接传递图像和几何结果的标定采样工具块。</summary>
+    public override void Initialize(CogToolGroup host) { base.Initialize(host); block = (CogToolBlock)host; }
+    /// <summary>按指定特征运行精定位，始终发布原始像素；旋转运算独立执行。</summary>
+    public override bool GroupRun(ref string message, ref CogToolResultConstants result)
+    {
+        Clear();
+        try
+        {
+            if (Convert.ToBoolean(block.Inputs["RunRotation"].Value)) { block.RunTool(block.Tools["RotationCenter"], ref message, ref result); return false; }
+            int mode = Convert.ToInt32(block.Inputs["FeatureMode"].Value);
+            if (mode < 0 || mode > 2) throw new ArgumentException(Text("请选择圆心、两线交点或模板定位。", "Select circle center, line intersection, or pattern location.", "Seleccione centro de círculo, intersección de líneas o localización de patrón."));
+            if (!Run("AcquireImage", ref message, ref result)) return false;
+            if (mode == 2 || Convert.ToBoolean(block.Inputs["UsePatternFixture"].Value))
+            {
+                CogPMAlignTool pattern = (CogPMAlignTool)block.Tools["LocatePattern"];
+                if (!pattern.Pattern.Trained) throw new InvalidOperationException(Text("请打开 LocatePattern，选择训练图像并框选特征后训练模板。", "Open LocatePattern, select a training image and region, then train the pattern.", "Abra LocatePattern, seleccione imagen y región de entrenamiento y entrene el patrón."));
+                if (!Run("LocatePattern", ref message, ref result)) return false;
+                if (pattern.Results == null || pattern.Results.Count == 0) { result = CogToolResultConstants.Reject; message = Text("粗定位未找到特征，未执行精定位采点。", "Coarse location found no feature; no precision point was sampled.", "La localización aproximada no encontró la característica; no se tomó una muestra precisa."); return false; }
+            }
+            if (!Run("CoarsePose", ref message, ref result) || !Run("FeatureFixture", ref message, ref result)) return false;
+            if (mode == 0 && !Run("FindCircle", ref message, ref result)) return false;
+            if (mode == 1 && (!Run("FindLine1", ref message, ref result) || !Run("FindLine2", ref message, ref result) || !Run("LineIntersection", ref message, ref result))) return false;
+            Run("CalibrationPoint", ref message, ref result);
+        }
+        catch (Exception error) { result = CogToolResultConstants.Error; message = error.Message; }
+        return false;
+    }
+    /// <summary>只接受当前工具的成功结果，不在失败时切换到其他定位方式。</summary>
+    private bool Run(string name, ref string message, ref CogToolResultConstants result)
+    {
+        ICogTool tool = block.Tools[name]; block.RunTool(tool, ref message, ref result);
+        return tool.RunStatus.Result == CogToolResultConstants.Accept;
+    }
+    /// <summary>清空当前采样结果，防止失败或切换模式后沿用上一点。</summary>
+    private void Clear()
+    {
+        foreach (CogToolBlock target in new[] { block, (CogToolBlock)block.Tools["CalibrationPoint"] })
+        {
+            target.Outputs["Accepted"].Value = false; target.Outputs["Calibrated"].Value = false;
+            foreach (string name in new[] { "x", "y", "A", "FitRms" }) target.Outputs[name].Value = double.NaN;
+            target.Outputs["Score"].Value = 0.0; target.Outputs["MatchCount"].Value = 0;
+        }
+        block.Outputs["OutputImage"].Value = null; block.Outputs["RotationValid"].Value = false;
+    }
+    /// <summary>使用现场语言包或三语底稿显示操作信息。</summary>
+    private string Text(string chinese, string english, string spanish)
+    {
+        int language = Convert.ToInt32(block.Inputs["Language"].Value);
+        if (block.UserData.Contains("MessageLanguage") && Convert.ToInt32(block.UserData["MessageLanguage"]) == language && block.UserData.Contains("Message." + english)) return Convert.ToString(block.UserData["Message." + english]);
+        return language == 0 ? chinese : language == 1 ? english : spanish;
+    }
+}

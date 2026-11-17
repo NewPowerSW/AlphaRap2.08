@@ -1,0 +1,24 @@
+using System;
+using Cognex.VisionPro;
+using Cognex.VisionPro.PMAlign;
+using Cognex.VisionPro.ToolBlock;
+using Cognex.VisionPro.ToolGroup;
+
+public class CogToolBlockAdvancedScript : CogToolBlockAdvancedScriptBase
+{
+    private CogToolBlock block;
+    /// <summary>绑定粗定位位姿输入和夹具变换输出。</summary>
+    public override void Initialize(CogToolGroup host) { base.Initialize(host); block = (CogToolBlock)host; }
+    /// <summary>未启用粗定位时使用单位变换，启用时只采用 PM 平移与旋转，避免缩放改变精定位单位。</summary>
+    public override bool GroupRun(ref string message, ref CogToolResultConstants result)
+    {
+        block.Outputs["Transform"].Value = new CogTransform2DLinear();
+        result = CogToolResultConstants.Accept; message = "";
+        if (!Convert.ToBoolean(block.Inputs["UsePattern"].Value)) return false;
+        CogPMAlignResults matches = block.Inputs["Matches"].Value as CogPMAlignResults;
+        if (matches == null || matches.Count == 0) { result = CogToolResultConstants.Reject; return false; }
+        CogTransform2DLinear pose = matches[0].GetPose();
+        block.Outputs["Transform"].Value = new CogTransform2DLinear { TranslationX = pose.TranslationX, TranslationY = pose.TranslationY, Rotation = pose.Rotation };
+        return false;
+    }
+}

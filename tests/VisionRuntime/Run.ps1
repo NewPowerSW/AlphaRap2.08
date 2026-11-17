@@ -17,6 +17,8 @@ $vpReferences = @(
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.Core.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.CalibFix.dll'),
+    (Join-Path $vpCognexDirectory 'Cognex.VisionPro.Caliper.dll'),
+    (Join-Path $vpCognexDirectory 'Cognex.VisionPro.Dimensioning.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.PMAlign.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.ToolGroup.dll')
 )
@@ -24,9 +26,10 @@ $vpCompilerArgs = @('/nologo', '/platform:x64', '/target:exe', "/out:$vpExecutab
 foreach ($vpReference in $vpReferences) { $vpCompilerArgs += "/r:$vpReference" }
 $vpCompilerArgs += Join-Path $PSScriptRoot 'Regression.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'BuiltInAlgorithms.cs'
+$vpCompilerArgs += Join-Path $PSScriptRoot 'PrecisionCalibration.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'Localization.cs'
 $vpCompilerArgs += Join-Path $PSScriptRoot 'MiddleLayer.cs'
-foreach ($vpFixture in @('CalibrationV1', 'PositioningV1')) {
+foreach ($vpFixture in @('CalibrationV1', 'PositioningV1', 'CalibrationV2')) {
     $vpCompilerArgs += "/resource:$(Join-Path $PSScriptRoot "Fixtures/$vpFixture.vpp"),Fixtures.$vpFixture.vpp"
 }
 & $vpCompiler @vpCompilerArgs

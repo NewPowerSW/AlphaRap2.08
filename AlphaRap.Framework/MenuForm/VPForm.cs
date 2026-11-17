@@ -2207,10 +2207,12 @@ namespace AlphaRap
 			AddCalibration(EntryOf(card), card.ExposureBox);
 		}
 
+		/// <summary>编辑标定算法并回填当前采点选项。</summary>
 		internal void EditCalibrationTB(VpCalibCard card)
 		{
 			if (card == null) return;
 			EditCalibrationTB(EntryOf(card));
+			card.RefreshFeatureSelection();
 		}
 
 		internal void SnapCalibration(VpCalibCard card)
@@ -2265,6 +2267,7 @@ namespace AlphaRap
 			OperationLog.Write("VPForm", "添加标定：相机 " + entry.Key);
 		}
 
+		/// <summary>准备标定模板后打开编辑器，并刷新内存草稿状态。</summary>
 		private void EditCalibrationTB(CameraEntry entry)
 		{
 			if (entry == null || !EnsureIdle(T("vpAct_Edit", "编辑视觉算法"))) return;
@@ -2276,6 +2279,7 @@ namespace AlphaRap
 			{ MessageBox.Show(error, T("vpMsg_Title", "提示")); return; }
             VpAlgorithmTemplates.Configure(calib.Station.TB, calib.Station.RunLiveCCDSN, calib.Station.RunExposure);
 			calib.Station.EditTB();
+			RefreshCalibrationTexts(entry);
 		}
 
         /// <summary>在新增入口建立标准算法，失败时撤销未加入配置的工位，不产生磁盘文件。</summary>

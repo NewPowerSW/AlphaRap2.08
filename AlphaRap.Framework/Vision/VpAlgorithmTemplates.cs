@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Cognex.VisionPro;
 using Cognex.VisionPro.CalibFix;
+using Cognex.VisionPro.Caliper;
 using Cognex.VisionPro.Implementation.Internal;
 using Cognex.VisionPro.PMAlign;
 using Cognex.VisionPro.ToolBlock;
@@ -11,7 +12,7 @@ using Cognex.VisionPro.ToolBlock;
 namespace AlphaRap
 {
     /// <summary>创建可继续在 VisionPro 中编辑的标定与单模板定位算法，不连接相机或写入文件。</summary>
-    public static class VpAlgorithmTemplates
+    public static partial class VpAlgorithmTemplates
     {
         private const string TemplateKey = "AlphaRap.BuiltInTemplate";
         internal const string PatternToolName = "LocatePattern";
@@ -48,7 +49,8 @@ namespace AlphaRap
                 if (calibration) block.Tools.Add(CreateRotationCenter());
                 block.UserData["RawCalibrationPixels"] = calibration;
                 ConnectGraph(block, calibration);
-                SetScript(block, "Positioning.txt");
+                if (calibration) AddPrecisionCalibration(block, VpCalibrationFeature.Circle);
+                else SetScript(block, "Positioning.txt");
                 ApplyDescriptions(block);
                 ApplyMessages(block);
                 return block;
@@ -80,7 +82,7 @@ namespace AlphaRap
         internal static bool IsManagedInput(CogToolBlock block, string name)
         {
             if (!IsBuiltIn(block)) return false;
-            return name == "CameraSN" || name == "Exposure" || name == "Language" || name == "UseInputImage" || name == "InputImage" || name == "UseCalibration" || name == "RunRotation" || name == "RotationPixelX" || name == "RotationPixelY" || name == "RotationAnglesDegrees";
+            return name == "CameraSN" || name == "Exposure" || name == "Language" || name == "UseInputImage" || name == "InputImage" || name == "UseCalibration" || name == "RunRotation" || name == "RotationPixelX" || name == "RotationPixelY" || name == "RotationAnglesDegrees" || name == "FeatureMode" || name == "UsePatternFixture" || name == "MaxFitRms" || name == "MinCirclePoints" || name == "MinLinePoints" || name == "MinLineAngleDegrees";
         }
 
         /// <summary>按当前相机绑定和本站曝光更新模板输入，保留用户训练数据及其他端口。</summary>
@@ -130,6 +132,7 @@ namespace AlphaRap
             }
             script.References.Add(new CogReferencedAssembly(typeof(CogPMAlignTool).Assembly));
             script.References.Add(new CogReferencedAssembly(typeof(CogCalibNPointToNPointTool).Assembly));
+            script.References.Add(new CogReferencedAssembly(typeof(CogFindCircleTool).Assembly));
             if (!script.TempCompile()) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "template_CompileFailed",
                 "内置视觉模板编译失败：", "The built-in vision template could not compile: ", "No se pudo compilar la plantilla de visión integrada: ") + string.Join("; ", script.Results.Cast<CogCompileMessage>().Select(item => item.Line + ": " + item.Text)));
             block.Script = script;
@@ -256,6 +259,7 @@ namespace AlphaRap
             upgraded = null;
             if (!IsBuiltIn(original)) return false;
             string identity = Convert.ToString(original.UserData[TemplateKey]);
+            if (identity == "Calibration/2") return TryUpgradePrecisionV2(original, out upgraded);
             if (identity != "Calibration/1" && identity != "Positioning/1") return false;
             if (!HasStockScript(original, "47C9140F68B2EBAB214D6AF0D5E20689F1694A893B096AEDF5C058DE6E7E193C")) return false;
             bool calibration = Convert.ToBoolean(original.UserData["RawCalibrationPixels"]);
@@ -272,6 +276,7 @@ namespace AlphaRap
             {
                 ConnectGraph(copy, calibration); SetScript(copy, "Positioning.txt");
                 copy.UserData[TemplateKey] = calibration ? "Calibration/2" : "Positioning/2";
+                if (calibration) AddPrecisionCalibration(copy, VpCalibrationFeature.Pattern);
                 ApplyDescriptions(copy); ApplyMessages(copy); upgraded = copy;
                 return true;
             }
@@ -322,6 +327,7 @@ namespace AlphaRap
                 "使用有效九点标定转换定位坐标；标定采点时保持 false，输出原始像素。", "Use a valid nine-point calibration to transform the pose; keep false when sampling raw calibration pixels.", "Use una calibración válida de nueve puntos para transformar la posición; mantenga false al tomar muestras de píxeles.");
             if (block.Inputs.Contains("RunRotation")) block.Inputs["RunRotation"].Description = FrameworkLanguage.LangMsg("Vision", "template_RunRotation",
                 "true：只计算 RotationPixelX/RotationPixelY/RotationAnglesDegrees，输出旋转中心和残差；false：采图定位。生产拍照自动使用 false。", "true: calculate rotation samples only, returning center and residual; false: capture and locate. Production capture always uses false.", "true: calcule solo las muestras de rotación y obtenga centro y residuo; false: capture y localice. La captura de producción siempre usa false.");
+            ApplyPrecisionDescriptions(block);
             if (block.Tools.Contains(RotationToolName))
                 ((CogToolBlock)block.Tools[RotationToolName]).Inputs["PixelX"].Description = FrameworkLanguage.LangMsg("Vision", "template_RotationSamples",
                     "相机和 XY 保持不动；输入同一特征的 PixelX/PixelY 及对应 R 轴实际角度 AnglesDegrees。中心和残差单位为像素，不执行轴补偿。",
@@ -338,7 +344,8 @@ namespace AlphaRap
             SetMessage(block, "CameraRequired", "请先在相机页选择相机 SN。", "Select the camera SN on the camera page first.", "Seleccione primero el SN en la página de cámara.");
             SetMessage(block, "ExposureInvalid", "曝光必须为有效正数。", "Exposure must be a finite positive value.", "La exposición debe ser un valor positivo finito.");
             SetMessage(block, "CameraNotFound", "未找到已绑定的相机：", "Bound camera was not found: ", "No se encontró la cámara vinculada: ");
-            foreach (string name in new[] { "AcquireImage", "PositionResult" })
+            ApplyPrecisionMessages(block);
+            foreach (string name in new[] { "AcquireImage", "PositionResult", "CalibrationPoint" })
             {
                 CogToolBlock child = block.Tools.Contains(name) ? block.Tools[name] as CogToolBlock : null;
                 if (child == null) continue;
