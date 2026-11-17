@@ -1387,7 +1387,7 @@ namespace AlphaRap
 			if (vpp == null || vpp.Station == null) return;
 			if (!EnsureIdle(T("vpAct_Edit", "编辑视觉算法"))) return;
 			string error;
-			if (!vpp.Station.IsLoadTBOk && !vpp.Station.TryCreateTemplateTB(vpp.Station.GetVppPath(SysPara.RecipeName), false, out error))
+			if (!vpp.Station.TryCreateTemplateTB(vpp.Station.GetVppPath(SysPara.RecipeName), false, out error))
 			{ MessageBox.Show(error, T("vpMsg_Title", "提示")); return; }
             VpAlgorithmTemplates.Configure(vpp.Station.TB, vpp.Station.RunLiveCCDSN, vpp.Station.RunExposure);
 			vpp.Station.EditTB();
@@ -2272,7 +2272,7 @@ namespace AlphaRap
 			if (calib == null || calib.Station == null) return;
 			OperationLog.Write("VPForm", "打开 ToolBlock 编辑：相机 " + entry.Key);
 			string error;
-			if (!calib.Station.IsLoadTBOk && !calib.Station.TryCreateTemplateTB(calib.Station.GetVppPath(SysPara.RecipeName), true, out error))
+			if (!calib.Station.TryCreateTemplateTB(calib.Station.GetVppPath(SysPara.RecipeName), true, out error))
 			{ MessageBox.Show(error, T("vpMsg_Title", "提示")); return; }
             VpAlgorithmTemplates.Configure(calib.Station.TB, calib.Station.RunLiveCCDSN, calib.Station.RunExposure);
 			calib.Station.EditTB();

@@ -22,6 +22,8 @@ internal static partial class Tests
         Run("positioning resets outputs when offline image is missing", BuiltInFailure);
         Run("trained standard VPP returns image coordinates and calibrated coordinates", BuiltInPositioning);
         Run("template creation preserves existing and corrupt VPP files", BuiltInExistingFiles);
+        Run("saved empty placeholders become template drafts and remain discardable", BuiltInEmptyPlaceholder);
+        Run("script-only metadata-only and intentionally empty drafts stay unchanged", BuiltInNonEmptyGuards);
         Run("built-in VPP scripts and rotation samples survive save and reload", BuiltInRoundTrip);
         Run("camera add calibration and add VPP create main-save drafts", BuiltInCreationEntries);
         Run("built-in script messages honor site translations and preserve image inputs", BuiltInLanguage);
@@ -163,6 +165,67 @@ internal static partial class Tests
             Check(!station.TryCreateTemplateTB(corrupt, true, out error) && File.ReadAllText(corrupt) == "not a vpp", "A corrupt existing file was overwritten.");
         }
         finally { VisionproInterface.VList.Remove(station); if (station.TB != null) station.TB.Dispose(); }
+    }
+
+    /// <summary>兼容旧空文件及 SDK 空 ScriptData，补齐后不提前落盘，放弃时恢复旧文件。</summary>
+    private static void BuiltInEmptyPlaceholder()
+    {
+        foreach (bool calibration in new[] { true, false })
+        {
+            string path = Path.Combine(TestDirectory, calibration ? "empty-calibration.vpp" : "empty-positioning.vpp");
+            using (CogToolBlock empty = new CogToolBlock())
+            {
+                empty.UserData["ScriptData"] = new CogDictionary();
+                CogSerializer.SaveObjectToFile(empty, path);
+            }
+            VpStation station = new VpStation("EmptyRegression", VpStationKind.Custom);
+            try
+            {
+                byte[] before = File.ReadAllBytes(path); string error;
+                Check(station.TryLoadTB(path, out error) && station.TB.Tools.Count == 0, "Empty fixture did not load.");
+                Check(station.TryCreateTemplateTB(path, calibration, out error), error);
+                Check(VpAlgorithmTemplates.IsBuiltIn(station.TB) && station.TB.Tools.Count == (calibration ? 4 : 3), "The loaded empty placeholder remained empty.");
+                Check(before.SequenceEqual(File.ReadAllBytes(path)), "Filling an empty placeholder bypassed Main Save.");
+                CogToolBlock draft = station.TB; draft.Inputs["Exposure"].Value = 35.0;
+                Check(station.TryCreateTemplateTB(path, calibration, out error) && ReferenceEquals(draft, station.TB) && (double)station.TB.Inputs["Exposure"].Value == 35, "Reopening replaced the in-memory draft.");
+                Check(station.TryDiscardTBChanges(out error) && station.TB.Tools.Count == 0 && !VpAlgorithmTemplates.IsBuiltIn(station.TB), "Discard did not restore the saved empty placeholder.");
+                Check(station.TryCreateTemplateTB(path, calibration, out error) && station.TrySaveTB(out error), error);
+                using (CogToolBlock loaded = (CogToolBlock)CogSerializer.LoadObjectFromFile(path))
+                    Check(VpAlgorithmTemplates.IsBuiltIn(loaded) && loaded.Tools.Count == (calibration ? 4 : 3), "Saved templates did not survive reload.");
+            }
+            finally { VisionproInterface.VList.Remove(station); if (station.TB != null) station.TB.Dispose(); }
+        }
+    }
+
+    /// <summary>没有工具不等于没有算法内容，用户脚本、业务元数据及主动编辑的空草稿都应保留。</summary>
+    private static void BuiltInNonEmptyGuards()
+    {
+        Action<CogToolBlock>[] configure = {
+            block => block.UserData["Owner"] = "Application",
+            block => { CogDictionary data = new CogDictionary(); data["Business"] = 1; block.UserData["ScriptData"] = data; },
+            block => block.CreateNewScript(Cognex.VisionPro.Implementation.Internal.CogScriptLanguageConstants.ScriptCSharp, CogToolBlockScriptTypeConstants.Advanced)
+        };
+        for (int index = 0; index < configure.Length; index++)
+        {
+            string path = Path.Combine(TestDirectory, "preserved-content-" + index + ".vpp");
+            using (CogToolBlock original = new CogToolBlock()) { configure[index](original); CogSerializer.SaveObjectToFile(original, path); }
+            VpStation station = new VpStation("ContentRegression", VpStationKind.Custom);
+            try
+            {
+                string error; byte[] before = File.ReadAllBytes(path);
+                Check(station.TryCreateTemplateTB(path, true, out error) && !VpAlgorithmTemplates.IsBuiltIn(station.TB), "Existing non-tool content was replaced.");
+                Check(before.SequenceEqual(File.ReadAllBytes(path)), "Protected content was written during editing.");
+            }
+            finally { VisionproInterface.VList.Remove(station); if (station.TB != null) station.TB.Dispose(); }
+        }
+        VpStation emptyDraft = new VpStation("EmptyDraftRegression", VpStationKind.Custom);
+        try
+        {
+            string error; string path = Path.Combine(TestDirectory, "intentional-empty-draft.vpp");
+            Check(emptyDraft.TryCreateTB(path, out error), error); CogToolBlock current = emptyDraft.TB;
+            Check(emptyDraft.TryCreateTemplateTB(path, true, out error) && ReferenceEquals(current, emptyDraft.TB) && !VpAlgorithmTemplates.IsBuiltIn(emptyDraft.TB), "An intentional empty edit was overwritten.");
+        }
+        finally { VisionproInterface.VList.Remove(emptyDraft); if (emptyDraft.TB != null) emptyDraft.TB.Dispose(); }
     }
 
     /// <summary>文件重载和主保存使用的深拷贝都保留可执行脚本及独立采样数组。</summary>

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using Cognex.VisionPro;
@@ -58,6 +59,20 @@ namespace AlphaRap
         public static bool IsBuiltIn(CogToolBlock block)
         {
             return block != null && block.UserData.Contains(TemplateKey);
+        }
+
+        /// <summary>识别没有工具、端口、脚本或业务数据的占位算法，允许 SDK 自带的空 ScriptData。</summary>
+        internal static bool IsEmptyPlaceholder(CogToolBlock block)
+        {
+            if (block == null || block.Tools.Count != 0 || block.DisabledTools.Count != 0) return false;
+            if (block.Inputs.Count != 0 || block.Outputs.Count != 0 || block.DataBindings.Count != 0) return false;
+            if (block.Script != null || block.ScriptData.Count != 0) return false;
+            foreach (DictionaryEntry entry in block.UserData)
+            {
+                CogDictionary scriptData = entry.Value as CogDictionary;
+                if (!string.Equals(entry.Key as string, "ScriptData", StringComparison.Ordinal) || scriptData == null || scriptData.Count != 0) return false;
+            }
+            return true;
         }
 
         /// <summary>模板内部的采集和离线调试端口不要求生产流程绑定；用户业务输入保持开放。</summary>
