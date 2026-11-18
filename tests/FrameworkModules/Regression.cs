@@ -77,11 +77,42 @@ internal static class ModuleProbe
             Test("main save failures retain drafts and leave persisted values unchanged", SaveFailure);
             Test("parameter view shares one model and display changes keep its storage identity", ViewBinding);
             Test("legacy page captions fall back to stable configuration names", LegacyIdentity);
-            Console.WriteLine("RESULT framework modules: " + passed + "/10 passed; offline configuration only.");
+            Test("product model list ignores backups and preserves full XML recipe names", ProductModelFiles);
+            Console.WriteLine("RESULT framework modules: " + passed + "/11 passed; offline configuration only.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
         finally { ApplicationHost.Shutdown(); }
+    }
+
+    /// <summary>通过物料管理页验证配方文件和备份同目录时，型号名及配方 ID 仍一一对应。</summary>
+    private static void ProductModelFiles()
+    {
+        string originalDirectory = SysPara.RecipeDataDirectory;
+        string directory = Path.Combine(root, "ModelList");
+        Directory.CreateDirectory(directory);
+        const string recipe = "<NewDataSet><ProductSetting><RECIPEID>{0}</RECIPEID></ProductSetting></NewDataSet>";
+        string backup = Path.Combine(directory, "AllModel.xml.bak");
+        string backupContent = string.Format(recipe, "OLD");
+        File.WriteAllText(backup, backupContent);
+        File.WriteAllText(Path.Combine(directory, "AllModel.xml"), string.Format(recipe, "CURRENT"));
+        File.WriteAllText(Path.Combine(directory, "Family.xml.v2.XML"), string.Format(recipe, "OTHER"));
+        File.WriteAllText(Path.Combine(directory, "AllModel.xmlx"), "unrelated");
+        try
+        {
+            SysPara.RecipeDataDirectory = directory;
+            using (var form = new ProductManagerForm())
+            {
+                form.ReadAllProductData();
+                var list = (System.Windows.Forms.ListView)form.Controls.Find("listView1", true).Single();
+                var names = list.Items.Cast<System.Windows.Forms.ListViewItem>().Select(item => item.Text).ToArray();
+                Check(names.Length == 2 && form.RECIPEIDList.Count == 2, "A backup or unrelated file appeared as a model.");
+                Check(names.Contains("AllModel") && form.RECIPEIDList[Array.IndexOf(names, "AllModel")] == "CURRENT", "The active model used backup data.");
+                Check(names.Contains("Family.xml.v2") && form.RECIPEIDList[Array.IndexOf(names, "Family.xml.v2")] == "OTHER", "A dotted model name was truncated.");
+            }
+            Check(File.ReadAllText(backup) == backupContent, "The recipe list modified the backup file.");
+        }
+        finally { SysPara.RecipeDataDirectory = originalDirectory; }
     }
 
     /// <summary>建立同名但不同命名空间的参数表，以验证模块身份隔离。</summary>

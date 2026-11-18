@@ -240,42 +240,33 @@ namespace AlphaRap
             catch { }
         }
 
-        /// <summary>
-        /// 从指定文件的路径读取数据
-        /// </summary>
+        /// <summary>从配方目录刷新型号和配方 ID，仅列出扩展名为 .xml 的文件。</summary>
         public void ReadAllProductData()
         {
-            RECIPEIDList.Clear();
-
-            string path = Path.GetFullPath(SysPara.RecipeDataDirectory);
-            DirectoryInfo root = new DirectoryInfo(path);
-            if (!root.Exists) { listView1.Items.Clear(); RefreshModelCount(); return; }
+            DirectoryInfo root = new DirectoryInfo(Path.GetFullPath(SysPara.RecipeDataDirectory));
             listView1.BeginUpdate();
-            listView1.Items.Clear();
-            foreach (FileInfo f in root.GetFiles())
+            try
             {
-                string[] Sp2 = new string[1];
-                Sp2[0] = ".xml";
-
-                string name = f.Name;
-                string[] name1 = name.Split(Sp2, StringSplitOptions.RemoveEmptyEntries);
-                ListViewItem lvi = new ListViewItem(name1[0]);
-                listView1.Items.Add(lvi);
-
-                string XMLString = File.ReadAllText(f.FullName, Encoding.GetEncoding("GB2312"));
-
-                string[] Sp = new string[2];
-                Sp[0] = "<RECIPEID>";
-                Sp[1] = "</RECIPEID>";
-                string[] dataARRY = XMLString.Split(Sp, StringSplitOptions.RemoveEmptyEntries);
-
-                RECIPEIDList.Add(dataARRY[1]);
+                RECIPEIDList.Clear();
+                listView1.Items.Clear();
+                if (root.Exists) ReadRecipeFiles(root);
             }
-
-            listView1.EndUpdate();
-
+            finally { listView1.EndUpdate(); }
             RefreshModelCount();
             RefreshActionState();
+        }
+
+        /// <summary>按实际扩展名筛选配方，保留型号名中间的点并同步读取同一文件的配方 ID。</summary>
+        private void ReadRecipeFiles(DirectoryInfo root)
+        {
+            foreach (FileInfo file in root.EnumerateFiles("*.xml"))
+            {
+                if (!string.Equals(file.Extension, ".xml", StringComparison.OrdinalIgnoreCase)) continue;
+                string xml = File.ReadAllText(file.FullName, Encoding.GetEncoding("GB2312"));
+                string[] sections = xml.Split(new[] { "<RECIPEID>", "</RECIPEID>" }, StringSplitOptions.RemoveEmptyEntries);
+                RECIPEIDList.Add(sections[1]);
+                listView1.Items.Add(Path.GetFileNameWithoutExtension(file.Name));
+            }
         }
         /// <summary>
         /// 创建物料信息
