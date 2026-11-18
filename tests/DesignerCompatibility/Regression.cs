@@ -437,6 +437,7 @@ internal static class Cases
             window.Show();
             component.PerformLayout(); Application.DoEvents();
             Check(preview.IsHandleCreated, "The design surface did not create a preview handle: " + type.FullName);
+            if (preview is AddUserForm) VerifyUserManagementCards(preview);
             using (Bitmap image = new Bitmap(Math.Max(1, window.Width), Math.Max(1, window.Height)))
             {
                 window.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
@@ -469,6 +470,24 @@ internal static class Cases
         }
         Check(ConfigurationTree() == before, "Disposing a design-created component after restoring the runtime license wrote configuration: " + type.FullName);
         Check(!SDKPara.ControlsSnapshot().Except(registered).Any(), "Disposing a design-created component leaked hardware registrations: " + type.FullName);
+    }
+
+    /// <summary>Check the user-management card contents are attached and the tables leave room for titles and actions.</summary>
+    private static void VerifyUserManagementCards(Control page)
+    {
+        Control users = page.Controls.Find("dgvUserList", true).Single();
+        Control modify = page.Controls.Find("tblModify", true).Single();
+        Control add = page.Controls.Find("tblAdd", true).Single();
+        Control rights = page.Controls.Find("dgvRightsConfig", true).Single();
+        Control rightsHint = page.Controls.Find("pnlRightsBar", true).Single();
+        Check(users.Parent.Name == "cardUsers" && modify.Parent.Name == "cardModify" && add.Parent.Name == "cardAdd" &&
+            rights.Parent.Name == "cardRights" && rightsHint.Parent == rights.Parent, "User management content is outside its card.");
+        Check(users.Top >= page.Controls.Find("lblUsersCaption", true).Single().Bottom &&
+            modify.Top >= page.Controls.Find("lblModifyCaption", true).Single().Bottom &&
+            add.Top >= page.Controls.Find("lblAddCaption", true).Single().Bottom &&
+            rights.Top >= page.Controls.Find("lblRightsCaption", true).Single().Bottom && rights.Bottom <= rightsHint.Top,
+            "A table overlaps a card title or the permission hint.");
+        Check(users.Visible && modify.Visible && add.Visible && rights.Visible, "User management card contents are hidden.");
     }
 
     /// <summary>Verify lifecycle guards still protect sited pages after the constructor's design license is no longer current.</summary>

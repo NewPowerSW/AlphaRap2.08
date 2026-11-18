@@ -65,6 +65,10 @@
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPageIcon)).BeginInit();
             this.tblCards.SuspendLayout();
+            this.cardUsers.SuspendLayout();
+            this.cardModify.SuspendLayout();
+            this.cardAdd.SuspendLayout();
+            this.cardRights.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUserList)).BeginInit();
             this.tblModify.SuspendLayout();
             this.tblAdd.SuspendLayout();
@@ -163,6 +167,8 @@
             this.cardUsers.AccentColor = System.Drawing.Color.Transparent;
             this.cardUsers.BackColor = System.Drawing.Color.White;
             this.cardUsers.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
+            this.cardUsers.Controls.Add(this.dgvUserList);
+            this.cardUsers.Controls.Add(this.lblUsersCaption);
             this.cardUsers.CornerRadius = 10;
             this.cardUsers.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cardUsers.FillColor = System.Drawing.Color.White;
@@ -181,6 +187,8 @@
             this.cardModify.AccentColor = System.Drawing.Color.Transparent;
             this.cardModify.BackColor = System.Drawing.Color.White;
             this.cardModify.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
+            this.cardModify.Controls.Add(this.tblModify);
+            this.cardModify.Controls.Add(this.lblModifyCaption);
             this.cardModify.CornerRadius = 10;
             this.cardModify.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cardModify.FillColor = System.Drawing.Color.White;
@@ -199,6 +207,8 @@
             this.cardAdd.AccentColor = System.Drawing.Color.Transparent;
             this.cardAdd.BackColor = System.Drawing.Color.White;
             this.cardAdd.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
+            this.cardAdd.Controls.Add(this.tblAdd);
+            this.cardAdd.Controls.Add(this.lblAddCaption);
             this.cardAdd.CornerRadius = 10;
             this.cardAdd.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cardAdd.FillColor = System.Drawing.Color.White;
@@ -217,6 +227,9 @@
             this.cardRights.AccentColor = System.Drawing.Color.Transparent;
             this.cardRights.BackColor = System.Drawing.Color.White;
             this.cardRights.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(231)))), ((int)(((byte)(240)))));
+            this.cardRights.Controls.Add(this.dgvRightsConfig);
+            this.cardRights.Controls.Add(this.pnlRightsBar);
+            this.cardRights.Controls.Add(this.lblRightsCaption);
             this.cardRights.CornerRadius = 10;
             this.cardRights.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cardRights.FillColor = System.Drawing.Color.White;
@@ -664,6 +677,10 @@
             this.pnlHeader.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPageIcon)).EndInit();
             this.tblCards.ResumeLayout(false);
+            this.cardUsers.ResumeLayout(false);
+            this.cardModify.ResumeLayout(false);
+            this.cardAdd.ResumeLayout(false);
+            this.cardRights.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvUserList)).EndInit();
             this.tblModify.ResumeLayout(false);
             this.tblAdd.ResumeLayout(false);
