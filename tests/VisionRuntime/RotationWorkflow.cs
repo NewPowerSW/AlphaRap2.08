@@ -261,7 +261,14 @@ internal static partial class Tests
                         Check(form.Controls.Find("btnDone", true).OfType<Button>().Single().Text == new[] { "完成", "Done", "Finalizar" }[(int)language], "Rotation actions did not switch language.");
                         form.Refresh(); Application.DoEvents(); using (Bitmap bitmap = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bitmap, new Rectangle(Point.Empty, bitmap.Size)); bitmap.Save(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "rotation-workflow-" + language + ".png")); }
                     }
-                    grid.CancelEdit(); Check(fixture.Calibration.TryClearRotationSamples(out error), error);
+                    grid.CancelEdit();
+                    fixture.Station.TB.Inputs["UseInputImage"].Value = true;
+                    fixture.Station.TB.Inputs["InputImage"].Value = PrecisionImage(120.35, 90.65, true);
+                    ((CogFindCircleTool)fixture.Station.TB.Tools["FindCircle"]).RunParams.ExpectedCircularArc.SetCenterRadiusAngleStartAngleSpan(120, 90, 25.4, 0, 2 * Math.PI);
+                    Button collect = form.Controls.Find("rotationCollectAngle", true).OfType<Button>().Single();
+                    collect.PerformClick();
+                    Check(System.Threading.SpinWait.SpinUntil(() => { Application.DoEvents(); return fixture.Calibration.GetRotationSamples().Count == 6; }, 5000), "Rotation button did not collect the new angle in one action.");
+                    Check(fixture.Calibration.GetRotationSamples().Last().AngleDegrees == 37.25 && angle.Text == "", "Rotation did not pair the actual angle or clear the successful input.");
                     form.DialogResult = DialogResult.Cancel; form.Close();
                 }
                 Check(fixture.Calibration.GetRotationSamples().Count == 5, "Cancelling rotation did not restore the prior draft.");

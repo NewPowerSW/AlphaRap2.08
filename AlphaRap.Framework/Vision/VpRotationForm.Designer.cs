@@ -21,7 +21,6 @@ namespace AlphaRap
             this.tbAngle = new System.Windows.Forms.TextBox();
             this.actions = new System.Windows.Forms.FlowLayoutPanel();
             this.btnCapture = new System.Windows.Forms.Button();
-            this.btnAdd = new System.Windows.Forms.Button();
             this.btnDelete = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnCalculate = new System.Windows.Forms.Button();
@@ -56,17 +55,14 @@ namespace AlphaRap
             this.actions.Height = 40;
             this.actions.WrapContents = false;
             this.actions.Controls.Add(this.btnCapture);
-            this.actions.Controls.Add(this.btnAdd);
             this.actions.Controls.Add(this.btnDelete);
             this.actions.Controls.Add(this.btnClear);
             this.actions.Controls.Add(this.btnCalculate);
-            this.btnCapture.Name = "btnCapture"; this.btnCapture.Text = "拍照";
-            this.btnAdd.Name = "btnAdd"; this.btnAdd.Text = "添加采样";
+            this.btnCapture.Name = "rotationCollectAngle"; this.btnCapture.Text = "采集此角度";
             this.btnDelete.Name = "btnDelete"; this.btnDelete.Text = "删除选中点";
             this.btnClear.Name = "btnClear"; this.btnClear.Text = "清空旋转采样";
             this.btnCalculate.Name = "btnCalculate"; this.btnCalculate.Text = "计算旋转中心";
-            this.btnCapture.Size = new System.Drawing.Size(128, 32);
-            this.btnAdd.Size = new System.Drawing.Size(128, 32);
+            this.btnCapture.Size = new System.Drawing.Size(155, 32);
             this.btnDelete.Size = new System.Drawing.Size(128, 32);
             this.btnClear.Size = new System.Drawing.Size(145, 32);
             this.btnCalculate.Size = new System.Drawing.Size(170, 32);
@@ -118,7 +114,7 @@ namespace AlphaRap
         private System.Windows.Forms.Panel angleRow;
         private System.Windows.Forms.TextBox tbAngle;
         private System.Windows.Forms.FlowLayoutPanel actions, footer;
-        private System.Windows.Forms.Button btnCapture, btnAdd, btnDelete, btnClear, btnCalculate, btnDone, btnCancel;
+        private System.Windows.Forms.Button btnCapture, btnDelete, btnClear, btnCalculate, btnDone, btnCancel;
         private System.Windows.Forms.DataGridView gridSamples;
         private System.Windows.Forms.DataGridViewTextBoxColumn cPixelX, cPixelY, cAngle;
     }

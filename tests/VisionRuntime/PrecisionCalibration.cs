@@ -23,7 +23,134 @@ internal static partial class Tests
         Run("V2 migration preserves training samples links and custom content", PrecisionV2Upgrade);
         Run("sampling modes are recipe drafts with reload discard and busy guards", PrecisionDraftSettings);
         Run("calibration card preserves selections and edited values in three languages", PrecisionCardLanguages);
+        Run("quick setup edits circle and line geometry on a fresh trial image", GuidedEdgeSetup);
+        Run("one-click collection pairs actual coordinates with a new successful image", GuidedPointCapture);
         RunRotationWorkflowTests();
+    }
+
+    /// <summary>试拍未定位时也可调整几何，确认才改草稿，回放新图验证两个分支。</summary>
+    private static void GuidedEdgeSetup()
+    {
+        using (RotationFixture fixture = new RotationFixture())
+        {
+            VpStation station = fixture.Station;
+            station.TB.Inputs["UseInputImage"].Value = true;
+            MethodInfo read = typeof(VisionproInterface).GetMethod("TryReadCalibrationSetup", BindingFlags.Instance | BindingFlags.NonPublic);
+            MethodInfo apply = typeof(VisionproInterface).GetMethod("TryApplyCalibrationSetup", BindingFlags.Instance | BindingFlags.NonPublic);
+            foreach (VpCalibrationFeature feature in new[] { VpCalibrationFeature.Circle, VpCalibrationFeature.LineIntersection })
+            {
+                string error;
+                Check(station.TrySetCalibrationFeature(feature, false, out error), error);
+                station.TB.Inputs["InputImage"].Value = new CogImage8Grey(240, 180);
+                long run;
+                Check(station.TryRunTB(out run) && System.Threading.SpinWait.SpinUntil(() => !station.IsBusy, 5000), "Test shot did not complete.");
+                Check(station.LastRunResult.State == VisionRunState.Rejected || station.LastRunResult.State == VisionRunState.Faulted,
+                    "A blank trial unexpectedly located a feature. " + station.LastRunResult.Error);
+                Check(!(bool)read.Invoke(station, new object[] { run + 1, null }), "A different run ID could edit the image.");
+                object[] arguments = { run, null };
+                Check((bool)read.Invoke(station, arguments), "A failed edge fit did not expose the fresh trial image.");
+                object setup = arguments[1];
+                CheckGuidedSetupWindow(setup, feature == VpCalibrationFeature.Circle ? 1 : 2);
+                Type type = setup.GetType();
+                BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
+                if (feature == VpCalibrationFeature.Circle)
+                {
+                    var shape = (CogCircle)type.GetField("Circle", fields).GetValue(setup);
+                    shape.CenterX = 120; shape.CenterY = 90; shape.Radius = 25.4;
+                    var unchanged = ((CogFindCircleTool)station.TB.Tools["FindCircle"]).RunParams.ExpectedCircularArc;
+                    Check(unchanged.CenterX == 100, "Editing a detached circle modified the algorithm before confirmation.");
+                }
+                else
+                {
+                    ((CogLineSegment)type.GetField("Line1", fields).GetValue(setup)).SetStartEnd(145, 92, 210, 92);
+                    ((CogLineSegment)type.GetField("Line2", fields).GetValue(setup)).SetStartEnd(124, 112, 124, 155);
+                }
+                Check((bool)apply.Invoke(station, new[] { setup }) && !File.Exists(station.TBPath), "Confirmed edge settings did not remain in the draft.");
+                Check(!(bool)apply.Invoke(station, new[] { setup }), "A stale editor applied twice.");
+                station.TB.Inputs["InputImage"].Value = feature == VpCalibrationFeature.Circle ? PrecisionImage(120.35, 90.65, true) : PrecisionImage(124.3, 92.6, false);
+                Check(station.TryRunTB(out run) && System.Threading.SpinWait.SpinUntil(() => !station.IsBusy, 5000), "Verification shot did not complete.");
+                Check(station.LastRunResult.State == VisionRunState.Succeeded, "Verification failed for " + feature + ": " + station.LastRunResult.Error);
+            }
+        }
+    }
+
+    /// <summary>打开真正的找边窗口，确认原图、可编辑图形和确认入口都已绑定。</summary>
+    private static void CheckGuidedSetupWindow(object setup, int shapeCount)
+    {
+        Type dialogType = typeof(VPForm).Assembly.GetType("AlphaRap.VpCalibrationSetupForm", true);
+        using (Form form = (Form)Activator.CreateInstance(dialogType, BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { setup }, null))
+        {
+            form.StartPosition = FormStartPosition.Manual;
+            form.Location = new Point(-2000, -2000);
+            form.ShowInTaskbar = false;
+            form.Show();
+            Application.DoEvents();
+            CogRecordDisplay display = form.Controls.Find("photo", true).OfType<CogRecordDisplay>().Single();
+            Check(display.Image != null && display.InteractiveGraphics.Count == shapeCount, "The quick editor did not show the trial image and editable edges.");
+            Check(form.Controls.Find("fitLimit", true).OfType<TextBox>().Single().Text.Length > 0, "The current fit limit was not displayed.");
+            form.Close();
+        }
+    }
+
+    /// <summary>检查试拍、成功采点、失败重试及机械坐标编辑全部保留同次像素精度。</summary>
+    private static void GuidedPointCapture()
+    {
+        using (RotationFixture fixture = new RotationFixture())
+        using (VPForm owner = new VPForm())
+        using (VpCalibCard card = new VpCalibCard { Owner = owner, Calib = fixture.Calibration, Dock = DockStyle.Fill })
+        using (Form host = new Form { ClientSize = new Size(576, 326), Location = new Point(-2000, -2000), StartPosition = FormStartPosition.Manual, ShowInTaskbar = false })
+        {
+            fixture.Calibration.Points.Clear();
+            Type entryType = typeof(VPForm).GetNestedType("CameraEntry", BindingFlags.NonPublic);
+            object entry = Activator.CreateInstance(entryType, true);
+            entryType.GetField("Key").SetValue(entry, fixture.Camera.Name);
+            entryType.GetField("Config").SetValue(entry, fixture.Camera);
+            card.Tag = entry;
+            var config = (VpConfigFile)typeof(VPForm).GetField("_config", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);
+            config.Cameras.Add(fixture.Camera);
+            config.Calibrations.Add(fixture.Camera.Name, fixture.Calibration);
+            fixture.Station.TB.Inputs["UseInputImage"].Value = true;
+            fixture.Station.TB.Inputs["InputImage"].Value = PrecisionImage(120.35, 90.65, true);
+            ((CogFindCircleTool)fixture.Station.TB.Tools["FindCircle"]).RunParams.ExpectedCircularArc.SetCenterRadiusAngleStartAngleSpan(120, 90, 25.4, 0, 2 * Math.PI);
+            host.Controls.Add(card);
+            host.Show();
+            card.Bind();
+            Button preview = card.Controls.Find("vpBtn_Capture", true).OfType<Button>().Single();
+            Button collect = card.Controls.Find("vpBtn_AddPoint", true).OfType<Button>().Single();
+            TextBox x = card.Controls.Find("vpCalibMotorX", true).OfType<TextBox>().Single();
+            TextBox y = card.Controls.Find("vpCalibMotorY", true).OfType<TextBox>().Single();
+            Check(!collect.Enabled, "Empty coordinates allowed a sample.");
+            preview.PerformClick(); WaitForGuidedCapture(card);
+            Check(card.Calib.Points.Count == 0, "Trial shot added a point.");
+            x.Text = "0";
+            y.Text = "20.1234567";
+            collect.PerformClick(); WaitForGuidedCapture(card);
+            VpCalibPoint point = card.Calib.Points.Single();
+            Check(point.MotorPosX == 0 && point.MotorPosY == 20.1234567 && point.PixelX == fixture.Station.LastRunResult.X, "Sample was not paired with exact coordinates.");
+            Check(x.Text.Length == 0 && y.Text.Length == 0, "A successful collection retained stale coordinates.");
+            double imageX = point.PixelX;
+            card.GridPoints.Rows[0].Cells[2].Value = "3.123456789";
+            typeof(VPForm).GetMethod("OnCalibGridEdited", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(owner, new object[] { card, new DataGridViewCellEventArgs(2, 0) });
+            Check(point.PixelX == imageX && point.MotorPosX == 3.123456789, "Editing machine X rounded the stored pixel or machine coordinates.");
+            fixture.Station.TB.Inputs["InputImage"].Value = new CogImage8Grey(240, 180);
+            x.Text = "4"; y.Text = "5";
+            collect.PerformClick(); WaitForGuidedCapture(card);
+            Check(card.Calib.Points.Count == 1 && x.Text == "4" && y.Text == "5", "Failed capture changed the samples or lost the retry coordinates.");
+            Check(collect.Right <= collect.Parent.ClientSize.Width && card.Controls.Find("vpBtn_EditTb", true).Single().Right <= collect.Parent.ClientSize.Width, "Calibration actions are clipped at the standard camera-page width.");
+            using (Bitmap bitmap = new Bitmap(card.Width, card.Height))
+            {
+                card.DrawToBitmap(bitmap, new Rectangle(Point.Empty, bitmap.Size));
+                bitmap.Save(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "guided-calibration.png"));
+            }
+        }
+    }
+
+    /// <summary>处理实际 WinForms 完成通知，直到发起的试拍或采点被消费。</summary>
+    private static void WaitForGuidedCapture(VpCalibCard card)
+    {
+        FieldInfo pending = typeof(VpCalibCard).GetField("pendingRun", BindingFlags.Instance | BindingFlags.NonPublic);
+        Check((long)pending.GetValue(card) != 0, "A capture did not start from the button.");
+        Check(System.Threading.SpinWait.SpinUntil(() => { Application.DoEvents(); return (long)pending.GetValue(card) == 0; }, 5000), "Capture completion did not reach the card.");
     }
 
     /// <summary>生成灰度边缘的合成图像，参数使用像素中心坐标；超采样保留分数像素变化。</summary>

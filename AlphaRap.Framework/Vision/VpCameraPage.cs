@@ -9,7 +9,7 @@ namespace AlphaRap
     /// 运行时由 VPForm 填入：<see cref="CalibHostPanel"/> 放 VpCalibCard，<see cref="DispHost"/> 放 CogRecordDisplay，
     /// <see cref="VppTabs"/> 按配置加入各 VpVppPage。
     /// Designer 中的停靠顺序须保持 vppTabs → calibHost → dispHost → head
-    /// （head 52 / 标定卡 300 / vppTabs 填充，右侧显示区 380）。
+    /// （head 52 / 标定卡 336 / vppTabs 填充，右侧显示区 380）。
     /// </summary>
     public partial class VpCameraPage : UserControl
     {

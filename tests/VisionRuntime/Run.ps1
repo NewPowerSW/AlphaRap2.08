@@ -16,9 +16,11 @@ $vpReferences = @(
     (Join-Path $vpBuildDirectory 'NPSDK.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.Core.dll'),
+    (Join-Path $vpCognexDirectory 'Cognex.VisionPro.Controls.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.CalibFix.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.Caliper.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.Dimensioning.dll'),
+    (Join-Path $vpCognexDirectory 'Cognex.VisionPro.Display.Controls.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.PMAlign.dll'),
     (Join-Path $vpCognexDirectory 'Cognex.VisionPro.ToolGroup.dll')
 )

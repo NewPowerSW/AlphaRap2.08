@@ -713,6 +713,8 @@ namespace AlphaRap
         public override void VisionRun()
         {
             IsAccept = false;
+            if (Kind == VpStationKind.Calibration && VpAlgorithmTemplates.IsBuiltIn(TB) && TB.Outputs.Contains("OutputImage"))
+                TB.Outputs["OutputImage"].Value = null;
             if (VpAlgorithmTemplates.IsBuiltIn(TB) && SysPara.SystemMode == RunMode.RUN && Convert.ToBoolean(TB.Inputs["UseInputImage"].Value))
                 throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "template_OfflineProduction", "内置定位仍处于离线图像模式，请取消 UseInputImage 后保存再生产。", "The built-in locator is in offline image mode. Disable UseInputImage and save before production.", "El localizador integrado usa una imagen sin conexión. Desactive UseInputImage y guarde antes de producir."));
             VpAlgorithmTemplates.Configure(TB, RunLiveCCDSN, RunExposure);

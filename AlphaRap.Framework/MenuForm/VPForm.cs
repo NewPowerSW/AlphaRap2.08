@@ -2128,7 +2128,7 @@ namespace AlphaRap
 			else
 			{
 				card.Dock = DockStyle.Top;
-				card.Height = 328;
+				card.Height = 364;
 			}
 			card.Bind();
 
@@ -2147,34 +2147,28 @@ namespace AlphaRap
 			return (card == null) ? null : (card.Tag as CameraEntry);
 		}
 
-		/// <summary>标定点表格单元格编辑完成：写回标定点并立即保存（无法解析时恢复原值）。</summary>
-		internal void OnCalibGridEdited(VpCalibCard card, DataGridViewCellEventArgs e)
-		{
-			if (card == null) return;
-			CameraEntry entry = EntryOf(card);
-			if (entry == null) return;
-
-			VpCalibration c = _config.GetCalibration(entry.Key);
-			if (c == null) return;
-			if (!EnsureIdle(T("vpAct_Point", "修改标定点"))) { FillCalibrationGrid(card.GridPoints, c); return; }
-
-			DataGridView grid = card.GridPoints;
-			DataGridViewRow row = (e.RowIndex >= 0 && e.RowIndex < grid.Rows.Count) ? grid.Rows[e.RowIndex] : null;
-			if (row != null && e.RowIndex < c.Points.Count)
-			{
-				// 无法解析时把原值写回单元格
-				VpCalibPoint p = c.Points[e.RowIndex];
-				double v;
-				if (e.ColumnIndex == 2 && !double.TryParse((row.Cells[2].Value ?? "").ToString().Trim(), out v))
-					row.Cells[2].Value = p.MotorPosX.ToString("F3");
-				if (e.ColumnIndex == 3 && !double.TryParse((row.Cells[3].Value ?? "").ToString().Trim(), out v))
-					row.Cells[3].Value = p.MotorPosY.ToString("F3");
-			}
-
-			SyncPointsFromGrid(grid, c);
-			MarkVpConfigDraft();
-			RefreshCalibrationTexts(entry);      // 点位变了 → 标题显示"已修改，未应用"
-		}
+        /// <summary>只写回当前编辑的机械坐标，保留其他坐标及原始像素精度。</summary>
+        internal void OnCalibGridEdited(VpCalibCard card, DataGridViewCellEventArgs e)
+        {
+            CameraEntry entry = EntryOf(card);
+            if (entry == null || card.Calib == null || (e.ColumnIndex != 2 && e.ColumnIndex != 3)) return;
+            if (e.RowIndex < 0 || e.RowIndex >= card.Calib.Points.Count) return;
+            DataGridViewCell cell = card.GridPoints.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            VpCalibPoint point = card.Calib.Points[e.RowIndex];
+            double previous = e.ColumnIndex == 2 ? point.MotorPosX : point.MotorPosY;
+            double value;
+            if (!EnsureIdle(T("vpAct_Point", "修改标定点")) || !VpConfigStore.TryParseInputDouble(Convert.ToString(cell.Value), out value))
+            {
+                cell.Value = previous.ToString("R");
+                return;
+            }
+            if (previous == value) return;
+            if (e.ColumnIndex == 2) point.MotorPosX = value;
+            else point.MotorPosY = value;
+            card.Calib.AppliedSignature = "none";
+            MarkVpConfigDraft();
+            RefreshCalibrationTexts(entry);
+        }
 
 		internal void FillCalibrationGrid(VpCalibCard card)
 		{
@@ -2217,18 +2211,6 @@ namespace AlphaRap
 			if (card == null) return;
 			EditCalibrationTB(EntryOf(card));
 			card.RefreshFeatureSelection();
-		}
-
-		internal void SnapCalibration(VpCalibCard card)
-		{
-			if (card == null) return;
-			SnapCalibration(EntryOf(card));
-		}
-
-		internal void AddCalibrationPoint(VpCalibCard card)
-		{
-			if (card == null) return;
-			AddCalibrationPoint(EntryOf(card), card.GridPoints);
 		}
 
 		internal void RemoveCalibrationPoint(VpCalibCard card)
@@ -2291,7 +2273,7 @@ namespace AlphaRap
         {
             string error;
             if (station.TryCreateTemplateTB(station.GetVppPath(SysPara.RecipeName), calibration, out error)) return true;
-            station.RunCompleted -= OnStationRunCompleted;
+            if (!calibration) station.RunCompleted -= OnStationRunCompleted;
             VisionproInterface.VList.Remove(station);
             MessageBox.Show(error, T("vpMsg_Title", "提示"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return false;
@@ -2323,48 +2305,6 @@ namespace AlphaRap
 			MarkVpConfigDraft();
 		}
 
-		/// <summary>拍照：运行一次标定 ToolBlock，结果显示在本相机的共用显示控件上。</summary>
-		private void SnapCalibration(CameraEntry entry)
-		{
-			if (entry == null || !EnsureIdle(T("vpAct_Capture", "手动拍照"))) return;
-			VpCalibration calib = _config.GetCalibration(entry.Key);
-			if (calib == null || calib.Station == null) return;
-			long runId;
-			if (!calib.Station.TryRunTB(out runId)) MessageBox.Show(calib.Station.LastError, T("vpMsg_Title", "提示"));
-		}
-
-		/// <summary>用当前像素坐标添加一个标定点（电机坐标初始为 0，在表格中填写）。</summary>
-		private void AddCalibrationPoint(CameraEntry entry, DataGridView grid)
-		{
-			if (entry == null || !EnsureIdle(T("vpAct_Point", "修改标定点"))) return;
-			VpCalibration calib = _config.GetCalibration(entry.Key);
-			if (calib == null || calib.Station == null)
-			{
-				MessageBox.Show(T("vpMsg_NeedCalibration", "请先添加标定。"),
-					T("vpMsg_Title", "提示"));
-				return;
-			}
-			VisionRunResult result = calib.Station.LastRunResult;
-			if (result == null || result.State != VisionRunState.Succeeded)
-			{
-				MessageBox.Show(T("vpMsg_NeedPixel", "请先点【拍照】取得像素坐标。"),
-					T("vpMsg_Title", "提示"));
-				return;
-			}
-
-			double px = result.X;
-			double py = result.Y;
-			if (MessageBox.Show(T("vpMsg_AddPointConfirm", "确认添加标定点？\r\n像素坐标 (")
-					+ px.ToString("F3") + ", " + py.ToString("F3") + ")",
-					T("vpMsg_AddPointTitle", "添加标定点"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
-
-			SyncPointsFromGrid(grid, calib);
-			calib.Points.Add(new VpCalibPoint(px, py, 0, 0));
-			FillCalibrationGrid(grid, calib);
-			MarkVpConfigDraft();
-			RefreshCalibrationTexts(entry);
-		}
-
 		private void RemoveCalibrationPoint(CameraEntry entry, DataGridView grid)
 		{
 			if (entry == null || !EnsureIdle(T("vpAct_Point", "修改标定点"))) return;
@@ -2372,11 +2312,12 @@ namespace AlphaRap
 			if (calib == null || grid == null || grid.CurrentRow == null) return;
 			if (grid.CurrentRow.IsNewRow) return;
 
-			SyncPointsFromGrid(grid, calib);
+			if (!grid.EndEdit()) return;
 			int idx = grid.CurrentRow.Index;
 			if (idx < 0 || idx >= calib.Points.Count) return;
 
 			calib.Points.RemoveAt(idx);
+			calib.AppliedSignature = "none";
 			FillCalibrationGrid(grid, calib);
 			MarkVpConfigDraft();
 			RefreshCalibrationTexts(entry);
@@ -2404,7 +2345,7 @@ namespace AlphaRap
 				return;
 			}
 
-			SyncPointsFromGrid(grid, calib);
+			if (grid != null && !grid.EndEdit()) return;
 			if (calib.Points.Count < 9)
 			{
 				MessageBox.Show(T("vpMsg_Need9PointsA", "标定点至少 9 个（当前 ")
@@ -2561,32 +2502,8 @@ namespace AlphaRap
 			{
 				VpCalibPoint p = calib.Points[i];
 				grid.Rows.Add(p.PixelX.ToString("F3"), p.PixelY.ToString("F3"),
-							  p.MotorPosX.ToString("F3"), p.MotorPosY.ToString("F3"));
+							  p.MotorPosX.ToString("R"), p.MotorPosY.ToString("R"));
 			}
-		}
-
-		/// <summary>把表格里的电机坐标写回标定点（像素坐标只读，不改）。</summary>
-		private static void SyncPointsFromGrid(DataGridView grid, VpCalibration calib)
-		{
-			if (grid == null || calib == null) return;
-
-			List<VpCalibPoint> list = new List<VpCalibPoint>();
-			for (int i = 0; i < grid.Rows.Count; i++)
-			{
-				DataGridViewRow r = grid.Rows[i];
-				if (r == null || r.IsNewRow) continue;
-				list.Add(new VpCalibPoint(
-					ToDouble(r.Cells[0].Value), ToDouble(r.Cells[1].Value),
-					ToDouble(r.Cells[2].Value), ToDouble(r.Cells[3].Value)));
-			}
-			calib.Points = list;
-		}
-
-		private static double ToDouble(object v)
-		{
-			if (v == null) return 0;
-			double d;
-			return VpConfigStore.TryParseInputDouble(Convert.ToString(v), out d) ? d : 0;
 		}
 
 		#endregion

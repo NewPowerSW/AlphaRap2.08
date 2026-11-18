@@ -12,8 +12,9 @@ namespace AlphaRap
         private readonly string recipe;
         private readonly VisionproInterface.ToolBlockSnapshot original;
         private bool filling, restored, released;
-        private long pendingRun, capturedRun;
-        private double pendingAngle, capturedAngle;
+        private long pendingRun;
+        private double pendingAngle;
+        private string captureError;
 
         /// <summary>设计器初始化不连接设备或执行算法。</summary>
         public VpRotationForm() { InitializeComponent(); }
@@ -24,7 +25,7 @@ namespace AlphaRap
             this.calibration = calibration; this.camera = camera; this.recipe = recipe;
             original = calibration.Station.CaptureToolBlockSnapshot();
             UiTheme.ApplyDpi(this); UiKit.StyleGrid(gridSamples);
-            btnCapture.Click += CaptureClicked; btnAdd.Click += AddClicked; btnDelete.Click += DeleteClicked;
+            btnCapture.Click += CaptureClicked; btnDelete.Click += DeleteClicked;
             btnClear.Click += ClearClicked; btnCalculate.Click += CalculateClicked;
             btnDone.Click += delegate { if (gridSamples.EndEdit()) { DialogResult = DialogResult.OK; Close(); } };
             btnCancel.Click += delegate { DialogResult = DialogResult.Cancel; Close(); };
@@ -42,10 +43,9 @@ namespace AlphaRap
         private void RefreshTexts()
         {
             Text = T("title", "2 旋转标定（可选）", "2 Rotation calibration (optional)", "2 Calibración de rotación (opcional)");
-            lblInstructions.Text = T("lblInstructions", "九点有效后，保持相机和 XYZ 不动，仅旋转 R 轴。选偏离旋转中心的同一特征，至少采三组不同角度；每次输入实际 R 角度后拍照，再添加采样。", "After valid nine-point calibration, keep camera and XYZ fixed and rotate R only. Track the same feature away from the rotation center at three or more angles. Enter the actual R angle before each capture, then add the sample.", "Con nueve puntos válidos, mantenga cámara y XYZ fijos y gire solo R. Siga la misma característica alejada del centro en tres ángulos o más. Introduzca el ángulo R real antes de capturar y añada la muestra.");
+            lblInstructions.Text = T("rotationCollectHelp", "保持相机和 XYZ 不动，仅转动 R 轴。每次输入实际角度后点击采集此角度。使用同一个偏离旋转中心的特征，至少采三组不同角度。", "Keep camera and XYZ fixed. Rotate R, enter its actual angle, and collect the sample. Use the same feature away from the center at three or more angles.", "Mantenga cámara y XYZ fijos. Gire R, introduzca el ángulo real y tome la muestra. Use la misma característica alejada del centro en tres ángulos o más.");
             lblAngle.Text = T("lblAngle", "实际 R 角度（°）", "Actual R angle (degrees)", "Ángulo R real (grados)");
-            btnCapture.Text = T("btnCapture", "拍照", "Capture", "Capturar");
-            btnAdd.Text = T("btnAdd", "添加采样", "Add sample", "Añadir muestra");
+            btnCapture.Text = T("rotationCollectAngle", "采集此角度", "Collect this angle", "Tomar este ángulo");
             btnDelete.Text = T("btnDelete", "删除选中点", "Delete selected", "Eliminar punto");
             btnClear.Text = T("btnClear", "清空旋转采样", "Clear samples", "Vaciar muestras");
             btnCalculate.Text = T("btnCalculate", "计算旋转中心", "Calculate center", "Calcular centro");
@@ -74,12 +74,11 @@ namespace AlphaRap
         private void RefreshState()
         {
             if (calibration == null || calibration.Station == null) return;
-            bool busy = calibration.Station.IsBusy; string error;
+            bool busy = pendingRun != 0 || calibration.Station.IsBusy; string error;
             bool ready = !busy && calibration.CanStartRotation(camera, recipe, out error);
             bool sameSamples = ready && calibration.RotationSamplesMatch(camera, recipe);
             double angle; bool angleValid = VpConfigStore.TryParseInputDouble(tbAngle.Text, out angle);
             tbAngle.Enabled = !busy; btnCapture.Enabled = sameSamples && angleValid;
-            btnAdd.Enabled = sameSamples && capturedRun != 0 && angleValid && angle == capturedAngle;
             btnDelete.Enabled = sameSamples && gridSamples.Rows.Count > 0;
             btnClear.Enabled = !busy && gridSamples.Rows.Count > 0;
             btnCalculate.Enabled = sameSamples && gridSamples.Rows.Count >= 3;
@@ -87,6 +86,11 @@ namespace AlphaRap
             if (busy) { lblResult.Text = T("busy", "正在拍照，请保持轴位置不变。", "Capturing; keep the axes stationary.", "Capturando; mantenga los ejes inmóviles."); return; }
             if (!ready) { lblResult.Text = VpCalibration.NinePointRequiredMessage(); return; }
             if (!sameSamples) { lblResult.Text = T("stale", "旧旋转样本与当前九点或算法不一致，请清空后重新采集。", "Old samples do not match the current nine-point calibration or algorithm. Clear and recollect them.", "Las muestras antiguas no corresponden a la calibración o algoritmo actual. Vacíelas y vuelva a tomarlas."); return; }
+            if (!string.IsNullOrWhiteSpace(captureError))
+            {
+                lblResult.Text = T("rotationCollectFailed", "本次未采集。", "No sample was collected.", "No se tomó una muestra.") + " " + captureError;
+                return;
+            }
             VpRotationResult result;
             if (calibration.TryGetRotationResult(camera, recipe, out result))
             {
@@ -101,7 +105,8 @@ namespace AlphaRap
         {
             double angle; string error;
             if (!VpConfigStore.TryParseInputDouble(tbAngle.Text, out angle) || !calibration.CanStartRotation(camera, recipe, out error)) { ShowError(VpCalibration.NinePointRequiredMessage()); return; }
-            pendingAngle = angle; capturedRun = 0;
+            pendingAngle = angle;
+            captureError = null;
             if (!calibration.Station.TryRunTB(out pendingRun)) ShowError(calibration.Station.LastError);
             RefreshState();
         }
@@ -109,18 +114,20 @@ namespace AlphaRap
         /// <summary>只接收本窗口启动的拍照结果，配对时采用拍照前固定的实际 R 角度。</summary>
         private void CaptureCompleted(VisionRunResult result)
         {
-            if (IsDisposed || !IsHandleCreated || result.RunId != pendingRun) return;
+            if (IsDisposed || !IsHandleCreated) return;
             if (InvokeRequired) { BeginInvoke(new Action(() => CaptureCompleted(result))); return; }
-            capturedRun = result.State == VisionRunState.Succeeded ? result.RunId : 0; capturedAngle = pendingAngle;
-            RefreshState();
-        }
-
-        /// <summary>添加一次当前成功拍照，加入草稿后必须重新拍照才能继续添加。</summary>
-        private void AddClicked(object sender, EventArgs e)
-        {
+            if (result.RunId != pendingRun) return;
+            pendingRun = 0;
+            if (result.State != VisionRunState.Succeeded)
+            {
+                captureError = result.Error;
+                RefreshState();
+                return;
+            }
             string error;
-            if (!calibration.TryAddRotationSample(camera, recipe, capturedRun, capturedAngle, out error)) { ShowError(error); return; }
-            capturedRun = 0; FillSamples();
+            if (!calibration.TryAddRotationSample(camera, recipe, result.RunId, pendingAngle, out error)) captureError = error;
+            else tbAngle.Clear();
+            FillSamples();
         }
 
         /// <summary>删除选中的旋转样本，不改变九点标定。</summary>
@@ -131,7 +138,7 @@ namespace AlphaRap
             if (index < 0 || index >= samples.Count) return;
             samples.RemoveAt(index); string error;
             if (!calibration.TrySetRotationSamples(camera, recipe, samples, out error)) { ShowError(error); return; }
-            capturedRun = 0; FillSamples();
+            captureError = null; FillSamples();
         }
 
         /// <summary>确认后清空旧旋转样本及结果，保留九点模型。</summary>
@@ -140,7 +147,7 @@ namespace AlphaRap
             if (MessageBox.Show(T("confirmClear", "清空本配方的旋转样本和结果吗？九点标定保留。", "Clear rotation samples and results for this recipe? Nine-point calibration is retained.", "¿Vaciar muestras y resultados de rotación de esta receta? Se conserva la calibración de nueve puntos."), Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
             string error;
             if (!calibration.TryClearRotationSamples(out error)) { ShowError(error); return; }
-            capturedRun = 0; FillSamples();
+            captureError = null; FillSamples();
         }
 
         /// <summary>提交正在编辑的角度后计算旋转中心，不执行轴运动或拍照。</summary>
@@ -149,7 +156,7 @@ namespace AlphaRap
             if (!gridSamples.EndEdit()) return;
             VpRotationResult result; string error;
             if (!calibration.TryCalculateRotation(camera, recipe, out result, out error)) ShowError(error);
-            capturedRun = 0; RefreshState();
+            captureError = null; RefreshState();
         }
 
         /// <summary>修正实际 R 角度时保留原像素精度，非法值恢复旧样本。</summary>
@@ -162,13 +169,13 @@ namespace AlphaRap
             if (!VpConfigStore.TryParseInputDouble(Convert.ToString(gridSamples.Rows[e.RowIndex].Cells[2].Value), out angle)) { FillSamples(); return; }
             VpRotationSample prior = samples[e.RowIndex]; samples[e.RowIndex] = new VpRotationSample(prior.PixelX, prior.PixelY, angle);
             if (!calibration.TrySetRotationSamples(camera, recipe, samples, out error)) ShowError(error);
-            capturedRun = 0; FillSamples();
+            captureError = null; FillSamples();
         }
 
         /// <summary>采集结束前不关闭窗口；取消或关闭恢复原算法，完成仅保留草稿。</summary>
         private void ClosingRotation(object sender, FormClosingEventArgs e)
         {
-            if (calibration.Station.IsBusy) { e.Cancel = true; DialogResult = DialogResult.None; return; }
+            if (pendingRun != 0 || calibration.Station.IsBusy) { e.Cancel = true; DialogResult = DialogResult.None; return; }
             if (DialogResult == DialogResult.OK) return;
             calibration.Station.RestoreToolBlockSnapshot(original); restored = true;
         }
