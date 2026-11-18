@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Cognex.VisionPro;
@@ -17,6 +18,101 @@ namespace AlphaRap
         private const string TemplateKey = "AlphaRap.BuiltInTemplate";
         internal const string PatternToolName = "LocatePattern";
         internal const string RotationToolName = "RotationCenter";
+        private static readonly object PositioningTemplatesLock = new object();
+        private static readonly List<PositioningTemplate> PositioningTemplates = new List<PositioningTemplate>
+        {
+            new PositioningTemplate("Pattern", "普通定位（单目标）", "Single-target positioning", "Posicionamiento de un objetivo",
+                (sn, exposure) => Create(false, sn, exposure)),
+            new PositioningTemplate("PatternCount", "多目标匹配计数", "Multi-target match count", "Recuento de coincidencias",
+                CreatePatternCount)
+        };
+
+        /// <summary>登记 TB 编辑器中的定位模板。工厂须返回独立、已连线且符合标准定位端口的 ToolBlock。</summary>
+        public static void RegisterPositioningTemplate(string id, string chinese, string english, string spanish,
+            Func<string, double, CogToolBlock> create)
+        {
+            if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException(nameof(id));
+            System.Xml.XmlConvert.VerifyNCName("positioning_" + id);
+            if (string.IsNullOrWhiteSpace(chinese) || string.IsNullOrWhiteSpace(english) || string.IsNullOrWhiteSpace(spanish))
+                throw new ArgumentException(nameof(chinese) + ", " + nameof(english) + ", " + nameof(spanish));
+            if (create == null) throw new ArgumentNullException(nameof(create));
+            lock (PositioningTemplatesLock)
+            {
+                if (PositioningTemplates.Any(template => string.Equals(template.Id, id, StringComparison.OrdinalIgnoreCase)))
+                    throw new ArgumentException(nameof(id) + ": " + id);
+                PositioningTemplates.Add(new PositioningTemplate(id, chinese, english, spanish, create));
+            }
+        }
+
+        /// <summary>返回注册快照，避免其他模块登记时改变正在打开的模板列表。</summary>
+        internal static PositioningTemplate[] GetPositioningTemplates()
+        {
+            lock (PositioningTemplatesLock) return PositioningTemplates.ToArray();
+        }
+
+        /// <summary>通过相同的取图、定位及坐标转换图查找多个目标，并输出实际匹配数量。</summary>
+        private static CogToolBlock CreatePatternCount(string cameraSN, double exposure)
+        {
+            CogToolBlock block = Create(false, cameraSN, exposure);
+            block.Name = "PatternMatchCount";
+            block.UserData[TemplateKey] = "PatternCount/1";
+            ((CogPMAlignTool)block.Tools[PatternToolName]).RunParams.ApproximateNumberToFind = 10;
+            return block;
+        }
+
+        internal sealed class PositioningTemplate
+        {
+            internal string Id { get; }
+            private readonly string chinese, english, spanish;
+            private readonly Func<string, double, CogToolBlock> create;
+
+            /// <summary>记录模板稳定标识、三语显示名和每次创建独立工具块的工厂。</summary>
+            internal PositioningTemplate(string id, string chinese, string english, string spanish, Func<string, double, CogToolBlock> create)
+            {
+                Id = id;
+                this.chinese = chinese;
+                this.english = english;
+                this.spanish = spanish;
+                this.create = create;
+            }
+
+            /// <summary>返回当地语言的模板名称，保留列表对象的业务身份。</summary>
+            public override string ToString()
+            {
+                return FrameworkLanguage.LangMsg("TBEditForm", "positioning_" + Id, chinese, english, spanish);
+            }
+
+            /// <summary>验证定位运行、标定和流程使用的固定端口，失败时释放刚创建的工具块。</summary>
+            internal CogToolBlock CreateBlock(string cameraSN, double exposure)
+            {
+                CogToolBlock block = create(cameraSN, exposure);
+                try
+                {
+                    if (block == null || !HasPositioningPorts(block) || !block.Tools.Contains("Calibration") ||
+                        !(block.Tools["Calibration"] is CogCalibNPointToNPointTool) || block.Tools.Contains(RotationToolName))
+                        throw new InvalidOperationException(FrameworkLanguage.LangMsg("TBEditForm", "msg_InvalidPositioningTemplate",
+                            "定位模板缺少标准端口或九点标定工具。", "The positioning template is missing standard ports or its nine-point calibration tool.",
+                            "A la plantilla le faltan puertos estándar o la herramienta de calibración de nueve puntos."));
+                    if (!IsBuiltIn(block)) block.UserData[TemplateKey] = "Registered:" + Id;
+                    block.UserData["RawCalibrationPixels"] = false;
+                    Configure(block, cameraSN, exposure);
+                    return block;
+                }
+                catch { block?.Dispose(); throw; }
+            }
+
+            /// <summary>允许自定义业务端口，同时要求框架依赖的端口和值类型保持一致。</summary>
+            private static bool HasPositioningPorts(CogToolBlock block)
+            {
+                return HasPorts(block.Inputs,
+                    new[] { "CameraSN", "Exposure", "Language", "UseInputImage", "InputImage", "UseCalibration" },
+                    new[] { typeof(string), typeof(double), typeof(int), typeof(bool), typeof(ICogImage), typeof(bool) })
+                    && HasPorts(block.Outputs,
+                    new[] { "Accepted", "x", "y", "A", "Score", "MatchCount", "Calibrated", "OutputImage" },
+                    new[] { typeof(bool), typeof(double), typeof(double), typeof(double), typeof(double), typeof(int), typeof(bool), typeof(ICogImage) });
+            }
+
+        }
 
         /// <summary>建立采集、模板定位及坐标标定工具；标定模板另带独立的旋转中心计算工具。</summary>
         public static CogToolBlock Create(bool calibration, string cameraSN, double exposure)

@@ -78,12 +78,13 @@ namespace AlphaRap
         private bool _hasToolBlockDraft;
         private bool _toolBlockWasSaved;
         private long _toolBlockRevision;
+        private WeakReference<CogToolBlock> _positioningTemplateSeed;
 
         internal sealed class ToolBlockSnapshot
         {
             internal CogToolBlock ToolBlock;
             internal string Path, Signature;
-            internal bool Loaded, Dirty, WasSaved;
+            internal bool Loaded, Dirty, WasSaved, CanChoosePositioningTemplate;
             internal long Revision;
         }
 
@@ -93,6 +94,20 @@ namespace AlphaRap
         /// <summary>内存算法的编辑版本，用于识别应用标定后是否再次修改算法。</summary>
         internal long ToolBlockRevision { get { lock (_operationLock) return _toolBlockRevision; } }
 
+        /// <summary>只有新建或补齐时生成的未确认默认模板可以在编辑器中选用其他模板。</summary>
+        internal bool CanChoosePositioningTemplate
+        {
+            get
+            {
+                lock (_operationLock)
+                {
+                    CogToolBlock seed;
+                    return _hasToolBlockDraft && _positioningTemplateSeed != null &&
+                        _positioningTemplateSeed.TryGetTarget(out seed) && ReferenceEquals(TB, seed);
+                }
+            }
+        }
+
         /// <summary>复制算法草稿，供编辑取消和主保存暂存使用，不修改当前算法。</summary>
         internal ToolBlockSnapshot CaptureToolBlockSnapshot()
         {
@@ -100,7 +115,8 @@ namespace AlphaRap
             {
                 if (!CanModifyToolBlock()) throw new InvalidOperationException(FrameworkLanguage.LangMsg("Vision", "error_BusySave", "工位正在运行或编辑，不能保存 VPP。", "Station is running or being edited; VPP cannot be saved.", "La estación está ejecutándose o en edición; no se puede guardar el VPP."));
                 return new ToolBlockSnapshot { ToolBlock = TB == null ? null : (CogToolBlock)CogSerializer.DeepCopyObject(TB), Path = TBPath,
-                    Signature = ModelSignature, Loaded = IsLoadTBOk, Dirty = _hasToolBlockDraft, WasSaved = _toolBlockWasSaved, Revision = _toolBlockRevision };
+                    Signature = ModelSignature, Loaded = IsLoadTBOk, Dirty = _hasToolBlockDraft, WasSaved = _toolBlockWasSaved,
+                    Revision = _toolBlockRevision, CanChoosePositioningTemplate = CanChoosePositioningTemplate };
             }
         }
 
@@ -114,6 +130,7 @@ namespace AlphaRap
                 ModelSignature = snapshot.Signature; _hasToolBlockDraft = snapshot.Dirty;
                 _toolBlockWasSaved = snapshot.WasSaved;
                 _toolBlockRevision = snapshot.Revision;
+                _positioningTemplateSeed = snapshot.CanChoosePositioningTemplate ? new WeakReference<CogToolBlock>(TB) : null;
                 IsAccept = false; _lastRunResult = null; LastError = "";
             }
         }
@@ -125,6 +142,7 @@ namespace AlphaRap
             {
                 if (!preserveRotationSamples) VpAlgorithmTemplates.InvalidateRotation(TB, true);
                 _hasToolBlockDraft = true; ModelSignature = ""; IsAccept = false; _lastRunResult = null;
+                _positioningTemplateSeed = null;
                 _toolBlockRevision++;
             }
         }
@@ -391,10 +409,34 @@ namespace AlphaRap
                         error = "";
                         return true;
                     }
+                    bool canChoosePositioningTemplate = template == null && !calibration;
                     if (template == null) template = VpAlgorithmTemplates.Create(calibration, RunLiveCCDSN, RunExposure);
                     TB = template; TBPath = path; IsLoadTBOk = true;
+                    _positioningTemplateSeed = canChoosePositioningTemplate ? new WeakReference<CogToolBlock>(template) : null;
                     ModelSignature = ""; _hasToolBlockDraft = true; _toolBlockWasSaved = wasSaved;
                     IsAccept = false; _lastRunResult = null; _toolBlockRevision++;
+                    LastError = error = "";
+                    return true;
+                }
+                catch (Exception failure) { return FailOperation(failure.Message, out error); }
+            }
+        }
+
+        /// <summary>在独占编辑内安装完整的新定位模板；创建或校验失败时保留当前工具块。</summary>
+        internal bool TryApplyPositioningTemplate(VpAlgorithmTemplates.PositioningTemplate template, out string error)
+        {
+            lock (_operationLock)
+            {
+                if (_editingThreadId != Thread.CurrentThread.ManagedThreadId || !CanChoosePositioningTemplate)
+                    return FailOperation(FrameworkLanguage.LangMsg("TBEditForm", "msg_TemplateUnavailable",
+                        "当前算法已确认或已保存，无法改用内置模板。", "This algorithm has already been kept or saved; template selection is unavailable.",
+                        "Este algoritmo ya se conservó o guardó. La selección de plantillas no está disponible."), out error);
+                try
+                {
+                    TB = template.CreateBlock(RunLiveCCDSN, RunExposure);
+                    _positioningTemplateSeed = new WeakReference<CogToolBlock>(TB);
+                    IsAccept = false;
+                    _lastRunResult = null;
                     LastError = error = "";
                     return true;
                 }

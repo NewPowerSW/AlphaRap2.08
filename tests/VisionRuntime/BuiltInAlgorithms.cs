@@ -29,6 +29,7 @@ internal static partial class Tests
         Run("legacy template upgrade preserves training calibration samples and discard", BuiltInUpgrade);
         Run("legacy template upgrade preserves customized scripts ports and connections", BuiltInUpgradeGuards);
         Run("camera add calibration and add VPP create main-save drafts", BuiltInCreationEntries);
+        Run("TB editor uses registered templates and protects saved algorithms", PositioningTemplateEditor);
         Run("built-in script messages honor site translations and preserve image inputs", BuiltInLanguage);
         Run("legacy reserved criteria keep their values without blocking the production row", LegacyReservedCriteria);
         RunPrecisionCalibrationTests();
@@ -401,6 +402,146 @@ internal static partial class Tests
             foreach (VisionproInterface station in VisionproInterface.VList) if (station.TB != null) station.TB.Dispose();
             VisionproInterface.VList.Clear(); VisionproInterface.VList.AddRange(oldStations);
             SysPara.VisionFileDirectory = oldVision; SysPara.RecipeName = oldRecipe; SysPara.SystemMode = oldMode;
+        }
+    }
+
+    /// <summary>从新增 VPP 进入真实 TB 窗口，验证选择、取消、拒绝错误工厂和主保存回读。</summary>
+    private static void PositioningTemplateEditor()
+    {
+        VpAlgorithmTemplates.RegisterPositioningTemplate("TestExtension", "扩展定位", "Extension", "Extensión",
+            (sn, exposure) =>
+            {
+                CogToolBlock block = VpAlgorithmTemplates.Create(false, sn, exposure);
+                block.Name = "ExtensionPositioning";
+                return block;
+            });
+        VpAlgorithmTemplates.RegisterPositioningTemplate("TestInvalid", "无效模板", "Invalid", "No válida",
+            (sn, exposure) => new CogToolBlock());
+        string oldVision = SysPara.VisionFileDirectory, oldRecipe = SysPara.RecipeName;
+        RunMode oldMode = SysPara.SystemMode;
+        LanguageType oldLanguage = SysPara.LanguageShow;
+        VpStation station = null;
+        try
+        {
+            SysPara.SystemMode = RunMode.IDLE;
+            SysPara.RecipeName = "TemplateRecipe";
+            SysPara.VisionFileDirectory = Path.Combine(TestDirectory, "tb-editor");
+            using (VPForm owner = new VPForm())
+            using (TabControl tabs = new TabControl())
+            {
+                var camera = new VpCameraConfig { Name = "EditorCamera", FolderName = "EditorCamera" };
+                var config = (VpConfigFile)typeof(VPForm).GetField("_config", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);
+                config.Cameras.Add(camera);
+                typeof(VPForm).GetMethod("AddVpp", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(owner, new object[] { camera, tabs });
+                VpVppConfig vpp = camera.Vpps.Single();
+                station = vpp.Station;
+                string path = station.GetVppPath(SysPara.RecipeName);
+                WithPositioningEditor(owner, vpp, false, editor =>
+                {
+                    Control panel = editor.Controls.Find("pnlTemplates", true).Single();
+                    ComboBox choices = (ComboBox)editor.Controls.Find("cmbTemplates", true).Single();
+                    Control native = editor.Controls.Find("cogToolBlockEditV21", true).Single();
+                    Check(panel.Visible && choices.Items.Count == 4 && panel.Bottom <= native.Top, "Template selector is missing or overlaps the editor.");
+                    choices.SelectedIndex = 2;
+                    var block = station.TB;
+                    SetLanguage(LanguageType.English);
+                    Check(choices.SelectedIndex == 2 && choices.Text == "Extension" && ReferenceEquals(station.TB, block), "Language refresh changed the template or ToolBlock.");
+                    Check(InstallPositioningTemplate(editor, choices.Items[2]) && station.TB.Name == "ExtensionPositioning",
+                        "The custom registered template could not be installed.");
+                    block = station.TB;
+                    Check(!InstallPositioningTemplate(editor, choices.Items[3]) && ReferenceEquals(block, station.TB), "An invalid factory replaced the active ToolBlock.");
+                    Check(InstallPositioningTemplate(editor, choices.Items[1]), "The count template could not be installed.");
+                    CheckPatternCount(station.TB);
+                });
+                Check(station.TB.Name != "PatternMatchCount" && !File.Exists(path), "Closing with discard did not restore the original draft.");
+                WithPositioningEditor(owner, vpp, true, editor =>
+                {
+                    ComboBox choices = (ComboBox)editor.Controls.Find("cmbTemplates", true).Single();
+                    Check(choices.Visible && InstallPositioningTemplate(editor, choices.Items[1]), "Discard did not restore template selection.");
+                });
+                Check(!File.Exists(path) && owner.HasRecipeDraft, "The editor bypassed Main Save.");
+                CommitVisionDraft(owner);
+                using (var saved = (CogToolBlock)CogSerializer.LoadObjectFromFile(path))
+                {
+                    Check(saved.Name == "PatternMatchCount", "Main Save lost the chosen template.");
+                    CheckEditorConnections(saved);
+                }
+                WithPositioningEditor(owner, vpp, false, editor =>
+                    Check(!editor.Controls.Find("pnlTemplates", true).Single().Visible, "A saved VPP can still be replaced with an editor template."));
+            }
+        }
+        finally
+        {
+            if (station != null) { VisionproInterface.VList.Remove(station); station.TB.Dispose(); }
+            SysPara.VisionFileDirectory = oldVision; SysPara.RecipeName = oldRecipe; SysPara.SystemMode = oldMode;
+            SetLanguage(oldLanguage);
+        }
+    }
+
+    /// <summary>在实际模态窗口打开时检查控件，显式执行与正常关闭相同的保留或恢复路径。</summary>
+    private static void WithPositioningEditor(VPForm owner, VpVppConfig vpp, bool keepDraft, Action<TBEditForm> inspect)
+    {
+        Exception failure = null;
+        bool opened = false;
+        using (var timer = new Timer { Interval = 50 })
+        {
+            timer.Tick += delegate
+            {
+                var editor = Application.OpenForms.OfType<TBEditForm>().FirstOrDefault();
+                if (editor == null) return;
+                timer.Stop();
+                opened = true;
+                var closeMethod = typeof(TBEditForm).GetMethod("TBEditForm_FormClosing", BindingFlags.Instance | BindingFlags.NonPublic);
+                editor.FormClosing -= (FormClosingEventHandler)Delegate.CreateDelegate(typeof(FormClosingEventHandler), editor, closeMethod);
+                try
+                {
+                    inspect(editor);
+                    typeof(TBEditForm).GetMethod("CompleteEdit", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(editor, new object[] { keepDraft });
+                }
+                catch (Exception error) { failure = error; }
+                finally { editor.Close(); }
+            };
+            timer.Start();
+            typeof(VPForm).GetMethod("EditStation", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(owner, new object[] { vpp });
+        }
+        if (failure != null) throw failure;
+        Check(opened, "The Edit TB entry did not open the native editor.");
+    }
+
+    /// <summary>通过编辑器使用所选模板，跳过覆盖确认框以支持无人值守回归。</summary>
+    private static bool InstallPositioningTemplate(TBEditForm editor, object template)
+    {
+        object[] arguments = { template, "" };
+        return (bool)typeof(TBEditForm).GetMethod("InstallTemplate", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(editor, arguments);
+    }
+
+    /// <summary>在离线图像中训练一个目标并找到两个重复特征，检查与标准输出的真实连接。</summary>
+    private static void CheckPatternCount(CogToolBlock block)
+    {
+        CheckEditorConnections(block);
+        using (var bitmap = new Bitmap(350, 170))
+        using (Graphics graphics = Graphics.FromImage(bitmap))
+        {
+            graphics.Clear(Color.Black);
+            foreach (int x in new[] { 45, 215 })
+            {
+                graphics.FillRectangle(Brushes.White, x, 45, 18, 72);
+                graphics.FillRectangle(Brushes.White, x, 100, 70, 17);
+                graphics.FillEllipse(Brushes.White, x + 55, 50, 20, 28);
+            }
+            var image = new CogImage8Grey(bitmap);
+            var pattern = (CogPMAlignTool)block.Tools["LocatePattern"];
+            var region = new CogRectangleAffine();
+            region.SetCenterLengthsRotationSkew(85, 85, 105, 105, 0, 0);
+            pattern.Pattern.TrainImage = image;
+            pattern.Pattern.TrainRegion = region;
+            pattern.Pattern.Origin.TranslationX = 85; pattern.Pattern.Origin.TranslationY = 85;
+            pattern.Pattern.Train();
+            block.Inputs["UseInputImage"].Value = true;
+            block.Inputs["InputImage"].Value = image;
+            block.Run();
+            Check((bool)block.Outputs["Accepted"].Value && (int)block.Outputs["MatchCount"].Value == 2,
+                "The count template did not locate both targets: " + block.RunStatus.Message);
         }
     }
 
