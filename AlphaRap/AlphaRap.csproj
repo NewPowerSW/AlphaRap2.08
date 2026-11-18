@@ -842,6 +842,7 @@
     <Compile Include="TaskProcess\UpConveryor.Designer.cs">
       <DependentUpon>UpConveryor.cs</DependentUpon>
     </Compile>
+    <Compile Include="TaskProcess\DownConveyorProcess.cs" />
     <Compile Include="TaskProcess\DownConveryor.cs">
       <SubType>Form</SubType>
     </Compile>

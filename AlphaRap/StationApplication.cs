@@ -17,6 +17,7 @@ namespace AlphaRap
         private readonly AlwaysRunTask background = new AlwaysRunTask();
         private readonly object outputSync = new object();
         private readonly Dictionary<NP_Output, bool> pausedOutputs = new Dictionary<NP_Output, bool>();
+        private DownConveyorProcess downConveyor;
 
         internal static ManualForm Manual { get; private set; }
         internal static StationVisionForm Vision { get; private set; }
@@ -72,7 +73,50 @@ namespace AlphaRap
         public override System.Windows.Forms.Form CreateHomePage() { return new HomeForm(); }
 
         /// <summary>创建保留本站固定 IO 的手动页。</summary>
-        public override ManualPage CreateManualPage() { return Manual = new ManualForm(); }
+        public override ManualPage CreateManualPage()
+        {
+            Manual = new ManualForm();
+            downConveyor = ConnectDownConveyor(Manual);
+            return Manual;
+        }
+
+        /// <summary>将现场下料 IO 绑定到工站，复用已登记的点位及手动互锁。</summary>
+        private static DownConveyorProcess ConnectDownConveyor(ManualForm manual)
+        {
+            var inputs = new Dictionary<DownConveyorInput, NP_Input> {
+                { DownConveyorInput.StopperUp, manual.IB_DownConveyor_StopUp_Sensor },
+                { DownConveyorInput.StopperDown, manual.IB_DownConveyor_StopDown_Sensor },
+                { DownConveyorInput.BoardIn, manual.IB_DownConveyor_BoardIn_Sensor },
+                { DownConveyorInput.Slowdown, manual.IB_DownConveyor_BoardSpeedSwitch_Sensor },
+                { DownConveyorInput.BoardAtStop, manual.IB_DownConveyor_BoardStop_Sensor },
+                { DownConveyorInput.BoardOut, manual.IB_DownConveyor_BoardOut_Sensor },
+                { DownConveyorInput.UpstreamAvailable, manual.IB_DownConveyor_UpMachineAvailable_SMEMA },
+                { DownConveyorInput.DownstreamReady, manual.IB_DownConveyor_DownMachineReady_SMEMA }
+            };
+            var outputs = new Dictionary<DownConveyorOutput, NP_Output> {
+                { DownConveyorOutput.Forward, manual.OB_DownConveyor_Forward },
+                { DownConveyorOutput.Reverse, manual.OB_DownConveyor_Reverse },
+                { DownConveyorOutput.SlowSpeed, manual.OB_DownConveyor_SpeedSwitch },
+                { DownConveyorOutput.ReadyForBoard, manual.OB_DownConveyor_LocalMachineReady_SMEMA },
+                { DownConveyorOutput.BoardAvailable, manual.OB_DownConveyor_LocalMachineAvailable_SMEMA }
+            };
+            return new DownConveyorProcess(input =>
+            {
+                NP_Input point = inputs[input];
+                return point.IsReady ? (bool?)point.IsOn() : null;
+            }, (output, active) =>
+            {
+                if (output == DownConveyorOutput.Stopper)
+                {
+                    if (active) manual.OB_DownConveyor_Stop_Cylinder.On();
+                    else manual.OB_DownConveyor_Stop_Cylinder.Off();
+                    return;
+                }
+                NP_Output point = outputs[output];
+                if (active) point.On();
+                else point.Off();
+            });
+        }
 
         /// <summary>创建并登记本站的固定日志数据页。</summary>
         public override DataForm CreateDataPage() { return new StationDataForm(); }
@@ -129,7 +173,7 @@ namespace AlphaRap
         {
             yield return new Gantry();
             yield return new UpConveryor();
-            yield return new DownConveryor();
+            yield return new DownConveryor(() => downConveyor);
         }
 
         /// <summary>由项目选择客户接口页面。</summary>
