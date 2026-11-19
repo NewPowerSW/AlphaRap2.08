@@ -378,3 +378,6 @@ FodyWeavers.xsd
 
 /AlphaRap/GeneratedFlows/*.bak
 /.np-transactions/
+
+/AlphaRap/RuntimeData.local*/
+/AlphaRap/bin/

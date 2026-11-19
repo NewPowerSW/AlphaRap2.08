@@ -944,27 +944,27 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\LanguageData\Chinese.xml">
+    <Content Include="..\LanguageData\Chinese.xml" Condition="!Exists('$(MSBuildProjectDirectory)\RuntimeData.local\LanguageData\Chinese.xml')">
       <Link>LanguageData\Chinese.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LanguageData\English.xml">
+    <Content Include="..\LanguageData\English.xml" Condition="!Exists('$(MSBuildProjectDirectory)\RuntimeData.local\LanguageData\English.xml')">
       <Link>LanguageData\English.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LanguageData\Español.xml">
+    <Content Include="..\LanguageData\Español.xml" Condition="!Exists('$(MSBuildProjectDirectory)\RuntimeData.local\LanguageData\Español.xml')">
       <Link>LanguageData\Español.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\AlarmTable\Chinese.xml">
+    <Content Include="..\AlarmTable\Chinese.xml" Condition="!Exists('$(MSBuildProjectDirectory)\RuntimeData.local\AlarmTable\Chinese.xml')">
       <Link>AlarmTable\Chinese.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\AlarmTable\English.xml">
+    <Content Include="..\AlarmTable\English.xml" Condition="!Exists('$(MSBuildProjectDirectory)\RuntimeData.local\AlarmTable\English.xml')">
       <Link>AlarmTable\English.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\AlarmTable\Spanish.xml">
+    <Content Include="..\AlarmTable\Spanish.xml" Condition="!Exists('$(MSBuildProjectDirectory)\RuntimeData.local\AlarmTable\Spanish.xml')">
       <Link>AlarmTable\Spanish.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1022,4 +1022,12 @@
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
+  <Target Name="SeedTransitionRuntimeData" AfterTargets="Build" Condition="Exists('$(MSBuildProjectDirectory)\RuntimeData.local')">
+    <ItemGroup>
+      <TransitionRuntimeFile Include="$(MSBuildProjectDirectory)\RuntimeData.local\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="%(TransitionRuntimeFile.FullPath)"
+          DestinationFiles="$(TargetDir)%(TransitionRuntimeFile.RecursiveDir)%(TransitionRuntimeFile.Filename)%(TransitionRuntimeFile.Extension)"
+          Condition="!Exists('$(TargetDir)%(TransitionRuntimeFile.RecursiveDir)%(TransitionRuntimeFile.Filename)%(TransitionRuntimeFile.Extension)')" />
+  </Target>
 </Project>

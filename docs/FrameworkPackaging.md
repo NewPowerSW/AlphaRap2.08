@@ -10,6 +10,10 @@
 
 在本解决方案的 `AlphaRap/TaskProcess` 中维护工站 C# 步骤。已有工程按应用配置的设置目录读取 `FlowPrograms.xml`。迁移现有设备时使用该设备已验证的流程文件、配方和 IO 映射，分别核对初始化和自动运行入口。流程页供现场监视，主保存校验现有流程的资源引用并保存设备与配方配置。视觉 VPP 通过 TB 编辑器维护。
 
+### 迁入本机运行数据
+
+首次在另一台开发机检出过渡分支时，从该设备原运行目录导入基础数据，例如 `.\build\Import-TransitionRuntimeData.ps1 -SourceDirectory E:\Machine\AlphaRap`。该目录应含 `MachineSetup.ini`、`SystemData.mdb` 及标准的 `ModuleData` 子目录。本机快照位于 `AlphaRap/RuntimeData.local`，独立于 Git。构建时仅向当前 EXE 目录补充缺失文件。导入保留原设备的仿真设置和点位映射，INI 中自定义的外部路径需沿用对应的现场目录。
+
 ## 构建和发布
 
 仓库开发时从 `AlphaRap.Transition.sln` 以 Debug/x64 构建 NPSDK、框架和应用。打包需要 .NET Framework 4.7.1 和 4.8 开发工具、Cognex VisionPro SDK、原有 NuGet 依赖以及 .NET SDK。

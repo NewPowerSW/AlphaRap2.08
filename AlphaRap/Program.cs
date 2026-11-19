@@ -11,6 +11,7 @@ namespace AlphaRap
         private static void Main(string[] args)
         {
             if (PLC.PlcWorker.TryRun(args)) return;
+            System.IO.Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             var station = new StationApplication();
             bool firstInstance;
             using (var mutex = new Mutex(true, "OnlyRunOneInstance", out firstInstance))
