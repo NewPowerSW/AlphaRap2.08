@@ -101,7 +101,7 @@ namespace AlphaRap.Configuration
         private HardwareEntry Selected()
         {
             HardwareDefinition definition = axisTabs.SelectedTab == null ? null : axisTabs.SelectedTab.Tag as HardwareDefinition;
-            HardwareEntry entry = definition == null || Resources == null ? null : Resources.Entries.FirstOrDefault(item => item.Definition.Id == definition.Id);
+            HardwareEntry entry = Resources?.Find(definition?.Id);
             if (entry == null) throw new InvalidOperationException(HardwareText.T("missing"));
             return entry;
         }
@@ -127,7 +127,7 @@ namespace AlphaRap.Configuration
         private void DeleteEntry()
         {
             FlowPrograms.RequireIdle();
-            HardwareEntry entry = Resources.Entries.FirstOrDefault(value => value.Definition.Id == contextResourceId);
+            HardwareEntry entry = Resources.Find(contextResourceId);
             if (entry == null) return;
             if (MessageBox.Show(string.Format(HardwareText.T("remove"),entry.Definition.Name),HardwareText.T("title"),MessageBoxButtons.OKCancel) != DialogResult.OK) return;
             Resources.Delete(entry.Definition.Id);
@@ -137,7 +137,7 @@ namespace AlphaRap.Configuration
         private void EditContextEntry()
         {
             FlowPrograms.RequireIdle();
-            HardwareEntry entry = Resources.Entries.FirstOrDefault(value => value.Definition.Id == contextResourceId);
+            HardwareEntry entry = Resources.Find(contextResourceId);
             if (entry != null) EditEntry(entry);
         }
 
@@ -184,7 +184,9 @@ namespace AlphaRap.Configuration
         /// <summary>按发送组合控件定位资源，不使用旧的下拉框选择。</summary>
         private void GroupSettings(object sender,EventArgs args)
         {
-            Execute(()=>EditEntry(Resources.Entries.Single(entry=>ReferenceEquals(entry.Group,sender))));
+            var definition = (sender as Control)?.Tag as HardwareDefinition;
+            HardwareEntry entry = Resources?.Find(definition?.Id);
+            if (entry != null && ReferenceEquals(entry.Group, sender)) Execute(() => EditEntry(entry));
         }
 
         /// <summary>右键命中轴页签后选择该页，空白处不借用上次右键的资源。</summary>

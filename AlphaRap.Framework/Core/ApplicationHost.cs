@@ -185,15 +185,40 @@ namespace AlphaRap
             application?.OnPermissionChanged(permission);
         }
 
-        /// <summary>读取流程工具箱使用的同一个真实对象，资源键由配置或项目定义。</summary>
+        /// <summary>按已有资源键获取实例；动态轴和 IO 直接从硬件目录读取。</summary>
         public static T GetResource<T>(string id) where T : class
         {
+            if (string.IsNullOrWhiteSpace(id)) throw new KeyNotFoundException(id);
+            object target;
+            if (id.StartsWith("hardware/", StringComparison.Ordinal))
+            {
+                string[] parts = id.Split('/');
+                Guid identity;
+                if (parts.Length == 3 && Guid.TryParseExact(parts[1], "N", out identity)
+                    && (parts[2] == "axis" || parts[2] == "input" || parts[2] == "output"))
+                {
+                    target = FindHardwareDevice(parts[1], parts[2], id);
+                    return target as T ?? throw new InvalidCastException(id + " / " + typeof(T).FullName);
+                }
+            }
             FlowResource resource;
-            if (string.IsNullOrWhiteSpace(id) || !FlowResources.Capture().Items.TryGetValue(id, out resource))
-                throw new KeyNotFoundException(id);
-            T instance = resource.Instance as T;
-            if (instance == null) throw new InvalidCastException(id + " / " + typeof(T).FullName);
-            return instance;
+            if (!FlowResources.Capture().Items.TryGetValue(id, out resource)) throw new KeyNotFoundException(id);
+            return resource.Instance as T ?? throw new InvalidCastException(id + " / " + typeof(T).FullName);
+        }
+
+        /// <summary>从已登记硬件页读取唯一匹配的设备，缺失或重复时报告具体资源键。</summary>
+        private static object FindHardwareDevice(string hardwareId, string kind, string resourceKey)
+        {
+            object result = null;
+            foreach (HardForm page in RegisteredPages.OfType<HardForm>())
+            {
+                if (page.IsDisposed) continue;
+                var entry = page.Resources?.Find(hardwareId);
+                if (entry == null || !string.Equals(entry.Definition.Kind, kind, StringComparison.OrdinalIgnoreCase)) continue;
+                if (result != null) throw new InvalidOperationException("Duplicate flow resource: " + resourceKey);
+                result = entry.Device;
+            }
+            return result ?? throw new KeyNotFoundException(resourceKey);
         }
 
         /// <summary>使用框架现有语言表注册项目页面。</summary>

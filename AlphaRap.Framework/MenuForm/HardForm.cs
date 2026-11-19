@@ -23,7 +23,6 @@ namespace AlphaRap
         {
             base.ModuleInitialize(moduleName);
             hardwareResourcePanel.BindOwner(this);
-            if (ApplicationHost.FindModule<ManualPage>() != null) ApplicationHost.FindModule<ManualPage>().BindResources(Resources);
         }
 
         /// <summary>停止当前框架登记的全部轴，包括动态新增的轴。</summary>

@@ -18,7 +18,6 @@ namespace AlphaRap
             if (UiTheme.IsDesignTime) return;
             FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
-            Load += (sender, args) => AddFlowChart();
             VisibleChanged += (sender, args) =>
             {
                 timer.Enabled = Visible;
@@ -31,7 +30,6 @@ namespace AlphaRap
         /// <summary>将运行中的工站按页签显示。</summary>
         public void AddFlowChart()
         {
-            FlowPrograms.Install();
             tabControl1.SuspendLayout();
             try
             {
@@ -39,18 +37,17 @@ namespace AlphaRap
                 {
                     FlowModuleEditor editor = (FlowModuleEditor)item.Value.Tag;
                     if (!item.Key.IsDisposed && !editor.Program.Removed) continue;
-                    item.Key.Hide();
+                    if (!item.Key.IsDisposed) item.Key.Hide();
                     item.Value.Controls.Remove(item.Key);
                     tabControl1.TabPages.Remove(item.Value);
                     item.Value.Dispose();
                     pages.Remove(item.Key);
                 }
-                foreach (Flow_BaseForm form in Flow_Module.FlowChart_ModuleList.ToArray())
+                foreach (FlowModuleEditor editor in FlowPrograms.Modules)
                 {
-                    if (form.IsDisposed || pages.ContainsKey(form)) continue;
-                    FlowModuleEditor editor = FlowPrograms.Attach(form);
-                    if (editor.Program.Removed) continue;
-                    TabPage page = new TabPage(form.Name) { Name = "flowModule_" + pages.Count + "_dyn", Tag = editor, AutoScroll = true };
+                    Flow_BaseForm form = editor.Form;
+                    if (form.IsDisposed || editor.Program.Removed || pages.ContainsKey(form)) continue;
+                    TabPage page = new TabPage(form.Name) { Name = "flowModule_" + editor.Program.ModuleId + "_dyn", Tag = editor, AutoScroll = true };
                     form.TopLevel = false; form.FormBorderStyle = FormBorderStyle.None; form.Dock = DockStyle.Fill; form.AutoScroll = true;
                     page.Controls.Add(form); tabControl1.TabPages.Add(page); pages.Add(form, page);
                     form.Show();
@@ -58,6 +55,14 @@ namespace AlphaRap
             }
             finally { tabControl1.ResumeLayout(); }
             RefreshRuntime();
+        }
+
+        /// <summary>窗口只拥有页签；卸载监视页时把工站窗体交还给应用。</summary>
+        private void DetachStations()
+        {
+            foreach (var item in pages)
+                item.Value.Controls.Remove(item.Key);
+            pages.Clear();
         }
 
         /// <summary>显示当前工站的耗时及错误。</summary>

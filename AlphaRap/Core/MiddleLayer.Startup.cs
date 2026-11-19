@@ -76,7 +76,6 @@ namespace AlphaRap
         /// <summary>按模块依赖顺序创建流程页、设置页和业务页。</summary>
         private static void CreateProjectForms()
         {
-            foreach (Flow_BaseForm station in Application.CreateStations()) ApplicationHost.RegisterModule(station);
             SpanLifeF = new LifeSpan.LifeSpanForm();
             ProductF = ApplicationHost.RegisterModule(ProductF ?? new ProductManagerForm());
             PlatF = ApplicationHost.RegisterModule(PlatF ?? new PlatFormSetting());
@@ -89,6 +88,8 @@ namespace AlphaRap
             ApplicationHost.Home = HomeF;
             ManualF = ApplicationHost.RegisterModule(ManualF ?? Application.CreateManualPage());
             HardF = ApplicationHost.RegisterModule(HardF ?? Application.CreateHardwarePage());
+            ManualF?.BindResources(HardF?.Resources);
+            foreach (Flow_BaseForm station in Application.CreateStations()) ApplicationHost.RegisterModule(station);
             CheckF = ApplicationHost.RegisterModule(CheckF ?? new CheckForm());
             AddF = ApplicationHost.RegisterModule(AddF ?? new AddUserForm());
             VPF = ApplicationHost.RegisterModule(VPF ?? Application.CreateVisionPage());

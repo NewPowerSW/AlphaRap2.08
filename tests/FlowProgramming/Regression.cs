@@ -1045,6 +1045,7 @@ internal static partial class Cases
     {
         ioPage = new ManualForm(); ioPage.ModuleInitialize(ioPage.Text); SetHost("ManualF",ioPage); RegisterForm(ioPage);
         hardware.ModuleInitialize(hardware.Text);
+        ioPage.BindResources(hardware.Resources);
         groupedAxis = new HardwareDefinition { Name = "Grouped X", Port = "2" };
         groupedInput = hardware.Resources.NewDefinition("Input"); groupedInput.Name = "Grouped sensor";
         groupedOutput = hardware.Resources.NewDefinition("Output"); groupedOutput.Name = "Grouped valve";

@@ -6,6 +6,12 @@
 
 应用入口调用 `ApplicationHost.Initialize(profile)`，由 `MachineApplication.Initialize` 组装页面和启动模块。应用将窗口赋给 `ApplicationHost.MainWindow`，通过 `ApplicationHost.RegisterModule(page)` 登记真实页面，并在窗口关闭时异步等待 `ApplicationHost.ShutdownAsync()` 完成应用清理。窗口可实现 `IModuleWindow` 接入统一保存、权限更新和视觉预览。Device 派生类和 NP 控件派生类仍按已有规则发现，站点的 `FlowChartRun` 事件由运行器调用，流程页按工站显示执行状态。项目代码可以访问设计器创建的字段，也可以通过 `ApplicationHost.GetResource<T>(id)` 取得流程目录里的同一个动态实例。
 
+### 过渡版中新增页面、工站或 IO
+
+- 增加固定页面或工站，从应用项目的 `StationApplication.cs` 入手。固定控件放在各自窗体的设计器里。启动时先建立手动页和硬件目录，手动页通过 `BindResources` 显示已有 IO，再由 `CreateStations()` 把工站需要的对象传入构造函数。下料工站的绑定集中在 `ConnectDownConveyor`。
+- 增加现场可配置的轴或 IO，使用硬件页和主窗口保存。配置中的 `HardwareDefinition.Id` 是稳定身份。应用在组装工站时可用 `ApplicationHost.GetResource<NP_Input>("hardware/" + inputId + "/input")` 取得已有输入，输出和轴的末段分别为 `output`、`axis`。改显示名或移动 IO 分组保留对象。删除资源或更换驱动后，后续使用应按 ID 重新绑定。
+- 流程页展示已安装的工站。站点运行依赖在启动阶段组装，关闭或重新打开监视页都会保留工站实例。
+
 ## 过渡版工站开发
 
 在本解决方案的 `AlphaRap/TaskProcess` 中维护工站 C# 步骤。已有工程按应用配置的设置目录读取 `FlowPrograms.xml`。迁移现有设备时使用该设备已验证的流程文件、配方和 IO 映射，分别核对初始化和自动运行入口。流程页供现场监视，主保存校验现有流程的资源引用并保存设备与配方配置。视觉 VPP 通过 TB 编辑器维护。

@@ -17,7 +17,6 @@ namespace AlphaRap
         private readonly AlwaysRunTask background = new AlwaysRunTask();
         private readonly object outputSync = new object();
         private readonly Dictionary<NP_Output, bool> pausedOutputs = new Dictionary<NP_Output, bool>();
-        private DownConveyorProcess downConveyor;
 
         internal static ManualForm Manual { get; private set; }
         internal static StationVisionForm Vision { get; private set; }
@@ -75,9 +74,7 @@ namespace AlphaRap
         /// <summary>创建保留本站固定 IO 的手动页。</summary>
         public override ManualPage CreateManualPage()
         {
-            Manual = new ManualForm();
-            downConveyor = ConnectDownConveyor(Manual);
-            return Manual;
+            return Manual = new ManualForm();
         }
 
         /// <summary>将现场下料 IO 绑定到工站，复用已登记的点位及手动互锁。</summary>
@@ -173,7 +170,7 @@ namespace AlphaRap
         {
             yield return new Gantry();
             yield return new UpConveryor();
-            yield return new DownConveryor(() => downConveyor);
+            yield return new DownConveryor(ConnectDownConveyor(Manual));
         }
 
         /// <summary>由项目选择客户接口页面。</summary>

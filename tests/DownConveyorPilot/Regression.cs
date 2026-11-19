@@ -63,8 +63,7 @@ internal static class Regression
     {
         Type flowType = typeof(DownConveryor);
         ConstructorInfo flowConstructor = flowType.GetConstructors(Instance).Single(ctor => ctor.GetParameters().Length == 1);
-        Type factoryType = flowConstructor.GetParameters()[0].ParameterType;
-        Type processType = factoryType.GetGenericArguments()[0];
+        Type processType = flowConstructor.GetParameters()[0].ParameterType;
         ConstructorInfo processConstructor = processType.GetConstructors(Instance).Single();
         ParameterInfo[] ports = processConstructor.GetParameters();
         object process = processConstructor.Invoke(new object[] {
@@ -72,8 +71,7 @@ internal static class Regression
             Bind(ports[1].ParameterType, simulator, "Write"),
             Bind(ports[2].ParameterType, simulator, "Record")
         });
-        Delegate factory = Expression.Lambda(factoryType, Expression.Constant(process, processType)).Compile();
-        return (DownConveryor)flowConstructor.Invoke(new object[] { factory });
+        return (DownConveryor)flowConstructor.Invoke(new object[] { process });
     }
 
     /// <summary>将模拟器公开的测试方法适配到应用内部的 IO 及记录类型。</summary>

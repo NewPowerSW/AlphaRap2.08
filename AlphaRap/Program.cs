@@ -31,7 +31,11 @@ namespace AlphaRap
                 finally
                 {
                     ApplicationHost.Shutdown();
-                    PLC.INOVANCE.CloseAll();
+                    try
+                    {
+                        foreach (var stationModule in FlowProgramming.FlowPrograms.Modules) stationModule.Form.Dispose();
+                    }
+                    finally { PLC.INOVANCE.CloseAll(); }
                 }
             }
         }

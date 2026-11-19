@@ -91,8 +91,9 @@ internal static class ConfigurationProbe
             Test("nested save and discard are rejected and the outer operation stays usable", Reentrancy);
             Test("participant discovery is fixed for the complete operation", ParticipantSnapshot);
             Test("captured file lists and values survive later draft changes", FileSnapshot);
-            Test("transition monitor loads historical stations and preserves the original flow file on Save", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/13 passed.");
+            Test("hardware lookup and display edits reuse the registered device", HardwareIdentity);
+            Test("monitor borrows installed stations and preserves the original flow file on Save", TransitionMonitor);
+            Console.WriteLine("RESULT configuration participants: " + passed + "/14 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -214,6 +215,44 @@ internal static class ConfigurationProbe
         Check(File.ReadAllText(feature.Target) == "draft" && feature.Saved == "draft" && feature.Draft == "later", "A prepared snapshot followed later edits.");
     }
 
+    /// <summary>验证动态 IO 的编辑、查找和删除都针对同一个配置身份。</summary>
+    private static void HardwareIdentity()
+    {
+        using (var manual = new DefaultManualPage())
+        using (var hardware = ApplicationHost.RegisterModule(new HardForm()))
+        {
+            var resources = hardware.Resources;
+            manual.BindResources(resources);
+            var definition = resources.NewDefinition("Input");
+            var original = resources.Put(definition);
+            string key = "hardware/" + definition.Id + "/input";
+            Check(ReferenceEquals(original.Device, ApplicationHost.GetResource<NPSDK.Motion.NP_Input>(key)), "Lookup returned a different input.");
+            definition.Name = "Board present";
+            var renamed = resources.Put(definition);
+            Check(ReferenceEquals(renamed.Device, original.Device) && !original.Group.IsDisposed, "Renaming replaced a live control.");
+            Check(renamed.Device.Text == definition.Name, "The control caption did not follow its definition.");
+            resources.MoveIoToPage(definition.Id, resources.AddIoPage("Station IO").Id);
+            manual.BindResources(resources);
+            Check(original.Group.FindForm() == manual && ReferenceEquals(original.Device, ApplicationHost.GetResource<object>(key)), "Moving the IO lost its manual view or identity.");
+            Throws<InvalidCastException>(() => ApplicationHost.GetResource<NPSDK.Motion.NP_Output>(key));
+            var saved = new NPSDK.FlowProject();
+            var station = new NPSDK.FlowProgram { ModuleId = typeof(NPSDK.Flow_BaseForm).FullName + "/Consumer" };
+            station.Steps.Add(new NPSDK.FlowStep { Id = "read", ExecutionMode = "Action", Target = key });
+            saved.Modules.Add(station);
+            NPSDK.FlowProgramFile.Save(FlowPrograms.FilePath, saved);
+            Throws<InvalidOperationException>(() => resources.Delete(definition.Id));
+            Check(!FlowPrograms.HasPrograms && ReferenceEquals(original.Device, ApplicationHost.GetResource<object>(key)), "Reference check changed the station or device.");
+            File.WriteAllText(FlowPrograms.FilePath, "<broken");
+            Throws<InvalidDataException>(() => resources.Delete(definition.Id));
+            Check(!original.Group.IsDisposed, "Invalid flow data allowed deletion.");
+            File.Delete(FlowPrograms.FilePath);
+            NPSDK.FlowProgramFile.Save(FlowPrograms.FilePath, new NPSDK.FlowProject());
+            resources.Delete(definition.Id);
+            Check(original.Group.IsDisposed, "Deleted control still exists.");
+            Throws<KeyNotFoundException>(() => ApplicationHost.GetResource<object>(key));
+        }
+    }
+
     /// <summary>确认监视页挂载已保存工站，主保存保留外部流程文件。</summary>
     private static void TransitionMonitor()
     {
@@ -225,8 +264,19 @@ internal static class ConfigurationProbe
         byte[] before = File.ReadAllBytes(FlowPrograms.FilePath);
         using (var monitor = new Flow())
         {
-            monitor.AddFlowChart();
+            monitor.Show();
             var tabs = (System.Windows.Forms.TabControl)monitor.Controls["tabControl1"];
+            Check(tabs.TabCount == 0 && !FlowPrograms.HasPrograms, "Opening the monitor installed a station.");
+            FlowPrograms.RequireHardwareUnused(Guid.NewGuid().ToString("N"), "UnusedPoints");
+            FlowPrograms.RequireParameterUnused("UnusedParameter");
+            FlowPrograms.RequireResourceUnused("UnusedResource");
+            Check(!FlowPrograms.HasPrograms && NPSDK.Flow_Module.FlowChart_ModuleList.Count == 0, "Checking references created a station.");
+            monitor.Hide();
+            FlowPrograms.Install();
+            monitor.Show();
+            var tab = tabs.TabPages[0];
+            monitor.AddFlowChart();
+            Check(tabs.TabCount == 1 && tabs.TabPages[0] == tab, "Refreshing replaced a station tab.");
             Check(tabs.TabPages.Cast<System.Windows.Forms.TabPage>().Any(page => page.Text == "HistoricalStation"), "Historical station missing.");
             Check(monitor.Controls.Count == 2 && !tabs.AllowDrop && monitor.Controls.Find("toolbox", true).Length == 0, "Flow monitor exposed an editing surface.");
             Check(typeof(Flow).Assembly.GetType("AlphaRap.FlowProgramming.FlowToolboxControl") == null, "Drag toolbox is present in this assembly.");
@@ -235,6 +285,18 @@ internal static class ConfigurationProbe
             ProjectConfiguration.Discard();
             Check(File.ReadAllBytes(FlowPrograms.FilePath).SequenceEqual(before), "Main Save or Discard replaced the original flow.");
         }
+        var station = FlowPrograms.Modules.Single().Form;
+        try
+        {
+            Check(!station.IsDisposed && station.Parent == null, "Closing the monitor destroyed its station.");
+            using (var reopened = new Flow())
+            {
+                reopened.Show();
+                var tabs = (System.Windows.Forms.TabControl)reopened.Controls["tabControl1"];
+                Check(tabs.TabCount == 1 && tabs.TabPages[0].Controls.Contains(station), "Reopening lost the station.");
+            }
+        }
+        finally { station.Dispose(); }
     }
 
     /// <summary>每项使用独立目录及模块宿主，保持生产配置和窗口不受影响。</summary>

@@ -10,7 +10,11 @@ namespace AlphaRap
         /// <summary>释放刷新计时器及窗口资源。</summary>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && components != null) components.Dispose();
+            if (disposing)
+            {
+                components?.Dispose();
+                DetachStations();
+            }
             base.Dispose(disposing);
         }
 

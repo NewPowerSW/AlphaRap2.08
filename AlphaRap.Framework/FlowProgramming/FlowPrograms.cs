@@ -272,13 +272,23 @@ namespace AlphaRap.FlowProgramming
             return references;
         }
 
+        /// <summary>检查引用时读取当前工程；启动前只读取文件，不创建工站和控件。</summary>
+        private static FlowProject ProjectForReferenceCheck()
+        {
+            if (installed)
+            {
+                RequireLoaded();
+                return project;
+            }
+            try { return FlowProgramFile.Load(FilePath); }
+            catch (Exception error) { throw new InvalidDataException(FlowText.T("projectReloadRequired"), error); }
+        }
+
         /// <summary>常量删改前检查所有已载入工程的输入和出口条件，保留仍被引用的业务键与类型。</summary>
         public static void RequireParameterUnused(string reference)
         {
-            Install();
-            if (loadError != null) throw new InvalidDataException("Restore the flow project before changing parameter identities.", loadError);
             List<string> users = new List<string>();
-            foreach (FlowProgram module in project.Modules)
+            foreach (FlowProgram module in ProjectForReferenceCheck().Modules)
             {
                 foreach (FlowStep step in module.Steps)
                 {
@@ -309,12 +319,10 @@ namespace AlphaRap.FlowProgramming
         /// <summary>删除组合硬件前检查动作目标及点位参数引用，包含不可达草稿和独立 CASE 条件。</summary>
         public static void RequireHardwareUnused(string id,string tableName)
         {
-            Install();
-            if (loadError != null) throw new InvalidDataException("Restore the flow project before deleting hardware.",loadError);
             string targetPrefix = "hardware/"+id+"/";
             string parameterPrefix = "Recipe/HardForm/"+tableName+"/";
             List<string> users = new List<string>();
-            foreach (FlowProgram module in project.Modules)
+            foreach (FlowProgram module in ProjectForReferenceCheck().Modules)
             {
                 foreach (FlowStep step in module.Steps)
                 {
@@ -331,10 +339,8 @@ namespace AlphaRap.FlowProgramming
         /// <summary>删除外部对象或 VPP 前反查脚本与尚未处理的旧定义引用。</summary>
         public static void RequireResourceUnused(string resourceId)
         {
-            Install();
             RequireIdle();
-            if (loadError != null) throw new InvalidDataException("Restore the flow project before deleting resources.", loadError);
-            List<string> users = project.Modules.SelectMany(module => module.Steps
+            List<string> users = ProjectForReferenceCheck().Modules.SelectMany(module => module.Steps
                 .Where(step => step.Target == resourceId || step.ScriptResources.Contains(resourceId) || step.ResourceBindings.Any(binding => binding.Target == resourceId))
                 .Select(step => module.ModuleId + " / " + step.Caption)).ToList();
             if (users.Count != 0) throw new InvalidOperationException(string.Format(FlowResourceText.T("resourceUsed"), string.Join(Environment.NewLine, users)));

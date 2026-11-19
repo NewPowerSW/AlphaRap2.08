@@ -64,6 +64,13 @@ namespace AlphaRap.Configuration
             catch (Exception error) { loadError = error; }
         }
 
+        /// <summary>按配置 ID 取当前的资源；读取不会创建控件或访问设备。</summary>
+        internal HardwareEntry Find(string id)
+        {
+            HardwareEntry entry;
+            return id != null && entries.TryGetValue(id, out entry) && !entry.Group.IsDisposed ? entry : null;
+        }
+
         /// <summary>将 IO 组合交给独立的手动 IO 页面，保持原驱动和绑定身份。</summary>
         public void BindIoCanvas(FlowLayoutPanel host)
         {
@@ -120,18 +127,19 @@ namespace AlphaRap.Configuration
             definition.Validate();
             if (entries.Values.Any(item=>item.Definition.Id!=definition.Id && string.Equals(item.Definition.Name,definition.Name,StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException(HardwareText.T("duplicate"));
             HardwareEntry current;
-            entries.TryGetValue(definition.Id,out current);
-            ValidatePhysicalAddress(definition,current == null ? null : current.Device);
-            if (entries.TryGetValue(definition.Id,out current))
+            entries.TryGetValue(definition.Id, out current);
+            ValidatePhysicalAddress(definition, current?.Device);
+            if (current != null)
             {
                 if (definition.Kind != current.Definition.Kind) throw new InvalidOperationException(HardwareText.T("invalid"));
                 if (!FlowResourceGate.CanAccess(current.Device) || (current.Group is NP_AxisGroup && ((NP_AxisGroup)current.Group).IsManualRunning)) throw new InvalidOperationException(FlowText.T("busy"));
                 if (HardwareControlTypes.Resolve(definition.Kind,definition.ControlType) != HardwareControlTypes.Resolve(current.Definition.Kind,current.Definition.ControlType))
                     FlowPrograms.RequireHardwareUnused(definition.Id,PointsName(definition.Id));
-                if (Ready(current.Device))
+                bool connectionChanged = current.Definition.Fields().Union(definition.Fields()).Where(name => name != "Name")
+                    .Any(name => !Equals(typeof(HardwareDefinition).GetField(name).GetValue(current.Definition), typeof(HardwareDefinition).GetField(name).GetValue(definition)));
+                if (!connectionChanged || Ready(current.Device))
                 {
-                    RequiresRestart |= current.Definition.Fields().Union(definition.Fields()).Where(name => name != "Name")
-                        .Any(name => !Equals(typeof(HardwareDefinition).GetField(name).GetValue(current.Definition), typeof(HardwareDefinition).GetField(name).GetValue(definition)));
+                    RequiresRestart |= connectionChanged;
                     current.Definition = definition.Copy(); current.Group.Tag = current.Definition; current.Device.Text = definition.Name;
                     NP_AxisGroup axis = current.Group as NP_AxisGroup;
                     if (axis != null) axis.AxisCaption = definition.Name;
