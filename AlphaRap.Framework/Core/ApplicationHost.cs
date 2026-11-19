@@ -127,7 +127,11 @@ namespace AlphaRap
         /// <summary>读取应用 EXE 的版本。</summary>
         public static string ApplicationVersion
         {
-            get { return (Assembly.GetEntryAssembly() ?? typeof(ApplicationHost).Assembly).GetName().Version.ToString(3); }
+            get
+            {
+                Assembly entry = Assembly.GetEntryAssembly() ?? typeof(ApplicationHost).Assembly;
+                return entry.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? entry.GetName().Version.ToString(3);
+            }
         }
 
         /// <summary>读取当前加载的框架包版本。</summary>

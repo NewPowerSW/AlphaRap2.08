@@ -50,7 +50,6 @@
             this.FlowAuto_Vison3_4 = new NPSDK.Flow_Chart();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.heartbeatCanvas = new AlphaRap.FlowProgramming.FlowDocumentCanvas();
-            this.flowBranchEditor1 = new AlphaRap.FlowProgramming.FlowBranchEditor();
             this.InitialPage.SuspendLayout();
             this.AutoPage.SuspendLayout();
             this.FlowChartTable.SuspendLayout();
@@ -448,16 +447,7 @@
             this.heartbeatCanvas.Size = new System.Drawing.Size(778, 374);
             this.heartbeatCanvas.TabIndex = 0;
             // 
-            // flowBranchEditor1
             // 
-            this.flowBranchEditor1.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.flowBranchEditor1.Location = new System.Drawing.Point(0, 0);
-            this.flowBranchEditor1.Margin = new System.Windows.Forms.Padding(0, 3, 0, 8);
-            this.flowBranchEditor1.MinimumSize = new System.Drawing.Size(600, 40);
-            this.flowBranchEditor1.Name = "flowBranchEditor1";
-            this.flowBranchEditor1.Padding = new System.Windows.Forms.Padding(4);
-            this.flowBranchEditor1.Size = new System.Drawing.Size(600, 43);
-            this.flowBranchEditor1.TabIndex = 36;
             // 
             // Gantry
             // 
@@ -498,6 +488,5 @@
 		private NPSDK.Flow_Chart FlowAuto_Vison3_4;
 		private System.Windows.Forms.TabPage tabPage4;
 		private NPSDK.Flow_Chart GantryInit_Flow1_5;
-        private FlowProgramming.FlowBranchEditor flowBranchEditor1;
     }
 }

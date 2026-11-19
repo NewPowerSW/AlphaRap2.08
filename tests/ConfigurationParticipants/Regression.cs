@@ -91,7 +91,8 @@ internal static class ConfigurationProbe
             Test("nested save and discard are rejected and the outer operation stays usable", Reentrancy);
             Test("participant discovery is fixed for the complete operation", ParticipantSnapshot);
             Test("captured file lists and values survive later draft changes", FileSnapshot);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/12 passed; offline file transactions only.");
+            Test("transition monitor loads historical stations and preserves the original flow file on Save", TransitionMonitor);
+            Console.WriteLine("RESULT configuration participants: " + passed + "/13 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -213,6 +214,29 @@ internal static class ConfigurationProbe
         Check(File.ReadAllText(feature.Target) == "draft" && feature.Saved == "draft" && feature.Draft == "later", "A prepared snapshot followed later edits.");
     }
 
+    /// <summary>确认监视页挂载已保存工站，主保存保留外部流程文件。</summary>
+    private static void TransitionMonitor()
+    {
+        Directory.CreateDirectory(SysPara.SettingDataDirectory);
+        var project = new NPSDK.FlowProject();
+        project.Modules.Add(new NPSDK.FlowProgram { ModuleId = typeof(NPSDK.Flow_BaseForm).FullName + "/HistoricalStation", Mode = "Disabled" });
+        NPSDK.FlowProgramFile.Save(FlowPrograms.FilePath, project);
+        File.AppendAllText(FlowPrograms.FilePath, Environment.NewLine);
+        byte[] before = File.ReadAllBytes(FlowPrograms.FilePath);
+        using (var monitor = new Flow())
+        {
+            monitor.AddFlowChart();
+            var tabs = (System.Windows.Forms.TabControl)monitor.Controls["tabControl1"];
+            Check(tabs.TabPages.Cast<System.Windows.Forms.TabPage>().Any(page => page.Text == "HistoricalStation"), "Historical station missing.");
+            Check(monitor.Controls.Count == 2 && !tabs.AllowDrop && monitor.Controls.Find("toolbox", true).Length == 0, "Flow monitor exposed an editing surface.");
+            Check(typeof(Flow).Assembly.GetType("AlphaRap.FlowProgramming.FlowToolboxControl") == null, "Drag toolbox is present in this assembly.");
+            Check(typeof(NPSDK.Flow_Chart).GetMethod("EnableProgramEditor") == null, "SDK node drag handlers are available.");
+            ProjectConfiguration.Save();
+            ProjectConfiguration.Discard();
+            Check(File.ReadAllBytes(FlowPrograms.FilePath).SequenceEqual(before), "Main Save or Discard replaced the original flow.");
+        }
+    }
+
     /// <summary>每项使用独立目录及模块宿主，保持生产配置和窗口不受影响。</summary>
     private static void Test(string name, Action action)
     {
@@ -221,7 +245,6 @@ internal static class ConfigurationProbe
         SysPara.LanguageDataDirectory = Path.Combine(root, "LanguageData"); SysPara.RecipeDataDirectory = Path.Combine(current, "Recipes");
         SysPara.RecipeName = "Model"; SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, "Model.xml");
         SysPara.UserPermission = PermissionType.Administrator; SysPara.SystemMode = RunMode.IDLE;
-        FlowSourceGenerator.SourceProjectPath = ""; FlowSourceGenerator.OutputDirectory = Path.Combine(current, "Generated");
         action(); passed++; Console.WriteLine("PASS " + name);
     }
     /// <summary>断言具体配置语义。</summary>

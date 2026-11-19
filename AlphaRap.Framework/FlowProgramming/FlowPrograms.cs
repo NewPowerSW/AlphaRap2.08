@@ -21,7 +21,6 @@ namespace AlphaRap.FlowProgramming
         public static bool DebugEnabled { get; set; }
         public static bool AnyRunning { get { return modules.Values.Any(module => module.IsRunning) || Flow_Module.Module_GetRunningStatus; } }
         public static string StopError { get { return string.Join(Environment.NewLine, modules.Values.Select(module => module.Runtime.StopError).Where(error => !string.IsNullOrEmpty(error))); } }
-        public static bool AnyEditing { get { return modules.Values.Any(module => module.IsEditing); } }
         public static bool HasPrograms { get { return modules.Count > 0; } }
         public static bool IsInitialized { get { return HasPrograms && modules.Values.All(module => module.IsEnabled && module.Form.InitialStatus); } }
         public static bool HasInitializationSession { get { return modules.Values.Any(module => module.IsInitializing); } }
@@ -143,7 +142,7 @@ namespace AlphaRap.FlowProgramming
         {
             RequireIdle();
             RequireLoaded();
-            foreach (FlowModuleEditor editor in modules.Values) { editor.CaptureLayout(); editor.Validate(null); }
+            foreach (FlowModuleEditor editor in modules.Values) editor.Validate(null);
         }
 
         /// <summary>主界面放弃修改时恢复上次保存；首次保存前恢复各模块的初始快照。</summary>
@@ -233,7 +232,6 @@ namespace AlphaRap.FlowProgramming
         public static void DeleteModule(FlowModuleEditor module)
         {
             ValidateModuleDeletion(module);
-            module.SetEditing(false);
             module.Program.Removed = true;
             module.Program.Mode = "Disabled";
             module.Program.InitialEntry = null;
@@ -347,12 +345,6 @@ namespace AlphaRap.FlowProgramming
         {
             if (DebugEnabled && !CanEdit) { MessageBox.Show(FlowText.T("permission"), FlowText.T("title")); return false; }
             if (!installed) return true;
-            if (AnyEditing)
-            {
-                string names = string.Join(", ", modules.Values.Where(module => module.IsEditing).Select(module => module.Form.Name));
-                MessageBox.Show(string.Format(FlowText.T("editingBlocksStart"), names), FlowText.T("title"));
-                return false;
-            }
             if (AnyRunning && (initialize || SysPara.SystemMode != RunMode.PAUSE))
             {
                 MessageBox.Show(FlowText.T("busy"), FlowText.T("title"));
@@ -405,7 +397,6 @@ namespace AlphaRap.FlowProgramming
     {
         private readonly Dictionary<string, Flow_Chart> nodes = new Dictionary<string, Flow_Chart>();
         private bool paused;
-        private bool editing;
         private bool simulating;
         private bool isInitializing;
         private bool isProduction;
@@ -428,7 +419,6 @@ namespace AlphaRap.FlowProgramming
         public bool IsEnabled { get { return true; } }
         public bool IsProgram { get { return published != null && published.Mode == "Program"; } }
         public bool IsRemovedPublished { get { return published != null && published.Removed; } }
-        public bool IsEditing { get { return editing; } }
         public event EventHandler Changed;
 
         /// <summary>统一挂接任意派生窗体，并恢复或首次导入其全部 Flow_Chart。</summary>
@@ -484,7 +474,6 @@ namespace AlphaRap.FlowProgramming
             bool importing = program.Mode == "Legacy";
             if (importing) program.Mode = "Program";
             foreach (ScrollableControl canvas in program.Steps.Select(step => FindParent(step.ParentPath)).OfType<ScrollableControl>().Distinct()) canvas.AutoScrollPosition = Point.Empty;
-            foreach (Flow_Chart node in nodes.Values) node.ConfigurationRequested -= Configure;
             nodes.Clear();
             nodeStates.Clear();
             Program = program;
@@ -523,8 +512,6 @@ namespace AlphaRap.FlowProgramming
                 node.Location = new Point(step.X, step.Y);
                 if (step.Width > 0 && step.Height > 0) node.Size = new Size(step.Width, step.Height);
                 node.text = step.Caption;
-                node.ConfigurationRequested += Configure;
-                node.EnableProgramEditor(editing);
                 node.ProgramManaged = IsEnabled;
                 node.ProgramBreakpoint = step.Breakpoint;
                 node.BringToFront();
@@ -704,15 +691,6 @@ namespace AlphaRap.FlowProgramming
         /// <summary>安全解析可空的连接终点。</summary>
         private Flow_Chart Node(string id) { Flow_Chart node; return id != null && nodes.TryGetValue(id, out node) ? node : null; }
 
-        /// <summary>统一切换节点拖动及配置状态。</summary>
-        public void SetEditing(bool value)
-        {
-            if (value && Program.Removed) throw new InvalidOperationException(FlowText.T("moduleMissing"));
-            if (value) FlowPrograms.RequireIdle();
-            editing = value;
-            foreach (Flow_Chart node in nodes.Values) node.EnableProgramEditor(value);
-        }
-
         /// <summary>在当前画布添加普通节点，保存时同步生成所属窗体的流程代码。</summary>
         public FlowStep AddNode()
         {
@@ -788,8 +766,6 @@ namespace AlphaRap.FlowProgramming
             Flow_Chart node = CreateNode(step);
             if (step.PageId != null) { step.Width = node.Width; step.Height = node.Height; }
             nodes.Add(step.Id, node);
-            node.ConfigurationRequested += Configure;
-            node.EnableProgramEditor(editing);
             node.BringToFront();
             ScrollableControl canvas = parent as ScrollableControl;
             if (canvas != null)
@@ -823,7 +799,6 @@ namespace AlphaRap.FlowProgramming
             if (node == null) return;
             FlowPrograms.ValidateNodeDeletion(this, id);
             ScrollableControl canvas = node.Parent as ScrollableControl;
-            node.ConfigurationRequested -= Configure;
             Program.RemovedControls.Add(node.Name);
             RemoveControl(node);
             nodes.Remove(id);
@@ -841,21 +816,6 @@ namespace AlphaRap.FlowProgramming
             Program.AutoEntries.Remove(id);
             ApplyLinks();
             if (canvas != null) UpdateCanvasBounds(canvas);
-        }
-
-        /// <summary>仅编辑文档代码节点的出口目标，业务函数保持只读。</summary>
-        public void SetConnection(string id, string exit, string target)
-        {
-            FlowPrograms.RequireIdle();
-            if (!editing) throw new InvalidOperationException(FlowText.T("edit"));
-            FlowStep step = Program.Steps.Single(item => item.Id == id);
-            if (string.IsNullOrEmpty(step.PageId) || !step.UsesFlowResult || !new[] { "NEXT", "CASE1", "CASE2", "CASE3" }.Contains(exit))
-                throw new InvalidOperationException(FlowText.T("methodMissing"));
-            if (target != null && Program.Steps.All(item => item.Id != target)) throw new InvalidOperationException(FlowText.T("methodMissing"));
-            step.SetTarget(exit, target);
-            if (target != null && step.Branches.All(branch => branch.Code != exit)) step.Branches.Add(new FlowBranch { Code = exit, Unconditional = true });
-            ApplyLinks();
-            if (Changed != null) Changed(this, EventArgs.Empty);
         }
 
         /// <summary>保留原控件及回调，重新加载旧版本时可恢复；移出全局运行列表。</summary>
@@ -878,29 +838,6 @@ namespace AlphaRap.FlowProgramming
                 step.X = node.Left - scroll.X; step.Y = node.Top - scroll.Y; step.ParentPath = ParentPath(node.Parent);
                 if (step.PageId != null) { step.Width = node.Width; step.Height = node.Height; }
             }
-        }
-
-        /// <summary>双击仅配置功能和条件节点，代码节点保持只读绑定。</summary>
-        private void Configure(object sender, EventArgs args)
-        {
-            if (!editing) return;
-            string id = IdOf((Flow_Chart)sender);
-            FlowStep step = Program.Steps.SingleOrDefault(item => item.Id == id);
-            if (step == null || step.UsesFlowResult) return;
-            try { EditNode(id); }
-            catch (Exception error) { MessageBox.Show(string.Format(FlowText.T("error"), error.Message), FlowText.T("title")); }
-        }
-
-        /// <summary>功能和条件节点共用编辑入口；代码节点不打开属性窗口。</summary>
-        public void EditNode(string id)
-        {
-            FlowPrograms.RequireIdle();
-            if (!editing) throw new InvalidOperationException(FlowText.T("enableEditing"));
-            FlowStep step = Program.Steps.SingleOrDefault(item => item.Id == id);
-            if (step == null) throw new InvalidOperationException(FlowText.T("methodMissing"));
-            if (step.UsesFlowResult) return;
-            using (FlowNodeForm dialog = new FlowNodeForm(this, step))
-                if (dialog.ShowDialog(Form) == DialogResult.OK) { ApplyLinks(); if (Changed != null) Changed(this, EventArgs.Empty); }
         }
 
         /// <summary>检查工程结构及已选择入口的真实资源、参数和动作。</summary>
@@ -987,7 +924,6 @@ namespace AlphaRap.FlowProgramming
         {
             if (Runtime.IsRunning) throw new InvalidOperationException(FlowText.T("busy"));
             if (production) FlowPrograms.RequireLoaded();
-            SetEditing(false);
             FlowProgram plan = production ? published : Program;
             if (plan.Removed) throw new InvalidOperationException(FlowText.T("moduleMissing"));
             FlowResources resources = FlowResources.Capture();

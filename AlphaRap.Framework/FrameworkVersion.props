@@ -1,6 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <FrameworkVersion>7.0.0</FrameworkVersion>
-    <FrameworkAssemblyVersion>7.0.0.0</FrameworkAssemblyVersion>
+    <FrameworkVersion>8.0.0-transition</FrameworkVersion>
+    <FrameworkFileVersion>8.0.0.0</FrameworkFileVersion>
+    <FrameworkAssemblyVersion>8.0.0.0</FrameworkAssemblyVersion>
   </PropertyGroup>
 </Project>

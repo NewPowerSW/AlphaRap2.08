@@ -58,22 +58,11 @@ namespace AlphaRap.Configuration
             public int ConfigurationOrder { get { return 70; } }
             /// <summary>校验流程草稿与当前资源引用。</summary>
             public void ValidateConfiguration() { FlowPrograms.ValidateForSave(); }
-            /// <summary>XML、源码及运行发布共同使用同一份流程快照。</summary>
-            public ConfigurationChange PrepareConfigurationSave()
-            {
-                FlowProject snapshot = FlowPrograms.CaptureForSave();
-                var files = new List<ProjectConfiguration.PendingFile> {
-                    new ProjectConfiguration.PendingFile { Path = FlowPrograms.FilePath, Write = path => FlowProgramFile.Save(path, snapshot) }
-                };
-                files.AddRange(FlowSourceGenerator.Prepare(snapshot));
-                return ConfigurationChange.FromPending(files, () => { FlowPrograms.PublishSaved(snapshot); FlowSourceGenerator.AcceptSaved(); });
-            }
-            /// <summary>先预检生成源码冲突，执行恢复动作时再放弃流程草稿。</summary>
-            public Action PrepareConfigurationDiscard()
-            {
-                Action source = FlowSourceGenerator.PrepareDiscard();
-                return () => { FlowPrograms.DiscardChanges(); source(); };
-            }
+            /// <summary>主保存只校验已加载流程的资源引用。</summary>
+            public ConfigurationChange PrepareConfigurationSave() { return new ConfigurationChange(Array.Empty<ConfigurationFile>()); }
+
+            /// <summary>工站监视页没有流程草稿。</summary>
+            public Action PrepareConfigurationDiscard() { return null; }
         }
 
         private sealed class DeviceParticipant : IConfigurationParticipant

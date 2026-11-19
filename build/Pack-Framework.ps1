@@ -8,7 +8,7 @@ $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $framework = Join-Path $projectRoot 'AlphaRap.Framework'
 [xml]$versionFile = Get-Content -LiteralPath (Join-Path $framework 'FrameworkVersion.props') -Raw
 $version = $versionFile.Project.PropertyGroup.FrameworkVersion
-if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'FrameworkVersion must have the form major.minor.patch.' }
+if ($version -notmatch '^\d+\.\d+\.\d+(?:-transition)?$') { throw 'FrameworkVersion must have the form major.minor.patch with an optional -transition suffix.' }
 if (-not $OutputDirectory) { $OutputDirectory = Join-Path $projectRoot 'artifacts/framework' }
 $OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
 $packagePath = Join-Path $OutputDirectory "AlphaRap.Framework.$version.nupkg"

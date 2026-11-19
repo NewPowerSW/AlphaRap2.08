@@ -4,11 +4,15 @@
 - **AlphaRap** 是本机应用，负责进程启动、主窗体、首页、页面导航、整机运行和配方切换，并拥有设备驱动、PLC、固定 IO、工位事件、视觉配方表及客户 MES。
 - **NPSDK** 提供流程控件、运动和 IO，源码工程位于 `SDK/NPSDK`。框架和应用的源码构建均引用该项目。模块基类和模块注册由框架提供。
 
-应用入口调用 `ApplicationHost.Initialize(profile)`，由 `MachineApplication.Initialize` 组装页面和启动模块。应用将窗口赋给 `ApplicationHost.MainWindow`，通过 `ApplicationHost.RegisterModule(page)` 登记真实页面，并在窗口关闭时异步等待 `ApplicationHost.ShutdownAsync()` 完成应用清理。窗口可实现 `IModuleWindow` 接入统一保存、权限更新和视觉预览。Device 派生类和 NP 控件派生类仍按已有规则发现，站点的 `FlowChartRun` 事件直接进入工具箱。项目代码可以访问设计器创建的字段，也可以通过 `ApplicationHost.GetResource<T>(id)` 取得流程目录里的同一个动态实例。
+应用入口调用 `ApplicationHost.Initialize(profile)`，由 `MachineApplication.Initialize` 组装页面和启动模块。应用将窗口赋给 `ApplicationHost.MainWindow`，通过 `ApplicationHost.RegisterModule(page)` 登记真实页面，并在窗口关闭时异步等待 `ApplicationHost.ShutdownAsync()` 完成应用清理。窗口可实现 `IModuleWindow` 接入统一保存、权限更新和视觉预览。Device 派生类和 NP 控件派生类仍按已有规则发现，站点的 `FlowChartRun` 事件由运行器调用，流程页按工站显示执行状态。项目代码可以访问设计器创建的字段，也可以通过 `ApplicationHost.GetResource<T>(id)` 取得流程目录里的同一个动态实例。
+
+## 过渡版工站开发
+
+在本解决方案的 `AlphaRap/TaskProcess` 中维护工站 C# 步骤。已有工程按应用配置的设置目录读取 `FlowPrograms.xml`。迁移现有设备时使用该设备已验证的流程文件、配方和 IO 映射，分别核对初始化和自动运行入口。流程页供现场监视，主保存校验现有流程的资源引用并保存设备与配方配置。视觉 VPP 通过 TB 编辑器维护。
 
 ## 构建和发布
 
-仓库开发时从 `AlphaRap.sln` 以 Debug/x64 构建 NPSDK、框架和应用。打包需要 .NET Framework 4.7.1 和 4.8 开发工具、Cognex VisionPro SDK、原有 NuGet 依赖以及 .NET SDK。
+仓库开发时从 `AlphaRap.Transition.sln` 以 Debug/x64 构建 NPSDK、框架和应用。打包需要 .NET Framework 4.7.1 和 4.8 开发工具、Cognex VisionPro SDK、原有 NuGet 依赖以及 .NET SDK。
 
 ```powershell
 ./build/Pack-Framework.ps1

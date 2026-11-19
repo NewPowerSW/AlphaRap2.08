@@ -431,7 +431,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FlowProgramming\FlowToolboxText.cs" />
     <Compile Include="FlowProgramming\FlowExternalResources.cs" />
     <Compile Include="FlowProgramming\FlowDebugText.cs">
     </Compile>
@@ -707,17 +706,7 @@
     <Compile Include="Configuration\ConstantEditForm.Designer.cs">
       <DependentUpon>ConstantEditForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="FlowProgramming\FlowBranchEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="FlowProgramming\FlowBranchEditor.Designer.cs">
-      <DependentUpon>FlowBranchEditor.cs</DependentUpon>
-    </Compile>
     <Compile Include="FlowProgramming\FlowUtilityObject.cs" />
-    <Compile Include="FlowProgramming\FlowNodeForm.Execution.cs">
-      <DependentUpon>FlowNodeForm.cs</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="FlowProgramming\FlowInheritedMethods.cs" />
     <Compile Include="FlowProgramming\FlowNativeMethods.cs" />
     <Compile Include="FlowProgramming\FlowDocumentCanvas.cs">
@@ -730,18 +719,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FlowProgramming\FlowControlSource.cs" />
-    <Compile Include="FlowProgramming\FlowEntryForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FlowProgramming\FlowEntryForm.Designer.cs">
-      <DependentUpon>FlowEntryForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FlowProgramming\FlowSourceViewer.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FlowProgramming\FlowSourceViewer.Designer.cs">
-      <DependentUpon>FlowSourceViewer.cs</DependentUpon>
-    </Compile>
     <Compile Include="FlowProgramming\FlowActions.cs" />
     <Compile Include="FlowProgramming\FlowInputForm.cs">
       <SubType>Form</SubType>
@@ -751,12 +728,6 @@
     </Compile>
     <Compile Include="FlowProgramming\FlowLanguageForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FlowProgramming\FlowNodeForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FlowProgramming\FlowNodeForm.Designer.cs">
-      <DependentUpon>FlowNodeForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FlowProgramming\FlowProductionData.cs">
       <SubType>Code</SubType>
@@ -842,12 +813,6 @@
     <Compile Include="Vision\VpCameraPage.Designer.cs">
       <DependentUpon>VpCameraPage.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="FlowProgramming\FlowBranchEditor.resx">
-      <DependentUpon>FlowBranchEditor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FlowProgramming\FlowNodeForm.resx">
-      <DependentUpon>FlowNodeForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="FlowProgramming\FlowSchemaForm.resx">
       <DependentUpon>FlowSchemaForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -1030,7 +995,7 @@
         <_Parameter1>$(FrameworkAssemblyVersion)</_Parameter1>
       </FrameworkAssemblyAttribute>
       <FrameworkAssemblyAttribute Include="System.Reflection.AssemblyFileVersionAttribute">
-        <_Parameter1>$(FrameworkVersion).0</_Parameter1>
+        <_Parameter1>$(FrameworkFileVersion)</_Parameter1>
       </FrameworkAssemblyAttribute>
       <FrameworkAssemblyAttribute Include="System.Reflection.AssemblyInformationalVersionAttribute">
         <_Parameter1>$(FrameworkVersion)</_Parameter1>
@@ -1041,21 +1006,6 @@
     </WriteCodeFragment>
   </Target>
   <ItemGroup>
-    <Compile Include="FlowProgramming\FlowSourceGenerator.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="FlowProgramming\FlowSourceGenerator.Mapping.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="FlowProgramming\FlowSourceGenerator.Render.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="FlowProgramming\FlowToolboxControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="FlowProgramming\FlowToolboxControl.Designer.cs">
-      <DependentUpon>FlowToolboxControl.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Vision\Templates\Positioning.txt" />

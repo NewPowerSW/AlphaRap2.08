@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
@@ -80,12 +80,6 @@ namespace NPSDK
 
     public partial class Flow_Chart
     {
-        private bool programHooksAttached;
-        private bool programDragging;
-        private bool programPointerDown;
-        private Point programMouseOrigin;
-        private Point programNodeOrigin;
-        private int programLastClick;
         private bool programBreakpoint;
         private bool programBreakpointPaintAttached;
         private string programBindingLabel = "";
@@ -94,7 +88,6 @@ namespace NPSDK
         private string programElapsedText = "";
         private bool programTimingStarted;
         private volatile ProgramAppearance programAppearance;
-        public event EventHandler ConfigurationRequested;
 
         private sealed class ProgramAppearance
         {
@@ -255,67 +248,6 @@ namespace NPSDK
             Rectangle marker = new Rectangle(Math.Max(1, surface.ClientSize.Width - 12), 3, 8, 8);
             args.Graphics.FillEllipse(Brushes.Red, marker);
             args.Graphics.DrawEllipse(Pens.White, marker);
-        }
-
-        /// <summary>给节点及其内部表面安装拖动和双击配置交互。</summary>
-        public void EnableProgramEditor(bool enabled)
-        {
-            ProgramEditing = enabled;
-            if (!enabled) { programPointerDown = false; Capture = false; programLastClick = 0; }
-            if (programHooksAttached) return;
-            programHooksAttached = true;
-            MouseCaptureChanged += (sender, args) => { if (!Capture) programPointerDown = false; };
-            HookProgramSurface(this);
-        }
-
-        /// <summary>递归绑定鼠标表面；不创建线程或设备对象。</summary>
-        private void HookProgramSurface(Control surface)
-        {
-            surface.MouseDown += ProgramMouseDown;
-            surface.MouseMove += ProgramMouseMove;
-            surface.MouseUp += ProgramMouseUp;
-            foreach (Control child in surface.Controls) HookProgramSurface(child);
-        }
-
-        /// <summary>记录鼠标和节点坐标，仅允许编辑模式下左键操作。</summary>
-        private void ProgramMouseDown(object sender, MouseEventArgs e)
-        {
-            if (!ProgramEditing || e.Button != MouseButtons.Left) return;
-            programDragging = false;
-            programPointerDown = true;
-            programMouseOrigin = ((Control)sender).PointToScreen(e.Location);
-            programNodeOrigin = Location;
-            Capture = true;
-        }
-
-        /// <summary>超过系统拖动阈值后移动节点。</summary>
-        private void ProgramMouseMove(object sender, MouseEventArgs e)
-        {
-            if (!ProgramEditing || !programPointerDown || Parent == null) return;
-            Point position = ((Control)sender).PointToScreen(e.Location);
-            Point delta = new Point(position.X - programMouseOrigin.X, position.Y - programMouseOrigin.Y);
-            if (!programDragging && Math.Abs(delta.X) < SystemInformation.DragSize.Width && Math.Abs(delta.Y) < SystemInformation.DragSize.Height) return;
-            programDragging = true;
-            Location = new Point(Math.Max(0, programNodeOrigin.X + delta.X), Math.Max(0, programNodeOrigin.Y + delta.Y));
-            Parent.Invalidate(true);
-        }
-
-        /// <summary>识别内部 Button 连续单击，避免 Button 不发 DoubleClick。</summary>
-        private void ProgramMouseUp(object sender, MouseEventArgs e)
-        {
-            if (!ProgramEditing || e.Button != MouseButtons.Left) return;
-            programPointerDown = false;
-            Capture = false;
-            if (programDragging) { programLastClick = 0; return; }
-            int now = Environment.TickCount;
-            int interval = unchecked(now - programLastClick);
-            if (programLastClick != 0 && interval >= 0 && interval <= SystemInformation.DoubleClickTime)
-            {
-                programLastClick = 0;
-                if (ConfigurationRequested != null) ConfigurationRequested(this, EventArgs.Empty);
-                return;
-            }
-            programLastClick = now;
         }
 
         /// <summary>保存最新执行状态，隐藏页创建句柄后也能显示。</summary>

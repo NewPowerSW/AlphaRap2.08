@@ -111,7 +111,7 @@ namespace AlphaRap.FlowProgramming
                 {
                     Flow_Chart node = new Flow_Chart { Name = step.ControlName, text = step.Caption, Location = new Point(step.X, step.Y), ProgramManaged = true };
                     if (step.Width > 0 && step.Height > 0) node.Size = new Size(step.Width, step.Height);
-                    node.EnableProgramEditor(false); Controls.Add(node); rendered.Add(step.Id, node);
+                    Controls.Add(node); rendered.Add(step.Id, node);
                     Flow_Module.FlowChart_List.Remove(node);
                 }
                 foreach (FlowStep step in steps)
