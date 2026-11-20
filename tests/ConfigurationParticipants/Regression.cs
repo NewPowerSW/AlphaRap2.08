@@ -110,12 +110,13 @@ internal static class ConfigurationProbe
             Test("device tabs and panels have distinct control names", NamedDeviceControls);
             Test("VPP names resolve within the selected camera", NamedVision);
             Test("named constants read committed values in the selected scope", NamedConstants);
+            Test("constant creation offers C# types and existing types remain fixed", ConstantTypes);
             Test("named customer logs use the saved schema and isolate simulated records", NamedLogs);
             Test("passwords remain compatible with existing managed hashes", LoginHashCompatibility);
             Test("login shows progress and waits for background permissions", () => LoginWindow(false));
             Test("closing a login window discards late authentication", () => LoginWindow(true));
             Test("transition uses only compiled station graphs and preserves archived flow files", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/22 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/23 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -404,6 +405,69 @@ internal static class ConfigurationProbe
         Throws<InvalidCastException>(() => ApplicationHost.GetConstant<int>("Recipe", "CheckEnabled"));
         module.Constants.Put("Recipe", "CheckEnabled", new ConstantValue { Key = "CheckEnabled", Type = "Boolean", Value = "True" });
         Check(!ApplicationHost.GetConstant<bool>("Recipe", "CheckEnabled"), "Recipe draft leaked into runtime lookup.");
+    }
+
+    /// <summary>验证真实编辑窗口的类型选项、服务层锁定和历史整数兼容。</summary>
+    private static void ConstantTypes()
+    {
+        var module = ApplicationHost.Modules.Register(new SystemParametersModule(new BooleanSettingDefault[0]),
+            new ModuleContext(SysPara.SettingDataDirectory));
+        var store = module.Constants;
+        var defaultValue = new ConstantValue { Key = "RetryCount", Type = "Boolean", Value = "False" };
+        using (var creation = new ConstantEditForm(defaultValue, true, value => store.Put("Setting", null, value)))
+        {
+            creation.Show();
+            var types = (ComboBox)creation.Controls.Find("constantTypeValue", true).Single();
+            Check(types.Enabled && types.Items.Cast<object>().Select(types.GetItemText).SequenceEqual(new[] { "int", "double", "bool", "string" }),
+                "The create dialog did not offer exactly the four C# keywords.");
+            types.SelectedIndex = 0;
+            creation.Controls.Find("constantValueValue", true).Single().Text = "2147483647";
+            ((Button)creation.Controls.Find("constantOk", true).Single()).PerformClick();
+            Check(creation.DialogResult == DialogResult.OK, "The create dialog did not accept a valid int.");
+        }
+
+        var table = store.Table("Setting");
+        var row = ConstantStore.Find(table, "RetryCount");
+        Check(row != null, "The created constant was not added to the table.");
+        var existing = ConstantStore.Read(row, System.Data.DataRowVersion.Current);
+        Throws<InvalidOperationException>(() => store.Put("Setting", existing.Key,
+            new ConstantValue { Key = existing.Key, Type = "Number", Value = "2.5" }));
+        Throws<InvalidOperationException>(() => store.Put("Setting", null,
+            new ConstantValue { Key = "TooLarge", Type = existing.Type, Value = "2147483648" }));
+        Check(Convert.ToString(row["Type"]) == existing.Type && Convert.ToString(row["Value"]) == existing.Value, "Rejected edit mutated the constant.");
+
+        table.Rows.Add("LegacyCount", "Integer", "2147483648", "");
+        var legacy = ConstantStore.Read(ConstantStore.Find(table, "LegacyCount"), System.Data.DataRowVersion.Current);
+        CheckConstantTypeDisplay(existing, "int");
+        CheckConstantTypeDisplay(legacy, "long");
+        ProjectConfiguration.Save();
+        ProjectConfiguration.Discard();
+        Check(ApplicationHost.GetConstant<int>("Setting", existing.Key) == int.MaxValue, "The int did not round-trip through main Save.");
+        Check(ApplicationHost.GetConstant<long>("Setting", legacy.Key) == 2147483648L, "The older 64-bit value lost precision after save/reload.");
+    }
+
+    /// <summary>确认已有类型只读，编辑中的值和 C# 类型关键字不随翻译变更。</summary>
+    private static void CheckConstantTypeDisplay(ConstantValue value, string keyword)
+    {
+        LanguageType previous = SysPara.LanguageShow;
+        var switchLanguage = typeof(SystemSetting).Assembly.GetType("AlphaRap.FrameworkLanguage", true).GetMethod("SwitchLanguage");
+        using (var edit = new ConstantEditForm(value, candidate => { }))
+        {
+            edit.Show();
+            var types = (ComboBox)edit.Controls.Find("constantTypeValue", true).Single();
+            var input = (TextBox)edit.Controls.Find("constantValueValue", true).Single();
+            input.Text = "10";
+            try
+            {
+                foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+                {
+                    switchLanguage.Invoke(null, new object[] { language });
+                    Check(!types.Enabled && types.Items.Count == 1 && types.GetItemText(types.SelectedItem) == keyword, "An existing type was editable or translated.");
+                    Check(input.Text == "10", "Switching languages overwrote the draft value.");
+                }
+            }
+            finally { switchLanguage.Invoke(null, new object[] { previous }); }
+        }
     }
 
     /// <summary>按日志名称写真实格式的模拟记录，验证草稿名称和缺失字段均被拒绝。</summary>

@@ -89,9 +89,12 @@ namespace AlphaRap
         private void EditConstant(string key)
         {
             FlowPrograms.RequireIdle();
-            DataRow row = key == null ? null : ConstantStore.Find(Constants.Table(Scope), key);
-            ConstantValue value = row == null ? new ConstantValue { Type = "Boolean", Value = "False" } : ConstantStore.Read(row, DataRowVersion.Current);
-            using (ConstantEditForm dialog = new ConstantEditForm(value, candidate => Constants.Put(Scope, key, candidate))) dialog.ShowDialog(this);
+            string scope = Scope;
+            bool isNew = key == null;
+            DataRow row = isNew ? null : ConstantStore.Find(Constants.Table(scope), key);
+            if (!isNew && row == null) throw new InvalidOperationException(ConstantText.T("missing"));
+            ConstantValue value = isNew ? new ConstantValue { Type = "Boolean", Value = "False" } : ConstantStore.Read(row, DataRowVersion.Current);
+            using (ConstantEditForm dialog = new ConstantEditForm(value, isNew, candidate => Constants.Put(scope, key, candidate))) dialog.ShowDialog(this);
         }
 
         /// <summary>确认后按稳定键删除，服务层检查所有流程参数引用。</summary>
@@ -123,11 +126,11 @@ namespace AlphaRap
             constantDelete.Enabled = FlowPrograms.CanEdit && SysPara.SystemMode == RunMode.IDLE && !FlowPrograms.AnyRunning && !NPSDK.Flow_Module.Module_GetRunningStatus;
         }
 
-        /// <summary>翻译类型和内置说明，不翻译常量业务键或用户备注。</summary>
+        /// <summary>显示 C# 类型关键字并翻译内置说明，保留用户备注。</summary>
         private void FormatCell(object sender, DataGridViewCellFormattingEventArgs args)
         {
             if (args.RowIndex < 0) return;
-            if (constants.Columns[args.ColumnIndex].Name == "constantType") { args.Value = ConstantText.T(Convert.ToString(args.Value)); args.FormattingApplied = true; }
+            if (constants.Columns[args.ColumnIndex].Name == "constantType") { args.Value = ConstantText.TypeName(Convert.ToString(args.Value)); args.FormattingApplied = true; }
             if (constants.Columns[args.ColumnIndex].Name != "constantDescription" || !string.IsNullOrEmpty(Convert.ToString(args.Value))) return;
             string key = Convert.ToString(constants.Rows[args.RowIndex].Cells["constantKey"].Value);
             if (Scope == "Setting" && Constants.DefaultKeys.Contains(key)) { args.Value = Constants.Label(key); args.FormattingApplied = true; }

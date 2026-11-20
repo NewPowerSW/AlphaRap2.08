@@ -15,13 +15,12 @@ namespace AlphaRap.Configuration
             { "search", new[] { "查询键或说明", "Search key or description", "Buscar clave o descripción" } },
             { "key", new[] { "常量键", "Constant key", "Clave de constante" } }, { "type", new[] { "类型", "Type", "Tipo" } },
             { "value", new[] { "值", "Value", "Valor" } }, { "description", new[] { "说明", "Description", "Descripción" } },
-            { "Boolean", new[] { "布尔", "Boolean", "Booleano" } }, { "Integer", new[] { "整数", "Integer", "Entero" } },
-            { "Number", new[] { "数值", "Number", "Número" } }, { "Text", new[] { "文本", "Text", "Texto" } },
             { "hint", new[] { "Setting 不随配方切换；Recipe 跟随物料管理的当前配方。修改后使用主界面【保存】。流程节点的“型号 / 机器参数”可绑定 Constants。", "Setting is independent of recipes; Recipe follows product management. Use the main Save button after editing. Bind Constants under Recipe / Machine parameter in flow nodes.", "Setting no cambia con la receta; Recipe sigue la gestión de productos. Use Guardar principal tras editar. Vincule Constants en Parámetro de receta / máquina del nodo." } },
             { "context", new[] { "当前配方：{0}", "Current recipe: {0}", "Receta actual: {0}" } },
             { "duplicate", new[] { "该作用域已有同名常量。", "A constant with this key already exists in this scope.", "Ya existe una constante con esta clave en este ámbito." } },
             { "missing", new[] { "常量已删除或不存在，请重新选择。", "The constant is unavailable. Select it again.", "La constante no está disponible. Vuelva a seleccionarla." } },
             { "legacy", new[] { "此兼容参数保留原键和布尔类型，可修改值。", "Keep this compatibility setting's name and Boolean type. Its value can be edited.", "Este ajuste compatible conserva su nombre y tipo Boolean. Se puede editar su valor." } },
+            { "typeLocked", new[] { "常量类型只能在新增时选择。", "Choose the constant type when creating it.", "El tipo de constante se elige al crearla." } },
             { "keyRequired", new[] { "请输入无首尾空格和控制字符的常量键。", "Enter a constant key without leading/trailing spaces or control characters.", "Introduzca una clave sin espacios al inicio o final ni caracteres de control." } },
             { "invalidValue", new[] { "值与类型不符。布尔使用 True/False，数值小数点使用句点且必须有限。", "Value does not match the type. Use True/False for Boolean and a decimal point for finite numbers.", "El valor no coincide con el tipo. Use True/False para Boolean y punto decimal para números finitos." } },
             { "recipeRequired", new[] { "请先通过物料管理创建并使用一个有效配方。", "Create and select a valid recipe in product management first.", "Cree y seleccione primero una receta válida en gestión de productos." } },
@@ -31,6 +30,20 @@ namespace AlphaRap.Configuration
             { "pendingMainSave", new[] { "当前配方常量有未保存修改，请先使用主界面【保存】；选择否可放弃修改。", "Current recipe constants have unsaved edits. Use the main Save button first; choose No to discard.", "Hay constantes sin guardar. Use Guardar principal; elija No para descartar." } },
             { "referenced", new[] { "以下流程节点仍引用该参数，不能删除、改键或改变类型：{0}", "These flow nodes still reference this parameter; it cannot be deleted, renamed or retyped: {0}", "Estos nodos aún usan el parámetro; no puede eliminarse ni cambiar su clave o tipo: {0}" } },
         };
+
+        /// <summary>在所有语言中使用 C# 类型关键字显示常量类型。</summary>
+        internal static string TypeName(string type)
+        {
+            switch (type)
+            {
+                case ConstantStore.Int32Type: return "int";
+                case "Number": return "double";
+                case "Boolean": return "bool";
+                case "Text": return "string";
+                case "Integer": return "long";
+                default: return type;
+            }
+        }
 
         /// <summary>使用框架统一语言入口及现场覆盖，设计期只读内置底稿。</summary>
         public static string T(string key)

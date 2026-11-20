@@ -74,8 +74,10 @@ namespace AlphaRap.FlowProgramming
         private object ConvertValue(string key, object value)
         {
             object initial = values[key];
+            string text = Convert.ToString(value, CultureInfo.InvariantCulture);
+            if (initial is int) return ConstantStore.Parse(ConstantStore.Int32Type, text);
             string type = initial is bool ? "Boolean" : initial is long ? "Integer" : initial is double ? "Number" : "Text";
-            return ConstantStore.Parse(type, Convert.ToString(value, CultureInfo.InvariantCulture));
+            return ConstantStore.Parse(type, text);
         }
     }
 }

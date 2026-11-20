@@ -53,7 +53,8 @@ namespace AlphaRap.Configuration
         private readonly object flowSync = new object();
         private readonly Dictionary<string, FlowValue> flowValues = new Dictionary<string, FlowValue>();
         private sealed class FlowValue { internal DataRow Row; internal object Value; }
-        public static readonly string[] Types = { "Boolean", "Integer", "Number", "Text" };
+        internal const string Int32Type = "Int32";
+        public static readonly string[] Types = { Int32Type, "Number", "Boolean", "Text" };
         private readonly Dictionary<string, BooleanSettingDefault> defaults;
 
         /// <summary>使用系统设置模块已有的 SettingData 和 RecipeData，不维护第二套配方目录。</summary>
@@ -176,20 +177,21 @@ namespace AlphaRap.Configuration
             return table.Rows.Cast<DataRow>().FirstOrDefault(row => row.RowState != DataRowState.Deleted && Convert.ToString(row["Key"]) == key);
         }
 
-        /// <summary>新增或修改前完成类型、唯一键与引用校验，然后一次写入草稿。</summary>
+        /// <summary>新增时指定类型，修改保持原类型，校验唯一键与引用后写入草稿。</summary>
         public void Put(string scope, string oldKey, ConstantValue value)
         {
             RequireActive();
             FlowPrograms.RequireIdle();
-            ValidateValue(value);
+            ValidateKey(value);
             DataTable table = Table(scope);
             DataRow row = oldKey == null ? null : Find(table, oldKey);
             if (oldKey != null && row == null) throw new InvalidOperationException(ConstantText.T("missing"));
+            if (row != null && Convert.ToString(row["Type"]) != value.Type) throw new InvalidOperationException(ConstantText.T("typeLocked"));
+            object parsed = Parse(value.Type, value.Value);
             DataRow duplicate = Find(table, value.Key);
             if (duplicate != null && duplicate != row) throw new InvalidOperationException(ConstantText.T("duplicate"));
             if (scope == "Setting" && IsLegacyKey(oldKey) && (value.Key != oldKey || value.Type != "Boolean")) throw new InvalidOperationException(ConstantText.T("legacy"));
-            if (row != null && (oldKey != value.Key || Convert.ToString(row["Type"]) != value.Type)) FlowPrograms.RequireParameterUnused(Reference(scope, oldKey));
-            object parsed = Parse(value.Type, value.Value);
+            if (row != null && oldKey != value.Key) FlowPrograms.RequireParameterUnused(Reference(scope, oldKey));
             string canonical = parsed is double ? ((double)parsed).ToString("R", CultureInfo.InvariantCulture) : Convert.ToString(parsed, CultureInfo.InvariantCulture);
             if (row == null) row = table.Rows.Add(value.Key, value.Type, canonical, value.Description ?? "");
             else row.ItemArray = new object[] { value.Key, value.Type, canonical, value.Description ?? "" };
@@ -217,7 +219,8 @@ namespace AlphaRap.Configuration
             {
                 if (row.RowState == DataRowState.Deleted || string.IsNullOrWhiteSpace(Convert.ToString(row["Key"]))) continue;
                 ConstantValue value = Read(row, DataRowVersion.Current);
-                ValidateValue(value);
+                ValidateKey(value);
+                Parse(value.Type, value.Value);
                 if (!keys.Add(value.Key)) throw new InvalidOperationException(ConstantText.T("duplicate"));
             }
         }
@@ -261,7 +264,7 @@ namespace AlphaRap.Configuration
         /// <summary>读取已保存值及流程明确写入表的发布值，稳定引用不使用行索引。</summary>
         public IEnumerable<KeyValuePair<string, object>> Committed(string scope) { return Snapshot(scope,false); }
 
-        /// <summary>按键读取已发布值，保留 Boolean、Integer、Number 或 Text 的原始类型。</summary>
+        /// <summary>按键读取已发布值，要求调用方类型与常量实际类型一致。</summary>
         internal T Get<T>(string scope, string key)
         {
             RequireActive();
@@ -323,19 +326,19 @@ namespace AlphaRap.Configuration
         /// <summary>形成不受翻译、表格排序和配方名称影响的绑定键。</summary>
         public static string Reference(string scope, string key) { return "Constants/" + scope + "/" + Uri.EscapeDataString(key); }
 
-        /// <summary>校验可读键和有限、有类型的数值。</summary>
-        private static void ValidateValue(ConstantValue value)
+        /// <summary>检查常量键非空且不含首尾空格或控制字符。</summary>
+        private static void ValidateKey(ConstantValue value)
         {
             if (value == null || string.IsNullOrWhiteSpace(value.Key) || value.Key.Trim() != value.Key || value.Key.Any(char.IsControl)) throw new InvalidOperationException(ConstantText.T("keyRequired"));
-            Parse(value.Type, value.Value);
         }
 
         /// <summary>按稳定类型代码解析值，拒绝 NaN、无穷及依赖地区的小数格式。</summary>
         public static object Parse(string type, string text)
         {
-            bool flag; long integer; double number;
+            bool flag; int int32; long integer; double number;
             if (type == "Text") return text ?? "";
             if (type == "Boolean" && bool.TryParse(text, out flag)) return flag;
+            if (type == Int32Type && int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int32)) return int32;
             if (type == "Integer" && long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out integer)) return integer;
             if (type == "Number" && double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out number) && !double.IsNaN(number) && !double.IsInfinity(number)) return number;
             throw new InvalidOperationException(ConstantText.T("invalidValue"));

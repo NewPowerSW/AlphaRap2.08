@@ -10,13 +10,19 @@ namespace AlphaRap.Configuration
         /// <summary>创建独立于设备状态的编辑布局。</summary>
         public ConstantEditForm() { InitializeComponent(); }
 
-        /// <summary>编辑副本，提交成功才关闭窗口。</summary>
-        public ConstantEditForm(ConstantValue value, Action<ConstantValue> save) : this()
+        /// <summary>编辑已有常量时保留原类型，提交成功才关闭窗口。</summary>
+        public ConstantEditForm(ConstantValue value, Action<ConstantValue> save) : this(value, false, save) { }
+
+        /// <summary>新增时提供类型选择，编辑时显示当前固定类型。</summary>
+        public ConstantEditForm(ConstantValue value, bool isNew, Action<ConstantValue> save) : this()
         {
             commit = save;
             constantKeyValue.Text = value.Key; constantValueValue.Text = value.Value; constantDescriptionValue.Text = value.Description;
-            constantTypeValue.Items.AddRange(ConstantStore.Types); constantTypeValue.SelectedItem = value.Type;
-            constantTypeValue.Format += (sender, args) => args.Value = ConstantText.T(Convert.ToString(args.ListItem));
+            constantTypeValue.Format += (sender, args) => args.Value = ConstantText.TypeName(Convert.ToString(args.ListItem));
+            if (isNew) constantTypeValue.Items.AddRange(ConstantStore.Types);
+            else constantTypeValue.Items.Add(value.Type);
+            constantTypeValue.SelectedItem = value.Type;
+            constantTypeValue.Enabled = isNew;
             constantOk.Click += Save;
             ApplyLanguage(null, EventArgs.Empty);
             FrameworkLanguage.LanguageChanged += ApplyLanguage;
@@ -35,12 +41,11 @@ namespace AlphaRap.Configuration
             catch (Exception error) { MessageBox.Show(error.Message, ConstantText.T("title")); }
         }
 
-        /// <summary>只刷新标签及类型显示，不重建数据。</summary>
+        /// <summary>切换语言时刷新标签与按钮，保留输入和类型选择。</summary>
         private void ApplyLanguage(object sender, EventArgs args)
         {
             ConstantText.Apply(this);
             constantOk.Text = FlowProgramming.FlowText.T("ok"); constantCancel.Text = FlowProgramming.FlowText.T("cancel");
-            constantTypeValue.Refresh();
         }
     }
 }
