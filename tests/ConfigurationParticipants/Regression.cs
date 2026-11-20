@@ -1,5 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Data.OleDb;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Threading;
+using System.Windows.Forms;
+using AlphaRap.Security;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -104,8 +111,11 @@ internal static class ConfigurationProbe
             Test("VPP names resolve within the selected camera", NamedVision);
             Test("named constants read committed values in the selected scope", NamedConstants);
             Test("named customer logs use the saved schema and isolate simulated records", NamedLogs);
+            Test("passwords remain compatible with existing managed hashes", LoginHashCompatibility);
+            Test("login shows progress and waits for background permissions", () => LoginWindow(false));
+            Test("closing a login window discards late authentication", () => LoginWindow(true));
             Test("monitor borrows installed stations and preserves the original flow file on Save", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/19 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/22 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -424,6 +434,134 @@ internal static class ConfigurationProbe
             }
         }
         finally { SysPara.Simulation = previousSimulation; }
+    }
+
+    /// <summary>验证系统加密库与现有 Windows .NET 凭据的二进制结果一致。</summary>
+    private static void LoginHashCompatibility()
+    {
+        byte[] salt = Enumerable.Range(0, 16).Select(value => (byte)value).ToArray();
+        const int cost = 600000;
+        foreach (string password in new[] { "", "账号Pruebañ🔐" })
+        {
+            byte[] key;
+            using (var managed = new Rfc2898DeriveBytes(password, salt, cost, HashAlgorithmName.SHA256)) key = managed.GetBytes(32);
+            string encoded = "np1$" + cost + "$" + Convert.ToBase64String(salt) + "$" + Convert.ToBase64String(key);
+            Check(PasswordCredentials.Verify(password, encoded), "Existing managed credential was rejected.");
+            Check(!PasswordCredentials.Verify(password + "wrong", encoded), "Incorrect password was accepted.");
+            string[] fields = PasswordCredentials.Hash(password).Split('$');
+            Check(fields[0] == "np1" && fields[1] == "600000", "Stored credential format or cost changed.");
+            using (var managed = new Rfc2898DeriveBytes(password, Convert.FromBase64String(fields[2]), cost, HashAlgorithmName.SHA256))
+                Check(managed.GetBytes(32).SequenceEqual(Convert.FromBase64String(fields[3])), "Generated credential could not be verified by the former implementation.");
+        }
+    }
+
+    /// <summary>在独立目录创建 MDB，使用测试账号验证真实登录入口。</summary>
+    private static string CreateLoginDatabase()
+    {
+        string path = Path.Combine(current, "LoginFixture.mdb");
+        string connectionString = new OleDbConnectionStringBuilder { Provider = "Microsoft.ACE.OLEDB.12.0", DataSource = path }.ConnectionString;
+        Type catalogType = Type.GetTypeFromProgID("ADOX.Catalog", true);
+        object catalog = Activator.CreateInstance(catalogType);
+        try
+        {
+            catalogType.InvokeMember("Create", BindingFlags.InvokeMethod, null, catalog, new object[] { connectionString });
+            object connection = catalogType.InvokeMember("ActiveConnection", BindingFlags.GetProperty, null, catalog, null);
+            try { connection.GetType().InvokeMember("Close", BindingFlags.InvokeMethod, null, connection, null); }
+            finally { Marshal.FinalReleaseComObject(connection); }
+        }
+        finally { Marshal.FinalReleaseComObject(catalog); }
+        using (var connection = new OleDbConnection(connectionString))
+        {
+            connection.Open();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "CREATE TABLE [UserData] ([UserName] TEXT(50),[Password] TEXT(50),[Permission] TEXT(50))";
+                command.ExecuteNonQuery();
+                command.CommandText = "INSERT INTO [UserData] ([UserName],[Password],[Permission]) VALUES ('first','fixture-1','Operator')";
+                command.ExecuteNonQuery();
+                command.CommandText = "INSERT INTO [UserData] ([UserName],[Password],[Permission]) VALUES ('tester','fixture-2','Maintenance')";
+                command.ExecuteNonQuery();
+            }
+        }
+        return path;
+    }
+
+    /// <summary>在菜单权限查询被人为阻塞时观察真实 WinForms 消息处理及关闭行为。</summary>
+    private static void LoginWindow(bool closeEarly)
+    {
+        string originalDatabase = SysPara.MdbPath, originalUser = SysPara.UserName;
+        bool originalLogin = SysPara.bLogin;
+        PermissionType originalRole = SysPara.UserPermission;
+        SysPara.MdbPath = CreateLoginDatabase();
+        SysPara.UserName = "None";
+        SysPara.bLogin = false;
+        SysPara.UserPermission = PermissionType.Operator;
+        int uiThread = Thread.CurrentThread.ManagedThreadId, loadedThread = 0, appliedThread = 0, preparations = 0;
+        bool observedPending = false, expired = false;
+        using (var prepared = new ManualResetEventSlim())
+        using (var release = new ManualResetEventSlim())
+        using (var login = new UserLoginForm(permission =>
+        {
+            Interlocked.Increment(ref preparations);
+            loadedThread = Thread.CurrentThread.ManagedThreadId;
+            prepared.Set();
+            if (!release.Wait(6000)) throw new TimeoutException("Permission test was not released.");
+            return () => appliedThread = Thread.CurrentThread.ManagedThreadId;
+        }))
+        using (var timer = new System.Windows.Forms.Timer { Interval = 15 })
+        {
+            var name = (FieldBox)login.Controls.Find("textUserName", true).Single();
+            var password = (FieldBox)login.Controls.Find("textPassword", true).Single();
+            var button = (FlatButton)login.Controls.Find("btnLogin", true).Single();
+            var grid = (DataGridView)login.Controls.Find("dgvUserList", true).Single();
+            string caption = button.Text;
+            var timeout = Stopwatch.StartNew();
+            try
+            {
+                login.Shown += (sender, args) =>
+                {
+                    name.Value = "tester";
+                    password.Value = "fixture-2";
+                    button.PerformClick();
+                    button.PerformClick();
+                    timer.Start();
+                };
+                timer.Tick += (sender, args) =>
+                {
+                    if (timeout.ElapsedMilliseconds > 7000)
+                    {
+                        expired = true;
+                        release.Set();
+                        login.Close();
+                        return;
+                    }
+                    if (!prepared.IsSet || grid.Rows.Count < 2 || observedPending) return;
+                    observedPending = !button.Enabled && button.Text != caption && name.Value == "tester"
+                        && SysPara.UserName == "None" && SysPara.UserPermission == PermissionType.Operator;
+                    if (closeEarly) login.Close();
+                    release.Set();
+                };
+                login.ShowDialog();
+                timer.Stop();
+                ApplicationTasks.Global.StopAllAsync().GetAwaiter().GetResult();
+                Application.DoEvents();
+                Check(!expired && observedPending && preparations == 1 && loadedThread != uiThread,
+                    "The login window did not process messages, lost input, or submitted twice.");
+                if (closeEarly)
+                    Check(appliedThread == 0 && SysPara.UserName == "None" && SysPara.UserPermission == PermissionType.Operator, "A closed dialog granted permissions.");
+                else
+                    Check(appliedThread == uiThread && SysPara.UserName == "tester" && SysPara.UserPermission == PermissionType.Maintenance,
+                        "Login failed to apply verified permissions on the message thread.");
+            }
+            finally
+            {
+                release.Set();
+                SysPara.MdbPath = originalDatabase;
+                SysPara.UserName = originalUser;
+                SysPara.bLogin = originalLogin;
+                SysPara.UserPermission = originalRole;
+            }
+        }
     }
 
     /// <summary>确认监视页挂载已保存工站，主保存保留外部流程文件。</summary>

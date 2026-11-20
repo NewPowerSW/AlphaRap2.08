@@ -182,8 +182,15 @@ namespace AlphaRap
         /// <summary>更新通用权限和窗口显示，再通知应用记录本机登录信息。</summary>
         internal static void SetPermission(PermissionType permission)
         {
+            SetPermission(permission, null);
+        }
+
+        /// <summary>发布已验证身份的权限并应用已读取的菜单配置。</summary>
+        internal static void SetPermission(PermissionType permission, Action applyMenu)
+        {
             SysPara.UserPermission = permission;
-            ModuleWindow?.SwitchPermission(permission);
+            if (applyMenu == null) ModuleWindow?.SwitchPermission(permission);
+            else applyMenu();
             application?.OnPermissionChanged(permission);
         }
 

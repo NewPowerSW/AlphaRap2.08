@@ -580,7 +580,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "用户登录";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UserLoginForm_FormClosing);
-            this.Load += new System.EventHandler(this.UserLoginForm_Load);
+            this.Shown += new System.EventHandler(this.UserLoginForm_Shown);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.UserLoginForm_KeyDown);
             this.rootTable.ResumeLayout(false);
             this.pnlBrand.ResumeLayout(false);

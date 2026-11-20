@@ -47,13 +47,19 @@ namespace AlphaRap
         /// <summary>在应用配置的操作日志目录下按界面记录工号、权限和操作。</summary>
         public void AddOperationLog(string formName, string action)
         {
+            AddOperationLog(formName, action, SysPara.UserName, SysPara.UserPermission);
+        }
+
+        /// <summary>按操作发生时的工号和权限写入审计记录，支持后台落盘。</summary>
+        public void AddOperationLog(string formName, string action, string userName, PermissionType permission)
+        {
             RegisteredLog log = FindRegisteredLog("OperationLog");
             if (log == null) return;
             lock (log.Source)
             {
                 if (operationLogRoot == null) operationLogRoot = log.Source.SavePath;
                 log.Source.SavePath = Path.Combine(operationLogRoot, SafeFolder(formName));
-                log.Source.SaveDataToFile(new[] { SysPara.UserName, SysPara.UserPermission.ToString(), action });
+                log.Source.SaveDataToFile(new[] { userName, permission.ToString(), action });
             }
         }
 

@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using AlphaRap.MES;
 using AlphaRap.TaskProcess;
 using AlphaRapLibrary;
@@ -15,6 +17,8 @@ namespace AlphaRap
     internal sealed class StationApplication : MachineApplication
     {
         private readonly AlwaysRunTask background = new AlwaysRunTask();
+        private readonly object loginAuditSync = new object();
+        private Task loginAudit = Task.CompletedTask;
         private readonly object outputSync = new object();
         private readonly Dictionary<NP_Output, bool> pausedOutputs = new Dictionary<NP_Output, bool>();
 
@@ -43,12 +47,22 @@ namespace AlphaRap
         /// <summary>检查本站配方草稿并切换模块和视觉配置。</summary>
         public override bool ChangeRecipe(string path) { return MiddleLayer.OpenRecipe(path); }
 
-        /// <summary>按本站日志格式记录登录或注销。</summary>
+        /// <summary>按发生顺序在后台记录登录或注销，使用当时的工号和权限。</summary>
         public override void OnPermissionChanged(PermissionType permission)
         {
-            ApplicationHost.Data?.WriteLog("UserLogin", SysPara.UserName, permission.ToString());
-            OperationLog.Write("UserLoginForm", (SysPara.UserName == "None" ? "注销" : "登录")
-                + "　工号：" + SysPara.UserName + "　权限：" + permission);
+            DataForm data = ApplicationHost.Data;
+            if (data == null) return;
+            string userName = SysPara.UserName;
+            string action = (userName == "None" ? "注销" : "登录") + "　工号：" + userName + "　权限：" + permission;
+            lock (loginAuditSync)
+            {
+                loginAudit = loginAudit.ContinueWith(_ =>
+                {
+                    data.WriteLog("UserLogin", userName, permission.ToString());
+                    data.AddOperationLog("UserLoginForm", action, userName, permission);
+                }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+                ApplicationTasks.Global.Track("LoginAudit", loginAudit);
+            }
         }
 
         /// <summary>提供本站应用名称。</summary>

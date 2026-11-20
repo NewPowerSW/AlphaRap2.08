@@ -1,5 +1,7 @@
 ﻿using Alpha;
 using AlphaRap.Classes;
+using AlphaRap.Security;
+using System.Linq;
 using AlphaRapLibrary;
 using Cognex.VisionPro;
 using System;
@@ -1166,43 +1168,59 @@ int nheightEllipse
             MENU_PageType MENU_Page_Type = (MENU_PageType)Enum.Parse(typeof(MENU_PageType), ItemName);
             SwitchMainPage(MENU_Page_Type);
         }
-        // 用户登录按钮
+        /// <summary>用当前主窗口作为登录窗体的所有者，并在登录返回后校验选中页面权限。</summary>
         private void UserLogin_Click(object sender, EventArgs e)
         {
-            UserLoginForm UserLoginF = new UserLoginForm();
-
-            string OrgUser = SysPara.UserName;
-            UserLoginF.ShowDialog();
-            if (OrgUser != SysPara.UserName)
-                if (!MENU_Picture[(int)MENU_SelectPage].Enabled)
-                    SwitchMainPage(MENU_PageType.Home);
-                else
-                    RefreshMenuBackcolor();
+            string originalUser = SysPara.UserName;
+            using (var login = new UserLoginForm(PrepareLoginPermission)) login.ShowDialog(this);
+            if (originalUser != SysPara.UserName && !MENU_Picture[(int)MENU_SelectPage].Enabled)
+                SwitchMainPage(MENU_PageType.Home);
         }
-        /// <summary>按权限表（PermissionSetup）启用或禁用菜单按钮。</summary>
-        public void SwitchPermission(PermissionType Permission)
-        {
-            string strSQL = "select * from PermissionSetup where Permission ='" + Permission.ToString() + "'";
-            bool Successful = false;
 
-            DataTable readData = DataBase.ReadData_Adapter(SysPara.MdbPath, strSQL, ref Successful);
-            if (Successful)
+        /// <summary>在工作线程读取并校验权限，返回仅更新菜单的操作。</summary>
+        private Action PrepareLoginPermission(PermissionType permission)
+        {
+            using (DataTable table = new AccountService(SysPara.MdbPath).ReadMenuPermissions(permission))
             {
-                if (readData.Rows.Count > 0)
+                string[] columns = { "Product", "Hard", "Manual", "Check", "System", "Mes", "Rapid", "Data", "Vision", "Exit" };
+                if (table.Rows.Count != 1 || columns.Any(key => !table.Columns.Contains(key) || !(table.Rows[0][key] is bool)))
+                    throw new InvalidDataException(ApplicationHost.Text("UserLoginForm", "invalidMenuPermissions", "该角色的菜单权限配置无效。",
+                        "The menu permissions for this role are invalid.", "Los permisos de menú de este rol no son válidos."));
+                var values = columns.ToDictionary(key => key, key => (bool)table.Rows[0][key]);
+                return () => ApplyMenuPermissions(permission, key => values[key]);
+            }
+        }
+
+        /// <summary>按当前机器权限配置刷新菜单，用于应用初始化及自动退出登录。</summary>
+        public void SwitchPermission(PermissionType permission)
+        {
+            string sql = "select * from PermissionSetup where Permission ='" + permission.ToString() + "'";
+            bool successful = false;
+            using (DataTable table = DataBase.ReadData_Adapter(SysPara.MdbPath, sql, ref successful))
+            {
+                if (successful && table.Rows.Count > 0)
                 {
-                    MENU_Product.Enabled = Convert.ToBoolean(readData.Rows[0]["Product"]);
-                    MENU_Hard.Enabled = Convert.ToBoolean(readData.Rows[0]["Hard"]);
-                    MENU_Manual.Enabled = Convert.ToBoolean(readData.Rows[0]["Manual"]);
-                    MENU_Check.Enabled = Convert.ToBoolean(readData.Rows[0]["Check"]);
-                    MENU_System.Enabled = Convert.ToBoolean(readData.Rows[0]["System"]);
-                    MENU_AddUser.Enabled = (Permission == PermissionType.Administrator);
-                    MENU_Mes.Enabled = MiddleLayer.MesF != null && Convert.ToBoolean(readData.Rows[0]["Mes"]);
-                    MENU_Rapid.Enabled = Convert.ToBoolean(readData.Rows[0]["Rapid"]);
-                    MENU_Data.Enabled = Convert.ToBoolean(readData.Rows[0]["Data"]);
-                    MENU_Vision.Enabled = Convert.ToBoolean(readData.Rows[0]["Vision"]);
-                    MENU_Exit.Enabled = Convert.ToBoolean(readData.Rows[0]["Exit"]);
+                    ApplyMenuPermissions(permission, key => Convert.ToBoolean(table.Rows[0][key]));
+                    return;
                 }
             }
+            RefreshMenuBackcolor();
+        }
+
+        /// <summary>从已读取的权限值更新菜单控件，随后统一刷新样式。</summary>
+        private void ApplyMenuPermissions(PermissionType permission, Func<string, bool> allowed)
+        {
+            MENU_Product.Enabled = allowed("Product");
+            MENU_Hard.Enabled = allowed("Hard");
+            MENU_Manual.Enabled = allowed("Manual");
+            MENU_Check.Enabled = allowed("Check");
+            MENU_System.Enabled = allowed("System");
+            MENU_AddUser.Enabled = permission == PermissionType.Administrator;
+            MENU_Mes.Enabled = MiddleLayer.MesF != null && allowed("Mes");
+            MENU_Rapid.Enabled = allowed("Rapid");
+            MENU_Data.Enabled = allowed("Data");
+            MENU_Vision.Enabled = allowed("Vision");
+            MENU_Exit.Enabled = allowed("Exit");
             RefreshMenuBackcolor();
         }
         #endregion

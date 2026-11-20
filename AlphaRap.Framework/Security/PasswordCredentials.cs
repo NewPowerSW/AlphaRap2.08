@@ -1,5 +1,6 @@
 using System;
 using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace AlphaRap.Security
@@ -42,8 +43,53 @@ namespace AlphaRap.Security
         /// <summary>使用明确的 SHA256 派生算法，不依赖旧构造函数的默认算法。</summary>
         private static byte[] Derive(string password, byte[] salt, int cost)
         {
-            using (var derive = new Rfc2898DeriveBytes(password ?? "", salt, cost, HashAlgorithmName.SHA256)) return derive.GetBytes(32);
+            try
+            {
+                byte[] key = DeriveWindows(password, salt, cost);
+                if (key != null) return key;
+            }
+            catch (DllNotFoundException) { }
+            catch (EntryPointNotFoundException) { }
+
+            using (var derive = new Rfc2898DeriveBytes(password ?? "", salt, cost, HashAlgorithmName.SHA256))
+                return derive.GetBytes(32);
         }
+
+        /// <summary>用 Windows 系统加密库计算同一 PBKDF2-SHA256 凭据；失败交给兼容实现。</summary>
+        private static byte[] DeriveWindows(string password, byte[] salt, int cost)
+        {
+            const uint hmacAlgorithm = 0x00000008;
+            IntPtr provider;
+            if (BCryptOpenAlgorithmProvider(out provider, "SHA256", null, hmacAlgorithm) != 0) return null;
+            byte[] secret = null;
+            try
+            {
+                secret = Encoding.UTF8.GetBytes(password ?? "");
+                byte[] key = new byte[32];
+                if (BCryptDeriveKeyPBKDF2(provider, secret, (uint)secret.Length, salt, (uint)salt.Length, (ulong)cost, key, (uint)key.Length, 0) == 0)
+                    return key;
+                Array.Clear(key, 0, key.Length);
+                return null;
+            }
+            finally
+            {
+                if (secret != null) Array.Clear(secret, 0, secret.Length);
+                BCryptCloseAlgorithmProvider(provider, 0);
+            }
+        }
+
+        [DllImport("bcrypt.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        private static extern int BCryptOpenAlgorithmProvider(out IntPtr provider, string id, string implementation, uint flags);
+
+        [DllImport("bcrypt.dll", ExactSpelling = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        private static extern int BCryptDeriveKeyPBKDF2(IntPtr provider, byte[] password, uint passwordSize, byte[] salt, uint saltSize,
+            ulong iterations, [Out] byte[] key, uint keySize, uint flags);
+
+        [DllImport("bcrypt.dll", ExactSpelling = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        private static extern int BCryptCloseAlgorithmProvider(IntPtr provider, uint flags);
 
         /// <summary>比较固定长度的散列结果，不因首个不同字节提前返回。</summary>
         private static bool Equal(byte[] one, byte[] two)

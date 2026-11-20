@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,8 @@ namespace AlphaRap
         /// <summary>当前是否处于指纹登录页。</summary>
         private bool _fingerMode;
         private string[] fingerprintUsers = new string[0];
+        private readonly Func<PermissionType, Action> preparePermission;
+        private bool bindingUsers;
         private bool authenticating;
         private int authenticationVersion;
 
@@ -28,8 +31,12 @@ namespace AlphaRap
         private Point _dragOffset;
 
         /// <summary>创建登录界面与图标，运行时再设置语言、账号绑定及交互。</summary>
-        public UserLoginForm()
+        public UserLoginForm() : this(null) { }
+
+        /// <summary>创建登录窗口，并允许应用在后台准备菜单权限。</summary>
+        public UserLoginForm(Func<PermissionType, Action> preparePermission)
         {
+            this.preparePermission = preparePermission;
             InitializeComponent();
             UiTheme.ApplyDpi(this);
             ApplyIcons();
@@ -122,6 +129,7 @@ namespace AlphaRap
                 lblBrandSub.Text = FrameworkLanguage.LangMsg("UserLoginForm", "lblBrandSub", "视觉检测系统", "Vision Inspection System", "Sistema de inspección visual");
                 lblVersion.Text = "AlphaRap  v2.08";
                 FrameworkLanguage.RefreshUserHeaders(dgvUserList);
+                RefreshLoginButton();
             }
             catch { }
         }
@@ -135,6 +143,7 @@ namespace AlphaRap
         /// <summary>切换"账号登录 / 指纹登录"。两个面板都 Dock=Fill，只切可见性即可（不可见的控件不参与停靠布局）。</summary>
         private void ShowMode(bool fingerprint)
         {
+            if (authenticating) return;
             try
             {
                 _fingerMode = fingerprint;
@@ -211,36 +220,74 @@ namespace AlphaRap
                 btnLogin.PerformClick();
         }
 
-        /// <summary>后台执行密码派生，消息线程保持可用并拒绝重复提交。</summary>
+        /// <summary>收集界面凭据后交给统一验证入口。</summary>
         private async void btnLogin_Click(object sender, EventArgs e)
         {
-            if (authenticating || ApplicationHost.IsShuttingDown) return;
-            authenticating = true; btnLogin.Enabled = false;
-            int version = ++authenticationVersion;
-            string name = textUserName.Value, password = textPassword.Value;
-            try
-            {
-                Task<AccountIdentity> work = Task.Run(() => new AccountService(SysPara.MdbPath).Authenticate(name, password));
-                _ = ApplicationTasks.Global.Track("Authentication", work);
-                AccountIdentity identity = await work;
-                if (IsDisposed || Disposing || ApplicationHost.IsShuttingDown || version != authenticationVersion) return;
-                if (identity == null) { ShowAuthenticationError(AccountText.Failed); return; }
-                CompleteLogin(identity);
-            }
-            catch (Exception error) { if (version == authenticationVersion) ShowAuthenticationError(error.Message); }
-            finally { authenticating = false; if (!IsDisposed) btnLogin.Enabled = true; }
+            string name = textUserName.Value;
+            string password = textPassword.Value;
+            string path = SysPara.MdbPath;
+            await AuthenticateAsync(() => new AccountService(path).Authenticate(name, password));
         }
 
-        /// <summary>账号和指纹共享身份提交，只有认证成功后更新全局权限。</summary>
-        private void CompleteLogin(AccountIdentity identity)
+        /// <summary>在工作线程验证账号并读取菜单权限，仅在当前登录请求仍有效时提交。</summary>
+        private async Task AuthenticateAsync(Func<AccountIdentity> authenticate)
+        {
+            if (authenticating || IsDisposed || Disposing || ApplicationHost.IsShuttingDown) return;
+            authenticating = true;
+            int version = ++authenticationVersion;
+            RefreshLoginButton();
+            try
+            {
+                var work = Task.Run(() =>
+                {
+                    AccountIdentity identity = authenticate();
+                    Action apply = identity == null ? null : preparePermission?.Invoke(identity.Permission);
+                    return Tuple.Create(identity, apply);
+                });
+                ApplicationTasks.Global.Track("Authentication", work);
+                var result = await work;
+                if (!IsAuthenticationCurrent(version)) return;
+                if (result.Item1 == null) { ShowAuthenticationError(AccountText.Failed); return; }
+                CompleteLogin(result.Item1, result.Item2);
+            }
+            catch (Exception error)
+            {
+                if (IsAuthenticationCurrent(version)) ShowAuthenticationError(error.Message);
+            }
+            finally
+            {
+                authenticating = false;
+                if (IsAuthenticationCurrent(version)) RefreshLoginButton();
+            }
+        }
+
+        /// <summary>只允许当前仍打开的登录请求更新身份或显示错误。</summary>
+        private bool IsAuthenticationCurrent(int version)
+        {
+            return !IsDisposed && !Disposing && !ApplicationHost.IsShuttingDown && version == authenticationVersion;
+        }
+
+        /// <summary>在登录按钮上显示当前验证状态，并遵循界面语言。</summary>
+        private void RefreshLoginButton()
+        {
+            btnLogin.Enabled = !authenticating;
+            btnLogin.Text = authenticating
+                ? FrameworkLanguage.LangMsg(Name, "loginInProgress", "正在验证…", "Signing in…", "Iniciando sesión…")
+                : FrameworkLanguage.LangText(Name, "btnLogin", "登录");
+        }
+
+        /// <summary>账号和指纹共享身份提交，菜单权限就绪后更新全局身份和权限。</summary>
+        private void CompleteLogin(AccountIdentity identity, Action applyMenu)
         {
             UserPermission = identity.Permission;
             SysPara.UserName = identity.Name;
             SysPara.UserLoginTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            ApplicationHost.SetPermission(identity.Permission);
-            textUserName.Value = ""; textPassword.Value = "";
-            SysPara.bLogin = false; Close(); SysPara.bLogin = true;
+            ApplicationHost.SetPermission(identity.Permission, applyMenu);
+            SysPara.bLogin = false;
+            Close();
+            SysPara.bLogin = true;
         }
+
         /// <summary>指纹页的"手动登录"：切回账号登录页。</summary>
         private void btnManual_Click(object sender, EventArgs e)
         {
@@ -260,40 +307,41 @@ namespace AlphaRap
             lblFingerStatus.Text = "";
             if (SysPara.bLogin)
             {
-                SysPara.UserName = ApplicationHost.FindModule<AddUserForm>().ReadAllUserData();
+                SysPara.UserName = "None";
                 SysPara.UserPermission = PermissionType.Operator;
                 ApplicationHost.ModuleWindow?.CompleteLogin();
                 SysPara.bLogin = false;
             }
         }
 
-        /// <summary>捕获指纹模板索引对应的用户名，不把密码加入指纹绑定。</summary>
+        /// <summary>刷新指纹模板索引对应的用户名。</summary>
         public void ResetFingerprintDB()
         {
             try
             {
-                DataTable users = new AccountService(SysPara.MdbPath).Users();
-                fingerprintUsers = new string[users.Rows.Count];
-                for (int i = 0; i < users.Rows.Count; i++) fingerprintUsers[i] = Convert.ToString(users.Rows[i]["UserName"]);
+                using (DataTable users = new AccountService(SysPara.MdbPath).Users()) ReadFingerprintUsers(users);
             }
             catch (Exception error) { fingerprintUsers = new string[0]; ShowAuthenticationError(error.Message); }
         }
 
-        /// <summary>可信指纹回调重新确认绑定账号身份，永不读取或回填密码。</summary>
-        public void OnTemplate(int UserIndex)
+        /// <summary>保留数据库行顺序，使用公开身份建立指纹索引。</summary>
+        private void ReadFingerprintUsers(DataTable users)
         {
-            RefreshDifferentThreadUI(this, () =>
+            fingerprintUsers = users.Rows.Cast<DataRow>().Select(row => Convert.ToString(row["UserName"])).ToArray();
+        }
+
+        /// <summary>可信指纹回调重新确认账号身份，并与密码登录共用后台验证。</summary>
+        public void OnTemplate(int userIndex)
+        {
+            RefreshDifferentThreadUI(this, async () =>
             {
-                if (IsDisposed || ApplicationHost.IsShuttingDown || authenticating || !_fingerMode || UserIndex < 0 || UserIndex >= fingerprintUsers.Length) return;
-                try
-                {
-                    AccountIdentity identity = new AccountService(SysPara.MdbPath).FindIdentity(fingerprintUsers[UserIndex]);
-                    if (identity == null) { ShowAuthenticationError(AccountText.Failed); return; }
-                    CompleteLogin(identity);
-                }
-                catch (Exception error) { ShowAuthenticationError(error.Message); }
+                if (IsDisposed || Disposing || !_fingerMode || userIndex < 0 || userIndex >= fingerprintUsers.Length) return;
+                string path = SysPara.MdbPath;
+                string name = fingerprintUsers[userIndex];
+                await AuthenticateAsync(() => new AccountService(path).FindIdentity(name));
             });
         }
+
         public static void RefreshDifferentThreadUI(Control control, Action action)
         {
             if (control.InvokeRequired)
@@ -307,38 +355,52 @@ namespace AlphaRap
             }
         }
 
-        private void UserLoginForm_Load(object sender, EventArgs e)
+        /// <summary>先显示登录窗口，再后台读取一次公开用户列表。</summary>
+        private async void UserLoginForm_Shown(object sender, EventArgs e)
         {
-            if (UiTheme.IsDesignTime) return;
-            ReadAllUserData();
-            ResetFingerprintDB();
-            // 窗体显示后把焦点放到用户名输入框
+            if (UiTheme.IsDesignTime || ApplicationHost.IsShuttingDown) return;
             textUserName.FocusInput();
-        }
-
-        public string ReadAllUserData()
-        {
-            string gUser = "None";
-
+            string path = SysPara.MdbPath;
             try
             {
-                string strSQL = "select UserName,Permission from UserData";
-                bool Successful = false;
+                Task<DataTable> work = Task.Run(() => new AccountService(path).Users());
+                ApplicationTasks.Global.Track("LoginUsers", work);
+                DataTable users = await work;
+                if (IsDisposed || Disposing || ApplicationHost.IsShuttingDown) { users.Dispose(); return; }
+                BindUserList(users);
+            }
+            catch (Exception error)
+            {
+                if (!IsDisposed && !Disposing && !ApplicationHost.IsShuttingDown && !authenticating) ShowAuthenticationError(error.Message);
+            }
+        }
 
-                DataTable readData = DataBase.ReadData_Adapter(SysPara.MdbPath, strSQL, ref Successful);
-                if (Successful)
+        /// <summary>兼容同步列表读取入口，使用同一账号快照同时更新指纹索引。</summary>
+        public string ReadAllUserData()
+        {
+            try { BindUserList(new AccountService(SysPara.MdbPath).Users()); }
+            catch (Exception error) { ShowAuthenticationError(error.Message); }
+            return "None";
+        }
+
+        /// <summary>绑定公开账号和指纹索引，保留用户已输入的账号以及当前登录方式。</summary>
+        private void BindUserList(DataTable users)
+        {
+            ReadFingerprintUsers(users);
+            bindingUsers = true;
+            try
+            {
+                dgvUserList.DataSource = users;
+                if (dgvUserList.Columns.Count >= 2)
                 {
-                    dgvUserList.DataSource = readData;
                     dgvUserList.Columns[0].Width = 250;
                     dgvUserList.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, FrameworkLanguage.LangMsg("Common", "msg_SystemTitle", "系统提示", "System message", "Mensaje del sistema"), MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            finally { bindingUsers = false; }
 
-            return gUser;
+            if (!authenticating && !_fingerMode && string.IsNullOrEmpty(textUserName.Value) && string.IsNullOrEmpty(textPassword.Value))
+                dgvUserList_SelectionChanged(dgvUserList, EventArgs.Empty);
         }
 
         /// <summary>建立一个方法用来把窗体2值传给窗体1</summary>
@@ -350,16 +412,14 @@ namespace AlphaRap
             });
         }
 
+        /// <summary>选中账号时回填名称，后台绑定和验证期间保留当前输入。</summary>
         private void dgvUserList_SelectionChanged(object sender, EventArgs e)
         {
-            if (dgvUserList.CurrentCell != null)
-            {
-                if (dgvUserList.CurrentCell.RowIndex >= 0)
-                {
-                    textUserName.Value = dgvUserList[0, dgvUserList.CurrentCell.RowIndex].Value.ToString();
-                    if (_fingerMode) ShowMode(false);
-                }
-            }
+            if (bindingUsers || authenticating || dgvUserList.CurrentCell == null) return;
+            int rowIndex = dgvUserList.CurrentCell.RowIndex;
+            if (rowIndex < 0) return;
+            textUserName.Value = Convert.ToString(dgvUserList[0, rowIndex].Value);
+            if (_fingerMode) ShowMode(false);
         }
     }
 }

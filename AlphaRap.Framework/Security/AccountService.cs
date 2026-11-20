@@ -56,6 +56,13 @@ namespace AlphaRap.Security
             using (OleDbConnection connection = Open()) return Read(connection, "SELECT [UserName],[Permission] FROM [UserData]");
         }
 
+        /// <summary>读取指定角色的菜单权限，调用方验证应用所需的功能列。</summary>
+        public DataTable ReadMenuPermissions(PermissionType permission)
+        {
+            using (OleDbConnection connection = Open())
+                return Read(connection, "SELECT * FROM [PermissionSetup] WHERE [Permission]=?", permission.ToString());
+        }
+
         /// <summary>可信指纹回调按已绑定用户名重新确认当前权限，不读取或回填密码。</summary>
         public AccountIdentity FindIdentity(string name)
         {
