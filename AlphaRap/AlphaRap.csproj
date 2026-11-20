@@ -1013,6 +1013,16 @@
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="ExcludeRetiredFlowSources" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <_RetiredFlowDirectory>$([System.String]::Copy('$(MSBuildProjectDirectory)\GeneratedFlows\').ToUpperInvariant())</_RetiredFlowDirectory>
+    </PropertyGroup>
+    <ItemGroup>
+      <_RetiredFlowSource Include="@(Compile)"
+                          Condition="$([System.String]::Copy('%(Compile.FullPath)').ToUpperInvariant().StartsWith('$(_RetiredFlowDirectory)')) Or '%(Compile.FullPath)' == '$(MSBuildProjectDirectory)\TaskProcess\Gantry.Heartbeat.cs'" />
+      <Compile Remove="@(_RetiredFlowSource)" />
+    </ItemGroup>
+  </Target>
   <Target Name="SeedTransitionRuntimeData" AfterTargets="Build" Condition="Exists('$(MSBuildProjectDirectory)\RuntimeData.local')">
     <ItemGroup>
       <TransitionRuntimeFile Include="$(MSBuildProjectDirectory)\RuntimeData.local\**\*" />
