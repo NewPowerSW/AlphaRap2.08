@@ -114,7 +114,7 @@ internal static class ConfigurationProbe
             Test("passwords remain compatible with existing managed hashes", LoginHashCompatibility);
             Test("login shows progress and waits for background permissions", () => LoginWindow(false));
             Test("closing a login window discards late authentication", () => LoginWindow(true));
-            Test("monitor borrows installed stations and preserves the original flow file on Save", TransitionMonitor);
+            Test("transition uses only compiled station graphs and preserves archived flow files", TransitionMonitor);
             Console.WriteLine("RESULT configuration participants: " + passed + "/22 passed.");
             return 0;
         }
@@ -564,50 +564,83 @@ internal static class ConfigurationProbe
         }
     }
 
-    /// <summary>确认监视页挂载已保存工站，主保存保留外部流程文件。</summary>
+    /// <summary>以实际工站和独立旧档验证监视页、运行入口及主保存。</summary>
     private static void TransitionMonitor()
     {
         Directory.CreateDirectory(SysPara.SettingDataDirectory);
-        var project = new NPSDK.FlowProject();
-        project.Modules.Add(new NPSDK.FlowProgram { ModuleId = typeof(NPSDK.Flow_BaseForm).FullName + "/HistoricalStation", Mode = "Disabled" });
-        NPSDK.FlowProgramFile.Save(FlowPrograms.FilePath, project);
-        File.AppendAllText(FlowPrograms.FilePath, Environment.NewLine);
-        byte[] before = File.ReadAllBytes(FlowPrograms.FilePath);
-        using (var monitor = new Flow())
+        using (var gantry = new AlphaRap.TaskProcess.Gantry())
+        using (var up = new AlphaRap.TaskProcess.UpConveryor())
+        using (var down = new AlphaRap.TaskProcess.DownConveryor())
         {
-            monitor.Show();
-            var tabs = (System.Windows.Forms.TabControl)monitor.Controls["tabControl1"];
-            Check(tabs.TabCount == 0 && !FlowPrograms.HasPrograms, "Opening the monitor installed a station.");
-            FlowPrograms.RequireHardwareUnused(Guid.NewGuid().ToString("N"), "UnusedPoints");
-            FlowPrograms.RequireParameterUnused("UnusedParameter");
-            FlowPrograms.RequireResourceUnused("UnusedResource");
-            Check(!FlowPrograms.HasPrograms && NPSDK.Flow_Module.FlowChart_ModuleList.Count == 0, "Checking references created a station.");
-            monitor.Hide();
-            FlowPrograms.Install();
-            monitor.Show();
-            var tab = tabs.TabPages[0];
-            monitor.AddFlowChart();
-            Check(tabs.TabCount == 1 && tabs.TabPages[0] == tab, "Refreshing replaced a station tab.");
-            Check(tabs.TabPages.Cast<System.Windows.Forms.TabPage>().Any(page => page.Text == "HistoricalStation"), "Historical station missing.");
-            Check(monitor.Controls.Count == 2 && !tabs.AllowDrop && monitor.Controls.Find("toolbox", true).Length == 0, "Flow monitor exposed an editing surface.");
-            Check(typeof(Flow).Assembly.GetType("AlphaRap.FlowProgramming.FlowToolboxControl") == null, "Drag toolbox is present in this assembly.");
-            Check(typeof(NPSDK.Flow_Chart).GetMethod("EnableProgramEditor") == null, "SDK node drag handlers are available.");
-            ProjectConfiguration.Save();
-            ProjectConfiguration.Discard();
-            Check(File.ReadAllBytes(FlowPrograms.FilePath).SequenceEqual(before), "Main Save or Discard replaced the original flow.");
-        }
-        var station = FlowPrograms.Modules.Single().Form;
-        try
-        {
-            Check(!station.IsDisposed && station.Parent == null, "Closing the monitor destroyed its station.");
+            byte[] archive = SaveTransitionArchive(gantry);
+            using (var monitor = new Flow())
+            {
+                monitor.Show();
+                var tabs = (TabControl)monitor.Controls["tabControl1"];
+                Check(tabs.TabCount == 0 && !FlowPrograms.HasPrograms, "Opening the monitor installed a station.");
+                monitor.Hide();
+                FlowPrograms.InstallCompiledStations();
+                monitor.Show();
+                var gantryTab = tabs.TabPages.Cast<TabPage>().Single(page => page.Controls.Contains(gantry));
+                monitor.AddFlowChart();
+                Check(tabs.TabCount == 3 && tabs.TabPages.Contains(gantryTab), "The monitor introduced an archived station or replaced a live tab.");
+                Check(gantry.Controls.Find("ArchivedNode", true).Length == 0, "Archived drag step was added to the station controls.");
+                Check(monitor.Controls.Count == 2 && !tabs.AllowDrop && monitor.Controls.Find("toolbox", true).Length == 0, "Flow monitor exposed an editing surface.");
+                Check(typeof(Flow).Assembly.GetType("AlphaRap.FlowProgramming.FlowToolboxControl") == null, "Drag toolbox is present in this assembly.");
+                Check(typeof(NPSDK.Flow_Chart).GetMethod("EnableProgramEditor") == null, "SDK node drag handlers are available.");
+                Check(gantry.GetType().Assembly.GetTypes().SelectMany(type => type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly))
+                    .All(method => !method.Name.StartsWith("CreateGeneratedFlowDefinition_", StringComparison.Ordinal)), "Drag-generated flow source was compiled.");
+
+                var plan = FlowPrograms.Modules.Single(module => ReferenceEquals(module.Form, gantry)).Program;
+                Check(plan.Mode == "Program" && plan.Pages.Count == 0 && plan.Steps.All(step => step.ControlOrigin == "Form"), "Gantry retained a saved drag document or disabled mode.");
+                AssertEntryNames(gantry, new[] { "GantryInit_Flow1_1" }, new[] { "FlowAuto_Scann2_1", "FlowAuto_Vison3_1", "FlowAuto_Heart5_1" });
+                AssertEntryNames(up, new[] { "UPConveyInit_Flow1_1" }, new[] { "UPConveyInit_Flow1_1" });
+                AssertEntryNames(down, new[] { "DownConveyInit_Flow1_1" }, new[] { "DownConveyInit_Flow1_1" });
+                var first = plan.Steps.Single(step => step.ControlName == "GantryInit_Flow1_1");
+                Check(first.UsesFlowResult && plan.Steps.Single(step => step.Id == first.Next).ControlName == "GantryInit_Flow1_2", "Gantry initialization no longer calls and connects native nodes.");
+                var heartbeat = plan.Steps.Single(step => step.ControlName == "FlowAuto_Heart5_3");
+                Check(heartbeat.UsesFlowResult && heartbeat.Next == null, "Heartbeat did not preserve its deployed termination.");
+                foreach (var module in FlowPrograms.Modules) module.ValidatePublished();
+
+                Throws<InvalidOperationException>(FlowPrograms.Reload);
+                Throws<InvalidOperationException>(FlowPrograms.Save);
+                ProjectConfiguration.Save();
+                ProjectConfiguration.Discard();
+                Check(File.ReadAllBytes(FlowPrograms.FilePath).SequenceEqual(archive), "Saving or discarding changed the original flow archive.");
+            }
+            Check(!gantry.IsDisposed && gantry.Parent == null, "Closing the monitor destroyed its station.");
             using (var reopened = new Flow())
             {
                 reopened.Show();
-                var tabs = (System.Windows.Forms.TabControl)reopened.Controls["tabControl1"];
-                Check(tabs.TabCount == 1 && tabs.TabPages[0].Controls.Contains(station), "Reopening lost the station.");
+                var tabs = (TabControl)reopened.Controls["tabControl1"];
+                Check(tabs.TabCount == 3 && tabs.TabPages.Cast<TabPage>().Any(page => page.Controls.Contains(gantry)), "Reopening lost the station.");
             }
         }
-        finally { station.Dispose(); }
+    }
+
+    /// <summary>保存包含多余工站、节点和旧入口的归档，模拟现场残留。</summary>
+    private static byte[] SaveTransitionArchive(NPSDK.Flow_BaseForm gantry)
+    {
+        var project = new NPSDK.FlowProject();
+        project.Modules.Add(new NPSDK.FlowProgram { ModuleId = typeof(NPSDK.Flow_BaseForm).FullName + "/HistoricalStation", Mode = "Disabled" });
+        var saved = new NPSDK.FlowProgram { ModuleId = gantry.GetType().FullName + "/" + gantry.Name, Mode = "Disabled" };
+        var drag = new NPSDK.FlowStep { ControlName = "ArchivedNode", Caption = "入料传感器 · 等待输入", ParentPath = "/FlowChartTable/InitialPage" };
+        saved.Steps.Add(drag);
+        saved.InitialEntries.Add(drag.Id);
+        saved.RemovedControls.Add("GantryInit_Flow1_1");
+        project.Modules.Add(saved);
+        NPSDK.FlowProgramFile.Save(FlowPrograms.FilePath, project);
+        File.AppendAllText(FlowPrograms.FilePath, Environment.NewLine);
+        return File.ReadAllBytes(FlowPrograms.FilePath);
+    }
+
+    /// <summary>按实际节点身份核对两个阶段的入口，覆盖环形和并行流程。</summary>
+    private static void AssertEntryNames(NPSDK.Flow_BaseForm station, string[] initial, string[] auto)
+    {
+        var plan = FlowPrograms.Modules.Single(module => ReferenceEquals(module.Form, station)).Program;
+        var controls = plan.Steps.ToDictionary(step => step.Id, step => step.ControlName);
+        Check(plan.InitialEntries.Select(id => controls[id]).SequenceEqual(initial), station.Name + " initial entries changed.");
+        Check(plan.AutoEntries.Select(id => controls[id]).SequenceEqual(auto), station.Name + " auto entries changed.");
     }
 
     /// <summary>每项使用独立目录及模块宿主，保持生产配置和窗口不受影响。</summary>

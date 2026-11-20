@@ -1,9 +1,17 @@
+using System.Collections.Generic;
 using System.Threading;
+using AlphaRap.FlowProgramming;
 
 namespace AlphaRap.TaskProcess
 {
-	public partial class UpConveryor : NPSDK.Flow_BaseForm
+	public partial class UpConveryor : NPSDK.Flow_BaseForm, ICompiledFlowEntries
 	{
+        /// <summary>登记工站的初始化首节点。</summary>
+        IReadOnlyList<NPSDK.Flow_Chart> ICompiledFlowEntries.InitialNodes => new[] { UPConveyInit_Flow1_1 };
+
+        /// <summary>保留过渡版已部署的启动入口。</summary>
+        IReadOnlyList<NPSDK.Flow_Chart> ICompiledFlowEntries.AutoNodes => new[] { UPConveyInit_Flow1_1 };
+
 		public UpConveryor()
 		{
 			CheckForIllegalCrossThreadCalls = false;

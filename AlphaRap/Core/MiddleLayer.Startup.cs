@@ -35,7 +35,7 @@ namespace AlphaRap
             ShowLoadingStage(reportProgress, "stage_Recipe", "载入配方", "Loading recipe", "Cargando receta");
             recipeReady = false;
             OpenRecipe(SysPara.FilePath);
-            FlowProgramming.FlowPrograms.Install();
+            FlowProgramming.FlowPrograms.InstallCompiledStations();
             FlowCtrl = new FlowControl(AlwaysRun, Application.Scan, Application.ResetLegacyInitialization);
             FlowCtrl.StartThread();
             if (recipeReady) ServoOn();

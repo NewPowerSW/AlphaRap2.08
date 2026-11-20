@@ -11,12 +11,20 @@ using NPSDK;
 
 namespace AlphaRap.FlowProgramming
 {
+    /// <summary>为代码工站指定初始化和自动运行的入口节点。</summary>
+    public interface ICompiledFlowEntries
+    {
+        IReadOnlyList<Flow_Chart> InitialNodes { get; }
+        IReadOnlyList<Flow_Chart> AutoNodes { get; }
+    }
+
     public static class FlowPrograms
     {
         private static readonly Dictionary<Flow_BaseForm, FlowModuleEditor> modules = new Dictionary<Flow_BaseForm, FlowModuleEditor>();
         private static FlowProject project = new FlowProject();
         private static Exception loadError;
         private static bool installed;
+        private static bool compiledStationsOnly;
         public static readonly FlowResultHub Results = new FlowResultHub();
         public static bool DebugEnabled { get; set; }
         public static bool AnyRunning { get { return modules.Values.Any(module => module.IsRunning) || Flow_Module.Module_GetRunningStatus; } }
@@ -46,14 +54,27 @@ namespace AlphaRap.FlowProgramming
             get { return Path.Combine(string.IsNullOrEmpty(SysPara.SettingDataDirectory) ? @".\ModuleData\SettingData" : SysPara.SettingDataDirectory, "FlowPrograms.xml"); }
         }
 
-        /// <summary>为所有现有及未来的 Flow_BaseForm 派生窗体安装统一工厂。</summary>
+        /// <summary>从保存的流程工程恢复工站并安装控制器工厂。</summary>
         public static void Install()
         {
             if (installed) return;
             try { project = FlowProgramFile.Load(FilePath); }
             catch (Exception error) { loadError = error; }
-            installed = true;
-            Flow_Module.ProgramControllerFactory = form => Attach(form);
+            InstallControllers(true);
+        }
+
+        /// <summary>从工站控件建立运行计划，历史流程文件仅供归档。</summary>
+        public static void InstallCompiledStations()
+        {
+            if (installed) return;
+            compiledStationsOnly = true;
+            project = new FlowProject();
+            InstallControllers(false);
+        }
+
+        /// <summary>为保存的独立文档创建没有对应源码窗体的工站。</summary>
+        private static void RestoreProjectStations()
+        {
             foreach (FlowProgram module in project.Modules.ToArray())
             {
                 string prefix = typeof(Flow_BaseForm).FullName + "/";
@@ -62,6 +83,14 @@ namespace AlphaRap.FlowProgramming
                 if (Flow_Module.FlowChart_ModuleList.Any(form => form.GetType() == typeof(Flow_BaseForm) && form.Name == name)) continue;
                 Flow_BaseForm restoredModule = new Flow_BaseForm { Name = name, Text = name };
             }
+        }
+
+        /// <summary>为已登记和以后创建的工站统一挂接控制器。</summary>
+        private static void InstallControllers(bool restoreSavedStations)
+        {
+            installed = true;
+            Flow_Module.ProgramControllerFactory = form => Attach(form);
+            if (restoreSavedStations) RestoreProjectStations();
             foreach (Flow_BaseForm form in Flow_Module.FlowChart_ModuleList.ToArray()) form.EnsureProgramController();
         }
 
@@ -76,7 +105,7 @@ namespace AlphaRap.FlowProgramming
             FlowProgram definition = project.Modules.SingleOrDefault(item => item.ModuleId == id);
             if (definition == null) { definition = new FlowProgram { ModuleId = id }; project.Modules.Add(definition); }
             if (modules.Values.Any(item => item.Program.ModuleId == id)) throw new InvalidDataException("Duplicate flow module identity: " + id);
-            FlowModuleEditor editor = new FlowModuleEditor(form, definition);
+            FlowModuleEditor editor = new FlowModuleEditor(form, definition, compiledStationsOnly);
             modules.Add(form, editor);
             if (form.ProgramController == null) form.ProgramController = editor;
             form.Disposed += (sender, args) => { editor.Runtime.Stop(); modules.Remove(form); Flow_Module.FlowChart_ModuleList.Remove(form); };
@@ -107,6 +136,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>将完整草稿写入指定暂存文件，统一保存成功前不发布。</summary>
         public static void WriteDraft(string path)
         {
+            RequireEditableProject();
             ValidateForSave();
             FlowProgramFile.Save(path, project);
         }
@@ -114,6 +144,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>捕获本次主保存使用的完整独立工程，源码与 XML 使用同一快照。</summary>
         internal static FlowProject CaptureForSave()
         {
+            RequireEditableProject();
             ValidateForSave();
             return new FlowProject { Version = project.Modules.Any(module => module.Pages.Count > 0) ? 5 : 4, Modules = project.Modules.Select(FlowProgramFile.Snapshot).ToList() };
         }
@@ -148,7 +179,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>主界面放弃修改时恢复上次保存；首次保存前恢复各模块的初始快照。</summary>
         public static void DiscardChanges()
         {
-            if (System.IO.File.Exists(FilePath)) { Reload(); return; }
+            if (!compiledStationsOnly && File.Exists(FilePath)) { Reload(); return; }
             foreach (FlowModuleEditor editor in modules.Values) editor.RestorePublished();
             project.Modules = modules.Values.Select(editor=>editor.Program).ToList();
         }
@@ -159,9 +190,16 @@ namespace AlphaRap.FlowProgramming
             if (loadError != null) throw new InvalidDataException(FlowText.T("projectReloadRequired"), loadError);
         }
 
+        /// <summary>代码工站的控制器和历史归档不参与流程编辑。</summary>
+        private static void RequireEditableProject()
+        {
+            if (compiledStationsOnly) throw new InvalidOperationException(FlowText.T("compiledStationsOnly"));
+        }
+
         /// <summary>先完整读取并验证，再替换内存工程；失败时保留当前设计。</summary>
         public static void Reload()
         {
+            RequireEditableProject();
             RequireIdle();
             FlowProject candidate = FlowProgramFile.Load(FilePath);
             if (candidate.Modules.GroupBy(module => module.ModuleId).Any(group => group.Count() != 1)) throw new InvalidDataException("Duplicate module ID.");
@@ -211,6 +249,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>在运行时创建普通基类流程模块，工程师无需编写新的 Form 类。</summary>
         public static Flow_BaseForm AddModule(string name)
         {
+            RequireEditableProject();
             RequireIdle();
             if (string.IsNullOrWhiteSpace(name) || name.IndexOfAny(new[] { '/', '\\', '\r', '\n' }) >= 0 || Flow_Module.FlowChart_ModuleList.Any(form => form.Name == name))
                 throw new InvalidDataException("Invalid or duplicate module name.");
@@ -222,6 +261,7 @@ namespace AlphaRap.FlowProgramming
         /// <summary>递归检查整个窗体，任何页签或嵌套容器有节点时禁止删除模块。</summary>
         public static void ValidateModuleDeletion(FlowModuleEditor module)
         {
+            RequireEditableProject();
             RequireIdle();
             if (module == null || !modules.ContainsValue(module) || module.Program.Removed) throw new InvalidOperationException(FlowText.T("moduleMissing"));
             if (module.Program.Steps.Count > 0 || ContainsFlowNode(module.Form))
@@ -428,13 +468,22 @@ namespace AlphaRap.FlowProgramming
         public event EventHandler Changed;
 
         /// <summary>统一挂接任意派生窗体，并恢复或首次导入其全部 Flow_Chart。</summary>
-        public FlowModuleEditor(Flow_BaseForm form, FlowProgram program)
+        public FlowModuleEditor(Flow_BaseForm form, FlowProgram program) : this(form, program, false) { }
+
+        /// <summary>导入工站节点，代码工站可声明循环和并行链的运行入口。</summary>
+        internal FlowModuleEditor(Flow_BaseForm form, FlowProgram program, bool useCompiledEntries)
         {
             Form = form;
             originalControls = new HashSet<string>(Enumerate(form).Select(node => node.Name));
             controlSource = new FlowControlSource(form);
             documentPages = new FlowDocumentPages(form);
             Restore(program);
+            if (useCompiledEntries && form is ICompiledFlowEntries entries)
+            {
+                program.InitialEntries = ResolveCompiledEntries(entries.InitialNodes);
+                program.AutoEntries = ResolveCompiledEntries(entries.AutoNodes);
+                ValidateLayout(program);
+            }
             Publish();
             Runtime.StateChanged += UpdateNodeExecution;
             Runtime.DebugChanged += CaptureDebug;
@@ -443,6 +492,19 @@ namespace AlphaRap.FlowProgramming
             Runtime.PauseRequested += ResetActiveTiming;
             FrameworkLanguage.LanguageChanged += RefreshBindingHints;
             Form.Disposed += DisposeEditor;
+        }
+
+        /// <summary>将代码声明的入口映射到同一工站中的实际节点。</summary>
+        private List<string> ResolveCompiledEntries(IReadOnlyList<Flow_Chart> entries)
+        {
+            var ids = new List<string>(entries.Count);
+            foreach (Flow_Chart node in entries)
+            {
+                string id = IdOf(node);
+                if (id == null) throw new InvalidDataException(string.Format(FlowText.T("compiledEntryMissing"), Form.Name, node?.Name ?? ""));
+                ids.Add(id);
+            }
+            return ids;
         }
 
         /// <summary>释放编辑器提示和为撤销暂存的脱离画布节点。</summary>

@@ -1,16 +1,23 @@
-using AlphaRap.PLC;
+using System.Collections.Generic;
 using System.Threading;
+using AlphaRap.FlowProgramming;
+using AlphaRap.PLC;
 using static AlphaRap.StationVisionForm;
 
 namespace AlphaRap.TaskProcess
 {
-	public partial class Gantry : NPSDK.Flow_BaseForm  
+	public partial class Gantry : NPSDK.Flow_BaseForm, ICompiledFlowEntries
 	{
+        /// <summary>登记工站的初始化首节点。</summary>
+        IReadOnlyList<NPSDK.Flow_Chart> ICompiledFlowEntries.InitialNodes => new[] { GantryInit_Flow1_1 };
+
+        /// <summary>并行启动扫码、视觉和 PLC 心跳三条原有自动链。</summary>
+        IReadOnlyList<NPSDK.Flow_Chart> ICompiledFlowEntries.AutoNodes => new[] { FlowAuto_Scann2_1, FlowAuto_Vison3_1, FlowAuto_Heart5_1 };
+
 		public Gantry()
 		{
 			CheckForIllegalCrossThreadCalls = false;
 			InitializeComponent();
-            if (!UiTheme.IsDesignTime) InitializeHeartbeatNodes();
             UiTheme.ApplyDpi(this);
 		}
 
@@ -243,11 +250,6 @@ namespace AlphaRap.TaskProcess
 		}
 
 		private NPSDK.Flow_Chart.ResultType FlowAuto_MES4_4_FlowChartRun()
-		{
-			return NPSDK.Flow_Chart.ResultType.NEXT;
-		}
-
-		private NPSDK.Flow_Chart.ResultType FlowAuto_Heart5_4_FlowChartRun()
 		{
 			return NPSDK.Flow_Chart.ResultType.NEXT;
 		}

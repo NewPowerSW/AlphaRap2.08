@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using AlphaRap.FlowProgramming;
 using NPSDK;
 using Input = AlphaRap.TaskProcess.DownConveyorInput;
 using Output = AlphaRap.TaskProcess.DownConveyorOutput;
@@ -6,9 +8,15 @@ using Result = NPSDK.Flow_Chart.ResultType;
 
 namespace AlphaRap.TaskProcess
 {
-    public partial class DownConveryor : Flow_BaseForm
+    public partial class DownConveryor : Flow_BaseForm, ICompiledFlowEntries
     {
         private readonly DownConveyorProcess process;
+
+        /// <summary>登记工站的初始化首节点。</summary>
+        IReadOnlyList<Flow_Chart> ICompiledFlowEntries.InitialNodes => new[] { DownConveyInit_Flow1_1 };
+
+        /// <summary>保留过渡版已部署的启动入口。</summary>
+        IReadOnlyList<Flow_Chart> ICompiledFlowEntries.AutoNodes => new[] { DownConveyInit_Flow1_1 };
 
         /// <summary>创建下料流程监控页，保留设计器入口。</summary>
         public DownConveryor()

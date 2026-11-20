@@ -792,10 +792,6 @@
     <Compile Include="PLC\PlcResult.cs" />
     <Compile Include="PLC\PlcSession.cs" />
     <Compile Include="PLC\PlcWorker.cs" />
-    <Compile Include="TaskProcess\Gantry.Heartbeat.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>Gantry.cs</DependentUpon>
-    </Compile>
     <Compile Include="Core\MiddleLayer.cs" />
     <Compile Include="Core\MiddleLayer.Startup.cs">
       <DependentUpon>MiddleLayer.cs</DependentUpon>
@@ -1017,11 +1013,6 @@
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Compile Include="GeneratedFlows\**\*.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
   <Target Name="SeedTransitionRuntimeData" AfterTargets="Build" Condition="Exists('$(MSBuildProjectDirectory)\RuntimeData.local')">
     <ItemGroup>
       <TransitionRuntimeFile Include="$(MSBuildProjectDirectory)\RuntimeData.local\**\*" />
