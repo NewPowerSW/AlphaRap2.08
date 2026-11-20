@@ -23,6 +23,11 @@ namespace AlphaRap.Configuration
             else constantTypeValue.Items.Add(value.Type);
             constantTypeValue.SelectedItem = value.Type;
             constantTypeValue.Enabled = isNew;
+            if (!isNew)
+            {
+                ActiveControl = constantValueValue;
+                constantValueValue.SelectAll();
+            }
             constantOk.Click += Save;
             ApplyLanguage(null, EventArgs.Empty);
             FrameworkLanguage.LanguageChanged += ApplyLanguage;

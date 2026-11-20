@@ -47,7 +47,7 @@ namespace AlphaRap
             constantMenu.Opening += OpenConstantMenu;
             constantDelete.Click += (sender, args) => Execute(DeleteSelected);
             ApplyLanguage(null, EventArgs.Empty);
-            constants.CellDoubleClick += (sender, args) => { if (args.RowIndex >= 0) Execute(() => EditConstant(SelectedKey())); };
+            constants.CellDoubleClick += (sender, args) => { if (args.RowIndex >= 0 && edit.Enabled) Execute(() => EditConstant(SelectedKey())); };
             constants.CellFormatting += FormatCell;
             VisibleChanged += (sender, args) => { if (Visible) { BindScope(); RefreshPermission(); } };
             permissionTimer.Tick += (sender, args) => RefreshPermission();
@@ -123,7 +123,7 @@ namespace AlphaRap
         private void OpenConstantMenu(object sender, CancelEventArgs args)
         {
             if (contextKey == null || contextScope != Scope) { args.Cancel = true; return; }
-            constantDelete.Enabled = FlowPrograms.CanEdit && SysPara.SystemMode == RunMode.IDLE && !FlowPrograms.AnyRunning && !NPSDK.Flow_Module.Module_GetRunningStatus;
+            constantDelete.Enabled = ReadOnlyReason() == null;
         }
 
         /// <summary>显示 C# 类型关键字并翻译内置说明，保留用户备注。</summary>
@@ -152,23 +152,34 @@ namespace AlphaRap
         {
             ConstantText.Apply(this);
             constantDelete.Text = FrameworkLanguage.LangMsg(Name, constantDelete.Name, "删除", "Delete", "Eliminar");
-            recipeCaption.Text = string.Format(ConstantText.T("context"), SysPara.RecipeName);
+            RefreshPermission();
             constants.Invalidate();
         }
 
-        /// <summary>运行中及操作员角色只读查看，服务入口再次校验。</summary>
+        /// <summary>告知当前编辑条件以及修改值的入口。</summary>
         private void RefreshPermission()
         {
-            bool allowed = FlowPrograms.CanEdit && SysPara.SystemMode == RunMode.IDLE && !FlowPrograms.AnyRunning && !NPSDK.Flow_Module.Module_GetRunningStatus;
-            foreach (Control control in new Control[] { add, edit }) control.Enabled = allowed;
+            string reason = ReadOnlyReason();
+            add.Enabled = reason == null;
+            edit.Enabled = reason == null;
+            status.Text = reason ?? ConstantText.T("editValueHint");
             recipeCaption.Text = string.Format(ConstantText.T("context"), SysPara.RecipeName);
+        }
+
+        /// <summary>返回使常量只读的原因，条件与保存校验一致。</summary>
+        private static string ReadOnlyReason()
+        {
+            if (ProjectConfiguration.RecoveryRequired) return ConfigurationText.RecoveryBlocked;
+            if (!FlowPrograms.CanEdit) return ConstantText.T("editRoleRequired");
+            if (FlowPrograms.ConfigurationBusy) return ConstantText.T("editIdleRequired");
+            return null;
         }
 
         /// <summary>显示操作错误并保留草稿，供用户修正后重试。</summary>
         private void Execute(Action action)
         {
             try { action(); }
-            catch (Exception error) { status.Text = error.Message; MessageBox.Show(error.Message, ConstantText.T("title")); }
+            catch (Exception error) { MessageBox.Show(error.Message, ConstantText.T("title")); }
         }
     }
 }

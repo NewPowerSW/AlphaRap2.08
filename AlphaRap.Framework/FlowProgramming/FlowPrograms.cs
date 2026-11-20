@@ -112,11 +112,14 @@ namespace AlphaRap.FlowProgramming
             return editor;
         }
 
+        /// <summary>检查设备状态是否允许编辑配置。</summary>
+        internal static bool ConfigurationBusy => ApplicationHost.IsShuttingDown || AnyRunning || DeviceOperations.HasPending || SysPara.SystemMode != RunMode.IDLE;
+
         /// <summary>运行和修改前统一检查工位、机器状态及权限。</summary>
         public static void RequireIdle()
         {
             if (Configuration.ProjectConfiguration.RecoveryRequired) throw new InvalidOperationException(Configuration.ConfigurationText.RecoveryBlocked);
-            if (ApplicationHost.IsShuttingDown || AnyRunning || DeviceOperations.HasPending || SysPara.SystemMode != RunMode.IDLE)
+            if (ConfigurationBusy)
             {
                 string names = string.Join(", ", Flow_Module.FlowChart_ModuleList.Where(Flow_Module.IsExecutionActive).Select(form => form.Name).Distinct());
                 string legacy = string.Join(", ", Flow_Module.FlowChart_List.Where(node => node.IsLegacyRunning).Select(node => node.text).Distinct());

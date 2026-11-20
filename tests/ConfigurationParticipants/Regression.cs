@@ -111,12 +111,13 @@ internal static class ConfigurationProbe
             Test("VPP names resolve within the selected camera", NamedVision);
             Test("named constants read committed values in the selected scope", NamedConstants);
             Test("constant creation offers C# types and existing types remain fixed", ConstantTypes);
+            Test("existing constant values can be changed without changing type", ConstantValueEditing);
             Test("named customer logs use the saved schema and isolate simulated records", NamedLogs);
             Test("passwords remain compatible with existing managed hashes", LoginHashCompatibility);
             Test("login shows progress and waits for background permissions", () => LoginWindow(false));
             Test("closing a login window discards late authentication", () => LoginWindow(true));
             Test("transition uses only compiled station graphs and preserves archived flow files", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/23 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/24 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -467,6 +468,71 @@ internal static class ConfigurationProbe
                 }
             }
             finally { switchLanguage.Invoke(null, new object[] { previous }); }
+        }
+    }
+
+    /// <summary>核对常量修改入口、权限提示及原类型值的主保存行为。</summary>
+    private static void ConstantValueEditing()
+    {
+        var module = ApplicationHost.Modules.Register(new SystemParametersModule(new BooleanSettingDefault[0]),
+            new ModuleContext(SysPara.SettingDataDirectory));
+        var store = module.Constants;
+        var value = new ConstantValue { Key = "SampleOption", Type = "Boolean", Value = "False" };
+        store.Put("Recipe", null, value);
+        ProjectConfiguration.Save();
+
+        using (var settings = new SystemSetting(module))
+        {
+            try
+            {
+                settings.Show();
+                CheckConstantEditPermission(settings);
+            }
+            finally { ModuleManager.ModuleList.Remove(settings); }
+        }
+        using (var dialog = new ConstantEditForm(value, draft => store.Put("Recipe", value.Key, draft)))
+        {
+            dialog.Show();
+            var input = (TextBox)dialog.Controls.Find("constantValueValue", true).Single();
+            var type = (ComboBox)dialog.Controls.Find("constantTypeValue", true).Single();
+            Check(!input.ReadOnly && input.Enabled && dialog.ActiveControl == input && input.SelectedText == "False",
+                "The edit dialog did not select the editable value.");
+            Check(!type.Enabled && type.GetItemText(type.SelectedItem) == "bool", "The type changed while editing a value.");
+            input.Text = "True";
+            ((Button)dialog.Controls.Find("constantOk", true).Single()).PerformClick();
+            Check(dialog.DialogResult == DialogResult.OK, "The edit dialog rejected a valid existing value.");
+        }
+        Check(!ApplicationHost.GetConstant<bool>("Recipe", value.Key), "The edit changed the saved value before main Save.");
+        ProjectConfiguration.Save();
+        ProjectConfiguration.Discard();
+        Check(ApplicationHost.GetConstant<bool>("Recipe", value.Key), "The edited value did not persist as bool.");
+    }
+
+    /// <summary>核对操作员和设备运行时的只读提示，并恢复测试环境权限与状态。</summary>
+    private static void CheckConstantEditPermission(SystemSetting settings)
+    {
+        var edit = (Button)settings.Controls.Find("edit", true).Single();
+        var status = (Label)settings.Controls.Find("status", true).Single();
+        var refresh = typeof(SystemSetting).GetMethod("RefreshPermission", BindingFlags.Instance | BindingFlags.NonPublic);
+        PermissionType previous = SysPara.UserPermission;
+        RunMode previousMode = SysPara.SystemMode;
+        try
+        {
+            SysPara.UserPermission = PermissionType.Operator;
+            refresh.Invoke(settings, null);
+            Check(!edit.Enabled && status.Text == ConstantText.T("editRoleRequired"), "No role hint for a read-only operator.");
+            SysPara.UserPermission = PermissionType.Maintenance;
+            SysPara.SystemMode = RunMode.RUN;
+            refresh.Invoke(settings, null);
+            Check(!edit.Enabled && status.Text == ConstantText.T("editIdleRequired"), "No reason for a busy machine.");
+            SysPara.SystemMode = RunMode.IDLE;
+            refresh.Invoke(settings, null);
+            Check(edit.Enabled && status.Text == ConstantText.T("editValueHint"), "Editing did not become available at idle.");
+        }
+        finally
+        {
+            SysPara.UserPermission = previous;
+            SysPara.SystemMode = previousMode;
         }
     }
 
