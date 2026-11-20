@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using AlphaRap.Configuration;
 using DataSave;
 using NPSDK;
@@ -30,22 +31,32 @@ namespace AlphaRap.FlowProgramming
                 new[] { new FlowField("Path", typeof(string)) { DisplayName = new[] { "日志文件路径", "Log file path", "Ruta del registro" } } }, Append, false);
         }
 
-        /// <summary>按声明类型转换输入并完成落盘，模拟运行写入独立子目录。</summary>
+        /// <summary>将流程节点输入写成一条日志并返回文件路径。</summary>
         private IDictionary<string, object> Append(FlowCall call)
         {
-            string[] values = fields.Select(field => {
+            return FlowCall.Result("Path", AppendRecord(call.Inputs, call.Simulation, call.Token));
+        }
+
+        /// <summary>按已配置字段和类型写入一条日志，仿真输出使用独立目录。</summary>
+        internal string AppendRecord(IDictionary<string, object> inputs, bool simulation, CancellationToken token = default(CancellationToken))
+        {
+            if (inputs == null) throw new ArgumentNullException(nameof(inputs));
+            string[] values = new string[fields.Count];
+            for (int index = 0; index < fields.Count; index++)
+            {
+                ProductionField field = fields[index];
                 object value;
-                if (!call.Inputs.TryGetValue(field.Name, out value)) throw new InvalidDataException(FlowText.T("logMissingField") + " " + field.Name);
+                if (!inputs.TryGetValue(field.Name, out value)) throw new InvalidDataException(FlowText.T("logMissingField") + " " + field.Name);
                 if (field.Type == "Number") value = FlowActions.Number(value);
                 if (field.Type == "Boolean") value = FlowActions.Boolean(value);
-                return FlowValue.Text(value);
-            }).ToArray();
-            call.Token.ThrowIfCancellationRequested();
-            if (!call.Simulation) return new Dictionary<string, object> { { "Path", log.AppendRecord(values) } };
-            using (TypeCollection1 preview = new TypeCollection1 { SavePath = Path.Combine(log.SavePath, "Simulation") })
+                values[index] = FlowValue.Text(value);
+            }
+            token.ThrowIfCancellationRequested();
+            if (!simulation) return log.AppendRecord(values);
+            using (var preview = new TypeCollection1 { SavePath = Path.Combine(log.SavePath, "Simulation") })
             {
                 preview.Items.AddRange(log.Items.Select(item => new DataFormat { Name = item.Name }));
-                return new Dictionary<string, object> { { "Path", preview.AppendRecord(values) } };
+                return preview.AppendRecord(values);
             }
         }
 

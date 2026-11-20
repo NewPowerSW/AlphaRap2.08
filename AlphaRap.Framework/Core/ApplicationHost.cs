@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using AlphaRap.FlowProgramming;
 using AlphaRapLibrary;
 using NPSDK;
+using NPSDK.Motion;
+using AlphaRap.Configuration;
 using Cognex.VisionPro;
 using System.Threading.Tasks;
 
@@ -183,6 +185,68 @@ namespace AlphaRap
             SysPara.UserPermission = permission;
             ModuleWindow?.SwitchPermission(permission);
             application?.OnPermissionChanged(permission);
+        }
+
+        /// <summary>按硬件配置中的轴名称取得已有轴实例。</summary>
+        public static NP_Motor GetAxis(string name) { return (NP_Motor)FindNamedHardware("Axis", name).Device; }
+
+        /// <summary>按硬件配置中的输入名称取得已有输入实例。</summary>
+        public static NP_Input GetInput(string name) { return (NP_Input)FindNamedHardware("Input", name).Device; }
+
+        /// <summary>按硬件配置中的输出名称取得已有输出实例。</summary>
+        public static NP_Output GetOutput(string name) { return (NP_Output)FindNamedHardware("Output", name).Device; }
+
+        /// <summary>按轴名称读取当前已提交配方的点位快照；P1 对应索引 0。</summary>
+        public static FlowPointAxis GetAxisPoints(string axisName)
+        {
+            var axis = (NP_AxisGroup)FindNamedHardware("Axis", axisName).Group;
+            return FlowResources.CaptureAxisPoints(axis.Points);
+        }
+
+        /// <summary>按指定种类与配置名称查找已登记硬件，可在重命名后读取新名称。</summary>
+        private static HardwareEntry FindNamedHardware(string kind, string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException(nameof(name));
+            var matches = RegisteredPages.OfType<HardForm>()
+                .Where(page => !page.IsDisposed && page.Resources != null)
+                .SelectMany(page => page.Resources.Entries)
+                .Where(entry => !entry.Group.IsDisposed && entry.Definition.Kind == kind &&
+                    string.Equals(entry.Definition.Name, name, StringComparison.OrdinalIgnoreCase));
+            return RequireNamedResource(matches, name);
+        }
+
+        /// <summary>按设备配置名称取已有实例；同名设备可用面板键限定。</summary>
+        public static T GetDevice<T>(string name, string panelKey = null) where T : AbstractDevice
+        {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException(nameof(name));
+            var matches = DeviceControl.FindNamedDevices(name, panelKey);
+            return RequireNamedResource(matches, name) as T ?? throw new InvalidCastException(name + " / " + typeof(T).FullName);
+        }
+
+        /// <summary>解析唯一名称；同名候选由调用者指定完整资源键或所属面板。</summary>
+        private static T RequireNamedResource<T>(IEnumerable<T> matches, string name)
+        {
+            T[] candidates = matches.Take(2).ToArray();
+            if (candidates.Length == 0)
+                throw new KeyNotFoundException(string.Format(Text("ResourceAccess", "missing", "找不到资源「{0}」。", "Resource '{0}' was not found.", "No se encontró el recurso '{0}'."), name));
+            if (candidates.Length > 1)
+                throw new InvalidOperationException(string.Format(Text("ResourceAccess", "ambiguous", "资源名称「{0}」重复，请指定面板键或使用完整资源键。", "Resource name '{0}' is ambiguous. Specify a panel key or use the full resource ID.", "El nombre de recurso '{0}' es ambiguo. Indique la clave del panel o el ID completo."), name));
+            return candidates[0];
+        }
+
+        /// <summary>按相机名称取得相机配置；未找到时返回 null。</summary>
+        public static VpCameraConfig GetCamera(string name) { return FindModule<VPForm>()?.GetCameraConfig(name); }
+
+        /// <summary>按相机名称和 VPP 名称取得已创建的视觉站；未找到时返回 null。</summary>
+        public static VpStation GetVpp(string cameraName, string vppName) { return FindModule<VPForm>()?.GetVppStation(cameraName, vppName); }
+
+        /// <summary>按 Setting 或 Recipe 作用域和业务键读取已发布的常量。</summary>
+        public static T GetConstant<T>(string scope, string key)
+        {
+            var store = Modules.Find<SystemParametersModule>()?.Constants ?? Settings?.Constants;
+            if (store == null)
+                throw new InvalidOperationException(Text("ResourceAccess", "constantsUnavailable", "常量模块尚未登记。", "The constants module has not been registered.", "El módulo de constantes aún no está registrado."));
+            return store.Get<T>(scope, key);
         }
 
         /// <summary>按已有资源键获取实例；动态轴和 IO 直接从硬件目录读取。</summary>

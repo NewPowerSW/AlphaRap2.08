@@ -73,6 +73,24 @@ namespace AlphaRap
                 yield return new FlowLogModule(definition.Id, FlowLogModule.Create(definition), definition.Fields);
         }
 
+        /// <summary>按已保存的客户日志名称写入一条具名记录，返回写入文件的路径。</summary>
+        public string WriteLogByName(string name, IDictionary<string, object> values)
+        {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException(nameof(name));
+            var definitions = GetLogModules(false);
+            ValidateBuiltinLogs(definitions);
+            var definition = definitions.Find(module => string.Equals(module.Name, name, StringComparison.OrdinalIgnoreCase));
+            if (definition == null)
+                throw new KeyNotFoundException(string.Format(ApplicationHost.Text("ResourceAccess", "logMissing", "找不到已保存的日志模块「{0}」。",
+                    "The saved log module '{0}' was not found.", "No se encontró el módulo de registro guardado '{0}'."), name));
+
+            using (var source = FlowLogModule.Create(definition))
+            {
+                var log = new FlowLogModule(definition.Id, source, definition.Fields);
+                return log.AppendRecord(values, SysPara.Simulation);
+            }
+        }
+
         /// <summary>提交窗口草稿并刷新查询模块，尚未保存的定义不供运行流程使用。</summary>
         public void SetLogModulesDraft(List<LogModuleDefinition> definitions)
         {

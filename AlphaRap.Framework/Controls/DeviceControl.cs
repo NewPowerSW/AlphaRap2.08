@@ -641,6 +641,16 @@ namespace AlphaRap
             return list;
         }
 
+        /// <summary>按面板配置中的名称过滤已有实例，保留所有同名候选供调用者判断。</summary>
+        internal static IEnumerable<AbstractDevice> FindNamedDevices(string name, string panelKey)
+        {
+            return LiveInstances.ToArray()
+                .Where(panel => !panel.IsDisposed && (panelKey == null || panel.XmlKey == panelKey))
+                .SelectMany(panel => panel._devices)
+                .Where(item => item.Instance != null && string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase))
+                .Select(item => item.Instance);
+        }
+
         /// <summary>取得全部已配置设备实例，供流程目录复用；不会创建实例或打开连接。</summary>
         public static Dictionary<string, AbstractDevice> GetFlowDevices()
         {

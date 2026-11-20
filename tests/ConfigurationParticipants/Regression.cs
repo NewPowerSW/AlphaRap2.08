@@ -92,8 +92,11 @@ internal static class ConfigurationProbe
             Test("participant discovery is fixed for the complete operation", ParticipantSnapshot);
             Test("captured file lists and values survive later draft changes", FileSnapshot);
             Test("hardware lookup and display edits reuse the registered device", HardwareIdentity);
+            Test("device lookup resolves names and rejects ambiguity", NamedDevices);
+            Test("named constants read committed values in the selected scope", NamedConstants);
+            Test("named customer logs use the saved schema and isolate simulated records", NamedLogs);
             Test("monitor borrows installed stations and preserves the original flow file on Save", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/14 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/17 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -227,10 +230,24 @@ internal static class ConfigurationProbe
             var original = resources.Put(definition);
             string key = "hardware/" + definition.Id + "/input";
             Check(ReferenceEquals(original.Device, ApplicationHost.GetResource<NPSDK.Motion.NP_Input>(key)), "Lookup returned a different input.");
+            Check(ReferenceEquals(original.Device, ApplicationHost.GetInput(definition.Name)), "Named input differs from ID lookup.");
+            string previousName = definition.Name;
             definition.Name = "Board present";
             var renamed = resources.Put(definition);
             Check(ReferenceEquals(renamed.Device, original.Device) && !original.Group.IsDisposed, "Renaming replaced a live control.");
             Check(renamed.Device.Text == definition.Name, "The control caption did not follow its definition.");
+            Check(ReferenceEquals(original.Device, ApplicationHost.GetInput("board present")), "Named lookup missed an edited caption.");
+            Throws<KeyNotFoundException>(() => ApplicationHost.GetInput(previousName));
+
+            var axis = resources.Put(resources.NewDefinition("Axis"));
+            Check(ReferenceEquals(axis.Device, ApplicationHost.GetAxis(axis.Definition.Name)), "Named axis differs from ID lookup.");
+            var pointTable = ((NPSDK.Motion.NP_AxisGroup)axis.Group).Points.DataSet1;
+            pointTable.Rows.Add(12.5, "P1");
+            pointTable.AcceptChanges();
+            pointTable.Rows[0]["Position"] = 15.0;
+            Check(ApplicationHost.GetAxisPoints(axis.Definition.Name).Positions[0] == 12.5, "Axis points read an uncommitted value.");
+            var output = resources.Put(resources.NewDefinition("Output"));
+            Check(ReferenceEquals(output.Device, ApplicationHost.GetOutput(output.Definition.Name)), "Named output differs from ID lookup.");
             resources.MoveIoToPage(definition.Id, resources.AddIoPage("Station IO").Id);
             manual.BindResources(resources);
             Check(original.Group.FindForm() == manual && ReferenceEquals(original.Device, ApplicationHost.GetResource<object>(key)), "Moving the IO lost its manual view or identity.");
@@ -251,6 +268,72 @@ internal static class ConfigurationProbe
             Check(original.Group.IsDisposed, "Deleted control still exists.");
             Throws<KeyNotFoundException>(() => ApplicationHost.GetResource<object>(key));
         }
+    }
+
+    /// <summary>离线注册两个同名设备，验证名称、面板范围及设备类型。</summary>
+    private static void NamedDevices()
+    {
+        using (var form = new System.Windows.Forms.Form { Name = "NamedDevices" })
+        using (var first = new DeviceControl { Name = "first" })
+        using (var second = new DeviceControl { Name = "second" })
+        {
+            form.Controls.Add(first);
+            form.Controls.Add(second);
+            string typeName = HardwareControlTypes.Identity(typeof(ScannerKeyenceTcp));
+            string name = "Scanner / A";
+            Check(first.BindDevice(typeName, name) == "", "First device could not be loaded.");
+            Check(ReferenceEquals(first.Device, ApplicationHost.GetDevice<ScannerKeyenceTcp>(name)), "Named device differs from registered instance.");
+            Check(second.BindDevice(typeName, name) == "", "Second device could not be loaded.");
+            Throws<InvalidOperationException>(() => ApplicationHost.GetDevice<ScannerKeyenceTcp>(name));
+            Check(ReferenceEquals(second.Device, ApplicationHost.GetDevice<ScannerKeyenceTcp>(name, "NamedDevices_second")), "Panel scope did not resolve the device.");
+            Throws<KeyNotFoundException>(() => ApplicationHost.GetDevice<ScannerKeyenceTcp>("Missing"));
+        }
+    }
+
+    /// <summary>验证同键在机器和配方中的隔离，以及主保存前后的取值。</summary>
+    private static void NamedConstants()
+    {
+        var context = new ModuleContext(SysPara.SettingDataDirectory);
+        var module = ApplicationHost.Modules.Register(new SystemParametersModule(new BooleanSettingDefault[0]), context);
+        module.Constants.Put("Setting", null, new ConstantValue { Key = "CheckEnabled", Type = "Boolean", Value = "True" });
+        module.Constants.Put("Recipe", null, new ConstantValue { Key = "CheckEnabled", Type = "Boolean", Value = "False" });
+        Throws<KeyNotFoundException>(() => ApplicationHost.GetConstant<bool>("Setting", "CheckEnabled"));
+        ProjectConfiguration.Save();
+        Check(ApplicationHost.GetConstant<bool>("Setting", "CheckEnabled"), "Machine value was not read.");
+        Check(!ApplicationHost.GetConstant<bool>("Recipe", "CheckEnabled"), "Recipe value inherited the machine value.");
+        Throws<InvalidCastException>(() => ApplicationHost.GetConstant<int>("Recipe", "CheckEnabled"));
+        module.Constants.Put("Recipe", "CheckEnabled", new ConstantValue { Key = "CheckEnabled", Type = "Boolean", Value = "True" });
+        Check(!ApplicationHost.GetConstant<bool>("Recipe", "CheckEnabled"), "Recipe draft leaked into runtime lookup.");
+    }
+
+    /// <summary>按日志名称写真实格式的模拟记录，验证草稿名称和缺失字段均被拒绝。</summary>
+    private static void NamedLogs()
+    {
+        Directory.CreateDirectory(SysPara.SettingDataDirectory);
+        var definition = new LogModuleDefinition { Name = "Customer record", Directory = Path.Combine(current, "Customer") };
+        definition.Fields.Add(new ProductionField { Name = "Barcode" });
+        string file = Path.Combine(SysPara.SettingDataDirectory, "DataForm.LogModules.xml");
+        using (var output = File.Create(file))
+            new System.Xml.Serialization.XmlSerializer(typeof(List<LogModuleDefinition>)).Serialize(output, new List<LogModuleDefinition> { definition });
+        bool previousSimulation = SysPara.Simulation;
+        SysPara.Simulation = true;
+        try
+        {
+            using (var data = new DataForm())
+            {
+                var values = new Dictionary<string, object> { { "Barcode", "SAMPLE-01" } };
+                Throws<InvalidDataException>(() => data.WriteLogByName(definition.Name, new Dictionary<string, object>()));
+                string path = data.WriteLogByName("customer record", values);
+                Check(path.StartsWith(Path.Combine(definition.Directory, "Simulation") + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+                    && File.ReadAllText(path).Contains("SAMPLE-01"), "Named log missed the configured schema or simulation folder.");
+                var draft = data.GetLogModules(false);
+                draft[0].Name = "Unsaved rename";
+                data.SetLogModulesDraft(draft);
+                Throws<KeyNotFoundException>(() => data.WriteLogByName("Unsaved rename", values));
+                Check(File.Exists(data.WriteLogByName(definition.Name, values)), "Draft changed access to the published module.");
+            }
+        }
+        finally { SysPara.Simulation = previousSimulation; }
     }
 
     /// <summary>确认监视页挂载已保存工站，主保存保留外部流程文件。</summary>

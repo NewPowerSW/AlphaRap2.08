@@ -254,6 +254,14 @@ namespace AlphaRap.FlowProgramming
             }
         }
 
+        /// <summary>读取单个动态轴的 Position 列，使用与流程资源目录一致的保存版本和限位。</summary>
+        internal static FlowPointAxis CaptureAxisPoints(NP_PositionTable table)
+        {
+            var catalog = new FlowResources();
+            catalog.AddPointTable("points", table);
+            return (FlowPointAxis)catalog.Items["points/Position"].Instance;
+        }
+
         /// <summary>从 ParameterSet 和 WorkMotor 读取轴与点位表关系，不依赖当前选中行。</summary>
         private void AddPointTable(string id, NP_PositionTable table)
         {

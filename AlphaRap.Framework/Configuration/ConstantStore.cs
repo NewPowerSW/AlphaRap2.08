@@ -261,6 +261,24 @@ namespace AlphaRap.Configuration
         /// <summary>读取已保存值及流程明确写入表的发布值，稳定引用不使用行索引。</summary>
         public IEnumerable<KeyValuePair<string, object>> Committed(string scope) { return Snapshot(scope,false); }
 
+        /// <summary>按键读取已发布值，保留 Boolean、Integer、Number 或 Text 的原始类型。</summary>
+        internal T Get<T>(string scope, string key)
+        {
+            RequireActive();
+            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException(nameof(key));
+            DataRow row = Table(scope).Rows.Cast<DataRow>().FirstOrDefault(item =>
+                item.HasVersion(DataRowVersion.Original) && Convert.ToString(item["Key", DataRowVersion.Original]) == key);
+            if (row == null) throw new KeyNotFoundException(ConstantText.T("missing") + " " + Reference(scope, key));
+            object value;
+            if (!TryReadFlowValue(scope, key, out value))
+            {
+                ConstantValue definition = Read(row, DataRowVersion.Original);
+                value = Parse(definition.Type, definition.Value);
+            }
+            if (value is T) return (T)value;
+            throw new InvalidCastException(Reference(scope, key) + " / " + typeof(T).FullName);
+        }
+
         /// <summary>工程校验读取草稿；流程使用保存值或流程写入的表值，忽略普通页面编辑草稿。</summary>
         public IEnumerable<KeyValuePair<string, object>> Snapshot(string scope,bool includeDraft)
         {

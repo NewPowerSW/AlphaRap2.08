@@ -12,6 +12,28 @@
 - 增加现场可配置的轴或 IO，使用硬件页和主窗口保存。配置中的 `HardwareDefinition.Id` 是稳定身份。应用在组装工站时可用 `ApplicationHost.GetResource<NP_Input>("hardware/" + inputId + "/input")` 取得已有输入，输出和轴的末段分别为 `output`、`axis`。改显示名或移动 IO 分组保留对象。删除资源或更换驱动后，后续使用应按 ID 重新绑定。
 - 流程页展示已安装的工站。站点运行依赖在启动阶段组装，关闭或重新打开监视页都会保留工站实例。
 
+### 按名称访问现场资源
+
+工站在对应模块初始化后，可直接使用配置中的业务名称。
+
+```csharp
+var axis = ApplicationHost.GetAxis("Axis_1");
+var start = ApplicationHost.GetInput("StartButton");
+var output = ApplicationHost.GetOutput("Output_1");
+var points = ApplicationHost.GetAxisPoints("Axis_1");
+var scanner = ApplicationHost.GetDevice<ScannerKeyenceTcp>("KeyenceScann");
+var camera = ApplicationHost.GetCamera("TakePCBA");
+var vpp = ApplicationHost.GetVpp("TakePCBA", "VPP1");
+bool skipScan = ApplicationHost.GetConstant<bool>("Setting", "DisScann");
+```
+
+Device 同名时传入第二个参数，例如 `ApplicationHost.GetDevice<ScannerKeyenceTcp>("KeyenceScann", "Parameter_dc2")`。硬件和 Device 找不到时抛出异常，相机和 VPP 找不到时返回空。按名称查询会随现场名称修改变化，持久化绑定继续使用原资源 ID。生产定位使用已选定的 VPP 时，仍调用视觉页的 `TryGetProductionStation`。
+
+常量用 `Setting` 或 `Recipe` 指定作用域，并按定义使用 `bool`、`long`、`double` 或 `string`。点位随配方变化，切换配方后重新获取点位快照。
+
+客户日志先在数据页定义名称和字段并主保存，然后调用 `ApplicationHost.Data.WriteLogByName("客户检测记录", values)`。`values` 是按字段名赋值的字典。调用成功返回文件路径，仿真时写入模块目录下的 Simulation 子目录。产品主表仍使用 `SaveProductionRecord`。
+
+
 ## 过渡版工站开发
 
 在本解决方案的 `AlphaRap/TaskProcess` 中维护工站 C# 步骤。已有工程按应用配置的设置目录读取 `FlowPrograms.xml`。迁移现有设备时使用该设备已验证的流程文件、配方和 IO 映射，分别核对初始化和自动运行入口。流程页供现场监视，主保存校验现有流程的资源引用并保存设备与配方配置。视觉 VPP 通过 TB 编辑器维护。
