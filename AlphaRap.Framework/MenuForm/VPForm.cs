@@ -490,13 +490,13 @@ namespace AlphaRap
 		private TabPage BuildCameraPage(VpCameraConfig cam)
 		{
 			TabPage page = new TabPage();
-			page.Name = DynCameraPrefix + cam.Name;
+			page.Name = DynCameraPrefix + cam.StorageFolder;
 			page.Tag = cam;
 			page.Text = cam.Name;
 			page.Padding = new Padding(4);
 			page.UseVisualStyleBackColor = true;
 
-			VpCameraPage ctl = new VpCameraPage();
+			VpCameraPage ctl = new VpCameraPage { Name = "vpCameraBody_" + cam.StorageFolder };
 			ctl.Owner = this;
 			ctl.Cam = cam;
 			ctl.Dock = DockStyle.Fill;
@@ -506,7 +506,7 @@ namespace AlphaRap
 			// 整台相机共用的显示控件：标定和本相机下每个 VPP 的结果都显示在这里。
 			// CogRecordDisplay 是 ActiveX 控件，代码创建时必须先设置 OcxState 再设置其它属性，否则实例不会创建。
 			Cognex.VisionPro.CogRecordDisplay sharedDisp = new Cognex.VisionPro.CogRecordDisplay();
-			sharedDisp.Name = "vpCamDisp_" + cam.Name;
+			sharedDisp.Name = "vpCamDisp_" + cam.StorageFolder;
 			try
 			{
 				object ocx = new System.ComponentModel.ComponentResourceManager(typeof(VPForm))
@@ -921,7 +921,6 @@ namespace AlphaRap
 					System.IO.Path.Combine(cam.StorageFolder, cam.Vpps[i].StorageFolder));
 
 			cam.Name = newName;
-			page.Name = DynCameraPrefix + newName;
 			page.Text = newName;
 
 			// 标定以相机名为键（VpConfigFile.Calibrations），改名时同步更新键和 entry.Key
@@ -1080,7 +1079,7 @@ namespace AlphaRap
 			for (int i = tabControl1.TabPages.Count - 1; i >= 0; i--)
 			{
 				TabPage p = tabControl1.TabPages[i];
-				if (p.Name != DynCameraPrefix + cam.Name) continue;
+				if (!ReferenceEquals(p.Tag, cam)) continue;
 				tabControl1.TabPages.RemoveAt(i);
 				p.Dispose();
 			}
@@ -1092,23 +1091,17 @@ namespace AlphaRap
 			MarkVpConfigDraft();
 		}
 
-		private VpCameraConfig CurrentCameraConfig()
-		{
-			TabPage p = tabControl1.SelectedTab;
-			if (p == null) return null;
-			return p.Name.StartsWith(DynCameraPrefix) ? FindCamera(p.Name.Substring(DynCameraPrefix.Length)) : null;
-		}
+        /// <summary>从选中页签读取相机对象。</summary>
+        private VpCameraConfig CurrentCameraConfig()
+        {
+            return tabControl1.SelectedTab?.Tag as VpCameraConfig;
+        }
 
-		/// <summary>工具条上的"删除当前相机"。</summary>
-		private void DeleteCurrentCameraPage()
-		{
-			TabPage p = tabControl1.SelectedTab;
-			if (p == null) return;
-			if (!p.Name.StartsWith(DynCameraPrefix)) return;
-
-			VpCameraConfig cam = FindCamera(p.Name.Substring(DynCameraPrefix.Length));
-			if (cam != null) DeleteCamera(cam);
-		}
+        /// <summary>删除当前页签绑定的相机。</summary>
+        private void DeleteCurrentCameraPage()
+        {
+            DeleteCamera(CurrentCameraConfig());
+        }
 
 		// ---------------- VPP ----------------
 
@@ -1162,7 +1155,7 @@ namespace AlphaRap
 			if (vpp.Station == null) CreateStation(cam, vpp);
 
 			TabPage page = new TabPage();
-			page.Name = DynVppPrefix + cam.Name + "_" + vpp.Name;
+			page.Name = DynVppPrefix + vpp.Id;
 			page.Text = vpp.Name;
 			page.Padding = new Padding(3);
 			page.UseVisualStyleBackColor = true;
@@ -1174,7 +1167,7 @@ namespace AlphaRap
 			Cognex.VisionPro.CogRecordDisplay display = (entry != null) ? entry.Display : null;
 			if (vpp.Station != null) RegisterDisplay(vpp.Station, display);
 
-			VpVppPage ctl = new VpVppPage();
+			VpVppPage ctl = new VpVppPage { Name = "vpVppBody_" + vpp.Id };
 			ctl.Owner = this;
 			ctl.Cam = cam;
 			ctl.Vpp = vpp;
@@ -1547,7 +1540,8 @@ namespace AlphaRap
 					box.Text = vpp.Name;
 					return;
 				}
-				if (FindVpp(cam, newName) != null)
+				VpVppConfig existing = FindVpp(cam, newName);
+				if (existing != null && existing != vpp)
 				{
 					MessageBox.Show(T("vpMsg_VppExistsA", "本相机下已有同名 VPP：「")
 						+ newName + T("vpMsg_VppExistsB", "」"), T("vpMsg_Title", "提示"));
@@ -1564,7 +1558,6 @@ namespace AlphaRap
 				}
 
 				page.Text = newName;
-				page.Name = DynVppPrefix + cam.Name + "_" + newName;
 				info.Text = BuildVppInfoText(cam, vpp);
 				MarkVpConfigDraft();
 			}
@@ -1913,11 +1906,7 @@ namespace AlphaRap
 		/// <summary>取某个 VPP 的视觉站（用于拍照、读结果和 ToolBlock 输出）；不存在返回 null。</summary>
 		public VpStation GetVppStation(string cameraName, string vppName)
 		{
-			VpCameraConfig cam = FindCamera(cameraName);
-			if (cam == null) return null;
-			for (int i = 0; i < cam.Vpps.Count; i++)
-				if (cam.Vpps[i] != null && cam.Vpps[i].Name == vppName) return cam.Vpps[i].Station;
-			return null;
+            return FindVpp(FindCamera(cameraName), vppName)?.Station;
 		}
 
         /// <summary>列出动态 VPP 和兼容视觉站的实际对象，使用稳定 VPP 身份而非显示名定位。</summary>
@@ -1930,13 +1919,12 @@ namespace AlphaRap
             return result;
         }
 
-		private VpVppConfig FindVpp(VpCameraConfig cam, string name)
-		{
-			if (cam == null) return null;
-			for (int i = 0; i < cam.Vpps.Count; i++)
-				if (string.Equals(cam.Vpps[i].Name, name, StringComparison.OrdinalIgnoreCase)) return cam.Vpps[i];
-			return null;
-		}
+        /// <summary>在指定相机内按业务名称查找 VPP，忽略名称大小写。</summary>
+        private VpVppConfig FindVpp(VpCameraConfig cam, string name)
+        {
+            if (cam == null || string.IsNullOrEmpty(name)) return null;
+            return cam.Vpps.FirstOrDefault(vpp => vpp != null && string.Equals(vpp.Name, name, StringComparison.OrdinalIgnoreCase));
+        }
 
 		/// <summary>取相机的 VPP 容器：TabPage 中的 <see cref="VpCameraPage"/>.VppTabs。</summary>
 		private TabControl FindVppTabControl(VpCameraConfig cam)
@@ -1945,7 +1933,7 @@ namespace AlphaRap
 			for (int i = 0; i < tabControl1.TabPages.Count; i++)
 			{
 				TabPage p = tabControl1.TabPages[i];
-				if (p.Name != DynCameraPrefix + cam.Name) continue;
+				if (!ReferenceEquals(p.Tag, cam)) continue;
 
 				for (int j = 0; j < p.Controls.Count; j++)
 				{
@@ -2117,7 +2105,7 @@ namespace AlphaRap
 			EnsureCalibrationStation(entry, calib);      // 确保标定站已创建
 
 			VpCalibCard card = new VpCalibCard();
-			card.Name = "vpCalibCard_" + entry.Key;
+			card.Name = "vpCalibCard_" + entry.Config.StorageFolder;
 			card.Owner = this;
 			card.Calib = calib;
 			card.Tag = entry;

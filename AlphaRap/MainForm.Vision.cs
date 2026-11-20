@@ -49,10 +49,11 @@ namespace AlphaRap
                 List<string> keys = new List<string>();
                 if (cameraNames != null)
                 {
+                    var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     for (int i = 0; i < cameraNames.Count; i++)
                     {
                         string k = cameraNames[i];
-                        if (!string.IsNullOrEmpty(k) && !keys.Contains(k)) keys.Add(k);
+                        if (!string.IsNullOrEmpty(k) && seen.Add(k)) keys.Add(k);
                     }
                 }
 

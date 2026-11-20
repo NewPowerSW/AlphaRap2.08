@@ -973,7 +973,7 @@ namespace AlphaRap
         /// <summary>拒绝重复或空工位标识，避免生产绑定出现歧义。</summary>
         public void ValidateStationIds()
         {
-            HashSet<string> ids = new HashSet<string>(StringComparer.Ordinal);
+            HashSet<string> ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             HashSet<string> cameraNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             HashSet<string> cameraFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (VpCameraConfig camera in Cameras)

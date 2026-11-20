@@ -45,9 +45,10 @@ internal static class DeviceUiCases
     /// <summary>创建实际页面和配置实例，但不显示窗口、不打开硬件。</summary>
     private static DeviceControl Panel(ModuleBaseForm form)
     {
-        var panel = new DeviceControl { Name = "OfflineControl", SingleDevice = true };
+        int number = form.Controls.OfType<DeviceControl>().Count() + 1;
+        var panel = new DeviceControl { Name = "OfflineControl" + number, SingleDevice = true };
         form.Controls.Add(panel); var formHandle = form.Handle; var panelHandle = panel.Handle;
-        string error = panel.BindDevice(AlphaRap.Configuration.HardwareControlTypes.Identity(typeof(OfflineUiDevice)), "OfflineDevice");
+        string error = panel.BindDevice(AlphaRap.Configuration.HardwareControlTypes.Identity(typeof(OfflineUiDevice)), form.Name + "_" + panel.Name);
         Assert(string.IsNullOrEmpty(error), "Cannot bind offline UI device: " + error); return panel;
     }
 

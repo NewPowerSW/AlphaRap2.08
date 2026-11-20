@@ -180,8 +180,9 @@ namespace AlphaRap
             try { t = ResolveDeviceType(_types, typeName); }
             catch (InvalidOperationException error) { return error.Message; }
 
-            string name = string.IsNullOrEmpty(deviceName) ? AutoDeviceName() : deviceName;
-            if (FindDevice(name) != null) name = AutoDeviceName();
+            string name = string.IsNullOrWhiteSpace(deviceName) ? AutoDeviceName() : deviceName.Trim();
+            if (IsDeviceNameTaken(name))
+                return string.Format(L("err_ConfigurationDeviceName", "设备名称重复：{0}", "Duplicate device name: {0}", "Nombre de dispositivo duplicado: {0}"), name);
 
             AbstractDevice inst;
             try { inst = NewDevice(t, name); }
@@ -427,13 +428,21 @@ namespace AlphaRap
             return null;
         }
 
+        /// <summary>检查整机已加载的设备名称，允许当前条目修改自身名称的大小写。</summary>
+        private static bool IsDeviceNameTaken(string name, DeviceItem except = null)
+        {
+            return LiveInstances.Where(panel => !panel.IsDisposed)
+                .SelectMany(panel => panel._devices)
+                .Any(item => item != except && string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase));
+        }
+
         /// <summary>自动起一个没被占用的设备名：Device1 / Device2 …</summary>
         private string AutoDeviceName()
         {
             for (int i = 1; ; i++)
             {
                 string n = "Device" + i;
-                if (FindDevice(n) == null) return n;
+                if (!IsDeviceNameTaken(n)) return n;
             }
         }
 
@@ -1319,7 +1328,7 @@ namespace AlphaRap
             if (want.Length == 0) { txtName.Text = _current.Name; return; }              // 空名不接受
             if (string.Equals(want, _current.Name, StringComparison.Ordinal)) return;
 
-            if (FindDevice(want) != null)                                               // 不能重名
+            if (IsDeviceNameTaken(want, _current))
             {
                 AppendLog(L("tag_Tip", "提示", "Info", "Aviso"), L("msg_DupName1", "已有同名设备 ", "Name already used: ", "Nombre ya usado: ") + want + L("msg_DupName2", "，改回原名。", " - reverted.", " - restaurado."));
                 txtName.Text = _current.Name;

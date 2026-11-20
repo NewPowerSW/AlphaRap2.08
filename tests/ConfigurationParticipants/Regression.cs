@@ -99,12 +99,13 @@ internal static class ConfigurationProbe
             Test("participant discovery is fixed for the complete operation", ParticipantSnapshot);
             Test("captured file lists and values survive later draft changes", FileSnapshot);
             Test("hardware lookup and display edits reuse the registered device", HardwareIdentity);
-            Test("device lookup resolves names and rejects ambiguity", NamedDevices);
+            Test("device names are unique across panels and legacy keys still resolve", NamedDevices);
+            Test("device tabs and panels have distinct control names", NamedDeviceControls);
             Test("VPP names resolve within the selected camera", NamedVision);
             Test("named constants read committed values in the selected scope", NamedConstants);
             Test("named customer logs use the saved schema and isolate simulated records", NamedLogs);
             Test("monitor borrows installed stations and preserves the original flow file on Save", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/18 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/19 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -235,8 +236,13 @@ internal static class ConfigurationProbe
             var resources = hardware.Resources;
             manual.BindResources(resources);
             var definition = resources.NewDefinition("Input");
+            definition.Id = "abcdef0123456789abcdef0123456789";
             var original = resources.Put(definition);
             string key = "hardware/" + definition.Id + "/input";
+            var duplicate = definition.Copy();
+            duplicate.Id = definition.Id.ToUpperInvariant();
+            duplicate.Name = "Different input";
+            Throws<InvalidOperationException>(() => resources.Put(duplicate));
             Check(ReferenceEquals(original.Device, ApplicationHost.GetResource<NPSDK.Motion.NP_Input>(key)), "Lookup returned a different input.");
             Check(ReferenceEquals(original.Device, ApplicationHost.GetInput(definition.Name)), "Named input differs from ID lookup.");
             string previousName = definition.Name;
@@ -278,7 +284,7 @@ internal static class ConfigurationProbe
         }
     }
 
-    /// <summary>离线注册两个同名设备，验证名称、面板范围及设备类型。</summary>
+    /// <summary>验证新建设备跨面板唯一，旧配置同名设备仍可按面板定位。</summary>
     private static void NamedDevices()
     {
         using (var form = new System.Windows.Forms.Form { Name = "NamedDevices" })
@@ -291,10 +297,38 @@ internal static class ConfigurationProbe
             string name = "Scanner / A";
             Check(first.BindDevice(typeName, name) == "", "First device could not be loaded.");
             Check(ReferenceEquals(first.Device, ApplicationHost.GetDevice<ScannerKeyenceTcp>(name)), "Named device differs from registered instance.");
-            Check(second.BindDevice(typeName, name) == "", "Second device could not be loaded.");
+            Check(!string.IsNullOrEmpty(second.BindDevice(typeName, name.ToUpperInvariant())), "A new cross-panel duplicate was accepted.");
+            Check(first.BindDevice(typeName, null) == "" && first.DeviceName == "Device1", "First automatic device name was incorrect.");
+            Check(second.BindDevice(typeName, null) == "" && second.DeviceName == "Device2", "Automatic names were reused across panels.");
+            var box = (System.Windows.Forms.TextBox)typeof(DeviceControl).GetField("txtName", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(second);
+            box.Text = "device1";
+            typeof(DeviceControl).GetMethod("txtName_Leave", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(second, new object[] { box, EventArgs.Empty });
+            Check(second.DeviceName == "Device2" && box.Text == "Device2", "Device rename accepted a name owned by another panel.");
+            Directory.CreateDirectory(SysPara.SettingDataDirectory);
+            var legacy = new System.Xml.Linq.XElement("DeviceControl",
+                new System.Xml.Linq.XElement("Device", new System.Xml.Linq.XAttribute("Key", "NamedDevices_second"),
+                    new System.Xml.Linq.XElement("Item", new System.Xml.Linq.XAttribute("TypeId", typeName),
+                        new System.Xml.Linq.XAttribute("Name", name))));
+            legacy.Save(DeviceControl.XmlFilePath);
+            second.LoadFromXml();
             Throws<InvalidOperationException>(() => ApplicationHost.GetDevice<ScannerKeyenceTcp>(name));
             Check(ReferenceEquals(second.Device, ApplicationHost.GetDevice<ScannerKeyenceTcp>(name, "NamedDevices_second")), "Panel scope did not resolve the device.");
             Throws<KeyNotFoundException>(() => ApplicationHost.GetDevice<ScannerKeyenceTcp>("Missing"));
+        }
+    }
+
+    /// <summary>验证设备页签、面板的独立名称及旧面板键。</summary>
+    private static void NamedDeviceControls()
+    {
+        using (var page = new Parameter())
+        {
+            var create = typeof(Parameter).GetMethod("NewPanel", BindingFlags.Instance | BindingFlags.NonPublic);
+            var first = (DeviceControl)create.Invoke(page, new object[] { "dc1" });
+            var second = (DeviceControl)create.Invoke(page, new object[] { "dc2" });
+            string[] names = { first.Name, first.Parent.Name, second.Name, second.Parent.Name };
+            Check(names.Distinct(StringComparer.OrdinalIgnoreCase).Count() == names.Length, "Device tabs and panels share a control name.");
+            Check(first.Name == "dc1" && second.Name == "dc2", "Saved device panel identities were changed.");
         }
     }
 
@@ -318,6 +352,25 @@ internal static class ConfigurationProbe
                 Check(ReferenceEquals(first, ApplicationHost.GetVpp("Camera A", "VPP1")), "VPP from the first camera was not found.");
                 Check(ReferenceEquals(second, ApplicationHost.GetVpp("Camera B", "VPP1")), "Duplicate VPP name resolved to the wrong camera.");
                 Check(ApplicationHost.GetVpp("Camera A", "Unknown") == null, "Missing model returned a VPP from another camera.");
+                Check(ReferenceEquals(first, ApplicationHost.GetVpp("camera a", "vpp1")), "VPP lookup did not follow the case-insensitive name rule.");
+
+                cameraA.Vpps[0].Id = "abcdef0123456789abcdef0123456789";
+                cameraB.Vpps[0].Id = cameraA.Vpps[0].Id.ToUpperInvariant();
+                Throws<InvalidOperationException>(() => config.ValidateStationIds());
+                cameraB.Vpps[0].Id = Guid.NewGuid().ToString("N");
+                config.ValidateStationIds();
+                var buildPage = typeof(VPForm).GetMethod("BuildVppPage", BindingFlags.Instance | BindingFlags.NonPublic);
+                cameraA.Name = "Camera_A";
+                cameraA.Vpps[0].Name = "Look";
+                cameraB.Name = "Camera";
+                cameraB.Vpps[0].Name = "A_Look";
+                using (var tabs = new System.Windows.Forms.TabControl())
+                using (var a = (System.Windows.Forms.TabPage)buildPage.Invoke(page, new object[] { cameraA, cameraA.Vpps[0], tabs }))
+                using (var b = (System.Windows.Forms.TabPage)buildPage.Invoke(page, new object[] { cameraB, cameraB.Vpps[0], tabs }))
+                {
+                    Check(!string.Equals(a.Name, b.Name, StringComparison.OrdinalIgnoreCase), "Camera/VPP pairs produced the same tab name.");
+                    Check(!string.Equals(a.Controls[0].Name, b.Controls[0].Name, StringComparison.OrdinalIgnoreCase), "VPP template instances have duplicate names.");
+                }
             }
         }
         finally

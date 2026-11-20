@@ -103,7 +103,7 @@ namespace AlphaRap
 			Type t = DeviceControl.PickDeviceTypeDialog(this, this.Font, this.Name, null);
 			if (t == null) return;
 
-			DeviceControl panel = NewPanel(NextPanelName());      // 先建页签并挂进 TabControl
+			DeviceControl panel = NewPanel("dc_" + Guid.NewGuid().ToString("N"));      // 先建页签并挂进 TabControl
 			string err = panel.BindDevice(AlphaRap.Configuration.HardwareControlTypes.Identity(t), null);          // 再绑定设备（这时 FindForm 才取得到窗体名做键）
 			if (!string.IsNullOrEmpty(err))
 			{
@@ -149,7 +149,7 @@ namespace AlphaRap
 			panel.DeviceNameChanged += Panel_DeviceNameChanged;
 
 			TabPage page = new TabPage();
-			page.Name = panelName;          // 与面板同名，方便用 tabDevices.TabPages[name] 反查
+			page.Name = "deviceTab_" + panelName + "_dyn";
 			page.Text = DefaultTabTitle;
             page.Tag = panel;
 			page.UseVisualStyleBackColor = true;
@@ -211,34 +211,15 @@ namespace AlphaRap
 			finally { DeviceControl.EndBulkChange(); }
 		}
 
-		/// <summary>
-		/// 给下一个页签起名：dc&lt;最大序号 + 1&gt;。
-		/// 序号**不复用** —— 名字同时是 XML 里的键，复用会跟旧节点串味。
-		/// </summary>
-		private string NextPanelName()
-		{
-			int max = 0;
-			for (int i = 0; i < _panels.Count; i++)
-			{
-				string n = _panels[i].Name;
-				if (string.IsNullOrEmpty(n) || !n.StartsWith("dc", StringComparison.OrdinalIgnoreCase)) continue;
-
-				int v;
-				if (int.TryParse(n.Substring(2), out v) && v > max) max = v;
-			}
-			return "dc" + (max + 1);
-		}
-
 		#endregion
 
 		#region 页签标题
 
-		/// <summary>按面板名反查它所在的页签（TabControl 的字符串索引器就是按 TabPage.Name 找）。</summary>
-		private TabPage PageOf(DeviceControl panel)
-		{
-			if (panel == null || string.IsNullOrEmpty(panel.Name)) return null;
-			return tabDevices.TabPages[panel.Name];
-		}
+        /// <summary>通过实际父容器找到设备面板的页签，保留两个控件各自的名称。</summary>
+        private TabPage PageOf(DeviceControl panel)
+        {
+            return panel?.Parent as TabPage;
+        }
 
 		/// <summary>页签标题 = 设备名；悬停提示里补上设备类名。</summary>
 		private void UpdateTabTitle(DeviceControl panel)

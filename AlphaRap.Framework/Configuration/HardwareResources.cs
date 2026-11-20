@@ -111,7 +111,7 @@ namespace AlphaRap.Configuration
             foreach (HardwareDefinition definition in project.Resources.Where(item => item.Kind != "Axis" && string.IsNullOrEmpty(item.IoPageId))) definition.IoPageId = project.IoPages[0].Id;
             ValidateIoPages(project);
             foreach (HardwareDefinition definition in project.Resources) definition.Validate();
-            if (project.Resources.GroupBy(item=>item.Id).Any(group=>group.Count()!=1) || project.Resources.GroupBy(item=>item.Name,StringComparer.OrdinalIgnoreCase).Any(group=>group.Count()!=1)) throw new InvalidDataException(HardwareText.T("duplicate"));
+            if (project.Resources.GroupBy(item=>item.Id,StringComparer.OrdinalIgnoreCase).Any(group=>group.Count()!=1) || project.Resources.GroupBy(item=>item.Name,StringComparer.OrdinalIgnoreCase).Any(group=>group.Count()!=1)) throw new InvalidDataException(HardwareText.T("duplicate"));
             if (project.Resources.GroupBy(PhysicalAddress).Any(group=>group.Count()!=1)) throw new InvalidDataException(HardwareText.T("portDuplicate"));
             return project;
         }
@@ -128,6 +128,8 @@ namespace AlphaRap.Configuration
             if (entries.Values.Any(item=>item.Definition.Id!=definition.Id && string.Equals(item.Definition.Name,definition.Name,StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException(HardwareText.T("duplicate"));
             HardwareEntry current;
             entries.TryGetValue(definition.Id, out current);
+            if (current == null && entries.Keys.Contains(definition.Id, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidOperationException(HardwareText.T("duplicate"));
             ValidatePhysicalAddress(definition, current?.Device);
             if (current != null)
             {
@@ -300,7 +302,7 @@ namespace AlphaRap.Configuration
                 throw new InvalidDataException(HardwareText.T("ioPageNameInvalid"));
             Guid identity;
             if (project.IoPages.Any(page => page.Id != "default" && !Guid.TryParseExact(page.Id, "N", out identity))
-                || project.IoPages.GroupBy(page => page.Id).Any(group => group.Count() != 1)
+                || project.IoPages.GroupBy(page => page.Id, StringComparer.OrdinalIgnoreCase).Any(group => group.Count() != 1)
                 || project.IoPages.GroupBy(page => page.Name, StringComparer.OrdinalIgnoreCase).Any(group => group.Count() != 1))
                 throw new InvalidDataException(HardwareText.T("ioPageNameInvalid"));
             if (project.Resources.Any(item => item.Kind != "Axis" && !project.IoPages.Any(page => page.Id == item.IoPageId)))

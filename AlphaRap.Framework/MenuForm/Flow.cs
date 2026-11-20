@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using AlphaRap.FlowProgramming;
 using NPSDK;
@@ -47,7 +48,8 @@ namespace AlphaRap
                 {
                     Flow_BaseForm form = editor.Form;
                     if (form.IsDisposed || editor.Program.Removed || pages.ContainsKey(form)) continue;
-                    TabPage page = new TabPage(form.Name) { Name = "flowModule_" + editor.Program.ModuleId + "_dyn", Tag = editor, AutoScroll = true };
+                    string key = BitConverter.ToString(Encoding.UTF8.GetBytes(editor.Program.ModuleId)).Replace("-", "");
+                    TabPage page = new TabPage(form.Name) { Name = "flowModule_" + key + "_dyn", Tag = editor, AutoScroll = true };
                     form.TopLevel = false; form.FormBorderStyle = FormBorderStyle.None; form.Dock = DockStyle.Fill; form.AutoScroll = true;
                     page.Controls.Add(form); tabControl1.TabPages.Add(page); pages.Add(form, page);
                     form.Show();
