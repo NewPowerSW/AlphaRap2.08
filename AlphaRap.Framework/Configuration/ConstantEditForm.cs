@@ -1,12 +1,20 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace AlphaRap.Configuration
 {
     public partial class ConstantEditForm : Form
     {
+        private readonly Dictionary<string, string> textDrafts = new Dictionary<string, string>
+        {
+            { ConstantStore.Int32Type, "0" },
+            { "Number", "0.0" },
+            { "Text", "" }
+        };
         private Action<ConstantValue> commit;
-        private bool UsesBooleanValue => (string)constantTypeValue.SelectedItem == "Boolean";
+        private string valueEditorType;
+        private bool UsesBooleanValue => valueEditorType == "Boolean";
 
         /// <summary>创建独立于设备状态的编辑布局。</summary>
         public ConstantEditForm() { InitializeComponent(); }
@@ -19,9 +27,9 @@ namespace AlphaRap.Configuration
         {
             commit = save;
             constantKeyValue.Text = value.Key;
-            constantValueValue.Text = value.Value;
             constantDescriptionValue.Text = value.Description;
-            if (bool.TryParse(value.Value, out bool flag)) constantBooleanValue.SelectedItem = flag ? "true" : "false";
+            if (value.Type != null && value.Type != "Boolean" && value.Value != null) textDrafts[value.Type] = value.Value;
+            if (value.Type == "Boolean" && bool.TryParse(value.Value, out bool flag)) constantBooleanValue.SelectedItem = flag ? "true" : "false";
             else if (isNew) constantBooleanValue.SelectedItem = "false";
             constantTypeValue.Format += (sender, args) => args.Value = ConstantText.TypeName(Convert.ToString(args.ListItem));
             if (isNew) constantTypeValue.Items.AddRange(ConstantStore.Types);
@@ -42,12 +50,15 @@ namespace AlphaRap.Configuration
             Load += (sender, args) => FrameworkLanguage.RegisterAndApplyLanguage(this, "DesignerConstants");
         }
 
-        /// <summary>根据所选类型显示值下拉框或文本框，两个控件各自保留草稿。</summary>
+        /// <summary>保存切换前的值草稿，并显示所选类型对应的草稿或默认值。</summary>
         private void UpdateValueEditor()
         {
-            bool useBooleanValue = UsesBooleanValue;
-            constantValueValue.Visible = !useBooleanValue;
-            constantBooleanValue.Visible = useBooleanValue;
+            if (valueEditorType != null && !UsesBooleanValue) textDrafts[valueEditorType] = constantValueValue.Text;
+            valueEditorType = (string)constantTypeValue.SelectedItem;
+            constantValueValue.Visible = !UsesBooleanValue;
+            constantBooleanValue.Visible = UsesBooleanValue;
+            if (UsesBooleanValue) return;
+            constantValueValue.Text = valueEditorType != null && textDrafts.TryGetValue(valueEditorType, out string draft) ? draft : "";
         }
 
         /// <summary>校验并提交，失败时保留输入以便修正。</summary>
