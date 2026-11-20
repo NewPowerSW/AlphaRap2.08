@@ -60,7 +60,14 @@ internal static class ConfigurationProbe
         public void Dispose() { }
     }
 
+    private sealed class OfflineVision : VPForm
+    {
+        /// <summary>保留内存视觉配置，跳过本机相机枚举。</summary>
+        public override void ModuleInitialize(string moduleName) { }
+    }
+
     /// <summary>先解析框架依赖，再运行独立配置故障注入。</summary>
+    [STAThread]
     private static int Main(string[] args)
     {
         AppDomain.CurrentDomain.AssemblyResolve += (sender, request) =>
@@ -93,10 +100,11 @@ internal static class ConfigurationProbe
             Test("captured file lists and values survive later draft changes", FileSnapshot);
             Test("hardware lookup and display edits reuse the registered device", HardwareIdentity);
             Test("device lookup resolves names and rejects ambiguity", NamedDevices);
+            Test("VPP names resolve within the selected camera", NamedVision);
             Test("named constants read committed values in the selected scope", NamedConstants);
             Test("named customer logs use the saved schema and isolate simulated records", NamedLogs);
             Test("monitor borrows installed stations and preserves the original flow file on Save", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/17 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/18 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -287,6 +295,35 @@ internal static class ConfigurationProbe
             Throws<InvalidOperationException>(() => ApplicationHost.GetDevice<ScannerKeyenceTcp>(name));
             Check(ReferenceEquals(second.Device, ApplicationHost.GetDevice<ScannerKeyenceTcp>(name, "NamedDevices_second")), "Panel scope did not resolve the device.");
             Throws<KeyNotFoundException>(() => ApplicationHost.GetDevice<ScannerKeyenceTcp>("Missing"));
+        }
+    }
+
+    /// <summary>用两台内存相机验证相同 VPP 名称按相机范围查找。</summary>
+    private static void NamedVision()
+    {
+        var first = new VpStation("Camera A", "VPP1");
+        var second = new VpStation("Camera B", "VPP1");
+        try
+        {
+            using (var page = ApplicationHost.RegisterModule(new OfflineVision()))
+            {
+                var cameraA = new VpCameraConfig { Name = "Camera A" };
+                var cameraB = new VpCameraConfig { Name = "Camera B" };
+                cameraA.Vpps.Add(new VpVppConfig { Name = "VPP1", Station = first });
+                cameraB.Vpps.Add(new VpVppConfig { Name = "VPP1", Station = second });
+                var config = (VpConfigFile)typeof(VPForm).GetField("_config", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(page);
+                config.Cameras.Add(cameraA);
+                config.Cameras.Add(cameraB);
+                Check(ReferenceEquals(cameraA, ApplicationHost.GetCamera("Camera A")), "Camera lookup returned a different configuration.");
+                Check(ReferenceEquals(first, ApplicationHost.GetVpp("Camera A", "VPP1")), "VPP from the first camera was not found.");
+                Check(ReferenceEquals(second, ApplicationHost.GetVpp("Camera B", "VPP1")), "Duplicate VPP name resolved to the wrong camera.");
+                Check(ApplicationHost.GetVpp("Camera A", "Unknown") == null, "Missing model returned a VPP from another camera.");
+            }
+        }
+        finally
+        {
+            VisionproInterface.VList.Remove(first);
+            VisionproInterface.VList.Remove(second);
         }
     }
 
