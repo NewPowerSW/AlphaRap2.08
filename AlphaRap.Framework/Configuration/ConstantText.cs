@@ -8,8 +8,6 @@ namespace AlphaRap.Configuration
         public static readonly Dictionary<string, string[]> Words = new Dictionary<string, string[]>
         {
             { "title", new[] { "设计器常量", "Designer constants", "Constantes del diseñador" } },
-            { "Setting", new[] { "Setting · 机器常量", "Setting · Machine constants", "Setting · Constantes de máquina" } },
-            { "Recipe", new[] { "Recipe · 当前配方常量", "Recipe · Current recipe constants", "Recipe · Constantes de receta actual" } },
             { "add", new[] { "新增", "Add", "Añadir" } }, { "edit", new[] { "修改", "Edit", "Editar" } },
             { "delete", new[] { "删除", "Delete", "Eliminar" } }, { "save", new[] { "保存当前表", "Save current table", "Guardar tabla actual" } },
             { "search", new[] { "查询键或说明", "Search key or description", "Buscar clave o descripción" } },

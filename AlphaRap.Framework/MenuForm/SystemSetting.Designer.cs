@@ -97,8 +97,8 @@ namespace AlphaRap
             this.settingPage.Name = "settingPage";
             this.settingPage.Size = new System.Drawing.Size(1092, 4);
             this.settingPage.TabIndex = 0;
-            this.settingPage.Tag = "Setting";
-            this.settingPage.Text = "Setting · 机器常量";
+            this.settingPage.Tag = FrameworkLanguage.FixedTextTag;
+            this.settingPage.Text = "Setting";
             // 
             // recipePage
             // 
@@ -106,8 +106,8 @@ namespace AlphaRap
             this.recipePage.Name = "recipePage";
             this.recipePage.Size = new System.Drawing.Size(192, 8);
             this.recipePage.TabIndex = 1;
-            this.recipePage.Tag = "Recipe";
-            this.recipePage.Text = "Recipe · 当前配方常量";
+            this.recipePage.Tag = FrameworkLanguage.FixedTextTag;
+            this.recipePage.Text = "Recipe";
             // 
             // toolbar
             // 

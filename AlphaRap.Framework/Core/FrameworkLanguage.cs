@@ -19,6 +19,7 @@ namespace AlphaRap
         public static event EventHandler LanguageChanged;
 
         public const string DynTextSuffix = "_dyn";
+        internal const string FixedTextTag = "FixedText";
 
         private sealed class FlowPageText
         {
@@ -153,7 +154,7 @@ namespace AlphaRap
         private static bool IsLanguageControl(Control c)
         {
             if (c == null) return false;
-            if (c is ModuleBaseForm) return false;
+            if (c is ModuleBaseForm || Equals(c.Tag, FixedTextTag)) return false;
             if (c.DataBindings.Count > 0) return false;
             if (c is TextBoxBase) return false;
             if (c is DataGridView) return false;

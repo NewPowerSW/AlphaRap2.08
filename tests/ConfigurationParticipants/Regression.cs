@@ -493,11 +493,14 @@ internal static class ConfigurationProbe
         store.Put("Recipe", null, value);
         ProjectConfiguration.Save();
 
+        ApplicationHost.Text("SystemSetting", "settingPage", "Setting legacy label", "Setting legacy label", "Setting legacy label");
+        ApplicationHost.Text("SystemSetting", "recipePage", "Recipe legacy label", "Recipe legacy label", "Recipe legacy label");
         using (var settings = new SystemSetting(module))
         {
             try
             {
                 settings.Show();
+                CheckConstantScopeTabs(settings);
                 CheckConstantEditPermission(settings);
             }
             finally { ModuleManager.ModuleList.Remove(settings); }
@@ -518,6 +521,25 @@ internal static class ConfigurationProbe
         ProjectConfiguration.Save();
         ProjectConfiguration.Discard();
         Check(ApplicationHost.GetConstant<bool>("Recipe", value.Key), "The edited value did not persist as bool.");
+    }
+
+    /// <summary>确认旧语言包标题不覆盖 Setting 和 Recipe，切换语言保留当前作用域。</summary>
+    private static void CheckConstantScopeTabs(SystemSetting settings)
+    {
+        var tabs = (TabControl)settings.Controls.Find("scopes", true).Single();
+        LanguageType previous = SysPara.LanguageShow;
+        tabs.SelectedIndex = 1;
+        try
+        {
+            foreach (LanguageType language in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+            {
+                ApplicationHost.InitializeLanguage(language);
+                ApplicationHost.RegisterLanguage(settings, settings.Name);
+                Check(tabs.TabPages.Cast<TabPage>().Select(page => page.Text).SequenceEqual(new[] { "Setting", "Recipe" })
+                    && tabs.SelectedIndex == 1, "Constant tabs were renamed or switched by the language pack.");
+            }
+        }
+        finally { ApplicationHost.InitializeLanguage(previous); }
     }
 
     /// <summary>核对操作员和设备运行时的只读提示，并恢复测试环境权限与状态。</summary>
