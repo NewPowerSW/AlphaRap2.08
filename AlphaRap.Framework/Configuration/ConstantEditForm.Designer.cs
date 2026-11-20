@@ -7,7 +7,8 @@ namespace AlphaRap.Configuration
     {
         private TableLayoutPanel constantEditLayout;
         private TextBox constantKeyValue, constantValueValue, constantDescriptionValue;
-        private ComboBox constantTypeValue;
+        private Panel constantValueEditor;
+        private ComboBox constantTypeValue, constantBooleanValue;
         private Button constantOk, constantCancel;
         private Label constantKeyLabel, constantTypeLabel, constantValueLabel, constantDescriptionLabel;
         private FlowLayoutPanel constantEditButtons;
@@ -21,13 +22,16 @@ namespace AlphaRap.Configuration
             this.constantTypeLabel = new System.Windows.Forms.Label();
             this.constantTypeValue = new System.Windows.Forms.ComboBox();
             this.constantValueLabel = new System.Windows.Forms.Label();
+            this.constantValueEditor = new System.Windows.Forms.Panel();
             this.constantValueValue = new System.Windows.Forms.TextBox();
+            this.constantBooleanValue = new System.Windows.Forms.ComboBox();
             this.constantDescriptionLabel = new System.Windows.Forms.Label();
             this.constantDescriptionValue = new System.Windows.Forms.TextBox();
             this.constantEditButtons = new System.Windows.Forms.FlowLayoutPanel();
             this.constantCancel = new System.Windows.Forms.Button();
             this.constantOk = new System.Windows.Forms.Button();
             this.constantEditLayout.SuspendLayout();
+            this.constantValueEditor.SuspendLayout();
             this.constantEditButtons.SuspendLayout();
             this.SuspendLayout();
             //
@@ -41,7 +45,7 @@ namespace AlphaRap.Configuration
             this.constantEditLayout.Controls.Add(this.constantTypeLabel, 0, 1);
             this.constantEditLayout.Controls.Add(this.constantTypeValue, 1, 1);
             this.constantEditLayout.Controls.Add(this.constantValueLabel, 0, 2);
-            this.constantEditLayout.Controls.Add(this.constantValueValue, 1, 2);
+            this.constantEditLayout.Controls.Add(this.constantValueEditor, 1, 2);
             this.constantEditLayout.Controls.Add(this.constantDescriptionLabel, 0, 3);
             this.constantEditLayout.Controls.Add(this.constantDescriptionValue, 1, 3);
             this.constantEditLayout.Controls.Add(this.constantEditButtons, 0, 4);
@@ -106,13 +110,35 @@ namespace AlphaRap.Configuration
             this.constantValueLabel.Tag = "value";
             this.constantValueLabel.Text = "值";
             //
+            // constantValueEditor
+            //
+            this.constantValueEditor.Controls.Add(this.constantBooleanValue);
+            this.constantValueEditor.Controls.Add(this.constantValueValue);
+            this.constantValueEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.constantValueEditor.Location = new System.Drawing.Point(145, 95);
+            this.constantValueEditor.Name = "constantValueEditor";
+            this.constantValueEditor.Size = new System.Drawing.Size(460, 44);
+            this.constantValueEditor.TabIndex = 5;
+            //
             // constantValueValue
             //
-            this.constantValueValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.constantValueValue.Location = new System.Drawing.Point(145, 95);
+            this.constantValueValue.Dock = System.Windows.Forms.DockStyle.Top;
+            this.constantValueValue.Location = new System.Drawing.Point(0, 0);
             this.constantValueValue.Name = "constantValueValue";
             this.constantValueValue.Size = new System.Drawing.Size(460, 23);
-            this.constantValueValue.TabIndex = 5;
+            this.constantValueValue.TabIndex = 0;
+            //
+            // constantBooleanValue
+            //
+            this.constantBooleanValue.Dock = System.Windows.Forms.DockStyle.Top;
+            this.constantBooleanValue.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.constantBooleanValue.FormattingEnabled = true;
+            this.constantBooleanValue.Items.AddRange(new object[] { "true", "false" });
+            this.constantBooleanValue.Location = new System.Drawing.Point(0, 0);
+            this.constantBooleanValue.Name = "constantBooleanValue";
+            this.constantBooleanValue.Size = new System.Drawing.Size(460, 25);
+            this.constantBooleanValue.TabIndex = 1;
+            this.constantBooleanValue.Visible = false;
             //
             // constantDescriptionLabel
             //
@@ -181,6 +207,8 @@ namespace AlphaRap.Configuration
             this.Text = "设计器常量";
             this.constantEditLayout.ResumeLayout(false);
             this.constantEditLayout.PerformLayout();
+            this.constantValueEditor.ResumeLayout(false);
+            this.constantValueEditor.PerformLayout();
             this.constantEditButtons.ResumeLayout(false);
             this.constantEditButtons.PerformLayout();
             this.ResumeLayout(false);

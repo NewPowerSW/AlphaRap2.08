@@ -421,8 +421,19 @@ internal static class ConfigurationProbe
             var types = (ComboBox)creation.Controls.Find("constantTypeValue", true).Single();
             Check(types.Enabled && types.Items.Cast<object>().Select(types.GetItemText).SequenceEqual(new[] { "int", "double", "bool", "string" }),
                 "The create dialog did not offer exactly the four C# keywords.");
+            var flag = (ComboBox)creation.Controls.Find("constantBooleanValue", true).Single();
+            var input = (TextBox)creation.Controls.Find("constantValueValue", true).Single();
+            Check(flag.Visible && !input.Visible && flag.DropDownStyle == ComboBoxStyle.DropDownList
+                && flag.Items.Cast<string>().SequenceEqual(new[] { "true", "false" }) && flag.Text == "false",
+                "The new bool did not offer exactly true and false.");
+            flag.SelectedItem = "true";
             types.SelectedIndex = 0;
-            creation.Controls.Find("constantValueValue", true).Single().Text = "2147483647";
+            Check(input.Visible && !flag.Visible, "The int did not use a text field.");
+            input.Text = "2147483647";
+            types.SelectedIndex = 2;
+            Check(flag.Visible && flag.Text == "true", "Switching to bool erased the draft selection.");
+            types.SelectedIndex = 0;
+            Check(input.Visible && input.Text == "2147483647", "Switching back to int erased the draft value.");
             ((Button)creation.Controls.Find("constantOk", true).Single()).PerformClick();
             Check(creation.DialogResult == DialogResult.OK, "The create dialog did not accept a valid int.");
         }
@@ -457,6 +468,7 @@ internal static class ConfigurationProbe
             edit.Show();
             var types = (ComboBox)edit.Controls.Find("constantTypeValue", true).Single();
             var input = (TextBox)edit.Controls.Find("constantValueValue", true).Single();
+            Check(input.Visible && edit.ActiveControl == input && input.SelectedText == value.Value, "A numeric value was not ready to edit.");
             input.Text = "10";
             try
             {
@@ -493,12 +505,12 @@ internal static class ConfigurationProbe
         using (var dialog = new ConstantEditForm(value, draft => store.Put("Recipe", value.Key, draft)))
         {
             dialog.Show();
-            var input = (TextBox)dialog.Controls.Find("constantValueValue", true).Single();
+            var flag = (ComboBox)dialog.Controls.Find("constantBooleanValue", true).Single();
             var type = (ComboBox)dialog.Controls.Find("constantTypeValue", true).Single();
-            Check(!input.ReadOnly && input.Enabled && dialog.ActiveControl == input && input.SelectedText == "False",
-                "The edit dialog did not select the editable value.");
+            Check(flag.Visible && flag.Enabled && dialog.ActiveControl == flag && flag.Text == "false",
+                "The edit dialog did not focus the saved bool value.");
             Check(!type.Enabled && type.GetItemText(type.SelectedItem) == "bool", "The type changed while editing a value.");
-            input.Text = "True";
+            flag.SelectedItem = "true";
             ((Button)dialog.Controls.Find("constantOk", true).Single()).PerformClick();
             Check(dialog.DialogResult == DialogResult.OK, "The edit dialog rejected a valid existing value.");
         }
