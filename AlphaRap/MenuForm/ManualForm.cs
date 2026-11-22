@@ -1,40 +1,18 @@
 using AlphaRapLibrary;
-using AlphaRap.Configuration;
-using AlphaRap.FlowProgramming;
-using AlphaRap.TaskProcess;
-using System;
 using NPSDK.Motion;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace AlphaRap
 {
-	public partial class ManualForm : ManualPage, IConfigurationParticipant
+	public partial class ManualForm : ManualPage
 	{
 		public List<NP_Output> Conveyor_List = new List<NP_Output>();
-
-        internal DownConveyorIoBindings DownConveyorBindings { get; private set; }
-
-        string IConfigurationParticipant.ConfigurationId => "Station.DownConveyorIo";
-        int IConfigurationParticipant.ConfigurationOrder => 45;
-
-        /// <summary>校验下料工位的 IO 草稿引用。</summary>
-        void IConfigurationParticipant.ValidateConfiguration() { DownConveyorBindings?.Validate(); }
-
-        /// <summary>把工位绑定加入主保存事务。</summary>
-        ConfigurationChange IConfigurationParticipant.PrepareConfigurationSave()
-        {
-            return DownConveyorBindings?.PrepareSave() ?? new ConfigurationChange(Array.Empty<ConfigurationFile>());
-        }
-
-        /// <summary>主保存选择放弃时还原 IO 绑定草稿。</summary>
-        Action IConfigurationParticipant.PrepareConfigurationDiscard() { return () => DownConveyorBindings?.Discard(); }
 
         /// <summary>输入输出资源使用独立页面，复用统一硬件目录和实例。</summary>
         public override void BindResources(Configuration.HardwareResources resources)
         {
             ioResourcePanel.BindResources(resources);
-            if (resources != null) DownConveyorBindings = new DownConveyorIoBindings(resources, this);
         }
 		public ManualForm()
 		{
@@ -50,30 +28,10 @@ namespace AlphaRap
 			ApplyPageStyle();
 			if (UiTheme.IsDesignTime) return;
 			WireIoLog();          // 输出点 / 气缸手动动作写操作日志
-            ApplyDownConveyorBindingLanguage();
-            EventHandler languageHandler = delegate { RefreshPageTexts(); ApplyDownConveyorBindingLanguage(); };
+			System.EventHandler languageHandler = delegate { RefreshPageTexts(); };
 			ApplicationHost.LanguageChanged += languageHandler;
 			Disposed += delegate { ApplicationHost.LanguageChanged -= languageHandler; };
 		}
-
-        /// <summary>更新绑定入口，保留已选 IO 的业务名称。</summary>
-        private void ApplyDownConveyorBindingLanguage()
-        {
-            btnDownConveyorIo_dyn.Text = DownConveyorIoForm.Title;
-        }
-
-        /// <summary>空闲时编辑下料绑定，确定后保留草稿供主界面保存。</summary>
-        private void EditDownConveyorIo(object sender, EventArgs args)
-        {
-            if (DownConveyorBindings == null) return;
-            try
-            {
-                FlowPrograms.RequireIdle();
-                DownConveyorBindings.RequireLoaded();
-                using (var dialog = new DownConveyorIoForm(DownConveyorBindings)) dialog.ShowDialog(this);
-            }
-            catch (InvalidOperationException error) { MessageBox.Show(this, error.Message, DownConveyorIoForm.Title, MessageBoxButtons.OK, MessageBoxIcon.Warning); }
-        }
 
 		/// <summary>给整页的输出点 / 气缸挂"动作即记录"（输入点只监视，不记）。</summary>
 		private void WireIoLog()

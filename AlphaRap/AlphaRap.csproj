@@ -839,13 +839,6 @@
       <DependentUpon>UpConveryor.cs</DependentUpon>
     </Compile>
     <Compile Include="TaskProcess\DownConveyorProcess.cs" />
-    <Compile Include="TaskProcess\DownConveyorIoBindings.cs" />
-    <Compile Include="MenuForm\DownConveyorIoForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MenuForm\DownConveyorIoForm.Designer.cs">
-      <DependentUpon>DownConveyorIoForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="TaskProcess\DownConveryor.cs">
       <SubType>Form</SubType>
     </Compile>

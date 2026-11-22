@@ -113,8 +113,7 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>检查设备状态是否允许编辑配置。</summary>
-        internal static bool ConfigurationBusy => ApplicationHost.IsShuttingDown || ApplicationHost.IsMachineCommandPending
-            || AnyRunning || DeviceOperations.HasPending || SysPara.SystemMode != RunMode.IDLE;
+        internal static bool ConfigurationBusy => ApplicationHost.IsShuttingDown || AnyRunning || DeviceOperations.HasPending || SysPara.SystemMode != RunMode.IDLE;
 
         /// <summary>运行和修改前统一检查工位、机器状态及权限。</summary>
         public static void RequireIdle()

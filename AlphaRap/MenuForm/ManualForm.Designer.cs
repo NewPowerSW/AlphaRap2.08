@@ -37,13 +37,6 @@ namespace AlphaRap
             this.ioResourcePanel.ResourceKind = "IO";
             this.ioResourcePanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ioResourcesPage.Controls.Add(this.ioResourcePanel);
-            this.btnDownConveyorIo_dyn = new System.Windows.Forms.Button();
-            this.btnDownConveyorIo_dyn.Name = "btnDownConveyorIo_dyn";
-            this.btnDownConveyorIo_dyn.Text = "下料 IO 绑定";
-            this.btnDownConveyorIo_dyn.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnDownConveyorIo_dyn.Height = 32;
-            this.btnDownConveyorIo_dyn.Click += new System.EventHandler(this.EditDownConveyorIo);
-            this.ioResourcesPage.Controls.Add(this.btnDownConveyorIo_dyn);
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.IB_Back_Door_Sensor = new NPSDK.Motion.NP_Input();
@@ -1511,7 +1504,6 @@ namespace AlphaRap
 
 		private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage ioResourcesPage;
-        private System.Windows.Forms.Button btnDownConveyorIo_dyn;
         private AlphaRap.Configuration.HardwareResourcePanel ioResourcePanel;
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabPage tabPage2;
