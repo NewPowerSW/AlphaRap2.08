@@ -20,7 +20,7 @@ namespace DataSave
         }
 
         /// <summary>按指定业务日期写入日志并保留文件原有编码。</summary>
-        private string AppendRecordAt(DateTime now, string[] values)
+        public string AppendRecordAt(DateTime now, string[] values)
         {
             string root = RecordRoot();
             string[] columns = Items.Select(item => item.Name).ToArray();
@@ -49,14 +49,19 @@ namespace DataSave
         }
 
         /// <summary>跨年月读取日志并按文件列名对齐；兼容旧编码及包含逗号、引号、换行的 CSV。</summary>
-        private List<string[]> ReadRecords(DateTime start, DateTime end)
+        private List<string[]> ReadRecords(DateTime start, DateTime end, out int fileCount)
         {
+            fileCount = 0;
             if (end.Date < start.Date || (end.Date - start.Date).TotalDays > 366) throw new ArgumentOutOfRangeException("end");
             string root = RecordRoot();
             List<string> columns = new List<string>();
             List<Dictionary<string, string>> records = new List<Dictionary<string, string>>();
             lock (recordLocks.GetOrAdd(root, key => new object()))
-                foreach (string path in RecordFiles(root, start, end)) ReadDay(path, columns, records);
+                foreach (string path in RecordFiles(root, start, end))
+                {
+                    ReadDay(path, columns, records);
+                    fileCount++;
+                }
             if (columns.Count == 0) return new List<string[]>();
             List<string[]> result = new List<string[]> { columns.ToArray() };
             result.AddRange(records.OrderBy(row => row.ContainsKey("Time") ? row["Time"] : "", StringComparer.Ordinal)

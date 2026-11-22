@@ -113,11 +113,12 @@ internal static class ConfigurationProbe
             Test("constant creation offers C# types and existing types remain fixed", ConstantTypes);
             Test("existing constant values can be changed without changing type", ConstantValueEditing);
             Test("named customer logs use the saved schema and isolate simulated records", NamedLogs);
+            Test("saved log binding drives home preview and history", HomeLogBinding);
             Test("passwords remain compatible with existing managed hashes", LoginHashCompatibility);
             Test("login shows progress and waits for background permissions", () => LoginWindow(false));
             Test("closing a login window discards late authentication", () => LoginWindow(true));
             Test("transition uses only compiled station graphs and preserves archived flow files", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/24 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/25 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -608,6 +609,84 @@ internal static class ConfigurationProbe
             }
         }
         finally { SysPara.Simulation = previousSimulation; }
+    }
+
+    /// <summary>验证绑定经主保存发布，并仅显示选中模块的成功记录。</summary>
+    private static void HomeLogBinding()
+    {
+        bool previousSimulation = SysPara.Simulation;
+        SysPara.Simulation = true;
+        try
+        {
+            using (var data = ApplicationHost.RegisterModule(new DataForm()))
+            {
+                var selected = new LogModuleDefinition { Name = "Products", Directory = Path.Combine(current, "Products"), ShowOnHome = true };
+                selected.Fields.Add(new ProductionField { Name = "Result" });
+                selected.Fields.Add(new ProductionField { Name = "Barcode" });
+                var other = new LogModuleDefinition { Name = "Service", Directory = Path.Combine(current, "Service") };
+                other.Fields.Add(new ProductionField { Name = "Value" });
+                data.SetLogModulesDraft(new List<LogModuleDefinition> { selected, other });
+                DateTime day = DateTime.Today;
+                string[] headers;
+                data.ReadHomeLogPreview(day, true, out headers);
+                Check(headers == null, "An unsaved home binding became active.");
+                ProjectConfiguration.Save();
+                Check(data.ReadHomeLogPreview(day, true, out headers).Count == 0
+                    && headers.SequenceEqual(new[] { "Time", "Result", "Barcode" }), "Empty preview lacked the saved schema.");
+
+                long revision = data.HomeLogRevision;
+                data.WriteLogByName("Service", new Dictionary<string, object> { { "Value", "other" } });
+                Throws<InvalidDataException>(() => data.WriteLogByName("Products", new Dictionary<string, object> { { "Result", "OK" } }));
+                Check(data.HomeLogRevision == revision, "Unbound or invalid writes changed the home view.");
+                string path = data.WriteLogByName("Products", new Dictionary<string, object> { { "Barcode", "PLT-001" }, { "Result", "OK" } });
+                var preview = data.ReadHomeLogPreview(day, true, out headers);
+                Check(File.Exists(path) && data.HomeLogRevision > revision && preview.Single().Skip(1).SequenceEqual(new[] { "OK", "PLT-001" }),
+                    "A successful named write was not displayed in schema order.");
+                CheckHomeLogRows(headers);
+                using (var history = new ProductionQueryForm())
+                {
+                    var rows = (List<ProductionRecord>)typeof(ProductionQueryForm).GetField("_rows", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(history);
+                    Check(rows.Single().Get("Barcode") == "PLT-001" && rows.Single().Columns.SequenceEqual(headers.Skip(1)),
+                        "Home query used a different source or field order.");
+                }
+                Check(data.ReadHomeLogPreview(day, false, out headers).Count == 0, "Simulation rows entered production preview.");
+
+                data.WriteLogByName("Products", new Dictionary<string, object> { { "Barcode", "PLT-002" }, { "Result", "NG" } });
+                preview = data.ReadHomeLogPreview(day, true, out headers);
+                Check(preview.Count == 2 && preview[0][2] == "PLT-002", "The latest product was not first in the preview.");
+                var draft = data.GetLogModules();
+                draft[0].Name = "Renamed products";
+                draft[0].Fields.Reverse();
+                data.SetLogModulesDraft(draft);
+                ProjectConfiguration.Save();
+                using (var reopened = new DataForm())
+                {
+                    preview = reopened.ReadHomeLogPreview(day, true, out headers);
+                    Check(headers.SequenceEqual(new[] { "Time", "Barcode", "Result" }) && preview.Count == 2 && preview[0].Skip(1).SequenceEqual(new[] { "PLT-002", "NG" }),
+                        "Renaming or reordering the module lost the saved binding or its historical values.");
+                }
+            }
+        }
+        finally { SysPara.Simulation = previousSimulation; }
+    }
+
+    /// <summary>直接刷新真实首页，核对异步加载显示的列和行。</summary>
+    private static void CheckHomeLogRows(string[] headers)
+    {
+        using (var home = new HomeForm())
+        {
+            typeof(HomeForm).GetMethod("RefreshHomeLog", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(home, null);
+            var wait = Stopwatch.StartNew();
+            while (home.InfoRowCount == 0 && wait.ElapsedMilliseconds < 5000)
+            {
+                Application.DoEvents();
+                Thread.Sleep(10);
+            }
+            var grid = (DataGridView)home.Controls.Find("grdInfo", true).Single();
+            Check(grid.Columns.Cast<DataGridViewColumn>().Select(column => column.HeaderText).SequenceEqual(headers)
+                && home.InfoRowCount == 1 && Convert.ToString(grid.Rows[0].Cells[2].Value) == "PLT-001",
+                "The displayed home grid did not use the bound module.");
+        }
     }
 
     /// <summary>验证系统加密库与现有 Windows .NET 凭据的二进制结果一致。</summary>

@@ -38,7 +38,7 @@ namespace AlphaRap.FlowProgramming
         }
 
         /// <summary>按已配置字段和类型写入一条日志，仿真输出使用独立目录。</summary>
-        internal string AppendRecord(IDictionary<string, object> inputs, bool simulation, CancellationToken token = default(CancellationToken))
+        internal string AppendRecord(IDictionary<string, object> inputs, bool simulation, CancellationToken token = default(CancellationToken), Action<DateTime, string[]> written = null)
         {
             if (inputs == null) throw new ArgumentNullException(nameof(inputs));
             string[] values = new string[fields.Count];
@@ -52,18 +52,25 @@ namespace AlphaRap.FlowProgramming
                 values[index] = FlowValue.Text(value);
             }
             token.ThrowIfCancellationRequested();
-            if (!simulation) return log.AppendRecord(values);
-            using (var preview = new TypeCollection1 { SavePath = Path.Combine(log.SavePath, "Simulation") })
+            DateTime time = DateTime.Now;
+            string path;
+            if (simulation)
             {
-                preview.Items.AddRange(log.Items.Select(item => new DataFormat { Name = item.Name }));
-                return preview.AppendRecord(values);
+                using (var preview = new TypeCollection1 { SavePath = Path.Combine(log.SavePath, "Simulation") })
+                {
+                    preview.Items.AddRange(log.Items.Select(item => new DataFormat { Name = item.Name }));
+                    path = preview.AppendRecordAt(time, values);
+                }
             }
+            else path = log.AppendRecordAt(time, values);
+            written?.Invoke(time, values);
+            return path;
         }
 
         /// <summary>从自定义模块定义创建与现有 Data 控件兼容的查询对象。</summary>
-        internal static TypeCollection1 Create(LogModuleDefinition definition)
+        internal static TypeCollection1 Create(LogModuleDefinition definition, bool simulation = false)
         {
-            TypeCollection1 log = new TypeCollection1 { Text = definition.Name, SavePath = definition.Directory };
+            TypeCollection1 log = new TypeCollection1 { Text = definition.Name, SavePath = simulation ? Path.Combine(definition.Directory, "Simulation") : definition.Directory };
             log.Items.Add(new DataFormat { Name = "Time" });
             log.Items.AddRange(definition.Fields.Select(field => new DataFormat { Name = field.Name }));
             return log;

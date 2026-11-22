@@ -5,6 +5,7 @@ namespace AlphaRap.Configuration
         private System.ComponentModel.IContainer components;
         private System.Windows.Forms.Button add, browse, ok, cancel;
         private System.Windows.Forms.ListBox moduleList;
+        private System.Windows.Forms.CheckBox showOnHome;
         private System.Windows.Forms.TextBox moduleName, directory;
         private System.Windows.Forms.Label nameLabel, directoryLabel, hint;
         private System.Windows.Forms.DataGridView fields;
@@ -29,6 +30,7 @@ namespace AlphaRap.Configuration
             this.ok = new System.Windows.Forms.Button();
             this.cancel = new System.Windows.Forms.Button();
             this.moduleList = new System.Windows.Forms.ListBox();
+            this.showOnHome = new System.Windows.Forms.CheckBox();
             this.moduleMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.moduleDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.moduleName = new System.Windows.Forms.TextBox();
@@ -49,7 +51,7 @@ namespace AlphaRap.Configuration
             // add
             // 
             this.add.Location = new System.Drawing.Point(12, 12);
-            this.add.Name = "add";
+            this.add.Name = "addLogModule";
             this.add.Size = new System.Drawing.Size(210, 32);
             this.add.TabIndex = 0;
             this.add.Tag = "logAdd";
@@ -70,7 +72,7 @@ namespace AlphaRap.Configuration
             this.ok.Location = new System.Drawing.Point(664, 510);
             this.ok.Name = "ok";
             this.ok.Size = new System.Drawing.Size(100, 32);
-            this.ok.TabIndex = 9;
+            this.ok.TabIndex = 10;
             this.ok.Tag = "ok";
             this.ok.Text = "确定";
             // 
@@ -81,7 +83,7 @@ namespace AlphaRap.Configuration
             this.cancel.Location = new System.Drawing.Point(774, 510);
             this.cancel.Name = "cancel";
             this.cancel.Size = new System.Drawing.Size(100, 32);
-            this.cancel.TabIndex = 10;
+            this.cancel.TabIndex = 11;
             this.cancel.Tag = "cancel";
             this.cancel.Text = "取消";
             // 
@@ -151,12 +153,21 @@ namespace AlphaRap.Configuration
             this.hint.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.hint.Location = new System.Drawing.Point(12, 450);
-            this.hint.Name = "hint";
+            this.hint.Name = "logModuleHint";
             this.hint.Size = new System.Drawing.Size(860, 54);
-            this.hint.TabIndex = 8;
+            this.hint.TabIndex = 9;
             this.hint.Tag = "logManagerHint";
             this.hint.Text = "Time 自动记录时间；内置日志保留。配置统一使用主界面保存。";
             // 
+            // showOnHome
+            //
+            this.showOnHome.AutoSize = true;
+            this.showOnHome.Location = new System.Drawing.Point(240, 98);
+            this.showOnHome.Name = "showOnHome";
+            this.showOnHome.TabIndex = 7;
+            this.showOnHome.Tag = "logHomeBinding";
+            this.showOnHome.Text = "用作首页生产记录";
+            //
             // fields
             // 
             this.fields.AllowUserToDeleteRows = false;
@@ -169,10 +180,10 @@ namespace AlphaRap.Configuration
             this.fieldName,
             this.fieldType});
             this.fields.ContextMenuStrip = this.fieldMenu;
-            this.fields.Location = new System.Drawing.Point(240, 98);
+            this.fields.Location = new System.Drawing.Point(240, 130);
             this.fields.Name = "fields";
-            this.fields.Size = new System.Drawing.Size(632, 338);
-            this.fields.TabIndex = 7;
+            this.fields.Size = new System.Drawing.Size(632, 306);
+            this.fields.TabIndex = 8;
             // 
             // fieldName
             // 
@@ -219,6 +230,7 @@ namespace AlphaRap.Configuration
             this.Controls.Add(this.directoryLabel);
             this.Controls.Add(this.directory);
             this.Controls.Add(this.browse);
+            this.Controls.Add(this.showOnHome);
             this.Controls.Add(this.fields);
             this.Controls.Add(this.hint);
             this.Controls.Add(this.ok);

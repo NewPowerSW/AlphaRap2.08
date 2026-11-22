@@ -84,7 +84,13 @@ namespace DataSave
         /// <summary>读取指定日期范围内的所有日志版本，按实际文件表头合并列。</summary>
         public List<string[]> ReadDataFromToFile(DateTime starTime1, DateTime endTime1)
         {
-            return ReadRecords(starTime1, endTime1);
+            return ReadRecords(starTime1, endTime1, out _);
+        }
+
+        /// <summary>读取所选范围的日志及实际读取的文件数。</summary>
+        public List<string[]> ReadDataFromToFile(DateTime start, DateTime end, out int fileCount)
+        {
+            return ReadRecords(start, end, out fileCount);
         }
 
 	}

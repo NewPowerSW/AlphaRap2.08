@@ -204,6 +204,8 @@ namespace AlphaRap.FlowProgramming
             { "logName", new[] { "模块名称", "Module name", "Nombre del módulo" } },
             { "logDirectory", new[] { "保存目录", "Save directory", "Carpeta de guardado" } },
             { "logManagerHint", new[] { "Time 自动记录时间；内置日志保留。日志定义属于 Setting，配方切换不变，配置统一使用主界面保存。右键删除模块或字段。", "Time is recorded automatically. Built-in logs are retained. Definitions belong to Setting and stay unchanged across recipes. Use Main Save. Right-click to delete modules or fields.", "Time se registra automáticamente. Se conservan los registros integrados. Las definiciones son de Setting y no cambian con la receta. Use Guardar principal. Clic derecho para eliminar." } },
+            { "logHomeBinding", new[] { "用作首页生产记录", "Show as production records on Home", "Mostrar como registros de producción en Inicio" } },
+            { "logHomeUnique", new[] { "首页生产记录只能绑定一个日志模块。", "Home production records can use one log module.", "Los registros de producción de Inicio solo pueden usar un módulo de registro." } },
             { "logInvalid", new[] { "日志名称、目录或字段无效、重复；至少需要一个字段，Time 为保留字段。", "Invalid or duplicate log name, directory or fields. At least one field is required; Time is reserved.", "Nombre, carpeta o campos no válidos o duplicados. Se requiere un campo; Time está reservado." } },
             { "logInUse", new[] { "该日志模块仍被流程节点绑定，请先修改对应节点再删除。", "A flow node still uses this log module. Update the node before deleting it.", "Un nodo aún usa este módulo. Actualice el nodo antes de eliminarlo." } },
             { "logMissingField", new[] { "缺少日志字段：", "Missing log field:", "Falta el campo:" } },

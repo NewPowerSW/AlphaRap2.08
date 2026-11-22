@@ -505,7 +505,7 @@ namespace AlphaRap
         }
 
         /// <summary>解析时间列（形如 2026-10-14 08:58:41）；失败返回 DateTime.MinValue。</summary>
-        private static DateTime ParseTime(string s)
+        internal static DateTime ParseTime(string s)
         {
             DateTime t;
             string[] fmts = { "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss:fff",

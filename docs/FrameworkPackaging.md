@@ -37,7 +37,9 @@ Device 同名时传入第二个参数，例如 `ApplicationHost.GetDevice<Scanne
 
 常量用 `Setting` 或 `Recipe` 指定作用域，并按定义使用 `bool`、`long`、`double` 或 `string`。点位随配方变化，切换配方后重新获取点位快照。
 
-客户日志先在数据页定义名称和字段并主保存，然后调用 `ApplicationHost.Data.WriteLogByName("客户检测记录", values)`。`values` 是按字段名赋值的字典。调用成功返回文件路径，仿真时写入模块目录下的 Simulation 子目录。产品主表仍使用 `SaveProductionRecord`。
+客户日志先在数据页定义名称和字段并主保存，然后调用 `ApplicationHost.Data.WriteLogByName("客户检测记录", values)`。`values` 是按字段名赋值的字典。调用成功返回文件路径，仿真时写入模块目录下的 Simulation 子目录。产品主表使用 `SaveProductionRecord`。
+
+要在首页显示某个客户日志，在【数据 → 日志模块】选中它，勾选【用作首页生产记录】，点【确定】后主保存。应用调用 `WriteLogByName` 即可写入并更新首页。首页显示当天最近 100 条，列为自动生成的 `Time` 和模块配置的字段。首页的【查询】读取同一模块的历史。仿真环境读取该模块的 `Simulation` 目录。
 
 
 ## 过渡版工站开发

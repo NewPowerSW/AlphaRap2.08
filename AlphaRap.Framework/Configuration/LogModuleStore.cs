@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
@@ -12,6 +13,8 @@ namespace AlphaRap.Configuration
         public string Id { get; set; } = Guid.NewGuid().ToString("N");
         public string Name { get; set; } = "Log";
         public string Directory { get; set; } = "";
+        [DefaultValue(false)]
+        public bool ShowOnHome { get; set; }
         public List<ProductionField> Fields { get; set; } = new List<ProductionField>();
 
         /// <summary>显示用户定义的日志名称，不翻译业务键。</summary>
@@ -73,12 +76,13 @@ namespace AlphaRap.Configuration
                     if (field == null || string.IsNullOrWhiteSpace(field.Name) || field.Name.IndexOfAny(new[] { '\r', '\n' }) >= 0 || !fields.Add(field.Name)
                         || !new[] { "Text", "Number", "Boolean" }.Contains(field.Type)) throw new InvalidDataException(FlowText.T("logInvalid"));
             }
+            if (definitions.Count(module => module.ShowOnHome) > 1) throw new InvalidDataException(FlowText.T("logHomeUnique"));
         }
 
         /// <summary>复制定义，防止窗口或流程实例修改存储层集合。</summary>
         private static List<LogModuleDefinition> Copy(IEnumerable<LogModuleDefinition> modules)
         {
-            return modules.Select(module => new LogModuleDefinition { Id = module.Id, Name = module.Name, Directory = module.Directory,
+            return modules.Select(module => new LogModuleDefinition { Id = module.Id, Name = module.Name, Directory = module.Directory, ShowOnHome = module.ShowOnHome,
                 Fields = module.Fields.Select(field => new ProductionField { Name = field.Name, Type = field.Type }).ToList() }).ToList();
         }
     }

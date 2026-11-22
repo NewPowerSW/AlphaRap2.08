@@ -4,13 +4,22 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace AlphaRap
 {
 	public partial class HomeForm : Form
 	{
         private string[] infoHeaders = new string[0];
+        private DataForm homeLogSource;
+        private long homeLogRevision = -1;
+        private DateTime homeLogDay;
+        private bool homeLogSimulation;
+        private bool homeLogLoading;
+        private bool showingHomeLog;
+        private string homeLogError;
 
 		public HomeForm()
 		{
@@ -117,17 +126,67 @@ namespace AlphaRap
                     return;
                 }
 
-                string[] cols = ProductionDataStore.GetColumns();
-                if (cols == null || cols.Length == 0)
-                {
-                    cols = DefaultInfoHeaders();
-                    ProductionDataStore.SetColumns(cols);
-                }
-                BuildInfoColumns(cols);
-                grdInfo.Rows.Clear();
-                RefreshRecordCount();
+                LoadLegacyInfoTable();
             }
             catch { }
+        }
+
+        /// <summary>未绑定首页日志时恢复原生产记录列。</summary>
+        private void LoadLegacyInfoTable()
+        {
+            string[] cols = ProductionDataStore.GetColumns();
+            if (cols.Length == 0)
+            {
+                cols = DefaultInfoHeaders();
+                ProductionDataStore.SetColumns(cols);
+            }
+            BuildInfoColumns(cols);
+            ClearInfoRows();
+        }
+
+        /// <summary>在后台准备所选日志的近期记录，再在界面线程更新列和值。</summary>
+        private async void RefreshHomeLog()
+        {
+            DataForm source = ApplicationHost.Data;
+            if (source == null || homeLogLoading || IsDisposed) return;
+            DateTime day = DateTime.Today;
+            bool simulation = SysPara.Simulation;
+            long revision = source.HomeLogRevision;
+            if (homeLogSource == source && homeLogRevision == revision && homeLogDay == day && homeLogSimulation == simulation) return;
+
+            homeLogLoading = true;
+            try
+            {
+                string[] columns = null;
+                List<string[]> rows = await Task.Run(() => source.ReadHomeLogPreview(day, simulation, out columns));
+                if (IsDisposed || ApplicationHost.Data != source || SysPara.Simulation != simulation || DateTime.Today != day) return;
+                ApplyHomeLog(columns, rows);
+                homeLogSource = source;
+                homeLogRevision = revision;
+                homeLogDay = day;
+                homeLogSimulation = simulation;
+                homeLogError = null;
+            }
+            catch (Exception error)
+            {
+                if (homeLogError != error.Message) OperationLog.Write("HomeForm", "读取首页日志失败：" + error.Message);
+                homeLogError = error.Message;
+            }
+            finally { homeLogLoading = false; }
+        }
+
+        /// <summary>绑定日志字段及明细，解绑时恢复原生产记录列表。</summary>
+        private void ApplyHomeLog(string[] columns, List<string[]> rows)
+        {
+            if (columns == null)
+            {
+                if (showingHomeLog) LoadLegacyInfoTable();
+                showingHomeLog = false;
+                return;
+            }
+            if (!showingHomeLog || !columns.SequenceEqual(infoHeaders)) BuildInfoColumns(columns);
+            showingHomeLog = true;
+            ShowInfoRows(rows);
         }
 
         /// <summary>默认表头（占位，实际列名由业务代码 SetInfoHeaders 覆盖）。</summary>
@@ -161,6 +220,7 @@ namespace AlphaRap
                 string[] cols = new string[headers.Count];
                 for (int i = 0; i < cols.Length; i++) cols[i] = headers[i] ?? "";
                 ProductionDataStore.SetColumns(cols);
+                if (showingHomeLog) return;
                 BuildInfoColumns(cols);
                 grdInfo.Rows.Clear();
                 RefreshRecordCount();
@@ -186,7 +246,7 @@ namespace AlphaRap
             string err = "";
             try
             {
-                AddInfoRowCore(values);
+                if (!showingHomeLog) AddInfoRowCore(values);
                 err = ProductionDataStore.Append(time, values);
             }
             catch (Exception ex) { err = ex.Message; }
@@ -304,6 +364,7 @@ namespace AlphaRap
 
 			// 设备状态圆点：只在颜色真的变了才改（名称与颜色都来自 Parameter 的设备清单）
 			RefreshDeviceStatusColors();
+            RefreshHomeLog();
 		}
 
 
@@ -481,6 +542,7 @@ namespace AlphaRap
 		{
 			if (UiTheme.IsDesignTime) return;
 			timer1.Enabled = true;
+            RefreshHomeLog();
 
 
 			MiddleLayer.HardF.StopAllMotor();

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using AlphaRap.Configuration;
 using System.Windows.Forms;
 
 namespace AlphaRap
@@ -44,6 +47,9 @@ namespace AlphaRap
         private WindowChrome _chrome;
 
         private List<ProductionRecord> _rows = new List<ProductionRecord>();
+        private string[] boundLogColumns;
+        private string queryRoot;
+        private string TimeHeader => boundLogColumns == null ? UiTheme.T("ProductionQuery", "colTime", "时间", "Time", "Hora") : "Time";
         private bool _loading;
 
         public ProductionQueryForm()
@@ -135,7 +141,7 @@ namespace AlphaRap
         {
             ApplyLanguage();
             if (grd.Columns.Contains("colTime"))
-                grd.Columns["colTime"].HeaderText = UiTheme.T("ProductionQuery", "colTime", "时间", "Time", "Hora");
+                grd.Columns["colTime"].HeaderText = TimeHeader;
             FillStats();
             FillStatus(_statusFiles, _statusTotal);
         }
@@ -420,8 +426,19 @@ namespace AlphaRap
                 Cursor = Cursors.WaitCursor;
 
                 int fileCount, total;
-                _rows = ProductionDataStore.Query(dateFrom.Value, dateTo.Value,
-                    boxKeyword.Value, out fileCount, out total);
+                LogModuleDefinition log = ApplicationHost.Data?.GetHomeLogModule();
+                boundLogColumns = log?.Fields.Select(field => field.Name).ToArray();
+                if (log == null)
+                {
+                    queryRoot = ProductionDataStore.RootPath();
+                    _rows = ProductionDataStore.Query(dateFrom.Value, dateTo.Value, boxKeyword.Value, out fileCount, out total);
+                }
+                else
+                {
+                    bool simulation = SysPara.Simulation;
+                    queryRoot = simulation ? Path.Combine(log.Directory, "Simulation") : log.Directory;
+                    _rows = DataForm.QueryLogModule(log, dateFrom.Value, dateTo.Value, boxKeyword.Value, simulation, out fileCount, out total);
+                }
 
                 FillGrid();
                 FillStats();
@@ -445,14 +462,14 @@ namespace AlphaRap
                 grd.Rows.Clear();
                 grd.Columns.Clear();
 
-                string[] cols = ProductionDataStore.DistinctColumns(_rows);
+                string[] cols = boundLogColumns ?? ProductionDataStore.DistinctColumns(_rows);
 
                 // 列宽**自己算**：DisplayedCells 的自适应是延迟重算的，DrawToBitmap / 首次显示时还没生效
                 grd.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 
                 DataGridViewTextBoxColumn cTime = new DataGridViewTextBoxColumn();
                 cTime.Name = "colTime";
-                cTime.HeaderText = UiTheme.T("ProductionQuery", "colTime", "时间", "Time", "Hora");
+                cTime.HeaderText = TimeHeader;
                 cTime.ReadOnly = true;
                 cTime.SortMode = DataGridViewColumnSortMode.NotSortable;
                 cTime.MinimumWidth = D(52);
@@ -498,7 +515,7 @@ namespace AlphaRap
             if (statStrip == null) return;
             try
             {
-                string[] cols = ProductionDataStore.DistinctColumns(_rows);
+                string[] cols = boundLogColumns ?? ProductionDataStore.DistinctColumns(_rows);
                 List<StatItem> items = new List<StatItem>();
                 items.Add(new StatItem(UiTheme.T("ProductionQuery", "statRows", "记录条数", "Records", "Registros"),
                     _rows.Count.ToString(), UiKit.Brand));
@@ -526,7 +543,7 @@ namespace AlphaRap
                 {
                     lblStatus.Text = string.Format(UiTheme.T("ProductionQuery", "noFile",
                         "该时间段没有数据（{0}）", "No data in this range ({0})", "Sin datos ({0})"),
-                        ProductionDataStore.RootPath());
+                        queryRoot ?? ProductionDataStore.RootPath());
                     return;
                 }
 

@@ -34,7 +34,9 @@ namespace AlphaRap.Configuration
         /// <summary>编辑 DataForm 草稿副本，取消不会影响模块或文件。</summary>
         public LogModulesForm(DataForm data) : this()
         {
-            owner = data; definitions.AddRange(data.GetLogModules()); RefreshModules(null);
+            owner = data;
+            definitions.AddRange(data.GetLogModules());
+            RefreshModules(definitions.FirstOrDefault(module => module.ShowOnHome)?.Id);
         }
 
         /// <summary>创建默认日志模块和一个内容字段。</summary>
@@ -56,6 +58,8 @@ namespace AlphaRap.Configuration
             moduleName.Text = selected == null ? "" : selected.Name;
             directory.Text = selected == null ? "" : selected.Directory;
             moduleName.Enabled = directory.Enabled = browse.Enabled = fields.Enabled = selected != null;
+            showOnHome.Enabled = selected != null;
+            showOnHome.Checked = selected?.ShowOnHome == true;
             fields.Rows.Clear();
             if (selected != null) foreach (ProductionField field in selected.Fields) fields.Rows.Add(field.Name, field.Type);
         }
@@ -65,6 +69,9 @@ namespace AlphaRap.Configuration
         {
             if (selected == null) return;
             fields.EndEdit(); selected.Name = moduleName.Text; selected.Directory = directory.Text;
+            selected.ShowOnHome = showOnHome.Checked;
+            if (selected.ShowOnHome)
+                foreach (LogModuleDefinition module in definitions.Where(module => module != selected)) module.ShowOnHome = false;
             selected.Fields = fields.Rows.Cast<DataGridViewRow>().Where(row => !row.IsNewRow)
                 .Select(row => new ProductionField { Name = Convert.ToString(row.Cells[0].Value), Type = Convert.ToString(row.Cells[1].Value) }).ToList();
         }
