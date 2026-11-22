@@ -38,6 +38,9 @@ namespace AlphaRap
         /// <summary>保持消息循环可用，等待实际任务清理完成后再释放界面。</summary>
         public override System.Threading.Tasks.Task ShutdownAsync() { return MiddleLayer.DisposeProjectAsync(); }
 
+        /// <summary>整机命令准备期间保护已捕获的硬件及工位绑定。</summary>
+        public override bool IsMachineCommandPending => MiddleLayer.MachineCommandPending;
+
         /// <summary>按本站运行状态暂停流程和输出。</summary>
         public override void PauseMachine() { MiddleLayer.PauseRun(); }
 
@@ -89,44 +92,6 @@ namespace AlphaRap
         public override ManualPage CreateManualPage()
         {
             return Manual = new ManualForm();
-        }
-
-        /// <summary>将现场下料 IO 绑定到工站，复用已登记的点位及手动互锁。</summary>
-        private static DownConveyorProcess ConnectDownConveyor(ManualForm manual)
-        {
-            var inputs = new Dictionary<DownConveyorInput, NP_Input> {
-                { DownConveyorInput.StopperUp, manual.IB_DownConveyor_StopUp_Sensor },
-                { DownConveyorInput.StopperDown, manual.IB_DownConveyor_StopDown_Sensor },
-                { DownConveyorInput.BoardIn, manual.IB_DownConveyor_BoardIn_Sensor },
-                { DownConveyorInput.Slowdown, manual.IB_DownConveyor_BoardSpeedSwitch_Sensor },
-                { DownConveyorInput.BoardAtStop, manual.IB_DownConveyor_BoardStop_Sensor },
-                { DownConveyorInput.BoardOut, manual.IB_DownConveyor_BoardOut_Sensor },
-                { DownConveyorInput.UpstreamAvailable, manual.IB_DownConveyor_UpMachineAvailable_SMEMA },
-                { DownConveyorInput.DownstreamReady, manual.IB_DownConveyor_DownMachineReady_SMEMA }
-            };
-            var outputs = new Dictionary<DownConveyorOutput, NP_Output> {
-                { DownConveyorOutput.Forward, manual.OB_DownConveyor_Forward },
-                { DownConveyorOutput.Reverse, manual.OB_DownConveyor_Reverse },
-                { DownConveyorOutput.SlowSpeed, manual.OB_DownConveyor_SpeedSwitch },
-                { DownConveyorOutput.ReadyForBoard, manual.OB_DownConveyor_LocalMachineReady_SMEMA },
-                { DownConveyorOutput.BoardAvailable, manual.OB_DownConveyor_LocalMachineAvailable_SMEMA }
-            };
-            return new DownConveyorProcess(input =>
-            {
-                NP_Input point = inputs[input];
-                return point.IsReady ? (bool?)point.IsOn() : null;
-            }, (output, active) =>
-            {
-                if (output == DownConveyorOutput.Stopper)
-                {
-                    if (active) manual.OB_DownConveyor_Stop_Cylinder.On();
-                    else manual.OB_DownConveyor_Stop_Cylinder.Off();
-                    return;
-                }
-                NP_Output point = outputs[output];
-                if (active) point.On();
-                else point.Off();
-            });
         }
 
         /// <summary>创建并登记本站的固定日志数据页。</summary>
@@ -184,7 +149,8 @@ namespace AlphaRap
         {
             yield return new Gantry();
             yield return new UpConveryor();
-            yield return new DownConveryor(ConnectDownConveyor(Manual));
+            DownConveyorIoBindings bindings = Manual.DownConveyorBindings;
+            yield return new DownConveryor(new DownConveyorProcess(bindings.Read, bindings.Write));
         }
 
         /// <summary>由项目选择客户接口页面。</summary>
@@ -219,10 +185,11 @@ namespace AlphaRap
             catch (Exception error) { Debug.WriteLine(error); }
         }
 
-        /// <summary>停止后丢弃本站暂停记录。</summary>
+        /// <summary>停止时清理下料 IO 和本站暂停记录。</summary>
         public override void StopLegacyOutputs()
         {
             lock (outputSync) pausedOutputs.Clear();
+            Manual?.DownConveyorBindings?.Stop();
         }
 
         /// <summary>恢复原来开启的输出，全部成功后释放快照。</summary>

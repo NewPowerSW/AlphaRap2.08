@@ -42,6 +42,9 @@ namespace AlphaRap
         /// <summary>异步关闭入口，旧应用的同步清理由后台适配。</summary>
         public virtual Task ShutdownAsync() { return Task.Run((Action)Shutdown); }
 
+        /// <summary>指示应用是否正在准备整机运行命令，配置编辑需要等待。</summary>
+        public virtual bool IsMachineCommandPending => false;
+
         /// <summary>处理报警模块发出的整机暂停请求。</summary>
         public virtual void PauseMachine() { }
 
@@ -125,6 +128,7 @@ namespace AlphaRap
         private static readonly object shutdownSync = new object();
         private static volatile bool shuttingDown;
         public static bool IsShuttingDown { get { return shuttingDown; } }
+        internal static bool IsMachineCommandPending => application?.IsMachineCommandPending == true;
 
         /// <summary>读取应用 EXE 的版本。</summary>
         public static string ApplicationVersion

@@ -107,6 +107,7 @@ internal static class ConfigurationProbe
             Test("participant discovery is fixed for the complete operation", ParticipantSnapshot);
             Test("captured file lists and values survive later draft changes", FileSnapshot);
             Test("hardware lookup and display edits reuse the registered device", HardwareIdentity);
+            Test("down conveyor IO bindings use saved IDs and real runtime roles", DownConveyorBindings);
             Test("device names are unique across panels and legacy keys still resolve", NamedDevices);
             Test("device tabs and panels have distinct control names", NamedDeviceControls);
             Test("VPP names resolve within the selected camera", NamedVision);
@@ -121,7 +122,7 @@ internal static class ConfigurationProbe
             Test("login shows progress and waits for background permissions", () => LoginWindow(false));
             Test("closing a login window discards late authentication", () => LoginWindow(true));
             Test("transition uses only compiled station graphs and preserves archived flow files", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/27 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/28 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -1015,6 +1016,125 @@ internal static class ConfigurationProbe
         NPSDK.FlowProgramFile.Save(FlowPrograms.FilePath, project);
         File.AppendAllText(FlowPrograms.FilePath, Environment.NewLine);
         return File.ReadAllBytes(FlowPrograms.FilePath);
+    }
+
+    /// <summary>在独立目录用真实绑定界面、主保存和下料工站 IO 快照验证运行路径。</summary>
+    private static void DownConveyorBindings()
+    {
+        ModuleManager.ModuleList.RemoveAll(form => form.IsDisposed);
+        const BindingFlags instance = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        using (var hardware = ApplicationHost.RegisterModule(new HardForm()))
+        using (var manual = ApplicationHost.RegisterModule(new ManualForm()))
+        {
+            manual.BindResources(hardware.Resources);
+            object bindings = typeof(ManualForm).GetProperty("DownConveyorBindings", instance).GetValue(manual, null);
+            Type type = bindings.GetType();
+            MethodInfo prepare = type.GetMethod("PrepareInitialization", instance);
+            Check(prepare.Invoke(bindings, new object[] { false }) == null, "Old machine without a binding file did not keep fixed IO.");
+            var input = hardware.Resources.Put(hardware.Resources.NewDefinition("Input"));
+            var output = hardware.Resources.Put(hardware.Resources.NewDefinition("Output"));
+            MethodInfo edit = type.GetMethod("Edit", instance);
+            Throws<TargetInvocationException>(() => edit.Invoke(bindings, new object[] { new Dictionary<string, string> { { "BoardIn", output.Definition.Id } } }));
+            Throws<TargetInvocationException>(() => edit.Invoke(bindings, new object[] { new Dictionary<string, string> {
+                { "BoardIn", input.Definition.Id }, { "BoardOut", input.Definition.Id } } }));
+
+            using (var dialog = (Form)Activator.CreateInstance(typeof(DownConveyorIoForm), instance, null, new[] { bindings }, null))
+            {
+                dialog.Show();
+                var table = (DataGridView)dialog.Controls["grid"];
+                Check(table.Rows.Count == 15, "Not every down conveyor IO role is shown.");
+                DataGridViewRow entryRow = table.Rows.Cast<DataGridViewRow>().Single(row => Equals(row.Tag, "BoardIn"));
+                DataGridViewRow forwardRow = table.Rows.Cast<DataGridViewRow>().Single(row => Equals(row.Tag, "Forward"));
+                entryRow.Cells[1].Value = input.Definition.Id;
+                forwardRow.Cells[1].Value = output.Definition.Id;
+                ApplicationHost.InitializeLanguage(LanguageType.English);
+                Check(dialog.Text == "Down conveyor IO bindings" && (string)entryRow.Cells[1].Value == input.Definition.Id,
+                    "Switching languages lost the selected input.");
+                ApplicationHost.InitializeLanguage(LanguageType.Español);
+                Check(dialog.Text == "Asignaciones de E/S de descarga" && (string)forwardRow.Cells[1].Value == output.Definition.Id,
+                    "Spanish text did not preserve the output selection.");
+                Check(table.Bottom <= dialog.Controls["buttons"].Top && table.Top >= dialog.Controls["lblHelp_dyn"].Bottom,
+                    "The binding grid overlaps its instructions or confirmation buttons.");
+                ((Button)dialog.Controls.Find("btnOk_dyn", true).Single()).PerformClick();
+                Check(dialog.DialogResult == DialogResult.OK, "The dialog did not accept the ID selections.");
+            }
+
+            string path = Path.Combine(SysPara.SettingDataDirectory, "DownConveyorIoBindings.xml");
+            Check(!File.Exists(path), "The modal dialog wrote its own configuration.");
+            Throws<TargetInvocationException>(() => prepare.Invoke(bindings, new object[] { false }));
+            ProjectConfiguration.Save();
+            byte[] saved = File.ReadAllBytes(path);
+            Check(System.Xml.Linq.XDocument.Load(path).Root.Elements().Any(row =>
+                (string)row.Attribute("signal") == "BoardIn" && (string)row.Attribute("resourceId") == input.Definition.Id),
+                "Saving did not persist the stable resource ID.");
+
+            var renamed = input.Definition.Copy();
+            renamed.Name = "Down board entry renamed";
+            hardware.Resources.Put(renamed);
+            ProjectConfiguration.Save();
+            Check(saved.SequenceEqual(File.ReadAllBytes(path)), "Renaming the input rewrote its binding.");
+            string nextRecipe = Path.Combine(SysPara.RecipeDataDirectory, "AnotherRecipe.xml");
+            File.Copy(SysPara.FilePath, nextRecipe);
+            ProjectConfiguration.ChangeRecipe(nextRecipe, () =>
+            {
+                SysPara.RecipeName = "AnotherRecipe";
+                SysPara.FilePath = nextRecipe;
+            });
+            edit.Invoke(bindings, new object[] { new Dictionary<string, string>() });
+            ProjectConfiguration.Discard();
+            Check(prepare.Invoke(bindings, new object[] { false }) != null, "Discard did not restore the same machine bindings after changing recipe.");
+
+            // The restored hardware catalog may contain different control instances.
+            input = hardware.Resources.Entries.Single(item => item.Definition.Id == renamed.Id);
+            output = hardware.Resources.Entries.Single(item => item.Definition.Kind == "Output");
+            manual.BindResources(hardware.Resources);
+            bindings = typeof(ManualForm).GetProperty("DownConveyorBindings", instance).GetValue(manual, null);
+            object runtime = prepare.Invoke(bindings, new object[] { false });
+            var board = new OfflineIo { State = true };
+            var forward = new OfflineIo();
+            SetIoDriver(input.Device, "dInput", board);
+            SetIoDriver(output.Device, "dOutput", forward);
+            runtime.GetType().GetMethod("InitializeDrivers", instance).Invoke(runtime, null);
+            type.GetMethod("Activate", instance).Invoke(bindings, new[] { runtime });
+            MethodInfo read = type.GetMethod("Read", instance);
+            MethodInfo write = type.GetMethod("Write", instance);
+            object boardIn = Enum.Parse(read.GetParameters()[0].ParameterType, "BoardIn");
+            object moveForward = Enum.Parse(write.GetParameters()[0].ParameterType, "Forward");
+            Check(Equals(read.Invoke(bindings, new[] { boardIn }), true), "The work station did not read the selected input instance.");
+            write.Invoke(bindings, new[] { moveForward, (object)true });
+            Check(forward.State, "The work station did not write the selected output instance.");
+            type.GetMethod("Stop", instance).Invoke(bindings, null);
+            write.Invoke(bindings, new[] { moveForward, (object)true });
+            Check(!forward.State, "A stale write re-enabled the conveyor after stop.");
+
+            hardware.Resources.Delete(input.Definition.Id);
+            Throws<InvalidOperationException>(ProjectConfiguration.Save);
+            Check(saved.SequenceEqual(File.ReadAllBytes(path)), "Deleting a required input overwrote the committed binding.");
+            const string corrupt = "<DownConveyorIoBindings version='8' />";
+            File.WriteAllText(path, corrupt);
+            manual.BindResources(hardware.Resources);
+            Throws<InvalidOperationException>(ProjectConfiguration.Save);
+            Check(File.ReadAllText(path) == corrupt, "A malformed binding file was overwritten.");
+        }
+    }
+
+    private sealed class OfflineIo : NPSDK.IOBaseInterface
+    {
+        internal bool State;
+        /// <summary>读取进程内的输入或输出状态。</summary>
+        public override bool GetState() { return State; }
+        /// <summary>更新进程内的输出状态。</summary>
+        public override bool On() { State = true; return true; }
+        /// <summary>清除进程内的输出状态。</summary>
+        public override bool Off() { State = false; return true; }
+    }
+
+    /// <summary>在真实 IO 控件中提供内存驱动，避免验证连接实体板卡。</summary>
+    private static void SetIoDriver(NPSDK.ControlBaseInterface point, string field, OfflineIo driver)
+    {
+        const BindingFlags instance = BindingFlags.NonPublic | BindingFlags.Instance;
+        point.GetType().GetField(field, instance).SetValue(point, driver);
+        point.GetType().GetField("ready", instance).SetValue(point, true);
     }
 
     /// <summary>按实际节点身份核对两个阶段的入口，覆盖环形和并行流程。</summary>

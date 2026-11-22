@@ -124,10 +124,15 @@ namespace AlphaRap
             if (!IsCurrentCommand(version) || !FlowProgramming.FlowPrograms.CanStartMachine(true)) return false;
             if (paused && !await RunStartupWork(version, Alarm.Clear)) return false;
             if (Alarm.IsError) { ShowResetAlarmWarning(); return false; }
+            TaskProcess.DownConveyorIoBindings bindings = (Application as StationApplication) == null
+                ? null : StationApplication.Manual?.DownConveyorBindings;
+            TaskProcess.DownConveyorIoBindings.RuntimeBinding boundIo = bindings?.PrepareInitialization(SysPara.Simulation);
+            if (boundIo != null && !await RunStartupWork(version, boundIo.InitializeDrivers)) return false;
             if (FlowProgramming.FlowPrograms.HasPrograms) FlowProgramming.FlowPrograms.BeginBatch();
             lock (machineCommandSync)
             {
                 if (version != machineCommandVersion) return false;
+                bindings?.Activate(boundIo);
                 MachineState.Global.Initialize();
             }
             return await DispatchStart(version, true);

@@ -460,7 +460,7 @@ namespace AlphaRap.Configuration
         }
 
         /// <summary>机器空闲且有维护权限时才允许手动资源操作。</summary>
-        private static bool CanOperate() { return FlowPrograms.CanEdit && SysPara.SystemMode == RunMode.IDLE && !FlowPrograms.AnyRunning; }
+        private static bool CanOperate() { return FlowPrograms.CanEdit && !FlowPrograms.ConfigurationBusy; }
 
         /// <summary>读取具体类型已有的驱动就绪状态。</summary>
         private static bool Ready(ControlBaseInterface device)
@@ -468,6 +468,14 @@ namespace AlphaRap.Configuration
             if (device is NP_Motor) return ((NP_Motor)device).IsReady;
             if (device is NP_Input) return ((NP_Input)device).IsReady;
             return ((NP_Output)device).IsReady;
+        }
+
+        /// <summary>检查将投入运行的资源地址，包括与旧固定控件的冲突。</summary>
+        public void ValidatePhysicalConnection(HardwareEntry entry)
+        {
+            if (entry == null || !ReferenceEquals(Find(entry.Definition.Id), entry))
+                throw new InvalidOperationException(HardwareText.T("missing"));
+            ValidatePhysicalAddress(entry.Definition, entry.Device);
         }
 
         /// <summary>阻止两个独立资源对象绑定同一物理通道，避免按对象加锁绕过通道互斥。</summary>
