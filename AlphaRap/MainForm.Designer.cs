@@ -290,10 +290,10 @@ namespace AlphaRap
             this.lblBrandName.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
             this.lblBrandName.ForeColor = System.Drawing.Color.White;
             this.lblBrandName.Location = new System.Drawing.Point(58, 9);
-            this.lblBrandName.Name = "lblBrandName";
+            this.lblBrandName.Name = "lblBrandName_dyn";
             this.lblBrandName.Size = new System.Drawing.Size(150, 24);
             this.lblBrandName.TabIndex = 221;
-            this.lblBrandName.Text = "AlphaRap";
+            this.lblBrandName.Text = "AlphaRap 1.0";
             //
             // lblBrandCaption
             //

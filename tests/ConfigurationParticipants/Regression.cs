@@ -895,7 +895,7 @@ internal static class ConfigurationProbe
             var password = (FieldBox)login.Controls.Find("textPassword", true).Single();
             var button = (FlatButton)login.Controls.Find("btnLogin", true).Single();
             var grid = (DataGridView)login.Controls.Find("dgvUserList", true).Single();
-            Check(login.Controls.Find("lblVersion_dyn", true).Single().Text == "AlphaRap  v" + ApplicationHost.ApplicationVersion,
+            Check(login.Controls.Find("lblVersion_dyn", true).Single().Text == "AlphaRap " + ApplicationHost.ApplicationVersion,
                 "The login window did not display the host application version.");
             string caption = button.Text;
             var timeout = Stopwatch.StartNew();

@@ -229,7 +229,7 @@
             this.lblVersion.Name = "lblVersion_dyn";
             this.lblVersion.Size = new System.Drawing.Size(0, 17);
             this.lblVersion.TabIndex = 10;
-            this.lblVersion.Text = "AlphaRap  v1.0";
+            this.lblVersion.Text = "AlphaRap 1.0";
             // 
             // pnlRight
             // 

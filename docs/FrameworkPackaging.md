@@ -6,7 +6,7 @@
 
 应用入口调用 `ApplicationHost.Initialize(profile)`，由 `MachineApplication.Initialize` 组装页面和启动模块。应用将窗口赋给 `ApplicationHost.MainWindow`，通过 `ApplicationHost.RegisterModule(page)` 登记真实页面，并在窗口关闭时异步等待 `ApplicationHost.ShutdownAsync()` 完成应用清理。窗口可实现 `IModuleWindow` 接入统一保存、权限更新和视觉预览。Device 派生类和 NP 控件派生类仍按已有规则发现，站点的 `FlowChartRun` 事件由运行器调用，流程页按工站显示执行状态。项目代码可以访问设计器创建的字段，也可以通过 `ApplicationHost.GetResource<T>(id)` 取得流程目录里的同一个动态实例。
 
-### 过渡版中新增页面、工站或 IO
+### AlphaRap 1.0 中新增页面、工站或 IO
 
 - 增加固定页面或工站，从应用项目的 `StationApplication.cs` 入手。固定控件放在各自窗体的设计器里。启动时先建立手动页和硬件目录，手动页通过 `BindResources` 显示已有 IO，再由 `CreateStations()` 把工站需要的对象传入构造函数。下料工站的绑定集中在 `ConnectDownConveyor`。
 - 增加现场可配置的轴或 IO，使用硬件页和主窗口保存。配置中的 `HardwareDefinition.Id` 是稳定身份。应用在组装工站时可用 `ApplicationHost.GetResource<NP_Input>("hardware/" + inputId + "/input")` 取得已有输入，输出和轴的末段分别为 `output`、`axis`。改显示名或移动 IO 分组保留对象。删除资源或更换驱动后，后续使用应按 ID 重新绑定。
@@ -48,19 +48,19 @@ Device 同名时传入第二个参数，例如 `ApplicationHost.GetDevice<Scanne
 - 在【数据 → 日志模块】点【查找配置】，或右键模块选【查看配置来源】。窗口显示模块 ID、保存目录、首页绑定状态和字段顺序。窗体内的修改属于草稿，经主界面保存后生效。
 - 离线修改时先退出程序并备份界面显示的 XML，保留已有资源 ID。启动时会重新读取文件。遇到硬件通道重复或多个日志绑定首页，错误会给出源文件和冲突记录。资源改名后，按 ID 保存的关联仍用原 ID，代码里按旧名称调用的位置需要同步更新。
 
-## 过渡版工站开发
+## AlphaRap 1.0 工站开发
 
-在 `AlphaRap/TaskProcess` 中维护工站 C# 步骤、设计器连线和 `ICompiledFlowEntries` 入口。流程页显示代码工站及执行状态。过渡版将 `FlowPrograms.xml` 保留作历史归档，启动时根据 C# 工站建立运行计划。旧拖拽节点、页签和连线不会加载。
+在 `AlphaRap/TaskProcess` 中维护工站 C# 步骤、设计器连线和 `ICompiledFlowEntries` 入口。流程页显示代码工站及执行状态。AlphaRap 1.0 将 `FlowPrograms.xml` 保留作历史归档，启动时根据 C# 工站建立运行计划。旧拖拽节点、页签和连线不会加载。
 
 Gantry 自动流程保留扫码、视觉和 PLC 心跳三个入口。上下料工站沿用已部署的启动入口。移植到其他设备时，按现场验证结果在 C# 中登记初始化和自动运行首节点，尤其要显式登记循环链和并行链。主保存校验流程的资源引用并保存设备与配方配置。视觉 VPP 通过 TB 编辑器维护。
 
 ### 迁入本机运行数据
 
-首次在另一台开发机检出过渡分支时，从该设备原运行目录导入基础数据，例如 `.\build\Import-TransitionRuntimeData.ps1 -SourceDirectory E:\Machine\AlphaRap`。该目录应含 `MachineSetup.ini`、`SystemData.mdb` 及标准的 `ModuleData` 子目录。本机快照位于 `AlphaRap/RuntimeData.local`，独立于 Git。构建时仅向当前 EXE 目录补充缺失文件。导入保留原设备的仿真设置和点位映射，INI 中自定义的外部路径需沿用对应的现场目录。
+首次在另一台开发机检出 AlphaRap 1.0 时，从该设备原运行目录导入基础数据，例如 `.\build\Import-TransitionRuntimeData.ps1 -SourceDirectory E:\Machine\AlphaRap`。该目录应含 `MachineSetup.ini`、`SystemData.mdb` 及标准的 `ModuleData` 子目录。本机快照位于 `AlphaRap/RuntimeData.local`，独立于 Git。构建时仅向当前 EXE 目录补充缺失文件。导入保留原设备的仿真设置和点位映射，INI 中自定义的外部路径需沿用对应的现场目录。
 
 ## 构建和发布
 
-仓库开发时从 `AlphaRap.Transition.sln` 以 Debug/x64 构建 NPSDK、框架和应用。打包需要 .NET Framework 4.7.1 和 4.8 开发工具、Cognex VisionPro SDK、原有 NuGet 依赖以及 .NET SDK。
+在 `AlphaRap1.0` 项目目录中打开 `AlphaRap1.0.sln`，以 Debug/x64 构建 NPSDK、框架和应用。打包需要 .NET Framework 4.7.1 和 4.8 开发工具、Cognex VisionPro SDK、原有 NuGet 依赖以及 .NET SDK。
 
 ```powershell
 ./build/Pack-Framework.ps1
@@ -76,7 +76,7 @@ MSBuild.exe AlphaRap/AlphaRap.csproj /restore /t:Build /p:Configuration=Release 
 
 ## 版本规则
 
-- AlphaRap 应用从 `1.0` 开始编号，大版本依次使用 `2.0`、`3.0`。启动页、主界面和登录窗口均读取应用程序集的 `AssemblyInformationalVersion`。应用的 Windows 文件版本使用四段格式，例如 `1.0.0.0`。
+- AlphaRap 应用从 `1.0` 开始编号，大版本依次使用 `2.0`、`3.0`。启动页、主界面和登录窗口均读取应用程序集的 `AssemblyInformationalVersion`。应用的 Windows 文件版本和程序集版本使用四段格式，例如 `1.0.0.0`。
 - 框架发布版本由 `AlphaRap.Framework/FrameworkVersion.props` 管理，与 NuGet 版本和框架 DLL 产品版本一致。ClickOnce 发布版本记录在 `AlphaRap/AlphaRap.csproj`。
 - 补丁修复升 PATCH，兼容新增接口升 MINOR，破坏扩展契约时升 MAJOR 并更新程序集兼容版本。修复已经发布的内容时发布新版本，打包脚本会拒绝覆盖同名包。
 - 主窗口底栏显示应用 EXE 版本，版本提示包含实际载入的框架版本。升级发布时按一套验证应用 EXE、框架包和现场运行依赖。

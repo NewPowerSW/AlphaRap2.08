@@ -75,7 +75,7 @@ int nheightEllipse
             // 主框架样式（设计期也执行，使设计视图与运行时一致）；按钮文字取自语言包
             if (!InDesigner)
                 UiTheme.TextProvider = (form, key, zh, en, es) => FrameworkLanguage.LangMsg(form, key, zh, en, es);
-            if (!InDesigner) lblBrandName.Text = MiddleLayer.Application.DisplayName;
+            if (!InDesigner) lblBrandName.Text = "AlphaRap " + ApplicationHost.ApplicationVersion;
             ApplyFrameStyle();
             uiTabControl1.SelectedIndexChanged += (sender, args) => RefreshDashboardTabs();
 

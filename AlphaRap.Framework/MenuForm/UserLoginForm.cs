@@ -127,7 +127,7 @@ namespace AlphaRap
             try
             {
                 lblBrandSub.Text = FrameworkLanguage.LangMsg("UserLoginForm", "lblBrandSub", "视觉检测系统", "Vision Inspection System", "Sistema de inspección visual");
-                lblVersion.Text = "AlphaRap  v" + ApplicationHost.ApplicationVersion;
+                lblVersion.Text = "AlphaRap " + ApplicationHost.ApplicationVersion;
                 FrameworkLanguage.RefreshUserHeaders(dgvUserList);
                 RefreshLoginButton();
             }
