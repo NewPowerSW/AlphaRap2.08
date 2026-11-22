@@ -23,6 +23,8 @@ namespace AlphaRap.Configuration
             moduleName.Leave += RefreshModuleCaption;
             add.Click += AddModule; moduleList.SelectedIndexChanged += SelectModule;
             moduleDelete.Click += DeleteModule; browse.Click += BrowseDirectory; ok.Click += Submit;
+            moduleSource.Click += ShowConfigurationSource;
+            findConfiguration.Click += ShowConfigurationSource;
             moduleList.MouseDown += SelectContextModule;
             moduleMenu.Opening += (sender, args) => args.Cancel = moduleList.SelectedItem == null;
             fields.MouseDown += SelectContextField;
@@ -92,6 +94,44 @@ namespace AlphaRap.Configuration
             foreach (LogModuleDefinition module in definitions) moduleList.Items.Add(module);
             moduleList.SelectedItem = definitions.FirstOrDefault(module => module.Id == id) ?? definitions.FirstOrDefault();
             refreshing = false; selected = null; SelectModule(this, EventArgs.Empty);
+        }
+
+        /// <summary>按名称或 ID 查找日志定义，显示编辑草稿与主保存状态。</summary>
+        private void ShowConfigurationSource(object sender, EventArgs args)
+        {
+            if (owner == null) return;
+            CaptureSelection();
+            var saved = owner.GetLogModules(false).ToDictionary(module => module.Id);
+            var sources = definitions.Select(module =>
+            {
+                LogModuleDefinition published;
+                saved.TryGetValue(module.Id, out published);
+                return new ConfigurationSourceEntry(module.Id, module.Name, () => DescribeConfiguration(module, published));
+            });
+            using (var dialog = new ConfigurationSourceForm(LogModuleStore.FilePath, sources, selected?.Id))
+                dialog.ShowDialog(this);
+        }
+
+        /// <summary>列出客户字段和当前来源状态，不写入日志或修改绑定。</summary>
+        private static string DescribeConfiguration(LogModuleDefinition module, LogModuleDefinition published)
+        {
+            string scope = ConfigurationSourceForm.T("machineScope", "作用域　Setting（机器）", "Scope  Setting (machine)", "Ámbito  Setting (máquina)");
+            bool changed = published == null || published.Name != module.Name || published.Directory != module.Directory ||
+                published.ShowOnHome != module.ShowOnHome || published.Fields.Count != module.Fields.Count ||
+                module.Fields.Where((field, index) => field.Name != published.Fields[index].Name || field.Type != published.Fields[index].Type).Any();
+            string binding = module.ShowOnHome
+                ? ConfigurationSourceForm.T("homeYes", "首页生产记录　是", "Home production records  Yes", "Registros de producción de Inicio  Sí")
+                : ConfigurationSourceForm.T("homeNo", "首页生产记录　否", "Home production records  No", "Registros de producción de Inicio  No");
+            var lines = new[]
+            {
+                module.Name, "ID  " + module.Id, scope,
+                changed ? ConfigurationSourceForm.T("draft", "有未保存修改。以下为当前配置。", "Unsaved changes. Current configuration shown.", "Hay cambios sin guardar. Se muestra la configuración actual.") : "",
+                FlowText.T("logDirectory") + "  " + module.Directory,
+                binding, "",
+                ConfigurationSourceForm.T("logColumns", "记录列（按保存顺序）", "Record columns in save order", "Columnas en orden de guardado"),
+                ConfigurationSourceForm.T("logTime", "Time  自动生成", "Time  Automatic", "Time  Automático")
+            };
+            return string.Join(Environment.NewLine, lines.Concat(module.Fields.Select(field => field.Name + "  ·  " + field.Type)));
         }
 
         /// <summary>右键定位模块，空白区域不删除之前的选择。</summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using AlphaRap.FlowProgramming;
@@ -44,6 +45,8 @@ namespace AlphaRap.Configuration
             resourceMenu.Opening += OpenResourceMenu;
             resourceDelete.Click += (sender,args) => Execute(DeleteEntry);
             resourceProperties.Click += (sender,args) => Execute(EditContextEntry);
+            resourceSource.Click += (sender, args) => Execute(() => ShowConfigurationSource(contextResourceId));
+            findConfiguration.Click += (sender, args) => Execute(() => ShowConfigurationSource(null));
             addIoPage.Click += (sender,args) => Execute(() => EditIoPageName(null));
             ioPageAdd.Click += (sender,args) => Execute(() => EditIoPageName(null));
             ioPageRename.Click += (sender,args) => Execute(() => EditIoPageName(contextIoPageId));
@@ -139,6 +142,43 @@ namespace AlphaRap.Configuration
             FlowPrograms.RequireIdle();
             HardwareEntry entry = Resources.Find(contextResourceId);
             if (entry != null) EditEntry(entry);
+        }
+
+        /// <summary>在全部 IO 选项卡或轴页签中按配置名称或稳定身份查找资源。</summary>
+        private void ShowConfigurationSource(string selectedId)
+        {
+            if (Resources == null) throw new InvalidOperationException(HardwareText.T("missing"));
+            var sources = Resources.Entries.Where(BelongsHere).Select(entry =>
+            {
+                HardwareDefinition definition = entry.Definition;
+                return new ConfigurationSourceEntry(definition.Id, definition.Name, () => DescribeConfiguration(definition));
+            });
+            using (var dialog = new ConfigurationSourceForm(Resources.PathName, sources, selectedId, Resources.LoadFailure))
+                dialog.ShowDialog(this);
+        }
+
+        /// <summary>显示配置值和归属；只访问内存定义，不读取硬件信号。</summary>
+        private string DescribeConfiguration(HardwareDefinition definition)
+        {
+            string scope = ConfigurationSourceForm.T("machineScope", "作用域　Setting（机器）", "Scope  Setting (machine)", "Ámbito  Setting (máquina)");
+            string kind = definition.Kind == "Axis" ? HardwareText.Translate("configurationAxis", "轴", "Axis", "Eje")
+                : FlowText.T(definition.Kind == "Input" ? "di" : "do");
+            string tab = definition.Kind == "Axis" ? "" : Resources.IoPages.FirstOrDefault(page => page.Id == definition.IoPageId)?.Name;
+            string heading = definition.Name + "  ·  " + kind;
+            if (!string.IsNullOrEmpty(tab)) heading += "  ·  " + tab;
+            var lines = new[]
+            {
+                heading, "ID  " + definition.Id, scope,
+                Resources.IsDirty ? ConfigurationSourceForm.T("draft", "有未保存修改。以下为当前配置。", "Unsaved changes. Current configuration shown.", "Hay cambios sin guardar. Se muestra la configuración actual.") : "",
+                Resources.RequiresRestart ? HardwareText.T("restart") : "", ""
+            };
+            var values = definition.Fields().Where(field => field != "Name" && field != "ControlType").Select(field =>
+            {
+                string label = field == "Port" ? (definition.Kind == "Axis" ? "AxisPort" : "IoPort") : field;
+                object value = typeof(HardwareDefinition).GetField(field).GetValue(definition);
+                return HardwareText.T(label) + "  " + Convert.ToString(value, CultureInfo.InvariantCulture);
+            });
+            return string.Join(Environment.NewLine, lines.Concat(values));
         }
 
         /// <summary>资源增删改后更新组合控件事件及选择列表，避免外部调用服务后界面失效。</summary>
@@ -401,6 +441,9 @@ namespace AlphaRap.Configuration
             resourceDelete.Text = HardwareText.Translate(resourceDelete.Name, "删除资源", "Delete resource", "Eliminar recurso");
             resourceProperties.Text = HardwareText.Translate(resourceProperties.Name, "属性编辑", "Edit properties", "Editar propiedades");
             resourceMove.Text = HardwareText.T("moveIoPage");
+            resourceSource.Text = ConfigurationSourceForm.T(resourceSource.Name, "查看配置来源", "View configuration source", "Ver origen de configuración");
+            findConfiguration.Text = ConfigurationSourceForm.T(findConfiguration.Name, "查找配置", "Find configuration", "Buscar configuración");
+            if (Resources?.LoadFailure != null) status.Text = HardwareText.T("checkSource");
             ioPageAdd.Text = HardwareText.T("addIoPage");
             ioPageRename.Text = HardwareText.T("renameIoPage");
             ioPageDelete.Text = HardwareText.T("deleteIoPage");

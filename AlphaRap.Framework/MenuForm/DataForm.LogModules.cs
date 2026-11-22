@@ -225,17 +225,11 @@ namespace AlphaRap
             foreach (LogModuleDefinition module in definitions)
             {
                 if (module == null || string.IsNullOrWhiteSpace(module.Directory)) throw new InvalidOperationException(FlowText.T("logInvalid"));
-                string path = LogDirectory(module.Directory);
+                string path = LogModuleStore.ResolveDirectory(module.Directory);
                 if (registeredLogs.Any(entry => string.Equals(entry.Source.Text, module.Name, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(LogDirectory(entry.Source.SavePath), path, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(LogDirectory(entry.Directory), path, StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException(FlowText.T("logInvalid"));
+                    || string.Equals(LogModuleStore.ResolveDirectory(entry.Source.SavePath), path, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(LogModuleStore.ResolveDirectory(entry.Directory), path, StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException(FlowText.T("logInvalid"));
             }
-        }
-
-        /// <summary>统一相对目录基准并比较日志目录身份。</summary>
-        private static string LogDirectory(string path)
-        {
-            return System.IO.Path.GetFullPath(System.IO.Path.IsPathRooted(path) ? path : System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)).TrimEnd(System.IO.Path.DirectorySeparatorChar);
         }
 
         /// <summary>保持内置日志实例，替换动态查询对象并释放旧组件。</summary>

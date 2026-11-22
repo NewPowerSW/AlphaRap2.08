@@ -636,6 +636,12 @@
     <Compile Include="Core\DeviceOperations.cs" />
     <Compile Include="Core\FrameworkModules.cs" />
     <Compile Include="Core\WinFormsModuleDispatcher.cs" />
+    <Compile Include="Configuration\ConfigurationSourceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\ConfigurationSourceForm.Designer.cs">
+      <DependentUpon>ConfigurationSourceForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Configuration\ModuleConfiguration.cs" />
     <Compile Include="Configuration\SystemParametersModule.cs" />
     <Compile Include="Core\ModuleBaseForm.cs">

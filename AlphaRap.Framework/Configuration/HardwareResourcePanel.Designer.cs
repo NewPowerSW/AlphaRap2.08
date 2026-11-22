@@ -6,9 +6,9 @@ namespace AlphaRap.Configuration
     partial class HardwareResourcePanel
     {
         private FlowLayoutPanel toolbar,canvas;
-        private Button addAxis,addInput,addOutput,edit,addIoPage;
+        private Button addAxis,addInput,addOutput,edit,addIoPage,findConfiguration;
         private ContextMenuStrip resourceMenu;
-        private ToolStripMenuItem resourceDelete, resourceProperties;
+        private ToolStripMenuItem resourceDelete, resourceProperties, resourceSource;
         private TabControl axisTabs;
         private TabControl ioTabs;
         private TabPage ioDefaultPage;
@@ -70,16 +70,23 @@ namespace AlphaRap.Configuration
             this.resourceProperties = new ToolStripMenuItem();
             this.resourceProperties.Name = "resourceProperties";
             this.resourceProperties.Text = "属性编辑";
+            this.resourceSource = new ToolStripMenuItem();
+            this.resourceSource.Name = "resourceSource";
+            this.resourceSource.Text = "查看配置来源";
             this.resourceMove = new ToolStripMenuItem();
             this.resourceMove.Name = "resourceMove";
             this.resourceMove.Text = "移动到选项卡";
-            this.resourceMenu.Items.AddRange(new ToolStripItem[] { resourceProperties, resourceMove, new ToolStripSeparator(), resourceDelete });
+            this.resourceMenu.Items.AddRange(new ToolStripItem[] { resourceProperties, resourceSource, resourceMove, new ToolStripSeparator(), resourceDelete });
             this.addIoPage = new Button();
             this.addIoPage.Name = "resourceAddIoPage";
             this.addIoPage.Tag = "addIoPage";
             this.addIoPage.Text = "新增选项卡";
             this.addIoPage.AutoSize = true;
-            this.toolbar.Controls.AddRange(new Control[] { addIoPage,addAxis,addInput,addOutput,edit });
+            this.findConfiguration = new Button();
+            this.findConfiguration.Name = "findHardwareConfiguration";
+            this.findConfiguration.Text = "查找配置";
+            this.findConfiguration.AutoSize = true;
+            this.toolbar.Controls.AddRange(new Control[] { addIoPage,addAxis,addInput,addOutput,edit,findConfiguration });
             this.ioPageMenu = new ContextMenuStrip();
             this.ioPageMenu.Name = "ioPageMenu";
             this.ioPageAdd = new ToolStripMenuItem();

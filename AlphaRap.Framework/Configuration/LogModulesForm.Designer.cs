@@ -3,7 +3,7 @@ namespace AlphaRap.Configuration
     partial class LogModulesForm
     {
         private System.ComponentModel.IContainer components;
-        private System.Windows.Forms.Button add, browse, ok, cancel;
+        private System.Windows.Forms.Button add, browse, ok, cancel, findConfiguration;
         private System.Windows.Forms.ListBox moduleList;
         private System.Windows.Forms.CheckBox showOnHome;
         private System.Windows.Forms.TextBox moduleName, directory;
@@ -12,7 +12,7 @@ namespace AlphaRap.Configuration
         private System.Windows.Forms.DataGridViewTextBoxColumn fieldName;
         private System.Windows.Forms.DataGridViewComboBoxColumn fieldType;
         private System.Windows.Forms.ContextMenuStrip moduleMenu, fieldMenu;
-        private System.Windows.Forms.ToolStripMenuItem moduleDelete, fieldDelete;
+        private System.Windows.Forms.ToolStripMenuItem moduleDelete, fieldDelete, moduleSource;
 
         /// <summary>释放模块和字段右键菜单。</summary>
         protected override void Dispose(bool disposing)
@@ -33,6 +33,8 @@ namespace AlphaRap.Configuration
             this.showOnHome = new System.Windows.Forms.CheckBox();
             this.moduleMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.moduleDelete = new System.Windows.Forms.ToolStripMenuItem();
+            this.moduleSource = new System.Windows.Forms.ToolStripMenuItem();
+            this.findConfiguration = new System.Windows.Forms.Button();
             this.moduleName = new System.Windows.Forms.TextBox();
             this.directory = new System.Windows.Forms.TextBox();
             this.nameLabel = new System.Windows.Forms.Label();
@@ -95,13 +97,23 @@ namespace AlphaRap.Configuration
             this.moduleList.ItemHeight = 17;
             this.moduleList.Location = new System.Drawing.Point(12, 54);
             this.moduleList.Name = "moduleList";
-            this.moduleList.Size = new System.Drawing.Size(210, 378);
+            this.moduleList.Size = new System.Drawing.Size(210, 345);
             this.moduleList.TabIndex = 1;
             // 
             // moduleMenu
             // 
             this.moduleMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.moduleDelete});
+            this.moduleSource, this.moduleDelete});
+            this.moduleSource.Name = "logModuleSource";
+            this.moduleSource.Tag = "viewLogConfiguration";
+            this.moduleSource.Text = "查看配置来源";
+            this.findConfiguration.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            this.findConfiguration.Location = new System.Drawing.Point(12, 406);
+            this.findConfiguration.Name = "findLogConfiguration";
+            this.findConfiguration.Size = new System.Drawing.Size(210, 30);
+            this.findConfiguration.TabIndex = 12;
+            this.findConfiguration.Tag = "findLogConfiguration";
+            this.findConfiguration.Text = "查找配置";
             this.moduleMenu.Name = "moduleMenu";
             this.moduleMenu.Size = new System.Drawing.Size(101, 26);
             // 
@@ -225,6 +237,7 @@ namespace AlphaRap.Configuration
             this.ClientSize = new System.Drawing.Size(888, 554);
             this.Controls.Add(this.add);
             this.Controls.Add(this.moduleList);
+            this.Controls.Add(this.findConfiguration);
             this.Controls.Add(this.nameLabel);
             this.Controls.Add(this.moduleName);
             this.Controls.Add(this.directoryLabel);

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -27,7 +28,11 @@ namespace AlphaRap
                 UiTheme.InitDpi();
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                try { Application.Run(Initialize(station)); }
+                try
+                {
+                    Form window = Initialize(station);
+                    if (window != null) Application.Run(window);
+                }
                 finally
                 {
                     ApplicationHost.Shutdown();
@@ -49,6 +54,11 @@ namespace AlphaRap
                 var marquee = new Thread(loading.RefreshUI);
                 marquee.Start();
                 try { return ApplicationHost.Initialize(station, loading.SetCaption); }
+                catch (InvalidDataException error)
+                {
+                    MessageBox.Show(loading, error.Message, station.DisplayName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return null;
+                }
                 finally
                 {
                     loading.StopRefresh = true;

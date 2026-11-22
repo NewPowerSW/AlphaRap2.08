@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Xml.Serialization;
 using AlphaRap;
 using AlphaRap.Configuration;
 using AlphaRap.FlowProgramming;
@@ -114,11 +115,13 @@ internal static class ConfigurationProbe
             Test("existing constant values can be changed without changing type", ConstantValueEditing);
             Test("named customer logs use the saved schema and isolate simulated records", NamedLogs);
             Test("saved log binding drives home preview and history", HomeLogBinding);
+            Test("configuration lookup displays actual IO and log definitions in three languages", ConfigurationSourceLookup);
+            Test("invalid offline configuration identifies the file and conflicting objects and preserves bytes", ConfigurationSourceErrors);
             Test("passwords remain compatible with existing managed hashes", LoginHashCompatibility);
             Test("login shows progress and waits for background permissions", () => LoginWindow(false));
             Test("closing a login window discards late authentication", () => LoginWindow(true));
             Test("transition uses only compiled station graphs and preserves archived flow files", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/25 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/27 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -668,6 +671,131 @@ internal static class ConfigurationProbe
             }
         }
         finally { SysPara.Simulation = previousSimulation; }
+    }
+
+    /// <summary>通过正常按钮打开配置查找，验证当前页外的 IO 和日志编辑草稿。</summary>
+    private static void ConfigurationSourceLookup()
+    {
+        ModuleManager.ModuleList.RemoveAll(form => form.IsDisposed);
+        using (var hardware = ApplicationHost.RegisterModule(new HardForm()))
+        using (var data = ApplicationHost.RegisterModule(new DataForm()))
+        {
+            var resources = hardware.Resources;
+            var input = resources.NewDefinition("Input");
+            input.Name = "Board present";
+            input.IoPageId = resources.AddIoPage("Station IO").Id;
+            resources.Put(input);
+            var output = resources.NewDefinition("Output");
+            output.Name = "Conveyor run";
+            resources.Put(output);
+            var module = new LogModuleDefinition { Name = "Inspection", Directory = Path.Combine(current, "Inspection"), ShowOnHome = true };
+            module.Fields.Add(new ProductionField { Name = "PalletCode", Type = "Text" });
+            data.SetLogModulesDraft(new List<LogModuleDefinition> { module });
+            ProjectConfiguration.Save();
+
+            using (var manual = new DefaultManualPage())
+            {
+                manual.BindResources(resources);
+                manual.Show();
+                CheckSourceWindow(manual, "findHardwareConfiguration", resources.PathName, "BOARD", input.Id, input.Port);
+            }
+            using (var logs = new LogModulesForm(data))
+            {
+                logs.Show();
+                logs.Controls.Find("moduleName", true).Single().Text = "Inspection draft";
+                string path = Path.Combine(SysPara.SettingDataDirectory, "DataForm.LogModules.xml");
+                CheckSourceWindow(logs, "findLogConfiguration", path, "Inspection draft", module.Id, "PalletCode");
+                Check(data.GetLogModules(false).Single().Name == "Inspection", "Looking up the source saved an edit.");
+            }
+        }
+    }
+
+    /// <summary>检查真实模态窗口中的搜索、详情与三语切换，完成后关闭窗口。</summary>
+    private static void CheckSourceWindow(Form host, string button, string path, string query, string id, string detail)
+    {
+        Exception failure = null;
+        bool checkedDialog = false;
+        LanguageType language = SysPara.LanguageShow;
+        using (var timer = new System.Windows.Forms.Timer { Interval = 25 })
+        {
+            timer.Tick += (sender, args) =>
+            {
+                var dialog = Application.OpenForms.OfType<ConfigurationSourceForm>().SingleOrDefault();
+                if (dialog == null) return;
+                timer.Stop();
+                try
+                {
+                    var search = dialog.Controls.Find("sourceSearch", true).Single();
+                    var list = (ListBox)dialog.Controls.Find("sourceList", true).Single();
+                    var details = dialog.Controls.Find("sourceDetails", true).Single();
+                    Check(dialog.Controls.Find("sourcePath", true).Single().Text == path, "The source path differed from the saved file.");
+                    search.Text = query;
+                    Check(list.Items.Count == 1 && details.Text.Contains(id) && details.Text.Contains(detail), "Name search missed the source details.");
+                    foreach (LanguageType next in new[] { LanguageType.Chinese, LanguageType.English, LanguageType.Español })
+                    {
+                        ApplicationHost.InitializeLanguage(next);
+                        Check(search.Text == query && list.Items.Count == 1 && details.Text.Contains(id), "Changing language discarded the search or selection.");
+                        Check(dialog.Controls.Cast<Control>().All(control => dialog.ClientRectangle.Contains(control.Bounds)), "A control was clipped.");
+                    }
+                    search.Text = id;
+                    Check(list.Items.Count == 1, "Stable ID search missed the entry.");
+                    search.Text = "does not exist";
+                    Check(list.Items.Count == 0 && !details.Text.Contains(id), "No-match search showed stale details.");
+                    checkedDialog = true;
+                }
+                catch (Exception error) { failure = error; }
+                finally { dialog.Close(); }
+            };
+            timer.Start();
+            try { ((Button)host.Controls.Find(button, true).Single()).PerformClick(); }
+            finally { ApplicationHost.InitializeLanguage(language); }
+        }
+        if (failure != null) throw failure;
+        Check(checkedDialog, "The configuration search button did not open the source window.");
+    }
+
+    /// <summary>模拟关闭程序后修改 XML，验证重复通道与首页绑定的加载结果。</summary>
+    private static void ConfigurationSourceErrors()
+    {
+        Directory.CreateDirectory(SysPara.SettingDataDirectory);
+        string hardwarePath = Path.Combine(SysPara.SettingDataDirectory, "HardwareResources.xml");
+        var project = new HardwareProject();
+        project.Resources.Add(new HardwareDefinition { Kind = "Input", Name = "Board present", Port = "00110" });
+        project.Resources.Add(new HardwareDefinition { Kind = "Input", Name = "Stopper up", Port = "00010" });
+        using (FileStream stream = File.Create(hardwarePath)) new XmlSerializer(typeof(HardwareProject)).Serialize(stream, project);
+        CheckConfigurationError(hardwarePath, () => HardwareResources.Load(hardwarePath), "Board present", "Stopper up");
+        project.Resources[1].Port = "00111";
+        using (FileStream stream = File.Create(hardwarePath)) new XmlSerializer(typeof(HardwareProject)).Serialize(stream, project);
+        Check(HardwareResources.Load(hardwarePath).Resources.Count == 2, "Corrected hardware XML did not load.");
+
+        string logPath = Path.Combine(SysPara.SettingDataDirectory, "DataForm.LogModules.xml");
+        var modules = new List<LogModuleDefinition>();
+        foreach (string name in new[] { "Inspection", "Outgoing" })
+        {
+            var definition = new LogModuleDefinition { Name = name, Directory = Path.Combine(current, name), ShowOnHome = true };
+            definition.Fields.Add(new ProductionField { Name = "Barcode", Type = "Text" });
+            modules.Add(definition);
+        }
+        using (FileStream stream = File.Create(logPath)) new XmlSerializer(typeof(List<LogModuleDefinition>)).Serialize(stream, modules);
+        CheckConfigurationError(logPath, () => { using (var data = new DataForm()) { } }, "Inspection", "Outgoing");
+        modules[1].ShowOnHome = false;
+        using (FileStream stream = File.Create(logPath)) new XmlSerializer(typeof(List<LogModuleDefinition>)).Serialize(stream, modules);
+        using (var data = new DataForm())
+            Check(data.GetLogModules(false).Single(module => module.ShowOnHome).Name == "Inspection", "Corrected log XML did not load.");
+    }
+
+    /// <summary>断言读取错误包含实际文件及冲突双方，且保留原始文件。</summary>
+    private static void CheckConfigurationError(string path, Action load, string first, string second)
+    {
+        byte[] original = File.ReadAllBytes(path);
+        try { load(); }
+        catch (InvalidDataException error)
+        {
+            Check(error.Message.Contains(path) && error.Message.Contains(first) && error.Message.Contains(second), "The load error did not identify the file and conflicting entries.");
+            Check(File.ReadAllBytes(path).SequenceEqual(original), "Reading an invalid configuration rewrote the file.");
+            return;
+        }
+        throw new InvalidOperationException("Invalid configuration was loaded: " + path);
     }
 
     /// <summary>直接刷新真实首页，核对异步加载显示的列和行。</summary>

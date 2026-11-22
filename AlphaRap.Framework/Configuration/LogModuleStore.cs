@@ -27,21 +27,37 @@ namespace AlphaRap.Configuration
         private readonly object sync = new object();
         private List<LogModuleDefinition> saved;
         private List<LogModuleDefinition> draft;
-        internal static string FilePath { get { return Path.Combine(string.IsNullOrEmpty(SysPara.SettingDataDirectory) ? @".\ModuleData\SettingData" : SysPara.SettingDataDirectory, "DataForm.LogModules.xml"); } }
+        internal static string FilePath { get { return Path.GetFullPath(Path.Combine(string.IsNullOrEmpty(SysPara.SettingDataDirectory) ? @".\ModuleData\SettingData" : SysPara.SettingDataDirectory, "DataForm.LogModules.xml")); } }
 
         /// <summary>读取独立配置副本，损坏配置报错并保留原文件。</summary>
         internal List<LogModuleDefinition> Read(bool includeDraft)
         {
             lock (sync)
             {
-                if (saved == null)
-                {
-                    List<LogModuleDefinition> loaded = new List<LogModuleDefinition>();
-                    if (File.Exists(FilePath))
-                        using (FileStream stream = File.OpenRead(FilePath)) loaded = (List<LogModuleDefinition>)new XmlSerializer(typeof(List<LogModuleDefinition>)).Deserialize(stream);
-                    Validate(loaded); saved = loaded;
-                }
+                if (saved == null) saved = Load(FilePath);
                 return Copy(includeDraft && draft != null ? draft : saved);
+            }
+        }
+
+        /// <summary>完整读取并校验机器日志定义，错误附带实际读取的文件路径。</summary>
+        private static List<LogModuleDefinition> Load(string path)
+        {
+            try
+            {
+                List<LogModuleDefinition> loaded;
+                using (FileStream stream = File.OpenRead(path))
+                    loaded = (List<LogModuleDefinition>)new XmlSerializer(typeof(List<LogModuleDefinition>)).Deserialize(stream);
+                Validate(loaded);
+                return loaded;
+            }
+            catch (FileNotFoundException) { return new List<LogModuleDefinition>(); }
+            catch (DirectoryNotFoundException) { return new List<LogModuleDefinition>(); }
+            catch (Exception error) when (error is InvalidDataException || error is IOException ||
+                error is UnauthorizedAccessException || error is InvalidOperationException)
+            {
+                string details = error.Message;
+                if (error.InnerException != null) details += Environment.NewLine + error.InnerException.Message;
+                throw new InvalidDataException(string.Format(FlowText.T("logFileReadError"), path, details), error);
             }
         }
 
@@ -65,18 +81,42 @@ namespace AlphaRap.Configuration
             HashSet<string> paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (LogModuleDefinition module in definitions)
             {
-                Guid id;
-                if (module == null || !Guid.TryParseExact(module.Id, "N", out id) || !ids.Add(module.Id) || string.IsNullOrWhiteSpace(module.Name)
-                    || !names.Add(module.Name) || string.IsNullOrWhiteSpace(module.Directory) || module.Fields == null || module.Fields.Count == 0)
-                    throw new InvalidDataException(FlowText.T("logInvalid"));
-                string root = Path.GetFullPath(Path.IsPathRooted(module.Directory) ? module.Directory : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, module.Directory)).TrimEnd(Path.DirectorySeparatorChar);
-                if (!paths.Add(root)) throw new InvalidDataException(FlowText.T("logInvalid"));
-                HashSet<string> fields = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Time" };
-                foreach (ProductionField field in module.Fields)
-                    if (field == null || string.IsNullOrWhiteSpace(field.Name) || field.Name.IndexOfAny(new[] { '\r', '\n' }) >= 0 || !fields.Add(field.Name)
-                        || !new[] { "Text", "Number", "Boolean" }.Contains(field.Type)) throw new InvalidDataException(FlowText.T("logInvalid"));
+                ValidateModule(module, ids, names, paths);
             }
-            if (definitions.Count(module => module.ShowOnHome) > 1) throw new InvalidDataException(FlowText.T("logHomeUnique"));
+            string[] homeModules = definitions.Where(module => module.ShowOnHome).Select(module => module.Name).ToArray();
+            if (homeModules.Length > 1)
+                throw new InvalidDataException(string.Format(FlowText.T("logHomeConflict"), string.Join(", ", homeModules)));
+        }
+
+        /// <summary>校验单个模块及其字段，保留模块名称和稳定身份供故障定位。</summary>
+        private static void ValidateModule(LogModuleDefinition module, HashSet<string> ids, HashSet<string> names, HashSet<string> paths)
+        {
+            if (module == null) throw new InvalidDataException(FlowText.T("logInvalid"));
+            string invalid = string.Format(FlowText.T("logModuleInvalid"), module.Name, module.Id);
+            Guid id;
+            if (!Guid.TryParseExact(module.Id, "N", out id) || !ids.Add(module.Id) || string.IsNullOrWhiteSpace(module.Name) ||
+                !names.Add(module.Name) || string.IsNullOrWhiteSpace(module.Directory) || module.Fields == null || module.Fields.Count == 0)
+                throw new InvalidDataException(invalid);
+            string root;
+            try { root = ResolveDirectory(module.Directory); }
+            catch (Exception error) when (error is ArgumentException || error is NotSupportedException || error is PathTooLongException)
+            {
+                throw new InvalidDataException(invalid, error);
+            }
+            if (!paths.Add(root)) throw new InvalidDataException(invalid);
+            var fields = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Time" };
+            foreach (ProductionField field in module.Fields)
+            {
+                if (field == null || string.IsNullOrWhiteSpace(field.Name) || field.Name.IndexOfAny(new[] { '\r', '\n' }) >= 0 ||
+                    !fields.Add(field.Name) || !new[] { "Text", "Number", "Boolean" }.Contains(field.Type))
+                    throw new InvalidDataException(string.Format(FlowText.T("logFieldInvalid"), module.Name, field?.Name));
+            }
+        }
+
+        /// <summary>相对日志目录以程序目录为基准，用完整路径比较目录身份。</summary>
+        internal static string ResolveDirectory(string path)
+        {
+            return Path.GetFullPath(Path.IsPathRooted(path) ? path : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)).TrimEnd(Path.DirectorySeparatorChar);
         }
 
         /// <summary>复制定义，防止窗口或流程实例修改存储层集合。</summary>

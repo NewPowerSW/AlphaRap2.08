@@ -49,7 +49,8 @@ namespace AlphaRap.Configuration
         public bool RequiresRestart { get; private set; }
         public event EventHandler Changed;
         private Exception loadError;
-        public string PathName { get { return Path.Combine(SysPara.SettingDataDirectory,"HardwareResources.xml"); } }
+        public string PathName { get { return Path.GetFullPath(Path.Combine(SysPara.SettingDataDirectory, "HardwareResources.xml")); } }
+        internal string LoadFailure { get { return loadError?.Message; } }
 
         /// <summary>读取经过结构校验的资源定义，创建界面但不连接硬件。</summary>
         public HardwareResources(HardForm form, FlowLayoutPanel host)
@@ -61,7 +62,11 @@ namespace AlphaRap.Configuration
                 ioPages.AddRange(project.IoPages);
                 foreach (HardwareDefinition definition in project.Resources) Create(definition);
             }
-            catch (Exception error) { loadError = error; }
+            catch (Exception error)
+            {
+                foreach (HardwareEntry entry in Entries) RemoveGroup(entry);
+                loadError = error;
+            }
         }
 
         /// <summary>按配置 ID 取当前的资源；读取不会创建控件或访问设备。</summary>
@@ -103,24 +108,61 @@ namespace AlphaRap.Configuration
         /// <summary>加载全部定义并验证唯一身份，文件损坏时不生成空工程覆盖原配置。</summary>
         public static HardwareProject Load(string path)
         {
+            path = Path.GetFullPath(path);
+            try { return ReadProject(path); }
+            catch (Exception error) when (error is InvalidDataException || error is IOException || error is UnauthorizedAccessException || error is InvalidOperationException)
+            {
+                string details = error.Message;
+                if (error.InnerException != null) details += Environment.NewLine + error.InnerException.Message;
+                throw new InvalidDataException(string.Format(HardwareText.T("fileReadError"), path, details), error);
+            }
+        }
+
+        /// <summary>读取机器硬件定义并在创建任何控件前验证完整配置。</summary>
+        private static HardwareProject ReadProject(string path)
+        {
             HardwareProject project;
-            if (!File.Exists(path)) project = new HardwareProject();
-            else using (FileStream input = File.OpenRead(path)) project = (HardwareProject)new XmlSerializer(typeof(HardwareProject)).Deserialize(input);
+            try
+            {
+                using (FileStream input = File.OpenRead(path)) project = (HardwareProject)new XmlSerializer(typeof(HardwareProject)).Deserialize(input);
+            }
+            catch (FileNotFoundException) { project = new HardwareProject(); }
+            catch (DirectoryNotFoundException) { project = new HardwareProject(); }
+            if (project?.Resources == null || project.IoPages == null || project.Resources.Any(item => item == null))
+                throw new InvalidDataException(HardwareText.T("invalid"));
             if (project.Version != 1) throw new InvalidDataException("Unsupported hardware project version.");
             if (project.IoPages.Count == 0) project.IoPages.Add(new HardwareIoPage { Id="default", Name="IO" });
             foreach (HardwareDefinition definition in project.Resources.Where(item => item.Kind != "Axis" && string.IsNullOrEmpty(item.IoPageId))) definition.IoPageId = project.IoPages[0].Id;
             ValidateIoPages(project);
-            foreach (HardwareDefinition definition in project.Resources) definition.Validate();
-            if (project.Resources.GroupBy(item=>item.Id,StringComparer.OrdinalIgnoreCase).Any(group=>group.Count()!=1) || project.Resources.GroupBy(item=>item.Name,StringComparer.OrdinalIgnoreCase).Any(group=>group.Count()!=1)) throw new InvalidDataException(HardwareText.T("duplicate"));
-            if (project.Resources.GroupBy(PhysicalAddress).Any(group=>group.Count()!=1)) throw new InvalidDataException(HardwareText.T("portDuplicate"));
+            foreach (HardwareDefinition definition in project.Resources)
+            {
+                try { definition.Validate(); }
+                catch (InvalidOperationException error)
+                {
+                    throw new InvalidDataException(string.Format(HardwareText.T("resourceInvalid"), definition.Name, definition.Id, error.Message), error);
+                }
+            }
+            CheckDuplicateResources(project.Resources, item => item.Id, "idConflict");
+            CheckDuplicateResources(project.Resources, item => item.Name, "nameConflict");
+            CheckDuplicateResources(project.Resources, PhysicalAddress, "addressConflict", includePorts: true);
             return project;
+        }
+
+        /// <summary>列出首组冲突的键与所有关联资源，便于在文件中定位。</summary>
+        private static void CheckDuplicateResources(IEnumerable<HardwareDefinition> resources, Func<HardwareDefinition, string> key, string message, bool includePorts = false)
+        {
+            var duplicate = resources.GroupBy(key, StringComparer.OrdinalIgnoreCase).FirstOrDefault(group => group.Count() > 1);
+            if (duplicate == null) return;
+            string names = string.Join(", ", duplicate.Select(item => item.Name + " [" + item.Id + "]" +
+                (includePorts && item.Vendor != NPVendor.Keyence && item.Vendor != NPVendor.Omron ? " (" + item.Port + ")" : "")));
+            throw new InvalidDataException(string.Format(HardwareText.T(message), duplicate.Key, names));
         }
 
         /// <summary>新增或修改资源草稿；已初始化硬件的参数变更留待重启，避免热切换轴号。</summary>
         public HardwareEntry Put(HardwareDefinition definition)
         {
             FlowPrograms.RequireIdle();
-            if (loadError != null) throw new InvalidOperationException(HardwareText.T("loadError"),loadError);
+            if (loadError != null) throw new InvalidOperationException(loadError.Message, loadError);
             definition = definition.Copy();
             if (definition.Kind != "Axis" && string.IsNullOrEmpty(definition.IoPageId)) definition.IoPageId = ioPages.First().Id;
             if (definition.Kind != "Axis" && !ioPages.Any(page => page.Id == definition.IoPageId)) throw new InvalidOperationException(HardwareText.T("ioPageMissing"));
@@ -173,7 +215,7 @@ namespace AlphaRap.Configuration
         public void Save()
         {
             FlowPrograms.RequireIdle();
-            if (loadError != null) throw new InvalidOperationException(HardwareText.T("loadError"),loadError);
+            if (loadError != null) throw new InvalidOperationException(loadError.Message, loadError);
             HardwareProject project = CaptureProject();
             ValidateIoPages(project);
             foreach (HardwareDefinition definition in project.Resources) definition.Validate();
@@ -192,7 +234,7 @@ namespace AlphaRap.Configuration
         public void ValidateForSave()
         {
             FlowPrograms.RequireIdle();
-            if (loadError != null) throw new InvalidOperationException(HardwareText.T("loadError"),loadError);
+            if (loadError != null) throw new InvalidOperationException(loadError.Message, loadError);
             if (Entries.Any(entry=>entry.Group is NP_AxisGroup && ((NP_AxisGroup)entry.Group).IsManualRunning)) throw new InvalidOperationException(FlowText.T("busy"));
             foreach (HardwareEntry entry in Entries) { entry.Definition.Validate(); ValidatePhysicalAddress(entry.Definition,entry.Device); }
             ValidateIoPages(CaptureProject());
@@ -279,7 +321,7 @@ namespace AlphaRap.Configuration
         private void RequireIoPageEdit()
         {
             FlowPrograms.RequireIdle();
-            if (loadError != null) throw new InvalidOperationException(HardwareText.T("loadError"), loadError);
+            if (loadError != null) throw new InvalidOperationException(loadError.Message, loadError);
         }
 
         /// <summary>标记分组草稿并让绑定视图同步显示，不在子页面落盘。</summary>
@@ -305,8 +347,9 @@ namespace AlphaRap.Configuration
                 || project.IoPages.GroupBy(page => page.Id, StringComparer.OrdinalIgnoreCase).Any(group => group.Count() != 1)
                 || project.IoPages.GroupBy(page => page.Name, StringComparer.OrdinalIgnoreCase).Any(group => group.Count() != 1))
                 throw new InvalidDataException(HardwareText.T("ioPageNameInvalid"));
-            if (project.Resources.Any(item => item.Kind != "Axis" && !project.IoPages.Any(page => page.Id == item.IoPageId)))
-                throw new InvalidDataException(HardwareText.T("ioPageMissing"));
+            var missing = project.Resources.FirstOrDefault(item => item.Kind != "Axis" && !project.IoPages.Any(page => page.Id == item.IoPageId));
+            if (missing != null)
+                throw new InvalidDataException(string.Format(HardwareText.T("ioPageReference"), missing.Name, missing.IoPageId));
         }
 
         /// <summary>检测新组合轴在当前配方中的未保存点位修改。</summary>
@@ -442,7 +485,7 @@ namespace AlphaRap.Configuration
                     System.Reflection.PropertyInfo property = device.GetType().GetProperty(field);
                     if (property != null) typeof(HardwareDefinition).GetField(field).SetValue(existing,property.GetValue(device,null));
                 }
-                if (PhysicalAddress(existing) == address) throw new InvalidOperationException(HardwareText.T("portDuplicate")+" "+device.Name);
+                if (string.Equals(PhysicalAddress(existing), address, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException(HardwareText.T("portDuplicate")+" "+device.Name);
             }
         }
 

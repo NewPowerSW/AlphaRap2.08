@@ -393,6 +393,12 @@ namespace AlphaRap.FlowProgramming
         public static bool CanStartMachine(bool initialize)
         {
             if (DebugEnabled && !CanEdit) { MessageBox.Show(FlowText.T("permission"), FlowText.T("title")); return false; }
+            string hardwareError = ApplicationHost.FindModule<HardForm>()?.Resources?.LoadFailure;
+            if (hardwareError != null)
+            {
+                MessageBox.Show(hardwareError, Configuration.HardwareText.T("title"));
+                return false;
+            }
             if (!installed) return true;
             if (AnyRunning && (initialize || SysPara.SystemMode != RunMode.PAUSE))
             {
