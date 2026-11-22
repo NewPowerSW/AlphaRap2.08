@@ -76,7 +76,8 @@ MSBuild.exe AlphaRap/AlphaRap.csproj /restore /t:Build /p:Configuration=Release 
 
 ## 版本规则
 
-- 框架发布版本由 `AlphaRap.Framework/FrameworkVersion.props` 管理，与 NuGet 版本和框架 DLL 产品版本一致。应用包版本固定在 `AlphaRap/AlphaRap.csproj`，由应用团队明确升级。
+- AlphaRap 应用从 `1.0` 开始编号，大版本依次使用 `2.0`、`3.0`。启动页、主界面和登录窗口均读取应用程序集的 `AssemblyInformationalVersion`。应用的 Windows 文件版本使用四段格式，例如 `1.0.0.0`。
+- 框架发布版本由 `AlphaRap.Framework/FrameworkVersion.props` 管理，与 NuGet 版本和框架 DLL 产品版本一致。ClickOnce 发布版本记录在 `AlphaRap/AlphaRap.csproj`。
 - 补丁修复升 PATCH，兼容新增接口升 MINOR，破坏扩展契约时升 MAJOR 并更新程序集兼容版本。修复已经发布的内容时发布新版本，打包脚本会拒绝覆盖同名包。
 - 主窗口底栏显示应用 EXE 版本，版本提示包含实际载入的框架版本。升级发布时按一套验证应用 EXE、框架包和现场运行依赖。
 

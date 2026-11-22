@@ -121,13 +121,13 @@ namespace AlphaRap
             catch { }
         }
 
-        /// <summary>设置不随语言变化的文字（品牌副标题、版本号）；界面文案由语言表管理。</summary>
+        /// <summary>刷新品牌副标题、应用版本和登录提示。</summary>
         private void ApplyLanguage()
         {
             try
             {
                 lblBrandSub.Text = FrameworkLanguage.LangMsg("UserLoginForm", "lblBrandSub", "视觉检测系统", "Vision Inspection System", "Sistema de inspección visual");
-                lblVersion.Text = "AlphaRap  v2.08";
+                lblVersion.Text = "AlphaRap  v" + ApplicationHost.ApplicationVersion;
                 FrameworkLanguage.RefreshUserHeaders(dgvUserList);
                 RefreshLoginButton();
             }

@@ -1337,7 +1337,7 @@ namespace AlphaRap
             this.toolStripStatusLabel4.ForeColor = System.Drawing.Color.White;
             this.toolStripStatusLabel4.Name = "toolStripStatusLabel4_dyn";
             this.toolStripStatusLabel4.Size = new System.Drawing.Size(87, 53);
-            this.toolStripStatusLabel4.Text = "2.0.8";
+            this.toolStripStatusLabel4.Text = "1.0";
             //
             // MainForm
             //

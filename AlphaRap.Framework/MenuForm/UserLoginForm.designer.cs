@@ -226,10 +226,10 @@
             this.lblVersion.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblVersion.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(168)))), ((int)(((byte)(204)))), ((int)(((byte)(234)))));
             this.lblVersion.Location = new System.Drawing.Point(34, 578);
-            this.lblVersion.Name = "lblVersion";
+            this.lblVersion.Name = "lblVersion_dyn";
             this.lblVersion.Size = new System.Drawing.Size(0, 17);
             this.lblVersion.TabIndex = 10;
-            this.lblVersion.Text = "AlphaRap  v2.08";
+            this.lblVersion.Text = "AlphaRap  v1.0";
             // 
             // pnlRight
             // 
