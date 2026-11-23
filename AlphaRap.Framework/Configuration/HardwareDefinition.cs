@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
 using NPSDK;
@@ -13,6 +13,8 @@ namespace AlphaRap.Configuration
         public string Name = "Axis";
         public string ControlType = "";
         public string IoPageId = "";
+        public string StationKey = "";
+        public bool ConnectionPending;
         public NPVendor Vendor = NPVendor.Leadshine;
         public string Port = "0";
         public double WorkSpeed = 10, ManualSpeed = 10, MaxSpeed = 1000, SpeedRatio = 100, Tacc = 0.1, Tdec = 0.1;
@@ -28,7 +30,7 @@ namespace AlphaRap.Configuration
         public KeyenceDataFormat DataFormat = KeyenceDataFormat.U;
         public static readonly string[] CommonFields = { "Name", "ControlType", "Vendor", "Port" };
         public static readonly string[] AxisFields = { "WorkSpeed", "ManualSpeed", "MaxSpeed", "SpeedRatio", "Tacc", "Tdec", "PulseEquivalent", "EncoderPulseEquivalent", "HomeMode", "HomeDir", "HomeHighSpeed", "HomeLowSpeed", "HomeOffset", "LowLimit", "HighLimit" };
-        public static readonly string[] IoFields = { "PlcIp", "PlcPort", "DeviceType", "DataFormat", "Address", "OmronAddress", "OmronPort", "ReverseState" };
+        public static readonly string[] IoFields = { "ConnectionPending", "PlcIp", "PlcPort", "DeviceType", "DataFormat", "Address", "OmronAddress", "OmronPort", "ReverseState" };
 
         /// <summary>复制编辑草稿，不在编辑期间改变已配置实例。</summary>
         public HardwareDefinition Copy() { return (HardwareDefinition)MemberwiseClone(); }
@@ -37,9 +39,9 @@ namespace AlphaRap.Configuration
         public string[] Fields()
         {
             if (Kind == "Axis") return CommonFields.Concat(AxisFields).ToArray();
-            if (Vendor == NPVendor.Keyence) return new[] { "Name", "ControlType", "Vendor", "PlcIp", "PlcPort", "DeviceType", "DataFormat", "Address", "ReverseState" };
-            if (Vendor == NPVendor.Omron) return new[] { "Name", "ControlType", "Vendor", "PlcIp", "OmronAddress", "OmronPort", "ReverseState" };
-            return CommonFields.Concat(new[] { "ReverseState" }).ToArray();
+            if (Vendor == NPVendor.Keyence) return new[] { "Name", "ControlType", "Vendor", "PlcIp", "PlcPort", "DeviceType", "DataFormat", "Address", "ReverseState", "ConnectionPending" };
+            if (Vendor == NPVendor.Omron) return new[] { "Name", "ControlType", "Vendor", "PlcIp", "OmronAddress", "OmronPort", "ReverseState", "ConnectionPending" };
+            return CommonFields.Concat(new[] { "ReverseState", "ConnectionPending" }).ToArray();
         }
 
         /// <summary>轴仅列出已有运动驱动，IO 列出已有 IO 驱动；不连接硬件。</summary>
@@ -55,6 +57,8 @@ namespace AlphaRap.Configuration
             if (!Guid.TryParseExact(Id,"N",out identity) || !new[] { "Axis","Input","Output" }.Contains(Kind) || string.IsNullOrWhiteSpace(Name) || Name.Trim() != Name) throw new InvalidOperationException(HardwareText.T("invalid"));
             HardwareControlTypes.Resolve(Kind,ControlType);
             if (!Enum.IsDefined(typeof(NPVendor),Vendor) || (Kind == "Axis" && !NPControlBase.SupportsMotor(Vendor))) throw new InvalidOperationException(HardwareText.T("vendor"));
+            if (ConnectionPending && Kind != "Axis") return;
+            if (ConnectionPending) throw new InvalidOperationException(HardwareText.T("invalid"));
             if ((Kind == "Axis" || Vendor == NPVendor.Leadshine || Vendor == NPVendor.Adlink) && string.IsNullOrWhiteSpace(Port)) throw new InvalidOperationException(HardwareText.T("invalid"));
             bool digits = (Port ?? "").All(character => character >= '0' && character <= '9');
             if (Kind == "Axis" && Vendor == NPVendor.Leadshine && (!digits || Port.Length != 1)) throw new InvalidOperationException(HardwareText.T("portFormat"));

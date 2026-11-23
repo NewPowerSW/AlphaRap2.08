@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -124,6 +124,8 @@ namespace AlphaRap
             if (!IsCurrentCommand(version) || !FlowProgramming.FlowPrograms.CanStartMachine(true)) return false;
             if (paused && !await RunStartupWork(version, Alarm.Clear)) return false;
             if (Alarm.IsError) { ShowResetAlarmWarning(); return false; }
+            TaskProcess.StationIo io = Application is StationApplication ? StationApplication.Io : null;
+            if (io != null && !await RunStartupWork(version, io.Initialize)) return false;
             if (FlowProgramming.FlowPrograms.HasPrograms) FlowProgramming.FlowPrograms.BeginBatch();
             lock (machineCommandSync)
             {

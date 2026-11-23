@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -13,6 +13,10 @@ namespace NPSDK.Motion
 		private NP_Output[] cyOffOutputs;
 		private readonly Button btnOn;
 		private readonly Button btnOff;
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public System.Func<bool> ManualOperationAllowed { get; set; }
+        public event System.Action<bool> ManualDriven;
 
 		[Browsable(true)]
 		[Category("#NP")]
@@ -70,8 +74,8 @@ namespace NPSDK.Motion
 		{
 			btnOn = new Button { Text = "ON", Dock = DockStyle.Fill };
 			btnOff = new Button { Text = "OFF", Dock = DockStyle.Fill };
-			btnOn.Click += (s, e) => On();
-			btnOff.Click += (s, e) => Off();
+			btnOn.Click += (s, e) => DriveManually(true);
+			btnOff.Click += (s, e) => DriveManually(false);
 			var layout = new TableLayoutPanel
 			{
 				Dock = DockStyle.Fill,
@@ -86,6 +90,13 @@ namespace NPSDK.Motion
 			Size = new Size(180, 36);
 			BorderStyle = BorderStyle.FixedSingle;
 		}
+
+        /// <summary>按宿主权限和 IO 就绪状态执行手动气缸动作。</summary>
+        private void DriveManually(bool on)
+        {
+            if (ManualOperationAllowed != null && !ManualOperationAllowed()) return;
+            if (Drive(on)) ManualDriven?.Invoke(on);
+        }
 
 		public bool On()
 		{

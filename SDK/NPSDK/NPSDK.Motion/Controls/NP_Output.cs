@@ -20,6 +20,7 @@ namespace NPSDK.Motion
         /// <summary>由宿主限制手动点击；不影响流程持有租约后的程序调用。</summary>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Func<bool> ManualOperationAllowed { get; set; }
+        public event Action<NP_Output, bool> ManualStateChanged;
 		private PictureBox lamp;
 
 		[Browsable(true)]
@@ -87,18 +88,20 @@ namespace NPSDK.Motion
 			Text = "Output";
 			TextAlign = ContentAlignment.MiddleLeft;
 			Size = new Size(220, 35);
-			Click += (s, e) =>
-			{
-				if (IsOn())
-				{
-					Off();
-				}
-				else
-				{
-					On();
-				}
-			};
+			Click += ToggleManually;
 		}
+
+        /// <summary>切换已连接输出，只有状态实际改变时通知操作记录。</summary>
+        private void ToggleManually(object sender, EventArgs args)
+        {
+            if (!IsReady) return;
+            bool before = IsOn();
+            if (before) Off(); else On();
+            var changed = ManualStateChanged;
+            if (changed == null) return;
+            bool current = IsOn();
+            if (current != before) changed(this, current);
+        }
 
         /// <summary>拒绝设计期、非左键、流程占用或宿主未授权的手动切换。</summary>
         protected override void OnClick(EventArgs args)

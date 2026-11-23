@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace AlphaRap.Configuration
@@ -8,6 +8,7 @@ namespace AlphaRap.Configuration
         public static readonly Dictionary<string,string[]> Words = new Dictionary<string,string[]>
         {
             { "ioHint",new[]{"右键 IO 卡片编辑属性或删除。输出卡片与开关共用点击操作；配置统一使用主界面【保存】。连接和读写由流程负责。","Right-click an IO card to edit properties or delete. Click an output card or its switch to toggle. Use Main Save for configuration. The workflow controls connection and IO.","Clic derecho en una tarjeta para editar o eliminar. Pulse una salida o su interruptor para conmutar. Use Guardar principal. El flujo controla la conexión y las E/S."} },
+            { "ConnectionPending",new[]{"地址待配置","Address pending","Dirección pendiente"} },
             { "AxisPort",new[]{"轴号","Axis number","Número de eje"} },
             { "IoPort",new[]{"IO 点号","IO port","Puerto de E/S"} },
             { "ControlType",new[]{"控件类型","Control type","Tipo de control"} },

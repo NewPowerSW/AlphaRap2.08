@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -14,6 +14,7 @@ namespace AlphaRap.Configuration
     public sealed class HardwareProject
     {
         public int Version = 1;
+        public string DefaultsTag = "";
         public List<HardwareDefinition> Resources = new List<HardwareDefinition>();
         public List<HardwareIoPage> IoPages = new List<HardwareIoPage>();
     }
@@ -49,6 +50,7 @@ namespace AlphaRap.Configuration
         public bool RequiresRestart { get; private set; }
         public event EventHandler Changed;
         private Exception loadError;
+        private string defaultsTag;
         public string PathName { get { return Path.GetFullPath(Path.Combine(SysPara.SettingDataDirectory, "HardwareResources.xml")); } }
         internal string LoadFailure { get { return loadError?.Message; } }
 
@@ -58,7 +60,8 @@ namespace AlphaRap.Configuration
             owner = form; canvas = host;
             try
             {
-                HardwareProject project = Load(PathName);
+                HardwareProject project = LoadWithDefaults();
+                defaultsTag = project.DefaultsTag;
                 ioPages.AddRange(project.IoPages);
                 foreach (HardwareDefinition definition in project.Resources) Create(definition);
             }
@@ -144,9 +147,54 @@ namespace AlphaRap.Configuration
             }
             CheckDuplicateResources(project.Resources, item => item.Id, "idConflict");
             CheckDuplicateResources(project.Resources, item => item.Name, "nameConflict");
-            CheckDuplicateResources(project.Resources, PhysicalAddress, "addressConflict", includePorts: true);
+            CheckDuplicateResources(project.Resources.Where(item => !string.IsNullOrEmpty(item.StationKey)), item => item.StationKey, "nameConflict");
+            CheckDuplicateResources(project.Resources.Where(item => !item.ConnectionPending), PhysicalAddress, "addressConflict", includePorts: true);
             return project;
         }
+
+        /// <summary>首次加载项目模板时合入缺失资源及分组，保留已有配置和 ID。</summary>
+        private HardwareProject LoadWithDefaults()
+        {
+            HardwareProject project = Load(PathName);
+            HardwareProject defaults = owner.ResourceDefaults;
+            if (defaults == null || project.DefaultsTag == defaults.DefaultsTag) return project;
+            foreach (HardwareIoPage page in defaults.IoPages)
+            {
+                HardwareIoPage existing = project.IoPages.FirstOrDefault(item => item.Id == page.Id ||
+                    string.Equals(item.Name, page.Name, StringComparison.OrdinalIgnoreCase));
+                if (existing == null) project.IoPages.Insert(Math.Min(defaults.IoPages.IndexOf(page), project.IoPages.Count), page.Copy());
+                string pageId = existing?.Id ?? page.Id;
+                foreach (HardwareDefinition definition in defaults.Resources.Where(item => item.IoPageId == page.Id))
+                    MergeDefault(project, definition, pageId);
+            }
+            ValidateIoPages(project);
+            CheckDuplicateResources(project.Resources, item => item.Id, "idConflict");
+            CheckDuplicateResources(project.Resources.Where(item => !string.IsNullOrEmpty(item.StationKey)), item => item.StationKey, "nameConflict");
+            project.DefaultsTag = defaults.DefaultsTag;
+            return project;
+        }
+
+        /// <summary>只将同方向且同名的现有 IO 交给相应工站信号。</summary>
+        private static void MergeDefault(HardwareProject project, HardwareDefinition template, string pageId)
+        {
+            if (project.Resources.Any(entry => entry.StationKey == template.StationKey)) return;
+            HardwareDefinition current = project.Resources.FirstOrDefault(entry =>
+                string.Equals(entry.Name, template.Name, StringComparison.OrdinalIgnoreCase));
+            if (current != null)
+            {
+                if (current.Kind != template.Kind || !string.IsNullOrEmpty(current.StationKey))
+                    throw new InvalidDataException(string.Format(HardwareText.T("resourceInvalid"), current.Name, current.Id, HardwareText.T("duplicate")));
+                current.StationKey = template.StationKey;
+                return;
+            }
+            HardwareDefinition added = template.Copy();
+            added.IoPageId = pageId;
+            added.Validate();
+            project.Resources.Add(added);
+        }
+
+        /// <summary>翻译项目自带的 IO 标题，保留现场自定义名称。</summary>
+        internal string IoCaption(string key, string name) { return owner.IoCaption?.Invoke(key, name) ?? name; }
 
         /// <summary>列出首组冲突的键与所有关联资源，便于在文件中定位。</summary>
         private static void CheckDuplicateResources(IEnumerable<HardwareDefinition> resources, Func<HardwareDefinition, string> key, string message, bool includePorts = false)
@@ -170,6 +218,7 @@ namespace AlphaRap.Configuration
             if (entries.Values.Any(item=>item.Definition.Id!=definition.Id && string.Equals(item.Definition.Name,definition.Name,StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException(HardwareText.T("duplicate"));
             HardwareEntry current;
             entries.TryGetValue(definition.Id, out current);
+            definition.StationKey = current?.Definition.StationKey ?? FindStationKey(definition);
             if (current == null && entries.Keys.Contains(definition.Id, StringComparer.OrdinalIgnoreCase))
                 throw new InvalidOperationException(HardwareText.T("duplicate"));
             ValidatePhysicalAddress(definition, current?.Device);
@@ -196,6 +245,14 @@ namespace AlphaRap.Configuration
             IsDirty = true;
             if (Changed != null) Changed(this,EventArgs.Empty);
             return created;
+        }
+
+        /// <summary>恢复同名的原工站 IO 时继续识别其用途。</summary>
+        private string FindStationKey(HardwareDefinition definition)
+        {
+            string key = owner.ResourceDefaults?.Resources.FirstOrDefault(item => item.Kind == definition.Kind &&
+                string.Equals(item.Name, definition.Name, StringComparison.OrdinalIgnoreCase))?.StationKey;
+            return string.IsNullOrEmpty(key) || entries.Values.Any(item => item.Definition.StationKey == key) ? "" : key;
         }
 
         /// <summary>删除前检查流程动作、参数引用、占用和忙状态，再移除组合控件及扫描登记。</summary>
@@ -256,7 +313,8 @@ namespace AlphaRap.Configuration
         {
             FlowPrograms.RequireIdle();
             if (Entries.Any(entry=>entry.Group is NP_AxisGroup && ((NP_AxisGroup)entry.Group).IsManualRunning)) throw new InvalidOperationException(FlowText.T("busy"));
-            HardwareProject restored = Load(PathName);
+            HardwareProject restored = LoadWithDefaults();
+            defaultsTag = restored.DefaultsTag;
             foreach (HardwareEntry entry in Entries) RemoveGroup(entry);
             ioPages.Clear(); ioPages.AddRange(restored.IoPages);
             foreach (HardwareDefinition definition in restored.Resources) Create(definition);
@@ -334,7 +392,7 @@ namespace AlphaRap.Configuration
         /// <summary>统一捕获资源和 IO 页签，主保存与独立回归使用同一份快照。</summary>
         private HardwareProject CaptureProject()
         {
-            return new HardwareProject { Resources=Entries.Select(entry => entry.Definition.Copy()).ToList(), IoPages=IoPages.ToList() };
+            return new HardwareProject { DefaultsTag=defaultsTag, Resources=Entries.Select(entry => entry.Definition.Copy()).ToList(), IoPages=IoPages.ToList() };
         }
 
         /// <summary>验证页签身份与 IO 归属完整性，损坏引用不能生成错误页面。</summary>
@@ -437,7 +495,13 @@ namespace AlphaRap.Configuration
             }
             group.SignalCaption = definition.Name; group.IO.Name = "IO_" + definition.Id;
             CopyProperties(definition,group.IO,definition.Fields());
-            group.CanOperate = () => CanOperate() && !RequiresRestart;
+            if (definition.ConnectionPending)
+            {
+                if (group.IO is NP_Input input) input.Port = "";
+                if (group.IO is NP_Output output) output.Port = "";
+            }
+            group.CanOperate = () => CanOperate() && !RequiresRestart && !entry.Definition.ConnectionPending
+                && (string.IsNullOrEmpty(entry.Definition.StationKey) || (!IsDirty && !SysPara.Simulation));
             entry.Group = group; entry.Device = group.IO;
         }
 
@@ -460,7 +524,7 @@ namespace AlphaRap.Configuration
         }
 
         /// <summary>机器空闲且有维护权限时才允许手动资源操作。</summary>
-        private static bool CanOperate() { return FlowPrograms.CanEdit && SysPara.SystemMode == RunMode.IDLE && !FlowPrograms.AnyRunning; }
+        private static bool CanOperate() { return FlowPrograms.CanEdit && !FlowPrograms.ConfigurationBusy && !ProjectConfiguration.IsBusy; }
 
         /// <summary>读取具体类型已有的驱动就绪状态。</summary>
         private static bool Ready(ControlBaseInterface device)
@@ -471,14 +535,19 @@ namespace AlphaRap.Configuration
         }
 
         /// <summary>阻止两个独立资源对象绑定同一物理通道，避免按对象加锁绕过通道互斥。</summary>
-        private static void ValidatePhysicalAddress(HardwareDefinition definition,ControlBaseInterface current)
+        private void ValidatePhysicalAddress(HardwareDefinition definition,ControlBaseInterface current)
         {
+            if (definition.ConnectionPending) return;
             string address = PhysicalAddress(definition);
+            HardwareEntry conflict = entries.Values.FirstOrDefault(item => !ReferenceEquals(item.Device, current)
+                && !item.Definition.ConnectionPending && string.Equals(PhysicalAddress(item.Definition), address, StringComparison.OrdinalIgnoreCase));
+            if (conflict != null) throw new InvalidOperationException(HardwareText.T("portDuplicate") + " " + conflict.Definition.Name);
             foreach (ControlBaseInterface device in SDKPara.ControlsSnapshot())
             {
                 if (ReferenceEquals(device,current)) continue;
                 string kind = device is NP_Motor ? "Axis" : device is NP_Input ? "Input" : device is NP_Output ? "Output" : null;
                 if (kind != definition.Kind) continue;
+                if ((device is NP_Input input && string.IsNullOrEmpty(input.Port)) || (device is NP_Output output && string.IsNullOrEmpty(output.Port))) continue;
                 HardwareDefinition existing = new HardwareDefinition { Kind = kind };
                 foreach (string field in HardwareDefinition.CommonFields.Concat(kind == "Axis" ? new string[0] : HardwareDefinition.IoFields).Where(name=>name!="Name" && name!="ControlType"))
                 {

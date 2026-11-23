@@ -760,10 +760,6 @@
     <Compile Include="Devices\ScannerKeyenceTcp.cs" />
     <Compile Include="Devices\ScannerConnection.cs" />
     <Compile Include="Devices\ScannerResult.cs" />
-    <Compile Include="MenuForm\ManualForm.Style.cs">
-      <DependentUpon>ManualForm.cs</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="MenuForm\ManualForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -839,6 +835,10 @@
       <DependentUpon>UpConveryor.cs</DependentUpon>
     </Compile>
     <Compile Include="TaskProcess\DownConveyorProcess.cs" />
+    <Compile Include="TaskProcess\StationIo.cs" />
+    <EmbeddedResource Include="TaskProcess\StationIoDefaults.xml">
+      <LogicalName>AlphaRap.StationIoDefaults.xml</LogicalName>
+    </EmbeddedResource>
     <Compile Include="TaskProcess\DownConveryor.cs">
       <SubType>Form</SubType>
     </Compile>

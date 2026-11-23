@@ -1,4 +1,6 @@
-﻿namespace NPSDK
+﻿using System.Threading;
+
+namespace NPSDK
 {
 	public class SDKKernal
 	{
@@ -24,12 +26,14 @@
 			}
 		}
 
-		/// <summary>逐个刷新有效控件，与动态释放互斥。</summary>
+		/// <summary>逐个刷新可用控件，跳过正在连接或释放的控件。</summary>
 		public static void RefreshControls()
 		{
 			foreach (ControlBaseInterface control in SDKPara.ControlsSnapshot())
 			{
-				lock (control) { if (!control.IsDisposed) control.RefreshControl(); }
+				if (!Monitor.TryEnter(control)) continue;
+				try { if (!control.IsDisposed) control.RefreshControl(); }
+				finally { Monitor.Exit(control); }
 			}
 		}
 

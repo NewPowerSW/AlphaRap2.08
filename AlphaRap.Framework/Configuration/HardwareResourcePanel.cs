@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
@@ -15,6 +16,7 @@ namespace AlphaRap.Configuration
         private TabPage contextAxisTab;
         private string contextIoPageId;
         private bool refreshingTabs;
+        private readonly Dictionary<Control, string> ioActions = new Dictionary<Control, string>();
         private string resourceKind = "Axis";
         [DefaultValue("Axis")]
         public string ResourceKind
@@ -71,12 +73,26 @@ namespace AlphaRap.Configuration
             BindEvents();
         }
 
+        /// <summary>将项目的组合 IO 操作显示在其所属资源页签。</summary>
+        public void AddIoAction(Control control, string stationKey)
+        {
+            ioActions.Add(control, stationKey);
+            canvas.Controls.Add(control);
+            ArrangeIo();
+        }
+
         /// <summary>绑定目录变更并挂接当前页面所属资源的交互。</summary>
         private void BindEvents()
         {
             Resources.Changed += ResourcesChanged;
             foreach (HardwareEntry entry in Resources.Entries.Where(BelongsHere)) Attach(entry);
             RefreshEntries(); ApplyLanguage(null,EventArgs.Empty);
+            if (resourceKind == "IO")
+            {
+                string initialPage = Resources.IoPages.FirstOrDefault()?.Id;
+                TabPage tab = ioTabs.TabPages.Cast<TabPage>().FirstOrDefault(page => Equals(page.Tag, initialPage));
+                if (tab != null) ioTabs.SelectedTab = tab;
+            }
             Disposed += (sender,args) => Resources.Changed -= ResourcesChanged;
         }
 
@@ -310,12 +326,32 @@ namespace AlphaRap.Configuration
                 foreach (HardwareEntry entry in Resources.Entries.Where(entry => entry.Definition.Kind == kind)) entry.Group.Visible = entry.Definition.IoPageId == pageId;
                 foreach (HardwareEntry entry in entries)
                 {
+                    entry.Device.Text = Resources.IoCaption(entry.Definition.StationKey, entry.Definition.Name);
+                    if (entry.Definition.ConnectionPending) entry.Device.Text += " · " + HardwareText.T("ConnectionPending");
                     entry.Group.Size = new System.Drawing.Size(tileWidth,40);
                     canvas.Controls.SetChildIndex(entry.Group,position++);
                     IoTileStyle.PlaceIndicator(entry.Device);
                 }
             }
+            ArrangeIoActions(tileWidth, position);
             canvas.ResumeLayout();
+        }
+
+        /// <summary>使组合操作跟随关联输出的实际配置分组。</summary>
+        private void ArrangeIoActions(int tileWidth, int position)
+        {
+            string pageId = ioTabs.SelectedTab?.Tag as string;
+            foreach (var action in ioActions)
+            {
+                HardwareEntry entry = Resources.Entries.FirstOrDefault(item => item.Definition.StationKey == action.Value);
+                bool visible = entry != null && entry.Definition.IoPageId == pageId;
+                action.Key.Visible = visible;
+                if (visible)
+                {
+                    action.Key.Width = tileWidth;
+                    canvas.Controls.SetChildIndex(action.Key, position++);
+                }
+            }
         }
 
         /// <summary>按稳定分组身份同步 IO 页签，移除旧页之前保留共享画布和实际 IO。</summary>
@@ -340,9 +376,10 @@ namespace AlphaRap.Configuration
                     if (page == null)
                     {
                         page = new TabPage { Name="ioTab_"+definition.Id+"_dyn", Tag=definition.Id, UseVisualStyleBackColor=true };
-                        ioTabs.TabPages.Add(page); selection = page;
+                        ioTabs.TabPages.Add(page);
+                        selection = page;
                     }
-                    page.Text = definition.Name; page.ToolTipText = definition.Name;
+                    page.Text = Resources.IoCaption(definition.Name, definition.Name); page.ToolTipText = definition.Name;
                 }
                 if (selection != null && ioTabs.TabPages.Contains(selection)) ioTabs.SelectedTab = selection;
                 else if (ioTabs.TabCount > 0) ioTabs.SelectedIndex = 0;
@@ -437,7 +474,7 @@ namespace AlphaRap.Configuration
         private void ApplyLanguage(object sender,EventArgs args)
         {
             HardwareText.Apply(this);
-            ArrangeIo();
+            if (Resources != null && resourceKind == "IO") RefreshIoTabs();
             resourceDelete.Text = HardwareText.Translate(resourceDelete.Name, "删除资源", "Delete resource", "Eliminar recurso");
             resourceProperties.Text = HardwareText.Translate(resourceProperties.Name, "属性编辑", "Edit properties", "Editar propiedades");
             resourceMove.Text = HardwareText.T("moveIoPage");

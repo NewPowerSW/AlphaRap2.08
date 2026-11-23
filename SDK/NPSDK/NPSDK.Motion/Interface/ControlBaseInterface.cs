@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace NPSDK
 {
@@ -12,6 +13,7 @@ namespace NPSDK
         [Browsable(false)] public bool InitializeWithSdk { get; set; } = true;
 
 		private ToolTip IOTip = new ToolTip();
+        private readonly WindowsFormsSynchronizationContext uiContext;
 
 		private IContainer components = null;
 
@@ -20,6 +22,7 @@ namespace NPSDK
 		/// <summary>创建并登记硬件控件，不连接物理设备。</summary>
 		public ControlBaseInterface()
 		{
+            uiContext = SynchronizationContext.Current as WindowsFormsSynchronizationContext;
 			InitializeComponent();
 			SDKPara.RegisterControl(this);
 			base.Margin = new Padding(1);
@@ -46,8 +49,14 @@ namespace NPSDK
 			Simulation = IsSimu;
 		}
 
+        /// <summary>设备连接可在后台执行，地址提示交给创建控件的界面线程。</summary>
 		protected void SetToolTip(string sMsg)
 		{
+            if (uiContext != null && !ReferenceEquals(SynchronizationContext.Current, uiContext))
+            {
+                uiContext.Post(_ => { if (!IsDisposed) IOTip.SetToolTip(this, sMsg); }, null);
+                return;
+            }
 			IOTip.SetToolTip(this, sMsg);
 		}
 

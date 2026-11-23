@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
 using System.Diagnostics;
@@ -107,6 +107,7 @@ internal static class ConfigurationProbe
             Test("participant discovery is fixed for the complete operation", ParticipantSnapshot);
             Test("captured file lists and values survive later draft changes", FileSnapshot);
             Test("hardware lookup and display edits reuse the registered device", HardwareIdentity);
+            Test("station IO defaults migrate once and flows resolve the same dynamic points", StationIoMigration);
             Test("device names are unique across panels and legacy keys still resolve", NamedDevices);
             Test("device tabs and panels have distinct control names", NamedDeviceControls);
             Test("VPP names resolve within the selected camera", NamedVision);
@@ -121,7 +122,7 @@ internal static class ConfigurationProbe
             Test("login shows progress and waits for background permissions", () => LoginWindow(false));
             Test("closing a login window discards late authentication", () => LoginWindow(true));
             Test("transition uses only compiled station graphs and preserves archived flow files", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/27 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/28 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -1015,6 +1016,102 @@ internal static class ConfigurationProbe
         NPSDK.FlowProgramFile.Save(FlowPrograms.FilePath, project);
         File.AppendAllText(FlowPrograms.FilePath, Environment.NewLine);
         return File.ReadAllBytes(FlowPrograms.FilePath);
+    }
+
+    /// <summary>离线验证手动页、主保存、配方和工站读取同一份 IO 配置。</summary>
+    private static void StationIoMigration()
+    {
+        ModuleManager.ModuleList.RemoveAll(form => form.IsDisposed);
+        const BindingFlags instance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        var app = (MachineApplication)Activator.CreateInstance(typeof(ManualForm).Assembly.GetType("AlphaRap.StationApplication"), true);
+        var existing = new HardwareDefinition { Kind = "Input", Name = "IB_DownConveyor_BoardIn_Sensor", Port = "00108", IoPageId = "default" };
+        string file = Path.Combine(SysPara.SettingDataDirectory, "HardwareResources.xml");
+        Directory.CreateDirectory(SysPara.SettingDataDirectory);
+        var legacy = new HardwareProject { Resources = { existing }, IoPages = { new HardwareIoPage { Id = "default", Name = "IO" } } };
+        using (var stream = File.Create(file)) new XmlSerializer(typeof(HardwareProject)).Serialize(stream, legacy);
+
+        using (var hardware = ApplicationHost.RegisterModule(app.CreateHardwarePage()))
+        using (var manual = ApplicationHost.RegisterModule(app.CreateManualPage()))
+        {
+            Check(!NPSDK.SDKPara.ControlsSnapshot().Any(control => control.Name == existing.Name), "Manual designer created a fixed copy.");
+            manual.BindResources(hardware.Resources);
+            HardwareEntry[] entries = hardware.Resources.Entries.ToArray();
+            Check(entries.Length == 66 && entries.Select(item => item.Device.Name).Distinct().Count() == 66, "Station IO did not migrate all unique controls.");
+            manual.Show();
+            var tabs = (TabControl)manual.Controls.Find("ioResourceTabs", true).Single();
+            Check(tabs.TabCount == 6, "Machine IO groups did not appear in the dynamic tab control.");
+            ApplicationHost.InitializeLanguage(LanguageType.English);
+            Check(tabs.TabPages.Cast<TabPage>().Any(page => page.Text == "System"), "Project IO tabs did not follow the selected language.");
+            manual.Hide();
+            HardwareEntry input = entries.Single(item => item.Definition.StationKey == existing.Name);
+            Check(input.Definition.Id == existing.Id && input.Definition.Port == "00108" && input.Device.FindForm() == manual,
+                "The migration replaced an existing address, ID or device.");
+            Check(entries.Where(item => item.Definition.Id != existing.Id).All(item => item.Definition.ConnectionPending && !item.Device.InitializeWithSdk),
+                "An unverified address became eligible for startup IO.");
+            Check(HardwareResources.Load(file).Resources.Count == 1, "Loading defaults overwrote machine data without main save.");
+            HardwareEntry[] outputs = entries.Where(item => item.Definition.Kind == "Output").ToArray();
+            var configured = outputs[0].Definition.Copy();
+            configured.ConnectionPending = false;
+            Throws<InvalidOperationException>(() => hardware.Resources.Put(configured));
+            configured.Port = "00109";
+            hardware.Resources.Put(configured);
+            var conflict = outputs[1].Definition.Copy();
+            conflict.Port = configured.Port;
+            conflict.ConnectionPending = false;
+            Throws<InvalidOperationException>(() => hardware.Resources.Put(conflict));
+
+            ProjectConfiguration.Save();
+            HardwareProject saved = HardwareResources.Load(file);
+            Check(saved.Resources.Count == 66 && !string.IsNullOrEmpty(saved.DefaultsTag), "Main save did not persist the migrated project.");
+            var renamed = input.Definition.Copy();
+            renamed.Name = "Board input renamed";
+            hardware.Resources.Put(renamed);
+            ProjectConfiguration.Save();
+            string nextRecipe = Path.Combine(SysPara.RecipeDataDirectory, "Next.xml");
+            File.Copy(SysPara.FilePath, nextRecipe);
+            ProjectConfiguration.ChangeRecipe(nextRecipe, () => SysPara.FilePath = nextRecipe);
+
+            var point = (NPSDK.Motion.NP_Input)hardware.Resources.Entries.Single(item => item.Definition.Id == existing.Id).Device;
+            typeof(NPSDK.Motion.NP_Input).GetField("dInput", instance).SetValue(point, new OfflineBoardSignal { State = true });
+            typeof(NPSDK.Motion.NP_Input).GetField("ready", instance).SetValue(point, true);
+            object runtime = typeof(ManualForm).GetProperty("Io", instance).GetValue(manual, null);
+            MethodInfo read = runtime.GetType().GetMethod("Read", instance);
+            Check(Equals(read.Invoke(runtime, new object[] { existing.Name }), true)
+                && ReferenceEquals(point, ApplicationHost.GetInput(renamed.Name)), "The renamed point was not the live station input.");
+            var output = (NPSDK.Motion.NP_Output)hardware.Resources.Entries.Single(item => item.Definition.Id == configured.Id).Device;
+            var outputDriver = new OfflineBoardSignal();
+            typeof(NPSDK.Motion.NP_Output).GetField("dOutput", instance).SetValue(output, outputDriver);
+            typeof(NPSDK.Motion.NP_Output).GetField("ready", instance).SetValue(output, true);
+            var stationOutput = (NPSDK.Motion.NP_Output)runtime.GetType().GetMethod("Output", instance)
+                .Invoke(runtime, new object[] { configured.StationKey });
+            stationOutput.On();
+            Check(ReferenceEquals(stationOutput, output) && outputDriver.State, "The workflow did not write the same output displayed on the dynamic card.");
+            bool previousSimulation = SysPara.Simulation;
+            try
+            {
+                SysPara.Simulation = true;
+                runtime.GetType().GetMethod("Initialize", instance).Invoke(runtime, null);
+                Check(read.Invoke(runtime, new object[] { existing.Name }) == null, "Simulation read a live IO driver.");
+            }
+            finally { SysPara.Simulation = previousSimulation; }
+
+            ProjectConfiguration.Discard();
+            Check(point.IsDisposed && read.Invoke(runtime, new object[] { existing.Name }) == null, "Discard left a station bound to a retired device.");
+            string removeId = entries.First(item => item.Definition.ConnectionPending).Definition.Id;
+            hardware.Resources.Delete(removeId);
+            ProjectConfiguration.Save();
+            ProjectConfiguration.Discard();
+            Check(!hardware.Resources.Entries.Any(item => item.Definition.Id == removeId), "A deleted IO regenerated after main save.");
+        }
+    }
+
+    private sealed class OfflineBoardSignal : NPSDK.IOBaseInterface
+    {
+        internal bool State;
+        /// <summary>读取内存信号，不连接硬件。</summary>
+        public override bool GetState() { return State; }
+        /// <summary>设置内存输出，不连接硬件。</summary>
+        public override bool On() { State = true; return true; }
     }
 
     /// <summary>按实际节点身份核对两个阶段的入口，覆盖环形和并行流程。</summary>

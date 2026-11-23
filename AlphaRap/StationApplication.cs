@@ -1,4 +1,4 @@
-using AlphaRap.Configuration;
+﻿using AlphaRap.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -24,6 +24,7 @@ namespace AlphaRap
 
         internal static ManualForm Manual { get; private set; }
         internal static StationVisionForm Vision { get; private set; }
+        internal static StationIo Io => Manual?.Io;
         internal static LENS Mes { get; private set; }
 
         /// <summary>组装本机页面并启动设备和后台任务。</summary>
@@ -37,6 +38,9 @@ namespace AlphaRap
         public override void Shutdown() { MiddleLayer.DisposeProject(); }
         /// <summary>保持消息循环可用，等待实际任务清理完成后再释放界面。</summary>
         public override System.Threading.Tasks.Task ShutdownAsync() { return MiddleLayer.DisposeProjectAsync(); }
+
+        /// <summary>准备设备期间保护当前已保存的 IO。</summary>
+        public override bool IsMachineCommandPending => MiddleLayer.MachineCommandPending;
 
         /// <summary>按本站运行状态暂停流程和输出。</summary>
         public override void PauseMachine() { MiddleLayer.PauseRun(); }
@@ -91,41 +95,36 @@ namespace AlphaRap
             return Manual = new ManualForm();
         }
 
-        /// <summary>将现场下料 IO 绑定到工站，复用已登记的点位及手动互锁。</summary>
-        private static DownConveyorProcess ConnectDownConveyor(ManualForm manual)
+        /// <summary>将下料工艺映射到硬件目录中的现场信号。</summary>
+        private static DownConveyorProcess ConnectDownConveyor(StationIo io)
         {
-            var inputs = new Dictionary<DownConveyorInput, NP_Input> {
-                { DownConveyorInput.StopperUp, manual.IB_DownConveyor_StopUp_Sensor },
-                { DownConveyorInput.StopperDown, manual.IB_DownConveyor_StopDown_Sensor },
-                { DownConveyorInput.BoardIn, manual.IB_DownConveyor_BoardIn_Sensor },
-                { DownConveyorInput.Slowdown, manual.IB_DownConveyor_BoardSpeedSwitch_Sensor },
-                { DownConveyorInput.BoardAtStop, manual.IB_DownConveyor_BoardStop_Sensor },
-                { DownConveyorInput.BoardOut, manual.IB_DownConveyor_BoardOut_Sensor },
-                { DownConveyorInput.UpstreamAvailable, manual.IB_DownConveyor_UpMachineAvailable_SMEMA },
-                { DownConveyorInput.DownstreamReady, manual.IB_DownConveyor_DownMachineReady_SMEMA }
+            var inputs = new Dictionary<DownConveyorInput, string> {
+                { DownConveyorInput.StopperUp, "IB_DownConveyor_StopUp_Sensor" },
+                { DownConveyorInput.StopperDown, "IB_DownConveyor_StopDown_Sensor" },
+                { DownConveyorInput.BoardIn, "IB_DownConveyor_BoardIn_Sensor" },
+                { DownConveyorInput.Slowdown, "IB_DownConveyor_BoardSpeedSwitch_Sensor" },
+                { DownConveyorInput.BoardAtStop, "IB_DownConveyor_BoardStop_Sensor" },
+                { DownConveyorInput.BoardOut, "IB_DownConveyor_BoardOut_Sensor" },
+                { DownConveyorInput.UpstreamAvailable, "IB_DownConveyor_UpMachineAvailable_SMEMA" },
+                { DownConveyorInput.DownstreamReady, "IB_DownConveyor_DownMachineReady_SMEMA" }
             };
-            var outputs = new Dictionary<DownConveyorOutput, NP_Output> {
-                { DownConveyorOutput.Forward, manual.OB_DownConveyor_Forward },
-                { DownConveyorOutput.Reverse, manual.OB_DownConveyor_Reverse },
-                { DownConveyorOutput.SlowSpeed, manual.OB_DownConveyor_SpeedSwitch },
-                { DownConveyorOutput.ReadyForBoard, manual.OB_DownConveyor_LocalMachineReady_SMEMA },
-                { DownConveyorOutput.BoardAvailable, manual.OB_DownConveyor_LocalMachineAvailable_SMEMA }
+            var outputs = new Dictionary<DownConveyorOutput, string> {
+                { DownConveyorOutput.Forward, "OB_DownConveyor_Forward" },
+                { DownConveyorOutput.Reverse, "OB_DownConveyor_Reverse" },
+                { DownConveyorOutput.SlowSpeed, "OB_DownConveyor_SpeedSwitch" },
+                { DownConveyorOutput.ReadyForBoard, "OB_DownConveyor_LocalMachineReady_SMEMA" },
+                { DownConveyorOutput.BoardAvailable, "OB_DownConveyor_LocalMachineAvailable_SMEMA" }
             };
-            return new DownConveyorProcess(input =>
-            {
-                NP_Input point = inputs[input];
-                return point.IsReady ? (bool?)point.IsOn() : null;
-            }, (output, active) =>
+            return new DownConveyorProcess(input => io.Read(inputs[input]), (output, active) =>
             {
                 if (output == DownConveyorOutput.Stopper)
                 {
-                    if (active) manual.OB_DownConveyor_Stop_Cylinder.On();
-                    else manual.OB_DownConveyor_Stop_Cylinder.Off();
+                    var stopper = io.Cylinder("OB_DownConveyor_Stop_Cylinder");
+                    if (active) stopper.On(); else stopper.Off();
                     return;
                 }
-                NP_Output point = outputs[output];
-                if (active) point.On();
-                else point.Off();
+                NP_Output point = io.Output(outputs[output]);
+                if (active) point.On(); else point.Off();
             });
         }
 
@@ -139,6 +138,8 @@ namespace AlphaRap
         public override HardForm CreateHardwarePage()
         {
             HardForm form = base.CreateHardwarePage();
+            form.ResourceDefaults = StationIo.LoadDefaults();
+            form.IoCaption = StationIo.Caption;
             DataTable table = form.RecipeData.Tables.Add("tb_X1_Post");
             table.Columns.Add("X1", typeof(double));
             table.Columns.Add("Annotation", typeof(string));
@@ -184,7 +185,7 @@ namespace AlphaRap
         {
             yield return new Gantry();
             yield return new UpConveryor();
-            yield return new DownConveryor(ConnectDownConveyor(Manual));
+            yield return new DownConveryor(ConnectDownConveyor(Io));
         }
 
         /// <summary>由项目选择客户接口页面。</summary>
@@ -202,9 +203,10 @@ namespace AlphaRap
         /// <summary>暂停本站输送线输出并保留首次暂停前的状态。</summary>
         public override void PauseLegacyOutputs()
         {
-            if (Manual == null) return;
+            StationIo io = Io;
+            if (io == null) return;
             lock (outputSync)
-                foreach (NP_Output output in Manual.Conveyor_List) PauseOutput(output);
+                foreach (string key in StationIo.PauseOutputs) PauseOutput(io.ReadyOutput(key));
         }
 
         /// <summary>暂停单个输出，单点异常不会跳过其他输出。</summary>
