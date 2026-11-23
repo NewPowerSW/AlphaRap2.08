@@ -95,39 +95,6 @@ namespace AlphaRap
             return Manual = new ManualForm();
         }
 
-        /// <summary>将下料工艺映射到硬件目录中的现场信号。</summary>
-        private static DownConveyorProcess ConnectDownConveyor(StationIo io)
-        {
-            var inputs = new Dictionary<DownConveyorInput, string> {
-                { DownConveyorInput.StopperUp, "IB_DownConveyor_StopUp_Sensor" },
-                { DownConveyorInput.StopperDown, "IB_DownConveyor_StopDown_Sensor" },
-                { DownConveyorInput.BoardIn, "IB_DownConveyor_BoardIn_Sensor" },
-                { DownConveyorInput.Slowdown, "IB_DownConveyor_BoardSpeedSwitch_Sensor" },
-                { DownConveyorInput.BoardAtStop, "IB_DownConveyor_BoardStop_Sensor" },
-                { DownConveyorInput.BoardOut, "IB_DownConveyor_BoardOut_Sensor" },
-                { DownConveyorInput.UpstreamAvailable, "IB_DownConveyor_UpMachineAvailable_SMEMA" },
-                { DownConveyorInput.DownstreamReady, "IB_DownConveyor_DownMachineReady_SMEMA" }
-            };
-            var outputs = new Dictionary<DownConveyorOutput, string> {
-                { DownConveyorOutput.Forward, "OB_DownConveyor_Forward" },
-                { DownConveyorOutput.Reverse, "OB_DownConveyor_Reverse" },
-                { DownConveyorOutput.SlowSpeed, "OB_DownConveyor_SpeedSwitch" },
-                { DownConveyorOutput.ReadyForBoard, "OB_DownConveyor_LocalMachineReady_SMEMA" },
-                { DownConveyorOutput.BoardAvailable, "OB_DownConveyor_LocalMachineAvailable_SMEMA" }
-            };
-            return new DownConveyorProcess(input => io.Read(inputs[input]), (output, active) =>
-            {
-                if (output == DownConveyorOutput.Stopper)
-                {
-                    var stopper = io.Cylinder("OB_DownConveyor_Stop_Cylinder");
-                    if (active) stopper.On(); else stopper.Off();
-                    return;
-                }
-                NP_Output point = io.Output(outputs[output]);
-                if (active) point.On(); else point.Off();
-            });
-        }
-
         /// <summary>创建并登记本站的固定日志数据页。</summary>
         public override DataForm CreateDataPage() { return new StationDataForm(); }
 
@@ -185,7 +152,7 @@ namespace AlphaRap
         {
             yield return new Gantry();
             yield return new UpConveryor();
-            yield return new DownConveryor(ConnectDownConveyor(Io));
+            yield return new DownConveryor();
         }
 
         /// <summary>由项目选择客户接口页面。</summary>

@@ -834,7 +834,6 @@
     <Compile Include="TaskProcess\UpConveryor.Designer.cs">
       <DependentUpon>UpConveryor.cs</DependentUpon>
     </Compile>
-    <Compile Include="TaskProcess\DownConveyorProcess.cs" />
     <Compile Include="TaskProcess\StationIo.cs" />
     <EmbeddedResource Include="TaskProcess\StationIoDefaults.xml">
       <LogicalName>AlphaRap.StationIoDefaults.xml</LogicalName>

@@ -1,12 +1,15 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
+using System.Xml.Serialization;
 using AlphaRap;
+using AlphaRap.Configuration;
 using AlphaRap.TaskProcess;
+using AlphaRapLibrary;
 using NPSDK;
+using NPSDK.Motion;
 using Result = NPSDK.Flow_Chart.ResultType;
 
 internal static class Regression
@@ -14,160 +17,210 @@ internal static class Regression
     private static readonly BindingFlags Instance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
     private static int checks;
 
-    private sealed class Simulator
+    /// <summary>模拟 SDK 驱动，在内存中保存点位状态。</summary>
+    private sealed class OfflineIo : IOBaseInterface
     {
-        internal readonly Dictionary<string, bool?> Inputs = new Dictionary<string, bool?>();
-        internal readonly Dictionary<string, bool> Outputs = new Dictionary<string, bool>();
-        internal readonly List<string> Reads = new List<string>();
-        internal readonly List<object> Transfers = new List<object>();
-        internal string FailingOutput;
+        internal bool State;
+        internal int Reads;
+        internal bool FailOff;
 
-        /// <summary>给出当前模拟感应器值，尚未提供样本时返回未知。</summary>
-        public bool? Read(object input)
+        /// <summary>返回模拟输入或输出状态。</summary>
+        public override bool GetState() { Reads++; return State; }
+
+        /// <summary>打开模拟输出。</summary>
+        public override bool On() { State = true; return true; }
+
+        /// <summary>关闭模拟输出，并支持验证单点故障。</summary>
+        public override bool Off()
         {
-            string key = input.ToString();
-            Reads.Add(key);
-            bool? value;
-            return Inputs.TryGetValue(key, out value) ? value : null;
+            if (FailOff) throw new IOException("Offline output did not turn off.");
+            State = false;
+            return true;
         }
-
-        /// <summary>记录输出值，可模拟一个输出写入异常。</summary>
-        public void Write(object output, bool active)
-        {
-            string key = output.ToString();
-            if (key == FailingOutput) throw new IOException(key);
-            Outputs[key] = active;
-        }
-
-        /// <summary>保留已完成的交接快照供生产存储及导出验证。</summary>
-        public void Record(object transfer) { Transfers.Add(transfer); }
     }
 
-    /// <summary>使用实际的流程节点和文件存储完成离线下料验收。</summary>
+    /// <summary>把离线驱动装到机器配置生成的真实 IO 控件上。</summary>
+    private sealed class Simulator
+    {
+        internal readonly Dictionary<string, OfflineIo> Points = new Dictionary<string, OfflineIo>();
+        private readonly Dictionary<string, NP_Input> inputs = new Dictionary<string, NP_Input>();
+
+        /// <summary>替换驱动实例，保持工站和页面共用同一批点位。</summary>
+        internal Simulator(HardwareResources resources)
+        {
+            foreach (HardwareEntry entry in resources.Entries.Where(item => !item.Definition.ConnectionPending))
+            {
+                var driver = new OfflineIo();
+                string key = entry.Definition.StationKey;
+                Points.Add(key, driver);
+                var input = entry.Device as NP_Input;
+                if (input != null)
+                {
+                    inputs.Add(key, input);
+                    typeof(NP_Input).GetField("dInput", Instance).SetValue(input, driver);
+                    SetInput(key, null);
+                    continue;
+                }
+
+                var output = (NP_Output)entry.Device;
+                typeof(NP_Output).GetField("dOutput", Instance).SetValue(output, driver);
+                typeof(NP_Output).GetField("ready", Instance).SetValue(output, true);
+            }
+        }
+
+        /// <summary>设置输入状态，空值模拟驱动尚未就绪。</summary>
+        internal void SetInput(string key, bool? value)
+        {
+            Points[key].State = value.GetValueOrDefault();
+            typeof(NP_Input).GetField("ready", Instance).SetValue(inputs[key], value.HasValue);
+        }
+    }
+
+    /// <summary>从构建目录解析应用依赖，再执行离线下料验证。</summary>
     [STAThread]
     private static int Main(string[] args)
     {
-        var simulator = new Simulator();
-        using (DownConveryor flow = CreateFlow(simulator))
+        AppDomain.CurrentDomain.AssemblyResolve += (sender, request) =>
         {
-            VerifyTransfer(flow, simulator);
-            VerifyStop(flow, simulator);
+            string name = new AssemblyName(request.Name).Name;
+            foreach (string extension in new[] { ".dll", ".exe" })
+            {
+                string path = Path.Combine(args[0], name + extension);
+                if (File.Exists(path)) return Assembly.LoadFrom(path);
+            }
+            return null;
+        };
+        return Verify(args[1]);
+    }
+
+    /// <summary>通过应用真实工站入口验证下料流程，使用内存驱动。</summary>
+    private static int Verify(string directory)
+    {
+        SysPara.SettingDataDirectory = Path.Combine(directory, "Settings");
+        SysPara.LanguageDataDirectory = Path.Combine(directory, "LanguageData");
+        ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
+        var app = (MachineApplication)Activator.CreateInstance(typeof(DownConveryor).Assembly.GetType("AlphaRap.StationApplication"), true);
+        using (HardForm hardware = app.CreateHardwarePage())
+        using (ManualPage manual = app.CreateManualPage())
+        {
+            SaveOfflineSettings(hardware.ResourceDefaults);
+            ApplicationHost.RegisterModule(hardware);
+            manual.BindResources(hardware.Resources);
+            var simulator = new Simulator(hardware.Resources);
+            Flow_BaseForm[] stations = app.CreateStations().ToArray();
+            try
+            {
+                var flow = stations.OfType<DownConveryor>().Single();
+                VerifyTransfer(flow, simulator);
+                VerifyStop(flow, simulator);
+            }
+            finally
+            {
+                foreach (Flow_BaseForm station in stations) station.Dispose();
+            }
         }
-        VerifyProduction(simulator.Transfers.Single(), args[0]);
+
         Console.WriteLine("Passed {0} checks.", checks);
         return 0;
     }
 
-    /// <summary>创建应用的下料流程监控页，注入模拟进程，不创建手动页或初始化驱动。</summary>
-    private static DownConveryor CreateFlow(Simulator simulator)
+    /// <summary>只为离线用例中的下料点位分配独立地址，写入测试配置目录。</summary>
+    private static void SaveOfflineSettings(HardwareProject project)
     {
-        Type flowType = typeof(DownConveryor);
-        ConstructorInfo flowConstructor = flowType.GetConstructors(Instance).Single(ctor => ctor.GetParameters().Length == 1);
-        Type processType = flowConstructor.GetParameters()[0].ParameterType;
-        ConstructorInfo processConstructor = processType.GetConstructors(Instance).Single();
-        ParameterInfo[] ports = processConstructor.GetParameters();
-        object process = processConstructor.Invoke(new object[] {
-            Bind(ports[0].ParameterType, simulator, "Read"),
-            Bind(ports[1].ParameterType, simulator, "Write"),
-            Bind(ports[2].ParameterType, simulator, "Record")
-        });
-        return (DownConveryor)flowConstructor.Invoke(new object[] { process });
+        Directory.CreateDirectory(SysPara.SettingDataDirectory);
+        int pointIndex = 0;
+        foreach (HardwareDefinition point in project.Resources.Where(item => item.StationKey.Contains("_DownConveyor_")))
+        {
+            point.Port = "001" + (pointIndex++).ToString("D2");
+            point.ConnectionPending = false;
+        }
+
+        string path = Path.Combine(SysPara.SettingDataDirectory, "HardwareResources.xml");
+        using (var stream = File.Create(path)) new XmlSerializer(typeof(HardwareProject)).Serialize(stream, project);
     }
 
-    /// <summary>将模拟器公开的测试方法适配到应用内部的 IO 及记录类型。</summary>
-    private static Delegate Bind(Type delegateType, Simulator simulator, string method)
-    {
-        MethodInfo target = typeof(Simulator).GetMethod(method);
-        ParameterExpression[] parameters = delegateType.GetMethod("Invoke").GetParameters()
-            .Select(parameter => Expression.Parameter(parameter.ParameterType)).ToArray();
-        Expression[] arguments = target.GetParameters().Select((parameter, index) =>
-            (Expression)Expression.Convert(parameters[index], parameter.ParameterType)).ToArray();
-        return Expression.Lambda(delegateType, Expression.Call(Expression.Constant(simulator), target, arguments), parameters).Compile();
-    }
-
-    /// <summary>按真实流程连线验证接板、换速、挡停、下游交接及完成记录。</summary>
+    /// <summary>按真实流程连线验证接板、换速、挡停、下游交接。</summary>
     private static void VerifyTransfer(DownConveryor flow, Simulator simulator)
     {
-        SysPara.RecipeName = "Pilot,Model";
         Flow_Chart node = FindNode(flow, "1_1");
         Step(ref node, "1_1", Result.NEXT);
         Step(ref node, "1_2", Result.IDLE);
-        simulator.Inputs["BoardAtStop"] = false;
+        simulator.SetInput("IB_DownConveyor_BoardStop_Sensor", false);
         Step(ref node, "1_2", Result.NEXT);
         Step(ref node, "1_4", Result.IDLE);
-        Check(simulator.Outputs["Stopper"], "Stopper must be raised while waiting for feedback.");
-        simulator.Inputs["StopperUp"] = true;
+        Check(simulator.Points["OB_DownConveyor_StopDown_Cylinder"].State
+            && !simulator.Points["OB_DownConveyor_StopUp_Cylinder"].State, "Stopper must be raised while waiting for feedback.");
+        simulator.SetInput("IB_DownConveyor_StopUp_Sensor", true);
         Step(ref node, "1_4", Result.NEXT);
         Step(ref node, "1_5", Result.NEXT);
         Step(ref node, "1_6", Result.IDLE);
-        simulator.Inputs["UpstreamAvailable"] = true;
+        simulator.SetInput("IB_DownConveyor_UpMachineAvailable_SMEMA", true);
         Step(ref node, "1_6", Result.NEXT);
         Step(ref node, "1_7", Result.NEXT);
-        Check(simulator.Outputs["ReadyForBoard"] && simulator.Outputs["Forward"], "Infeed handshake and drive must be active.");
+        Check(simulator.Points["OB_DownConveyor_LocalMachineReady_SMEMA"].State && simulator.Points["OB_DownConveyor_Forward"].State, "Infeed handshake and drive must be active.");
         Step(ref node, "1_8", Result.IDLE);
-        simulator.Inputs["BoardIn"] = true;
+        simulator.SetInput("IB_DownConveyor_BoardIn_Sensor", true);
         Step(ref node, "1_8", Result.NEXT);
-        simulator.Inputs["BoardIn"] = null;
+        simulator.SetInput("IB_DownConveyor_BoardIn_Sensor", null);
         Step(ref node, "1_9", Result.IDLE);
-        simulator.Inputs["BoardIn"] = false;
+        simulator.SetInput("IB_DownConveyor_BoardIn_Sensor", false);
         Step(ref node, "1_9", Result.NEXT);
         Step(ref node, "2_0", Result.NEXT);
-        simulator.Inputs["Slowdown"] = false;
+        simulator.SetInput("IB_DownConveyor_BoardSpeedSwitch_Sensor", false);
         Step(ref node, "2_1", Result.NEXT);
-        Check(simulator.Reads.Contains("Slowdown"), "Existing slowdown sampling must be preserved.");
+        Check(simulator.Points["IB_DownConveyor_BoardSpeedSwitch_Sensor"].Reads > 0, "Existing slowdown sampling must be preserved.");
         Step(ref node, "2_2", Result.NEXT);
-        Check(simulator.Outputs["SlowSpeed"], "Speed output must follow the speed change step.");
+        Check(simulator.Points["OB_DownConveyor_SpeedSwitch"].State, "Speed output must follow the speed change step.");
         Step(ref node, "2_3", Result.IDLE);
-        simulator.Inputs["BoardAtStop"] = true;
+        simulator.SetInput("IB_DownConveyor_BoardStop_Sensor", true);
         Step(ref node, "2_3", Result.NEXT);
         Step(ref node, "2_4", Result.NEXT);
-        Check(!simulator.Outputs["Forward"] && !simulator.Outputs["SlowSpeed"], "Positioning must stop forward and speed outputs.");
+        Check(!simulator.Points["OB_DownConveyor_Forward"].State && !simulator.Points["OB_DownConveyor_SpeedSwitch"].State, "Positioning must stop forward and speed outputs.");
         Step(ref node, "2_5", Result.NEXT);
         Step(ref node, "2_6", Result.IDLE);
-        simulator.Inputs["DownstreamReady"] = true;
+        simulator.SetInput("IB_DownConveyor_DownMachineReady_SMEMA", true);
         Step(ref node, "2_6", Result.NEXT);
         Step(ref node, "2_7", Result.IDLE);
-        simulator.Inputs["StopperDown"] = true;
+        Check(!simulator.Points["OB_DownConveyor_StopDown_Cylinder"].State
+            && simulator.Points["OB_DownConveyor_StopUp_Cylinder"].State, "Discharge must use the opposite stopper output.");
+        simulator.SetInput("IB_DownConveyor_StopDown_Sensor", true);
         Step(ref node, "2_7", Result.NEXT);
         Step(ref node, "2_8", Result.NEXT);
         Step(ref node, "2_9", Result.IDLE);
-        simulator.Inputs["BoardOut"] = true;
+        simulator.SetInput("IB_DownConveyor_BoardOut_Sensor", true);
         Step(ref node, "2_9", Result.NEXT);
         Step(ref node, "3_0", Result.IDLE);
-        simulator.Inputs["BoardOut"] = false;
+        simulator.SetInput("IB_DownConveyor_BoardOut_Sensor", false);
         Step(ref node, "3_0", Result.NEXT);
         Step(ref node, "3_1", Result.IDLE);
-        simulator.Inputs["DownstreamReady"] = false;
+        simulator.SetInput("IB_DownConveyor_DownMachineReady_SMEMA", null);
+        Step(ref node, "3_1", Result.IDLE);
+        simulator.SetInput("IB_DownConveyor_DownMachineReady_SMEMA", false);
         Step(ref node, "3_1", Result.NEXT);
         Step(ref node, "3_2", Result.NEXT);
-        Check(simulator.Transfers.Count == 0, "A record cannot precede the completed handshake.");
-        SysPara.RecipeName = "NextModel";
+        Check(!simulator.Points["OB_DownConveyor_Forward"].State, "The conveyor must stop before leaving the handoff.");
         Step(ref node, "3_3", Result.NEXT);
-        Check(!simulator.Outputs["Forward"] && simulator.Transfers.Count == 1, "Only one completed transfer must be emitted.");
-        node = FindNode(flow, "3_3");
-        Step(ref node, "3_3", Result.NEXT);
-        Check(simulator.Transfers.Count == 1, "Repeating the completion node must not duplicate the record.");
+        Step(ref node, "3_4", Result.NEXT);
+        Step(ref node, "3_5", Result.NEXT);
+        Check(node.Name == "DownConveyorAuto_Flow1_1", "The next cycle must use the original loop.");
     }
 
-    /// <summary>确认已有板件走出板分支，停止时继续撤销其余输出并取消未完工记录。</summary>
+    /// <summary>确认已有板件走出板分支，停止时继续撤销其余输出。</summary>
     private static void VerifyStop(DownConveryor flow, Simulator simulator)
     {
         Flow_Chart node = FindNode(flow, "1_2");
         Step(ref node, "1_2", Result.CASE1);
         Step(ref node, "1_3", Result.NEXT);
         Step(ref node, "2_5", Result.NEXT);
-        simulator.Outputs["ReadyForBoard"] = true;
-        simulator.Outputs["Forward"] = true;
-        simulator.FailingOutput = "SlowSpeed";
+        simulator.Points["OB_DownConveyor_LocalMachineReady_SMEMA"].State = true;
+        simulator.Points["OB_DownConveyor_Forward"].State = true;
+        simulator.Points["OB_DownConveyor_SpeedSwitch"].FailOff = true;
         bool reported = false;
-        try { Flow_Module.Module_StopRun(); }
+        try { flow.StopRun(); }
         catch (AggregateException error) { reported = error.Flatten().InnerExceptions.Count == 1; }
         Check(reported, "Partial stop failures must be reported.");
-        Check(!simulator.Outputs["Forward"] && !simulator.Outputs["ReadyForBoard"] && !simulator.Outputs["BoardAvailable"],
+        Check(!simulator.Points["OB_DownConveyor_Forward"].State && !simulator.Points["OB_DownConveyor_LocalMachineReady_SMEMA"].State && !simulator.Points["OB_DownConveyor_LocalMachineAvailable_SMEMA"].State,
             "One failed output must not skip other stop commands.");
-        node = FindNode(flow, "3_3");
-        Step(ref node, "3_3", Result.NEXT);
-        Check(simulator.Transfers.Count == 1, "Stop must discard the incomplete transfer.");
     }
 
     /// <summary>按设计器名称取实际的自动步骤。</summary>
@@ -184,39 +237,6 @@ internal static class Regression
         Check(actual == expected, node.Name + " returned " + actual + " instead of " + expected);
         if (actual == Result.NEXT) node = node.Next;
         if (actual == Result.CASE1) node = node.Casse1;
-    }
-
-    /// <summary>在临时目录用同一个交接快照写生产记录，并按客户示例列名与顺序导出。</summary>
-    private static void VerifyProduction(object transfer, string output)
-    {
-        Type type = transfer.GetType();
-        string id = (string)type.GetProperty("Id", Instance).GetValue(transfer, null);
-        string model = (string)type.GetProperty("Model", Instance).GetValue(transfer, null);
-        DateTime time = (DateTime)type.GetProperty("CompletedAt", Instance).GetValue(transfer, null);
-        var fields = new Dictionary<string, string> {
-            { "RecordId", id }, { "CycleId", id }, { "ModelName", model },
-            { "Station", "DownConveyor" }, { "TransferResult", "Completed" }, { "Simulated", "True" }
-        };
-        ProductionDataStore.SetRoot(Path.Combine(output, "ProductionData"));
-        Check(ProductionDataStore.AppendNamed(time, fields, id) == "", "Production record must be persisted.");
-        Check(ProductionDataStore.AppendNamed(time, fields, id) == "", "Retrying the same record must succeed.");
-        int files, total;
-        ProductionRecord production = ProductionDataStore.Query(time.Date, time.Date, id, out files, out total).Single();
-        Check(files == 1 && total == 1 && production.Get("RecordId") == id && production.Get("ModelName") == "Pilot,Model",
-            "Stored record must keep its identity and original model without duplication.");
-        string customerFile = Path.Combine(output, "CustomerTransfer.csv");
-        var customer = new ProductionRecord {
-            Time = production.Time,
-            Columns = new[] { "CycleNumber", "Model", "Handoff", "Simulated" },
-            Values = new[] { production.Get("CycleId"), production.Get("ModelName"), production.Get("TransferResult"), production.Get("Simulated") }
-        };
-        Check(ProductionDataStore.Export(new List<ProductionRecord> { customer }, customerFile) == "", "Customer export must succeed.");
-        string[] lines = File.ReadAllLines(customerFile);
-        Check(lines.Length == 2 && lines[0] == "Time,CycleNumber,Model,Handoff,Simulated" &&
-            lines[1] == production.Time.ToString("yyyy-MM-dd HH:mm:ss") + "," + id + ",\"Pilot,Model\",Completed,True",
-            "The customer file must contain the stored record values in the requested example order.");
-        Console.WriteLine("Production CSV: " + ProductionDataStore.DayFile(time));
-        Console.WriteLine("Customer CSV: " + customerFile);
     }
 
     /// <summary>失败时报告正在验证的实际行为。</summary>
