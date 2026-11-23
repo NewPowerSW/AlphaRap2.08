@@ -186,6 +186,7 @@ namespace AlphaRap
             }
             if (!showingHomeLog || !columns.SequenceEqual(infoHeaders)) BuildInfoColumns(columns);
             showingHomeLog = true;
+            RestoreInfoHeaders();
             ShowInfoRows(rows);
         }
 
@@ -330,12 +331,16 @@ namespace AlphaRap
             catch { }
         }
 
-        /// <summary>生产字段是业务定义；切换语言时恢复原始表头而不重建列和数据行。</summary>
+        /// <summary>只刷新可见表头，保留来源字段名、数据行和当前选择。</summary>
         private void RestoreInfoHeaders()
         {
             if (grdInfo == null) return;
-            for (int i = 0; i < infoHeaders.Length && i < grdInfo.Columns.Count; i++)
-                grdInfo.Columns[i].HeaderText = infoHeaders[i];
+            string[] captions = showingHomeLog ? ApplicationHost.Data?.HomeLogColumnCaptions(infoHeaders) ?? infoHeaders : infoHeaders;
+            for (int i = 0; i < captions.Length && i < grdInfo.Columns.Count; i++)
+            {
+                grdInfo.Columns[i].HeaderText = captions[i];
+                grdInfo.Columns[i].HeaderCell.ToolTipText = captions[i];
+            }
         }
 
         /// <summary>按结果字段的原始值强调合格与不合格，其他生产字段保持原值和默认样式。</summary>
@@ -492,7 +497,7 @@ namespace AlphaRap
         /// <summary>显示设备配置名称；未命名时显示其真实类型名。</summary>
         private static string DeviceName(DeviceControl.DeviceStatus device)
         {
-            return string.IsNullOrWhiteSpace(device.Name) ? device.TypeName : device.Name;
+            return device.Text ?? (string.IsNullOrWhiteSpace(device.Name) ? device.TypeName : device.Name);
         }
 
         /// <summary>只刷新连接颜色和文案；设备数量、名称变更时重新绑定列表。</summary>

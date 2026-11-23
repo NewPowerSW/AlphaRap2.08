@@ -6,7 +6,9 @@ namespace AlphaRap.Configuration
         private System.Windows.Forms.Button add, browse, ok, cancel, findConfiguration;
         private System.Windows.Forms.ListBox moduleList;
         private System.Windows.Forms.CheckBox showOnHome;
-        private System.Windows.Forms.TextBox moduleName, directory;
+        private System.Windows.Forms.TextBox moduleName, moduleText, directory;
+        private System.Windows.Forms.Label moduleTextLabel;
+        private System.Windows.Forms.DataGridViewTextBoxColumn fieldText;
         private System.Windows.Forms.Label nameLabel, directoryLabel, hint;
         private System.Windows.Forms.DataGridView fields;
         private System.Windows.Forms.DataGridViewTextBoxColumn fieldName;
@@ -36,6 +38,9 @@ namespace AlphaRap.Configuration
             this.moduleSource = new System.Windows.Forms.ToolStripMenuItem();
             this.findConfiguration = new System.Windows.Forms.Button();
             this.moduleName = new System.Windows.Forms.TextBox();
+            this.moduleText = new System.Windows.Forms.TextBox();
+            this.moduleTextLabel = new System.Windows.Forms.Label();
+            this.fieldText = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.directory = new System.Windows.Forms.TextBox();
             this.nameLabel = new System.Windows.Forms.Label();
             this.directoryLabel = new System.Windows.Forms.Label();
@@ -62,7 +67,7 @@ namespace AlphaRap.Configuration
             // browse
             // 
             this.browse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.browse.Location = new System.Drawing.Point(832, 54);
+            this.browse.Location = new System.Drawing.Point(832, 80);
             this.browse.Name = "browse";
             this.browse.Size = new System.Drawing.Size(40, 29);
             this.browse.TabIndex = 6;
@@ -133,11 +138,22 @@ namespace AlphaRap.Configuration
             this.moduleName.Size = new System.Drawing.Size(492, 23);
             this.moduleName.TabIndex = 3;
             // 
+            // moduleText
+            this.moduleText.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            this.moduleText.Location = new System.Drawing.Point(380, 49);
+            this.moduleText.Name = "moduleText";
+            this.moduleText.Size = new System.Drawing.Size(492, 23);
+            this.moduleText.TabIndex = 4;
+            this.moduleTextLabel.Location = new System.Drawing.Point(240, 52);
+            this.moduleTextLabel.Name = "moduleTextLabel";
+            this.moduleTextLabel.Size = new System.Drawing.Size(135, 24);
+            this.moduleTextLabel.Tag = "resourceText";
+            this.moduleTextLabel.Text = "显示文字";
             // directory
             // 
             this.directory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.directory.Location = new System.Drawing.Point(380, 57);
+            this.directory.Location = new System.Drawing.Point(380, 83);
             this.directory.Name = "directory";
             this.directory.Size = new System.Drawing.Size(446, 23);
             this.directory.TabIndex = 5;
@@ -153,7 +169,7 @@ namespace AlphaRap.Configuration
             // 
             // directoryLabel
             // 
-            this.directoryLabel.Location = new System.Drawing.Point(240, 61);
+            this.directoryLabel.Location = new System.Drawing.Point(240, 87);
             this.directoryLabel.Name = "directoryLabel";
             this.directoryLabel.Size = new System.Drawing.Size(135, 24);
             this.directoryLabel.TabIndex = 4;
@@ -174,7 +190,7 @@ namespace AlphaRap.Configuration
             // showOnHome
             //
             this.showOnHome.AutoSize = true;
-            this.showOnHome.Location = new System.Drawing.Point(240, 98);
+            this.showOnHome.Location = new System.Drawing.Point(240, 119);
             this.showOnHome.Name = "showOnHome";
             this.showOnHome.TabIndex = 7;
             this.showOnHome.Tag = "logHomeBinding";
@@ -190,11 +206,16 @@ namespace AlphaRap.Configuration
             this.fields.BackgroundColor = System.Drawing.Color.White;
             this.fields.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.fieldName,
-            this.fieldType});
+            this.fieldType,
+            this.fieldText});
+            this.fieldText.FillWeight = 60F;
+            this.fieldText.HeaderText = "显示文字";
+            this.fieldText.Name = "fieldText";
+            this.fieldText.Tag = "resourceText";
             this.fields.ContextMenuStrip = this.fieldMenu;
-            this.fields.Location = new System.Drawing.Point(240, 130);
+            this.fields.Location = new System.Drawing.Point(240, 149);
             this.fields.Name = "fields";
-            this.fields.Size = new System.Drawing.Size(632, 306);
+            this.fields.Size = new System.Drawing.Size(632, 287);
             this.fields.TabIndex = 8;
             // 
             // fieldName
@@ -240,6 +261,8 @@ namespace AlphaRap.Configuration
             this.Controls.Add(this.findConfiguration);
             this.Controls.Add(this.nameLabel);
             this.Controls.Add(this.moduleName);
+            this.Controls.Add(this.moduleTextLabel);
+            this.Controls.Add(this.moduleText);
             this.Controls.Add(this.directoryLabel);
             this.Controls.Add(this.directory);
             this.Controls.Add(this.browse);

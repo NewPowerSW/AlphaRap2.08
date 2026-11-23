@@ -106,7 +106,6 @@ namespace AlphaRap
         {
             HardForm form = base.CreateHardwarePage();
             form.ResourceDefaults = StationIo.LoadDefaults();
-            form.IoCaption = StationIo.Caption;
             DataTable table = form.RecipeData.Tables.Add("tb_X1_Post");
             table.Columns.Add("X1", typeof(double));
             table.Columns.Add("Annotation", typeof(string));
@@ -130,14 +129,14 @@ namespace AlphaRap
         public override SystemSetting CreateSettingsPage()
         {
             return new SystemSetting(new[] {
-                new BooleanSettingDefault("DisScann", "禁用扫码枪", "Disable scanner", "Desactivar escáner", true),
-                new BooleanSettingDefault("UseTryRun", "使用空跑", "Dry run", "Ejecución en vacío", true),
-                new BooleanSettingDefault("DisVision", "禁用视觉", "Disable vision", "Desactivar visión"),
-                new BooleanSettingDefault("DisMes", "禁用 MES", "Disable MES", "Desactivar MES"),
-                new BooleanSettingDefault("DisDoor", "禁用门禁", "Disable door check", "Desactivar control de puerta"),
-                new BooleanSettingDefault("DisRecheck", "禁用复检", "Disable recheck", "Desactivar reinspección"),
-                new BooleanSettingDefault("DisBuzzer", "禁用蜂鸣器", "Disable buzzer", "Desactivar zumbador"),
-                new BooleanSettingDefault("Dis3D", "禁用 3D", "Disable 3D", "Desactivar 3D")
+                new BooleanSettingDefault("DisScann", "禁用扫码枪", true),
+                new BooleanSettingDefault("UseTryRun", "使用空跑", true),
+                new BooleanSettingDefault("DisVision", "禁用视觉"),
+                new BooleanSettingDefault("DisMes", "禁用 MES"),
+                new BooleanSettingDefault("DisDoor", "禁用门禁"),
+                new BooleanSettingDefault("DisRecheck", "禁用复检"),
+                new BooleanSettingDefault("DisBuzzer", "禁用蜂鸣器"),
+                new BooleanSettingDefault("Dis3D", "禁用 3D")
             });
         }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using AlphaRapLibrary;
+using AlphaRap.FlowProgramming;
 
 namespace AlphaRap
 {
@@ -36,6 +37,7 @@ namespace AlphaRap
 		{
 			InitializeComponent();
             UiTheme.ApplyDpi(this);
+            if (!UiTheme.IsDesignTime) FlowInputForm.AttachResourceTextMenu(tabDevices, EditDeviceText);
 
 			this.Load += Parameter_Load;
 			this.Disposed += Parameter_Disposed;
@@ -130,6 +132,13 @@ namespace AlphaRap
 			if (r != DialogResult.Yes) return;
 
 			RemovePanel(panel);
+		}
+
+		/// <summary>编辑设备页签的默认显示文字，显示现有空闲和权限提示。</summary>
+		private void EditDeviceText(TabPage page)
+		{
+			try { (page.Tag as DeviceControl)?.EditDeviceText(); }
+			catch (InvalidOperationException error) { MessageBox.Show(this, error.Message); }
 		}
 
 		/// <summary>设备改名后同步页签标题。</summary>
@@ -227,7 +236,7 @@ namespace AlphaRap
 			TabPage page = PageOf(panel);
 			if (page == null) return;
 
-			string title = panel.DeviceName;
+			string title = panel.DeviceCaption;
 			if (string.IsNullOrEmpty(title)) title = DefaultTabTitle;
 
 			page.Text = title;

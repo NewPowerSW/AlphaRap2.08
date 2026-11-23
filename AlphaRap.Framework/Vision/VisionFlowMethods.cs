@@ -133,7 +133,7 @@ namespace AlphaRap
         private static VpVppConfig CopyFlowConfiguration(VpVppConfig config)
         {
             if (config == null) return null;
-            return new VpVppConfig { Id = config.Id, Name = config.Name, FolderName = config.FolderName, Exposure = config.Exposure,
+            return new VpVppConfig { Id = config.Id, Name = config.Name, Text = config.Text, FolderName = config.FolderName, Exposure = config.Exposure,
                 SaveImageEnabled = config.SaveImageEnabled, SaveImagePath = config.SaveImagePath, SaveImageOriginal = config.SaveImageOriginal,
                 SaveImageSnapshot = config.SaveImageSnapshot, SaveImageAutoDelete = config.SaveImageAutoDelete, SaveImageKeepDays = config.SaveImageKeepDays,
                 CompLimits = config.CompLimits.Where(item => item != null).Select(item => new VpCompLimitItem(item.Item, item.Min, item.Max) { Compensation = item.Compensation }).ToList() };

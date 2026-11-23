@@ -63,6 +63,7 @@ namespace AlphaRap.Configuration
             { "remove", new[] { "删除资源“{0}”？点击主界面【保存】后下次启动不再创建该组合，历史配方点位保留。", "Delete resource '{0}'? Use the main Save button to keep it removed after restart. Historical recipe points remain.", "¿Eliminar «{0}»? Use Guardar principal para mantenerlo eliminado tras reiniciar. Se conservan los puntos históricos." } },
             { "saved",new[]{"资源定义已保存。点位请使用主界面【保存】。","Definitions saved. Use the main Save button to save points.","Definiciones guardadas. Use Guardar principal para guardar puntos."} },
             { "property",new[]{"参数","Parameter","Parámetro"} }, { "value",new[]{"值","Value","Valor"} },
+            { "Text",new[]{"显示文字","Display text","Texto visible"} },
             { "Name",new[]{"资源名称","Resource name","Nombre del recurso"} }, { "Vendor",new[]{"厂商","Vendor","Fabricante"} }, { "Port",new[]{"轴号 / IO 点号","Axis / IO port","Puerto de eje / E/S"} },
             { "WorkSpeed",new[]{"运行速度","Work speed","Velocidad de trabajo"} }, { "ManualSpeed",new[]{"手动速度上限 (mm/s)","Manual speed limit (mm/s)","Límite manual (mm/s)"} }, { "MaxSpeed",new[]{"最大速度","Maximum speed","Velocidad máxima"} },
             { "SpeedRatio",new[]{"速度比例 (%)","Speed ratio (%)","Porcentaje de velocidad (%)"} }, { "Tacc",new[]{"加速时间 (s)","Acceleration (s)","Aceleración (s)"} }, { "Tdec",new[]{"减速时间 (s)","Deceleration (s)","Deceleración (s)"} },

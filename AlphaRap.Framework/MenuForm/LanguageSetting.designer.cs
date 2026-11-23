@@ -46,6 +46,7 @@
             this.componenttext = new DataGridViewAutoFilter.DataGridViewAutoFilterTextBoxColumn();
             this.spanish = new DataGridViewAutoFilter.DataGridViewAutoFilterTextBoxColumn();
             this.chinese = new DataGridViewAutoFilter.DataGridViewAutoFilterTextBoxColumn();
+            this.resource = new DataGridViewAutoFilter.DataGridViewAutoFilterTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingNavigator1)).BeginInit();
@@ -60,9 +61,15 @@
             this.id,
             this.form,
             this.objeto,
+            this.resource,
             this.componenttext,
             this.spanish,
             this.chinese});
+            this.resource.DataPropertyName = "Resource";
+            this.resource.HeaderText = "资源 / 默认显示文字";
+            this.resource.Name = "resource";
+            this.resource.ReadOnly = true;
+            this.resource.Width = 200;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(3, 85);
             this.dataGridView1.Name = "dataGridView1";
@@ -268,6 +275,7 @@
         private DataGridViewAutoFilter.DataGridViewAutoFilterTextBoxColumn componenttext;
         private DataGridViewAutoFilter.DataGridViewAutoFilterTextBoxColumn spanish;
         private DataGridViewAutoFilter.DataGridViewAutoFilterTextBoxColumn chinese;
+        private DataGridViewAutoFilter.DataGridViewAutoFilterTextBoxColumn resource;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
     }
 }

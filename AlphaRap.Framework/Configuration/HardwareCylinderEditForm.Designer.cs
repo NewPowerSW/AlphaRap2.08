@@ -5,8 +5,8 @@ namespace AlphaRap.Configuration
 {
     partial class HardwareCylinderEditForm
     {
-        private Label lblName, lblOn, lblOff;
-        private TextBox cylinderName;
+        private Label lblName, lblText, lblOn, lblOff;
+        private TextBox cylinderName, cylinderText;
         private ComboBox onOutput, offOutput;
         private Button btnOk, btnCancel;
 
@@ -16,9 +16,11 @@ namespace AlphaRap.Configuration
             var fields = new TableLayoutPanel();
             var commands = new FlowLayoutPanel();
             lblName = new Label();
+            lblText = new Label();
             lblOn = new Label();
             lblOff = new Label();
             cylinderName = new TextBox();
+            cylinderText = new TextBox();
             onOutput = new ComboBox();
             offOutput = new ComboBox();
             btnOk = new Button();
@@ -29,9 +31,10 @@ namespace AlphaRap.Configuration
             fields.Name = "fields";
             fields.Dock = DockStyle.Fill;
             fields.ColumnCount = 2;
-            fields.RowCount = 3;
+            fields.RowCount = 4;
             fields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 132));
             fields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            fields.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
             fields.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
             fields.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
             fields.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
@@ -39,6 +42,10 @@ namespace AlphaRap.Configuration
             lblName.Text = "资源名称";
             lblName.TextAlign = ContentAlignment.MiddleLeft;
             lblName.Dock = DockStyle.Fill;
+            lblText.Name = "lblText";
+            lblText.Text = "显示文字";
+            lblText.TextAlign = ContentAlignment.MiddleLeft;
+            lblText.Dock = DockStyle.Fill;
             lblOn.Name = "lblOn";
             lblOn.Text = "ON 输出";
             lblOn.TextAlign = ContentAlignment.MiddleLeft;
@@ -49,6 +56,8 @@ namespace AlphaRap.Configuration
             lblOff.Dock = DockStyle.Fill;
             cylinderName.Name = "cylinderName";
             cylinderName.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            cylinderText.Name = "cylinderText";
+            cylinderText.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             onOutput.Name = "onOutput";
             onOutput.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             onOutput.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -59,10 +68,12 @@ namespace AlphaRap.Configuration
             offOutput.DropDownWidth = 500;
             fields.Controls.Add(lblName, 0, 0);
             fields.Controls.Add(cylinderName, 1, 0);
-            fields.Controls.Add(lblOn, 0, 1);
-            fields.Controls.Add(onOutput, 1, 1);
-            fields.Controls.Add(lblOff, 0, 2);
-            fields.Controls.Add(offOutput, 1, 2);
+            fields.Controls.Add(lblText, 0, 1);
+            fields.Controls.Add(cylinderText, 1, 1);
+            fields.Controls.Add(lblOn, 0, 2);
+            fields.Controls.Add(onOutput, 1, 2);
+            fields.Controls.Add(lblOff, 0, 3);
+            fields.Controls.Add(offOutput, 1, 3);
 
             commands.Name = "commands";
             commands.Dock = DockStyle.Bottom;
@@ -83,7 +94,7 @@ namespace AlphaRap.Configuration
             Text = "气缸组合";
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
-            ClientSize = new Size(660, 188);
+            ClientSize = new Size(660, 228);
             Padding = new Padding(12);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             StartPosition = FormStartPosition.CenterParent;

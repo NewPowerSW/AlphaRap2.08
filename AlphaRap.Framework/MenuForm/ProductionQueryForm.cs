@@ -48,8 +48,9 @@ namespace AlphaRap
 
         private List<ProductionRecord> _rows = new List<ProductionRecord>();
         private string[] boundLogColumns;
+        private LogModuleDefinition boundLog;
         private string queryRoot;
-        private string TimeHeader => boundLogColumns == null ? UiTheme.T("ProductionQuery", "colTime", "时间", "Time", "Hora") : "Time";
+        private string TimeHeader => boundLogColumns == null ? UiTheme.T("ProductionQuery", "colTime", "时间", "Time", "Hora") : boundLog.ColumnText("Time");
         private bool _loading;
 
         public ProductionQueryForm()
@@ -142,6 +143,12 @@ namespace AlphaRap
             ApplyLanguage();
             if (grd.Columns.Contains("colTime"))
                 grd.Columns["colTime"].HeaderText = TimeHeader;
+            if (boundLogColumns != null)
+                for (int i = 0; i < boundLogColumns.Length && i + 1 < grd.Columns.Count; i++)
+                {
+                    grd.Columns[i + 1].HeaderText = boundLog.ColumnText(boundLogColumns[i]);
+                    grd.Columns[i + 1].HeaderCell.ToolTipText = grd.Columns[i + 1].HeaderText;
+                }
             FillStats();
             FillStatus(_statusFiles, _statusTotal);
         }
@@ -427,6 +434,7 @@ namespace AlphaRap
 
                 int fileCount, total;
                 LogModuleDefinition log = ApplicationHost.Data?.GetHomeLogModule();
+                boundLog = log;
                 boundLogColumns = log?.Fields.Select(field => field.Name).ToArray();
                 if (log == null)
                 {
@@ -480,12 +488,12 @@ namespace AlphaRap
                 {
                     DataGridViewTextBoxColumn c = new DataGridViewTextBoxColumn();
                     c.Name = "col" + i;
-                    c.HeaderText = cols[i];
-                    c.HeaderCell.ToolTipText = cols[i];
+                    c.HeaderText = boundLog?.ColumnText(cols[i]) ?? cols[i];
+                    c.HeaderCell.ToolTipText = c.HeaderText;
                     c.ReadOnly = true;
                     c.SortMode = DataGridViewColumnSortMode.NotSortable;
                     c.MinimumWidth = D(52);
-                    c.Width = ColWidth(cols[i], UiKit.Bold(9.5f), D(80), D(220));
+                    c.Width = ColWidth(c.HeaderText, UiKit.Bold(9.5f), D(80), D(220));
                     grd.Columns.Add(c);
                 }
 

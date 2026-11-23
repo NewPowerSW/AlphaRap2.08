@@ -13,6 +13,7 @@ namespace AlphaRap.Configuration
     {
         public string Id = Guid.NewGuid().ToString("N");
         public string Name = "";
+        public string Text = "";
         public string StationKey = "";
         public string OnOutputId = "";
         public string OffOutputId = "";
@@ -79,7 +80,15 @@ namespace AlphaRap.Configuration
         public string StationCylinderName(string key)
         {
             var definition = FindStationCylinder(key)?.Definition;
-            return definition == null ? IoCaption(key, key) : IoCaption(key, definition.Name);
+            return definition == null ? FrameworkLanguage.LangText("StationIo", key, key) : DisplayText(definition);
+        }
+
+        /// <summary>以气缸 ID 翻译操作卡标题，并兼容已有现场译文。</summary>
+        internal static string DisplayText(HardwareCylinderDefinition definition)
+        {
+            string legacyKey = definition.StationKey == definition.Name ? definition.StationKey : null;
+            return FrameworkLanguage.ResourceText("HardwareResources", "Cylinder_" + definition.Id,
+                definition.Name, definition.Text, "StationIo", legacyKey);
         }
 
         /// <summary>找出项目声明的工艺气缸。</summary>
@@ -147,7 +156,7 @@ namespace AlphaRap.Configuration
         private void RequireCylinderOutputUnused(string id)
         {
             string[] names = cylinders.Values.Where(entry => IsCylinderOutput(entry.Definition, id))
-                .Select(entry => IoCaption(entry.Definition.StationKey, entry.Definition.Name)).ToArray();
+                .Select(entry => DisplayText(entry.Definition)).ToArray();
             if (names.Length > 0)
                 throw new InvalidOperationException(string.Format(HardwareText.T("cylinderOutputUsed"), string.Join(", ", names)));
         }

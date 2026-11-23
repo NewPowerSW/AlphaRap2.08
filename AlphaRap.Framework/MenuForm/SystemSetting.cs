@@ -73,8 +73,16 @@ namespace AlphaRap
         private void Filter()
         {
             string text = searchValue.Text.Replace("'", "''").Replace("[", "[[]").Replace("%", "[%]").Replace("*", "[*]");
-            string translated = Scope == "Setting" ? string.Concat(Constants.DefaultKeys.Where(key => Constants.Label(key).IndexOf(searchValue.Text, StringComparison.CurrentCultureIgnoreCase) >= 0).Select(key => " OR Key = '" + key.Replace("'", "''") + "'")) : "";
-            Constants.Table(Scope).DefaultView.RowFilter = "Key <> '' AND (Key LIKE '%" + text + "%' OR Description LIKE '%" + text + "%'" + translated + ")";
+            string scope = Scope;
+            DataTable table = Constants.Table(scope);
+            string translated = string.Concat(table.Rows.Cast<DataRow>().Where(row => row.RowState != DataRowState.Deleted).Select(row =>
+            {
+                string key = Convert.ToString(row["Key"]);
+                string caption = Constants.DescriptionText(scope, key, Convert.ToString(row["Description"]));
+                return searchValue.Text.Length > 0 && caption.IndexOf(searchValue.Text, StringComparison.CurrentCultureIgnoreCase) >= 0
+                    ? " OR Key = '" + key.Replace("'", "''") + "'" : "";
+            }));
+            table.DefaultView.RowFilter = "Key <> '' AND (Key LIKE '%" + text + "%' OR Description LIKE '%" + text + "%'" + translated + ")";
         }
 
         /// <summary>按绑定行的业务键定位，不使用排序后行号。</summary>
@@ -131,9 +139,10 @@ namespace AlphaRap
         {
             if (args.RowIndex < 0) return;
             if (constants.Columns[args.ColumnIndex].Name == "constantType") { args.Value = ConstantText.TypeName(Convert.ToString(args.Value)); args.FormattingApplied = true; }
-            if (constants.Columns[args.ColumnIndex].Name != "constantDescription" || !string.IsNullOrEmpty(Convert.ToString(args.Value))) return;
+            if (constants.Columns[args.ColumnIndex].Name != "constantDescription") return;
             string key = Convert.ToString(constants.Rows[args.RowIndex].Cells["constantKey"].Value);
-            if (Scope == "Setting" && Constants.DefaultKeys.Contains(key)) { args.Value = Constants.Label(key); args.FormattingApplied = true; }
+            args.Value = Constants.DescriptionText(Scope, key, Convert.ToString(args.Value));
+            args.FormattingApplied = true;
         }
 
         /// <summary>全局保存前校验两个作用域的类型和值。</summary>
@@ -153,6 +162,7 @@ namespace AlphaRap
             ConstantText.Apply(this);
             constantDelete.Text = FrameworkLanguage.LangMsg(Name, constantDelete.Name, "删除", "Delete", "Eliminar");
             RefreshPermission();
+            Filter();
             constants.Invalidate();
         }
 

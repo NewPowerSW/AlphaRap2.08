@@ -36,13 +36,16 @@ namespace AlphaRap
         /// <summary>一台已配置的设备。一个 DeviceControl 可以管理多台。</summary>
         private class DeviceItem
         {
+            public string CaptionId = "new_" + Guid.NewGuid().ToString("N");
+            public string Text = "";
+            public string VisibleName;
             public string Name;             // 设备名（在控件内唯一，同时是 XML 里的 Name）
             public Type DeviceType;         // AbstractDevice 的具体子类
             public AbstractDevice Instance; // 该设备的实例（参数表绑它）
 
             public override string ToString()
             {
-                return Name + "（" + ((DeviceType == null) ? "?" : DeviceType.Name) + "）";
+                return (VisibleName ?? Name) + "（" + ((DeviceType == null) ? "?" : DeviceType.Name) + "）";
             }
         }
 
@@ -413,12 +416,33 @@ namespace AlphaRap
             _loading = true;
             try
             {
+                foreach (DeviceItem item in _devices) item.VisibleName = DisplayText(item);
                 cboType.DataSource = null;
                 cboType.DisplayMember = string.Empty;               // 用 DeviceItem.ToString() ⇒ "名字（类名）"
                 cboType.DataSource = new List<DeviceItem>(_devices);
                 if (!string.IsNullOrEmpty(selectName)) SelectDeviceByName(selectName);
             }
             finally { _loading = false; }
+        }
+
+        /// <summary>按面板和设备稳定标识读取标题，兼容已有设备 XML。</summary>
+        private string DisplayText(DeviceItem item) => FrameworkLanguage.ResourceText("DeviceResources",
+            "Device_" + XmlKey + "/" + item.CaptionId, item.Name, item.Text);
+
+        /// <summary>返回当前设备的可见标题，页签沿用当前工程名称作为后备。</summary>
+        internal string DeviceCaption => _current == null ? "" : DisplayText(_current);
+
+        /// <summary>仅编辑当前设备的默认显示文字，由主界面保存设备配置。</summary>
+        internal void EditDeviceText()
+        {
+            if (_current == null) return;
+            FlowProgramming.FlowPrograms.RequireIdle();
+            if (!FlowProgramming.FlowInputForm.TryEditResourceText(FindForm(), _current.Text, out string text) || _current.Text == text) return;
+            _current.Text = text;
+            RebuildDeviceList(_current.Name);
+            RefreshState();
+            RaiseNameChanged();
+            RaiseDevicesChanged();
         }
 
         private DeviceItem FindDevice(string name)
@@ -589,6 +613,8 @@ namespace AlphaRap
         {
             /// <summary>设备名（Parameter 里可改）。</summary>
             public string Name;
+            /// <summary>按当前语言解析的设备标题。</summary>
+            public string Text;
             /// <summary>设备类名（如 ScannerKeyenceTcp）。</summary>
             public string TypeName;
             /// <summary>是否已连接。</summary>
@@ -642,6 +668,7 @@ namespace AlphaRap
 
                     DeviceStatus s = new DeviceStatus();
                     s.Name = it.Name;
+                    s.Text = c.DisplayText(it);
                     s.TypeName = (it.DeviceType == null) ? string.Empty : it.DeviceType.Name;
                     s.IsConnected = it.Instance != null && it.Instance.IsConnected;
                     list.Add(s);
@@ -916,6 +943,8 @@ namespace AlphaRap
 
                 XmlElement itemNode = doc.CreateElement("Item");
                 itemNode.SetAttribute("Name", it.Name);
+                itemNode.SetAttribute("CaptionId", it.CaptionId);
+                if (!string.IsNullOrEmpty(it.Text)) itemNode.SetAttribute("Text", it.Text);
                 itemNode.SetAttribute("Type", it.DeviceType.Name);
                 itemNode.SetAttribute("TypeId", Configuration.HardwareControlTypes.Identity(it.DeviceType));
 
@@ -1054,7 +1083,13 @@ namespace AlphaRap
                     throw new InvalidOperationException(string.Format(L("err_ConfigurationDeviceName",
                         "设备名称重复：{0}", "Duplicate device name: {0}", "Nombre de dispositivo duplicado: {0}"), name));
             AbstractDevice inst = NewDevice(t, name);
-            DeviceItem item = new DeviceItem { Name = name, DeviceType = t, Instance = inst };
+            string captionId = paramNode?.GetAttribute("CaptionId");
+            DeviceItem item = new DeviceItem
+            {
+                Name = name, DeviceType = t, Instance = inst,
+                CaptionId = string.IsNullOrEmpty(captionId) ? "legacy_" + name : captionId,
+                Text = paramNode?.GetAttribute("Text") ?? ""
+            };
             devices.Add(item);
 
             if (paramNode != null)
@@ -1218,6 +1253,7 @@ namespace AlphaRap
             if (btnSend != null) btnSend.Text = L("btnSend", "发送", "Send", "Enviar");
             if (btnClear != null) btnClear.Text = L("btnClear", "清空记录", "Clear log", "Borrar registro");
 
+            if (_devices.Count > 0) RebuildDeviceList(_current?.Name);
             ApplyMode();      // 单设备模式下 lblType 写的是设备类名，这里重刷一次
             RefreshState();   // 状态行文字也跟着语言
         }
@@ -1656,7 +1692,7 @@ namespace AlphaRap
             }
             else
             {
-                lblState.Text = _current.Name + "（" + _current.DeviceType.Name + "）："
+                lblState.Text = DeviceCaption + "（" + _current.DeviceType.Name + "）："
                               + (connected
                                  ? L("state_Connected", "已连接", "Connected", "Conectado")
                                  : L("state_Disconnected", "未连接", "Not connected", "Sin conexión"));

@@ -18,9 +18,17 @@ namespace AlphaRap
             string file = FrameworkLanguage.LangFilePath(language);
             XElement root = File.Exists(file) ? XElement.Load(file) : new XElement(language.ToString());
             if (root.Name.LocalName != language.ToString()) throw new InvalidDataException("Invalid language XML root: " + file);
-            string bundled = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LanguageData", language + ".xml");
-            if (!File.Exists(bundled) || string.Equals(Path.GetFullPath(file), Path.GetFullPath(bundled), StringComparison.OrdinalIgnoreCase)) return root;
-            foreach (XElement defaultForm in XElement.Load(bundled).Elements())
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            MergeDefaults(root, file, Path.Combine(baseDirectory, "LanguageData", language + ".xml"));
+            MergeDefaults(root, file, Path.Combine(baseDirectory, "LanguageDefaults", language + ".xml"));
+            return root;
+        }
+
+        /// <summary>只补充缺少的条目，现场已有文案优先。</summary>
+        private static void MergeDefaults(XElement root, string activeFile, string bundledFile)
+        {
+            if (!File.Exists(bundledFile) || string.Equals(Path.GetFullPath(activeFile), Path.GetFullPath(bundledFile), StringComparison.OrdinalIgnoreCase)) return;
+            foreach (XElement defaultForm in XElement.Load(bundledFile).Elements())
             {
                 XElement form = root.Element(defaultForm.Name);
                 if (form == null) { root.Add(new XElement(defaultForm)); continue; }
@@ -32,7 +40,6 @@ namespace AlphaRap
                         entry.SetAttributeValue("ComponentText", (string)defaultEntry.Attribute("ComponentText"));
                 }
             }
-            return root;
         }
 
         /// <summary>合并三个语言包的全部键，缺少的译文留空供编辑。</summary>
@@ -41,11 +48,18 @@ namespace AlphaRap
             lock (FrameworkLanguage.LanguageSync)
             {
                 DataTable table = new DataTable();
-                foreach (string column in new[] { "ID", "Form", "Object", "English", "Spanish", "Chinese" })
+                foreach (string column in new[] { "ID", "Form", "Object", "English", "Spanish", "Chinese", "Resource" })
                     table.Columns.Add(column);
                 Dictionary<string, DataRow> rows = new Dictionary<string, DataRow>(StringComparer.Ordinal);
                 foreach (LanguageType language in Enum.GetValues(typeof(LanguageType)))
                     ReadRows(table, rows, language);
+                foreach (FrameworkLanguage.ResourceCaption caption in FrameworkLanguage.RegisteredResourceCaptions())
+                {
+                    DataRow row;
+                    if (!rows.TryGetValue(caption.Section + "/" + caption.Key, out row))
+                        row = table.Rows.Add(table.Rows.Count + 1, caption.Section, caption.Key, "", "", "");
+                    row["Resource"] = caption.Hint;
+                }
                 return table;
             }
         }
@@ -140,10 +154,12 @@ namespace AlphaRap
             System.Xml.XmlConvert.VerifyNCName(formName);
             System.Xml.XmlConvert.VerifyNCName(key);
             XElement form = root.Element(formName);
+            string value = Convert.ToString(row[column]);
+            if (form?.Element(key) == null && string.IsNullOrEmpty(value)) return;
             if (form == null) { form = new XElement(formName); root.Add(form); }
             XElement entry = form.Element(key);
             if (entry == null) { entry = new XElement(key); form.Add(entry); }
-            entry.SetAttributeValue("ComponentText", Convert.ToString(row[column]));
+            entry.SetAttributeValue("ComponentText", value);
         }
     }
 }

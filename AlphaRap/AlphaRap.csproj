@@ -939,6 +939,10 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\LanguageData\*.xml">
+      <Link>LanguageDefaults\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\LanguageData\Chinese.xml" Condition="!Exists('$(MSBuildProjectDirectory)\RuntimeData.local\LanguageData\Chinese.xml')">
       <Link>LanguageData\Chinese.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

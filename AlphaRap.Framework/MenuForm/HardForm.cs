@@ -8,7 +8,6 @@ namespace AlphaRap
     {
         /// <summary>项目随应用提供的机器级默认资源与标题。</summary>
         public Configuration.HardwareProject ResourceDefaults { get; set; }
-        public Func<string, string, string> IoCaption { get; set; }
 
         /// <summary>访问当前页面管理的动态硬件目录，IO 视图复用同一目录。</summary>
         public Configuration.HardwareResources Resources { get { return hardwareResourcePanel.Resources; } }

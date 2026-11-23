@@ -107,6 +107,7 @@ internal static class ConfigurationProbe
             Test("participant discovery is fixed for the complete operation", ParticipantSnapshot);
             Test("captured file lists and values survive later draft changes", FileSnapshot);
             Test("hardware lookup and display edits reuse the registered device", HardwareIdentity);
+            Test("dynamic pages use the language catalog without changing saved resource keys", DynamicResourceLanguage);
             Test("station IO defaults migrate once and flows resolve the same dynamic points", StationIoMigration);
             Test("cylinders migrate and use editable stable output bindings", CylinderConfiguration);
             Test("device names are unique across panels and legacy keys still resolve", NamedDevices);
@@ -123,7 +124,7 @@ internal static class ConfigurationProbe
             Test("login shows progress and waits for background permissions", () => LoginWindow(false));
             Test("closing a login window discards late authentication", () => LoginWindow(true));
             Test("transition uses only compiled station graphs and preserves archived flow files", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/29 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/30 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -243,6 +244,76 @@ internal static class ConfigurationProbe
         Feature feature = Register("snapshot"); feature.Preparing = () => feature.Draft = "later";
         ProjectConfiguration.Save();
         Check(File.ReadAllText(feature.Target) == "draft" && feature.Saved == "draft" && feature.Draft == "later", "A prepared snapshot followed later edits.");
+    }
+
+    /// <summary>用真实语言表验证默认文字、三语覆盖、原实例及客户日志列名。</summary>
+    private static void DynamicResourceLanguage()
+    {
+        LanguageType previousLanguage = SysPara.LanguageShow;
+        string previousDirectory = SysPara.LanguageDataDirectory;
+        string previousAlarm = SysPara.AlarmTableDirectory;
+        SysPara.LanguageDataDirectory = Path.Combine(current, "LanguageData");
+        SysPara.AlarmTableDirectory = Path.Combine(current, "AlarmTable");
+        Type language = typeof(ApplicationHost).Assembly.GetType("AlphaRap.FrameworkLanguage", true);
+        Type catalog = typeof(ApplicationHost).Assembly.GetType("AlphaRap.LanguageCatalog", true);
+        MethodInfo switchLanguage = language.GetMethod("SwitchLanguage", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        MethodInfo load = catalog.GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
+        MethodInfo save = catalog.GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic);
+        try
+        {
+            var module = new LogModuleDefinition { Name = "Products", Text = "Product history", Directory = Path.Combine(current, "logs"), ShowOnHome = true };
+            module.Fields.Add(new ProductionField { Name = "Barcode", Text = "Product barcode" });
+            Directory.CreateDirectory(SysPara.SettingDataDirectory);
+            using (var stream = File.Create(Path.Combine(SysPara.SettingDataDirectory, "DataForm.LogModules.xml")))
+                new XmlSerializer(typeof(List<LogModuleDefinition>)).Serialize(stream, new List<LogModuleDefinition> { module });
+            using (var manual = new DefaultManualPage())
+            using (var hardware = ApplicationHost.RegisterModule(new HardForm()))
+            using (var data = ApplicationHost.RegisterModule(new DataForm()))
+            {
+                switchLanguage.Invoke(null, new object[] { LanguageType.Chinese });
+                manual.BindResources(hardware.Resources);
+                var point = hardware.Resources.NewDefinition("Input");
+                point.Text = "Board sensor default";
+                var entry = hardware.Resources.Put(point);
+                Check(entry.Device.Text == point.Text, "The new IO did not display its default text.");
+
+                var camera = new VpCameraConfig { Name = "CameraA", FolderName = "StoreA", Text = "Camera default" };
+                string fallback = camera.DisplayText();
+                Check(fallback == camera.Text, "The camera used its engineering name in place of Text.");
+                Check(data.HomeLogColumnCaptions(new[] { "Barcode" }).Single() == "Product barcode", "The log did not load its display text.");
+
+                var rows = (System.Data.DataTable)load.Invoke(null, null);
+                var inputRow = rows.Rows.Cast<System.Data.DataRow>().Single(row => (string)row["Form"] == "HardwareResources" && (string)row["Object"] == "Input_" + point.Id);
+                Check((string)inputRow["Resource"] == point.Name + " · " + point.Text, "The language editor lacks the resource hint.");
+                inputRow["English"] = "Board sensor";
+                inputRow["Spanish"] = "Sensor de placa";
+                var cameraRow = rows.Rows.Cast<System.Data.DataRow>().Single(row => (string)row["Form"] == "VisionResources" && (string)row["Object"] == "Camera_StoreA");
+                cameraRow["Spanish"] = "Cámara principal";
+                var columnRow = rows.Rows.Cast<System.Data.DataRow>().Single(row => (string)row["Object"] == "Column_" + module.Id + "_Barcode");
+                columnRow["Spanish"] = "Código de producto";
+                save.Invoke(null, new object[] { rows });
+                Check(entry.Device.Text == point.Text, "Saving another language blanked the default text.");
+                switchLanguage.Invoke(null, new object[] { LanguageType.English });
+                Check(entry.Device.Text == "Board sensor", "The English IO caption did not refresh.");
+                switchLanguage.Invoke(null, new object[] { LanguageType.Español });
+                Check(ReferenceEquals(entry.Device, ApplicationHost.GetInput(point.Name)) && entry.Device.Text == "Sensor de placa", "Switching language changed the IO identity or missed its caption.");
+                camera.Name = "CameraRenamed";
+                Check(camera.DisplayText() == "Cámara principal" && camera.StorageFolder == "StoreA", "Camera rename changed a language or folder key.");
+
+                string file = data.WriteLogByName(module.Name, new Dictionary<string, object> { { "Barcode", "TEST001" } });
+                string[] headers;
+                data.ReadHomeLogPreview(DateTime.Today, SysPara.Simulation, out headers);
+                Check(headers.SequenceEqual(new[] { "Time", "Barcode" }) && data.HomeLogColumnCaptions(headers)[1] == "Código de producto",
+                    "The home view lost the raw log schema or ignored the translation.");
+                Check(File.ReadLines(file).First().Contains("Barcode") && !File.ReadLines(file).First().Contains("Código"), "Display translation leaked into a customer CSV header.");
+            }
+        }
+        finally
+        {
+            SysPara.LanguageDataDirectory = previousDirectory;
+            SysPara.AlarmTableDirectory = previousAlarm;
+            switchLanguage.Invoke(null, new object[] { previousLanguage });
+        }
     }
 
     /// <summary>验证动态 IO 的编辑、查找和删除都针对同一个配置身份。</summary>
@@ -627,7 +698,7 @@ internal static class ConfigurationProbe
             {
                 var selected = new LogModuleDefinition { Name = "Products", Directory = Path.Combine(current, "Products"), ShowOnHome = true };
                 selected.Fields.Add(new ProductionField { Name = "Result" });
-                selected.Fields.Add(new ProductionField { Name = "Barcode" });
+                selected.Fields.Add(new ProductionField { Name = "Barcode", Text = "Pallet barcode" });
                 var other = new LogModuleDefinition { Name = "Service", Directory = Path.Combine(current, "Service") };
                 other.Fields.Add(new ProductionField { Name = "Value" });
                 data.SetLogModulesDraft(new List<LogModuleDefinition> { selected, other });
@@ -647,7 +718,7 @@ internal static class ConfigurationProbe
                 var preview = data.ReadHomeLogPreview(day, true, out headers);
                 Check(File.Exists(path) && data.HomeLogRevision > revision && preview.Single().Skip(1).SequenceEqual(new[] { "OK", "PLT-001" }),
                     "A successful named write was not displayed in schema order.");
-                CheckHomeLogRows(headers);
+                CheckHomeLogRows(new[] { "Time", "Result", "Pallet barcode" });
                 using (var history = new ProductionQueryForm())
                 {
                     var rows = (List<ProductionRecord>)typeof(ProductionQueryForm).GetField("_rows", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(history);
@@ -667,6 +738,7 @@ internal static class ConfigurationProbe
                 using (var reopened = new DataForm())
                 {
                     preview = reopened.ReadHomeLogPreview(day, true, out headers);
+                    Check(reopened.HomeLogColumnCaptions(headers)[1] == "Pallet barcode", "Main Save lost the display text for a log column.");
                     Check(headers.SequenceEqual(new[] { "Time", "Barcode", "Result" }) && preview.Count == 2 && preview[0].Skip(1).SequenceEqual(new[] { "PLT-002", "NG" }),
                         "Renaming or reordering the module lost the saved binding or its historical values.");
                 }

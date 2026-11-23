@@ -72,7 +72,7 @@ namespace AlphaRap.MenuForm
         private void SetEditing(bool editing)
         {
             foreach (DataGridViewColumn column in dataGridView1.Columns)
-                column.ReadOnly = !editing || column.Index < 3;
+                column.ReadOnly = !editing || column == id || column == form || column == objeto || column == resource;
             btnUpdate.Enabled = !editing;
             btnSave.Enabled = editing;
             btnCancel.Enabled = editing;

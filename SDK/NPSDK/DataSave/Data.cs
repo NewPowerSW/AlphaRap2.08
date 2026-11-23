@@ -13,6 +13,16 @@ namespace DataSave
     {
         private int mark = -1;
         private int queryVersion;
+        private bool refreshingCaptions;
+        private string[] sourceNames = new string[0];
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Func<TypeCollection1, string> SourceCaption { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Func<TypeCollection1, string, string> ColumnCaption { get; set; }
         private DateTime lastQueryStart = DateTime.Today;
         private DateTime lastQueryEnd = DateTime.Today;
 
@@ -29,6 +39,7 @@ namespace DataSave
                 return;
             }
             ProcudtDataSlect.SelectedIndexChanged += (sender, args) => {
+                if (refreshingCaptions) return;
                 queryVersion++; listView1.Items.Clear(); listView1.Columns.Clear(); UpdateStats(0, 0, 0); SetStatus("");
             };
         }
@@ -63,11 +74,36 @@ namespace DataSave
         {
             if (InvokeRequired) { Invoke(new Action(ReloadSources)); return; }
             queryVersion++;
-            string selected = Convert.ToString(ProcudtDataSlect.SelectedItem);
+            int previousIndex = ProcudtDataSlect.SelectedIndex;
+            string selected = previousIndex >= 0 && previousIndex < sourceNames.Length ? sourceNames[previousIndex] : null;
+            sourceNames = ParameterSet.Select(source => source.Text).ToArray();
             ProcudtDataSlect.Items.Clear();
-            foreach (TypeCollection1 source in ParameterSet) ProcudtDataSlect.Items.Add(source.Text);
-            int index = ProcudtDataSlect.Items.IndexOf(selected);
+            foreach (TypeCollection1 source in ParameterSet) ProcudtDataSlect.Items.Add(SourceCaption?.Invoke(source) ?? source.Text);
+            int index = Array.IndexOf(sourceNames, selected);
             if (ProcudtDataSlect.Items.Count > 0) ProcudtDataSlect.SelectedIndex = index < 0 ? 0 : index;
+        }
+
+        /// <summary>只更新模块与表头文案，保留查询结果和正在进行的查询。</summary>
+        public void RefreshCaptions()
+        {
+            if (InvokeRequired) { Invoke(new Action(RefreshCaptions)); return; }
+            if (ProcudtDataSlect.Items.Count != ParameterSet.Count) return;
+            int selected = ProcudtDataSlect.SelectedIndex;
+            refreshingCaptions = true;
+            try
+            {
+                for (int index = 0; index < ParameterSet.Count; index++)
+                {
+                    TypeCollection1 source = ParameterSet[index];
+                    string caption = SourceCaption?.Invoke(source) ?? source.Text;
+                    if (!Equals(ProcudtDataSlect.Items[index], caption)) ProcudtDataSlect.Items[index] = caption;
+                }
+                ProcudtDataSlect.SelectedIndex = selected;
+                if (selected < 0) return;
+                foreach (ColumnHeader column in listView1.Columns)
+                    if (column.Tag is string key) column.Text = ColumnCaption?.Invoke(ParameterSet[selected], key) ?? key;
+            }
+            finally { refreshingCaptions = false; }
         }
 
         /// <summary>初次显示时绑定已有日志模块。</summary>
@@ -175,7 +211,7 @@ namespace DataSave
                 {
                     List<string[]> returndata = source.ReadDataFromToFile(startdate, enddate);
                     PostQuery(() => {
-                        if (version == queryVersion && !IsDisposed) ApplyQueryResult(returndata, startdate, enddate, ReadQuantity, filter, pathHint);
+                        if (version == queryVersion && !IsDisposed) ApplyQueryResult(source, returndata, startdate, enddate, ReadQuantity, filter, pathHint);
                     });
                 }
                 catch (Exception error)
@@ -199,7 +235,7 @@ namespace DataSave
         }
 
         /// <summary>按实际文件表头呈现历史记录，不采用已经切换的模块字段。</summary>
-        private void ApplyQueryResult(List<string[]> returndata, DateTime starTime1, DateTime endTime1, int ReadQuantity, string filter, string pathHint)
+        private void ApplyQueryResult(TypeCollection1 source, List<string[]> returndata, DateTime starTime1, DateTime endTime1, int ReadQuantity, string filter, string pathHint)
         {
             listView1.Columns.Clear();
             mark = -1;
@@ -218,7 +254,12 @@ namespace DataSave
 
             int columnCount = returndata[0].Length;
             for (int i = 0; i < columnCount; i++)
-                listView1.Columns.Add(returndata[0][i], i == 0 ? 180 : Math.Max(110, (listView1.Width - 180) / Math.Max(1, columnCount - 1)), HorizontalAlignment.Left);
+            {
+                string key = returndata[0][i];
+                string caption = ColumnCaption?.Invoke(source, key) ?? key;
+                int width = i == 0 ? 180 : Math.Max(110, (listView1.Width - 180) / Math.Max(1, columnCount - 1));
+                listView1.Columns.Add(caption, width, HorizontalAlignment.Left).Tag = key;
+            }
 
             if (ReadQuantity < returndata.Count && ReadQuantity != 0)
             {

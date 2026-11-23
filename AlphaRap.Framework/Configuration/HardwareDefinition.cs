@@ -11,6 +11,7 @@ namespace AlphaRap.Configuration
         public string Id = Guid.NewGuid().ToString("N");
         public string Kind = "Axis";
         public string Name = "Axis";
+        public string Text = "";
         public string ControlType = "";
         public string IoPageId = "";
         public string StationKey = "";
@@ -28,7 +29,7 @@ namespace AlphaRap.Configuration
         public bool ReverseState;
         public KeyenceDeviceType DeviceType = KeyenceDeviceType.R;
         public KeyenceDataFormat DataFormat = KeyenceDataFormat.U;
-        public static readonly string[] CommonFields = { "Name", "ControlType", "Vendor", "Port" };
+        public static readonly string[] CommonFields = { "Name", "Text", "ControlType", "Vendor", "Port" };
         public static readonly string[] AxisFields = { "WorkSpeed", "ManualSpeed", "MaxSpeed", "SpeedRatio", "Tacc", "Tdec", "PulseEquivalent", "EncoderPulseEquivalent", "HomeMode", "HomeDir", "HomeHighSpeed", "HomeLowSpeed", "HomeOffset", "LowLimit", "HighLimit" };
         public static readonly string[] IoFields = { "ConnectionPending", "PlcIp", "PlcPort", "DeviceType", "DataFormat", "Address", "OmronAddress", "OmronPort", "ReverseState" };
 
@@ -39,8 +40,8 @@ namespace AlphaRap.Configuration
         public string[] Fields()
         {
             if (Kind == "Axis") return CommonFields.Concat(AxisFields).ToArray();
-            if (Vendor == NPVendor.Keyence) return new[] { "Name", "ControlType", "Vendor", "PlcIp", "PlcPort", "DeviceType", "DataFormat", "Address", "ReverseState", "ConnectionPending" };
-            if (Vendor == NPVendor.Omron) return new[] { "Name", "ControlType", "Vendor", "PlcIp", "OmronAddress", "OmronPort", "ReverseState", "ConnectionPending" };
+            if (Vendor == NPVendor.Keyence) return new[] { "Name", "Text", "ControlType", "Vendor", "PlcIp", "PlcPort", "DeviceType", "DataFormat", "Address", "ReverseState", "ConnectionPending" };
+            if (Vendor == NPVendor.Omron) return new[] { "Name", "Text", "ControlType", "Vendor", "PlcIp", "OmronAddress", "OmronPort", "ReverseState", "ConnectionPending" };
             return CommonFields.Concat(new[] { "ReverseState", "ConnectionPending" }).ToArray();
         }
 

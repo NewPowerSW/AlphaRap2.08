@@ -13,7 +13,7 @@ namespace AlphaRap.Configuration
         private TabControl ioTabs;
         private TabPage ioDefaultPage;
         private ContextMenuStrip ioPageMenu;
-        private ToolStripMenuItem ioPageAdd,ioPageRename,ioPageDelete,resourceMove;
+        private ToolStripMenuItem ioPageAdd,ioPageRename,ioPageText,ioPageDelete,resourceMove;
         private Label hint,status,inputHeader,outputHeader;
 
         /// <summary>释放资源右键菜单及其项。</summary>
@@ -103,7 +103,10 @@ namespace AlphaRap.Configuration
             this.ioPageDelete = new ToolStripMenuItem();
             this.ioPageDelete.Name = "ioPageDelete";
             this.ioPageDelete.Text = "删除选项卡";
-            this.ioPageMenu.Items.AddRange(new ToolStripItem[] { ioPageAdd,ioPageRename,new ToolStripSeparator(),ioPageDelete });
+            this.ioPageText = new ToolStripMenuItem();
+            this.ioPageText.Name = "ioPageText";
+            this.ioPageText.Text = "显示文字";
+            this.ioPageMenu.Items.AddRange(new ToolStripItem[] { ioPageAdd,ioPageRename,ioPageText,new ToolStripSeparator(),ioPageDelete });
             this.ioTabs = new TabControl();
             this.ioTabs.Name = "ioResourceTabs";
             this.ioTabs.Dock = DockStyle.Fill;

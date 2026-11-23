@@ -32,6 +32,44 @@ namespace AlphaRap.FlowProgramming
             if (promptText != null) prompt.Text = promptText();
         }
 
+        /// <summary>编辑资源的默认显示文字，允许留空以使用工程名称。</summary>
+        internal static bool TryEditResourceText(IWin32Window owner, string currentText, out string text)
+        {
+            using (var dialog = new FlowInputForm(() => FrameworkLanguage.LangText("LanguageSetting", "resourceText", "显示文字")))
+            {
+                dialog.InputValue = currentText;
+                text = currentText;
+                if (dialog.ShowDialog(owner) != DialogResult.OK) return false;
+                text = dialog.InputValue.Trim();
+                return true;
+            }
+        }
+
+        /// <summary>为动态资源页签添加显示文字菜单，只操作右键命中的页签。</summary>
+        internal static void AttachResourceTextMenu(TabControl tabs, Action<TabPage> edit)
+        {
+            var menu = new ContextMenuStrip();
+            var item = new ToolStripMenuItem { Name = "editResourceText_dyn" };
+            menu.Items.Add(item);
+            tabs.ContextMenuStrip = menu;
+            tabs.Disposed += (sender, args) => menu.Dispose();
+            TabPage target = null;
+            menu.Opening += (sender, args) =>
+            {
+                target = null;
+                var point = tabs.PointToClient(Cursor.Position);
+                for (int index = 0; index < tabs.TabCount; index++)
+                {
+                    if (!tabs.GetTabRect(index).Contains(point)) continue;
+                    target = tabs.TabPages[index];
+                    break;
+                }
+                args.Cancel = target == null;
+                item.Text = FrameworkLanguage.LangText("LanguageSetting", "resourceText", "显示文字");
+            };
+            item.Click += (sender, args) => { if (target != null) edit(target); };
+        }
+
         /// <summary>将后台输入请求投递到主界面线程，超时关闭本次输入窗口。</summary>
         public static Task<string> Request(string message, CancellationToken token)
         {

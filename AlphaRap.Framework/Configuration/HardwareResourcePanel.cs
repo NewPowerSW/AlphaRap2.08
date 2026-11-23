@@ -51,6 +51,7 @@ namespace AlphaRap.Configuration
             addIoPage.Click += (sender,args) => Execute(() => EditIoPageName(null));
             ioPageAdd.Click += (sender,args) => Execute(() => EditIoPageName(null));
             ioPageRename.Click += (sender,args) => Execute(() => EditIoPageName(contextIoPageId));
+            ioPageText.Click += (sender,args) => Execute(EditIoPageText);
             ioPageDelete.Click += (sender,args) => Execute(DeleteIoPage);
             ioPageMenu.Opening += OpenIoPageMenu;
         }
@@ -185,7 +186,7 @@ namespace AlphaRap.Configuration
             });
             if (resourceKind == "IO")
                 sources = sources.Concat(Resources.CylinderEntries.Select(entry => new ConfigurationSourceEntry(entry.Definition.Id,
-                    Resources.IoCaption(entry.Definition.StationKey, entry.Definition.Name), () => DescribeCylinder(entry.Definition))));
+                    HardwareResources.DisplayText(entry.Definition), () => DescribeCylinder(entry.Definition))));
             using (var dialog = new ConfigurationSourceForm(Resources.PathName, sources, selectedId, Resources.LoadFailure))
                 dialog.ShowDialog(this);
         }
@@ -329,7 +330,7 @@ namespace AlphaRap.Configuration
                         axisTabs.TabPages.Add(page);
                         if (hadTabs || axes.Length == 1) selection = page;
                     }
-                    page.Tag = entry.Definition; page.Text = entry.Definition.Name; page.ToolTipText = entry.Definition.Name;
+                    page.Tag = entry.Definition; page.Text = HardwareResources.DisplayText(entry.Definition); page.ToolTipText = entry.Definition.Name;
                     if (entry.Group.Parent == page) continue;
                     entry.Group.Dock = DockStyle.Fill; entry.Group.Margin = Padding.Empty;
                     page.AutoScrollMinSize = entry.Group.MinimumSize + page.Padding.Size;
@@ -362,7 +363,7 @@ namespace AlphaRap.Configuration
                 foreach (HardwareEntry entry in Resources.Entries.Where(entry => entry.Definition.Kind == kind)) entry.Group.Visible = entry.Definition.IoPageId == pageId;
                 foreach (HardwareEntry entry in entries)
                 {
-                    entry.Device.Text = Resources.IoCaption(entry.Definition.StationKey, entry.Definition.Name);
+                    entry.Device.Text = HardwareResources.DisplayText(entry.Definition);
                     if (entry.Definition.ConnectionPending) entry.Device.Text += " · " + HardwareText.T("ConnectionPending");
                     entry.Group.Size = new System.Drawing.Size(tileWidth,40);
                     canvas.Controls.SetChildIndex(entry.Group,position++);
@@ -387,7 +388,7 @@ namespace AlphaRap.Configuration
                 HardwareEntry on = Resources.FindCylinderOutput(entry.Definition.OnOutputId);
                 HardwareEntry off = Resources.FindCylinderOutput(entry.Definition.OffOutputId);
                 string group = on?.Definition.IoPageId ?? off?.Definition.IoPageId ?? Resources.IoPages.FirstOrDefault()?.Id;
-                entry.Card.Text = Resources.IoCaption(entry.Definition.StationKey, entry.Definition.Name);
+                entry.Card.Text = HardwareResources.DisplayText(entry.Definition);
                 if (on == null || off == null) entry.Card.Text += " · " + HardwareText.T("cylinderMissing");
                 else if (on.Definition.ConnectionPending || off.Definition.ConnectionPending)
                     entry.Card.Text += " · " + HardwareText.T("ConnectionPending");
@@ -426,7 +427,7 @@ namespace AlphaRap.Configuration
                         ioTabs.TabPages.Add(page);
                         selection = page;
                     }
-                    page.Text = Resources.IoCaption(definition.Name, definition.Name); page.ToolTipText = definition.Name;
+                    page.Text = HardwareResources.DisplayText(definition); page.ToolTipText = definition.Name;
                 }
                 if (selection != null && ioTabs.TabPages.Contains(selection)) ioTabs.SelectedTab = selection;
                 else if (ioTabs.TabCount > 0) ioTabs.SelectedIndex = 0;
@@ -462,6 +463,15 @@ namespace AlphaRap.Configuration
             }
         }
 
+        /// <summary>从现有右键菜单编辑当前 IO 页的默认显示文字。</summary>
+        private void EditIoPageText()
+        {
+            FlowPrograms.RequireIdle();
+            HardwareIoPage page = Resources.IoPages.FirstOrDefault(item => item.Id == contextIoPageId);
+            if (page == null) return;
+            if (FlowInputForm.TryEditResourceText(TopLevelControl, page.Text, out string text)) Resources.SetIoPageText(page.Id, text);
+        }
+
         /// <summary>右键只定位实际命中的 IO 页签，空白区域不复用旧目标。</summary>
         private void SelectIoContextTab(object sender, MouseEventArgs args)
         {
@@ -482,6 +492,7 @@ namespace AlphaRap.Configuration
             bool editable = Resources != null && FlowPrograms.CanEdit && !FlowPrograms.AnyRunning && SysPara.SystemMode == RunMode.IDLE && !NPSDK.Flow_Module.Module_GetRunningStatus;
             ioPageAdd.Enabled = editable;
             ioPageRename.Enabled = editable && contextIoPageId != null;
+            ioPageText.Enabled = ioPageRename.Enabled;
             bool occupied = Resources != null && Resources.Entries.Any(entry => entry.Definition.Kind != "Axis" && entry.Definition.IoPageId == contextIoPageId);
             bool lastPage = Resources == null || Resources.IoPages.Count() <= 1;
             ioPageDelete.Enabled = ioPageRename.Enabled && !occupied && !lastPage;
@@ -510,7 +521,7 @@ namespace AlphaRap.Configuration
             string resourceId = definition.Id;
             foreach (HardwareIoPage page in Resources.IoPages)
             {
-                ToolStripMenuItem choice = new ToolStripMenuItem(page.Name) { Name="moveIo_"+page.Id, Checked=page.Id==definition.IoPageId, Enabled=page.Id!=definition.IoPageId };
+                ToolStripMenuItem choice = new ToolStripMenuItem(HardwareResources.DisplayText(page)) { Name="moveIo_"+page.Id, Checked=page.Id==definition.IoPageId, Enabled=page.Id!=definition.IoPageId };
                 string pageId = page.Id;
                 choice.Click += (sender, args) => Execute(() => Resources.MoveIoToPage(resourceId, pageId));
                 resourceMove.DropDownItems.Add(choice);
@@ -521,7 +532,7 @@ namespace AlphaRap.Configuration
         private void ApplyLanguage(object sender,EventArgs args)
         {
             HardwareText.Apply(this);
-            if (Resources != null && resourceKind == "IO") RefreshIoTabs();
+            if (Resources != null) RefreshEntries();
             resourceDelete.Text = HardwareText.Translate(resourceDelete.Name, "删除资源", "Delete resource", "Eliminar recurso");
             resourceProperties.Text = HardwareText.Translate(resourceProperties.Name, "属性编辑", "Edit properties", "Editar propiedades");
             resourceMove.Text = HardwareText.T("moveIoPage");
@@ -530,11 +541,14 @@ namespace AlphaRap.Configuration
             if (Resources?.LoadFailure != null) status.Text = HardwareText.T("checkSource");
             ioPageAdd.Text = HardwareText.T("addIoPage");
             ioPageRename.Text = HardwareText.T("renameIoPage");
+            ioPageText.Text = HardwareText.T("Text");
             ioPageDelete.Text = HardwareText.T("deleteIoPage");
             if (Resources == null) return;
             foreach (HardwareEntry entry in Resources.Entries.Where(BelongsHere))
             {
-                NP_AxisGroup axis = entry.Group as NP_AxisGroup; if (axis != null) axis.ApplyLanguage(HardwareText.Translate);
+                if (!(entry.Group is NP_AxisGroup axis)) continue;
+                axis.AxisCaption = HardwareResources.DisplayText(entry.Definition);
+                axis.ApplyLanguage(HardwareText.Translate);
             }
         }
 

@@ -12,13 +12,32 @@ namespace AlphaRap.Configuration
     {
         public string Id { get; set; } = Guid.NewGuid().ToString("N");
         public string Name { get; set; } = "Log";
+        [DefaultValue("")]
+        public string Text { get; set; } = "";
         public string Directory { get; set; } = "";
         [DefaultValue(false)]
         public bool ShowOnHome { get; set; }
         public List<ProductionField> Fields { get; set; } = new List<ProductionField>();
 
-        /// <summary>显示用户定义的日志名称，不翻译业务键。</summary>
-        public override string ToString() { return Name; }
+        /// <summary>按模块 ID 读取可见标题。</summary>
+        public override string ToString() => FrameworkLanguage.ResourceText("LogResources", "Module_" + Id, Name, Text);
+
+        /// <summary>按日志 ID 和字段名读取可见表头，保留客户日志列名。</summary>
+        internal string ColumnText(string name)
+        {
+            if (string.Equals(name, "Time", StringComparison.OrdinalIgnoreCase))
+                return FrameworkLanguage.ResourceText("LogResources", "Time", "Time", null);
+            ProductionField field = Fields.Find(item => string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase));
+            return field == null ? name : FrameworkLanguage.ResourceText("LogResources", "Column_" + Id + "_" + field.Name, field.Name, field.Text);
+        }
+
+        /// <summary>让未绑定到首页的日志也能在语言设置中找到其字段。</summary>
+        internal void RegisterCaptions()
+        {
+            ToString();
+            ColumnText("Time");
+            foreach (ProductionField field in Fields) ColumnText(field.Name);
+        }
     }
 
     /// <summary>机器级日志模块定义；运行读取已提交快照，编辑器操作独立草稿。</summary>
@@ -122,8 +141,8 @@ namespace AlphaRap.Configuration
         /// <summary>复制定义，防止窗口或流程实例修改存储层集合。</summary>
         private static List<LogModuleDefinition> Copy(IEnumerable<LogModuleDefinition> modules)
         {
-            return modules.Select(module => new LogModuleDefinition { Id = module.Id, Name = module.Name, Directory = module.Directory, ShowOnHome = module.ShowOnHome,
-                Fields = module.Fields.Select(field => new ProductionField { Name = field.Name, Type = field.Type }).ToList() }).ToList();
+            return modules.Select(module => new LogModuleDefinition { Id = module.Id, Name = module.Name, Text = module.Text, Directory = module.Directory, ShowOnHome = module.ShowOnHome,
+                Fields = module.Fields.Select(field => new ProductionField { Name = field.Name, Text = field.Text, Type = field.Type }).ToList() }).ToList();
         }
     }
 }

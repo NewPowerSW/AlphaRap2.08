@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Data;
 using System.Collections.Generic;
 using System.Linq;
+using AlphaRap.FlowProgramming;
 
 namespace AlphaRap
 {
@@ -18,6 +19,7 @@ namespace AlphaRap
 
             // 移除设计器中的预览页；真实相机页按 VPForm.Cameras.xml 生成（见 BuildVpPages）
             RemoveDesignPreviewPage();
+            FlowInputForm.AttachResourceTextMenu(tabControl1, EditCameraText);
 
 
             // 相机 / VPP 配置保存在独立的 VPForm.Cameras.xml（见 VpConfigStore），界面在 ModuleInitialize 后构建（见 BuildVpUi）
@@ -360,9 +362,7 @@ namespace AlphaRap
 		/// </summary>
 		private void SyncMainDisplays()
 		{
-			List<string> camKeys = new List<string>();
-			for (int i = 0; i < _cameras.Count; i++) camKeys.Add(_cameras[i].Name);
-			try { ApplicationHost.ModuleWindow?.SetCameraDisplays(camKeys); } catch (Exception) { }
+			RefreshMainCameraCaptions();
 
 			for (int i = 0; i < _cameras.Count; i++)
 			{
@@ -376,6 +376,33 @@ namespace AlphaRap
 				VpCalibration calib = _config.GetCalibration(cam.Name);
 				if (calib != null && calib.Station != null) RegisterDisplay(calib.Station, e.Display);
 			}
+		}
+
+		/// <summary>同步主界面相机标题，现有显示控件按工程名称继续绑定。</summary>
+		private void RefreshMainCameraCaptions()
+		{
+			try { ApplicationHost.ModuleWindow?.SetCameraDisplays(_cameras.Select(camera => camera.Name).ToList()); }
+			catch (Exception error) { System.Diagnostics.Debug.WriteLine(error); }
+		}
+
+		/// <summary>将相机的默认显示文字写入视觉配置草稿。</summary>
+		private void EditCameraText(TabPage page)
+		{
+			if (!(page.Tag is VpCameraConfig camera) || !EnsureIdle(Configuration.HardwareText.T("Text"))) return;
+			if (!FlowInputForm.TryEditResourceText(this, camera.Text, out string text) || camera.Text == text) return;
+			camera.Text = text;
+			MarkVpConfigDraft();
+			RefreshDynamicTexts();
+		}
+
+		/// <summary>将 VPP 的默认显示文字写入视觉配置草稿。</summary>
+		private void EditVppText(VpCameraConfig camera, TabPage page)
+		{
+			if (!(page.Tag is VpVppConfig vpp) || !EnsureIdle(Configuration.HardwareText.T("Text"))) return;
+			if (!FlowInputForm.TryEditResourceText(this, vpp.Text, out string text) || vpp.Text == text) return;
+			vpp.Text = text;
+			MarkVpConfigDraft();
+			RefreshVppInfoTexts(camera);
 		}
 
 		/// <summary>操作日志里用的"相机 / VPP"标识（拿不到相机名时退化为 VPP 名）。</summary>
@@ -492,7 +519,7 @@ namespace AlphaRap
 			TabPage page = new TabPage();
 			page.Name = DynCameraPrefix + cam.StorageFolder;
 			page.Tag = cam;
-			page.Text = cam.Name;
+			page.Text = cam.DisplayText();
 			page.Padding = new Padding(4);
 			page.UseVisualStyleBackColor = true;
 
@@ -550,6 +577,7 @@ namespace AlphaRap
 			// 该相机的 VPP 容器
 			TabControl vppTabs = ctl.VppTabs;
 			vppTabs.Tag = cam;
+			FlowInputForm.AttachResourceTextMenu(vppTabs, vppPage => EditVppText(cam, vppPage));
 			for (int i = 0; i < cam.Vpps.Count; i++)
 				vppTabs.TabPages.Add(BuildVppPage(cam, cam.Vpps[i], vppTabs));
 
@@ -921,7 +949,7 @@ namespace AlphaRap
 					System.IO.Path.Combine(cam.StorageFolder, cam.Vpps[i].StorageFolder));
 
 			cam.Name = newName;
-			page.Text = newName;
+			page.Text = cam.DisplayText();
 
 			// 标定以相机名为键（VpConfigFile.Calibrations），改名时同步更新键和 entry.Key
 			VpCalibration calOld = _config.GetCalibration(oldName);
@@ -956,6 +984,7 @@ namespace AlphaRap
 			for (int i = 0; i < tabs.TabPages.Count; i++)
 			{
 				TabPage p = tabs.TabPages[i];
+				if (p.Tag is VpVppConfig vpp) p.Text = vpp.DisplayText(cam);
 
 				// 归属行与路径行由 VpVppPage 生成（动态文案 _dyn）
 				for (int k = 0; k < p.Controls.Count; k++)
@@ -990,8 +1019,11 @@ namespace AlphaRap
 					CameraEntry e = _entries[i];
 					if (e == null) continue;
 					if (e.Page != null)
+					{
+						if (e.Config != null) e.Page.Text = e.Config.DisplayText();
 						foreach (Control control in e.Page.Controls)
-							if (control is VpCameraPage) ((VpCameraPage)control).RefreshTexts();
+							if (control is VpCameraPage cameraPage) cameraPage.RefreshTexts();
+					}
 
 					if (e.Config != null) RefreshVppInfoTexts(e.Config);
 					RefreshCalibrationTexts(e);
@@ -1024,7 +1056,7 @@ namespace AlphaRap
             else if (calib != null && !calib.IsAppliedTo(entry.Config, SysPara.RecipeName))
                 tail += T("vpCalib_Dirty", "　　▲ 已修改，未应用");
 
-			return head + "　" + entry.Key + tail;
+			return head + "　" + (entry.Config?.DisplayText() ?? entry.Key) + tail;
 		}
 
 		/// <summary>刷新标定卡上的标题（相机名 + 点数）与 vpp 路径，不重建整张卡。</summary>
@@ -1156,7 +1188,7 @@ namespace AlphaRap
 
 			TabPage page = new TabPage();
 			page.Name = DynVppPrefix + vpp.Id;
-			page.Text = vpp.Name;
+			page.Text = vpp.DisplayText(cam);
 			page.Padding = new Padding(3);
 			page.UseVisualStyleBackColor = true;
 			// 相机级「实时显示」通过它取当前 VPP 的曝光（见 LiveCamera / CurrentVpp）
@@ -1192,9 +1224,9 @@ namespace AlphaRap
 				? T("vpInfo_NoSN", " (未选择 SN)")
 				: " (SN " + cam.CameraSN + ")";
 
-			return T("vpInfo_Camera", "相机：") + cam.Name
+			return T("vpInfo_Camera", "相机：") + cam.DisplayText()
 				 + bind
-				 + T("vpInfo_Vpp", "　　VPP：") + (vpp != null ? vpp.Name : "")
+				 + T("vpInfo_Vpp", "　　VPP：") + (vpp?.DisplayText(cam) ?? "")
 				 + (IsProductionVpp(vpp) ? FrameworkLanguage.LangMsg(LangForm, "vpInfo_Production",
 					"　　生产定位", "    Production positioning", "    Posicionamiento de producción") : "");
 		}
@@ -1557,7 +1589,7 @@ namespace AlphaRap
 					vpp.Station.SetOwner(cam.Name, newName, System.IO.Path.Combine(cam.StorageFolder, vpp.StorageFolder));
 				}
 
-				page.Text = newName;
+				page.Text = vpp.DisplayText(cam);
 				info.Text = BuildVppInfoText(cam, vpp);
 				MarkVpConfigDraft();
 			}
@@ -1589,7 +1621,7 @@ namespace AlphaRap
 			if (vppTabs == null || vppTabs.SelectedTab == null) return;
 
 			TabPage vp = vppTabs.SelectedTab;
-			VpVppConfig vpp = FindVpp(cam, vp.Text);
+			VpVppConfig vpp = vp.Tag as VpVppConfig;
 			if (vpp == null) return;
 
 			if (!EnsureIdle(T("vpAct_DeleteVpp", "删除 VPP"))) return;
@@ -2000,8 +2032,11 @@ namespace AlphaRap
 					CameraEntry e = _entries[i];
 					if (e == null) continue;
 					if (e.Page != null)
+					{
+						if (e.Config != null) e.Page.Text = e.Config.DisplayText();
 						foreach (Control control in e.Page.Controls)
-							if (control is VpCameraPage) ((VpCameraPage)control).RefreshTexts();
+							if (control is VpCameraPage cameraPage) cameraPage.RefreshTexts();
+					}
 
 					if (e.Config != null) RefreshVppInfoTexts(e.Config);
 					RefreshCalibrationTexts(e);
@@ -2015,6 +2050,7 @@ namespace AlphaRap
 					VpVppConfig vpp = g.Tag as VpVppConfig;
 					if (vpp != null) RefreshCompLimitHeaders(g);
 				}
+				RefreshMainCameraCaptions();
 				UpdateVpHint();
 			}
 			catch (Exception) { }

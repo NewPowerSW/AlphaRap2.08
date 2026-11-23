@@ -11,6 +11,8 @@ namespace AlphaRap.FlowProgramming
     public sealed class ProductionField
     {
         public string Name { get; set; }
+        [System.ComponentModel.DefaultValue("")]
+        public string Text { get; set; } = "";
         public string Type { get; set; } = "Text";
     }
 
@@ -68,7 +70,7 @@ namespace AlphaRap
         /// <summary>复制字段定义，避免窗口修改运行列表。</summary>
         private static List<FlowProgramming.ProductionField> CopyFields(IEnumerable<FlowProgramming.ProductionField> fields)
         {
-            return fields.Select(field=>new FlowProgramming.ProductionField { Name=field.Name,Type=field.Type }).ToList();
+            return fields.Select(field=>new FlowProgramming.ProductionField { Name=field.Name,Text=field.Text,Type=field.Type }).ToList();
         }
 
         /// <summary>生产表定义与 DataForm 的机器配置保存在同一目录。</summary>
@@ -83,7 +85,7 @@ namespace AlphaRap
             lock (productionSync)
             {
                 if (productionFields == null) productionFields = ReadProductionSchema();
-                return productionFields.Select(field => new FlowProgramming.ProductionField { Name = field.Name, Type = field.Type }).ToList();
+                return productionFields.Select(field => new FlowProgramming.ProductionField { Name = field.Name, Text = field.Text, Type = field.Type }).ToList();
             }
         }
 

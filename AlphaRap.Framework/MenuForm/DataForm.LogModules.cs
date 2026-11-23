@@ -27,7 +27,7 @@ namespace AlphaRap
 
         /// <summary>在绑定或所选模块的持久化记录变化后递增，供首页合并刷新。</summary>
         public long HomeLogRevision => Interlocked.Read(ref homeLogRevision);
-        private readonly List<TypeCollection1> customLogs = new List<TypeCollection1>();
+        private readonly Dictionary<TypeCollection1, LogModuleDefinition> customLogs = new Dictionary<TypeCollection1, LogModuleDefinition>();
 
         private readonly List<RegisteredLog> registeredLogs = new List<RegisteredLog>();
 
@@ -72,7 +72,7 @@ namespace AlphaRap
         private void DisposeLogSources()
         {
             foreach (RegisteredLog log in registeredLogs) log.Source.Dispose();
-            foreach (TypeCollection1 log in customLogs) log.Dispose();
+            foreach (TypeCollection1 log in customLogs.Keys) log.Dispose();
         }
 
         /// <summary>读取日志配置独立副本，模块身份不随名称或配方改变。</summary>
@@ -130,6 +130,13 @@ namespace AlphaRap
 
         /// <summary>取得已保存的首页来源，未绑定时由页面使用原生产记录。</summary>
         internal LogModuleDefinition GetHomeLogModule() => GetLogModules(false).SingleOrDefault(module => module.ShowOnHome);
+
+        /// <summary>读取首页可见列标题，原始预览列继续用于匹配数据和导出。</summary>
+        public string[] HomeLogColumnCaptions(IEnumerable<string> columns)
+        {
+            LogModuleDefinition module = GetHomeLogModule();
+            return columns.Select(name => module?.ColumnText(name) ?? name).ToArray();
+        }
 
         /// <summary>从已选日志加载当天最近记录，再由写入接口增量更新。</summary>
         public List<string[]> ReadHomeLogPreview(DateTime day, bool simulation, out string[] columns)
@@ -239,14 +246,25 @@ namespace AlphaRap
             ValidateBuiltinLogs(definitions);
             data1.ParameterSet.Clear();
             foreach (RegisteredLog entry in registeredLogs) data1.ParameterSet.Add(entry.Source);
-            foreach (TypeCollection1 log in customLogs) log.Dispose();
+            foreach (TypeCollection1 log in customLogs.Keys) log.Dispose();
             customLogs.Clear();
             foreach (LogModuleDefinition definition in definitions)
             {
-                TypeCollection1 log = FlowLogModule.Create(definition); customLogs.Add(log); data1.ParameterSet.Add(log);
+                definition.RegisterCaptions();
+                TypeCollection1 log = FlowLogModule.Create(definition); customLogs.Add(log, definition); data1.ParameterSet.Add(log);
             }
             data1.ReloadSources();
         }
+
+        /// <summary>给数据页提供只用于显示的日志标题和列名。</summary>
+        private void SetupLogCaptions()
+        {
+            data1.SourceCaption = source => customLogs.TryGetValue(source, out var log) ? log.ToString() : source.Text;
+            data1.ColumnCaption = (source, key) => customLogs.TryGetValue(source, out var log) ? log.ColumnText(key) : key;
+        }
+
+        /// <summary>语言变更时保留查询条件和当前日志选择。</summary>
+        private void RefreshLogCaptions(object sender, EventArgs args) { data1.RefreshCaptions(); }
 
         /// <summary>打开单层模块与字段编辑窗口；确定只更新草稿。</summary>
         private void ManageLogModules(object sender, EventArgs args)

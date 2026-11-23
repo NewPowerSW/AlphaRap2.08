@@ -21,6 +21,7 @@ namespace AlphaRap.Configuration
             InitializeComponent();
             if (UiTheme.IsDesignTime) return;
             moduleName.Leave += RefreshModuleCaption;
+            moduleText.Leave += RefreshModuleCaption;
             add.Click += AddModule; moduleList.SelectedIndexChanged += SelectModule;
             moduleDelete.Click += DeleteModule; browse.Click += BrowseDirectory; ok.Click += Submit;
             moduleSource.Click += ShowConfigurationSource;
@@ -58,24 +59,25 @@ namespace AlphaRap.Configuration
             if (refreshing) return;
             CaptureSelection(); selected = moduleList.SelectedItem as LogModuleDefinition;
             moduleName.Text = selected == null ? "" : selected.Name;
+            moduleText.Text = selected?.Text ?? "";
             directory.Text = selected == null ? "" : selected.Directory;
-            moduleName.Enabled = directory.Enabled = browse.Enabled = fields.Enabled = selected != null;
+            moduleText.Enabled = moduleName.Enabled = directory.Enabled = browse.Enabled = fields.Enabled = selected != null;
             showOnHome.Enabled = selected != null;
             showOnHome.Checked = selected?.ShowOnHome == true;
             fields.Rows.Clear();
-            if (selected != null) foreach (ProductionField field in selected.Fields) fields.Rows.Add(field.Name, field.Type);
+            if (selected != null) foreach (ProductionField field in selected.Fields) fields.Rows.Add(field.Name, field.Type, field.Text);
         }
 
         /// <summary>将正在编辑的模块名称、目录及字段保留到窗口副本。</summary>
         private void CaptureSelection()
         {
             if (selected == null) return;
-            fields.EndEdit(); selected.Name = moduleName.Text; selected.Directory = directory.Text;
+            fields.EndEdit(); selected.Name = moduleName.Text; selected.Text = moduleText.Text.Trim(); selected.Directory = directory.Text;
             selected.ShowOnHome = showOnHome.Checked;
             if (selected.ShowOnHome)
                 foreach (LogModuleDefinition module in definitions.Where(module => module != selected)) module.ShowOnHome = false;
             selected.Fields = fields.Rows.Cast<DataGridViewRow>().Where(row => !row.IsNewRow)
-                .Select(row => new ProductionField { Name = Convert.ToString(row.Cells[0].Value), Type = Convert.ToString(row.Cells[1].Value) }).ToList();
+                .Select(row => new ProductionField { Name = Convert.ToString(row.Cells[0].Value), Type = Convert.ToString(row.Cells[1].Value), Text = Convert.ToString(row.Cells[2].Value).Trim() }).ToList();
         }
 
         /// <summary>名称编辑完成后刷新列表标题，不重建字段编辑状态。</summary>
@@ -85,6 +87,19 @@ namespace AlphaRap.Configuration
             int index = moduleList.SelectedIndex;
             if (selected == null || index < 0) return;
             refreshing = true; moduleList.Items[index] = selected; moduleList.SelectedIndex = index; refreshing = false;
+        }
+
+        /// <summary>语言切换时重绘模块标题，保留窗口中正在编辑的字段。</summary>
+        protected override void RefreshLanguageChoices()
+        {
+            refreshing = true;
+            try
+            {
+                int index = moduleList.SelectedIndex;
+                for (int row = 0; row < moduleList.Items.Count; row++) moduleList.Items[row] = moduleList.Items[row];
+                moduleList.SelectedIndex = index;
+            }
+            finally { refreshing = false; }
         }
 
         /// <summary>刷新模块列表并按稳定身份恢复选中项。</summary>
@@ -116,9 +131,9 @@ namespace AlphaRap.Configuration
         private static string DescribeConfiguration(LogModuleDefinition module, LogModuleDefinition published)
         {
             string scope = ConfigurationSourceForm.T("machineScope", "作用域　Setting（机器）", "Scope  Setting (machine)", "Ámbito  Setting (máquina)");
-            bool changed = published == null || published.Name != module.Name || published.Directory != module.Directory ||
+            bool changed = published == null || published.Name != module.Name || published.Text != module.Text || published.Directory != module.Directory ||
                 published.ShowOnHome != module.ShowOnHome || published.Fields.Count != module.Fields.Count ||
-                module.Fields.Where((field, index) => field.Name != published.Fields[index].Name || field.Type != published.Fields[index].Type).Any();
+                module.Fields.Where((field, index) => field.Name != published.Fields[index].Name || field.Type != published.Fields[index].Type || field.Text != published.Fields[index].Text).Any();
             string binding = module.ShowOnHome
                 ? ConfigurationSourceForm.T("homeYes", "首页生产记录　是", "Home production records  Yes", "Registros de producción de Inicio  Sí")
                 : ConfigurationSourceForm.T("homeNo", "首页生产记录　否", "Home production records  No", "Registros de producción de Inicio  No");

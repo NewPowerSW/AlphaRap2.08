@@ -8,6 +8,8 @@ namespace AlphaRap
     internal static partial class FrameworkLanguage
     {
         private static readonly LanguageType[] Languages = (LanguageType[])Enum.GetValues(typeof(LanguageType));
+        private static readonly Dictionary<string, ResourceCaption> ResourceCaptions = new Dictionary<string, ResourceCaption>(StringComparer.Ordinal);
+        private static string resourceLanguageDirectory;
         private static XmlDocument[] _langDocs;
         private static Dictionary<string, string>[] _languageTexts;
 
@@ -59,6 +61,57 @@ namespace AlphaRap
         public static string LangText(string formName, string key, string baseText)
         {
             return LangTextOf(SysPara.LanguageShow, formName, key) ?? baseText;
+        }
+
+        internal sealed class ResourceCaption
+        {
+            internal string Section;
+            internal string Key;
+            internal string Name;
+            internal string DefaultText;
+            internal string Hint => DefaultText == Name ? Name : Name + " · " + DefaultText;
+        }
+
+        /// <summary>使用稳定资源键读取语言 XML，并登记语言设置页可编辑的条目。</summary>
+        internal static string ResourceText(string section, string key, string name, string text, string legacySection = null, string legacyKey = null)
+        {
+            string xmlKey = XmlConvert.EncodeLocalName(key);
+            string fallback = string.IsNullOrWhiteSpace(text) ? name : text;
+            lock (LanguageSync)
+            {
+                ResetResourceCaptionsForDirectory();
+                string combinedKey = section + "/" + xmlKey;
+                if (!ResourceCaptions.TryGetValue(combinedKey, out var caption) || caption.Name != name || caption.DefaultText != fallback)
+                    ResourceCaptions[combinedKey] = new ResourceCaption
+                    {
+                        Section = section,
+                        Key = xmlKey,
+                        Name = name,
+                        DefaultText = fallback
+                    };
+                return LangTextOf(SysPara.LanguageShow, section, xmlKey)
+                    ?? (string.IsNullOrWhiteSpace(text) ? LangTextOf(SysPara.LanguageShow, legacySection, legacyKey) : null)
+                    ?? fallback;
+            }
+        }
+
+        /// <summary>提供当前语言目录中已登记的资源键，不把默认标题写成译文。</summary>
+        internal static ICollection<ResourceCaption> RegisteredResourceCaptions()
+        {
+            lock (LanguageSync)
+            {
+                ResetResourceCaptionsForDirectory();
+                return new List<ResourceCaption>(ResourceCaptions.Values);
+            }
+        }
+
+        /// <summary>切换语言目录时重新收集该目录下的动态资源。</summary>
+        private static void ResetResourceCaptionsForDirectory()
+        {
+            string directory = SysPara.LanguageDataDirectory;
+            if (string.Equals(resourceLanguageDirectory, directory, StringComparison.OrdinalIgnoreCase)) return;
+            ResourceCaptions.Clear();
+            resourceLanguageDirectory = directory;
         }
 
         /// <summary>从内存索引读取指定语言的文案，无键或空译文返回 null。</summary>

@@ -25,6 +25,7 @@ namespace AlphaRap.Configuration
     {
         public string Id = Guid.NewGuid().ToString("N");
         public string Name = "IO";
+        public string Text = "";
 
         /// <summary>返回不持有内部草稿的选项卡副本。</summary>
         public HardwareIoPage Copy() { return (HardwareIoPage)MemberwiseClone(); }
@@ -206,8 +207,20 @@ namespace AlphaRap.Configuration
             project.Resources.Add(added);
         }
 
-        /// <summary>翻译项目自带的 IO 标题，保留现场自定义名称。</summary>
-        internal string IoCaption(string key, string name) { return owner.IoCaption?.Invoke(key, name) ?? name; }
+        /// <summary>以资源 ID 解析轴或 IO 标题，兼容原工站的语言表。</summary>
+        public static string DisplayText(HardwareDefinition definition)
+        {
+            string legacyKey = definition.StationKey == definition.Name ? definition.StationKey : null;
+            string legacySection = FrameworkLanguage.LangText("StationIo", legacyKey, null) == null ? "ManualForm" : "StationIo";
+            return FrameworkLanguage.ResourceText("HardwareResources", definition.Kind + "_" + definition.Id,
+                definition.Name, definition.Text, legacySection, legacyKey);
+        }
+
+        /// <summary>以页签 ID 翻译标题，并兼容原有站点页签译文。</summary>
+        internal static string DisplayText(HardwareIoPage page)
+        {
+            return FrameworkLanguage.ResourceText("HardwareResources", "IoPage_" + page.Id, page.Name, page.Text, "StationIo", page.Name);
+        }
 
         /// <summary>列出首组冲突的键与所有关联资源，便于在文件中定位。</summary>
         private static void CheckDuplicateResources(IEnumerable<HardwareDefinition> resources, Func<HardwareDefinition, string> key, string message, bool includePorts = false)
@@ -243,14 +256,18 @@ namespace AlphaRap.Configuration
                 if (!FlowResourceGate.CanAccess(current.Device) || (current.Group is NP_AxisGroup && ((NP_AxisGroup)current.Group).IsManualRunning)) throw new InvalidOperationException(FlowText.T("busy"));
                 if (HardwareControlTypes.Resolve(definition.Kind,definition.ControlType) != HardwareControlTypes.Resolve(current.Definition.Kind,current.Definition.ControlType))
                     FlowPrograms.RequireHardwareUnused(definition.Id,PointsName(definition.Id));
-                bool connectionChanged = current.Definition.Fields().Union(definition.Fields()).Where(name => name != "Name")
+                bool connectionChanged = current.Definition.Fields().Union(definition.Fields()).Where(name => name != "Name" && name != "Text")
                     .Any(name => !Equals(typeof(HardwareDefinition).GetField(name).GetValue(current.Definition), typeof(HardwareDefinition).GetField(name).GetValue(definition)));
                 if (!connectionChanged || Ready(current.Device))
                 {
                     RequiresRestart |= connectionChanged;
-                    current.Definition = definition.Copy(); current.Group.Tag = current.Definition; current.Device.Text = definition.Name;
-                    NP_AxisGroup axis = current.Group as NP_AxisGroup;
-                    if (axis != null) axis.AxisCaption = definition.Name;
+                    current.Definition = definition.Copy(); current.Group.Tag = current.Definition;
+                    if (current.Group is NP_AxisGroup axis)
+                    {
+                        current.Device.Text = definition.Name;
+                        axis.AxisCaption = DisplayText(definition);
+                    }
+                    else current.Device.Text = DisplayText(definition);
                     IsDirty = true; if (Changed != null) Changed(this,EventArgs.Empty); return current;
                 }
             }
@@ -358,6 +375,16 @@ namespace AlphaRap.Configuration
             HardwareIoPage page = FindIoPage(id);
             ValidateIoPageName(name, id);
             page.Name = name; NotifyIoPageChange();
+        }
+
+        /// <summary>仅修改页签默认显示文字，主界面保存后写入硬件资源文件。</summary>
+        internal void SetIoPageText(string id, string text)
+        {
+            RequireIoPageEdit();
+            HardwareIoPage page = FindIoPage(id);
+            if (page.Text == text) return;
+            page.Text = text;
+            NotifyIoPageChange();
         }
 
         /// <summary>只允许删除空页，并始终保留至少一个 IO 分组。</summary>
@@ -480,7 +507,7 @@ namespace AlphaRap.Configuration
         private void CreateAxis(HardwareEntry entry)
         {
             HardwareDefinition definition = entry.Definition;
-            NP_AxisGroup group = new NP_AxisGroup { AxisCaption = definition.Name, LowLimit = definition.LowLimit, HighLimit = definition.HighLimit };
+            NP_AxisGroup group = new NP_AxisGroup { AxisCaption = DisplayText(definition), LowLimit = definition.LowLimit, HighLimit = definition.HighLimit };
             entry.Group = group;
             Type type = HardwareControlTypes.Resolve(definition.Kind,definition.ControlType);
             if (type != typeof(NP_Motor))
@@ -517,7 +544,7 @@ namespace AlphaRap.Configuration
                 ControlBaseInterface signal = (ControlBaseInterface)Activator.CreateInstance(type);
                 group.BindIO(signal);
             }
-            group.SignalCaption = definition.Name; group.IO.Name = "IO_" + definition.Id;
+            group.SignalCaption = DisplayText(definition); group.IO.Name = "IO_" + definition.Id;
             CopyProperties(definition,group.IO,definition.Fields());
             if (definition.ConnectionPending)
             {
@@ -532,7 +559,7 @@ namespace AlphaRap.Configuration
         /// <summary>仅拷贝 DTO 中预先列出的可配置属性，不执行任意动态对象方法。</summary>
         private static void CopyProperties(HardwareDefinition definition, object target, IEnumerable<string> fields)
         {
-            foreach (string field in fields.Where(name=>name!="Name" && name!="ControlType"))
+            foreach (string field in fields.Where(name=>name!="Name" && name!="Text" && name!="ControlType"))
             {
                 System.Reflection.PropertyInfo property = target.GetType().GetProperty(field);
                 if (property != null && property.CanWrite) property.SetValue(target,typeof(HardwareDefinition).GetField(field).GetValue(definition),null);
@@ -573,7 +600,7 @@ namespace AlphaRap.Configuration
                 if (kind != definition.Kind) continue;
                 if ((device is NP_Input input && string.IsNullOrEmpty(input.Port)) || (device is NP_Output output && string.IsNullOrEmpty(output.Port))) continue;
                 HardwareDefinition existing = new HardwareDefinition { Kind = kind };
-                foreach (string field in HardwareDefinition.CommonFields.Concat(kind == "Axis" ? new string[0] : HardwareDefinition.IoFields).Where(name=>name!="Name" && name!="ControlType"))
+                foreach (string field in HardwareDefinition.CommonFields.Concat(kind == "Axis" ? new string[0] : HardwareDefinition.IoFields).Where(name=>name!="Name" && name!="Text" && name!="ControlType"))
                 {
                     System.Reflection.PropertyInfo property = device.GetType().GetProperty(field);
                     if (property != null) typeof(HardwareDefinition).GetField(field).SetValue(existing,property.GetValue(device,null));

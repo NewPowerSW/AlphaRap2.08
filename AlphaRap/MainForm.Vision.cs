@@ -57,7 +57,11 @@ namespace AlphaRap
                     }
                 }
 
-                if (SameCameraKeys(keys)) return;
+                if (SameCameraKeys(keys))
+                {
+                    RefreshCameraCaptions();
+                    return;
+                }
 
                 RebuildCameraDisplays(keys);
             }
@@ -74,6 +78,20 @@ namespace AlphaRap
             CogRecordDisplay d;
             return _camDisplays.TryGetValue(cameraName, out d) ? d : null;
         }
+
+        /// <summary>只更新标题，保留画面控件和相机名索引。</summary>
+        private void RefreshCameraCaptions()
+        {
+            if (_camDisplayRoot == null) return;
+            foreach (string key in _camDisplayKeys)
+            {
+                Control[] captions = _camDisplayRoot.Controls.Find(CamCaptionPrefix + key, true);
+                foreach (Control caption in captions) caption.Text = CameraCaption(key);
+            }
+        }
+
+        /// <summary>使用相机的显示文字，启动阶段缺少注册模块时使用工程名称。</summary>
+        private static string CameraCaption(string name) => ApplicationHost.GetCamera(name)?.DisplayText() ?? name;
 
         private bool SameCameraKeys(List<string> keys)
         {
@@ -191,7 +209,7 @@ namespace AlphaRap
             caption.Font = UiKit.Bold(10.5f);
             caption.ForeColor = UiKit.TextPrimary;
             caption.Padding = new Padding(8, 0, 0, 0);
-            caption.Text = cameraName;      // 标签写相机名，与 VPForm 的相机页签一致
+            caption.Text = CameraCaption(cameraName);
 
             // 停靠顺序是"后加入的先停靠"：先加显示（Fill）、后加标签（Top），标签才会占到顶部
             cell.Controls.Add(disp);

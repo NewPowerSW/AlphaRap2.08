@@ -74,24 +74,12 @@ namespace AlphaRap.TaskProcess
                 return (HardwareProject)new XmlSerializer(typeof(HardwareProject)).Deserialize(input);
         }
 
-        /// <summary>翻译项目自带标题，在现场改名后显示设置中的名称。</summary>
-        internal static string Caption(string key, string name)
+        /// <summary>按当前语言显示工站点位，缺少配置时用原工艺键定位问题。</summary>
+        private string Caption(string key)
         {
-            if (key != name) return name;
-            switch (key)
-            {
-                case "System": return Text(key, "系统", "System", "Sistema");
-                case "UpBuffer": return Text(key, "上料缓冲", "Loader buffer", "Búfer de carga");
-                case "UpWork": return Text(key, "上料工作区", "Loader work area", "Zona de carga");
-                case "DownConveyor": return Text(key, "下料", "Unload conveyor", "Transportador de descarga");
-                case "Smema": return Text(key, "联机握手", "Line handshake", "Enlace de línea");
-                case "OB_UpConveyor_Buffer_Stop_Cylinder": return Text(key, "上料缓冲挡停", "Loader buffer stopper", "Tope del búfer de carga");
-                case "OB_UpConveyor_Work_Stop_Cylinder": return Text(key, "上料工作区挡停", "Loader work stopper", "Tope de la zona de carga");
-                case "OB_UpConveyor_Work_Jacking_Cylinder": return Text(key, "上料顶升", "Loader lift", "Elevador de carga");
-                case "OB_DownConveyor_Stop_Cylinder": return Text(key, "下料挡停", "Unload stopper", "Tope de descarga");
-                case "adlink_Input2": return Text(key, "停止按钮 2", "Stop button 2", "Botón de parada 2");
-                default: return ApplicationHost.Text("ManualForm", key, name);
-            }
+            HardwareDefinition definition = Find(key)?.Definition;
+            if (definition != null) return HardwareResources.DisplayText(definition);
+            return ApplicationHost.Text("ManualForm", key, key);
         }
 
         /// <summary>缓存工艺用的 IO，配置重载后使用当前硬件目录。</summary>
@@ -133,9 +121,9 @@ namespace AlphaRap.TaskProcess
             foreach (HardwareEntry entry in stationPoints.Concat(resources.CylinderOutputs()).Distinct())
             {
                 try { InitializePoint(entry.Device); }
-                catch (Exception error) { failures.Add(Caption(entry.Definition.StationKey, entry.Definition.Name) + " · " + error.Message); }
+                catch (Exception error) { failures.Add(HardwareResources.DisplayText(entry.Definition) + " · " + error.Message); }
             }
-            string[] unavailable = FlowPoints.Where(key => !SignalReady(key)).Select(key => Caption(key, Find(key)?.Definition.Name ?? key))
+            string[] unavailable = FlowPoints.Where(key => !SignalReady(key)).Select(Caption)
                 .Concat(FlowCylinders.Where(key => !resources.IsStationCylinderReady(key)).Select(resources.StationCylinderName)).ToArray();
             if (unavailable.Length == 0) return;
             throw new InvalidOperationException(Text("unavailable", "这些工艺 IO 尚未配置或驱动未就绪。", "These workflow IO points are unassigned or their drivers are not ready.",
@@ -204,10 +192,10 @@ namespace AlphaRap.TaskProcess
         }
 
         /// <summary>按工艺名称提示不可用的 IO。</summary>
-        private static InvalidOperationException Missing(string key)
+        private InvalidOperationException Missing(string key)
         {
             return new InvalidOperationException(string.Format(Text("missing", "工艺 IO「{0}」未就绪。",
-                "Workflow IO '{0}' is not ready.", "La E/S de proceso «{0}» no está lista."), Caption(key, key)));
+                "Workflow IO '{0}' is not ready.", "La E/S de proceso «{0}» no está lista."), Caption(key)));
         }
 
         /// <summary>使用框架项目词条提供三语说明。</summary>

@@ -10,8 +10,12 @@ namespace AlphaRap
     /// <summary>相机配置（对应 VPForm 的 tabControl1 中的一页），属于机器配置，不随配方变化。</summary>
     public class VpCameraConfig
     {
-        /// <summary>相机的显示名称。</summary>
+        /// <summary>相机的工程名称，用于代码访问及标定绑定。</summary>
         public string Name = "";
+        public string Text = "";
+
+        /// <summary>使用稳定的相机目录标识读取相机标题。</summary>
+        public string DisplayText() => FrameworkLanguage.ResourceText("VisionResources", "Camera_" + StorageFolder, Name, Text);
         /// <summary>首次创建时确定的存储目录，显示名称改变时保持不变。</summary>
         public string FolderName = "";
         public string StorageFolder { get { return string.IsNullOrEmpty(FolderName) ? Name : FolderName; } }
@@ -73,6 +77,11 @@ namespace AlphaRap
         /// <summary>工位的持久化标识，改名时保持不变。</summary>
         public string Id = Guid.NewGuid().ToString("N");
         public string Name = "";
+        public string Text = "";
+
+        /// <summary>使用稳定目录定位译文，兼容尚未保存 VPP ID 的旧配置。</summary>
+        internal string DisplayText(VpCameraConfig camera) => FrameworkLanguage.ResourceText("VisionResources",
+            "Vpp_" + camera.StorageFolder + "/" + StorageFolder, Name, Text);
         public string FolderName = "";
         public string StorageFolder { get { return string.IsNullOrEmpty(FolderName) ? Name : FolderName; } }
         /// <summary>
@@ -1069,6 +1078,7 @@ namespace AlphaRap
 
                         VpCameraConfig cam = new VpCameraConfig();
                         cam.Name = name;
+                        cam.Text = Attr(cn, "Text");
                         cam.FolderName = Attr(cn, "Folder");
                         if (string.IsNullOrEmpty(cam.FolderName)) cam.FolderName = name;
                         cam.CameraSN = Attr(cn, "SN");
@@ -1080,6 +1090,7 @@ namespace AlphaRap
                             if (vname == "") continue;
                             VpVppConfig vpp = new VpVppConfig();
                             vpp.Name = vname;
+                            vpp.Text = Attr(vn, "Text");
                             vpp.FolderName = Attr(vn, "Folder");
                             if (string.IsNullOrEmpty(vpp.FolderName)) vpp.FolderName = vname;
                             string id = Attr(vn, "Id");
@@ -1192,10 +1203,10 @@ namespace AlphaRap
             VpConfigFile result = new VpConfigFile { ProductionVppId = data.ProductionVppId, HiddenPages = new List<string>(data.HiddenPages) };
             foreach (VpCameraConfig camera in data.Cameras)
             {
-                VpCameraConfig copy = new VpCameraConfig { Name = camera.Name, FolderName = camera.FolderName, CameraSN = camera.CameraSN, Exposure = camera.Exposure };
+                VpCameraConfig copy = new VpCameraConfig { Name = camera.Name, Text = camera.Text, FolderName = camera.FolderName, CameraSN = camera.CameraSN, Exposure = camera.Exposure };
                 foreach (VpVppConfig vpp in camera.Vpps)
                 {
-                    VpVppConfig item = new VpVppConfig { Id = vpp.Id, Name = vpp.Name, FolderName = vpp.FolderName, Exposure = vpp.Exposure, Station = vpp.Station,
+                    VpVppConfig item = new VpVppConfig { Id = vpp.Id, Name = vpp.Name, Text = vpp.Text, FolderName = vpp.FolderName, Exposure = vpp.Exposure, Station = vpp.Station,
                         SaveImageEnabled = vpp.SaveImageEnabled, SaveImagePath = vpp.SaveImagePath, SaveImageOriginal = vpp.SaveImageOriginal,
                         SaveImageSnapshot = vpp.SaveImageSnapshot, SaveImageAutoDelete = vpp.SaveImageAutoDelete, SaveImageKeepDays = vpp.SaveImageKeepDays };
                     foreach (VpCompLimitItem limit in vpp.CompLimits)
@@ -1260,6 +1271,7 @@ namespace AlphaRap
 
                         XmlElement ce = doc.CreateElement("Camera");
                         ce.SetAttribute("Name", cam.Name);
+                        if (!string.IsNullOrEmpty(cam.Text)) ce.SetAttribute("Text", cam.Text);
                         ce.SetAttribute("Folder", cam.StorageFolder);
                         // 相机只按 SN 绑定，不再保存枚举下标
                         ce.SetAttribute("SN", cam.CameraSN ?? "");
@@ -1272,6 +1284,7 @@ namespace AlphaRap
                             XmlElement ve = doc.CreateElement("Vpp");
                             ve.SetAttribute("Id", cam.Vpps[j].Id);
                             ve.SetAttribute("Name", cam.Vpps[j].Name);
+                            if (!string.IsNullOrEmpty(cam.Vpps[j].Text)) ve.SetAttribute("Text", cam.Vpps[j].Text);
                             ve.SetAttribute("Folder", cam.Vpps[j].StorageFolder);
                             ve.SetAttribute("Exposure", cam.Vpps[j].Exposure.ToString("F3", CultureInfo.InvariantCulture));
                                 ve.SetAttribute("SaveImage", cam.Vpps[j].SaveImageEnabled.ToString());

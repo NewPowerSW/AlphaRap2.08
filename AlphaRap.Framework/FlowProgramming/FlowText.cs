@@ -6,6 +6,7 @@ namespace AlphaRap.FlowProgramming
     {
         public static readonly Dictionary<string, string[]> Defaults = new Dictionary<string, string[]>
         {
+            { "resourceText", new[] { "显示文字", "Display text", "Texto visible" } },
             { "refreshDocument", new[] { "刷新流程预览", "Refresh flow preview", "Actualizar vista previa del flujo" } },
             { "documentLinks", new[] { "连接设置", "Configure connections", "Configurar conexiones" } },
             { "documentKey", new[] { "流程画布的文档键不能为空或重复。", "Flow canvas document keys must be present and unique.", "Las claves de documento del lienzo deben existir y ser únicas." } },

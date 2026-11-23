@@ -29,6 +29,7 @@ namespace AlphaRap.Configuration
             this.resources = resources;
             draft = value.Copy();
             cylinderName.Text = draft.Name;
+            cylinderText.Text = draft.Text;
             ApplyLanguage(this, EventArgs.Empty);
             FrameworkLanguage.LanguageChanged += ApplyLanguage;
             Disposed += (sender, args) => FrameworkLanguage.LanguageChanged -= ApplyLanguage;
@@ -56,7 +57,7 @@ namespace AlphaRap.Configuration
         /// <summary>同时显示工程 IO 名称及卡片标题，便于区分同名译文。</summary>
         private string OutputCaption(HardwareDefinition output)
         {
-            string caption = resources.IoCaption(output.StationKey, output.Name);
+            string caption = HardwareResources.DisplayText(output);
             if (caption != output.Name) caption += " · " + output.Name;
             if (output.ConnectionPending) caption += " · " + HardwareText.T("ConnectionPending");
             return caption;
@@ -67,6 +68,7 @@ namespace AlphaRap.Configuration
         {
             Text = HardwareText.T("editCylinder");
             lblName.Text = HardwareText.T("Name");
+            lblText.Text = HardwareText.T("Text");
             lblOn.Text = HardwareText.T("cylinderOn");
             lblOff.Text = HardwareText.T("cylinderOff");
             btnOk.Text = FlowText.T("ok");
@@ -84,6 +86,7 @@ namespace AlphaRap.Configuration
             try
             {
                 draft.Name = cylinderName.Text.Trim();
+                draft.Text = cylinderText.Text.Trim();
                 draft.OnOutputId = onOutput.SelectedValue as string ?? "";
                 draft.OffOutputId = offOutput.SelectedValue as string ?? "";
                 resources.PutCylinder(draft);

@@ -11,7 +11,13 @@ namespace AlphaRap
         public DataForm()
         {
             InitializeComponent();
-            if (!UiTheme.IsDesignTime) RefreshLogSources(false);
+            if (!UiTheme.IsDesignTime)
+            {
+                SetupLogCaptions();
+                RefreshLogSources(false);
+                FrameworkLanguage.LanguageChanged += RefreshLogCaptions;
+                Disposed += (sender, args) => FrameworkLanguage.LanguageChanged -= RefreshLogCaptions;
+            }
             FlowProgramming.FlowLanguageForm.ApplyTexts(this);
             if (!UiTheme.IsDesignTime) FrameworkLanguage.RegisterAndApplyLanguage(this, Name);
             UiTheme.ApplyDpi(this);
