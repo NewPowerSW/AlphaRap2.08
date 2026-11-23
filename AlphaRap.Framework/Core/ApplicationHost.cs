@@ -207,6 +207,14 @@ namespace AlphaRap
         /// <summary>按硬件配置中的输出名称取得已有输出实例。</summary>
         public static NP_Output GetOutput(string name) { return (NP_Output)FindNamedHardware("Output", name).Device; }
 
+        /// <summary>按配置名称取得已经就绪的气缸组合。</summary>
+        public static NP_Cylinder GetCylinder(string name)
+        {
+            HardwareResources resources = FindModule<HardForm>()?.Resources;
+            if (resources == null) throw new KeyNotFoundException(name);
+            return resources.GetCylinder(name);
+        }
+
         /// <summary>按轴名称读取当前已提交配方的点位快照；P1 对应索引 0。</summary>
         public static FlowPointAxis GetAxisPoints(string axisName)
         {

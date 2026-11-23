@@ -17,6 +17,8 @@ namespace AlphaRap.Configuration
         public string DefaultsTag = "";
         public List<HardwareDefinition> Resources = new List<HardwareDefinition>();
         public List<HardwareIoPage> IoPages = new List<HardwareIoPage>();
+        public List<HardwareCylinderDefinition> Cylinders = new List<HardwareCylinderDefinition>();
+        public bool CylindersMigrated;
     }
 
     public sealed class HardwareIoPage
@@ -37,7 +39,7 @@ namespace AlphaRap.Configuration
         public override string ToString() { return (string.IsNullOrWhiteSpace(Device.Text) ? Definition.Name : Device.Text) + " · " + Definition.Kind; }
     }
 
-    public sealed class HardwareResources
+    public sealed partial class HardwareResources
     {
         private readonly HardForm owner;
         private readonly FlowLayoutPanel canvas;
@@ -58,12 +60,14 @@ namespace AlphaRap.Configuration
         public HardwareResources(HardForm form, FlowLayoutPanel host)
         {
             owner = form; canvas = host;
+            Changed += BindCylinderOutputs;
             try
             {
                 HardwareProject project = LoadWithDefaults();
                 defaultsTag = project.DefaultsTag;
                 ioPages.AddRange(project.IoPages);
                 foreach (HardwareDefinition definition in project.Resources) Create(definition);
+                ReplaceCylinders(project);
             }
             catch (Exception error)
             {
@@ -96,7 +100,8 @@ namespace AlphaRap.Configuration
             RequireIoPageEdit();
             HardwareDefinition draft = new HardwareDefinition { Kind=kind, IoPageId=kind=="Axis" ? "" : ioPages.First().Id };
             int nameIndex = 1;
-            while (Entries.Any(entry=>string.Equals(entry.Definition.Name,kind+"_"+nameIndex,StringComparison.OrdinalIgnoreCase))) nameIndex++;
+            while (Entries.Any(entry => string.Equals(entry.Definition.Name, kind + "_" + nameIndex, StringComparison.OrdinalIgnoreCase)) ||
+                cylinders.Values.Any(entry => string.Equals(entry.Definition.Name, kind + "_" + nameIndex, StringComparison.OrdinalIgnoreCase))) nameIndex++;
             draft.Name = kind+"_"+nameIndex;
             int count = kind=="Axis" ? 10 : 999*32;
             for (int index=0;index<count;index++)
@@ -149,15 +154,24 @@ namespace AlphaRap.Configuration
             CheckDuplicateResources(project.Resources, item => item.Name, "nameConflict");
             CheckDuplicateResources(project.Resources.Where(item => !string.IsNullOrEmpty(item.StationKey)), item => item.StationKey, "nameConflict");
             CheckDuplicateResources(project.Resources.Where(item => !item.ConnectionPending), PhysicalAddress, "addressConflict", includePorts: true);
+            ValidateCylinders(project, false);
             return project;
         }
 
-        /// <summary>首次加载项目模板时合入缺失资源及分组，保留已有配置和 ID。</summary>
+        /// <summary>合入机器默认 IO 和气缸，一次加载完成后再创建控件。</summary>
         private HardwareProject LoadWithDefaults()
         {
             HardwareProject project = Load(PathName);
             HardwareProject defaults = owner.ResourceDefaults;
-            if (defaults == null || project.DefaultsTag == defaults.DefaultsTag) return project;
+            if (defaults != null && project.DefaultsTag != defaults.DefaultsTag) MergeIoDefaults(project, defaults);
+            MergeCylinderDefaults(project, defaults);
+            ValidateCylinders(project, false);
+            return project;
+        }
+
+        /// <summary>首次加载项目模板时合入缺失资源及分组，保留已有配置和 ID。</summary>
+        private static void MergeIoDefaults(HardwareProject project, HardwareProject defaults)
+        {
             foreach (HardwareIoPage page in defaults.IoPages)
             {
                 HardwareIoPage existing = project.IoPages.FirstOrDefault(item => item.Id == page.Id ||
@@ -171,7 +185,6 @@ namespace AlphaRap.Configuration
             CheckDuplicateResources(project.Resources, item => item.Id, "idConflict");
             CheckDuplicateResources(project.Resources.Where(item => !string.IsNullOrEmpty(item.StationKey)), item => item.StationKey, "nameConflict");
             project.DefaultsTag = defaults.DefaultsTag;
-            return project;
         }
 
         /// <summary>只将同方向且同名的现有 IO 交给相应工站信号。</summary>
@@ -216,6 +229,8 @@ namespace AlphaRap.Configuration
             if (definition.Kind != "Axis" && !ioPages.Any(page => page.Id == definition.IoPageId)) throw new InvalidOperationException(HardwareText.T("ioPageMissing"));
             definition.Validate();
             if (entries.Values.Any(item=>item.Definition.Id!=definition.Id && string.Equals(item.Definition.Name,definition.Name,StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException(HardwareText.T("duplicate"));
+            if (cylinders.Values.Any(item => string.Equals(item.Definition.Name, definition.Name, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(item.Definition.Id, definition.Id, StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException(HardwareText.T("duplicate"));
             HardwareEntry current;
             entries.TryGetValue(definition.Id, out current);
             definition.StationKey = current?.Definition.StationKey ?? FindStationKey(definition);
@@ -261,6 +276,7 @@ namespace AlphaRap.Configuration
             FlowPrograms.RequireIdle();
             HardwareEntry entry;
             if (!entries.TryGetValue(id,out entry)) throw new InvalidOperationException(HardwareText.T("missing"));
+            RequireCylinderOutputUnused(id);
             FlowPrograms.RequireHardwareUnused(id,PointsName(id));
             if (!FlowResourceGate.CanAccess(entry.Device) || (entry.Group is NP_AxisGroup && ((NP_AxisGroup)entry.Group).IsManualRunning)) throw new InvalidOperationException(FlowText.T("busy"));
             RemoveGroup(entry);
@@ -275,6 +291,7 @@ namespace AlphaRap.Configuration
             if (loadError != null) throw new InvalidOperationException(loadError.Message, loadError);
             HardwareProject project = CaptureProject();
             ValidateIoPages(project);
+            ValidateCylinders(project, true);
             foreach (HardwareDefinition definition in project.Resources) definition.Validate();
             string path = System.IO.Path.GetFullPath(PathName); Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
             string temp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
@@ -294,7 +311,9 @@ namespace AlphaRap.Configuration
             if (loadError != null) throw new InvalidOperationException(loadError.Message, loadError);
             if (Entries.Any(entry=>entry.Group is NP_AxisGroup && ((NP_AxisGroup)entry.Group).IsManualRunning)) throw new InvalidOperationException(FlowText.T("busy"));
             foreach (HardwareEntry entry in Entries) { entry.Definition.Validate(); ValidatePhysicalAddress(entry.Definition,entry.Device); }
-            ValidateIoPages(CaptureProject());
+            HardwareProject project = CaptureProject();
+            ValidateIoPages(project);
+            ValidateCylinders(project, true);
         }
 
         /// <summary>将资源草稿写入主保存的暂存文件，不改变已保存状态。</summary>
@@ -318,6 +337,7 @@ namespace AlphaRap.Configuration
             foreach (HardwareEntry entry in Entries) RemoveGroup(entry);
             ioPages.Clear(); ioPages.AddRange(restored.IoPages);
             foreach (HardwareDefinition definition in restored.Resources) Create(definition);
+            ReplaceCylinders(restored);
             IsDirty = false; RequiresRestart = false; loadError = null;
             if (Changed != null) Changed(this,EventArgs.Empty);
         }
@@ -392,7 +412,11 @@ namespace AlphaRap.Configuration
         /// <summary>统一捕获资源和 IO 页签，主保存与独立回归使用同一份快照。</summary>
         private HardwareProject CaptureProject()
         {
-            return new HardwareProject { DefaultsTag=defaultsTag, Resources=Entries.Select(entry => entry.Definition.Copy()).ToList(), IoPages=IoPages.ToList() };
+            return new HardwareProject
+            {
+                DefaultsTag = defaultsTag, Resources = Entries.Select(entry => entry.Definition.Copy()).ToList(), IoPages = IoPages.ToList(),
+                CylindersMigrated = cylindersMigrated, Cylinders = cylinders.Values.Select(entry => entry.Definition.Copy()).ToList()
+            };
         }
 
         /// <summary>验证页签身份与 IO 归属完整性，损坏引用不能生成错误页面。</summary>

@@ -692,6 +692,13 @@
     </Compile>
     <Compile Include="Configuration\HardwareText.cs">
     </Compile>
+    <Compile Include="Configuration\HardwareCylinders.cs" />
+    <Compile Include="Configuration\HardwareCylinderEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\HardwareCylinderEditForm.Designer.cs">
+      <DependentUpon>HardwareCylinderEditForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Configuration\HardwareEditForm.cs">
       <SubType>Form</SubType>
     </Compile>

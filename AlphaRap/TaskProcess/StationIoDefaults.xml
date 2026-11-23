@@ -75,4 +75,10 @@
     <HardwareDefinition><Id>9417fecce88530ddfc4fb89d8305a620</Id><Kind>Input</Kind><Name>IB_DownConveyor_UpMachineAvailable_SMEMA</Name><StationKey>IB_DownConveyor_UpMachineAvailable_SMEMA</StationKey><IoPageId>4c666ec9c6869daa17a853c197927158</IoPageId><Port></Port><ConnectionPending>true</ConnectionPending></HardwareDefinition>
     <HardwareDefinition><Id>f843f20d54182f6bd6f9b62cab937a34</Id><Kind>Input</Kind><Name>IB_UpConveyor_UpMachineAvailable_SMEMA</Name><StationKey>IB_UpConveyor_UpMachineAvailable_SMEMA</StationKey><IoPageId>4c666ec9c6869daa17a853c197927158</IoPageId><Port></Port><ConnectionPending>true</ConnectionPending></HardwareDefinition>
   </Resources>
+  <Cylinders>
+    <HardwareCylinderDefinition><Id>cb1a269e4f8f1578acab4fdd9399e395</Id><Name>OB_UpConveyor_Buffer_Stop_Cylinder</Name><StationKey>OB_UpConveyor_Buffer_Stop_Cylinder</StationKey><OnOutputId>755104f62159fe117933b005f3b5ee9f</OnOutputId><OffOutputId>83f03614d7bbbccf3ef1d90b738e413e</OffOutputId></HardwareCylinderDefinition>
+    <HardwareCylinderDefinition><Id>6389cc9ba825edfa15e434c862c6c3fb</Id><Name>OB_UpConveyor_Work_Stop_Cylinder</Name><StationKey>OB_UpConveyor_Work_Stop_Cylinder</StationKey><OnOutputId>0278f7045a4f2caa32afe5fa66a7bcc5</OnOutputId><OffOutputId>6142598b86466c9a18cc0eecac86696a</OffOutputId></HardwareCylinderDefinition>
+    <HardwareCylinderDefinition><Id>61138e8c4c57a3cf7a9378a18b3d641c</Id><Name>OB_UpConveyor_Work_Jacking_Cylinder</Name><StationKey>OB_UpConveyor_Work_Jacking_Cylinder</StationKey><OnOutputId>0278f7045a4f2caa32afe5fa66a7bcc5</OnOutputId><OffOutputId>7fbaf4a44a46f1d06162dd22f3305d87</OffOutputId></HardwareCylinderDefinition>
+    <HardwareCylinderDefinition><Id>b8fbb859c6f180a14f23e734906f330b</Id><Name>OB_DownConveyor_Stop_Cylinder</Name><StationKey>OB_DownConveyor_Stop_Cylinder</StationKey><OnOutputId>c2f3fa5bee63ee86089e587b457f1433</OnOutputId><OffOutputId>6a55c50040d13ba9782a9eb3c31d86b5</OffOutputId></HardwareCylinderDefinition>
+  </Cylinders>
 </HardwareProject>

@@ -16,6 +16,9 @@ namespace NPSDK.Motion
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public System.Func<bool> ManualOperationAllowed { get; set; }
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public System.Func<bool> OperationAllowed { get; set; }
         public event System.Action<bool> ManualDriven;
 
 		[Browsable(true)]
@@ -129,6 +132,7 @@ namespace NPSDK.Motion
 
 		private bool Drive(bool on)
 		{
+            if (OperationAllowed != null && !OperationAllowed()) return false;
 			Bind();
 			foreach (NP_Output output in cyOnOutputs)
 			{

@@ -8,6 +8,16 @@ namespace AlphaRap.Configuration
         public static readonly Dictionary<string,string[]> Words = new Dictionary<string,string[]>
         {
             { "ioHint",new[]{"右键 IO 卡片编辑属性或删除。输出卡片与开关共用点击操作；配置统一使用主界面【保存】。连接和读写由流程负责。","Right-click an IO card to edit properties or delete. Click an output card or its switch to toggle. Use Main Save for configuration. The workflow controls connection and IO.","Clic derecho en una tarjeta para editar o eliminar. Pulse una salida o su interruptor para conmutar. Use Guardar principal. El flujo controla la conexión y las E/S."} },
+            { "addCylinder",new[]{"新增气缸","Add cylinder","Añadir cilindro"} },
+            { "editCylinder",new[]{"气缸组合","Cylinder control","Control de cilindro"} },
+            { "cylinderOn",new[]{"ON 输出","ON output","Salida ON"} },
+            { "cylinderOff",new[]{"OFF 输出","OFF output","Salida OFF"} },
+            { "cylinderNotReady",new[]{"气缸「{0}」的配置或输出未就绪。","Cylinder '{0}' or its outputs are not ready.","El cilindro «{0}» o sus salidas no están listos."} },
+            { "cylinderOutputsInvalid",new[]{"请为气缸「{0}」选择两个不同的数字输出。","Select two different digital outputs for cylinder '{0}'.","Seleccione dos salidas digitales distintas para el cilindro «{0}»."} },
+            { "stationCylinder",new[]{"此气缸被工站流程调用，可修改绑定。","The station uses this cylinder. Its output binding can be edited.","La estación usa este cilindro. Se pueden editar sus salidas."} },
+            { "cylinderOutputUsed",new[]{"输出仍被以下气缸使用，请先修改绑定。\r\n{0}","This output is used by the following cylinders. Change their bindings first.\r\n{0}","Los siguientes cilindros usan esta salida. Cambie sus asignaciones primero.\r\n{0}"} },
+            { "cylinderMissing",new[]{"输出缺失","Output missing","Falta la salida"} },
+            { "cylinderRemove",new[]{"删除气缸组合「{0}」？","Delete cylinder control '{0}'?","¿Eliminar el control de cilindro «{0}»?"} },
             { "ConnectionPending",new[]{"地址待配置","Address pending","Dirección pendiente"} },
             { "AxisPort",new[]{"轴号","Axis number","Número de eje"} },
             { "IoPort",new[]{"IO 点号","IO port","Puerto de E/S"} },

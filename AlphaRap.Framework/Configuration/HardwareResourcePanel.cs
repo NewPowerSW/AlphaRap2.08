@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
@@ -16,7 +15,6 @@ namespace AlphaRap.Configuration
         private TabPage contextAxisTab;
         private string contextIoPageId;
         private bool refreshingTabs;
-        private readonly Dictionary<Control, string> ioActions = new Dictionary<Control, string>();
         private string resourceKind = "Axis";
         [DefaultValue("Axis")]
         public string ResourceKind
@@ -43,6 +41,7 @@ namespace AlphaRap.Configuration
             addAxis.Click += (sender,args) => Execute(()=>EditNew("Axis"));
             addInput.Click += (sender,args) => Execute(()=>EditNew("Input"));
             addOutput.Click += (sender,args) => Execute(()=>EditNew("Output"));
+            addCylinder.Click += (sender,args) => Execute(() => EditCylinder(new HardwareCylinderDefinition()));
             edit.Click += (sender,args) => Execute(()=>EditEntry(Selected()));
             resourceMenu.Opening += OpenResourceMenu;
             resourceDelete.Click += (sender,args) => Execute(DeleteEntry);
@@ -73,14 +72,6 @@ namespace AlphaRap.Configuration
             BindEvents();
         }
 
-        /// <summary>将项目的组合 IO 操作显示在其所属资源页签。</summary>
-        public void AddIoAction(Control control, string stationKey)
-        {
-            ioActions.Add(control, stationKey);
-            canvas.Controls.Add(control);
-            ArrangeIo();
-        }
-
         /// <summary>绑定目录变更并挂接当前页面所属资源的交互。</summary>
         private void BindEvents()
         {
@@ -106,6 +97,7 @@ namespace AlphaRap.Configuration
             addAxis.Visible = resourceKind!="IO";
             addInput.Visible = resourceKind=="IO"; addOutput.Visible = resourceKind=="IO";
             addIoPage.Visible = resourceKind=="IO";
+            addCylinder.Visible = resourceKind=="IO";
             edit.Visible = resourceKind!="IO";
             axisTabs.Visible = resourceKind!="IO"; ioTabs.Visible = resourceKind=="IO"; canvas.Visible = resourceKind=="IO";
             toolbar.Height = 48;
@@ -142,10 +134,30 @@ namespace AlphaRap.Configuration
             using (HardwareEditForm dialog = new HardwareEditForm(entry.Definition,value=>{ Resources.Put(value); if (Resources.RequiresRestart) status.Text = HardwareText.T("restart"); })) dialog.ShowDialog(this);
         }
 
+        /// <summary>配置一组气缸的名称及两路输出，并显示到 ON 输出所在集合。</summary>
+        private void EditCylinder(HardwareCylinderDefinition definition)
+        {
+            FlowPrograms.RequireIdle();
+            if (Resources == null) throw new InvalidOperationException(HardwareText.T("missing"));
+            using (var dialog = new HardwareCylinderEditForm(Resources, definition))
+                if (dialog.ShowDialog(this) != DialogResult.OK) return;
+            HardwareCylinderEntry saved = Resources.FindCylinder(definition.Id);
+            string pageId = Resources.FindCylinderOutput(saved.Definition.OnOutputId)?.Definition.IoPageId;
+            TabPage page = ioTabs.TabPages.Cast<TabPage>().FirstOrDefault(item => Equals(item.Tag, pageId));
+            if (page != null) ioTabs.SelectedTab = page;
+        }
+
         /// <summary>检查当前资源后确认删除，服务层再次检查流程引用和占用。</summary>
         private void DeleteEntry()
         {
             FlowPrograms.RequireIdle();
+            HardwareCylinderEntry cylinder = Resources.FindCylinder(contextResourceId);
+            if (cylinder != null)
+            {
+                if (MessageBox.Show(this, string.Format(HardwareText.T("cylinderRemove"), cylinder.Card.Text),
+                    HardwareText.T("editCylinder"), MessageBoxButtons.OKCancel) == DialogResult.OK) Resources.DeleteCylinder(contextResourceId);
+                return;
+            }
             HardwareEntry entry = Resources.Find(contextResourceId);
             if (entry == null) return;
             if (MessageBox.Show(string.Format(HardwareText.T("remove"),entry.Definition.Name),HardwareText.T("title"),MessageBoxButtons.OKCancel) != DialogResult.OK) return;
@@ -156,6 +168,8 @@ namespace AlphaRap.Configuration
         private void EditContextEntry()
         {
             FlowPrograms.RequireIdle();
+            HardwareCylinderEntry cylinder = Resources.FindCylinder(contextResourceId);
+            if (cylinder != null) { EditCylinder(cylinder.Definition); return; }
             HardwareEntry entry = Resources.Find(contextResourceId);
             if (entry != null) EditEntry(entry);
         }
@@ -169,8 +183,21 @@ namespace AlphaRap.Configuration
                 HardwareDefinition definition = entry.Definition;
                 return new ConfigurationSourceEntry(definition.Id, definition.Name, () => DescribeConfiguration(definition));
             });
+            if (resourceKind == "IO")
+                sources = sources.Concat(Resources.CylinderEntries.Select(entry => new ConfigurationSourceEntry(entry.Definition.Id,
+                    Resources.IoCaption(entry.Definition.StationKey, entry.Definition.Name), () => DescribeCylinder(entry.Definition))));
             using (var dialog = new ConfigurationSourceForm(Resources.PathName, sources, selectedId, Resources.LoadFailure))
                 dialog.ShowDialog(this);
+        }
+
+        /// <summary>显示组合的两个引用及工程名称，便于从界面定位 XML。</summary>
+        private string DescribeCylinder(HardwareCylinderDefinition definition)
+        {
+            string on = Resources.FindCylinderOutput(definition.OnOutputId)?.Definition.Name ?? HardwareText.T("cylinderMissing");
+            string off = Resources.FindCylinderOutput(definition.OffOutputId)?.Definition.Name ?? HardwareText.T("cylinderMissing");
+            return string.Join(Environment.NewLine, new[] { definition.Name, "ID  " + definition.Id,
+                HardwareText.T("cylinderOn") + "  " + on + " [" + definition.OnOutputId + "]",
+                HardwareText.T("cylinderOff") + "  " + off + " [" + definition.OffOutputId + "]" });
         }
 
         /// <summary>显示配置值和归属；只访问内存定义，不读取硬件信号。</summary>
@@ -228,7 +255,16 @@ namespace AlphaRap.Configuration
             contextResourceId = null;
             Control control = resourceMenu.SourceControl;
             if (control == axisTabs) control = contextAxisTab;
-            while (control != null && !(control.Tag is HardwareDefinition)) control = control.Parent;
+            while (control != null && !(control.Tag is HardwareDefinition) && !(control.Tag is HardwareCylinderDefinition)) control = control.Parent;
+            var cylinder = control?.Tag as HardwareCylinderDefinition;
+            if (cylinder != null)
+            {
+                contextResourceId = cylinder.Id;
+                resourceProperties.Enabled = FlowPrograms.CanEdit && !FlowPrograms.ConfigurationBusy;
+                resourceDelete.Enabled = resourceProperties.Enabled && string.IsNullOrEmpty(cylinder.StationKey);
+                resourceMove.Visible = false;
+                return;
+            }
             HardwareDefinition definition = control == null ? null : control.Tag as HardwareDefinition;
             if (definition == null || Resources == null) { args.Cancel = true; return; }
             contextResourceId = definition.Id;
@@ -337,19 +373,30 @@ namespace AlphaRap.Configuration
             canvas.ResumeLayout();
         }
 
-        /// <summary>使组合操作跟随关联输出的实际配置分组。</summary>
+        /// <summary>动态生成的气缸卡跟随 ON 输出分组，并显示缺失的绑定。</summary>
         private void ArrangeIoActions(int tileWidth, int position)
         {
             string pageId = ioTabs.SelectedTab?.Tag as string;
-            foreach (var action in ioActions)
+            foreach (HardwareCylinderEntry entry in Resources.CylinderEntries)
             {
-                HardwareEntry entry = Resources.Entries.FirstOrDefault(item => item.Definition.StationKey == action.Value);
-                bool visible = entry != null && entry.Definition.IoPageId == pageId;
-                action.Key.Visible = visible;
+                if (entry.Card.Parent != canvas)
+                {
+                    BindResourceMenu(entry.Card);
+                    canvas.Controls.Add(entry.Card);
+                }
+                HardwareEntry on = Resources.FindCylinderOutput(entry.Definition.OnOutputId);
+                HardwareEntry off = Resources.FindCylinderOutput(entry.Definition.OffOutputId);
+                string group = on?.Definition.IoPageId ?? off?.Definition.IoPageId ?? Resources.IoPages.FirstOrDefault()?.Id;
+                entry.Card.Text = Resources.IoCaption(entry.Definition.StationKey, entry.Definition.Name);
+                if (on == null || off == null) entry.Card.Text += " · " + HardwareText.T("cylinderMissing");
+                else if (on.Definition.ConnectionPending || off.Definition.ConnectionPending)
+                    entry.Card.Text += " · " + HardwareText.T("ConnectionPending");
+                bool visible = group == pageId;
+                entry.Card.Visible = visible;
                 if (visible)
                 {
-                    action.Key.Width = tileWidth;
-                    canvas.Controls.SetChildIndex(action.Key, position++);
+                    entry.Card.Width = tileWidth;
+                    canvas.Controls.SetChildIndex(entry.Card, position++);
                 }
             }
         }

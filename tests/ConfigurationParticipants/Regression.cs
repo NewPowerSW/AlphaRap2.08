@@ -108,6 +108,7 @@ internal static class ConfigurationProbe
             Test("captured file lists and values survive later draft changes", FileSnapshot);
             Test("hardware lookup and display edits reuse the registered device", HardwareIdentity);
             Test("station IO defaults migrate once and flows resolve the same dynamic points", StationIoMigration);
+            Test("cylinders migrate and use editable stable output bindings", CylinderConfiguration);
             Test("device names are unique across panels and legacy keys still resolve", NamedDevices);
             Test("device tabs and panels have distinct control names", NamedDeviceControls);
             Test("VPP names resolve within the selected camera", NamedVision);
@@ -122,7 +123,7 @@ internal static class ConfigurationProbe
             Test("login shows progress and waits for background permissions", () => LoginWindow(false));
             Test("closing a login window discards late authentication", () => LoginWindow(true));
             Test("transition uses only compiled station graphs and preserves archived flow files", TransitionMonitor);
-            Console.WriteLine("RESULT configuration participants: " + passed + "/28 passed.");
+            Console.WriteLine("RESULT configuration participants: " + passed + "/29 passed.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
@@ -1112,6 +1113,96 @@ internal static class ConfigurationProbe
         public override bool GetState() { return State; }
         /// <summary>设置内存输出，不连接硬件。</summary>
         public override bool On() { State = true; return true; }
+        /// <summary>清除内存输出，不连接硬件。</summary>
+        public override bool Off() { State = false; return true; }
+    }
+
+    /// <summary>验证旧项目迁移、编辑器保存、名称查找和输出对象的实际组合行为。</summary>
+    private static void CylinderConfiguration()
+    {
+        ModuleManager.ModuleList.RemoveAll(form => form.IsDisposed);
+        const BindingFlags instance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        var app = (MachineApplication)Activator.CreateInstance(typeof(ManualForm).Assembly.GetType("AlphaRap.StationApplication"), true);
+        using (HardForm hardware = app.CreateHardwarePage())
+        using (var manual = ApplicationHost.RegisterModule(app.CreateManualPage()))
+        {
+            HardwareProject legacy = hardware.ResourceDefaults;
+            legacy = new HardwareProject { Resources = legacy.Resources.Select(point => point.Copy()).ToList(),
+                IoPages = legacy.IoPages.Select(page => page.Copy()).ToList(), DefaultsTag = legacy.DefaultsTag };
+            HardwareDefinition legacyOn = legacy.Resources.Single(point => point.StationKey == "OB_UpConveyor_Buffer_StopDown_Cylinder");
+            legacyOn.Id = Guid.NewGuid().ToString("N");
+            string file = Path.Combine(SysPara.SettingDataDirectory, "HardwareResources.xml");
+            Directory.CreateDirectory(SysPara.SettingDataDirectory);
+            using (var stream = File.Create(file)) new XmlSerializer(typeof(HardwareProject)).Serialize(stream, legacy);
+            ApplicationHost.RegisterModule(hardware);
+            manual.BindResources(hardware.Resources);
+            Check(HardwareResources.Load(file).Cylinders.Count == 0, "Opening the app wrote migrations outside main save.");
+
+            HardwareResources resources = hardware.Resources;
+            var open = resources.Put(new HardwareDefinition { Kind = "Output", Name = "Open valve", Port = "00127" });
+            var close = resources.Put(new HardwareDefinition { Kind = "Output", Name = "Close valve", Port = "00128" });
+            var spare = resources.Put(new HardwareDefinition { Kind = "Output", Name = "Spare valve", Port = "00129" });
+            var draft = new HardwareCylinderDefinition { Name = "Test cylinder", OnOutputId = open.Definition.Id, OffOutputId = close.Definition.Id };
+            MethodInfo put = typeof(HardwareResources).GetMethod("PutCylinder", instance);
+            var duplicate = draft.Copy();
+            duplicate.OffOutputId = duplicate.OnOutputId;
+            Throws<TargetInvocationException>(() => put.Invoke(resources, new object[] { duplicate }));
+
+            using (var dialog = (Form)Activator.CreateInstance(typeof(HardwareCylinderEditForm), instance, null, new object[] { resources, draft }, null))
+            {
+                dialog.Show();
+                var on = (ComboBox)dialog.Controls.Find("onOutput", true).Single();
+                var off = (ComboBox)dialog.Controls.Find("offOutput", true).Single();
+                Check(on.Items.Count == resources.Entries.Count(entry => entry.Definition.Kind == "Output"),
+                    "The editor offered resources other than outputs.");
+                ApplicationHost.InitializeLanguage(LanguageType.Español);
+                Check((string)on.SelectedValue == draft.OnOutputId && (string)off.SelectedValue == draft.OffOutputId,
+                    "Language refresh changed a draft binding.");
+                ((Button)dialog.Controls.Find("btnOk", true).Single()).PerformClick();
+                Check(dialog.DialogResult == DialogResult.OK, "The cylinder editor did not accept the selections.");
+            }
+
+            Check(HardwareResources.Load(file).Cylinders.Count == 0, "The edit dialog wrote configuration directly.");
+            ProjectConfiguration.Save();
+            HardwareProject published = HardwareResources.Load(file);
+            Check(published.CylindersMigrated && published.Cylinders.Count == 5
+                && published.Cylinders.Single(item => item.StationKey == "OB_UpConveyor_Buffer_Stop_Cylinder").OnOutputId == legacyOn.Id,
+                "Legacy combinations did not migrate using the real output ID.");
+            Throws<InvalidOperationException>(() => resources.Delete(open.Definition.Id));
+
+            var openDriver = new OfflineBoardSignal();
+            var closeDriver = new OfflineBoardSignal();
+            foreach (var output in new[] { open, close })
+            {
+                var fake = ReferenceEquals(output, open) ? openDriver : closeDriver;
+                typeof(NPSDK.Motion.NP_Output).GetField("dOutput", instance).SetValue(output.Device, fake);
+                typeof(NPSDK.Motion.NP_Output).GetField("ready", instance).SetValue(output.Device, true);
+            }
+            var live = ApplicationHost.GetCylinder(draft.Name);
+            Check(live.On() && openDriver.State && !closeDriver.State, "ON did not use the selected output.");
+            Check(live.Off() && closeDriver.State && !openDriver.State, "OFF did not use the selected output.");
+
+            var rename = open.Definition.Copy();
+            rename.Name = "Renamed open valve";
+            resources.Put(rename);
+            ProjectConfiguration.Save();
+            Check(ReferenceEquals(ApplicationHost.GetCylinder(draft.Name), live) && ReferenceEquals(live.CyOn_OB1, open.Device),
+                "Renaming an output changed the combination binding.");
+            draft.OnOutputId = spare.Definition.Id;
+            put.Invoke(resources, new object[] { draft });
+            Check(!live.On() && closeDriver.State, "A cached cylinder could act while a rebind was unsaved.");
+            ProjectConfiguration.Discard();
+            Check(live.IsDisposed && HardwareResources.Load(file).Cylinders.Single(item => item.Id == draft.Id).OnOutputId == open.Definition.Id,
+                "Discard did not restore the previous binding.");
+            Check(resources.CylinderOutputs().Any(entry => entry.Definition.Id == open.Definition.Id), "The saved combination lost its output after recovery.");
+            put.Invoke(resources, new object[] { draft });
+            ProjectConfiguration.Save();
+            ProjectConfiguration.Discard();
+            Check(HardwareResources.Load(file).Cylinders.Single(item => item.Id == draft.Id).OnOutputId == spare.Definition.Id
+                && !resources.CylinderOutputs().Any(entry => entry.Definition.Id == open.Definition.Id)
+                && resources.CylinderOutputs().Any(entry => entry.Definition.Id == spare.Definition.Id),
+                "A committed rebind did not survive reload.");
+        }
     }
 
     /// <summary>按实际节点身份核对两个阶段的入口，覆盖环形和并行流程。</summary>

@@ -6,7 +6,7 @@ namespace AlphaRap.Configuration
     partial class HardwareResourcePanel
     {
         private FlowLayoutPanel toolbar,canvas;
-        private Button addAxis,addInput,addOutput,edit,addIoPage,findConfiguration;
+        private Button addAxis,addInput,addOutput,addCylinder,edit,addIoPage,findConfiguration;
         private ContextMenuStrip resourceMenu;
         private ToolStripMenuItem resourceDelete, resourceProperties, resourceSource;
         private TabControl axisTabs;
@@ -86,7 +86,12 @@ namespace AlphaRap.Configuration
             this.findConfiguration.Name = "findHardwareConfiguration";
             this.findConfiguration.Text = "查找配置";
             this.findConfiguration.AutoSize = true;
-            this.toolbar.Controls.AddRange(new Control[] { addIoPage,addAxis,addInput,addOutput,edit,findConfiguration });
+            this.addCylinder = new Button();
+            this.addCylinder.Name = "resourceAddCylinder";
+            this.addCylinder.Tag = "addCylinder";
+            this.addCylinder.Text = "新增气缸";
+            this.addCylinder.AutoSize = true;
+            this.toolbar.Controls.AddRange(new Control[] { addIoPage,addAxis,addInput,addOutput,addCylinder,edit,findConfiguration });
             this.ioPageMenu = new ContextMenuStrip();
             this.ioPageMenu.Name = "ioPageMenu";
             this.ioPageAdd = new ToolStripMenuItem();
