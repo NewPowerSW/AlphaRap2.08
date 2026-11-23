@@ -64,7 +64,6 @@ internal static class ModuleProbe
         SysPara.RecipeDataDirectory = Path.Combine(root, "Recipes");
         SysPara.RecipeName = "Model"; SysPara.FilePath = Path.Combine(SysPara.RecipeDataDirectory, "Model.xml");
         SysPara.UserPermission = PermissionType.Administrator; SysPara.SystemMode = RunMode.IDLE;
-        FlowSourceGenerator.SourceProjectPath = ""; FlowSourceGenerator.OutputDirectory = Path.Combine(root, "Generated");
         try
         {
             Test("headless parameter initialization preserves legacy keys and uses no forms", HeadlessParameters);
@@ -128,7 +127,7 @@ internal static class ModuleProbe
     private static void HeadlessParameters()
     {
         int forms = ModuleManager.ModuleList.Count;
-        using (var module = new SystemParametersModule(new[] { new BooleanSettingDefault("Switch", "开关", "Switch", "Interruptor", true) }))
+        using (var module = new SystemParametersModule(new[] { new BooleanSettingDefault("Switch", "开关", true) }))
         {
             module.Initialize(new ModuleContext(SysPara.SettingDataDirectory));
             Check(ModuleManager.ModuleList.Count == forms && module.Id == "system.parameters", "A data module created a view.");

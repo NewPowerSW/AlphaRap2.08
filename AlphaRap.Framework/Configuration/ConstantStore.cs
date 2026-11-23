@@ -25,28 +25,14 @@ namespace AlphaRap.Configuration
     {
         public string Key { get; private set; }
         public bool PreserveLegacyColumn { get; private set; }
-        private readonly string zh, en, es;
+        internal string Text { get; }
 
-        /// <summary>声明初始常量的默认文字，译文从 DesignerConstants 语言节读取。</summary>
+        /// <summary>声明初始常量的默认说明和可选的同名 PSet 兼容列。</summary>
         public BooleanSettingDefault(string key, string text, bool preserveLegacyColumn = false)
-            : this(key, text, text, text, preserveLegacyColumn) { }
-
-        /// <summary>兼容仍由应用提供三语底稿的项目。</summary>
-        public BooleanSettingDefault(string key, string zh, string en, string es, bool preserveLegacyColumn = false)
         {
             Key = key;
-            this.zh = zh;
-            this.en = en;
-            this.es = es;
+            Text = text;
             PreserveLegacyColumn = preserveLegacyColumn;
-        }
-
-        /// <summary>使用当前语言和现场文案覆盖显示常量标题。</summary>
-        internal string Label()
-        {
-            if (UiTheme.IsDesignTime) return zh;
-            string fallback = SysPara.LanguageShow == LanguageType.Chinese ? zh : SysPara.LanguageShow == LanguageType.English ? en : es;
-            return FrameworkLanguage.LangText("DesignerConstants", Key, fallback);
         }
     }
 
@@ -314,7 +300,7 @@ namespace AlphaRap.Configuration
         internal string DescriptionText(string scope, string key, string description)
         {
             string fallback = description;
-            if (string.IsNullOrEmpty(fallback) && scope == "Setting" && defaults.TryGetValue(key, out var setting)) fallback = setting.Label();
+            if (string.IsNullOrEmpty(fallback) && scope == "Setting" && defaults.TryGetValue(key, out var setting)) fallback = setting.Text;
             string caption = FrameworkLanguage.ResourceText("ConstantResources", scope + "_" + key, key, fallback);
             return string.IsNullOrEmpty(fallback) && caption == key ? "" : caption;
         }

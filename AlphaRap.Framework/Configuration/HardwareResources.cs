@@ -207,20 +207,13 @@ namespace AlphaRap.Configuration
             project.Resources.Add(added);
         }
 
-        /// <summary>以资源 ID 解析轴或 IO 标题，兼容原工站的语言表。</summary>
-        public static string DisplayText(HardwareDefinition definition)
-        {
-            string legacyKey = definition.StationKey == definition.Name ? definition.StationKey : null;
-            string legacySection = FrameworkLanguage.LangText("StationIo", legacyKey, null) == null ? "ManualForm" : "StationIo";
-            return FrameworkLanguage.ResourceText("HardwareResources", definition.Kind + "_" + definition.Id,
-                definition.Name, definition.Text, legacySection, legacyKey);
-        }
+        /// <summary>以资源 ID 读取轴或 IO 的显示文字。</summary>
+        public static string DisplayText(HardwareDefinition definition) => FrameworkLanguage.ResourceText("HardwareResources",
+            definition.Kind + "_" + definition.Id, definition.Name, definition.Text);
 
-        /// <summary>以页签 ID 翻译标题，并兼容原有站点页签译文。</summary>
-        internal static string DisplayText(HardwareIoPage page)
-        {
-            return FrameworkLanguage.ResourceText("HardwareResources", "IoPage_" + page.Id, page.Name, page.Text, "StationIo", page.Name);
-        }
+        /// <summary>以页签 ID 读取 IO 分组的显示文字。</summary>
+        internal static string DisplayText(HardwareIoPage page) => FrameworkLanguage.ResourceText("HardwareResources",
+            "IoPage_" + page.Id, page.Name, page.Text);
 
         /// <summary>列出首组冲突的键与所有关联资源，便于在文件中定位。</summary>
         private static void CheckDuplicateResources(IEnumerable<HardwareDefinition> resources, Func<HardwareDefinition, string> key, string message, bool includePorts = false)

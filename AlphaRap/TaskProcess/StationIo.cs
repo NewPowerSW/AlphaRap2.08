@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 using System.Xml.Serialization;
 using AlphaRap.Configuration;
 using AlphaRapLibrary;
@@ -78,8 +77,7 @@ namespace AlphaRap.TaskProcess
         private string Caption(string key)
         {
             HardwareDefinition definition = Find(key)?.Definition;
-            if (definition != null) return HardwareResources.DisplayText(definition);
-            return ApplicationHost.Text("ManualForm", key, key);
+            return definition == null ? key : HardwareResources.DisplayText(definition);
         }
 
         /// <summary>缓存工艺用的 IO，配置重载后使用当前硬件目录。</summary>
@@ -114,7 +112,7 @@ namespace AlphaRap.TaskProcess
         {
             if (resources.IsDirty || resources.RequiresRestart)
                 throw new InvalidOperationException(resources.RequiresRestart ? HardwareText.T("restart") :
-                    Text("save", "请先从主界面保存或放弃 IO 配置修改。", "Save or discard the IO edits from the main window first.", "Guarde o descarte primero los cambios de E/S en la ventana principal."));
+                    FrameworkLanguage.LangText("StationIo", "save", "请先从主界面保存或放弃 IO 配置修改。"));
             if (SysPara.Simulation) return;
             var failures = new List<string>();
             var stationPoints = points.Values.Where(entry => !entry.Definition.ConnectionPending && IsSignalDirectionValid(entry.Definition.StationKey, entry.Device));
@@ -126,8 +124,7 @@ namespace AlphaRap.TaskProcess
             string[] unavailable = FlowPoints.Where(key => !SignalReady(key)).Select(Caption)
                 .Concat(FlowCylinders.Where(key => !resources.IsStationCylinderReady(key)).Select(resources.StationCylinderName)).ToArray();
             if (unavailable.Length == 0) return;
-            throw new InvalidOperationException(Text("unavailable", "这些工艺 IO 尚未配置或驱动未就绪。", "These workflow IO points are unassigned or their drivers are not ready.",
-                "Estas E/S del proceso no están asignadas o no están listas.") + Environment.NewLine +
+            throw new InvalidOperationException(FrameworkLanguage.LangText("StationIo", "unavailable", "这些工艺 IO 尚未配置或驱动未就绪。") + Environment.NewLine +
                 string.Join(Environment.NewLine, unavailable.Concat(failures)));
         }
 
@@ -194,11 +191,8 @@ namespace AlphaRap.TaskProcess
         /// <summary>按工艺名称提示不可用的 IO。</summary>
         private InvalidOperationException Missing(string key)
         {
-            return new InvalidOperationException(string.Format(Text("missing", "工艺 IO「{0}」未就绪。",
-                "Workflow IO '{0}' is not ready.", "La E/S de proceso «{0}» no está lista."), Caption(key)));
+            string message = FrameworkLanguage.LangText("StationIo", "missing", "工艺 IO「{0}」未就绪。");
+            return new InvalidOperationException(string.Format(message, Caption(key)));
         }
-
-        /// <summary>使用框架项目词条提供三语说明。</summary>
-        private static string Text(string key, string zh, string en, string es) { return FrameworkLanguage.LangMsg("StationIo", key, zh, en, es); }
     }
 }

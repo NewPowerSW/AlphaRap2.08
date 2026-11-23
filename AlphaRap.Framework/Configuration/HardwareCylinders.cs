@@ -80,16 +80,12 @@ namespace AlphaRap.Configuration
         public string StationCylinderName(string key)
         {
             var definition = FindStationCylinder(key)?.Definition;
-            return definition == null ? FrameworkLanguage.LangText("StationIo", key, key) : DisplayText(definition);
+            return definition == null ? key : DisplayText(definition);
         }
 
-        /// <summary>以气缸 ID 翻译操作卡标题，并兼容已有现场译文。</summary>
-        internal static string DisplayText(HardwareCylinderDefinition definition)
-        {
-            string legacyKey = definition.StationKey == definition.Name ? definition.StationKey : null;
-            return FrameworkLanguage.ResourceText("HardwareResources", "Cylinder_" + definition.Id,
-                definition.Name, definition.Text, "StationIo", legacyKey);
-        }
+        /// <summary>以气缸 ID 读取操作卡标题。</summary>
+        internal static string DisplayText(HardwareCylinderDefinition definition) => FrameworkLanguage.ResourceText("HardwareResources",
+            "Cylinder_" + definition.Id, definition.Name, definition.Text);
 
         /// <summary>找出项目声明的工艺气缸。</summary>
         private HardwareCylinderEntry FindStationCylinder(string key)

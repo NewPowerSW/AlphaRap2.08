@@ -291,12 +291,16 @@ internal static class ConfigurationProbe
                 cameraRow["Spanish"] = "Cámara principal";
                 var columnRow = rows.Rows.Cast<System.Data.DataRow>().Single(row => (string)row["Object"] == "Column_" + module.Id + "_Barcode");
                 columnRow["Spanish"] = "Código de producto";
+                const string obsoletePoint = "ObsoleteManualCaption";
+                rows.Rows.Add(rows.Rows.Count + 1, "ManualForm", obsoletePoint, "Old caption", "Título antiguo", "旧标题");
                 save.Invoke(null, new object[] { rows });
                 Check(entry.Device.Text == point.Text, "Saving another language blanked the default text.");
                 switchLanguage.Invoke(null, new object[] { LanguageType.English });
                 Check(entry.Device.Text == "Board sensor", "The English IO caption did not refresh.");
                 switchLanguage.Invoke(null, new object[] { LanguageType.Español });
                 Check(ReferenceEquals(entry.Device, ApplicationHost.GetInput(point.Name)) && entry.Device.Text == "Sensor de placa", "Switching language changed the IO identity or missed its caption.");
+                var legacyPoint = new HardwareDefinition { Kind = "Input", Name = obsoletePoint, StationKey = obsoletePoint };
+                Check(HardwareResources.DisplayText(legacyPoint) == obsoletePoint, "An obsolete ManualForm entry still overrides a dynamic IO name.");
                 camera.Name = "CameraRenamed";
                 Check(camera.DisplayText() == "Cámara principal" && camera.StorageFolder == "StoreA", "Camera rename changed a language or folder key.");
 

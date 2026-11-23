@@ -73,7 +73,7 @@ namespace AlphaRap
         }
 
         /// <summary>使用稳定资源键读取语言 XML，并登记语言设置页可编辑的条目。</summary>
-        internal static string ResourceText(string section, string key, string name, string text, string legacySection = null, string legacyKey = null)
+        internal static string ResourceText(string section, string key, string name, string text)
         {
             string xmlKey = XmlConvert.EncodeLocalName(key);
             string fallback = string.IsNullOrWhiteSpace(text) ? name : text;
@@ -89,9 +89,7 @@ namespace AlphaRap
                         Name = name,
                         DefaultText = fallback
                     };
-                return LangTextOf(SysPara.LanguageShow, section, xmlKey)
-                    ?? (string.IsNullOrWhiteSpace(text) ? LangTextOf(SysPara.LanguageShow, legacySection, legacyKey) : null)
-                    ?? fallback;
+                return LangTextOf(SysPara.LanguageShow, section, xmlKey) ?? fallback;
             }
         }
 
