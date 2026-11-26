@@ -169,9 +169,9 @@ namespace AlphaRap
         /// <summary>在后台读取现场运行条件，命令仍有效时在界面提示阻止原因。</summary>
         private static async Task<bool> CheckSafetyInputs(long version)
         {
-            if (!(Application is StationApplication) || SysPara.Simulation) return true;
+            if (!(Application is StationApplication station) || SysPara.Simulation) return true;
             string reason = null;
-            if (!await RunStartupWork(version, () => reason = AlwaysRunTask.SafetyBlockReason(StationApplication.Io))) return false;
+            if (!await RunStartupWork(version, () => reason = station.SafetyBlockReason())) return false;
             if (reason == null) return true;
             Application.ShowWarning(reason, LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar"));
             return false;

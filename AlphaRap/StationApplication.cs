@@ -173,6 +173,9 @@ namespace AlphaRap
         /// <summary>执行一次本站的后台状态更新。</summary>
         public override void Scan() { background.AlwaysRun(Io, MiddleLayer.StopForSafetyFault); }
 
+        /// <summary>读取同一批常驻任务登记的运行许可条件。</summary>
+        internal string SafetyBlockReason() { return background.SafetyBlockReason(Io); }
+
         /// <summary>旧流程以本站上料初始化标记决定是否允许生产。</summary>
         public override bool IsLegacyInitialized { get { return StationData.UpConveyorInitialOk; } }
 

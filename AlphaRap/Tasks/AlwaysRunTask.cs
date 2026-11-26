@@ -11,33 +11,41 @@ namespace AlphaRap
     internal sealed class AlwaysRunTask
     {
         private const string SafetyAlarmCode = "3023";
-        private static readonly string[] SafetyInputs =
-        {
-            "IB_Front_EmergencyStop",
-            "IB_Back_EmergencyStop",
-            "IB_Air",
-            "IB_SafetyReady"
-        };
-
+        private readonly List<string> requiredInputs = new List<string>();
         private readonly Stopwatch scanTimer = Stopwatch.StartNew();
         private readonly Dictionary<string, InputWatch> inputWatches = new Dictionary<string, InputWatch>(StringComparer.OrdinalIgnoreCase);
         private bool?[] previousSafety;
         private readonly JTimer blinkTimer = new JTimer();
         private bool blinkIsOn;
 
-        /// <summary>按资源名称登记普通 IO 状态回调。</summary>
+        /// <summary>集中登记运行许可与普通输入。</summary>
         internal AlwaysRunTask()
         {
+            WatchInput("IB_Front_EmergencyStop", requiredForRun: true);
+            WatchInput("IB_Back_EmergencyStop", requiredForRun: true);
+            WatchInput("IB_Air", requiredForRun: true);
+            WatchInput("IB_SafetyReady", requiredForRun: true);
+
             // WatchInput("IB_MaterialLow", on => Debug.WriteLine(on ? "缺料" : "料位正常"));
         }
 
         /// <summary>返回初始化时要连接的输入名称。</summary>
-        internal IEnumerable<string> InputNames => SafetyInputs.Concat(inputWatches.Keys);
+        internal IEnumerable<string> InputNames => requiredInputs.Concat(inputWatches.Keys);
 
-        /// <summary>按名称登记普通输入，取得首个有效值或有效状态变化时执行回调。</summary>
-        private void WatchInput(string name, Action<bool> onChanged)
+        /// <summary>按名称登记运行许可或普通状态回调，每个输入只登记一次。</summary>
+        private void WatchInput(string name, Action<bool> onChanged = null, bool requiredForRun = false)
         {
-            inputWatches.Add(name, new InputWatch(onChanged));
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("An IO resource name is required.", nameof(name));
+            if (inputWatches.ContainsKey(name) || requiredInputs.Contains(name, StringComparer.OrdinalIgnoreCase))
+                throw new ArgumentException("Input already registered: " + name, nameof(name));
+            if (!requiredForRun)
+            {
+                inputWatches.Add(name, new InputWatch(onChanged));
+                return;
+            }
+
+            if (onChanged != null) throw new ArgumentException("A run permit is handled by the machine safety monitor.", nameof(onChanged));
+            requiredInputs.Add(name);
         }
 
         /// <summary>在真机模式监视运行许可和普通输入，并更新本站闪烁时基。</summary>
@@ -90,31 +98,31 @@ namespace AlphaRap
         }
 
         /// <summary>在派发初始化、启动或继续前重新读取现场状态，返回阻止动作的原因。</summary>
-        internal static string SafetyBlockReason(StationIo io)
+        internal string SafetyBlockReason(StationIo io)
         {
             return SysPara.Simulation ? null : DescribeFault(io, SampleSafety(io));
         }
 
         /// <summary>逐点读取健康状态，单点异常保留为未知并继续读取其他点。</summary>
-        private static bool?[] SampleSafety(StationIo io)
+        private bool?[] SampleSafety(StationIo io)
         {
-            var states = new bool?[SafetyInputs.Length];
+            var states = new bool?[requiredInputs.Count];
             for (int index = 0; index < states.Length; index++)
             {
-                try { states[index] = io?.ReadSafetyInput(SafetyInputs[index]); }
-                catch (Exception error) { Debug.WriteLine(SafetyInputs[index] + " " + error); }
+                try { states[index] = io?.ReadSafetyInput(requiredInputs[index]); }
+                catch (Exception error) { Debug.WriteLine(requiredInputs[index] + " " + error); }
             }
             return states;
         }
 
         /// <summary>按当前语言列出异常输入，区分状态异常和无法读取。</summary>
-        private static string DescribeFault(StationIo io, bool?[] states)
+        private string DescribeFault(StationIo io, bool?[] states)
         {
-            var details = new List<string>(SafetyInputs.Length);
+            var details = new List<string>(requiredInputs.Count);
             for (int index = 0; index < states.Length; index++)
             {
                 if (states[index] == true) continue;
-                string key = SafetyInputs[index];
+                string key = requiredInputs[index];
                 string name = io?.SafetyInputCaption(key) ?? key;
                 string reason = states[index].HasValue
                     ? LangMsg("SafetyMonitor", "inactive", "{0}条件未满足", "{0} is not ready", "{0} no está listo")

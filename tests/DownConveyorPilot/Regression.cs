@@ -23,6 +23,7 @@ internal static class Regression
         "IB_Front_EmergencyStop", "IB_Back_EmergencyStop", "IB_Air", "IB_SafetyReady"
     };
     private const string WatchedInput = "IB_OfflineMaterialLow";
+    private const string RequiredInput = "IB_OfflineRequiredReady";
     private static int checks;
 
     /// <summary>模拟 SDK 驱动，在内存中保存点位状态。</summary>
@@ -135,9 +136,10 @@ internal static class Regression
             var watchedStates = new List<bool>();
             object background = app.GetType().GetField("background", Instance).GetValue(app);
             MethodInfo watch = background.GetType().GetMethod("WatchInput", Instance);
-            watch.Invoke(background, new object[] { WatchedInput, new Action<bool>(watchedStates.Add) });
+            watch.Invoke(background, new object[] { WatchedInput, new Action<bool>(watchedStates.Add), false });
+            watch.Invoke(background, new object[] { RequiredInput, null, true });
             int missingNotifications = 0;
-            watch.Invoke(background, new object[] { "IB_OptionalMissing", new Action<bool>(_ => missingNotifications++) });
+            watch.Invoke(background, new object[] { "IB_OptionalMissing", new Action<bool>(_ => missingNotifications++), false });
             app.GetType().GetMethod("BindStationIo", Instance).Invoke(app, new object[] { hardware.Resources });
             var simulator = new Simulator(hardware.Resources);
             VerifyWithoutManualPage(app, hardware.Resources);
@@ -191,16 +193,15 @@ internal static class Regression
         Type applicationAssemblyType = app.GetType();
         Type host = applicationAssemblyType.Assembly.GetType("AlphaRap.MiddleLayer", true);
         host.GetField("Application", Static).SetValue(null, app);
-        object io = applicationAssemblyType.GetProperty("Io", Static).GetValue(null, null);
-        Type monitor = applicationAssemblyType.Assembly.GetType("AlphaRap.AlwaysRunTask", true);
-        MethodInfo blockReason = monitor.GetMethod("SafetyBlockReason", Static);
-        Func<string> reason = () => (string)blockReason.Invoke(null, new[] { io });
+        MethodInfo blockReason = applicationAssemblyType.GetMethod("SafetyBlockReason", Instance);
+        Func<string> reason = () => (string)blockReason.Invoke(app, null);
 
         Check(reason().Contains("cannot be read"), "Unknown inputs must block initialization with a diagnostic.");
-        foreach (string point in SafetyInputs) simulator.SetInput(point, point != "IB_Back_EmergencyStop");
-        Check(reason() == null, "A reversed, healthy rear emergency stop and three high inputs must permit start.");
+        string[] requiredPoints = SafetyInputs.Concat(new[] { RequiredInput }).ToArray();
+        foreach (string point in requiredPoints) simulator.SetInput(point, point != "IB_Back_EmergencyStop");
+        Check(reason() == null, "All inputs registered as required must permit start when healthy.");
 
-        foreach (string point in SafetyInputs)
+        foreach (string point in requiredPoints)
         {
             bool healthy = point != "IB_Back_EmergencyStop";
             simulator.SetInput(point, !healthy);
@@ -208,7 +209,7 @@ internal static class Regression
             simulator.SetInput(point, healthy);
         }
 
-        simulator.Points["IB_Air"].InputReadFailed = true;
+        simulator.Points[RequiredInput].InputReadFailed = true;
         Check(reason().Contains("cannot be read"), "A read failure must stay unknown even when the driver object is ready.");
         MachineState.Global.Initialize();
         MachineState.Global.Start(true);
@@ -221,16 +222,17 @@ internal static class Regression
         app.Scan();
         Check(Alarm.AlarmList.Count(alarm => alarm.Code == "3023") == 1, "A persistent fault must not flood alarms.");
 
-        simulator.Points["IB_Air"].InputReadFailed = false;
+        simulator.Points[RequiredInput].InputReadFailed = false;
         Check(reason() == null && SysPara.SystemMode == RunMode.IDLE, "Recovery must clear the permit check without starting a session.");
         SysPara.Simulation = true;
-        simulator.Points["IB_Air"].InputReadFailed = true;
+        simulator.Points[RequiredInput].InputReadFailed = true;
         Check(reason() == null, "Simulation must not require physical input reads.");
         MachineState.Global.Initialize();
         app.Scan();
         Check(SysPara.SystemMode == RunMode.INITIAL, "Simulation must not dispatch a safety stop.");
         SysPara.SystemMode = RunMode.IDLE;
         SysPara.Simulation = false;
+        simulator.Points[RequiredInput].InputReadFailed = false;
         Alarm.Clear();
     }
 
@@ -307,6 +309,12 @@ internal static class Regression
         {
             Kind = "Input", Name = WatchedInput, IoPageId = project.IoPages[0].Id,
             Port = "001" + pointIndex.ToString("D2"), ReverseState = true
+        });
+
+        project.Resources.Add(new HardwareDefinition
+        {
+            Kind = "Input", Name = RequiredInput, IoPageId = project.IoPages[0].Id,
+            Port = "001" + (pointIndex + 1).ToString("D2")
         });
 
         string path = Path.Combine(SysPara.SettingDataDirectory, "HardwareResources.xml");
