@@ -16,9 +16,10 @@ namespace AlphaRap.Configuration
         private ToolStripMenuItem ioPageAdd,ioPageRename,ioPageText,ioPageDelete,resourceMove;
         private Label hint,status,inputHeader,outputHeader;
 
-        /// <summary>释放资源右键菜单及其项。</summary>
+        /// <summary>归还共享 IO 后释放本面板和菜单。</summary>
         protected override void Dispose(bool disposing)
         {
+            if (disposing) ReleaseResources();
             if (disposing && resourceMenu != null) resourceMenu.Dispose();
             if (disposing && ioPageMenu != null) ioPageMenu.Dispose();
             base.Dispose(disposing);

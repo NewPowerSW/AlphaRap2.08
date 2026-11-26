@@ -1110,6 +1110,7 @@ internal static class ConfigurationProbe
         using (var hardware = ApplicationHost.RegisterModule(app.CreateHardwarePage()))
         using (var manual = ApplicationHost.RegisterModule(app.CreateManualPage()))
         {
+            app.GetType().GetMethod("BindStationIo", instance).Invoke(app, new object[] { hardware.Resources });
             Check(!NPSDK.SDKPara.ControlsSnapshot().Any(control => control.Name == existing.Name), "Manual designer created a fixed copy.");
             manual.BindResources(hardware.Resources);
             HardwareEntry[] entries = hardware.Resources.Entries.ToArray();
@@ -1151,7 +1152,7 @@ internal static class ConfigurationProbe
             var point = (NPSDK.Motion.NP_Input)hardware.Resources.Entries.Single(item => item.Definition.Id == existing.Id).Device;
             typeof(NPSDK.Motion.NP_Input).GetField("dInput", instance).SetValue(point, new OfflineBoardSignal { State = true });
             typeof(NPSDK.Motion.NP_Input).GetField("ready", instance).SetValue(point, true);
-            object runtime = typeof(ManualForm).GetProperty("Io", instance).GetValue(manual, null);
+            object runtime = app.GetType().GetProperty("Io", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null, null);
             MethodInfo read = runtime.GetType().GetMethod("Read", instance);
             Check(Equals(read.Invoke(runtime, new object[] { existing.Name }), true)
                 && ReferenceEquals(point, ApplicationHost.GetInput(renamed.Name)), "The renamed point was not the live station input.");
@@ -1179,6 +1180,7 @@ internal static class ConfigurationProbe
             ProjectConfiguration.Save();
             ProjectConfiguration.Discard();
             Check(!hardware.Resources.Entries.Any(item => item.Definition.Id == removeId), "A deleted IO regenerated after main save.");
+            app.GetType().GetMethod("ReleaseStationIo", instance).Invoke(app, null);
         }
     }
 

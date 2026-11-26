@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using AlphaRap;
 using AlphaRap.Configuration;
@@ -15,6 +17,11 @@ using Result = NPSDK.Flow_Chart.ResultType;
 internal static class Regression
 {
     private static readonly BindingFlags Instance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+    private static readonly BindingFlags Static = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+    private static readonly string[] SafetyInputs =
+    {
+        "IB_Front_EmergencyStop", "IB_Back_EmergencyStop", "IB_Air", "IB_SafetyReady"
+    };
     private static int checks;
 
     /// <summary>模拟 SDK 驱动，在内存中保存点位状态。</summary>
@@ -23,9 +30,13 @@ internal static class Regression
         internal bool State;
         internal int Reads;
         internal bool FailOff;
+        internal bool InputReadFailed;
 
         /// <summary>返回模拟输入或输出状态。</summary>
         public override bool GetState() { Reads++; return State; }
+
+        /// <summary>模拟驱动仍已初始化但本次读点通信失败。</summary>
+        public override bool? ReadInputState() { return InputReadFailed ? (bool?)null : GetState(); }
 
         /// <summary>打开模拟输出。</summary>
         public override bool On() { State = true; return true; }
@@ -83,14 +94,21 @@ internal static class Regression
         AppDomain.CurrentDomain.AssemblyResolve += (sender, request) =>
         {
             string name = new AssemblyName(request.Name).Name;
+            foreach (string root in new[] { args[0], @"C:\Program Files\Cognex\VisionPro\ReferencedAssemblies" })
             foreach (string extension in new[] { ".dll", ".exe" })
             {
-                string path = Path.Combine(args[0], name + extension);
+                string path = Path.Combine(root, name + extension);
                 if (File.Exists(path)) return Assembly.LoadFrom(path);
             }
             return null;
         };
-        return Verify(args[1]);
+        try { return Verify(args[1]); }
+        catch (Exception error)
+        {
+            for (Exception cause = error; cause != null; cause = cause.InnerException)
+                Console.Error.WriteLine("{0}: {1}\n{2}", cause.GetType().FullName, cause.Message, cause.StackTrace);
+            return 1;
+        }
     }
 
     /// <summary>通过应用真实工站入口验证下料流程，使用内存驱动。</summary>
@@ -98,15 +116,17 @@ internal static class Regression
     {
         SysPara.SettingDataDirectory = Path.Combine(directory, "Settings");
         SysPara.LanguageDataDirectory = Path.Combine(directory, "LanguageData");
+        Alarm.Initial(Path.Combine(directory, "offline-alarm-table.xml"));
         ModuleManager.SettingDataDirectory = SysPara.SettingDataDirectory;
         var app = (MachineApplication)Activator.CreateInstance(typeof(DownConveryor).Assembly.GetType("AlphaRap.StationApplication"), true);
         using (HardForm hardware = app.CreateHardwarePage())
-        using (ManualPage manual = app.CreateManualPage())
         {
             SaveOfflineSettings(hardware.ResourceDefaults);
             ApplicationHost.RegisterModule(hardware);
-            manual.BindResources(hardware.Resources);
+            app.GetType().GetMethod("BindStationIo", Instance).Invoke(app, new object[] { hardware.Resources });
             var simulator = new Simulator(hardware.Resources);
+            VerifyWithoutManualPage(app, hardware.Resources);
+            VerifySafetyMonitor(app, simulator);
             Flow_BaseForm[] stations = app.CreateStations().ToArray();
             try
             {
@@ -117,6 +137,7 @@ internal static class Regression
             finally
             {
                 foreach (Flow_BaseForm station in stations) station.Dispose();
+                app.GetType().GetMethod("ReleaseStationIo", Instance).Invoke(app, null);
             }
         }
 
@@ -124,15 +145,88 @@ internal static class Regression
         return 0;
     }
 
-    /// <summary>只为离线用例中的下料点位分配独立地址，写入测试配置目录。</summary>
+    /// <summary>检查工站 IO 和手动页共用驱动，关闭并重建手动页后保持原实例。</summary>
+    private static void VerifyWithoutManualPage(MachineApplication app, HardwareResources resources)
+    {
+        NP_Output output = ApplicationHost.GetOutput("OB_DownConveyor_Forward");
+        NP_Cylinder cylinder = ApplicationHost.GetCylinder("OB_DownConveyor_Stop_Cylinder");
+        Check(output.IsReady && !cylinder.IsDisposed, "Shared I/O must be usable before any manual page exists.");
+
+        for (int index = 0; index < 2; index++)
+        {
+            using (ManualPage manual = app.CreateManualPage())
+            {
+                manual.BindResources(resources);
+                Check(manual.Contains(output) && manual.Contains(cylinder), "Manual page must display the original resource controls.");
+            }
+
+            Check(ReferenceEquals(output, ApplicationHost.GetOutput("OB_DownConveyor_Forward")) && output.IsReady && !output.IsDisposed,
+                "Disposing the manual page must preserve the driver instance.");
+            Check(ReferenceEquals(cylinder, ApplicationHost.GetCylinder("OB_DownConveyor_Stop_Cylinder")) && !cylinder.IsDisposed,
+                "Disposing the manual page must preserve the cylinder instance.");
+        }
+    }
+
+    /// <summary>验证现场许可、运行中失联、复位及仿真路径，使用真实整机停止入口。</summary>
+    private static void VerifySafetyMonitor(MachineApplication app, Simulator simulator)
+    {
+        SysPara.LanguageShow = LanguageType.English;
+        Type applicationAssemblyType = app.GetType();
+        Type host = applicationAssemblyType.Assembly.GetType("AlphaRap.MiddleLayer", true);
+        host.GetField("Application", Static).SetValue(null, app);
+        object io = applicationAssemblyType.GetProperty("Io", Static).GetValue(null, null);
+        Type monitor = applicationAssemblyType.Assembly.GetType("AlphaRap.AlwaysRunTask", true);
+        MethodInfo blockReason = monitor.GetMethod("SafetyBlockReason", Static);
+        Func<string> reason = () => (string)blockReason.Invoke(null, new[] { io });
+
+        Check(reason().Contains("cannot be read"), "Unknown inputs must block initialization with a diagnostic.");
+        foreach (string point in SafetyInputs) simulator.SetInput(point, point != "IB_Back_EmergencyStop");
+        Check(reason() == null, "A reversed, healthy rear emergency stop and three high inputs must permit start.");
+
+        foreach (string point in SafetyInputs)
+        {
+            bool healthy = point != "IB_Back_EmergencyStop";
+            simulator.SetInput(point, !healthy);
+            Check(reason().Contains("is not ready"), "An unhealthy input must block start: " + point);
+            simulator.SetInput(point, healthy);
+        }
+
+        simulator.Points["IB_Air"].InputReadFailed = true;
+        Check(reason().Contains("cannot be read"), "A read failure must stay unknown even when the driver object is ready.");
+        MachineState.Global.Initialize();
+        MachineState.Global.Start(true);
+        Thread.Sleep(120);
+        app.Scan();
+        Task<bool> stop = (Task<bool>)host.GetProperty("MachineStopCompletion", Static).GetValue(null, null);
+        Check(stop.Wait(5000) && stop.Result && SysPara.SystemMode == RunMode.IDLE, "Input failure during production must use coordinated stop.");
+        Check(Alarm.AlarmList.Count(alarm => alarm.Code == "3023") == 1, "The monitor must publish one diagnostic for the fault.");
+        Thread.Sleep(120);
+        app.Scan();
+        Check(Alarm.AlarmList.Count(alarm => alarm.Code == "3023") == 1, "A persistent fault must not flood alarms.");
+
+        simulator.Points["IB_Air"].InputReadFailed = false;
+        Check(reason() == null && SysPara.SystemMode == RunMode.IDLE, "Recovery must clear the permit check without starting a session.");
+        SysPara.Simulation = true;
+        simulator.Points["IB_Air"].InputReadFailed = true;
+        Check(reason() == null, "Simulation must not require physical input reads.");
+        MachineState.Global.Initialize();
+        app.Scan();
+        Check(SysPara.SystemMode == RunMode.INITIAL, "Simulation must not dispatch a safety stop.");
+        SysPara.SystemMode = RunMode.IDLE;
+        SysPara.Simulation = false;
+        Alarm.Clear();
+    }
+
+    /// <summary>为离线用例中的下料及监视点位分配独立地址。</summary>
     private static void SaveOfflineSettings(HardwareProject project)
     {
         Directory.CreateDirectory(SysPara.SettingDataDirectory);
         int pointIndex = 0;
-        foreach (HardwareDefinition point in project.Resources.Where(item => item.StationKey.Contains("_DownConveyor_")))
+        foreach (HardwareDefinition point in project.Resources.Where(item => item.StationKey.Contains("_DownConveyor_") || SafetyInputs.Contains(item.StationKey)))
         {
             point.Port = "001" + (pointIndex++).ToString("D2");
             point.ConnectionPending = false;
+            point.ReverseState = point.StationKey == "IB_Back_EmergencyStop";
         }
 
         string path = Path.Combine(SysPara.SettingDataDirectory, "HardwareResources.xml");

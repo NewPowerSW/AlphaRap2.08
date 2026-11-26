@@ -37,10 +37,17 @@ namespace AlphaRap
         public static Task<bool> InitialAsync() { return QueueMachineCommand(InitializeMachine); }
 
         /// <summary>初始化暂停时继续同一会话，保留已完成工位和节点结果。</summary>
-        private static bool ContinueInitializationIfActive()
+        private static bool ContinueInitializationIfActive(long version)
         {
-            if (!FlowProgramming.FlowPrograms.HasInitializationSession) return false;
-            try { FlowProgramming.FlowPrograms.ContinueInitialization(); return true; }
+            try
+            {
+                lock (machineCommandSync)
+                {
+                    if (version != machineCommandVersion || !FlowProgramming.FlowPrograms.HasInitializationSession) return false;
+                    FlowProgramming.FlowPrograms.ContinueInitialization();
+                    return true;
+                }
+            }
             catch (Exception error) { MessageBox.Show(error.Message, FlowProgramming.FlowText.T("title")); return false; }
         }
 
@@ -105,7 +112,8 @@ namespace AlphaRap
         /// <summary>沿用初始化预检与恢复规则，清理完成后再创建新的流程批次。</summary>
         private static async Task<bool> InitializeMachine(long version)
         {
-            if (FlowProgramming.FlowPrograms.HasInitializationSession) return ContinueInitializationIfActive();
+            if (FlowProgramming.FlowPrograms.HasInitializationSession)
+                return await CheckSafetyInputs(version) && ContinueInitializationIfActive(version);
             if (Alarm.IsError) { ShowResetAlarmWarning(); return false; }
             bool paused = SysPara.SystemMode == RunMode.PAUSE;
             bool wasRunning = SysPara.SystemMode == RunMode.RUN;
@@ -126,6 +134,7 @@ namespace AlphaRap
             if (Alarm.IsError) { ShowResetAlarmWarning(); return false; }
             TaskProcess.StationIo io = Application is StationApplication ? StationApplication.Io : null;
             if (io != null && !await RunStartupWork(version, io.Initialize)) return false;
+            if (!await CheckSafetyInputs(version)) return false;
             if (FlowProgramming.FlowPrograms.HasPrograms) FlowProgramming.FlowPrograms.BeginBatch();
             lock (machineCommandSync)
             {
@@ -141,6 +150,7 @@ namespace AlphaRap
             bool resume = SysPara.SystemRun && SysPara.SystemMode == RunMode.PAUSE;
             if (!resume && (SysPara.SystemRun || SysPara.SystemMode != RunMode.INITIAL || !MachineInitialReady)) return false;
             if (!FlowProgramming.FlowPrograms.CanStartMachine(false) || AnyManualRunning()) return false;
+            if (!await CheckSafetyInputs(version)) return false;
             if (!await RunStartupWork(version, AlarmClear)) return false;
             if (Alarm.IsError) { ShowResetAlarmWarning(); return false; }
             if (!resume && !FlowProgramming.FlowPrograms.HasPrograms && !await BeginStop(version, false, false)) return false;
@@ -154,6 +164,17 @@ namespace AlphaRap
                 MachineState.Global.Start(MachineInitialReady);
             }
             return true;
+        }
+
+        /// <summary>在后台读取现场运行条件，命令仍有效时在界面提示阻止原因。</summary>
+        private static async Task<bool> CheckSafetyInputs(long version)
+        {
+            if (!(Application is StationApplication) || SysPara.Simulation) return true;
+            string reason = null;
+            if (!await RunStartupWork(version, () => reason = AlwaysRunTask.SafetyBlockReason(StationApplication.Io))) return false;
+            if (reason == null) return true;
+            Application.ShowWarning(reason, LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar"));
+            return false;
         }
 
         /// <summary>在命令锁内核对代次并预留 SDK 派发，避免停止后旧命令重新入队。</summary>
@@ -216,6 +237,16 @@ namespace AlphaRap
             if (pauseOutputs && !FlowProgramming.FlowPrograms.HasPrograms)
                 return await RunStartupWork(version, Application.PauseLegacyOutputs);
             return IsCurrentCommand(version);
+        }
+
+        /// <summary>运行条件消失时停止活动会话，待机或正在停止时不重复派发。</summary>
+        internal static void StopForSafetyFault()
+        {
+            lock (machineCommandSync)
+            {
+                RunMode mode = MachineState.Global.Current.Mode;
+                if (mode == RunMode.INITIAL || mode == RunMode.RUN || mode == RunMode.PAUSE) StopRun();
+            }
         }
 
         /// <summary>立即撤销旧命令，后台派发全部停止步骤并保留可等待的完成任务。</summary>

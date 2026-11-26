@@ -40,6 +40,7 @@
   <A3018 Type="I" Content="No se encontró el código de error" DoStop="True" />
   <A3021 Type="E" Content="Parada de emergencia delantera pulsada" DoStop="true" />
   <A3022 Type="E" Content="Parada de emergencia trasera pulsada" DoStop="true" />
+  <A3023 Type="I" Content="No se cumplen las condiciones de funcionamiento" DoStop="False" />
   <A3024 Type="E" Content="Pulse Reinicio para activar la alimentación" DoStop="true" />
   <A5020 Type="E" Content="Error de conexión del robot" DoStop="true" />
   <A10000 Type="W" Content="" DoStop="True" />

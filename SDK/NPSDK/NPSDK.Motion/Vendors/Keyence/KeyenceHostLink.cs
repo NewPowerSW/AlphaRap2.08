@@ -85,12 +85,19 @@ namespace NPSDK
 			}
 		}
 
+		/// <summary>读取原有 Host Link 文本，未连接时兼容旧调用方的零值。</summary>
 		public static string Read(string ip, int port, DeviceType device, int address, DataFormat format)
+		{
+			return Read(ip, port, device, address, format, "0");
+		}
+
+		/// <summary>读取 Host Link 文本，未连接时返回调用方指定的值。</summary>
+		internal static string Read(string ip, int port, DeviceType device, int address, DataFormat format, string disconnectedValue)
 		{
 			Client client = GetConnected(ip, port);
 			if (client == null)
 			{
-				return "0";
+				return disconnectedValue;
 			}
 			lock (client.Sync)
 			{

@@ -75,6 +75,15 @@ namespace NPSDK
 			return KeyenceHostLink.Read(plcIp, plcPort, deviceType, address, format) == "1";
 		}
 
+		/// <summary>读取基恩士输入，断线及非电平响应都返回 null。</summary>
+		public override bool? ReadInputState()
+		{
+			if (!ready) return null;
+			string response = KeyenceHostLink.Read(plcIp, plcPort, deviceType, address, format, null);
+			if (!int.TryParse(response, out int value) || (value != 0 && value != 1)) return null;
+			return value == 1;
+		}
+
 		public override bool On()
 		{
 			return GetState();

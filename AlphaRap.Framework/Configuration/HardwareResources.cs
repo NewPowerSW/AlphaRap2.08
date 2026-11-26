@@ -95,6 +95,24 @@ namespace AlphaRap.Configuration
             }
         }
 
+        /// <summary>将共享 IO 和气缸归还硬件目录，关闭或替换手动页时保留同一驱动。</summary>
+        internal void UnbindIoCanvas(FlowLayoutPanel host)
+        {
+            if (!ReferenceEquals(ioCanvas, host)) return;
+            ioCanvas = null;
+            if (canvas.IsDisposed || canvas.Disposing) return;
+            foreach (HardwareEntry entry in Entries.Where(entry => entry.Group.Parent == host))
+            {
+                entry.Group.Hide();
+                canvas.Controls.Add(entry.Group);
+            }
+            foreach (HardwareCylinderEntry entry in CylinderEntries.Where(entry => entry.Card.Parent == host))
+            {
+                entry.Card.Hide();
+                canvas.Controls.Add(entry.Card);
+            }
+        }
+
         /// <summary>为新增资源选择未占用通道及唯一名称，默认参数可直接确认。</summary>
         public HardwareDefinition NewDefinition(string kind)
         {

@@ -10,7 +10,7 @@ using NPSDK.Motion;
 namespace AlphaRap.TaskProcess
 {
     /// <summary>为本站工艺信号使用硬件目录中的实际 IO 实例。</summary>
-    internal sealed class StationIo
+    internal sealed class StationIo : IDisposable
     {
         private readonly HardwareResources resources;
         private volatile Dictionary<string, HardwareEntry> points = new Dictionary<string, HardwareEntry>(StringComparer.OrdinalIgnoreCase);
@@ -74,31 +74,39 @@ namespace AlphaRap.TaskProcess
         }
 
         /// <summary>按当前语言显示工站点位，缺少配置时用原工艺键定位问题。</summary>
-        private string Caption(string key)
+        internal string Caption(string key)
         {
-            HardwareDefinition definition = Find(key)?.Definition;
+            points.TryGetValue(key, out HardwareEntry entry);
+            HardwareDefinition definition = entry?.Definition;
             return definition == null ? key : HardwareResources.DisplayText(definition);
         }
 
         /// <summary>缓存工艺用的 IO，配置重载后使用当前硬件目录。</summary>
-        internal StationIo(HardwareResources resources, HardwareResourcePanel panel)
+        internal StationIo(HardwareResources resources)
         {
-            this.resources = resources;
+            this.resources = resources ?? throw new ArgumentNullException(nameof(resources));
             RefreshPoints(this, EventArgs.Empty);
             resources.Changed += RefreshPoints;
-            panel.Disposed += (sender, args) => resources.Changed -= RefreshPoints;
+        }
+
+        /// <summary>释放工站订阅，实际硬件仍由资源目录持有。</summary>
+        public void Dispose()
+        {
+            resources.Changed -= RefreshPoints;
+            foreach (NP_Output point in points.Values.Select(entry => entry.Device).OfType<NP_Output>())
+                point.ManualStateChanged -= LogManualOutput;
         }
 
         /// <summary>替换目录快照，避免撤销配置后继续持有旧 IO 控件。</summary>
         private void RefreshPoints(object sender, EventArgs args)
         {
-            points = resources.Entries.Where(entry => !string.IsNullOrEmpty(entry.Definition.StationKey))
+            var current = resources.Entries.Where(entry => !string.IsNullOrEmpty(entry.Definition.StationKey))
                 .ToDictionary(entry => entry.Definition.StationKey, StringComparer.OrdinalIgnoreCase);
             foreach (NP_Output point in points.Values.Select(entry => entry.Device).OfType<NP_Output>())
-            {
                 point.ManualStateChanged -= LogManualOutput;
+            foreach (NP_Output point in current.Values.Select(entry => entry.Device).OfType<NP_Output>())
                 point.ManualStateChanged += LogManualOutput;
-            }
+            points = current;
         }
 
         /// <summary>手动操作仍按实际状态写入原操作日志。</summary>
@@ -144,6 +152,15 @@ namespace AlphaRap.TaskProcess
         {
             var input = Find(key)?.Device as NP_Input;
             return !SysPara.Simulation && Ready(input) ? (bool?)input.IsOn() : null;
+        }
+
+        /// <summary>读取监视输入的有效电平，现场可用硬件配置反转有效电平。</summary>
+        internal bool? ReadSafetyInput(string key)
+        {
+            HardwareEntry entry = Find(key);
+            if (resources.IsDirty || resources.RequiresRestart || !(entry?.Device is NP_Input input)) return null;
+            bool? level = input.ReadState();
+            return entry.Definition.ReverseState ? !level : level;
         }
 
         /// <summary>读取必需工艺输入，连接缺失时报告该信号。</summary>

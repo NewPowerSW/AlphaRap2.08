@@ -237,6 +237,8 @@ namespace AlphaRap.Configuration
             entry.Cylinder.OperationAllowed = () => CanDriveCylinder(entry.Cylinder);
             entry.Cylinder.ManualDriven += state => OperationLog.Write("ManualForm", "手动气缸动作：" + entry.Card.Text);
             entry.Card.Controls.Add(entry.Cylinder);
+            entry.Card.Hide();
+            canvas.Controls.Add(entry.Card);
             cylinders.Add(definition.Id, entry);
             return entry;
         }

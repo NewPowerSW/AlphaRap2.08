@@ -29,6 +29,9 @@ namespace NPSDK
 			return ready && plc.OmronReadBoolean(address);
 		}
 
+		/// <summary>保留 PLC 读点失败状态，供需要有效读数的调用方使用。</summary>
+		public override bool? ReadInputState() { return ready ? plc.ReadBoolean(address) : null; }
+
 		public override bool On()
 		{
 			return GetState();

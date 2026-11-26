@@ -119,6 +119,15 @@ namespace NPSDK.Motion
 			return ready && dInput != null && dInput.GetState();
 		}
 
+		/// <summary>读取本次输入电平，驱动未就绪或读数无效时返回 null。</summary>
+		public bool? ReadState()
+		{
+			lock (this)
+			{
+				return !IsDisposed && IsReady ? dInput.ReadInputState() : null;
+			}
+		}
+
 		public override void DisposeObj()
 		{
 			if (dInput != null)

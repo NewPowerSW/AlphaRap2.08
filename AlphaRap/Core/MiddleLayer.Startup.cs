@@ -86,8 +86,9 @@ namespace AlphaRap
             ApplicationHost.MainWindow = MainF;
             HomeF = ApplicationHost.RegisterModule(HomeF ?? Application.CreateHomePage());
             ApplicationHost.Home = HomeF;
-            ManualF = ApplicationHost.RegisterModule(ManualF ?? Application.CreateManualPage());
             HardF = ApplicationHost.RegisterModule(HardF ?? Application.CreateHardwarePage());
+            if (Application is StationApplication stationApplication) stationApplication.BindStationIo(HardF.Resources);
+            ManualF = ApplicationHost.RegisterModule(ManualF ?? Application.CreateManualPage());
             ManualF?.BindResources(HardF?.Resources);
             foreach (Flow_BaseForm station in Application.CreateStations()) ApplicationHost.RegisterModule(station);
             CheckF = ApplicationHost.RegisterModule(CheckF ?? new CheckForm());
@@ -132,7 +133,11 @@ namespace AlphaRap
             if (FlowCtrl != null) waits.Add(FlowCtrl.StopAsync());
             await System.Threading.Tasks.Task.WhenAll(waits).ConfigureAwait(false);
             try { await ApplicationTasks.Global.StopAllAsync().ConfigureAwait(false); }
-            finally { ServoOff(); }
+            finally
+            {
+                if (Application is StationApplication stationApplication) stationApplication.ReleaseStationIo();
+                ServoOff();
+            }
         }
     }
 }

@@ -22,9 +22,22 @@ namespace AlphaRap
         private readonly object outputSync = new object();
         private readonly Dictionary<NP_Output, bool> pausedOutputs = new Dictionary<NP_Output, bool>();
 
-        internal static ManualForm Manual { get; private set; }
         internal static StationVisionForm Vision { get; private set; }
-        internal static StationIo Io => Manual?.Io;
+        internal static StationIo Io { get; private set; }
+
+        /// <summary>建立由应用持有的工站 IO，页面与工站共享同一个资源目录。</summary>
+        internal void BindStationIo(HardwareResources resources)
+        {
+            if (Io != null) return;
+            Io = new StationIo(resources);
+        }
+
+        /// <summary>后台扫描停止后解除工站对硬件目录的订阅。</summary>
+        internal void ReleaseStationIo()
+        {
+            Io?.Dispose();
+            Io = null;
+        }
         internal static LENS Mes { get; private set; }
 
         /// <summary>组装本机页面并启动设备和后台任务。</summary>
@@ -89,10 +102,10 @@ namespace AlphaRap
         /// <summary>创建本站首页及生产看板。</summary>
         public override System.Windows.Forms.Form CreateHomePage() { return new HomeForm(); }
 
-        /// <summary>创建保留本站固定 IO 的手动页。</summary>
+        /// <summary>创建展示本站动态资源的手动页。</summary>
         public override ManualPage CreateManualPage()
         {
-            return Manual = new ManualForm();
+            return new ManualForm();
         }
 
         /// <summary>创建并登记本站的固定日志数据页。</summary>
@@ -158,7 +171,7 @@ namespace AlphaRap
         public override ModuleBaseForm CreateMesPage() { return Mes = new LENS(); }
 
         /// <summary>执行一次本站的后台状态更新。</summary>
-        public override void Scan() { background.AlwaysRun(); }
+        public override void Scan() { background.AlwaysRun(Io, MiddleLayer.StopForSafetyFault); }
 
         /// <summary>旧流程以本站上料初始化标记决定是否允许生产。</summary>
         public override bool IsLegacyInitialized { get { return StationData.UpConveyorInitialOk; } }

@@ -73,6 +73,24 @@ namespace AlphaRap.Configuration
             BindEvents();
         }
 
+        /// <summary>移除本面板的交互事件，并在面板销毁前归还共享硬件。</summary>
+        private void ReleaseResources()
+        {
+            HardwareResources resources = Resources;
+            if (resources == null) return;
+            Resources = null;
+            resources.Changed -= ResourcesChanged;
+            if (resourceKind != "IO") return;
+            foreach (NP_IoGroup group in canvas.Controls.OfType<NP_IoGroup>())
+            {
+                group.ParametersRequested -= GroupSettings;
+                ApplyResourceMenu(group, null);
+            }
+            foreach (Control card in canvas.Controls.Cast<Control>().Where(item => item.Tag is HardwareCylinderDefinition))
+                ApplyResourceMenu(card, null);
+            resources.UnbindIoCanvas(canvas);
+        }
+
         /// <summary>绑定目录变更并挂接当前页面所属资源的交互。</summary>
         private void BindEvents()
         {
@@ -85,7 +103,6 @@ namespace AlphaRap.Configuration
                 TabPage tab = ioTabs.TabPages.Cast<TabPage>().FirstOrDefault(page => Equals(page.Tag, initialPage));
                 if (tab != null) ioTabs.SelectedTab = tab;
             }
-            Disposed += (sender,args) => Resources.Changed -= ResourcesChanged;
         }
 
         /// <summary>按页面用途筛选轴或 IO，业务资源仍由同一个目录管理。</summary>
@@ -243,11 +260,14 @@ namespace AlphaRap.Configuration
         }
 
         /// <summary>轴和 IO 表面共用属性及删除菜单，点位表保留自己的行菜单。</summary>
-        private void BindResourceMenu(Control control)
+        private void BindResourceMenu(Control control) { ApplyResourceMenu(control, resourceMenu); }
+
+        /// <summary>同步资源卡的右键菜单，保留点位表自身菜单。</summary>
+        private static void ApplyResourceMenu(Control control, ContextMenuStrip menu)
         {
             if (control is NP_PositionTable) return;
-            control.ContextMenuStrip = resourceMenu;
-            foreach (Control child in control.Controls) BindResourceMenu(child);
+            control.ContextMenuStrip = menu;
+            foreach (Control child in control.Controls) ApplyResourceMenu(child, menu);
         }
 
         /// <summary>按右键控件的资源身份定位，不依赖工具栏上次选中的对象。</summary>

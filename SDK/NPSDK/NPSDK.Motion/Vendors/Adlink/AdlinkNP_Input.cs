@@ -64,6 +64,19 @@ namespace NPSDK
 #endif
 		}
 
+		/// <summary>保留凌华输入接口的读点失败状态。</summary>
+		public override bool? ReadInputState()
+		{
+#if !NP_VENDOR_ADLINK
+			return null;
+#else
+			int value = 0;
+			if (APS168.APS_get_field_bus_d_channel_input(CardID, 0, sCardNumber, s_BitNo, ref value) != 0) return null;
+			if (value != 0 && value != 1) return null;
+			return value == 1;
+#endif
+		}
+
 		public override bool On()
 		{
 			return GetState();

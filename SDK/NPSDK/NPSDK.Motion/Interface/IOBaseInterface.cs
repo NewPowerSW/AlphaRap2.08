@@ -14,6 +14,9 @@ namespace NPSDK
 			return false;
 		}
 
+		/// <summary>读取输入电平，无法取得有效电平时返回 null。</summary>
+		public virtual bool? ReadInputState() { return GetState(); }
+
 		public virtual bool On()
 		{
 			return false;

@@ -57,6 +57,15 @@ namespace NPSDK
 			return LTDMC.dmc_read_inbit(0, bitIndex) != 0;
 		}
 
+		/// <summary>读取雷赛输入，仅接受有效的 0 或 1 电平。</summary>
+		public override bool? ReadInputState()
+		{
+			if (!ready) return null;
+			short value = LTDMC.dmc_read_inbit(0, bitIndex);
+			if (value != 0 && value != 1) return null;
+			return value == 1;
+		}
+
 		public override bool On()
 		{
 			return GetState();
