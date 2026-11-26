@@ -10,7 +10,8 @@ namespace AlphaRap
 {
     internal sealed class AlwaysRunTask
     {
-        private const string SafetyAlarmCode = "3023";
+        private const string SafetyAlarmCode = "3025";
+        private readonly object safetyAlarmSync = new object();
         private readonly List<string> requiredInputs = new List<string>();
         private readonly Stopwatch scanTimer = Stopwatch.StartNew();
         private readonly Dictionary<string, InputWatch> inputWatches = new Dictionary<string, InputWatch>(StringComparer.OrdinalIgnoreCase);
@@ -49,7 +50,7 @@ namespace AlphaRap
         }
 
         /// <summary>在真机模式监视运行许可和普通输入，并更新本站闪烁时基。</summary>
-        internal void AlwaysRun(StationIo io, Action stopOnFault)
+        internal void AlwaysRun(StationIo io, Func<bool> stopOnFault)
         {
             if (SysPara.Simulation)
             {
@@ -80,7 +81,7 @@ namespace AlphaRap
         }
 
         /// <summary>监视运行许可变化，并通过既有入口请求整机停止。</summary>
-        private void ScanSafety(StationIo io, Action stopOnFault)
+        private void ScanSafety(StationIo io, Func<bool> stopOnFault)
         {
             bool?[] states = SampleSafety(io);
             bool changed = previousSafety == null || !previousSafety.SequenceEqual(states);
@@ -90,17 +91,27 @@ namespace AlphaRap
                 previousSafety = states;
                 return;
             }
-            stopOnFault();
-            if (!changed || initialUnknown) return;
+            bool stopRequested = stopOnFault();
+            if (!changed || (initialUnknown && !stopRequested)) return;
 
             previousSafety = states;
-            if (Alarm.AlarmList != null) Alarm.Show(SafetyAlarmCode, DescribeFault(io, states), false, "I");
+            ReportSafetyAlarm(DescribeFault(io, states));
         }
 
-        /// <summary>在派发初始化、启动或继续前重新读取现场状态，返回阻止动作的原因。</summary>
-        internal string SafetyBlockReason(StationIo io)
+        /// <summary>派发命令前重新读取运行许可，登记错误报警并返回阻止原因。</summary>
+        internal string CheckSafetyBeforeRun(StationIo io)
         {
-            return SysPara.Simulation ? null : DescribeFault(io, SampleSafety(io));
+            if (SysPara.Simulation) return null;
+            string reason = DescribeFault(io, SampleSafety(io));
+            ReportSafetyAlarm(reason);
+            return reason;
+        }
+
+        /// <summary>使用报警列表发布故障，合并预检与周期扫描报出的同一原因。</summary>
+        private void ReportSafetyAlarm(string reason)
+        {
+            if (reason == null || Alarm.AlarmList == null) return;
+            lock (safetyAlarmSync) Alarm.Show(SafetyAlarmCode, reason, false, "E");
         }
 
         /// <summary>逐点读取健康状态，单点异常保留为未知并继续读取其他点。</summary>

@@ -171,7 +171,7 @@ namespace AlphaRap
         {
             if (!(Application is StationApplication station) || SysPara.Simulation) return true;
             string reason = null;
-            if (!await RunStartupWork(version, () => reason = station.SafetyBlockReason())) return false;
+            if (!await RunStartupWork(version, () => reason = station.CheckSafetyBeforeRun())) return false;
             if (reason == null) return true;
             Application.ShowWarning(reason, LangMsg("Common", "msg_OK", "确定", "OK", "Aceptar"));
             return false;
@@ -239,13 +239,15 @@ namespace AlphaRap
             return IsCurrentCommand(version);
         }
 
-        /// <summary>运行条件消失时停止活动会话，待机或正在停止时不重复派发。</summary>
-        internal static void StopForSafetyFault()
+        /// <summary>运行许可异常时请求停止活动会话，返回是否发出了停止请求。</summary>
+        internal static bool StopForSafetyFault()
         {
             lock (machineCommandSync)
             {
                 RunMode mode = MachineState.Global.Current.Mode;
-                if (mode == RunMode.INITIAL || mode == RunMode.RUN || mode == RunMode.PAUSE) StopRun();
+                if (mode != RunMode.INITIAL && mode != RunMode.RUN && mode != RunMode.PAUSE) return false;
+                StopRun();
+                return true;
             }
         }
 

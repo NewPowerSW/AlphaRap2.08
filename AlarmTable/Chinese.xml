@@ -41,6 +41,7 @@
   <A3021 Type="E" Content="前急停按下" DoStop="true" />
   <A3022 Type="E" Content="后急停按下" DoStop="true" />
   <A3023 Type="I" Content="设备运行条件异常" DoStop="False" />
+  <A3025 Type="E" Content="设备运行条件异常" DoStop="False" />
   <A3024 Type="E" Content="请按复位按钮上电" DoStop="true" />
   <A5020 Type="E" Content="机器人连接失败" DoStop="true" />
   <A10000 Type="W" Content="" DoStop="True" />

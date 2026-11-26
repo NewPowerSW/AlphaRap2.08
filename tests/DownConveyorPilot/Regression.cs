@@ -193,10 +193,18 @@ internal static class Regression
         Type applicationAssemblyType = app.GetType();
         Type host = applicationAssemblyType.Assembly.GetType("AlphaRap.MiddleLayer", true);
         host.GetField("Application", Static).SetValue(null, app);
-        MethodInfo blockReason = applicationAssemblyType.GetMethod("SafetyBlockReason", Instance);
+        MethodInfo blockReason = applicationAssemblyType.GetMethod("CheckSafetyBeforeRun", Instance);
         Func<string> reason = () => (string)blockReason.Invoke(app, null);
 
+        Thread.Sleep(120);
+        app.Scan();
+        Check(!Alarm.IsError, "Before initialization all-unknown inputs must not latch an idle alarm.");
         Check(reason().Contains("cannot be read"), "Unknown inputs must block initialization with a diagnostic.");
+        Check(Alarm.IsError && Alarm.AlarmList.Count(alarm => alarm.Code == "3025" && alarm.Type == "E") == 1,
+            "A denied command must publish a visible error-class alarm.");
+        reason();
+        Check(Alarm.AlarmList.Count(alarm => alarm.Code == "3025") == 1, "Repeated preflight must merge the same fault.");
+        Alarm.Clear();
         string[] requiredPoints = SafetyInputs.Concat(new[] { RequiredInput }).ToArray();
         foreach (string point in requiredPoints) simulator.SetInput(point, point != "IB_Back_EmergencyStop");
         Check(reason() == null, "All inputs registered as required must permit start when healthy.");
@@ -211,18 +219,21 @@ internal static class Regression
 
         simulator.Points[RequiredInput].InputReadFailed = true;
         Check(reason().Contains("cannot be read"), "A read failure must stay unknown even when the driver object is ready.");
+        Alarm.Clear();
+        foreach (string point in requiredPoints) simulator.Points[point].InputReadFailed = true;
         MachineState.Global.Initialize();
         MachineState.Global.Start(true);
         Thread.Sleep(120);
         app.Scan();
         Task<bool> stop = (Task<bool>)host.GetProperty("MachineStopCompletion", Static).GetValue(null, null);
         Check(stop.Wait(5000) && stop.Result && SysPara.SystemMode == RunMode.IDLE, "Input failure during production must use coordinated stop.");
-        Check(Alarm.AlarmList.Count(alarm => alarm.Code == "3023") == 1, "The monitor must publish one diagnostic for the fault.");
+        Check(Alarm.IsError && Alarm.AlarmList.Count(alarm => alarm.Code == "3025" && alarm.Type == "E") == 1,
+            "An active session must report an error even when every first input sample is unknown.");
         Thread.Sleep(120);
         app.Scan();
-        Check(Alarm.AlarmList.Count(alarm => alarm.Code == "3023") == 1, "A persistent fault must not flood alarms.");
+        Check(Alarm.AlarmList.Count(alarm => alarm.Code == "3025") == 1, "A persistent fault must not flood alarms.");
 
-        simulator.Points[RequiredInput].InputReadFailed = false;
+        foreach (string point in requiredPoints) simulator.Points[point].InputReadFailed = false;
         Check(reason() == null && SysPara.SystemMode == RunMode.IDLE, "Recovery must clear the permit check without starting a session.");
         SysPara.Simulation = true;
         simulator.Points[RequiredInput].InputReadFailed = true;

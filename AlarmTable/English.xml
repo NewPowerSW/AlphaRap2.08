@@ -41,6 +41,7 @@
   <A3021 Type="E" Content="Front emergency stop pressed" DoStop="true" />
   <A3022 Type="E" Content="Rear emergency stop pressed" DoStop="true" />
   <A3023 Type="I" Content="Machine operating conditions are not met" DoStop="False" />
+  <A3025 Type="E" Content="Machine operating conditions are not met" DoStop="False" />
   <A3024 Type="E" Content="Press Reset to power on" DoStop="true" />
   <A5020 Type="E" Content="Robot connection failed" DoStop="true" />
   <A10000 Type="W" Content="" DoStop="True" />
