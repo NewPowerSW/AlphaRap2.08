@@ -152,6 +152,7 @@ internal static class Regression
                 var flow = stations.OfType<DownConveryor>().Single();
                 VerifyTransfer(flow, simulator);
                 VerifyStop(flow, simulator);
+                VerifyApplicationTasks(app, simulator);
             }
             finally
             {
@@ -245,6 +246,96 @@ internal static class Regression
         SysPara.Simulation = false;
         simulator.Points[RequiredInput].InputReadFailed = false;
         Alarm.Clear();
+    }
+
+    private sealed class SlowRefresh : IAlwaysRunTask
+    {
+        internal static int Calls;
+        internal static readonly ManualResetEventSlim Entered = new ManualResetEventSlim();
+        internal static readonly ManualResetEventSlim Cancelled = new ManualResetEventSlim();
+        internal static readonly TaskCompletionSource<bool> Release = new TaskCompletionSource<bool>();
+
+        public int IntervalMs { get { return 20; } }
+        public string[] InputNames { get { return new string[0]; } }
+
+        /// <summary>在释放前保持本轮工作占用。</summary>
+        public Task RefreshAsync(AlwaysRunContext context, CancellationToken cancellationToken)
+        {
+            Interlocked.Increment(ref Calls);
+            cancellationToken.Register(() => Cancelled.Set());
+            Entered.Set();
+            return Release.Task;
+        }
+    }
+
+    private sealed class ReadRefresh : IAlwaysRunTask
+    {
+        internal static int ValidReads;
+        public int IntervalMs { get { return 20; } }
+        public string[] InputNames { get { return new[] { WatchedInput }; } }
+
+        /// <summary>确认应用扩展按名称读取本机实时输入。</summary>
+        public Task RefreshAsync(AlwaysRunContext context, CancellationToken cancellationToken)
+        {
+            if (context.ReadInput(WatchedInput) == true) Interlocked.Increment(ref ValidReads);
+            return Task.FromResult(0);
+        }
+    }
+
+    private sealed class FailingRefresh : IAlwaysRunTask
+    {
+        internal static int Calls;
+        public int IntervalMs { get { return 20; } }
+        public string[] InputNames { get { return new string[0]; } }
+
+        /// <summary>注入独立任务的刷新异常。</summary>
+        public Task RefreshAsync(AlwaysRunContext context, CancellationToken cancellationToken)
+        {
+            Interlocked.Increment(ref Calls);
+            throw new InvalidOperationException("Offline task failure.");
+        }
+    }
+
+    /// <summary>以实际调度器验证发现、周期内不重入、任务隔离、仿真和取消后等待退出。</summary>
+    private static void VerifyApplicationTasks(MachineApplication app, Simulator simulator)
+    {
+        Type appType = app.GetType();
+        Type runnerType = appType.Assembly.GetType("AlphaRap.AlwaysRunTasks", true);
+        object io = appType.GetProperty("Io", Static).GetValue(null, null);
+        ApplicationTasks.Global.BeginScope();
+        simulator.SetInput(WatchedInput, false);
+
+        using (var runner = (IDisposable)Activator.CreateInstance(runnerType, Instance, null, new object[] { typeof(Regression).Assembly }, null))
+        {
+            MethodInfo start = runnerType.GetMethod("Start", Instance);
+            var inputs = (IEnumerable<string>)runnerType.GetProperty("InputNames", Instance).GetValue(runner, null);
+            Check(inputs.SequenceEqual(new[] { WatchedInput }), "Discovery must collect declared configured inputs.");
+            try
+            {
+                SysPara.Simulation = true;
+                start.Invoke(runner, new[] { io });
+                Check(!ApplicationTasks.Global.Pending.Contains("AlwaysRun"), "Simulation must not launch custom hardware tasks.");
+                SysPara.Simulation = false;
+                start.Invoke(runner, new[] { io });
+                start.Invoke(runner, new[] { io });
+
+                Check(SlowRefresh.Entered.Wait(5000), "An implemented task must be discovered and run automatically.");
+                Check(SpinWait.SpinUntil(() => Volatile.Read(ref ReadRefresh.ValidReads) >= 2 && Volatile.Read(ref FailingRefresh.Calls) >= 2, 5000),
+                    "A slow or failing task must not prevent another task reading the named input.");
+                Check(SlowRefresh.Calls == 1, "A task must never start a second round while its first is active.");
+
+                Task stopped = ApplicationTasks.Global.StopAllAsync();
+                Check(SlowRefresh.Cancelled.Wait(5000) && !stopped.IsCompleted, "Shutdown must cancel the task and wait for actual exit.");
+                SlowRefresh.Release.TrySetResult(true);
+                Check(stopped.Wait(5000) && !ApplicationTasks.Global.Pending.Contains("AlwaysRun"), "Task occupancy must clear after real exit.");
+            }
+            finally
+            {
+                SysPara.Simulation = false;
+                SlowRefresh.Release.TrySetResult(true);
+                ApplicationTasks.Global.StopAllAsync().GetAwaiter().GetResult();
+            }
+        }
     }
 
     /// <summary>验证界面配置的普通输入可直接按名称初始化、采样及处理读数失效。</summary>

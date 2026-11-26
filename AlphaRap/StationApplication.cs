@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AlphaRap.MES;
@@ -17,6 +18,7 @@ namespace AlphaRap
     internal sealed class StationApplication : MachineApplication
     {
         private readonly AlwaysRunTask background = new AlwaysRunTask();
+        private AlwaysRunTasks applicationTasks;
         private readonly object loginAuditSync = new object();
         private Task loginAudit = Task.CompletedTask;
         private readonly object outputSync = new object();
@@ -29,12 +31,24 @@ namespace AlphaRap
         internal void BindStationIo(HardwareResources resources)
         {
             if (Io != null) return;
-            Io = new StationIo(resources, background.InputNames);
+            applicationTasks = new AlwaysRunTasks(typeof(StationApplication).Assembly);
+            Io = new StationIo(resources, background.InputNames.Concat(applicationTasks.InputNames));
+        }
+
+        /// <summary>在机器配置和配方完成加载后启动应用实现的常驻任务。</summary>
+        internal void StartAlwaysRunTasks() { applicationTasks?.Start(Io); }
+
+        /// <summary>关闭应用时先通知自定义刷新取消，保留实际工作占用供关闭流程等待。</summary>
+        internal void RequestAlwaysRunStop()
+        {
+            if (applicationTasks != null) ApplicationTasks.Global.Track("AlwaysRun.Stop", applicationTasks.RequestStop());
         }
 
         /// <summary>后台扫描停止后解除工站对硬件目录的订阅。</summary>
         internal void ReleaseStationIo()
         {
+            applicationTasks?.Dispose();
+            applicationTasks = null;
             Io?.Dispose();
             Io = null;
         }

@@ -685,6 +685,8 @@
   <ItemGroup>
     <Compile Include="PLC\PlcFlowMethods.cs" />
     <Compile Include="Tasks\AlwaysRunTask.cs" />
+    <Compile Include="Tasks\AlwaysRunTasks.cs" />
+    <Compile Include="Tasks\IAlwaysRunTask.cs" />
     <Compile Include="MenuForm\LoadingForm.cs">
       <SubType>Form</SubType>
     </Compile>

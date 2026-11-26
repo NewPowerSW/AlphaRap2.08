@@ -54,7 +54,7 @@
 
 初始化、启动或继续前，运行许可检查失败会在「报警」中记录 3025，并提示异常或无法读取的点位。运行中出现异常时，软件记录同一错误报警并请求整机停止。恢复现场条件后，清除报警，再重新初始化并手动启动。急停与光栅的实际保护由设备安全回路承担。
 
-**增加 AlwaysRun 输入。** 在【手动 → IO 资源】新增输入，填写唯一的资源名称和现场地址，然后从主界面保存。在 `AlwaysRunTask()` 构造函数加一行，例如 `WatchInput("IB_MaterialLow", on => Debug.WriteLine(on ? "缺料" : "料位正常"));`。整机初始化连接该点，常驻任务取得首个有效值或状态变化时执行这一行的回调。`on` 表示配置后的有效信号，低电平有效时可勾选「反转有效电平」。需要作为运行许可的新增输入，在同一个构造函数登记 `WatchInput("IB_LightCurtainReady", requiredForRun: true);`。
+**增加整机运行许可。** 在【手动 → IO 资源】配置输入并主保存，在 `AlwaysRunTask()` 里登记 `WatchInput("IB_LightCurtainReady", requiredForRun: true);`。
 
 - 【暂停】将当前节点计时归零并停表，继续时从零计时，并给予节点完整等待超时周期。已经开始的动作可能继续完成；不要将界面暂停等同于轴或点胶立即冻结，也不会因继续而重复发送动作。
 - 【启动】用于自动生产及其暂停恢复，初始化未完成前不可用。
@@ -71,6 +71,40 @@
 4. 使用程序【退出】。若提示流程仍忙，等待并检查当前节点后再退出。
 
 当前程序关闭仍包含强制结束进程的兼容路径，因此退出前要完成数据核对；不要依赖关闭窗口自动补传或保存运行中的工序。
+
+### 2.4 自定义 AlwaysRun 常驻任务
+
+在 AlphaRap 应用项目里新建一个实现 `IAlwaysRunTask` 的类，保留无参数构造函数。程序启动时自动创建这个类的实例，任务的字段会保留到下一轮刷新。需要使用动态 IO 时，先在【手动 → IO 资源】配置并主保存，把资源名称填入 `InputNames`，整机初始化会连接这些输入。无需输入的任务可返回 `Array.Empty<string>()`。
+
+```csharp
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace AlphaRap
+{
+    internal sealed class MaterialMonitor : IAlwaysRunTask
+    {
+        private const string InputName = "IB_MaterialLow";
+        private bool? previous;
+
+        public int IntervalMs => 250;
+        public string[] InputNames => new[] { InputName };
+
+        /// <summary>观察缺料状态，各任务可自行处理有效、失效和恢复。</summary>
+        public Task RefreshAsync(AlwaysRunContext context, CancellationToken cancellationToken)
+        {
+            bool? current = context.ReadInput(InputName);
+            if (current != previous)
+                Debug.WriteLine(current == true ? "缺料" : current == false ? "料位正常" : "缺料信号不可用");
+            previous = current;
+            return Task.CompletedTask;
+        }
+    }
+}
+```
+
+`ReadInput` 返回配置处理后的有效电平，没配置、驱动未就绪或通讯失败时返回 `null`。每轮完成后等待 `IntervalMs` 再执行，同一个任务的两轮不会重叠。仿真模式跳过这些任务。异步读写可在 `RefreshAsync` 内等待实际完成，并把取消令牌传给支持取消的操作，关闭程序时会等待已开始的刷新退出。
 
 ## 3 登录 语言与型号管理
 

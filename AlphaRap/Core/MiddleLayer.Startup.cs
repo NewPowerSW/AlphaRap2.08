@@ -39,6 +39,7 @@ namespace AlphaRap
             FlowCtrl = new FlowControl(AlwaysRun, Application.Scan, Application.ResetLegacyInitialization);
             FlowCtrl.StartThread();
             if (recipeReady) ServoOn();
+            if (Application is StationApplication stationApplication) stationApplication.StartAlwaysRunTasks();
             ShowLoadingStage(reportProgress, "stage_Vision", "载入视觉算法", "Loading vision algorithms", "Cargando algoritmos de visión");
         }
 
@@ -125,6 +126,8 @@ namespace AlphaRap
         /// <summary>并行请求后台线程退出，所有实际操作结束后才关闭伺服。</summary>
         public static async System.Threading.Tasks.Task DisposeProjectAsync()
         {
+            var stationApplication = Application as StationApplication;
+            stationApplication?.RequestAlwaysRunStop();
             StopRun();
             if (!await MachineStopCompletion.ConfigureAwait(false)) throw new InvalidOperationException(MachineStopError);
             MachineState.Global.BeginStop();
@@ -135,7 +138,7 @@ namespace AlphaRap
             try { await ApplicationTasks.Global.StopAllAsync().ConfigureAwait(false); }
             finally
             {
-                if (Application is StationApplication stationApplication) stationApplication.ReleaseStationIo();
+                stationApplication?.ReleaseStationIo();
                 ServoOff();
             }
         }
