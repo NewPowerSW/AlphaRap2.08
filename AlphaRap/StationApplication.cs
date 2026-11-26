@@ -29,7 +29,7 @@ namespace AlphaRap
         internal void BindStationIo(HardwareResources resources)
         {
             if (Io != null) return;
-            Io = new StationIo(resources);
+            Io = new StationIo(resources, background.InputNames);
         }
 
         /// <summary>后台扫描停止后解除工站对硬件目录的订阅。</summary>

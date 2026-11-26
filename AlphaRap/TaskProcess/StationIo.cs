@@ -13,6 +13,8 @@ namespace AlphaRap.TaskProcess
     internal sealed class StationIo : IDisposable
     {
         private readonly HardwareResources resources;
+        private readonly string[] monitoredInputNames;
+        private volatile Dictionary<string, HardwareEntry> namedInputs = new Dictionary<string, HardwareEntry>(StringComparer.OrdinalIgnoreCase);
         private volatile Dictionary<string, HardwareEntry> points = new Dictionary<string, HardwareEntry>(StringComparer.OrdinalIgnoreCase);
         private static readonly string[] FlowPoints =
         {
@@ -74,17 +76,26 @@ namespace AlphaRap.TaskProcess
         }
 
         /// <summary>按当前语言显示工站点位，缺少配置时用原工艺键定位问题。</summary>
-        internal string Caption(string key)
+        private string Caption(string key)
         {
             points.TryGetValue(key, out HardwareEntry entry);
-            HardwareDefinition definition = entry?.Definition;
-            return definition == null ? key : HardwareResources.DisplayText(definition);
+            return DisplayName(entry, key);
+        }
+
+        /// <summary>为运行许可输入返回当前语言的显示文字。</summary>
+        internal string SafetyInputCaption(string key) { return DisplayName(FindSafetyInput(key), key); }
+
+        /// <summary>资源名称不可用时显示代码使用的查找键。</summary>
+        private static string DisplayName(HardwareEntry entry, string fallback)
+        {
+            return entry == null ? fallback : HardwareResources.DisplayText(entry.Definition);
         }
 
         /// <summary>缓存工艺用的 IO，配置重载后使用当前硬件目录。</summary>
-        internal StationIo(HardwareResources resources)
+        internal StationIo(HardwareResources resources, IEnumerable<string> monitoredInputNames)
         {
             this.resources = resources ?? throw new ArgumentNullException(nameof(resources));
+            this.monitoredInputNames = monitoredInputNames.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
             RefreshPoints(this, EventArgs.Empty);
             resources.Changed += RefreshPoints;
         }
@@ -100,13 +111,16 @@ namespace AlphaRap.TaskProcess
         /// <summary>替换目录快照，避免撤销配置后继续持有旧 IO 控件。</summary>
         private void RefreshPoints(object sender, EventArgs args)
         {
-            var current = resources.Entries.Where(entry => !string.IsNullOrEmpty(entry.Definition.StationKey))
+            var entries = resources.Entries;
+            var current = entries.Where(entry => !string.IsNullOrEmpty(entry.Definition.StationKey))
                 .ToDictionary(entry => entry.Definition.StationKey, StringComparer.OrdinalIgnoreCase);
             foreach (NP_Output point in points.Values.Select(entry => entry.Device).OfType<NP_Output>())
                 point.ManualStateChanged -= LogManualOutput;
             foreach (NP_Output point in current.Values.Select(entry => entry.Device).OfType<NP_Output>())
                 point.ManualStateChanged += LogManualOutput;
             points = current;
+            namedInputs = entries.Where(entry => entry.Device is NP_Input)
+                .ToDictionary(entry => entry.Definition.Name, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>手动操作仍按实际状态写入原操作日志。</summary>
@@ -124,7 +138,8 @@ namespace AlphaRap.TaskProcess
             if (SysPara.Simulation) return;
             var failures = new List<string>();
             var stationPoints = points.Values.Where(entry => !entry.Definition.ConnectionPending && IsSignalDirectionValid(entry.Definition.StationKey, entry.Device));
-            foreach (HardwareEntry entry in stationPoints.Concat(resources.CylinderOutputs()).Distinct())
+            var monitoredPoints = monitoredInputNames.Select(FindNamedInput).Where(entry => entry != null && !entry.Definition.ConnectionPending);
+            foreach (HardwareEntry entry in stationPoints.Concat(monitoredPoints).Concat(resources.CylinderOutputs()).Distinct())
             {
                 try { InitializePoint(entry.Device); }
                 catch (Exception error) { failures.Add(HardwareResources.DisplayText(entry.Definition) + " · " + error.Message); }
@@ -154,11 +169,30 @@ namespace AlphaRap.TaskProcess
             return !SysPara.Simulation && Ready(input) ? (bool?)input.IsOn() : null;
         }
 
-        /// <summary>读取监视输入的有效电平，现场可用硬件配置反转有效电平。</summary>
-        internal bool? ReadSafetyInput(string key)
+        /// <summary>读取运行许可输入，旧工站键优先，新输入可用资源名称。</summary>
+        internal bool? ReadSafetyInput(string key) { return ReadConfiguredInput(FindSafetyInput(key)); }
+
+        /// <summary>按手动页的资源名称读取普通监视输入。</summary>
+        internal bool? ReadNamedInput(string name) { return ReadConfiguredInput(FindNamedInput(name)); }
+
+        /// <summary>优先解析工站键，保留已有运行许可输入的稳定绑定。</summary>
+        private HardwareEntry FindSafetyInput(string key)
         {
-            HardwareEntry entry = Find(key);
-            if (resources.IsDirty || resources.RequiresRestart || !(entry?.Device is NP_Input input)) return null;
+            return points.TryGetValue(key, out HardwareEntry entry) ? entry : FindNamedInput(key);
+        }
+
+        /// <summary>从硬件目录快照按名称查找输入。</summary>
+        private HardwareEntry FindNamedInput(string name)
+        {
+            namedInputs.TryGetValue(name, out HardwareEntry entry);
+            return entry;
+        }
+
+        /// <summary>读取已保存输入，按配置转换电平并保留读取失败状态。</summary>
+        private bool? ReadConfiguredInput(HardwareEntry entry)
+        {
+            if (SysPara.Simulation || resources.IsDirty || resources.RequiresRestart) return null;
+            if (!(entry?.Device is NP_Input input) || entry.Definition.ConnectionPending) return null;
             bool? level = input.ReadState();
             return entry.Definition.ReverseState ? !level : level;
         }

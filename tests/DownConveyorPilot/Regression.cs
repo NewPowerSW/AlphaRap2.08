@@ -22,6 +22,7 @@ internal static class Regression
     {
         "IB_Front_EmergencyStop", "IB_Back_EmergencyStop", "IB_Air", "IB_SafetyReady"
     };
+    private const string WatchedInput = "IB_OfflineMaterialLow";
     private static int checks;
 
     /// <summary>模拟 SDK 驱动，在内存中保存点位状态。</summary>
@@ -50,6 +51,14 @@ internal static class Regression
         }
     }
 
+    private sealed class OfflineMonitoredInput : NP_Input
+    {
+        internal int Initializations;
+
+        /// <summary>记录驱动准备请求，离线测试不访问真实设备。</summary>
+        public override void Initial() { Initializations++; }
+    }
+
     /// <summary>把离线驱动装到机器配置生成的真实 IO 控件上。</summary>
     private sealed class Simulator
     {
@@ -62,7 +71,7 @@ internal static class Regression
             foreach (HardwareEntry entry in resources.Entries.Where(item => !item.Definition.ConnectionPending))
             {
                 var driver = new OfflineIo();
-                string key = entry.Definition.StationKey;
+                string key = string.IsNullOrEmpty(entry.Definition.StationKey) ? entry.Definition.Name : entry.Definition.StationKey;
                 Points.Add(key, driver);
                 var input = entry.Device as NP_Input;
                 if (input != null)
@@ -123,10 +132,18 @@ internal static class Regression
         {
             SaveOfflineSettings(hardware.ResourceDefaults);
             ApplicationHost.RegisterModule(hardware);
+            var watchedStates = new List<bool>();
+            object background = app.GetType().GetField("background", Instance).GetValue(app);
+            MethodInfo watch = background.GetType().GetMethod("WatchInput", Instance);
+            watch.Invoke(background, new object[] { WatchedInput, new Action<bool>(watchedStates.Add) });
+            int missingNotifications = 0;
+            watch.Invoke(background, new object[] { "IB_OptionalMissing", new Action<bool>(_ => missingNotifications++) });
             app.GetType().GetMethod("BindStationIo", Instance).Invoke(app, new object[] { hardware.Resources });
             var simulator = new Simulator(hardware.Resources);
             VerifyWithoutManualPage(app, hardware.Resources);
             VerifySafetyMonitor(app, simulator);
+            VerifyNamedWatch(app, hardware.Resources, simulator, watchedStates);
+            Check(missingNotifications == 0, "A missing optional input must not fire a callback.");
             Flow_BaseForm[] stations = app.CreateStations().ToArray();
             try
             {
@@ -217,6 +234,63 @@ internal static class Regression
         Alarm.Clear();
     }
 
+    /// <summary>验证界面配置的普通输入可直接按名称初始化、采样及处理读数失效。</summary>
+    private static void VerifyNamedWatch(MachineApplication app, HardwareResources resources, Simulator simulator, List<bool> watchedStates)
+    {
+        object io = app.GetType().GetProperty("Io", Static).GetValue(null, null);
+        HardwareEntry entry = resources.Entries.Single(item => item.Definition.Name == WatchedInput);
+        Check(string.IsNullOrEmpty(entry.Definition.StationKey), "A normal dynamic input must work without a template key.");
+        foreach (HardwareEntry input in resources.Entries.Where(item => !item.Definition.ConnectionPending && item.Device is NP_Input))
+        {
+            string name = string.IsNullOrEmpty(input.Definition.StationKey) ? input.Definition.Name : input.Definition.StationKey;
+            simulator.SetInput(name, false);
+        }
+
+        NP_Input original = (NP_Input)entry.Device;
+        using (var probe = new OfflineMonitoredInput())
+        {
+            entry.Device = probe;
+            try { io.GetType().GetMethod("Initialize", Instance).Invoke(io, null); }
+            catch (TargetInvocationException error)
+            {
+                Check(error.InnerException is InvalidOperationException, "Only the unconfigured legacy station points should fail preflight.");
+            }
+            finally { entry.Device = original; }
+            Check(probe.Initializations == 1, "The named input must be prepared through station initialization.");
+        }
+
+        simulator.SetInput(WatchedInput, false);
+        Thread.Sleep(120);
+        app.Scan();
+        Check(watchedStates.SequenceEqual(new[] { true }), "The first valid, inverted value must reach the callback.");
+        Check(Equals(io.GetType().GetMethod("ReadSafetyInput", Instance).Invoke(io, new object[] { WatchedInput }), true),
+            "A new safety input can also be resolved by name.");
+        Thread.Sleep(120);
+        app.Scan();
+        Check(watchedStates.Count == 1, "Stable state must not repeat the callback.");
+
+        simulator.Points[WatchedInput].InputReadFailed = true;
+        Thread.Sleep(120);
+        app.Scan();
+        Check(watchedStates.Count == 1, "Read failure must not be published as OFF.");
+
+        simulator.Points[WatchedInput].InputReadFailed = false;
+        Thread.Sleep(120);
+        app.Scan();
+        Check(watchedStates.SequenceEqual(new[] { true, true }), "An available input must publish its first valid value after recovery.");
+        simulator.SetInput(WatchedInput, true);
+        Thread.Sleep(120);
+        app.Scan();
+        Check(watchedStates.SequenceEqual(new[] { true, true, false }), "Changes must use the configured effective state.");
+
+        foreach (HardwareEntry input in resources.Entries.Where(item => !item.Definition.ConnectionPending && item.Device is NP_Input))
+        {
+            string name = string.IsNullOrEmpty(input.Definition.StationKey) ? input.Definition.Name : input.Definition.StationKey;
+            simulator.SetInput(name, null);
+        }
+        Alarm.Clear();
+    }
+
     /// <summary>为离线用例中的下料及监视点位分配独立地址。</summary>
     private static void SaveOfflineSettings(HardwareProject project)
     {
@@ -228,6 +302,12 @@ internal static class Regression
             point.ConnectionPending = false;
             point.ReverseState = point.StationKey == "IB_Back_EmergencyStop";
         }
+
+        project.Resources.Add(new HardwareDefinition
+        {
+            Kind = "Input", Name = WatchedInput, IoPageId = project.IoPages[0].Id,
+            Port = "001" + pointIndex.ToString("D2"), ReverseState = true
+        });
 
         string path = Path.Combine(SysPara.SettingDataDirectory, "HardwareResources.xml");
         using (var stream = File.Create(path)) new XmlSerializer(typeof(HardwareProject)).Serialize(stream, project);
